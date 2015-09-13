@@ -32,7 +32,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
@@ -590,16 +590,17 @@ namespace TrenchBroom {
                 return false;
             
             Polyhedron3 polyhedron;
+            
             if (hasSelectedBrushFaces()) {
                 const Model::BrushFaceList& faces = selectedBrushFaces();
                 Model::BrushFaceList::const_iterator fIt, fEnd;
                 for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
                     const Model::BrushFace* face = *fIt;
-                    const Model::BrushVertexList& vertices = face->vertices();
-                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    const Model::BrushFace::VertexList vertices = face->vertices();
+                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
                     for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                         const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position);
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
@@ -607,11 +608,11 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     const Model::Brush* brush = *bIt;
-                    const Model::BrushVertexList& vertices = brush->vertices();
-                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    const Model::Brush::VertexList vertices = brush->vertices();
+                    Model::Brush::VertexList::const_iterator vIt, vEnd;
                     for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                         const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position);
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             }

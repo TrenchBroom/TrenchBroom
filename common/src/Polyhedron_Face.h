@@ -20,27 +20,30 @@
 #ifndef TrenchBroom_Polyhedron_Face_h
 #define TrenchBroom_Polyhedron_Face_h
 
-template <typename T>
-typename Polyhedron<T>::FaceLink& Polyhedron<T>::FaceList::doGetLink(Face* face) const {
-    return face->m_link;
-}
+template <typename T, typename FP>
+class Polyhedron<T,FP>::GetFaceLink {
+public:
+    typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const {
+        return face->m_link;
+    }
+    
+    const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const {
+        return face->m_link;
+    }
+};
 
-template <typename T>
-const typename Polyhedron<T>::FaceLink& Polyhedron<T>::FaceList::doGetLink(const Face* face) const {
-    return face->m_link;
-}
-
-template <typename T>
-class Polyhedron<T>::Face {
+template <typename T, typename FP> template <typename P>
+class Polyhedron<T,FP>::FaceT : public Allocator<FaceT<P> > {
 private:
-    friend class FaceList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
+    // Boundary is counter clockwise.
     HalfEdgeList m_boundary;
+    P* m_payload;
     FaceLink m_link;
 private:
-    Face(const HalfEdgeList& boundary) :
-    m_boundary(boundary),
+    FaceT(HalfEdgeList& boundary) :
+    m_payload(NULL),
 #ifdef _MSC_VER
 		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
 #pragma warning(push)
@@ -51,19 +54,29 @@ private:
 		m_link(this)
 #endif
 	{
-        assert(m_boundary.size() >= 3);
+        using std::swap;
+        swap(m_boundary, boundary);
         
-        typename HalfEdgeList::iterator hIt, hEnd;
-        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
-            HalfEdge* edge = *hIt;
-            edge->setFace(this);
-        }
+        assert(m_boundary.size() >= 3);
+        updateBoundaryFaces(this);
     }
 public:
-    ~Face() {
-        m_boundary.deleteAll();
+    P* payload() const {
+        return m_payload;
     }
     
+    void setPayload(P* payload) {
+        m_payload = payload;
+    }
+    
+    Face* next() const {
+        return m_link.next();
+    }
+    
+    Face* previous() const {
+        return m_link.previous();
+    }
+
     size_t vertexCount() const {
         return m_boundary.size();
     }
@@ -91,17 +104,23 @@ public:
     }
     
     V normal() const {
-        typename HalfEdgeList::const_iterator it  = m_boundary.begin();
-        const HalfEdge* edge = *it++;
-        const V p1 = edge->origin()->position();
-        
-        edge = *it++;
-        const V p2 = edge->origin()->position();
-        
-        edge = *it++;
-        const V p3 = edge->origin()->position();
-        
-        return crossed(p2 - p1, p3 - p1).normalized();
+        const HalfEdge* first = m_boundary.front();
+        const HalfEdge* current = first;
+        V cross;
+        do {
+            const V& p1 = current->origin()->position();
+            const V& p2 = current->next()->origin()->position();
+            const V& p3 = current->next()->next()->origin()->position();
+            cross = crossed(p2 - p1, p3 - p1);
+            if (!cross.null())
+                return cross.normalized();
+            current = current->next();
+        } while (first != current);
+        return cross;
+    }
+    
+    V center() const {
+        return V::center(m_boundary.begin(), m_boundary.end(), GetVertexPosition());
     }
     
     T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const {
@@ -170,11 +189,25 @@ private:
         m_boundary.reverse();
     }
     
-    void removeFromBoundary(HalfEdge* edge) {
-        removeFromBoundary(edge, edge);
+    void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge) {
+        assert(before != NULL);
+        assert(edge != NULL);
+        assert(before->face() == this);
+        assert(edge->face() == this);
+        
+        m_boundary.insertBefore(before, edge, 1);
+    }
+
+    void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge) {
+        assert(after != NULL);
+        assert(edge != NULL);
+        assert(after->face() == this);
+        assert(edge->face() == this);
+        
+        m_boundary.insertAfter(after, edge, 1);
     }
     
-    void removeFromBoundary(HalfEdge* from, HalfEdge* to) {
+    size_t removeFromBoundary(HalfEdge* from, HalfEdge* to) {
         assert(from != NULL);
         assert(to != NULL);
         assert(from->face() == this);
@@ -182,13 +215,19 @@ private:
         
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
         m_boundary.remove(from, to, removeCount);
+        return removeCount;
     }
     
-    void replaceBoundary(HalfEdge* edge, HalfEdge* with) {
-        replaceBoundary(edge, edge, with);
+    size_t removeFromBoundary(HalfEdge* edge) {
+        removeFromBoundary(edge, edge);
+        return 1;
     }
     
-    void replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
+    size_t replaceBoundary(HalfEdge* edge, HalfEdge* with) {
+        return replaceBoundary(edge, edge, with);
+    }
+    
+    size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
         assert(from != NULL);
         assert(to != NULL);
         assert(with != NULL);
@@ -199,8 +238,17 @@ private:
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
         const size_t insertCount = countAndSetFace(with, with, this);
         m_boundary.replace(from, to, removeCount, with, insertCount);
+        return removeCount;
     }
     
+    void replaceEntireBoundary(HalfEdgeList& newBoundary) {
+        using std::swap;
+        
+        updateBoundaryFaces(NULL);
+        swap(m_boundary, newBoundary);
+        updateBoundaryFaces(this);
+    }
+
     size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face) {
         size_t count = 0;
         HalfEdge* cur = from;
@@ -210,6 +258,14 @@ private:
             ++count;
         } while (cur != until);
         return count;
+    }
+    
+    void updateBoundaryFaces(Face* face) {
+        typename HalfEdgeList::iterator hIt, hEnd;
+        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
+            HalfEdge* edge = *hIt;
+            edge->setFace(face);
+        }
     }
 };
 

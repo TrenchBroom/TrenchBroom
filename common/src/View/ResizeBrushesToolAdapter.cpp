@@ -22,9 +22,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Reference.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -111,14 +110,14 @@ namespace TrenchBroom {
             
             const Model::BrushFaceList& dragFaces = m_tool->dragFaces();
             Model::BrushFaceList::const_iterator faceIt, faceEnd;
-            Model::BrushEdgeList::const_iterator edgeIt, edgeEnd;
+            Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
             for (faceIt = dragFaces.begin(), faceEnd = dragFaces.end(); faceIt != faceEnd; ++faceIt) {
                 const Model::BrushFace* face = *faceIt;
-                const Model::BrushEdgeList& edges = face->edges();
+                const Model::BrushFace::EdgeList edges = face->edges();
                 for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                     const Model::BrushEdge* edge = *edgeIt;
-                    vertices.push_back(Vertex(edge->start->position));
-                    vertices.push_back(Vertex(edge->end->position));
+                    vertices.push_back(Vertex(edge->firstVertex()->position()));
+                    vertices.push_back(Vertex(edge->secondVertex()->position()));
                 }
             }
             

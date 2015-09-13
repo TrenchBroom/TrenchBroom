@@ -20,22 +20,22 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
-template <typename T>
-typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(Vertex* vertex) const {
-    return vertex->m_link;
-}
+template <typename T, typename FP>
+class Polyhedron<T,FP>::GetVertexLink {
+public:
+    typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(Vertex* vertex) const {
+        return vertex->m_link;
+    }
+    
+    const typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(const Vertex* vertex) const {
+        return vertex->m_link;
+    }
+};
 
-template <typename T>
-const typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(const Vertex* vertex) const {
-    return vertex->m_link;
-}
-
-template <typename T>
-class Polyhedron<T>::Vertex {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Vertex : public Allocator<Vertex> {
 private:
-    friend class HalfEdge;
-    friend class VertexList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
     V m_position;
     VertexLink m_link;
@@ -57,11 +57,19 @@ public:
     const V& position() const {
         return m_position;
     }
-private:
+
+    Vertex* next() const {
+        return m_link.next();
+    }
+    
+    Vertex* previous() const {
+        return m_link.previous();
+    }
+
     HalfEdge* leaving() const {
         return m_leaving;
     }
-    
+private:
     HalfEdge* findConnectingEdge(const Vertex* vertex) const {
         assert(vertex != NULL);
         assert(m_leaving != NULL);

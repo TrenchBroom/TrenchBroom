@@ -20,23 +20,22 @@
 #ifndef TrenchBroom_Polyhedron_HalfEdge_h
 #define TrenchBroom_Polyhedron_HalfEdge_h
 
-template <typename T>
-typename Polyhedron<T>::HalfEdgeLink& Polyhedron<T>::HalfEdgeList::doGetLink(HalfEdge* edge) const {
-    return edge->m_link;
-}
+template <typename T, typename FP>
+class Polyhedron<T,FP>::GetHalfEdgeLink {
+public:
+    typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(HalfEdge* halfEdge) const {
+        return halfEdge->m_link;
+    }
+    
+    const typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(const HalfEdge* halfEdge) const {
+        return halfEdge->m_link;
+    }
+};
 
-template <typename T>
-const typename Polyhedron<T>::HalfEdgeLink& Polyhedron<T>::HalfEdgeList::doGetLink(const HalfEdge* edge) const {
-    return edge->m_link;
-}
-
-template <typename T>
-class Polyhedron<T>::HalfEdge {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::HalfEdge : public Allocator<HalfEdge> {
 private:
-    friend class Edge;
-    friend class HalfEdgeList;
-    friend class Face;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 public:
     struct GetOriginPosition {
         const V& operator()(const HalfEdge* edge) const { return edge->origin()->position(); }
@@ -127,6 +126,17 @@ public:
             edge = edge->next();
         }
         return true;
+    }
+    
+    String asString() const {
+        StringStream str;
+        origin()->position().write(str);
+        str << " --> ";
+        if (destination() != NULL)
+            destination()->position().write(str);
+        else
+            str << "NULL";
+        return str.str();
     }
 private:
     bool isLeavingEdge() const {

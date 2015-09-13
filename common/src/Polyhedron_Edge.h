@@ -20,27 +20,28 @@
 #ifndef TrenchBroom_Polyhedron_Edge_h
 #define TrenchBroom_Polyhedron_Edge_h
 
-template <typename T>
-typename Polyhedron<T>::EdgeLink& Polyhedron<T>::EdgeList::doGetLink(Edge* edge) const {
-    return edge->m_link;
-}
+template <typename T, typename FP>
+class Polyhedron<T,FP>::GetEdgeLink {
+public:
+    typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const {
+        return edge->m_link;
+    }
+    
+    const typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(const Edge* edge) const {
+        return edge->m_link;
+    }
+};
 
-template <typename T>
-const typename Polyhedron<T>::EdgeLink& Polyhedron<T>::EdgeList::doGetLink(const Edge* edge) const {
-    return edge->m_link;
-}
-
-template <typename T>
-class Polyhedron<T>::Edge {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Edge : public Allocator<Edge> {
 private:
-    friend class EdgeList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
     HalfEdge* m_first;
     HalfEdge* m_second;
     EdgeLink m_link;
 private:
-    Edge(HalfEdge* first, HalfEdge* second) :
+    Edge(HalfEdge* first, HalfEdge* second = NULL) :
     m_first(first),
     m_second(second),
 #ifdef _MSC_VER
@@ -54,26 +55,9 @@ private:
 #endif
 	{
         assert(m_first != NULL);
-        assert(m_second != NULL);
         m_first->setEdge(this);
-        m_second->setEdge(this);
-    }
-    
-    Edge(HalfEdge* first) :
-    m_first(first),
-    m_second(NULL),
-#ifdef _MSC_VER
-		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
-#pragma warning(push)
-#pragma warning(disable : 4355)
-	m_link(this)
-#pragma warning(pop)
-#else
-	m_link(this)
-#endif
-	{
-        assert(m_first != NULL);
-        m_first->setEdge(this);
+        if (m_second != NULL)
+            m_second->setEdge(this);
     }
 public:
     Vertex* firstVertex() const {
@@ -112,6 +96,15 @@ public:
         if (halfEdge == m_first)
             return m_second;
         return m_first;
+    }
+    
+    V vector() const {
+        return secondVertex()->position() - firstVertex()->position();
+    }
+    
+    V center() const {
+        assert(fullySpecified());
+        return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);
     }
     
     Face* firstFace() const {
@@ -156,9 +149,66 @@ public:
     }
     
     bool contains(const V& point, const T maxDistance = Math::Constants<T>::almostZero()) const {
-        return point.distanceToSegment(firstVertex()->position(), secondVertex()->position() < maxDistance);
+        return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
+    }
+
+    Edge* next() const {
+        return m_link.next();
+    }
+    
+    Edge* previous() const {
+        return m_link.previous();
     }
 private:
+    Edge* split(const Plane<T,3>& plane) {
+        // Do exactly what QBSP is doing:
+        const T startDist = plane.pointDistance(firstVertex()->position());
+        const T endDist = plane.pointDistance(secondVertex()->position());
+
+        assert(startDist != endDist);
+        const T dot = startDist / (startDist - endDist);
+        
+        const V& startPos = firstVertex()->position();
+        const V& endPos = secondVertex()->position();
+        V position;
+        for (size_t i = 0; i < 3; ++i) {
+            if (plane.normal[i] == 1.0)
+                position[i] = plane.distance;
+            else if (plane.normal[i] == -1.0)
+                position[i] = -plane.distance;
+            else
+                position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
+        }
+        
+        // cheat a little bit?, just like QBSP
+        position.correct();
+        return insertVertex(position);
+    }
+
+    Edge* splitAtCenter() {
+        return insertVertex(center());
+    }
+
+    Edge* insertVertex(const V& position) {
+        Vertex* newVertex = new Vertex(position);
+        HalfEdge* newFirstEdge = new HalfEdge(newVertex);
+        HalfEdge* oldFirstEdge = firstEdge();
+        HalfEdge* newSecondEdge = new HalfEdge(newVertex);
+        HalfEdge* oldSecondEdge = secondEdge();
+        
+        newFirstEdge->setFace(firstFace());
+        newSecondEdge->setFace(secondFace());
+        
+        firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
+        secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
+        
+        unsetSecondEdge();
+        setSecondEdge(newSecondEdge);
+        
+        Edge* newEdge = new Edge(newFirstEdge, oldSecondEdge);
+        return newEdge;
+    }
+    
     void flip() {
         using std::swap;
         swap(m_first, m_second);

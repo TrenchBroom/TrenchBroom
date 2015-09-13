@@ -20,7 +20,7 @@
 #include "SnapBrushVerticesCommand.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -44,15 +44,15 @@ namespace TrenchBroom {
             Vec3::List vertexPositions;
             
             Model::BrushList::const_iterator bIt, bEnd;
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            Model::Brush::VertexList::const_iterator vIt, vEnd;
             
             for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
+                const Model::Brush::VertexList vertices = brush->vertices();
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Model::BrushVertex* vertex = *vIt;
-                    brushVertices[brush].push_back(vertex->position);
-                    vertexPositions.push_back(vertex->position);
+                    brushVertices[brush].push_back(vertex->position());
+                    vertexPositions.push_back(vertex->position());
                 }
             }
             
@@ -75,7 +75,8 @@ namespace TrenchBroom {
         }
 
         void SnapBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.reselectVertexHandles(brushes, m_newVertexPositions, 0.01);
+            const Model::BrushSet brushSet(brushes.begin(), brushes.end());
+            manager.reselectVertexHandles(brushSet, m_newVertexPositions, 0.01);
         }
         
         void SnapBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {

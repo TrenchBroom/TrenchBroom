@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
@@ -106,15 +106,26 @@ namespace TrenchBroom {
             size_t selectedFaceCount() const;
             size_t totalSelectedFaceCount() const;
             
-            Model::BrushList selectedBrushes() const;
-            const Model::BrushList& brushes(const Vec3& handlePosition) const;
-            const Model::BrushEdgeList& edges(const Vec3& handlePosition) const;
-            const Model::BrushFaceList& faces(const Vec3& handlePosition) const;
+            Model::BrushSet selectedBrushes() const;
+            const Model::BrushSet& brushes(const Vec3& handlePosition) const;
+            const Model::BrushEdgeSet& edges(const Vec3& handlePosition) const;
+            const Model::BrushFaceSet& faces(const Vec3& handlePosition) const;
             
             void addBrush(Model::Brush* brush);
-            void addBrushes(const Model::BrushList& brushes);
             void removeBrush(Model::Brush* brush);
-            void removeBrushes(const Model::BrushList& brushes);
+            
+            template <typename I>
+            void addBrushes(I cur, I end) {
+                while (cur != end)
+                    addBrush(*cur++);
+            }
+            
+            template <typename I>
+            void removeBrushes(I cur, I end) {
+                while (cur != end)
+                    removeBrush(*cur++);
+            }
+            
             void clear();
             
             void selectVertexHandle(const Vec3& position);
@@ -141,47 +152,47 @@ namespace TrenchBroom {
             bool hasSelectedHandles() const;
             void deselectAllHandles();
             
-            void reselectVertexHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
-            void reselectEdgeHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
-            void reselectFaceHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
+            void reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
+            void reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
+            void reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
             
             void pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool splitMode);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
         private:
             template <typename Element>
-            inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& map) {
-                typedef std::vector<Element*> List;
-                typedef std::map<Vec3, List, Vec3::LexicographicOrder> Map;
+            inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& map) {
+                typedef std::set<Element*> Set;
+                typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = map.find(position);
                 if (mapIt == map.end())
                     return false;
                 
-                List& elements = mapIt->second;
-                typename List::iterator listIt = std::find(elements.begin(), elements.end(), element);
-                if (listIt == elements.end())
+                Set& elements = mapIt->second;
+                typename Set::iterator setIt = elements.find(element);
+                if (setIt == elements.end())
                     return false;
                 
-                elements.erase(listIt);
+                elements.erase(setIt);
                 if (elements.empty())
                     map.erase(mapIt);
                 return true;
             }
             
             template <typename Element>
-            inline size_t moveHandle(const Vec3& position, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& from, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& to) {
-                typedef std::vector<Element*> List;
-                typedef std::map<Vec3, List, Vec3::LexicographicOrder> Map;
+            inline size_t moveHandle(const Vec3& position, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& from, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& to) {
+                typedef std::set<Element*> Set;
+                typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = from.find(position);
                 if (mapIt == from.end())
                     return 0;
                 
-                List& fromElements = mapIt->second;
-                List& toElements = to[position];
+                Set& fromElements = mapIt->second;
+                Set& toElements = to[position];
                 const size_t elementCount = fromElements.size();
-                toElements.insert(toElements.end(), fromElements.begin(), fromElements.end());
+                toElements.insert(fromElements.begin(), fromElements.end());
                 
                 from.erase(mapIt);
                 return elementCount;
@@ -198,9 +209,9 @@ namespace TrenchBroom {
                 }
             }
 
-            Vec3::List findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
-            Vec3::List findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
-            Vec3::List findFaceHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::List findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::List findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::List findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
             
             Model::Hit pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Model::Hit::HitType type) const;
             void validateRenderState(bool splitMode);

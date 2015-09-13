@@ -26,7 +26,7 @@
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
@@ -337,15 +337,15 @@ namespace TrenchBroom {
                 if (m_face != NULL) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     
-                    const Model::BrushVertexList& vertices = m_face->vertices();
+                    const Model::BrushFace::VertexList vertices = m_face->vertices();
                     
                     Vec3f::List positions;
                     positions.reserve(vertices.size());
                     
-                    Model::BrushVertexList::const_iterator it, end;
+                    Model::BrushFace::VertexList::const_iterator it, end;
                     for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                         const Model::BrushVertex* vertex = *it;
-                        positions.push_back(vertex->position);
+                        positions.push_back(vertex->position());
                     }
                     
                     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));

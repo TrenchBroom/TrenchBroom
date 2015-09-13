@@ -22,9 +22,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
@@ -202,7 +201,7 @@ namespace TrenchBroom {
             assert(valid());
             
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const BBox3 bounds(toTex * vertexPositions(m_face->vertices()));
+            const BBox3 bounds(toTex * Vec3::asList(m_face->vertices().begin(), m_face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
             
             const Vec3 vertices[] = {
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
@@ -267,10 +266,13 @@ namespace TrenchBroom {
             const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            result.min = result.max = transform * vertices[0]->position;
-            for (size_t i = 1; i < vertices.size(); ++i)
-                result.mergeWith(transform * vertices[i]->position);
+            const Model::BrushFace::VertexList vertices = m_face->vertices();
+            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
+            Model::BrushFace::VertexList::const_iterator end = vertices.end();
+            
+            result.min = result.max = transform * (*it++)->position();
+            while (it != end)
+                result.mergeWith(transform * (*it++)->position());
             return result;
         }
     }

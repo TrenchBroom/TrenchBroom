@@ -17,29 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveBrushFacesAlgorithm__
-#define __TrenchBroom__MoveBrushFacesAlgorithm__
-
-#include "Model/MoveBrushVertexAlgorithm.h"
+#ifndef __TrenchBroom__BrushGeometryCallback__
+#define __TrenchBroom__BrushGeometryCallback__
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Model/BrushGeometry.h"
+#include "Polyhedron.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class MoveBrushFacesAlgorithm : public MoveBrushVertexAlgorithm<MoveFacesResult> {
+        class BrushFace;
+        
+        class BrushGeometryCallback : public Polyhedron<FloatType, BrushFace>::Callback {
         private:
-            const BBox3& m_worldBounds;
-            const Polygon3::List& m_faces;
-            const Vec3& m_delta;
+            typedef Polyhedron<FloatType, BrushFace>::Face PolyFace;
         public:
-            MoveBrushFacesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Polygon3::List& faces, const Vec3& delta);
-        private:
-            bool doCanExecute(BrushGeometry& geometry);
-            MoveFacesResult doExecute(BrushGeometry& geometry);
+            void faceWasCreated(PolyFace* face);
+            void faceWillBeDeleted(PolyFace* face);
+            void faceWasSplit(PolyFace* original, PolyFace* clone);
+            void facesWillBeMerged(PolyFace* remaining, PolyFace* toDelete);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveBrushFacesAlgorithm__) */
+#endif /* defined(__TrenchBroom__BrushGeometryCallback__) */

@@ -22,7 +22,7 @@
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
@@ -299,15 +299,15 @@ namespace TrenchBroom {
             assert(m_helper.valid()); 
             
             const Model::BrushFace* face = m_helper.face();
-            const Model::BrushVertexList& faceVertices = face->vertices();
-            const size_t vertexCount = faceVertices.size();
+            const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List edgeVertices;
-            edgeVertices.reserve(vertexCount);
+            edgeVertices.reserve(faceVertices.size());
             
-            for (size_t i = 0; i < vertexCount; ++i)
-                edgeVertices.push_back(Vertex(faceVertices[i]->position));
+            Model::BrushFace::VertexList::const_iterator it, end;
+            for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
+                edgeVertices.push_back(Vertex((*it)->position()));
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             

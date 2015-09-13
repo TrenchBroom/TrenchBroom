@@ -23,7 +23,7 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -208,6 +208,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 const Vec3 snapped = m_grid.snap(hit.hitPoint(), face->boundary());
+                
                 m_polyhedron.addPoint(snapped);
                 m_tool->updateBrush(m_polyhedron);
                 
@@ -227,9 +228,10 @@ namespace TrenchBroom {
 
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 
-                const Model::BrushVertexList& vertices = face->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i)
-                    m_polyhedron.addPoint(vertices[i]->position);
+                const Model::BrushFace::VertexList vertices = face->vertices();
+                Model::BrushFace::VertexList::const_iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                    m_polyhedron.addPoint((*it)->position());
                 m_tool->updateBrush(m_polyhedron);
                 
                 return true;

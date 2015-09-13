@@ -20,9 +20,8 @@
 #include "ResizeBrushesTool.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/FindMatchingBrushFaceVisitor.h"
 #include "Model/HitAdapter.h"
@@ -81,20 +80,20 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group)   {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush)   {
-                const Model::BrushEdgeList& edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it)
                     visitEdge(*it);
             }
             
             void visitEdge(Model::BrushEdge* edge) {
-                Model::BrushFace* left = edge->leftFace();
-                Model::BrushFace* right = edge->rightFace();
+                Model::BrushFace* left = edge->firstFace()->payload();
+                Model::BrushFace* right = edge->secondFace()->payload();
                 const double leftDot = left->boundary().normal.dot(m_pickRay.direction);
                 const double rightDot = right->boundary().normal.dot(m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->start->position, edge->end->position);
+                    const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->firstVertex()->position(), edge->secondVertex()->position());
                     if (!Math::isnan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const Vec3 hitPoint = m_pickRay.pointAtDistance(result.rayDistance);

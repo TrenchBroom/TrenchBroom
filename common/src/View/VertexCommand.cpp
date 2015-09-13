@@ -20,9 +20,8 @@
 #include "VertexCommand.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceGeometry.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
@@ -43,11 +42,11 @@ namespace TrenchBroom {
 
             typedef std::pair<Model::BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            Model::BrushList::const_iterator bIt, bEnd;
+            Model::BrushSet::const_iterator bIt, bEnd;
             
             for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                 const Vec3& position = vIt->first;
-                const Model::BrushList& vertexBrushes = vIt->second;
+                const Model::BrushSet& vertexBrushes = vIt->second;
                 for (bIt = vertexBrushes.begin(), bEnd = vertexBrushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     BrushVerticesMapInsertResult result = brushVertices.insert(std::make_pair(brush, Vec3::List()));
@@ -63,12 +62,12 @@ namespace TrenchBroom {
             typedef std::pair<Model::BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
             Model::VertexToEdgesMap::const_iterator vIt, vEnd;
             for (vIt = edges.begin(), vEnd = edges.end(); vIt != vEnd; ++vIt) {
-                const Model::BrushEdgeList& mappedEdges = vIt->second;
-                Model::BrushEdgeList::const_iterator eIt, eEnd;
+                const Model::BrushEdgeSet& mappedEdges = vIt->second;
+                Model::BrushEdgeSet::const_iterator eIt, eEnd;
                 for (eIt = mappedEdges.begin(), eEnd = mappedEdges.end(); eIt != eEnd; ++eIt) {
                     Model::BrushEdge* edge = *eIt;
-                    Model::Brush* brush = edge->leftFace()->brush();
-                    const Edge3 edgePosition = edge->edgeInfo();
+                    Model::Brush* brush = edge->firstFace()->payload()->brush();
+                    const Edge3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
                     
                     BrushEdgesMapInsertResult result = brushEdges.insert(std::make_pair(brush, Edge3::List()));
                     if (result.second)
@@ -86,14 +85,12 @@ namespace TrenchBroom {
             typedef std::pair<Model::BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
             Model::VertexToFacesMap::const_iterator vIt, vEnd;
             for (vIt = faces.begin(), vEnd = faces.end(); vIt != vEnd; ++vIt) {
-                const Model::BrushFaceList& mappedFaces = vIt->second;
-                Model::BrushFaceList::const_iterator eIt, eEnd;
+                const Model::BrushFaceSet& mappedFaces = vIt->second;
+                Model::BrushFaceSet::const_iterator eIt, eEnd;
                 for (eIt = mappedFaces.begin(), eEnd = mappedFaces.end(); eIt != eEnd; ++eIt) {
                     Model::BrushFace* face = *eIt;
                     Model::Brush* brush = face->brush();
-                    Model::BrushFaceGeometry* side = face->side();
-                    assert(side != NULL);
-                    const Polygon3 facePosition = side->faceInfo();
+                    const Polygon3 facePosition(Vec3::asList(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
                     
                     BrushFacesMapInsertResult result = brushFaces.insert(std::make_pair(brush, Polygon3::List()));
                     if (result.second)
@@ -140,11 +137,11 @@ namespace TrenchBroom {
         }
 
         void VertexCommand::removeBrushes(VertexHandleManager& manager) {
-            manager.removeBrushes(m_brushes);
+            manager.removeBrushes(m_brushes.begin(), m_brushes.end());
         }
         
         void VertexCommand::addBrushes(VertexHandleManager& manager) {
-            manager.addBrushes(m_brushes);
+            manager.addBrushes(m_brushes.begin(), m_brushes.end());
         }
         
         void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) {

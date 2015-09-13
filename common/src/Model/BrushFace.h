@@ -23,11 +23,12 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Allocator.h"
+#include "ProjectingSequence.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
 #include "Renderer/TriangleMesh.h"
@@ -42,7 +43,6 @@ namespace TrenchBroom {
     
     namespace Model {
         class Brush;
-        class BrushFaceGeometry;
         class BrushFaceSnapshot;
         
         class BrushFace {
@@ -58,11 +58,25 @@ namespace TrenchBroom {
              * 0-----------2
              */
             typedef Vec3 Points[3];
-            
-            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
-            typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
+        private:
+            typedef Renderer::VertexSpecs::P3NT2 MeshVertexSpec;
+            typedef MeshVertexSpec::Vertex MeshVertex;
+        public:
+            typedef Renderer::TriangleMesh<MeshVertexSpec, const Assets::Texture*> Mesh;
             static const String NoTextureName;
+        private:
+            struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
+                static Type project(BrushHalfEdge* halfEdge);
+                static ConstType projectConst(BrushHalfEdge* halfEdge);
+            };
+            
+            struct ProjectToEdge : public ProjectingSequenceProjector<BrushHalfEdge*, BrushEdge*> {
+                static Type project(BrushHalfEdge* halfEdge);
+                static ConstType projectConst(BrushHalfEdge* halfEdge);
+            };
+        public:
+            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex> VertexList;
+            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToEdge> EdgeList;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
@@ -72,8 +86,8 @@ namespace TrenchBroom {
             bool m_selected;
             
             TexCoordSystem* m_texCoordSystem;
-            BrushFaceGeometry* m_side;
-            mutable Vertex::List m_cachedVertices;
+            BrushFaceGeometry* m_geometry;
+            mutable MeshVertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
         protected:
             BrushFaceAttributes m_attribs;
@@ -158,11 +172,11 @@ namespace TrenchBroom {
             float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
             
             size_t vertexCount() const;
-            const BrushEdgeList& edges() const;
-            const BrushVertexList& vertices() const;
+            EdgeList edges() const;
+            VertexList vertices() const;
             
-            BrushFaceGeometry* side() const;
-            void setSide(BrushFaceGeometry* side);
+            BrushFaceGeometry* geometry() const;
+            void setGeometry(BrushFaceGeometry* geometry);
             
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             

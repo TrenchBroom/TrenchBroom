@@ -353,6 +353,11 @@ namespace VectorUtils {
         vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
     }
     
+    template <typename T, typename I>
+    void eraseAll(std::vector<T*>& vec, I cur, I end) {
+        vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), cur, end), vec.end());
+    }
+    
     template <typename T>
     std::vector<T*> eraseAll(const std::vector<T*>& vec, const std::vector<T*>& items) {
         std::vector<T*> result(vec);
@@ -795,6 +800,11 @@ namespace MapUtils {
             VectorUtils::clearAndDelete(entry.second);
         }
     };
+
+    template <typename K, typename V>
+    bool contains(const std::map<K, V>& map, const K& key) {
+        return map.find(key) != map.end();
+    }
     
     template <typename K, typename V, typename L>
     const V& find(const std::map<K, V>& map, const L& key, const V& defaultValue) {

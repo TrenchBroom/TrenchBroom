@@ -22,12 +22,12 @@
 
 #include <iterator>
 
-template <typename Item>
+template <typename Item, typename GetLink>
 class DoublyLinkedList {
 public:
     class Link {
     private:
-        friend class DoublyLinkedList<Item>;
+        friend class DoublyLinkedList<Item, GetLink>;
     private:
         Item* m_previous;
         Item* m_next;
@@ -172,7 +172,7 @@ public:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_base : public std::iterator<std::forward_iterator_tag, ItemType> {
     private:
-        friend class DoublyLinkedList<Item>;
+        friend class DoublyLinkedList<Item, GetLink>;
         
         typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
         delegate* m_delegate;
@@ -204,11 +204,13 @@ public:
         bool operator==(const iterator_base& other) const { return compare(other) == 0; }
         bool operator!=(const iterator_base& other) const { return compare(other) != 0; }
         
+        // prefix increment
         iterator_base& operator++() {
             m_delegate->increment();
             return *this;
         }
         
+        // postfix increment
         iterator_base operator++(int) {
             iterator_base result(*this);
             m_delegate->increment();
@@ -230,22 +232,36 @@ public:
         }
     };
     
-    typedef iterator_base<DoublyLinkedList<Item>, Item*, Link> iterator;
-    typedef iterator_base<const DoublyLinkedList<Item>, Item*, const Link> const_iterator;
+    typedef iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link> iterator;
+    typedef iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link> const_iterator;
 private:
     friend class ListIterator;
     
+    GetLink m_getLink;
     Item* m_head;
     size_t m_size;
     size_t m_version;
 public:
     DoublyLinkedList() :
+    m_getLink(),
     m_head(NULL),
     m_size(0),
     m_version(0) {}
     
-    virtual ~DoublyLinkedList() {}
+    virtual ~DoublyLinkedList() {
+        clear();
+    }
     
+    friend void swap(DoublyLinkedList& first, DoublyLinkedList& second) {
+        using std::swap;
+        swap(first.m_head, second.m_head);
+        swap(first.m_size, second.m_size);
+        swap(first.m_version, second.m_version);
+    }
+private:
+    DoublyLinkedList(const DoublyLinkedList& other) {}
+    DoublyLinkedList& operator=(const DoublyLinkedList& other) {}
+public:
     bool empty() const {
         return m_size == 0;
     }
@@ -324,6 +340,15 @@ public:
         }
 
         assert(check());
+    }
+    
+    void insertBefore(Item* succ, Item* items, const size_t count) {
+        assert(succ != NULL);
+        assert(items != NULL);
+        assert(m_head != NULL);
+        assert(contains(succ));
+        
+        insertAfter(succ->previous(), items, count);
     }
     
     void insertAfter(Item* pred, Item* items, const size_t count) {
@@ -406,8 +431,8 @@ public:
         }
         assert(check());
     }
-    
-    void deleteAll() {
+
+    void clear() {
         if (m_head != NULL) {
             Item* item = m_head;
             while (item != m_head) {
@@ -442,12 +467,12 @@ private:
     
     Link& getLink(Item* item) const {
         assert(item != NULL);
-        return doGetLink(item);
+        return m_getLink(item);
     }
     
     const Link& getLink(const Item* item) const {
         assert(item != NULL);
-        return doGetLink(item);
+        return m_getLink(item);
     }
     
     bool check() const {
@@ -485,9 +510,6 @@ private:
         } while (item != m_head);
         return m_size == size;
     }
-    
-    virtual Link& doGetLink(Item* item) const = 0;
-    virtual const Link& doGetLink(const Item* item) const = 0;
 };
 
 #endif

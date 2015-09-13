@@ -829,6 +829,26 @@ public:
         const T d = (*this - start).dot(dir);
         return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
     }
+
+    template <typename I, typename G>
+    static Vec<T,S> center(I cur, I end, const G& get) {
+        assert(cur != end);
+        Vec<T,S> result = get(*cur++);
+        T count = 1.0;
+        while (cur != end) {
+            result += get(*cur++);
+            count += 1.0;
+        }
+        return result / count;
+    }
+    
+    template <typename I, typename G>
+    static Vec<T,S>::List asList(I cur, I end, const G& get) {
+        Vec<T,S>::List result;
+        while (cur != end)
+            result.push_back(get(*cur++));
+        return result;
+    }
 };
 
 template <typename T, size_t S>

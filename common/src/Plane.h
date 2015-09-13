@@ -267,5 +267,6 @@ Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal,
 }
 
 typedef Plane<float,3> Plane3f;
+typedef Plane<double,3> Plane3d;
 
 #endif

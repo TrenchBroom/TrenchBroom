@@ -35,6 +35,7 @@ namespace TrenchBroom {
 
         ToolBoxConnector::~ToolBoxConnector() {
             unbindEvents();
+            delete m_toolChain;
         }
 
         const Ray3& ToolBoxConnector::pickRay() const {

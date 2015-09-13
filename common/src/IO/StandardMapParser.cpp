@@ -79,11 +79,11 @@ namespace TrenchBroom {
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                     case '\n':
-                    case '\r':
                         if (!m_skipEol) {
                             advance();
                             return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
                         }
+                    case '\r':
                     case ' ':
                     case '\t':
                         discardWhile(Whitespace);

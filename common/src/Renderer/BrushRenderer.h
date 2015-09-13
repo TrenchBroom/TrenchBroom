@@ -27,7 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushEdge;
         class EditorContext;
     }
     

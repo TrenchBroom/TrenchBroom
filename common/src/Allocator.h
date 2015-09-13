@@ -27,7 +27,7 @@
 #include <vector>
 
 // Undefine this to prevent false positives when looking for memory leaks.
-// #define _ENABLE_ALLOCATOR 1
+#define _ENABLE_ALLOCATOR 1
 
 template <class T, size_t PoolSize = 64, size_t BlocksPerChunk = 256>
 class Allocator {

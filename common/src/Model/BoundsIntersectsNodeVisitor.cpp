@@ -20,7 +20,6 @@
 #include "BoundsIntersectsNodeVisitor.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 
@@ -34,9 +33,11 @@ namespace TrenchBroom {
         void BoundsIntersectsNodeVisitor::doVisit(const Group* group)   { setResult(m_bounds.intersects(group->bounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.intersects(entity->bounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Brush* brush)   {
-            const BrushVertexList& vertices = brush->vertices();
-            for (size_t i = 0; i < vertices.size(); ++i) {
-                if (m_bounds.contains(vertices[i]->position)) {
+            const Brush::VertexList vertices = brush->vertices();
+            Brush::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const BrushVertex* vertex = *it;
+                if (m_bounds.contains(vertex->position())) {
                     setResult(true);
                     return;
                 }
