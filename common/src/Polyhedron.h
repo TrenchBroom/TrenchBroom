@@ -182,15 +182,18 @@ private:
     
     template <typename C> void mergeVertices(HalfEdge* connectingEdge, C& callback);
 
-    template <typename C> Vertex* cleanupAfterVertexMove(Vertex* vertex, C& callback);
-    
-    template <typename C> void mergeLeavingEdges(Vertex* vertex, C& callback);
-    template <typename C> Vertex* mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback);
-    template <typename C> void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback);
-    void mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
+    struct CleanupResult;
+    template <typename C> CleanupResult cleanupAfterVertexMove(Vertex* vertex, C& callback);
 
-    template <typename C> Vertex* mergeIncidentFaces(Vertex* vertex, C& callback);
+    template <typename C> void mergeLeavingEdges(Vertex* vertex, C& callback);
+    template <typename C> Edge* mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback);
+    template <typename C> void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback);
+    Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
+
+    template <typename C> Face* mergeIncidentFaces(Vertex* vertex, C& callback);
     template <typename C> void mergeNeighbours(HalfEdge* borderFirst, C& callback);
+    
+    template <typename C> void incidentFacesDidChange(Vertex* vertex, C& callback);
 public: // Convex hull and adding points
     template <typename I> void addPoints(I cur, I end);
     template <typename I, typename C> void addPoints(I cur, I end, C& callback);

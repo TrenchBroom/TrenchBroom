@@ -21,6 +21,7 @@
 
 #include "TestUtils.h"
 
+#include "IO/NodeReader.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushContentTypeBuilder.h"
@@ -641,6 +642,34 @@ namespace TrenchBroom {
             ASSERT_EQ(16u, brush->edgeCount());
             
             delete brush;
+        }
+        
+        TEST(BrushTest, moveVertexFail) {
+            const String data("{\n"
+                              "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
+                              "( 384 128 320 ) ( 320 64 320 ) ( 352 96 384 ) sky1 0 96 0 1 1\n"
+                              "( 384 32 320 ) ( 384 32 384 ) ( 384 256 384 ) sky1 0 96 0 1 1\n"
+                              "( 192 192 320 ) ( 256 256 320 ) ( 224 224 384 ) sky1 0 96 0 1 1\n"
+                              "( 256 64 320 ) ( 192 128 320 ) ( 224 96 384 ) sky1 0 96 0 1 1\n"
+                              "( 192 32 384 ) ( 192 32 320 ) ( 192 256 320 ) sky1 0 96 0 1 1\n"
+                              "( 384 256 320 ) ( 384 256 384 ) ( 192 256 384 ) sky1 0 96 0 1 1\n"
+                              "( 320 64 320 ) ( 256 64 320 ) ( 288 64 384 ) sky1 0 96 0 1 1\n"
+                              "( 192 64 352 ) ( 192 240 352 ) ( 368 240 352 ) sky1 0 0 0 1 1\n"
+                              "( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1\n"
+                              "}\n");
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds);
+            assert(nodes.size() == 1);
+            
+            Brush* brush = static_cast<Brush*>(nodes.front());
+            const Vec3 p(192.0, 128.0, 352.0);
+            const Vec3 d = 4.0 * 16.0 * Vec3::NegY;
+            const Vec3::List newPositions = brush->moveVertices(worldBounds, Vec3::List(1, p), d);
+            ASSERT_EQ(1u, newPositions.size());
+            ASSERT_VEC_EQ(p + d, newPositions.front());
         }
         
     }

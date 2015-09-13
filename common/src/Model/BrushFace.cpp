@@ -450,9 +450,9 @@ namespace TrenchBroom {
             const BrushHalfEdge* current = first;
             
             do {
-                m_points[2] = current->previous()->origin()->position();
+                m_points[2] = current->next()->origin()->position();
                 m_points[0] = current->origin()->position();
-                m_points[1] = current->next()->origin()->position();
+                m_points[1] = current->previous()->origin()->position();
 
                 const Vec3 v1 = (m_points[2] - m_points[0]).normalized();
                 const Vec3 v2 = (m_points[1] - m_points[0]).normalized();
@@ -465,10 +465,11 @@ namespace TrenchBroom {
                 current = current->next();
             } while (current != first && bestDot > 0.0);
 
+            assert(best != NULL);
             const Vec3 oldNormal = m_boundary.normal;
             setPoints(best->origin()->position(),
-                      best->next()->origin()->position(),
-                      best->previous()->origin()->position());
+                      best->previous()->origin()->position(),
+                      best->next()->origin()->position());
 
             m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
             invalidateVertexCache();

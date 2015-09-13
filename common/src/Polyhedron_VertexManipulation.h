@@ -367,9 +367,19 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
         }
         
         vertex->setPosition(newPosition);
-        vertex = cleanupAfterVertexMove(vertex, callback);
-        if (vertex == NULL)
+        
+        const CleanupResult cleanupResult = cleanupAfterVertexMove(vertex, callback);
+        if (cleanupResult.vertexDeleted()) {
+            if (cleanupResult.vertexDeletedByFaceMerge()) {
+                callback.faceDidChange(cleanupResult.containingFace);
+            } else if (cleanupResult.vertexDeletedByEdgeMerge()) {
+                callback.faceDidChange(cleanupResult.containingEdge->firstFace());
+                callback.faceDidChange(cleanupResult.containingEdge->secondFace());
+            }
             return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
+        } else {
+            incidentFacesDidChange(vertex, callback);
+        }
     }
     
     return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
@@ -607,18 +617,50 @@ void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, C& callback) {
     delete destination;
 }
 
+template <typename T, typename FP>
+struct Polyhedron<T,FP>::CleanupResult {
+    Face* containingFace;
+    Edge* containingEdge;
+    
+    CleanupResult() :
+    containingFace(NULL),
+    containingEdge(NULL) {}
+    
+    CleanupResult(Face* i_containingFace) :
+    containingFace(i_containingFace),
+    containingEdge(NULL) {}
+    
+    CleanupResult(Edge* i_containingEdge) :
+    containingFace(NULL),
+    containingEdge(i_containingEdge) {}
+    
+    bool vertexDeleted() const {
+        return vertexDeletedByFaceMerge() || vertexDeletedByEdgeMerge();
+    }
+    
+    bool vertexDeletedByFaceMerge() const {
+        return containingFace != NULL;
+    }
+    
+    bool vertexDeletedByEdgeMerge() const {
+        return containingEdge != NULL;
+    }
+};
+
 // Merges all leaving edges of the given vertex with their successors if they have become colinear.
 // Also merges all faces incident to the given vertex with their coplanar neighbours.
 // Finally merges all arriving edges of the given vertex with any colinear leaving edges.
 // Returns the given vertex or NULL if it was deleted.
 template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::cleanupAfterVertexMove(Vertex* vertex, C& callback) {
+typename Polyhedron<T,FP>::CleanupResult Polyhedron<T,FP>::cleanupAfterVertexMove(Vertex* vertex, C& callback) {
     mergeLeavingEdges(vertex, callback);
-    vertex = mergeIncidentFaces(vertex, callback);
-    if (vertex != NULL)
-        vertex = mergeIncomingAndLeavingEdges(vertex, callback);
-    assert(checkNoCoplanarFaces());
-    return vertex;
+    Face* containingFace = mergeIncidentFaces(vertex, callback);
+    if (containingFace != NULL)
+        return CleanupResult(containingFace);
+    Edge* containingEdge = mergeIncomingAndLeavingEdges(vertex, callback);
+    if (containingEdge != NULL)
+        return CleanupResult(containingEdge);
+    return CleanupResult();
 }
 
 // Merges all leaving edges of the given vertex with their successors if they have become colinear.
@@ -639,18 +681,17 @@ void Polyhedron<T,FP>::mergeLeavingEdges(Vertex* vertex, C& callback) {
 // Merges all arriving edges of the given vertex with any colinear leaving edges.
 // Returns the given vertex or NULL if it was deleted.
 template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback) {
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback) {
     HalfEdge* arriving = vertex->leaving()->twin();
     do {
         HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
         if (colinearLeaving != NULL) {
             mergeNeighboursOfColinearEdges(arriving, colinearLeaving, callback);
-            mergeColinearEdges(arriving, colinearLeaving);
-            return NULL;
+            return mergeColinearEdges(arriving, colinearLeaving);
         }
         arriving = arriving->next()->twin();
     } while (arriving != vertex->leaving()->twin());
-    return vertex;
+    return NULL;
 }
 
 // Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
@@ -675,7 +716,7 @@ void Polyhedron<T,FP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge*
 // replaces the twin of the second given edge.
 // Assumes that the incident faces have already been merged.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
     assert(edge1->destination() == edge2->origin());
     assert(edge1->face() == edge2->face());
     assert(edge1->twin()->face() == edge2->twin()->face());
@@ -704,12 +745,14 @@ void Polyhedron<T,FP>::mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
     
     m_vertices.remove(vertex);
     delete vertex;
+    
+    return edge1->edge();
 }
 
 // Merges all faces incident to the given vertex with their coplanar neighbours.
 // Returns the given vertex or NULL if the given vertex was deleted.
 template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* vertex, C& callback) {
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* vertex, C& callback) {
     size_t incidentFaceCount = 0;
     bool allCoplanar = true;
     
@@ -731,13 +774,15 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* 
         ++incidentFaceCount;
     } while (allCoplanar && curEdge != firstEdge);
     
+    Face* remainingFace = NULL;
+    
     if (allCoplanar) {
         HalfEdgeList boundary;
         
         // Now we iterate using the incident face count because we can't rely
         // on the curEdge's twin while we're deleting the edges we encounter.
         curEdge = firstEdge;
-        Face* remaining = curEdge->face();
+        remainingFace = curEdge->face();
         
         for (size_t i = 0; i < incidentFaceCount; ++i) {
             Face* face = curEdge->face();
@@ -756,7 +801,7 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* 
             boundary.append(outerBorder, 1);
             
             if (i > 0) { // We want to keep the original face around
-                callback.facesWillBeMerged(remaining, face);
+                callback.facesWillBeMerged(remainingFace, face);
                 m_faces.remove(face);
                 delete face;
             }
@@ -765,12 +810,11 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* 
             delete edge;
         }
         
-        HalfEdgeList oldBoundary = remaining->replaceEntireBoundary(boundary);
+        HalfEdgeList oldBoundary = remainingFace->replaceEntireBoundary(boundary);
         oldBoundary.deleteAll();
         
         m_vertices.remove(vertex);
         delete vertex;
-        vertex = NULL;
     } else {
         // Due to how we have chosen the first edge, we know that the first two
         // incident faces are not coplanar and thus won't be merged. This is important
@@ -799,7 +843,8 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* 
             }
         } while (curEdge != firstEdge);
     }
-    return vertex;
+    
+    return remainingFace;
 }
 
 // Merges the face incident to the given edge (called border) with its neighbour, i.e.
@@ -862,5 +907,16 @@ void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, C& callback) {
     m_faces.remove(face);
     delete face;
 }
+
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::incidentFacesDidChange(Vertex* vertex, C& callback) {
+    HalfEdge* firstEdge = vertex->leaving();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        callback.faceDidChange(currentEdge->face());
+        currentEdge = currentEdge->nextIncident();
+    } while (currentEdge != firstEdge);
+}
+
 
 #endif

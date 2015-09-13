@@ -209,7 +209,7 @@ namespace TrenchBroom {
             }
             
             bool hasDroppedFaces() const {
-                return m_droppedFaces.empty();
+                return !m_droppedFaces.empty();
             }
             
             BrushFaceList addedFaces() const {
