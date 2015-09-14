@@ -149,10 +149,10 @@ void Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) 
     // that connectes the (possibly newly inserted) vertices which are now within the plane.
     HalfEdge* currentEdge = intersectWithPlane(initialEdge, plane, callback);
     
-    // The origin of that edge is the first vertex which we encountered (or inserted) which is inside the plane.
+    // The destination of that edge is the first vertex which we encountered (or inserted) which is inside the plane.
     // This is where our algorithm must stop. When we encounter that vertex again, we have completed the intersection
     // and the polyhedron can now be split in two by the given plane.
-    Vertex* stopVertex = currentEdge->origin();
+    Vertex* stopVertex = currentEdge->destination();
     do {
         // First we find the next face that is either split by the plane or which has an edge completely in the plane.
         currentEdge = findNextIntersectingEdge(currentEdge, plane);
@@ -161,7 +161,7 @@ void Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) 
         // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
         // face which are now inside the plane.
         currentEdge = intersectWithPlane(currentEdge, plane, callback);
-    } while (currentEdge->origin() != stopVertex);
+    } while (currentEdge->destination() != stopVertex);
 }
 
 template <typename T, typename FP>
@@ -177,7 +177,8 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
             (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove))
             return halfEdge;
         
-        if ((os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
+        if (
+            (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
             (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
             return halfEdge->twin();
         currentEdge = currentEdge->next();
@@ -228,7 +229,11 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
             currentBoundaryEdge = currentBoundaryEdge->next();
         }
     } while (seamDestination == NULL && currentBoundaryEdge != firstBoundaryEdge);
-    assert(seamOrigin != NULL && seamDestination != NULL);
+    assert(seamOrigin != NULL);
+    
+    // The plane only touches one vertex of the face.
+    if (seamDestination == NULL)
+        return seamOrigin->previous();
     
     if (seamDestination->next() == seamOrigin) {
         std::swap(seamOrigin, seamDestination);

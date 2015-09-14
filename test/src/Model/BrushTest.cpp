@@ -227,25 +227,27 @@ namespace TrenchBroom {
         
         TEST(BrushTest, constructWithFailingFaces5) {
             /* from jam6_ericwtronyn
+             Interestingly, the order in which the faces appear in the map file is okay, but when they get reordered during load, the resulting order
+             leads to a crash. The order below is the reordered one.
              {
-             ( 1280 896 896 ) ( 1280 896 1056 ) ( 1296 896 1056 ) rock18clean 0 64 0 1 1
-             ( 1280 1008 1168 ) ( 1280 1008 1008 ) ( 1296 1008 1056 ) rock18clean 0 64 0 1 1
-             ( 1280 1008 1008 ) ( 1280 1008 1168 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1
-             ( 1296 1008 1168 ) ( 1296 1008 1056 ) ( 1296 896 944 ) rock18clean 0 64 0 1 1
-             ( 1296 896 944 ) ( 1296 1008 1056 ) ( 1280 1008 1008 ) rock18clean 0 0 0 1 1
-             ( 1296 1008 1168 ) ( 1296 896 1056 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1
+             ( 1296 896 944 ) ( 1296 1008 1056 ) ( 1280 1008 1008 ) rock18clean 0 0 0 1 1 // bottom
+             ( 1296 1008 1168 ) ( 1296 1008 1056 ) ( 1296 896 944 ) rock18clean 0 64 0 1 1 // right
+             ( 1280 1008 1008 ) ( 1280 1008 1168 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1 // left, fails here
+             ( 1280 1008 1168 ) ( 1280 1008 1008 ) ( 1296 1008 1056 ) rock18clean 0 64 0 1 1 // back
+             ( 1296 1008 1168 ) ( 1296 896 1056 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1 // top
+             ( 1280 896 896 ) ( 1280 896 1056 ) ( 1296 896 1056 ) rock18clean 0 64 0 1 1 // front
              }
              */
             
             const BBox3 worldBounds(4096.0);
             
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 896.0, 896.0), Vec3(1280.0, 896.0, 1056.0), Vec3(1296.0, 896.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 1008.0, 1168.0), Vec3(1280.0, 1008.0, 1008.0), Vec3(1296.0, 1008.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 1008.0, 1008.0), Vec3(1280.0, 1008.0, 1168.0), Vec3(1280.0, 896.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(Vec3(1296.0, 1008.0, 1168.0), Vec3(1296.0, 1008.0, 1056.0), Vec3(1296.0, 896.0, 944.0)));
             faces.push_back(BrushFace::createParaxial(Vec3(1296.0, 896.0, 944.0), Vec3(1296.0, 1008.0, 1056.0), Vec3(1280.0, 1008.0, 1008.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(1296.0, 1008.0, 1168.0), Vec3(1296.0, 1008.0, 1056.0), Vec3(1296.0, 896.0, 944.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 1008.0, 1008.0), Vec3(1280.0, 1008.0, 1168.0), Vec3(1280.0, 896.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 1008.0, 1168.0), Vec3(1280.0, 1008.0, 1008.0), Vec3(1296.0, 1008.0, 1056.0)));
             faces.push_back(BrushFace::createParaxial(Vec3(1296.0, 1008.0, 1168.0), Vec3(1296.0, 896.0, 1056.0), Vec3(1280.0, 896.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 896.0, 896.0), Vec3(1280.0, 896.0, 1056.0), Vec3(1296.0, 896.0, 1056.0)));
             
             Brush brush(worldBounds, faces);
             const BrushFaceList& brushFaces = brush.faces();
