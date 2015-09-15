@@ -78,7 +78,7 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
     // Now we know that the brush will be split.
     // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
     // can be separated into two halves such that no face has vertices on opposite sides of the plane.
-    intersectWithPlane(plane, callback);
+    const Seam testSeam = intersectWithPlane(plane, callback);
     
     // We construct a seam along those edges which are completely inside the plane and delete the half of the
     // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
@@ -140,7 +140,10 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::checkIntersects(const Pl
 }
 
 template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) {
+typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) {
+    Seam seam;
+    seam.reserve(16);
+    
     // First, we find a half edge that is intersected by the given plane.
     HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
     assert(initialEdge != NULL);
@@ -161,7 +164,10 @@ void Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) 
         // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
         // face which are now inside the plane.
         currentEdge = intersectWithPlane(currentEdge, plane, callback);
+        seam.push_back(currentEdge->edge());
     } while (currentEdge->destination() != stopVertex);
+    
+    return seam;
 }
 
 template <typename T, typename FP>
@@ -175,12 +181,12 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
         if ((os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSInside) ||
             (os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSAbove) ||
             (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove))
-            return halfEdge;
+            return halfEdge->twin();
         
         if (
             (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
             (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
-            return halfEdge->twin();
+            return halfEdge;
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return NULL;
