@@ -202,6 +202,7 @@ private:
         firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
         secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
         
+        setFirstAsLeaving();
         unsetSecondEdge();
         setSecondEdge(newSecondEdge);
         
@@ -214,8 +215,26 @@ private:
         swap(m_first, m_second);
     }
     
-    void unsetSecondEdge() {
+    void makeFirstEdge(HalfEdge* edge) {
+        assert(edge != NULL);
+        assert(m_first == edge || m_second == edge);
+        if (edge != m_first)
+            flip();
+    }
+    
+    void makeSecondEdge(HalfEdge* edge) {
+        assert(edge != NULL);
+        assert(m_first == edge || m_second == edge);
+        if (edge != m_second)
+            flip();
+    }
+    
+    void setFirstAsLeaving() {
+        assert(m_first != NULL);
         m_first->setAsLeaving();
+    }
+    
+    void unsetSecondEdge() {
         m_second->setEdge(NULL);
         m_second = NULL;
     }

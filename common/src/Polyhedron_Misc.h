@@ -607,10 +607,19 @@ bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
 
 template <typename T, typename FP>
 void Polyhedron<T,FP>::updateBounds() {
-    if (m_vertices.size() == 0)
+    if (m_vertices.size() == 0) {
         m_bounds.min = m_bounds.max = Vec<T,3>::NaN;
-    else
-        m_bounds = BBox<T,3>(m_vertices.begin(), m_vertices.end(), GetVertexPosition());
+    } else {
+        Vertex* first = m_vertices.front();
+        Vertex* current = first;
+        m_bounds.min = m_bounds.max = current->position();
+        
+        current = current->next();
+        while (current != first) {
+            m_bounds.mergeWith(current->position());
+            current = current->next();
+        }
+    }
 }
 
 #endif

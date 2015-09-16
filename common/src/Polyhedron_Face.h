@@ -261,11 +261,12 @@ private:
     }
     
     void updateBoundaryFaces(Face* face) {
-        typename HalfEdgeList::iterator hIt, hEnd;
-        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
-            HalfEdge* edge = *hIt;
-            edge->setFace(face);
-        }
+        HalfEdge* first = m_boundary.front();
+        HalfEdge* current = first;
+        do {
+            current->setFace(face);
+            current = current->next();
+        } while (current != first);
     }
 };
 

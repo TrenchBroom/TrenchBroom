@@ -21,28 +21,6 @@
 #define TrenchBroom_Polyhedron_Clip_h
 
 template <typename T, typename FP>
-class Polyhedron<T,FP>::SplitByPlaneCriterion : public Polyhedron<T,FP>::SplittingCriterion {
-private:
-    const Plane<T,3>& m_plane;
-public:
-    SplitByPlaneCriterion(const Plane<T,3>& plane) :
-    m_plane(plane) {}
-private:
-    bool doMatches(const Face* face) const {
-        // The plane matches if it has at least one vertex that is below the plane.
-        const HalfEdge* firstEdge = face->boundary().front();
-        const HalfEdge* currentEdge = firstEdge;
-        do {
-            const Vertex* origin = currentEdge->origin();
-            if (m_plane.pointStatus(origin->position()) == Math::PointStatus::PSBelow)
-                return true;
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
-        return false;
-    }
-};
-
-template <typename T, typename FP>
 struct Polyhedron<T,FP>::ClipResult {
     typedef enum {
         Type_ClipUnchanged,
@@ -78,14 +56,12 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
     // Now we know that the brush will be split.
     // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
     // can be separated into two halves such that no face has vertices on opposite sides of the plane.
-    const Seam testSeam = intersectWithPlane(plane, callback);
+    const Seam seam = intersectWithPlane(plane, callback);
     
     // We construct a seam along those edges which are completely inside the plane and delete the half of the
     // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
     // is below the plane.
-    Seam seam;
-    seam.reserve(16);
-    split(SplitByPlaneCriterion(plane), seam, callback);
+    split(seam, callback);
     
     // We seal the polyhedron by creating a new face.
     weaveCap(seam, callback);
@@ -142,7 +118,6 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::checkIntersects(const Pl
 template <typename T, typename FP> template <typename C>
 typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, C& callback) {
     Seam seam;
-    seam.reserve(16);
     
     // First, we find a half edge that is intersected by the given plane.
     HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
@@ -164,7 +139,14 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::intersectWithPlane(const Plane
         // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
         // face which are now inside the plane.
         currentEdge = intersectWithPlane(currentEdge, plane, callback);
-        seam.push_back(currentEdge->edge());
+        
+        // Build a seam while intersecting the polyhedron by remembering the edges we just inserted. To ensure that
+        // the seam edges are correctly oriented, we check that the current edge is the second edge, as the current
+        // edge belongs to the faces that we are going to clip away.
+        Edge* seamEdge = currentEdge->edge();
+        seamEdge->makeSecondEdge(currentEdge);
+        seam.push_back(seamEdge);
+        
     } while (currentEdge->destination() != stopVertex);
     
     return seam;

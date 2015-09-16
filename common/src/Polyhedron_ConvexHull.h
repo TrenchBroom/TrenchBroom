@@ -20,6 +20,65 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Seam {
+private:
+    typedef std::vector<Edge*> SeamList;
+    SeamList m_edges;
+public:
+    typedef typename SeamList::iterator iterator;
+    typedef typename SeamList::const_iterator const_iterator;
+public:
+    Seam() {
+        m_edges.reserve(16);
+    }
+    
+    void push_back(Edge* edge) {
+        assert(edge != NULL);
+        assert(checkEdge(edge));
+        m_edges.push_back(edge);
+    }
+    
+    bool empty() const {
+        return m_edges.empty();
+    }
+    
+    size_t size() const {
+        return m_edges.size();
+    }
+    
+    Edge* front() const {
+        return m_edges.front();
+    }
+    
+    Edge* back() const {
+        return m_edges.back();
+    }
+    
+    iterator begin() {
+        return m_edges.begin();
+    }
+    
+    iterator end() {
+        return m_edges.end();
+    }
+    
+    const_iterator begin() const {
+        return m_edges.begin();
+    }
+
+    const_iterator end() const {
+        return m_edges.end();
+    }
+private:
+    bool checkEdge(Edge* edge) const {
+        if (m_edges.empty())
+            return true;
+        Edge* last = m_edges.back();
+        return last->firstVertex() == edge->secondVertex();
+    }
+};
+
 template <typename T, typename FP> template <typename I>
 void Polyhedron<T,FP>::addPoints(I cur, I end) {
     Callback c;
@@ -189,18 +248,16 @@ void Polyhedron<T,FP>::makePolyhedron(const V& position, C& callback) {
     assert(polygon());
     
     Seam seam;
-    seam.reserve(16);
-    Face* face = *m_faces.begin();
+    Face* face = m_faces.front();
     const HalfEdgeList& boundary = face->boundary();
-    typename HalfEdgeList::const_iterator hIt, hEnd;
-    for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
-        const HalfEdge* h = *hIt;
-        Edge* e = h->edge();
-        seam.push_back(e);
-    }
-    // ensure that the seam is in CCW order
-    std::reverse(seam.begin(), seam.end());
     
+    HalfEdge* first = boundary.front();
+    HalfEdge* current = first;
+    do {
+        seam.push_back(current->edge());
+        current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
+    } while (current != first);
+
     addPointToPolyhedron(position, seam, callback);
 }
 
@@ -208,9 +265,8 @@ void Polyhedron<T,FP>::makePolyhedron(const V& position, C& callback) {
 template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, C& callback) {
     assert(polyhedron());
-    Seam seam;
-    seam.reserve(16);
-    split(SplitByVisibilityCriterion(position), seam, callback);
+    const Seam seam = createSeam(SplitByVisibilityCriterion(position));
+    split(seam, callback);
     if (!seam.empty())
         addPointToPolyhedron(position, seam, callback);
 }
@@ -225,141 +281,84 @@ void Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam,
     assert(checkInvariant() && closed());
 }
 
-// Splits this polyhedron along the edges where one of the adjacent faces matches the given
-// criterion and the other adjacent face does not. It deletes all faces, edges, and vertices
-// which do not match the given criterion, and returns the delimiting edges as the seam.
-// The delimiting edges all have the remaining half edge as their first edge, and the second
-// edge, which has been deleted by the split, is NULL.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::split(const SplittingCriterion& criterion, Seam& seam, C& callback) {
-    VertexList vertices;
-    EdgeList edges;
-    FaceList faces;
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::createSeam(const SplittingCriterion& criterion) {
+    Seam seam;
     
-    Edge* splittingEdge = criterion.findFirstSplittingEdge(m_edges);
-    if (splittingEdge == NULL)
-        return;
-    
-    // First, go along the splitting seam and split the edges into two edges with one half edge each.
-    // Both the resulting edges have their only half edge as their first edge.
-    do {
-        assert(splittingEdge != NULL);
-        Edge* nextSplittingEdge = criterion.findNextSplittingEdge(splittingEdge);
-        assert(nextSplittingEdge != splittingEdge);
-        assert(nextSplittingEdge == NULL || splittingEdge->firstVertex() == nextSplittingEdge->secondVertex());
-        
-        splittingEdge->unsetSecondEdge();
-        seam.push_back(splittingEdge);
-        
-        splittingEdge = nextSplittingEdge;
-    } while (splittingEdge != NULL);
-    
-    
-    // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
-    Vertex* currentVertex = m_vertices.front();
-    for (size_t i = m_vertices.size(); i > 0; --i) {
-        HalfEdge* edge = currentVertex->leaving();
-        assert(edge != NULL);
-        
-        // As we have already handled the shared vertices, it holds that for each remaining vertex,
-        // either all adjacent faces match or not. There are no mixed vertices anymore at this point.
-        
-        Face* face = edge->face();
-        assert(face != NULL);
-        
-        Vertex* nextVertex = currentVertex->next();
-        if (!criterion.matches(face)) {
-            m_vertices.remove(currentVertex);
-            vertices.append(currentVertex, 1);
-        }
-        currentVertex = nextVertex;
-    }
-    
-    Edge* currentEdge = m_edges.front();
-    for (size_t i = m_edges.size(); i > 0; --i) {
-        Face* face = currentEdge->firstFace();
-        assert(face != NULL);
-        
-        // There are no mixed edges at this point anymore either, and all remaining edges have at least
-        // one edge, and that is their first edge.
-        
-        Edge* nextEdge = currentEdge->next();
-        if (!criterion.matches(face)) {
-            assert(currentEdge->secondFace() == NULL || !criterion.matches(currentEdge->secondFace()));
-            m_edges.remove(currentEdge);
-            edges.append(currentEdge, 1);
-        }
-        currentEdge = nextEdge;
-    }
-    
-    Face* currentFace = m_faces.front();
-    for (size_t i = m_faces.size(); i > 0; --i) {
-        Face* nextFace = currentFace->next();
-        if (!criterion.matches(currentFace)) {
-            m_faces.remove(currentFace);
-            faces.append(currentFace, 1);
-            callback.faceWillBeDeleted(currentFace);
-        }
-        currentFace = nextFace;
+    Edge* first = criterion.findFirstSplittingEdge(m_edges);
+    if (first != NULL) {
+        Edge* current = first;
+        do {
+            assert(current != NULL);
+            seam.push_back(current);
+            current = criterion.findNextSplittingEdge(current);
+        } while (current != first);
     }
 
-    typename VertexList::iterator vertexIt;
-    typename EdgeList::iterator edgeIt;
-    typename FaceList::iterator faceIt;
+    // The resulting seam contains the edges where one face satisfies the given criterion while the other does not.
+    // The edges are in counter clockwise order and consecutive, and they form a loop. They are oriented such that
+    // the first face matches the criterion and the second face does not.
+    return seam;
+}
+
+// Splits this polyhedron along the given seam and removes all faces, edges and vertices which are "above" the seam.
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::split(const Seam& seam, C& callback) {
+    assert(seam.size() >= 3);
     
-    // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
-    vertexIt = m_vertices.begin();
-    while (vertexIt != m_vertices.end()) {
-        Vertex* vertex = *vertexIt;
-        HalfEdge* edge = vertex->leaving();
-        assert(edge != NULL);
-        
-        // As we have already handled the shared vertices, it holds that for each remaining vertex,
-        // either all adjacent faces match or not. There are no mixed vertices anymore at this point.
-        
-        Face* face = edge->face();
-        assert(face != NULL);
-        
-        if (!criterion.matches(face)) {
-            vertexIt = m_vertices.erase(vertexIt);
-            vertices.append(vertex, 1);
-        } else {
-            ++vertexIt;
-        }
+    // First, unset the second half edge of every seam edge.
+    // Thereby remember the second half edge of the first seam edge.
+    HalfEdge* first = seam.front()->secondEdge();
+    typename Seam::const_iterator it, end;
+    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+        Edge* edge = *it;
+        edge->setFirstAsLeaving();
+        edge->unsetSecondEdge();
     }
     
-    edgeIt = m_edges.begin();
-    while (edgeIt != m_edges.end()) {
-        Edge* edge = *edgeIt;
-        Face* face = edge->firstFace();
-        assert(face != NULL);
-        
-        // There are no mixed edges at this point anymore either, and all remaining edges have at least
-        // one edge, and that is their first edge.
-        
-        if (!criterion.matches(face)) {
-            assert(edge->secondFace() == NULL || !criterion.matches(edge->secondFace()));
-            edgeIt = m_edges.erase(edgeIt);
-            edges.append(edge, 1);
-        } else {
-            ++edgeIt;
-        }
-    }
-    
-    faceIt = m_faces.begin();
-    while (faceIt != m_faces.end()) {
-        Face* face = *faceIt;
-        
-        if (!criterion.matches(face)) {
-            faceIt = m_faces.erase(faceIt);
-            faces.append(face, 1);
-            callback.faceWillBeDeleted(face);
-        } else {
-            ++faceIt;
-        }
-    }
+    // Now we must delete all the faces, edges, and vertices which are above the seam.
+    // The first half edge we remembered above is our entry point into that portion of the polyhedron.
+    // We must remember which faces we have already visited to stop the recursion.
+    FaceSet faceSet;
+    VertexList verticesToDelete;
+    deleteFaces(first, faceSet, verticesToDelete, callback);
     
     assert(checkConvex());
+}
+
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, C& callback) {
+    Face* face = first->face();
+    if (!visitedFaces.insert(face).second)
+        return;
+    
+    HalfEdge* current = first;
+    do {
+        Edge* edge = current->edge();
+        if (edge != NULL) {
+            if (edge->fullySpecified())
+                deleteFaces(edge->twin(current), visitedFaces, verticesToDelete, callback);
+            
+            if (edge->fullySpecified()) {
+                edge->makeSecondEdge(current);
+                edge->unsetSecondEdge();
+            } else {
+                current->setEdge(NULL);
+                m_edges.remove(edge);
+                delete edge;
+            }
+        }
+        Vertex* origin = current->origin();
+        if (origin->leaving() == current) {
+            m_vertices.remove(origin);
+            verticesToDelete.append(origin, 1);
+        }
+        current = current->next();
+    } while (current != first);
+    
+    callback.faceWillBeDeleted(face);
+    m_faces.remove(face);
+    delete face;
 }
 
 // Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
@@ -369,8 +368,9 @@ void Polyhedron<T,FP>::weaveCap(const Seam& seam, C& callback) {
     assert(seam.size() >= 3);
 
     HalfEdgeList boundary;
-    for (size_t i = 0; i < seam.size(); ++i) {
-        Edge* currentEdge = seam[i];
+    typename Seam::const_iterator it, end;
+    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+        Edge* currentEdge = *it;
         assert(!currentEdge->fullySpecified());
         
         Vertex* origin = currentEdge->secondVertex();
@@ -394,8 +394,10 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::weaveCap(const Seam& seam, 
     
     HalfEdge* first = NULL;
     HalfEdge* last = NULL;
-    for (size_t i = 0; i < seam.size(); ++i) {
-        Edge* edge = seam[i];
+    
+    typename Seam::const_iterator it, end;
+    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+        Edge* edge = *it;
         assert(!edge->fullySpecified());
         
         Vertex* v1 = edge->secondVertex();
@@ -471,16 +473,11 @@ public:
         
         HalfEdge* halfEdge = last->firstEdge()->previous();
         Edge* next = halfEdge->edge();
-        if (!next->fullySpecified())
-            return NULL;
         
         MatchResult result = matches(next);
         while (result != MatchResult_First && result != MatchResult_Second && next != last) {
             halfEdge = halfEdge->twin()->previous();
             next = halfEdge->edge();
-            if (!next->fullySpecified())
-                return NULL;
-            
             result = matches(next);
         }
         

@@ -200,7 +200,7 @@ public: // Convex hull and adding points
     void addPoint(const V& position);
     template <typename C> void addPoint(const V& position, C& callback);
 private:
-    typedef std::vector<Edge*> Seam;
+    class Seam;
 
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
@@ -221,14 +221,16 @@ private:
     class SplitByVisibilityCriterion;
     class SplitByNormalCriterion;
     
-    template <typename C> void split(const SplittingCriterion& criterion, Seam& seam, C& callback);
+    Seam createSeam(const SplittingCriterion& criterion);
+    
+    typedef std::set<Face*> FaceSet;
+    template <typename C> void split(const Seam& seam, C& callback);
+    template <typename C> void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, C& callback);
     
     template <typename C> void weaveCap(const Seam& seam, C& callback);
     template <typename C> Vertex* weaveCap(const Seam& seam, const V& position, C& callback);
     template <typename C> Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const;
-private: // Clipping
-    class SplitByPlaneCriterion;
-public:
+public: // Clipping
     struct ClipResult;
     ClipResult clip(const Plane<T,3>& plane);
     template <typename C> ClipResult clip(const Plane<T,3>& plane, C& callback);
@@ -242,7 +244,6 @@ private:
     template <typename C> void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, C& callback);
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
 };
-
 
 #include "Polyhedron_Misc.h"
 #include "Polyhedron_Clip.h"
