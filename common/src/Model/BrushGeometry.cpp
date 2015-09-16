@@ -23,12 +23,14 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushGeometry::BrushGeometry(const BBox3& bounds) :
-        Polyhedron(bounds) {}
-
-        void BrushGeometry::restoreFaceLinks() {
-            Face* first = m_faces.front();
-            Face* current = first;
+        void restoreFaceLinks(BrushGeometry* geometry) {
+            assert(geometry != NULL);
+            restoreFaceLinks(*geometry);
+        }
+        
+        void restoreFaceLinks(BrushGeometry& geometry) {
+            BrushGeometry::Face* first = geometry.faces().front();
+            BrushGeometry::Face* current = first;
             do {
                 BrushFace* face = current->payload();
                 if (face != NULL)
@@ -40,11 +42,11 @@ namespace TrenchBroom {
         SetTempFaceLinks::SetTempFaceLinks(Brush* brush, BrushGeometry& tempGeometry) :
         m_brush(brush) {
             assert(m_brush != NULL);
-            tempGeometry.restoreFaceLinks();
+            restoreFaceLinks(tempGeometry);
         }
         
         SetTempFaceLinks::~SetTempFaceLinks() {
-            m_brush->m_geometry->restoreFaceLinks();
+            restoreFaceLinks(m_brush->m_geometry);
             assert(m_brush->checkGeometry());
         }
     }

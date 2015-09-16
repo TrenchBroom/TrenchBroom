@@ -342,12 +342,6 @@ Polyhedron<T,FP>::Polyhedron(const Polyhedron<T,FP>& other) {
 }
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces) :
-m_vertices(vertices),
-m_edges(edges),
-m_faces(faces) {}
-
-template <typename T, typename FP>
 Polyhedron<T,FP>::~Polyhedron() {
     clear();
 }
@@ -369,27 +363,9 @@ const typename Polyhedron<T,FP>::VertexList& Polyhedron<T,FP>::vertices() const 
 }
 
 template <typename T, typename FP>
-typename Polyhedron<T,FP>::V::List Polyhedron<T,FP>::vertexPositions() const {
-    typename V::List positions;
-    positions.reserve(vertexCount());
-    return vertexPositiosn(positions);
-}
-
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::V::List& Polyhedron<T,FP>::vertexPositions(typename V::List& positions) const {
-    typename VertexList::const_iterator it, end;
-    for (it = m_vertices.begin(), end = m_vertices.end(); it != end; ++it) {
-        const Vertex* v = *it;
-        positions.push_back(v->position());
-    }
-    return positions;
-}
-
-template <typename T, typename FP>
 bool Polyhedron<T,FP>::hasVertex(const V& position) const {
     return findVertexByPosition(position) != NULL;
 }
-
 
 template <typename T, typename FP>
 size_t Polyhedron<T,FP>::edgeCount() const {

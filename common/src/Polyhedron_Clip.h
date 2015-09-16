@@ -21,22 +21,17 @@
 #define TrenchBroom_Polyhedron_Clip_h
 
 template <typename T, typename FP>
-struct Polyhedron<T,FP>::ClipResult {
-    typedef enum {
-        Type_ClipUnchanged,
-        Type_ClipEmpty,
-        Type_ClipSuccess
-    } Type;
-    
-    const Type type;
+Polyhedron<T,FP>::ClipResult::ClipResult(const Type i_type) :
+type(i_type) {}
 
-    ClipResult(const Type i_type) :
-    type(i_type) {}
-    
-    bool unchanged() const { return type == Type_ClipUnchanged; }
-    bool empty() const     { return type == Type_ClipEmpty; }
-    bool success() const   { return type == Type_ClipSuccess; }
-};
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::ClipResult::unchanged() const { return type == Type_ClipUnchanged; }
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::ClipResult::empty() const     { return type == Type_ClipEmpty; }
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::ClipResult::success() const   { return type == Type_ClipSuccess; }
 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& plane) {

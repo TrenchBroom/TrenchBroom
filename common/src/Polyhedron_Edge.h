@@ -21,231 +21,247 @@
 #define TrenchBroom_Polyhedron_Edge_h
 
 template <typename T, typename FP>
-class Polyhedron<T,FP>::GetEdgeLink {
-public:
-    typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const {
-        return edge->m_link;
-    }
-    
-    const typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(const Edge* edge) const {
-        return edge->m_link;
-    }
-};
+typename DoublyLinkedList<typename Polyhedron<T,FP>::Edge, typename Polyhedron<T,FP>::GetEdgeLink>::Link& Polyhedron<T,FP>::GetEdgeLink::operator()(Edge* edge) const {
+    return edge->m_link;
+}
 
 template <typename T, typename FP>
-class Polyhedron<T,FP>::Edge : public Allocator<Edge> {
-private:
-    friend class Polyhedron<T,FP>;
-private:
-    HalfEdge* m_first;
-    HalfEdge* m_second;
-    EdgeLink m_link;
-private:
-    Edge(HalfEdge* first, HalfEdge* second = NULL) :
-    m_first(first),
-    m_second(second),
+const typename DoublyLinkedList<typename Polyhedron<T,FP>::Edge, typename Polyhedron<T,FP>::GetEdgeLink>::Link& Polyhedron<T,FP>::GetEdgeLink::operator()(const Edge* edge) const {
+    return edge->m_link;
+}
+
+template <typename T, typename FP>
+Polyhedron<T,FP>::Edge::Edge(HalfEdge* first, HalfEdge* second) :
+m_first(first),
+m_second(second),
 #ifdef _MSC_VER
-		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
-	m_link(this)
+m_link(this)
 #pragma warning(pop)
 #else
-	m_link(this)
+m_link(this)
 #endif
-	{
-        assert(m_first != NULL);
-        m_first->setEdge(this);
-        if (m_second != NULL)
-            m_second->setEdge(this);
-    }
-public:
-    Vertex* firstVertex() const {
-        assert(m_first != NULL);
-        return m_first->origin();
-    }
-    
-    Vertex* secondVertex() const {
-        assert(m_first != NULL);
-        if (m_second != NULL)
-            return m_second->origin();
-        return m_first->next()->origin();
-    }
-    
-    Vertex* otherVertex(Vertex* vertex) const {
-        assert(vertex != NULL);
-        assert(vertex == firstVertex() || vertex == secondVertex());
-        if (vertex == firstVertex())
-            return secondVertex();
-        return firstVertex();
-    }
-    
-    HalfEdge* firstEdge() const {
-        assert(m_first != NULL);
-        return m_first;
-    }
-    
-    HalfEdge* secondEdge() const {
-        assert(m_second != NULL);
-        return m_second;
-    }
-    
-    HalfEdge* twin(const HalfEdge* halfEdge) const {
-        assert(halfEdge != NULL);
-        assert(halfEdge == m_first || halfEdge == m_second);
-        if (halfEdge == m_first)
-            return m_second;
-        return m_first;
-    }
-    
-    V vector() const {
-        return secondVertex()->position() - firstVertex()->position();
-    }
-    
-    V center() const {
-        assert(fullySpecified());
-        return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);
-    }
-    
-    Face* firstFace() const {
-        assert(m_first != NULL);
-        return m_first->face();
-    }
-    
-    Face* secondFace() const {
-        assert(m_second != NULL);
-        return m_second->face();
-    }
-    
-    Vertex* commonVertex(const Edge* other) const {
-        assert(other != NULL);
-        if (other->hasVertex(firstVertex()))
-            return firstVertex();
-        if (other->hasVertex(secondVertex()))
-            return secondVertex();
-        return NULL;
-    }
-    
-    bool hasVertex(const Vertex* vertex) const {
-        return firstVertex() == vertex || secondVertex() == vertex;
-    }
-    
-    bool hasPosition(const V& position, const T epsilon = Math::Constants<T>::almostZero()) const {
-        return ( firstVertex()->position().equals(position, epsilon) ||
-                secondVertex()->position().equals(position, epsilon));
-    }
-    
-    bool hasPositions(const V& position1, const V& position2, const T epsilon = Math::Constants<T>::almostZero()) const {
-        return (( firstVertex()->position().equals(position1, epsilon) &&
-                 secondVertex()->position().equals(position2, epsilon)) ||
-                ( firstVertex()->position().equals(position2, epsilon) &&
-                 secondVertex()->position().equals(position1, epsilon))
-                );
-    }
-    
-    bool fullySpecified() const {
-        assert(m_first != NULL);
-        return m_second != NULL;
-    }
-    
-    bool contains(const V& point, const T maxDistance = Math::Constants<T>::almostZero()) const {
-        return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
-    }
-
-    Edge* next() const {
-        return m_link.next();
-    }
-    
-    Edge* previous() const {
-        return m_link.previous();
-    }
-private:
-    Edge* split(const Plane<T,3>& plane) {
-        // Do exactly what QBSP is doing:
-        const T startDist = plane.pointDistance(firstVertex()->position());
-        const T endDist = plane.pointDistance(secondVertex()->position());
-
-        assert(startDist != endDist);
-        const T dot = startDist / (startDist - endDist);
-        
-        const V& startPos = firstVertex()->position();
-        const V& endPos = secondVertex()->position();
-        V position;
-        for (size_t i = 0; i < 3; ++i) {
-            if (plane.normal[i] == 1.0)
-                position[i] = plane.distance;
-            else if (plane.normal[i] == -1.0)
-                position[i] = -plane.distance;
-            else
-                position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
-        }
-        
-        // cheat a little bit?, just like QBSP
-        position.correct();
-        return insertVertex(position);
-    }
-
-    Edge* splitAtCenter() {
-        return insertVertex(center());
-    }
-
-    Edge* insertVertex(const V& position) {
-        Vertex* newVertex = new Vertex(position);
-        HalfEdge* newFirstEdge = new HalfEdge(newVertex);
-        HalfEdge* oldFirstEdge = firstEdge();
-        HalfEdge* newSecondEdge = new HalfEdge(newVertex);
-        HalfEdge* oldSecondEdge = secondEdge();
-        
-        newFirstEdge->setFace(firstFace());
-        newSecondEdge->setFace(secondFace());
-        
-        firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
-        secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
-        
-        setFirstAsLeaving();
-        unsetSecondEdge();
-        setSecondEdge(newSecondEdge);
-        
-        Edge* newEdge = new Edge(newFirstEdge, oldSecondEdge);
-        return newEdge;
-    }
-    
-    void flip() {
-        using std::swap;
-        swap(m_first, m_second);
-    }
-    
-    void makeFirstEdge(HalfEdge* edge) {
-        assert(edge != NULL);
-        assert(m_first == edge || m_second == edge);
-        if (edge != m_first)
-            flip();
-    }
-    
-    void makeSecondEdge(HalfEdge* edge) {
-        assert(edge != NULL);
-        assert(m_first == edge || m_second == edge);
-        if (edge != m_second)
-            flip();
-    }
-    
-    void setFirstAsLeaving() {
-        assert(m_first != NULL);
-        m_first->setAsLeaving();
-    }
-    
-    void unsetSecondEdge() {
-        m_second->setEdge(NULL);
-        m_second = NULL;
-    }
-    
-    void setSecondEdge(HalfEdge* second) {
-        assert(second != NULL);
-        assert(m_second == NULL);
-        assert(second->edge() == NULL);
-        m_second = second;
+{
+    assert(m_first != NULL);
+    m_first->setEdge(this);
+    if (m_second != NULL)
         m_second->setEdge(this);
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::Edge::firstVertex() const {
+    assert(m_first != NULL);
+    return m_first->origin();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::Edge::secondVertex() const {
+    assert(m_first != NULL);
+    if (m_second != NULL)
+        return m_second->origin();
+    return m_first->next()->origin();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::Edge::otherVertex(Vertex* vertex) const {
+    assert(vertex != NULL);
+    assert(vertex == firstVertex() || vertex == secondVertex());
+    if (vertex == firstVertex())
+        return secondVertex();
+    return firstVertex();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::Edge::firstEdge() const {
+    assert(m_first != NULL);
+    return m_first;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::Edge::secondEdge() const {
+    assert(m_second != NULL);
+    return m_second;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::Edge::twin(const HalfEdge* halfEdge) const {
+    assert(halfEdge != NULL);
+    assert(halfEdge == m_first || halfEdge == m_second);
+    if (halfEdge == m_first)
+        return m_second;
+    return m_first;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::V Polyhedron<T,FP>::Edge::vector() const {
+    return secondVertex()->position() - firstVertex()->position();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::V Polyhedron<T,FP>::Edge::center() const {
+    assert(fullySpecified());
+    return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::Edge::firstFace() const {
+    assert(m_first != NULL);
+    return m_first->face();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::Edge::secondFace() const {
+    assert(m_second != NULL);
+    return m_second->face();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::Edge::commonVertex(const Edge* other) const {
+    assert(other != NULL);
+    if (other->hasVertex(firstVertex()))
+        return firstVertex();
+    if (other->hasVertex(secondVertex()))
+        return secondVertex();
+    return NULL;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::hasVertex(const Vertex* vertex) const {
+    return firstVertex() == vertex || secondVertex() == vertex;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::hasPosition(const V& position, const T epsilon) const {
+    return ( firstVertex()->position().equals(position, epsilon) ||
+            secondVertex()->position().equals(position, epsilon));
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::hasPositions(const V& position1, const V& position2, const T epsilon) const {
+    return (( firstVertex()->position().equals(position1, epsilon) &&
+             secondVertex()->position().equals(position2, epsilon)) ||
+            ( firstVertex()->position().equals(position2, epsilon) &&
+             secondVertex()->position().equals(position1, epsilon))
+            );
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::fullySpecified() const {
+    assert(m_first != NULL);
+    return m_second != NULL;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::contains(const V& point, const T maxDistance) const {
+    return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::Edge::next() const {
+    return m_link.next();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::Edge::previous() const {
+    return m_link.previous();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::Edge::split(const Plane<T,3>& plane) {
+    // Do exactly what QBSP is doing:
+    const T startDist = plane.pointDistance(firstVertex()->position());
+    const T endDist = plane.pointDistance(secondVertex()->position());
+    
+    assert(startDist != endDist);
+    const T dot = startDist / (startDist - endDist);
+    
+    const V& startPos = firstVertex()->position();
+    const V& endPos = secondVertex()->position();
+    V position;
+    for (size_t i = 0; i < 3; ++i) {
+        if (plane.normal[i] == 1.0)
+            position[i] = plane.distance;
+        else if (plane.normal[i] == -1.0)
+            position[i] = -plane.distance;
+        else
+            position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
     }
-};
+    
+    // cheat a little bit?, just like QBSP
+    position.correct();
+    return insertVertex(position);
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::Edge::splitAtCenter() {
+    return insertVertex(center());
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::Edge::insertVertex(const V& position) {
+    Vertex* newVertex = new Vertex(position);
+    HalfEdge* newFirstEdge = new HalfEdge(newVertex);
+    HalfEdge* oldFirstEdge = firstEdge();
+    HalfEdge* newSecondEdge = new HalfEdge(newVertex);
+    HalfEdge* oldSecondEdge = secondEdge();
+    
+    newFirstEdge->setFace(firstFace());
+    newSecondEdge->setFace(secondFace());
+    
+    firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
+    secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
+    
+    setFirstAsLeaving();
+    unsetSecondEdge();
+    setSecondEdge(newSecondEdge);
+    
+    Edge* newEdge = new Edge(newFirstEdge, oldSecondEdge);
+    return newEdge;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::flip() {
+    using std::swap;
+    swap(m_first, m_second);
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::makeFirstEdge(HalfEdge* edge) {
+    assert(edge != NULL);
+    assert(m_first == edge || m_second == edge);
+    if (edge != m_first)
+        flip();
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::makeSecondEdge(HalfEdge* edge) {
+    assert(edge != NULL);
+    assert(m_first == edge || m_second == edge);
+    if (edge != m_second)
+        flip();
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::setFirstAsLeaving() {
+    assert(m_first != NULL);
+    m_first->setAsLeaving();
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::unsetSecondEdge() {
+    m_second->setEdge(NULL);
+    m_second = NULL;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Edge::setSecondEdge(HalfEdge* second) {
+    assert(second != NULL);
+    assert(m_second == NULL);
+    assert(second->edge() == NULL);
+    m_second = second;
+    m_second->setEdge(this);
+}
 
 #endif

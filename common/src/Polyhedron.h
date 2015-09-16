@@ -30,22 +30,38 @@
 
 template <typename T, typename FP>
 class Polyhedron {
-private:
-    template <typename P> class FaceT;
+    typedef Vec<T,3> V;
+    typedef typename Vec<T,3>::List PosList;
 public:
     class Vertex;
     class Edge;
     class HalfEdge;
-    typedef FaceT<FP> Face;
+    class Face;
 private:
-    typedef Vec<T,3> V;
-    typedef typename Vec<T,3>::List PosList;
+    class GetVertexLink {
+    public:
+        typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(Vertex* vertex) const;
+        const typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(const Vertex* vertex) const;
+    };
     
-    class GetVertexLink;
-    class GetEdgeLink;
-    class GetHalfEdgeLink;
-    class GetFaceLink;
+    class GetEdgeLink {
+    public:
+        typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const;
+        const typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(const Edge* edge) const;
+    };
 
+    class GetHalfEdgeLink {
+    public:
+        typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(HalfEdge* halfEdge) const;
+        const typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(const HalfEdge* halfEdge) const;
+    };
+
+    class GetFaceLink {
+    public:
+        typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const;
+        const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const;
+    };
+    
     typedef typename DoublyLinkedList<Vertex, GetVertexLink>::Link VertexLink;
     typedef typename DoublyLinkedList<Edge, GetEdgeLink>::Link EdgeLink;
     typedef typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link HalfEdgeLink;
@@ -55,6 +71,141 @@ public:
     typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
     typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
     typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
+public:
+    class Vertex : public Allocator<Vertex> {
+    private:
+        friend class Polyhedron<T,FP>;
+        
+        V m_position;
+        VertexLink m_link;
+        HalfEdge* m_leaving;
+    private:
+        Vertex(const V& position);
+    public:
+        const V& position() const;
+        Vertex* next() const;
+        Vertex* previous() const;
+        HalfEdge* leaving() const;
+    private:
+        HalfEdge* findConnectingEdge(const Vertex* vertex) const;
+        HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
+        void setPosition(const V& position);
+        void setLeaving(HalfEdge* edge);
+    };
+
+    class Edge : public Allocator<Edge> {
+    private:
+        friend class Polyhedron<T,FP>;
+        
+        HalfEdge* m_first;
+        HalfEdge* m_second;
+        EdgeLink m_link;
+    private:
+        Edge(HalfEdge* first, HalfEdge* second = NULL);
+    public:
+        Vertex* firstVertex() const;
+        Vertex* secondVertex() const;
+        Vertex* otherVertex(Vertex* vertex) const;
+        HalfEdge* firstEdge() const;
+        HalfEdge* secondEdge() const;
+        HalfEdge* twin(const HalfEdge* halfEdge) const;
+        V vector() const;
+        V center() const;
+        Face* firstFace() const;
+        Face* secondFace() const;
+        Vertex* commonVertex(const Edge* other) const;
+        bool hasVertex(const Vertex* vertex) const;
+        bool hasPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasPositions(const V& position1, const V& position2, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool fullySpecified() const;
+        bool contains(const V& point, T maxDistance = Math::Constants<T>::almostZero()) const;
+        Edge* next() const;
+        Edge* previous() const;
+    private:
+        Edge* split(const Plane<T,3>& plane);
+        Edge* splitAtCenter();
+        Edge* insertVertex(const V& position);
+        void flip();
+        void makeFirstEdge(HalfEdge* edge);
+        void makeSecondEdge(HalfEdge* edge);
+        void setFirstAsLeaving();
+        void unsetSecondEdge();
+        void setSecondEdge(HalfEdge* second);
+    };
+    
+    class HalfEdge : public Allocator<HalfEdge> {
+    private:
+        friend class Polyhedron<T,FP>;
+        
+        Vertex* m_origin;
+        Edge* m_edge;
+        Face* m_face;
+        HalfEdgeLink m_link;
+    private:
+        HalfEdge(Vertex* origin);
+    public:
+        ~HalfEdge();
+    public:
+        Vertex* origin() const;
+        Vertex* destination() const;
+        T length() const;
+        T squaredLength() const;
+        V vector() const;
+        Edge* edge() const;
+        Face* face() const;
+        HalfEdge* next() const;
+        HalfEdge* previous() const;
+        HalfEdge* twin() const;
+        HalfEdge* previousIncident() const;
+        HalfEdge* nextIncident() const;
+        bool hasOrigins(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        String asString() const;
+    private:
+        bool isLeavingEdge() const;
+        bool colinear(const HalfEdge* other) const;
+        void setOrigin(Vertex* origin);
+        void setEdge(Edge* edge);
+        void setFace(Face* face);
+        void setAsLeaving();
+    };
+
+    class Face : public Allocator<Face> {
+    private:
+        friend class Polyhedron<T,FP>;
+        
+        // Boundary is counter clockwise.
+        HalfEdgeList m_boundary;
+        FP* m_payload;
+        FaceLink m_link;
+    private:
+        Face(HalfEdgeList& boundary);
+    public:
+        FP* payload() const;
+        void setPayload(FP* payload);
+        Face* next() const;
+        Face* previous() const;
+        size_t vertexCount() const;
+        const HalfEdgeList& boundary() const;
+        V origin() const;
+        bool hasPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        V normal() const;
+        V center() const;
+        T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
+    private:
+        bool visibleFrom(const V& point) const;
+        bool coplanar(const Face* other) const;
+        Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
+        void flip();
+        void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);
+        void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
+        size_t removeFromBoundary(HalfEdge* from, HalfEdge* to);
+        size_t removeFromBoundary(HalfEdge* edge);
+        size_t replaceBoundary(HalfEdge* edge, HalfEdge* with);
+        size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
+        void replaceEntireBoundary(HalfEdgeList& newBoundary);
+        size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
+        void updateBoundaryFaces(Face* face);
+    };
 public:
     struct GetVertexPosition {
         const V& operator()(const Vertex* vertex) const;
@@ -95,7 +246,6 @@ private: // Constructor helpers
     template <typename C> void setBounds(const BBox<T,3>& bounds, C& callback);
 private: // Copy constructor
     class Copy;
-    Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces);
 public: // Destructor
     virtual ~Polyhedron();
 public: // operators
@@ -110,8 +260,6 @@ public: // swap function
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
-    typename V::List vertexPositions() const;
-    typename V::List& vertexPositions(typename V::List& positions) const;
     bool hasVertex(const V& position) const;
     
     size_t edgeCount() const;
@@ -147,8 +295,27 @@ private: // General purpose methods
     bool checkNoDegenerateFaces() const;
     
     void updateBounds();
-public: // Moving vertices
-    struct MoveVerticesResult;
+private:  // Moving vertices
+    struct MoveVertexResult;
+public:
+    struct MoveVerticesResult {
+        typename V::List movedVertices;
+        typename V::List deletedVertices;
+        typename V::List unchangedVertices;
+        typename V::List newVertexPositions;
+        typename V::List unknownVertices;
+        
+        MoveVerticesResult();
+        MoveVerticesResult(const typename V::List& i_movedVertices);
+
+        void add(const MoveVertexResult& result);
+        void addUnknown(const V& position);
+        bool allVerticesMoved() const;
+        bool hasDeletedVertices() const;
+        bool hasUnchangedVertices() const;
+        bool hasUnknownVertices() const;
+    };
+    
     MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
     template <typename C> MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback);
     
@@ -164,7 +331,6 @@ private: // Splitting edges and faces
 private:
     template <typename C> MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback);
 
-    struct MoveVertexResult;
     template <typename C> MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, C& callback);
     MoveVertexResult movePointVertex(Vertex* vertex, const V& destination);
     MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
@@ -231,7 +397,20 @@ private:
     template <typename C> Vertex* weaveCap(const Seam& seam, const V& position, C& callback);
     template <typename C> Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const;
 public: // Clipping
-    struct ClipResult;
+    struct ClipResult {
+        typedef enum {
+            Type_ClipUnchanged,
+            Type_ClipEmpty,
+            Type_ClipSuccess
+        } Type;
+        
+        const Type type;
+        ClipResult(const Type i_type);
+        bool unchanged() const;
+        bool empty() const;
+        bool success() const;
+    };
+
     ClipResult clip(const Plane<T,3>& plane);
     template <typename C> ClipResult clip(const Plane<T,3>& plane, C& callback);
 private:
@@ -244,14 +423,5 @@ private:
     template <typename C> void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, C& callback);
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
 };
-
-#include "Polyhedron_Misc.h"
-#include "Polyhedron_Clip.h"
-#include "Polyhedron_Vertex.h"
-#include "Polyhedron_Edge.h"
-#include "Polyhedron_HalfEdge.h"
-#include "Polyhedron_Face.h"
-#include "Polyhedron_VertexManipulation.h"
-#include "Polyhedron_ConvexHull.h"
 
 #endif

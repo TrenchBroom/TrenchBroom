@@ -369,7 +369,7 @@ namespace TrenchBroom {
             AddFacesToGeometry addFaces(testGeometry, testFaces);
             const bool inWorldBounds = worldBounds.contains(testGeometry.bounds()) && testGeometry.closed();
 
-            m_geometry->restoreFaceLinks();
+            restoreFaceLinks(m_geometry);
             delete testFace;
             
             return (inWorldBounds &&

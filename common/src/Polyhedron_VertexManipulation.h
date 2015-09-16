@@ -23,62 +23,62 @@
 #include <algorithm>
 
 template <typename T, typename FP>
-struct Polyhedron<T,FP>::MoveVerticesResult {
-    typename V::List movedVertices;
-    typename V::List deletedVertices;
-    typename V::List unchangedVertices;
-    typename V::List newVertexPositions;
-    typename V::List unknownVertices;
-    
-    MoveVerticesResult() {}
-    MoveVerticesResult(const typename V::List& i_movedVertices) :
-    movedVertices(i_movedVertices) {}
-    
-    void add(const MoveVertexResult& result) {
-        switch (result.type) {
-            case MoveVertexResult::Type_VertexMoved:
-                movedVertices.push_back(result.originalPosition);
-                newVertexPositions.push_back(result.vertex->position());
-                break;
-            case MoveVertexResult::Type_VertexDeleted:
-                deletedVertices.push_back(result.originalPosition);
-                break;
-            case MoveVertexResult::Type_VertexUnchanged:
-                unchangedVertices.push_back(result.originalPosition);
-                break;
-            DEFAULT_SWITCH()
-        }
-    }
-    
-    void addUnknown(const V& position) {
-        unknownVertices.push_back(position);
-    }
-    
-    bool allVerticesMoved() const {
-        return !hasDeletedVertices() && !hasUnchangedVertices() && unknownVertices.empty() && !newVertexPositions.empty();
-    }
-    
-    bool hasDeletedVertices() const {
-        return !deletedVertices.empty();
-    }
-    
-    bool hasUnchangedVertices() const {
-        return !unchangedVertices.empty();
-    }
-    
-    bool hasUnknownVertices() const {
-        return !unknownVertices.empty();
-    }
-};
+Polyhedron<T,FP>::MoveVerticesResult::MoveVerticesResult() {}
 
 template <typename T, typename FP>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(const typename V::List& positions, const V& delta, const bool allowMergeIncidentVertices) {
+Polyhedron<T,FP>::MoveVerticesResult::MoveVerticesResult(const typename V::List& i_movedVertices) :
+movedVertices(i_movedVertices) {}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::MoveVerticesResult::add(const MoveVertexResult& result) {
+    switch (result.type) {
+        case MoveVertexResult::Type_VertexMoved:
+            movedVertices.push_back(result.originalPosition);
+            newVertexPositions.push_back(result.vertex->position());
+            break;
+        case MoveVertexResult::Type_VertexDeleted:
+            deletedVertices.push_back(result.originalPosition);
+            break;
+        case MoveVertexResult::Type_VertexUnchanged:
+            unchangedVertices.push_back(result.originalPosition);
+            break;
+            DEFAULT_SWITCH()
+    }
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::MoveVerticesResult::addUnknown(const V& position) {
+    unknownVertices.push_back(position);
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::MoveVerticesResult::allVerticesMoved() const {
+    return !hasDeletedVertices() && !hasUnchangedVertices() && unknownVertices.empty() && !newVertexPositions.empty();
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::MoveVerticesResult::hasDeletedVertices() const {
+    return !deletedVertices.empty();
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::MoveVerticesResult::hasUnchangedVertices() const {
+    return !unchangedVertices.empty();
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::MoveVerticesResult::hasUnknownVertices() const {
+    return !unknownVertices.empty();
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices) {
     Callback c;
     return moveVertices(positions, delta, allowMergeIncidentVertices, c);
 }
 
 template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, C& callback) {
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback) {
     assert(checkInvariant());
     if (delta.null())
         return MoveVerticesResult(positions);

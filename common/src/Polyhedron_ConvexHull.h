@@ -208,7 +208,7 @@ template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::addPointToPolygon(const V& position, C& callback) {
     typename V::List positions;
     positions.reserve(vertexCount() + 1);
-    vertexPositions(positions);
+    V::toList(m_vertices.begin(), m_vertices.end(), GetVertexPosition(), positions);
     positions.push_back(position);
     
     positions = convexHull2D<T>(positions);

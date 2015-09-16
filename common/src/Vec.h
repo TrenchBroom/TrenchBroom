@@ -845,9 +845,14 @@ public:
     template <typename I, typename G>
     static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
         typename Vec<T,S>::List result;
+        toList(cur, end, get, result);
+        return result;
+    }
+    
+    template <typename I, typename G>
+    static void toList(I cur, I end, const G& get, typename Vec<T,S>::List& result) {
         while (cur != end)
             result.push_back(get(*cur++));
-        return result;
     }
 };
 

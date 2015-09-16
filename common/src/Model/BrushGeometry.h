@@ -28,12 +28,10 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         
-        class BrushGeometry : public Polyhedron<FloatType, BrushFace> {
-        public:
-            BrushGeometry(const BBox3& bounds);
-        public:
-            void restoreFaceLinks();
-        };
+        typedef Polyhedron<FloatType, BrushFace> BrushGeometry;
+        
+        void restoreFaceLinks(BrushGeometry* geometry);
+        void restoreFaceLinks(BrushGeometry& geometry);
         
         class SetTempFaceLinks {
         private:
