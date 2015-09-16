@@ -79,8 +79,8 @@ Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4)
     addPoints(p1, p2, p3, p4, c);
 }
 
-template <typename T, typename FP> template <typename C>
-Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, C& callback) {
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
     addPoints(p1, p2, p3, p4, callback);
 }
 
@@ -90,8 +90,8 @@ Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds) {
     setBounds(bounds, c);
 }
 
-template <typename T, typename FP> template <typename C>
-Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds, C& callback) {
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
     setBounds(bounds, callback);
 }
 
@@ -101,21 +101,21 @@ Polyhedron<T,FP>::Polyhedron(typename V::List positions) {
     addPoints(positions.begin(), positions.end(), c);
 }
 
-template <typename T, typename FP> template <typename C>
-Polyhedron<T,FP>::Polyhedron(typename V::List positions, C& callback) {
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(typename V::List positions, Callback& callback) {
     addPoints(positions.begin(), positions.end(), callback);
 }
 
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
     addPoint(p1, callback);
     addPoint(p2, callback);
     addPoint(p3, callback);
     addPoint(p4, callback);
 }
 
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, Callback& callback) {
     if (bounds.min == bounds.max) {
         addPoint(bounds.min);
         return;

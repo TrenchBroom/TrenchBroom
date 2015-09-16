@@ -77,8 +77,8 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(con
     return moveVertices(positions, delta, allowMergeIncidentVertices, c);
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback) {
     assert(checkInvariant());
     if (delta.null())
         return MoveVerticesResult(positions);
@@ -93,8 +93,8 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitEdge(const 
     return splitEdge(v1, v2, delta, c);
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, const V& delta, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, const V& delta, Callback& callback) {
     assert(checkInvariant());
     
     if (delta.null())
@@ -115,8 +115,8 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const 
     return splitFace(vertexPositions, delta, c);
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, const V& delta, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, const V& delta, Callback& callback) {
     assert(checkInvariant());
     
     if (delta.null())
@@ -131,8 +131,8 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const 
     return moveResult;
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::doMoveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::doMoveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, Callback& callback) {
     std::sort(positions.begin(), positions.end(), typename V::InverseDotOrder(delta));
     MoveVerticesResult totalResult;
     
@@ -161,8 +161,8 @@ struct Polyhedron<T,FP>::SplitResult {
     vertexPosition(i_vertexPosition) {}
 };
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, Callback& callback) {
     Edge* edge = findEdgeByPositions(v1, v2);
     if (edge == NULL)
         return SplitResult(false);
@@ -176,8 +176,8 @@ typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, 
     return SplitResult(true, newVertex->position());
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, Callback& callback) {
     Face* face = findFaceByPositions(vertexPositions);
     if (face == NULL)
         return SplitResult(false);
@@ -250,8 +250,8 @@ struct Polyhedron<T,FP>::MoveVertexResult {
     bool unchanged() const { return type == Type_VertexUnchanged; }
 };
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
     assert(vertex != NULL);
     assert(vertex->position() != destination);
     
@@ -325,8 +325,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolygonVertex(
     }
 }
 
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
     // The idea of this algorithm can be summarized as follows:
     // First, break up all faces incident to the given vertex so that they become triangles.
     // Second, examine the (straight) path along which the given vertex will travel when moved to the
@@ -390,8 +390,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
 // an incident face and the vector from the given vertex's position to the destination,
 // this includes chopping off triangles of some incident faces, and splitting other faces
 // into triangle fans.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::splitIncidentFaces(Vertex* vertex, const V& destination, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::splitIncidentFaces(Vertex* vertex, const V& destination, Callback& callback) {
     HalfEdge* firstEdge = vertex->leaving();
     HalfEdge* curEdge = firstEdge;
     
@@ -412,8 +412,8 @@ void Polyhedron<T,FP>::splitIncidentFaces(Vertex* vertex, const V& destination, 
 // Creates a new face by chopping off one triangle of the given face. The triangle
 // will have the destination of the given edge, the origin of the given edge, and
 // the origin of the given edge's predecessor as its vertices.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, Callback& callback) {
     assert(face->vertexCount() > 3);
     
     HalfEdge* next = halfEdge;
@@ -449,8 +449,8 @@ void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, C& callback) {
  --h-->     --h-->
  
  */
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::splitFace(Face* face, HalfEdge* halfEdge, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::splitFace(Face* face, HalfEdge* halfEdge, Callback& callback) {
     HalfEdge* next = halfEdge;
     while (face->vertexCount() > 3) {
         HalfEdge* previous = next->previous();
@@ -571,8 +571,8 @@ T Polyhedron<T,FP>::computeNextMergePointForPlane(const V& origin, const V& dest
 // deleting the edge, the destination vertex, and the faces incident to the connecting edge
 // and its twin.
 // Assumes that these incident faces are triangles.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, Callback& callback) {
     HalfEdge* oppositeEdge = connectingEdge->twin();
     
     Vertex* origin = connectingEdge->origin();
@@ -651,8 +651,8 @@ struct Polyhedron<T,FP>::CleanupResult {
 // Also merges all faces incident to the given vertex with their coplanar neighbours.
 // Finally merges all arriving edges of the given vertex with any colinear leaving edges.
 // Returns the given vertex or NULL if it was deleted.
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::CleanupResult Polyhedron<T,FP>::cleanupAfterVertexMove(Vertex* vertex, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::CleanupResult Polyhedron<T,FP>::cleanupAfterVertexMove(Vertex* vertex, Callback& callback) {
     mergeLeavingEdges(vertex, callback);
     Face* containingFace = mergeIncidentFaces(vertex, callback);
     if (containingFace != NULL)
@@ -664,8 +664,8 @@ typename Polyhedron<T,FP>::CleanupResult Polyhedron<T,FP>::cleanupAfterVertexMov
 }
 
 // Merges all leaving edges of the given vertex with their successors if they have become colinear.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::mergeLeavingEdges(Vertex* vertex, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::mergeLeavingEdges(Vertex* vertex, Callback& callback) {
     HalfEdge* curEdge = vertex->leaving();
     do {
         Vertex* destination = curEdge->destination();
@@ -680,8 +680,8 @@ void Polyhedron<T,FP>::mergeLeavingEdges(Vertex* vertex, C& callback) {
 
 // Merges all arriving edges of the given vertex with any colinear leaving edges.
 // Returns the given vertex or NULL if it was deleted.
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex, Callback& callback) {
     HalfEdge* arriving = vertex->leaving()->twin();
     do {
         HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
@@ -695,8 +695,8 @@ typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(
 }
 
 // Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback) {
     assert(edge1->destination() == edge2->origin());
     
     if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the right side is a degenerate triangle now
@@ -751,8 +751,8 @@ typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::mergeColinearEdges(HalfEdge* 
 
 // Merges all faces incident to the given vertex with their coplanar neighbours.
 // Returns the given vertex or NULL if the given vertex was deleted.
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* vertex, C& callback) {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* vertex, Callback& callback) {
     size_t incidentFaceCount = 0;
     bool allCoplanar = true;
     
@@ -851,8 +851,8 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
 // the face incident to the given face's twin. The face incident to the border is deleted
 // while the neighbour consumes the boundary of the incident face.
 // Also handles the case where the border is longer than just one edge.
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback) {
     Face* face = borderFirst->face();
     Face* neighbour = borderFirst->twin()->face();
     
@@ -908,8 +908,8 @@ void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, C& callback) {
     delete face;
 }
 
-template <typename T, typename FP> template <typename C>
-void Polyhedron<T,FP>::incidentFacesDidChange(Vertex* vertex, C& callback) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::incidentFacesDidChange(Vertex* vertex, Callback& callback) {
     HalfEdge* firstEdge = vertex->leaving();
     HalfEdge* currentEdge = firstEdge;
     do {
