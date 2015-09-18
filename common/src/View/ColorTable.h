@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ColorTable__
-#define __TrenchBroom__ColorTable__
+#ifndef TrenchBroom_ColorTable
+#define TrenchBroom_ColorTable
 
 #include <wx/scrolwin.h>
 
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ColorTable__) */
+#endif /* defined(TrenchBroom_ColorTable) */

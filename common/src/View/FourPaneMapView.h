@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FourPaneMapView__
-#define __TrenchBroom__FourPaneMapView__
+#ifndef TrenchBroom_FourPaneMapView
+#define TrenchBroom_FourPaneMapView
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FourPaneMapView__) */
+#endif /* defined(TrenchBroom_FourPaneMapView) */

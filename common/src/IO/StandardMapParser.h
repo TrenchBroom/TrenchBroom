@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__StandardMapParser__
-#define __TrenchBroom__StandardMapParser__
+#ifndef TrenchBroom_StandardMapParser
+#define TrenchBroom_StandardMapParser
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -100,4 +100,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__StandardMapParser__) */
+#endif /* defined(TrenchBroom_StandardMapParser) */

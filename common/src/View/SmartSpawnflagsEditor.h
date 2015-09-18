@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SmartSpawnflagsEditor__
-#define __TrenchBroom__SmartSpawnflagsEditor__
+#ifndef TrenchBroom_SmartSpawnflagsEditor
+#define TrenchBroom_SmartSpawnflagsEditor
 
 #include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
@@ -67,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SmartSpawnflagsEditor__) */
+#endif /* defined(TrenchBroom_SmartSpawnflagsEditor) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Wad__
-#define __TrenchBroom__Wad__
+#ifndef TrenchBroom_Wad
+#define TrenchBroom_Wad
 
 #include "StringUtils.h"
 #include "IO/MappedFile.h"
@@ -85,4 +85,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Wad__) */
+#endif /* defined(TrenchBroom_Wad) */

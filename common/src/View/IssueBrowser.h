@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__IssueBrowser__
-#define __TrenchBroom__IssueBrowser__
+#ifndef TrenchBroom_IssueBrowser
+#define TrenchBroom_IssueBrowser
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -76,4 +76,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__IssueBrowser__) */
+#endif /* defined(TrenchBroom_IssueBrowser) */

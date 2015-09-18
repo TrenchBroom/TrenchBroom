@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Tool__
-#define __TrenchBroom__Tool__
+#ifndef TrenchBroom_Tool
+#define TrenchBroom_Tool
 
 #include "Notifier.h"
 
@@ -63,4 +63,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Tool__) */
+#endif /* defined(TrenchBroom_Tool) */

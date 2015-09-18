@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeBrushFaceAttributesCommand__
-#define __TrenchBroom__ChangeBrushFaceAttributesCommand__
+#ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
+#define TrenchBroom_ChangeBrushFaceAttributesCommand
 
 #include "View/DocumentCommand.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeBrushFaceAttributesCommand__) */
+#endif /* defined(TrenchBroom_ChangeBrushFaceAttributesCommand) */

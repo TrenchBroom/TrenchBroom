@@ -391,7 +391,7 @@ namespace StringUtils {
                     return isPrefix(str, m_pattern, Cmp());
                 case Mode_Suffix:
                     return isSuffix(str, m_pattern, Cmp());
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
     };

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ParallelTexCoordSystem__
-#define __TrenchBroom__ParallelTexCoordSystem__
+#ifndef TrenchBroom_ParallelTexCoordSystem
+#define TrenchBroom_ParallelTexCoordSystem
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -81,4 +81,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ParallelTexCoordSystem__) */
+#endif /* defined(TrenchBroom_ParallelTexCoordSystem) */

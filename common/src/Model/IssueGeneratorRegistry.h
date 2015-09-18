@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__IssueGeneratorRegistry__
-#define __TrenchBroom__IssueGeneratorRegistry__
+#ifndef TrenchBroom_IssueGeneratorRegistry
+#define TrenchBroom_IssueGeneratorRegistry
 
 #include "Model/ModelTypes.h"
 
@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__IssueGeneratorRegistry__) */
+#endif /* defined(TrenchBroom_IssueGeneratorRegistry) */

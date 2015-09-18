@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVEditor__
-#define __TrenchBroom__UVEditor__
+#ifndef TrenchBroom_UVEditor
+#define TrenchBroom_UVEditor
 
 #include "View/ViewTypes.h"
 
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVEditor__) */
+#endif /* defined(TrenchBroom_UVEditor) */

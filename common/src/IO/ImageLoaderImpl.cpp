@@ -140,7 +140,7 @@ namespace TrenchBroom {
                         BYTE index = 0;
                         const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
                         assert(success);
-                        _UNUSED(success);
+                        unused(success);
                         m_indices[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
                     }
                 }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                     BYTE paletteIndex = 0;
                     const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
                     assert(success);
-                    _UNUSED(success);
+                    unused(success);
 
                     assert(paletteIndex < paletteSize());
 
@@ -198,7 +198,7 @@ namespace TrenchBroom {
                     RGBQUAD pixel;
                     const bool success = (FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
                     assert(success);
-                    _UNUSED(success);
+                    unused(success);
 
                     const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
                     m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             switch (format) {
                 case ImageLoader::PCX:
                     return FIF_PCX;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 
@@ -224,7 +224,7 @@ namespace TrenchBroom {
                     return 3;
                 case ImageLoader::RGBA:
                     return 4;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
     }

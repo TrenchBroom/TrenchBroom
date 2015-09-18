@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVOffsetTool__
-#define __TrenchBroom__UVOffsetTool__
+#ifndef TrenchBroom_UVOffsetTool
+#define TrenchBroom_UVOffsetTool
 
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVOffsetTool__) */
+#endif /* defined(TrenchBroom_UVOffsetTool) */

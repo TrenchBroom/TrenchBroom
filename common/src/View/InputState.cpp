@@ -91,7 +91,7 @@ namespace TrenchBroom {
                     return !modifierKeysDown(key);
                 case MK_DontCare:
                     return true;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 

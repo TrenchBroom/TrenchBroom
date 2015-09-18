@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ShearTexturesCommand__
-#define __TrenchBroom__ShearTexturesCommand__
+#ifndef TrenchBroom_ShearTexturesCommand
+#define TrenchBroom_ShearTexturesCommand
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ShearTexturesCommand__) */
+#endif /* defined(TrenchBroom_ShearTexturesCommand) */

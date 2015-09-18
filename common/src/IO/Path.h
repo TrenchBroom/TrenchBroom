@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Path__
-#define __TrenchBroom__Path__
+#ifndef TrenchBroom_Path
+#define TrenchBroom_Path
 
 #include "StringUtils.h"
 
@@ -90,4 +90,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Path__) */
+#endif /* defined(TrenchBroom_Path) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameListBox__
-#define __TrenchBroom__GameListBox__
+#ifndef TrenchBroom_GameListBox
+#define TrenchBroom_GameListBox
 
 #include "StringUtils.h"
 #include "View/ImageListBox.h"
@@ -58,4 +58,4 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(__TrenchBroom__GameListBox__) */
+#endif /* defined(TrenchBroom_GameListBox) */

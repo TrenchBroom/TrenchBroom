@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityBrowserView__
-#define __TrenchBroom__EntityBrowserView__
+#ifndef TrenchBroom_EntityBrowserView
+#define TrenchBroom_EntityBrowserView
 
 #include "VecMath.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -118,4 +118,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityBrowserView__) */
+#endif /* defined(TrenchBroom_EntityBrowserView) */

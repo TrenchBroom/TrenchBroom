@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFileSerializer__
-#define __TrenchBroom__MapFileSerializer__
+#ifndef TrenchBroom_MapFileSerializer
+#define TrenchBroom_MapFileSerializer
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
@@ -57,4 +57,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFileSerializer__) */
+#endif /* defined(TrenchBroom_MapFileSerializer) */

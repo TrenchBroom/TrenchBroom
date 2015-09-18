@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RecentDocumentSelectedCommand__
-#define __TrenchBroom__RecentDocumentSelectedCommand__
+#ifndef TrenchBroom_RecentDocumentSelectedCommand
+#define TrenchBroom_RecentDocumentSelectedCommand
 
 #include "IO/Path.h"
 
@@ -47,4 +47,4 @@ typedef void (wxEvtHandler::*RecentDocumentSelectedCommandFunction)(TrenchBroom:
 wxDECLARE_EVENT(RECENT_DOCUMENT_SELECTED_EVENT, TrenchBroom::View::RecentDocumentSelectedCommand);
 #define RecentDocumentSelectedHandler(func) wxEVENT_HANDLER_CAST(RecentDocumentSelectedCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__RecentDocumentSelectedCommand__) */
+#endif /* defined(TrenchBroom_RecentDocumentSelectedCommand) */

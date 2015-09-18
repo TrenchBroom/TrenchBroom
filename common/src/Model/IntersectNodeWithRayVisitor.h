@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__IntersectNodeWithRayVisitor__
-#define __TrenchBroom__IntersectNodeWithRayVisitor__
+#ifndef TrenchBroom_IntersectNodeWithRayVisitor
+#define TrenchBroom_IntersectNodeWithRayVisitor
 
 #include "TrenchBroom.h"
 #include "Ray.h"
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__IntersectNodeWithRayVisitor__) */
+#endif /* defined(TrenchBroom_IntersectNodeWithRayVisitor) */

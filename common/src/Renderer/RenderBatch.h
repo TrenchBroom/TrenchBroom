@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderBatch__
-#define __TrenchBroom__RenderBatch__
+#ifndef TrenchBroom_RenderBatch
+#define TrenchBroom_RenderBatch
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderBatch__) */
+#endif /* defined(TrenchBroom_RenderBatch) */

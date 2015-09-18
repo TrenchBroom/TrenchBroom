@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushContentType__
-#define __TrenchBroom__BrushContentType__
+#ifndef TrenchBroom_BrushContentType
+#define TrenchBroom_BrushContentType
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushContentType__) */
+#endif /* defined(TrenchBroom_BrushContentType) */

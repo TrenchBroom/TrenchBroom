@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontFactory__
-#define __TrenchBroom__FontFactory__
+#ifndef TrenchBroom_FontFactory
+#define TrenchBroom_FontFactory
 
 #include <iostream>
 
@@ -44,4 +44,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FontFactory__) */
+#endif /* defined(TrenchBroom_FontFactory) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolBoxConnector__
-#define __TrenchBroom__ToolBoxConnector__
+#ifndef TrenchBroom_ToolBoxConnector
+#define TrenchBroom_ToolBoxConnector
 
 #include "View/InputState.h"
 #include "View/PickRequest.h"
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolBoxConnector__) */
+#endif /* defined(TrenchBroom_ToolBoxConnector) */

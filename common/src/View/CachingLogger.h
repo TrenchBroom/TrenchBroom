@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CachingLogger__
-#define __TrenchBroom__CachingLogger__
+#ifndef TrenchBroom_CachingLogger
+#define TrenchBroom_CachingLogger
 
 #include "StringUtils.h"
 #include "Logger.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CachingLogger__) */
+#endif /* defined(TrenchBroom_CachingLogger) */

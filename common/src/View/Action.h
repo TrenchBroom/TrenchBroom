@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Action__
-#define __TrenchBroom__Action__
+#ifndef TrenchBroom_Action
+#define TrenchBroom_Action
 
 #include "Preference.h"
 #include "StringUtils.h"
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Action__) */
+#endif /* defined(TrenchBroom_Action) */

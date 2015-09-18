@@ -461,7 +461,7 @@ public:
                 case MatchResult_Both:
                 case MatchResult_Neither:
                     break;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         return NULL;

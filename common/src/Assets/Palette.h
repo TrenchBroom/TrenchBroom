@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Palette__
-#define __TrenchBroom__Palette__
+#ifndef TrenchBroom_Palette
+#define TrenchBroom_Palette
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -70,4 +70,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Palette__) */
+#endif /* defined(TrenchBroom_Palette) */

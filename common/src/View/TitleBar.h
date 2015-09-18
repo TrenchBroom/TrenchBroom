@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TitleBar__
-#define __TrenchBroom__TitleBar__
+#ifndef TrenchBroom_TitleBar
+#define TrenchBroom_TitleBar
 
 #include <wx/panel.h>
 
@@ -35,4 +35,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TitleBar__) */
+#endif /* defined(TrenchBroom_TitleBar) */

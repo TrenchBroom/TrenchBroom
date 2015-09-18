@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderView__
-#define __TrenchBroom__RenderView__
+#ifndef TrenchBroom_RenderView
+#define TrenchBroom_RenderView
 
 #include "Color.h"
 #include "Renderer/Vbo.h"
@@ -75,4 +75,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderView__) */
+#endif /* defined(TrenchBroom_RenderView) */

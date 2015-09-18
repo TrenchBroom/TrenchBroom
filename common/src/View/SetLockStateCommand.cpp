@@ -50,7 +50,7 @@ namespace TrenchBroom {
                     return "Lock Objects";
                 case Model::Lock_Unlocked:
                     return "Unlock Objects";
-		DEFAULT_SWITCH()
+		switchDefault()
             }
         }
         

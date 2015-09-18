@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EditorContext__
-#define __TrenchBroom__EditorContext__
+#ifndef TrenchBroom_EditorContext
+#define TrenchBroom_EditorContext
 
 #include "Notifier.h"
 #include "Model/BrushContentType.h"
@@ -112,4 +112,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EditorContext__) */
+#endif /* defined(TrenchBroom_EditorContext) */

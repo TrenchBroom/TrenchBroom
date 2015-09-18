@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VertexTool__
-#define __TrenchBroom__VertexTool__
+#ifndef TrenchBroom_VertexTool
+#define TrenchBroom_VertexTool
 
 #include "StringUtils.h"
 #include "TrenchBroom.h"
@@ -126,4 +126,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VertexTool__) */
+#endif /* defined(TrenchBroom_VertexTool) */

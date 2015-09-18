@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Mesh__
-#define __TrenchBroom__Mesh__
+#ifndef TrenchBroom_Mesh
+#define TrenchBroom_Mesh
 
 #include "CollectionUtils.h"
 #include "Renderer/IndexedVertexList.h"
@@ -304,4 +304,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Mesh__) */
+#endif /* defined(TrenchBroom_Mesh) */

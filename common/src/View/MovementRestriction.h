@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MovementRestriction__
-#define __TrenchBroom__MovementRestriction__
+#ifndef TrenchBroom_MovementRestriction
+#define TrenchBroom_MovementRestriction
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MovementRestriction__) */
+#endif /* defined(TrenchBroom_MovementRestriction) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChoosePathTypeDialog__
-#define __TrenchBroom__ChoosePathTypeDialog__
+#ifndef TrenchBroom_ChoosePathTypeDialog
+#define TrenchBroom_ChoosePathTypeDialog
 
 #include "IO/Path.h"
 
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ChoosePathTypeDialog__) */
+#endif /* defined(TrenchBroom_ChoosePathTypeDialog) */

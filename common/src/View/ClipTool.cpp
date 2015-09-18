@@ -204,7 +204,7 @@ namespace TrenchBroom {
             
             void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors) {
                 Vec3 snapped;
-                CHECK_BOOL(snapper.snap(point, snapped));
+                assertResult(snapper.snap(point, snapped));
 
                 m_points[m_numPoints] = ClipPoint(snapped, helpVectors);
                 ++m_numPoints;
@@ -590,7 +590,7 @@ namespace TrenchBroom {
             if (canClip()) {
                 Vec3 point1, point2, point3;
                 const size_t numPoints = m_strategy->getPoints(point1, point2, point3);
-                _UNUSED(numPoints);
+                unused(numPoints);
                 assert(numPoints == 3);
                 
                 Model::World* world = document->world();

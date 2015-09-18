@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferenceManager__
-#define __TrenchBroom__PreferenceManager__
+#ifndef TrenchBroom_PreferenceManager
+#define TrenchBroom_PreferenceManager
 
 #include "Color.h"
 #include "Notifier.h"
@@ -105,4 +105,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__PreferenceManager__) */
+#endif /* defined(TrenchBroom_PreferenceManager) */

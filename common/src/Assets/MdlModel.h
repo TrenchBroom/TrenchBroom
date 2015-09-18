@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MdlModel__
-#define __TrenchBroom__MdlModel__
+#ifndef TrenchBroom_MdlModel
+#define TrenchBroom_MdlModel
 
 #include "VecMath.h"
 #include "StringUtils.h"
@@ -112,4 +112,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MdlModel__) */
+#endif /* defined(TrenchBroom_MdlModel) */

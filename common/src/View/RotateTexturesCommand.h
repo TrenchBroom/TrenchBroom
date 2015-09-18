@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateTexturesCommand__
-#define __TrenchBroom__RotateTexturesCommand__
+#ifndef TrenchBroom_RotateTexturesCommand
+#define TrenchBroom_RotateTexturesCommand
 
 #include "View/DocumentCommand.h"
 
@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateTexturesCommand__) */
+#endif /* defined(TrenchBroom_RotateTexturesCommand) */

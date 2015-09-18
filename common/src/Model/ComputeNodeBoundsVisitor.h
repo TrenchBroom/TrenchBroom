@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ComputeNodeBoundsVisitor__
-#define __TrenchBroom__ComputeNodeBoundsVisitor__
+#ifndef TrenchBroom_ComputeNodeBoundsVisitor
+#define TrenchBroom_ComputeNodeBoundsVisitor
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(__TrenchBroom__ComputeNodeBoundsVisitor__) */
+#endif /* defined(TrenchBroom_ComputeNodeBoundsVisitor) */

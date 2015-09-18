@@ -181,7 +181,7 @@ namespace TrenchBroom {
             m_tool->beginRotation();
             
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
-            _UNUSED(hit);
+            unused(hit);
             assert(hit.isMatch());
             assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_None &&
                    hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center);

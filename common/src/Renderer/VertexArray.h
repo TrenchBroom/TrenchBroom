@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VertexArrayRenderer__
-#define __TrenchBroom__VertexArrayRenderer__
+#ifndef TrenchBroom_VertexArrayRenderer
+#define TrenchBroom_VertexArrayRenderer
 
 #include "CollectionUtils.h"
 #include "Renderer/GL.h"
@@ -320,4 +320,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VertexArrayRenderer__) */
+#endif /* defined(TrenchBroom_VertexArrayRenderer) */

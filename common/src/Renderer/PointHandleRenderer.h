@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointHandleRenderer__
-#define __TrenchBroom__PointHandleRenderer__
+#ifndef TrenchBroom_PointHandleRenderer
+#define TrenchBroom_PointHandleRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PointHandleRenderer__) */
+#endif /* defined(TrenchBroom_PointHandleRenderer) */

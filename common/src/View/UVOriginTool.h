@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVOriginTool__
-#define __TrenchBroom__UVOriginTool__
+#ifndef TrenchBroom_UVOriginTool
+#define TrenchBroom_UVOriginTool
 
 #include "Model//Hit.h"
 #include "Renderer/VertexSpec.h"
@@ -84,4 +84,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVOriginTool__) */
+#endif /* defined(TrenchBroom_UVOriginTool) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ParserStatus__
-#define __TrenchBroom__ParserStatus__
+#ifndef TrenchBroom_ParserStatus
+#define TrenchBroom_ParserStatus
 
 #include "Logger.h"
 #include "StringUtils.h"
@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ParserStatus__) */
+#endif /* defined(TrenchBroom_ParserStatus) */

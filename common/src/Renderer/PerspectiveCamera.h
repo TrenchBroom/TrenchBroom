@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PerspectiveCamera__
-#define __TrenchBroom__PerspectiveCamera__
+#ifndef TrenchBroom_PerspectiveCamera
+#define TrenchBroom_PerspectiveCamera
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PerspectiveCamera__) */
+#endif /* defined(TrenchBroom_PerspectiveCamera) */

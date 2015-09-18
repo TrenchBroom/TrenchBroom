@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjectsToolAdapter__
-#define __TrenchBroom__RotateObjectsToolAdapter__
+#ifndef TrenchBroom_RotateObjectsToolAdapter
+#define TrenchBroom_RotateObjectsToolAdapter
 
 #include "Model/Hit.h"
 #include "View/RotateObjectsHandle.h"
@@ -114,4 +114,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateObjectsToolAdapter__) */
+#endif /* defined(TrenchBroom_RotateObjectsToolAdapter) */

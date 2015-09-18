@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetBool__
-#define __TrenchBroom__SetBool__
+#ifndef TrenchBroom_SetBool
+#define TrenchBroom_SetBool
 
 #include <cassert>
 #include <iostream>
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__SetBool__) */
+#endif /* defined(TrenchBroom_SetBool) */

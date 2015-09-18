@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureManager__
-#define __TrenchBroom__TextureManager__
+#ifndef TrenchBroom_TextureManager
+#define TrenchBroom_TextureManager
 
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureManager__) */
+#endif /* defined(TrenchBroom_TextureManager) */

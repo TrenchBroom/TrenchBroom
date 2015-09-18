@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ParaxialTexCoordSystem__
-#define __TrenchBroom__ParaxialTexCoordSystem__
+#ifndef TrenchBroom_ParaxialTexCoordSystem
+#define TrenchBroom_ParaxialTexCoordSystem
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeTexCoordPolicy__) */
+#endif /* defined(TrenchBroom_QuakeTexCoordPolicy) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolBoxDropTarget__
-#define __TrenchBroom__ToolBoxDropTarget__
+#ifndef TrenchBroom_ToolBoxDropTarget
+#define TrenchBroom_ToolBoxDropTarget
 
 #include "StringUtils.h"
 
@@ -44,4 +44,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolBoxDropTarget__) */
+#endif /* defined(TrenchBroom_ToolBoxDropTarget) */

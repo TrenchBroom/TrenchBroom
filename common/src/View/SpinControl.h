@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TrenchBroom__SpinControl__
-#define __TrenchBroom__SpinControl__
+#ifndef TrenchBroom_SpinControl
+#define TrenchBroom_SpinControl
 
 #include <wx/control.h>
 #include <wx/event.h>
@@ -100,4 +100,4 @@ typedef void (wxEvtHandler::*SpinControlEventFunction)(TrenchBroom::View::SpinCo
 wxDECLARE_EVENT(SPIN_CONTROL_EVENT, TrenchBroom::View::SpinControlEvent);
 #define SpinControlEventHandler(func) wxEVENT_HANDLER_CAST(SpinControlEventFunction, func)
 
-#endif /* defined(__TrenchBroom__SpinControl__) */
+#endif /* defined(TrenchBroom_SpinControl) */

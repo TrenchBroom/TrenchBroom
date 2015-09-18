@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AddRemoveNodesCommand__
-#define __TrenchBroom__AddRemoveNodesCommand__
+#ifndef TrenchBroom_AddRemoveNodesCommand
+#define TrenchBroom_AddRemoveNodesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -59,4 +59,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__AddRemoveNodesCommand__) */
+#endif /* defined(TrenchBroom_AddRemoveNodesCommand) */

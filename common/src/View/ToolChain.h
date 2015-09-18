@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolChain__
-#define __TrenchBroom__ToolChain__
+#ifndef TrenchBroom_ToolChain
+#define TrenchBroom_ToolChain
 
 #include "StringUtils.h"
 
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolChain__) */
+#endif /* defined(TrenchBroom_ToolChain) */

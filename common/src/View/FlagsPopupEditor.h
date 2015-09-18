@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FlagsPopupEditor__
-#define __TrenchBroom__FlagsPopupEditor__
+#ifndef TrenchBroom_FlagsPopupEditor
+#define TrenchBroom_FlagsPopupEditor
 
 #include <wx/panel.h>
 
@@ -51,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FlagsPopupEditor__) */
+#endif /* defined(TrenchBroom_FlagsPopupEditor) */

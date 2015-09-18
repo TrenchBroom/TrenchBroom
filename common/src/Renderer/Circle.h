@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Circle__
-#define __TrenchBroom__Circle__
+#ifndef TrenchBroom_Circle
+#define TrenchBroom_Circle
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Circle__) */
+#endif /* defined(TrenchBroom_Circle) */

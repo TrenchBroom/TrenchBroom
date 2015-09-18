@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Md2Parser__
-#define __TrenchBroom__Md2Parser__
+#ifndef TrenchBroom_Md2Parser
+#define TrenchBroom_Md2Parser
 
 #include "StringUtils.h"
 #include "VecMath.h"
@@ -116,4 +116,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Md2Parser__) */
+#endif /* defined(TrenchBroom_Md2Parser) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushFacePredicates__
-#define __TrenchBroom__BrushFacePredicates__
+#ifndef TrenchBroom_BrushFacePredicates
+#define TrenchBroom_BrushFacePredicates
 
 namespace TrenchBroom {
     namespace Model {
@@ -76,4 +76,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushFacePredicates__) */
+#endif /* defined(TrenchBroom_BrushFacePredicates) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureBrowserView__
-#define __TrenchBroom__TextureBrowserView__
+#ifndef TrenchBroom_TextureBrowserView
+#define TrenchBroom_TextureBrowserView
 
 #include "StringUtils.h"
 #include "Assets/TextureManager.h"
@@ -100,4 +100,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureBrowserView__) */
+#endif /* defined(TrenchBroom_TextureBrowserView) */

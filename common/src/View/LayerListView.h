@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__LayerListView__
-#define __TrenchBroom__LayerListView__
+#ifndef TrenchBroom_LayerListView
+#define TrenchBroom_LayerListView
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -104,4 +104,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__LayerListView__) */
+#endif /* defined(TrenchBroom_LayerListView) */

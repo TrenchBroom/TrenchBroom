@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetVisibilityCommand__
-#define __TrenchBroom__SetVisibilityCommand__
+#ifndef TrenchBroom_SetVisibilityCommand
+#define TrenchBroom_SetVisibilityCommand
 
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
@@ -51,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetVisibilityCommand__) */
+#endif /* defined(TrenchBroom_SetVisibilityCommand) */

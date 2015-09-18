@@ -249,7 +249,7 @@ namespace TrenchBroom {
                     return directSelectedLinks();
                 case Model::EditorContext::EntityLinkMode_None:
                     return Vertex::List(0);
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         

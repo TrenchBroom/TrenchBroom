@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MergeNodesIntoWorldVisitor__
-#define __TrenchBroom__MergeNodesIntoWorldVisitor__
+#ifndef TrenchBroom_MergeNodesIntoWorldVisitor
+#define TrenchBroom_MergeNodesIntoWorldVisitor
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MergeNodesIntoWorldVisitor__) */
+#endif /* defined(TrenchBroom_MergeNodesIntoWorldVisitor) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CompareHits__
-#define __TrenchBroom__CompareHits__
+#ifndef TrenchBroom_CompareHits
+#define TrenchBroom_CompareHits
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -69,4 +69,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CompareHits__) */
+#endif /* defined(TrenchBroom_CompareHits) */

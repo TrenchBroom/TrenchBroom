@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Inspector__
-#define __TrenchBroom__Inspector__
+#ifndef TrenchBroom_Inspector
+#define TrenchBroom_Inspector
 
 #include "View/ViewTypes.h"
 
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Inspector__) */
+#endif /* defined(TrenchBroom_Inspector) */

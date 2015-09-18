@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AnimationCurve__
-#define __TrenchBroom__AnimationCurve__
+#ifndef TrenchBroom_AnimationCurve
+#define TrenchBroom_AnimationCurve
 
 #include <wx/longlong.h>
 
@@ -48,4 +48,4 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(__TrenchBroom__AnimationCurve__) */
+#endif /* defined(TrenchBroom_AnimationCurve) */

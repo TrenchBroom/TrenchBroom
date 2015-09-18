@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFacade__
-#define __TrenchBroom__MapFacade__
+#ifndef TrenchBroom_MapFacade
+#define TrenchBroom_MapFacade
 
 #include "Assets/AssetTypes.h"
 #include "Model/EntityColor.h"
@@ -132,4 +132,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFacade__) */
+#endif /* defined(TrenchBroom_MapFacade) */

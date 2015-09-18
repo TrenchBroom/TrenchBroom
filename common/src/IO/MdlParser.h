@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MdlParser__
-#define __TrenchBroom__MdlParser__
+#ifndef TrenchBroom_MdlParser
+#define TrenchBroom_MdlParser
 
 #include "VecMath.h"
 #include "StringUtils.h"
@@ -75,4 +75,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MdlParser__) */
+#endif /* defined(TrenchBroom_MdlParser) */

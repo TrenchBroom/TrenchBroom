@@ -50,7 +50,7 @@ namespace TrenchBroom {
         
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             assert(camera != NULL);
-            CHECK_BOOL(VectorUtils::erase(m_cameras, camera));
+            assertResult(VectorUtils::erase(m_cameras, camera));
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

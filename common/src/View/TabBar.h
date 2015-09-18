@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TabBar__
-#define __TrenchBroom__TabBar__
+#ifndef TrenchBroom_TabBar
+#define TrenchBroom_TabBar
 
 #include "View/ContainerBar.h"
 
@@ -70,4 +70,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TabBar__) */
+#endif /* defined(TrenchBroom_TabBar) */

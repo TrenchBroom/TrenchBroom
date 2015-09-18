@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FrameManager__
-#define __TrenchBroom__FrameManager__
+#ifndef TrenchBroom_FrameManager
+#define TrenchBroom_FrameManager
 
 #include "View/ViewTypes.h"
 
@@ -63,4 +63,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FrameManager__) */
+#endif /* defined(TrenchBroom_FrameManager) */

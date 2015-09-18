@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Autosaver__
-#define __TrenchBroom__Autosaver__
+#ifndef TrenchBroom_Autosaver
+#define TrenchBroom_Autosaver
 
 #include "IO/Path.h"
 #include "View/ViewTypes.h"
@@ -65,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Autosaver__) */
+#endif /* defined(TrenchBroom_Autosaver) */

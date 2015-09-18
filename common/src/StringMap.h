@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__StringMap__
-#define __TrenchBroom__StringMap__
+#ifndef TrenchBroom_StringMap
+#define TrenchBroom_StringMap
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
@@ -350,4 +350,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__StringMap__) */
+#endif /* defined(TrenchBroom_StringMap) */

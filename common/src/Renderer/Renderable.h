@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Renderable__
-#define __TrenchBroom__Renderable__
+#ifndef TrenchBroom_Renderable
+#define TrenchBroom_Renderable
 
 #include <stdio.h>
 
@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Renderable__) */
+#endif /* defined(TrenchBroom_Renderable) */

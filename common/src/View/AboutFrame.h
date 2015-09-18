@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AboutFrame__
-#define __TrenchBroom__AboutFrame__
+#ifndef TrenchBroom_AboutFrame
+#define TrenchBroom_AboutFrame
 
 #include <wx/frame.h>
 
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__AboutFrame__) */
+#endif /* defined(TrenchBroom_AboutFrame) */

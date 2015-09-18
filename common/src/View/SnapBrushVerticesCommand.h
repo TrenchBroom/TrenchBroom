@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SnapBrushVerticesCommand__
-#define __TrenchBroom__SnapBrushVerticesCommand__
+#ifndef TrenchBroom_SnapBrushVerticesCommand
+#define TrenchBroom_SnapBrushVerticesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SnapBrushVerticesCommand__) */
+#endif /* defined(TrenchBroom_SnapBrushVerticesCommand) */

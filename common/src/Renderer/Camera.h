@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Camera__
-#define __TrenchBroom__Camera__
+#ifndef TrenchBroom_Camera
+#define TrenchBroom_Camera
 
 #include "Color.h"
 #include "TrenchBroom.h"
@@ -155,4 +155,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Camera__) */
+#endif /* defined(TrenchBroom_Camera) */

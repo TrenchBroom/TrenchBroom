@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VboBlock__
-#define __TrenchBroom__VboBlock__
+#ifndef TrenchBroom_VboBlock
+#define TrenchBroom_VboBlock
 
 #include "Renderer/Vbo.h"
 
@@ -81,4 +81,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VboBlock__) */
+#endif /* defined(TrenchBroom_VboBlock) */

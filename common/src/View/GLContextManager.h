@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GLContextManager__
-#define __TrenchBroom__GLContextManager__
+#ifndef TrenchBroom_GLContextManager
+#define TrenchBroom_GLContextManager
 
 #include "View/GLContext.h"
 
@@ -60,4 +60,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GLContextManager__) */
+#endif /* defined(TrenchBroom_GLContextManager) */

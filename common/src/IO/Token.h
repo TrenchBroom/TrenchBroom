@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Token__
-#define __TrenchBroom__Token__
+#ifndef TrenchBroom_Token
+#define TrenchBroom_Token
 
 #include "StringUtils.h"
 
@@ -114,4 +114,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Token__) */
+#endif /* defined(TrenchBroom_Token) */

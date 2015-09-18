@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardPreferencePane__
-#define __TrenchBroom__KeyboardPreferencePane__
+#ifndef TrenchBroom_KeyboardPreferencePane
+#define TrenchBroom_KeyboardPreferencePane
 
 #include "View/PreferencePane.h"
 
@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardPreferencePane__) */
+#endif /* defined(TrenchBroom_KeyboardPreferencePane) */

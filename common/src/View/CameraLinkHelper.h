@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraLinkHelper__
-#define __TrenchBroom__CameraLinkHelper__
+#ifndef TrenchBroom_CameraLinkHelper
+#define TrenchBroom_CameraLinkHelper
 
 #include <vector>
 
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraLinkHelper__) */
+#endif /* defined(TrenchBroom_CameraLinkHelper) */

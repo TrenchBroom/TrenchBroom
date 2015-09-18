@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     return index.queryNumberedMatches(m_pattern);
                 case Type_Any:
                     return EmptyAttributableNodeSet;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                     return node->hasNumberedAttribute(m_pattern, value);
                 case Type_Any:
                     return true;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 

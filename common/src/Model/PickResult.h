@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PickResult__
-#define __TrenchBroom__PickResult__
+#ifndef TrenchBroom_PickResult
+#define TrenchBroom_PickResult
 
 #include "MathUtils.h"
 #include "Model/CompareHits.h"
@@ -60,4 +60,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PickResult__) */
+#endif /* defined(TrenchBroom_PickResult) */

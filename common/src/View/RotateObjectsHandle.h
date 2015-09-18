@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjectsHandle__
-#define __TrenchBroom__RotateObjectsHandle__
+#ifndef TrenchBroom_RotateObjectsHandle
+#define TrenchBroom_RotateObjectsHandle
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -88,4 +88,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateObjectsHandle__) */
+#endif /* defined(TrenchBroom_RotateObjectsHandle) */

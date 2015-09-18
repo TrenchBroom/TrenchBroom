@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BorderLine__
-#define __TrenchBroom__BorderLine__
+#ifndef TrenchBroom_BorderLine
+#define TrenchBroom_BorderLine
 
 #include <wx/window.h>
 
@@ -38,4 +38,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BorderLine__) */
+#endif /* defined(TrenchBroom_BorderLine) */

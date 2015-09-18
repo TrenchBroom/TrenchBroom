@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntitySnapshot__
-#define __TrenchBroom__EntitySnapshot__
+#ifndef TrenchBroom_EntitySnapshot
+#define TrenchBroom_EntitySnapshot
 
 #include "Model/NodeSnapshot.h"
 #include "Model/EntityAttributes.h"
@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntitySnapshot__) */
+#endif /* defined(TrenchBroom_EntitySnapshot) */

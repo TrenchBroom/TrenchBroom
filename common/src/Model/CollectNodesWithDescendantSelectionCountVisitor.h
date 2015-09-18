@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectNodesWithDescendantSelectionCountVisitor__
-#define __TrenchBroom__CollectNodesWithDescendantSelectionCountVisitor__
+#ifndef TrenchBroom_CollectNodesWithDescendantSelectionCountVisitor
+#define TrenchBroom_CollectNodesWithDescendantSelectionCountVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/NodePredicates.h"
@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectNodesWithDescendantSelectionCountVisitor__) */
+#endif /* defined(TrenchBroom_CollectNodesWithDescendantSelectionCountVisitor) */

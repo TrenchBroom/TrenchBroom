@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CommandProcessor__
-#define __TrenchBroom__CommandProcessor__
+#ifndef TrenchBroom_CommandProcessor
+#define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
 #include "SharedPointer.h"
@@ -132,4 +132,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CommandProcessor__) */
+#endif /* defined(TrenchBroom_CommandProcessor) */

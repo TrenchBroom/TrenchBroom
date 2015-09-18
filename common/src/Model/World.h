@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__World__
-#define __TrenchBroom__World__
+#ifndef TrenchBroom_World
+#define TrenchBroom_World
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -98,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__World__) */
+#endif /* defined(TrenchBroom_World) */

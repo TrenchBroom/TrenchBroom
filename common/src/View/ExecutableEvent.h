@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ExecutableEvent__
-#define __TrenchBroom__ExecutableEvent__
+#ifndef TrenchBroom_ExecutableEvent
+#define TrenchBroom_ExecutableEvent
 
 #include "SharedPointer.h"
 #include <wx/event.h>
@@ -56,4 +56,4 @@ typedef void (wxEvtHandler::*ExecutableEventFunction)(TrenchBroom::View::Executa
 wxDECLARE_EVENT(EXECUTABLE_EVENT, TrenchBroom::View::ExecutableEvent);
 #define ExecutableEventHandler(func) wxEVENT_HANDLER_CAST(ExecutableEventFunction, func)
 
-#endif /* defined(__TrenchBroom__ExecutableEvent__) */
+#endif /* defined(TrenchBroom_ExecutableEvent) */

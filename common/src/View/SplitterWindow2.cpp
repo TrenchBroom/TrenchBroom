@@ -176,7 +176,7 @@ namespace TrenchBroom {
                     return wxCursor(wxCURSOR_SIZEWE);
                 case SplitMode_Unset:
                     return wxCursor();
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
         }
         

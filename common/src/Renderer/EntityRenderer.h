@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityRenderer__
-#define __TrenchBroom__EntityRenderer__
+#ifndef TrenchBroom_EntityRenderer
+#define TrenchBroom_EntityRenderer
 
 #include "AttrString.h"
 #include "Color.h"
@@ -145,4 +145,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityRenderer__) */
+#endif /* defined(TrenchBroom_EntityRenderer) */

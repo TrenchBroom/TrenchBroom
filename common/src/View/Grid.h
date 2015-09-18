@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Grid__
-#define __TrenchBroom__Grid__
+#ifndef TrenchBroom_Grid
+#define TrenchBroom_Grid
 
 #include "Macros.h"
 #include "TrenchBroom.h"
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                         const T s = actSize * std::floor(f / actSize);
                         return (skip && s == f) ? s - actualSize() : s;
                     }
-					DEFAULT_SWITCH()
+					switchDefault()
                 }
             }
         public: // Snap vectors.
@@ -206,4 +206,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Grid__) */
+#endif /* defined(TrenchBroom_Grid) */

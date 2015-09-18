@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SmartAttributeEditorManager__
-#define __TrenchBroom__SmartAttributeEditorManager__
+#ifndef TrenchBroom_SmartAttributeEditorManager
+#define TrenchBroom_SmartAttributeEditorManager
 
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
@@ -72,4 +72,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SmartAttributeEditorManager__) */
+#endif /* defined(TrenchBroom_SmartAttributeEditorManager) */

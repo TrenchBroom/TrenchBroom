@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Functor__
-#define __TrenchBroom__Functor__
+#ifndef TrenchBroom_Functor
+#define TrenchBroom_Functor
 
 #include <cassert>
 #include <iostream> // for NULL
@@ -1015,4 +1015,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__Functor__) */
+#endif /* defined(TrenchBroom_Functor) */

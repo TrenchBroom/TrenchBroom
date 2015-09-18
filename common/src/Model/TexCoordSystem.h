@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexCoordSystem__
-#define __TrenchBroom__TexCoordSystem__
+#ifndef TrenchBroom_TexCoordSystem
+#define TrenchBroom_TexCoordSystem
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -104,4 +104,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexCoordSystem__) */
+#endif /* defined(TrenchBroom_TexCoordSystem) */

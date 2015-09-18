@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NodeCollection__
-#define __TrenchBroom__NodeCollection__
+#ifndef TrenchBroom_NodeCollection
+#define TrenchBroom_NodeCollection
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -68,4 +68,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NodeCollection__) */
+#endif /* defined(TrenchBroom_NodeCollection) */

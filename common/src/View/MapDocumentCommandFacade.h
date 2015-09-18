@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocumentCommandFacade__
-#define __TrenchBroom__MapDocumentCommandFacade__
+#ifndef TrenchBroom_MapDocumentCommandFacade
+#define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -153,4 +153,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapDocumentCommandFacade__) */
+#endif /* defined(TrenchBroom_MapDocumentCommandFacade) */

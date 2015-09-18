@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WorldReader__
-#define __TrenchBroom__WorldReader__
+#ifndef TrenchBroom_WorldReader
+#define TrenchBroom_WorldReader
 
 #include "IO/MapReader.h"
 
@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WorldReader__) */
+#endif /* defined(TrenchBroom_WorldReader) */

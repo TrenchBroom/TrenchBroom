@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ActionManager__
-#define __TrenchBroom__ActionManager__
+#ifndef TrenchBroom_ActionManager
+#define TrenchBroom_ActionManager
 
 #include "View/ActionContext.h"
 #include "View/ViewShortcut.h"
@@ -77,4 +77,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ActionManager__) */
+#endif /* defined(TrenchBroom_ActionManager) */

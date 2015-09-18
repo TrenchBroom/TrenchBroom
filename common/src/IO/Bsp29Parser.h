@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Bsp29Parser__
-#define __TrenchBroom__Bsp29Parser__
+#ifndef TrenchBroom_Bsp29Parser
+#define TrenchBroom_Bsp29Parser
 
 #include "VecMath.h"
 #include "StringUtils.h"
@@ -84,4 +84,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Bsp29Parser__) */
+#endif /* defined(TrenchBroom_Bsp29Parser) */

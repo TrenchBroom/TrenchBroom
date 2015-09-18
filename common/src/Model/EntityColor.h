@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityColor__
-#define __TrenchBroom__EntityColor__
+#ifndef TrenchBroom_EntityColor
+#define TrenchBroom_EntityColor
 
 #include "StringUtils.h"
 #include "Assets/ColorRange.h"
@@ -36,4 +36,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityColor__) */
+#endif /* defined(TrenchBroom_EntityColor) */
