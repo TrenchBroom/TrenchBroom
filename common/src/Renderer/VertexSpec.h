@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VertexSpec__
-#define __TrenchBroom__VertexSpec__
+#ifndef TrenchBroom_VertexSpec
+#define TrenchBroom_VertexSpec
 
 #include "Vec.h"
 #include "Renderer/GL.h"
@@ -180,4 +180,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VertexSpec__) */
+#endif /* defined(TrenchBroom_VertexSpec) */

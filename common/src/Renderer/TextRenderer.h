@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextRenderer__
-#define __TrenchBroom__TextRenderer__
+#ifndef TrenchBroom_TextRenderer
+#define TrenchBroom_TextRenderer
 
 #include "VecMath.h"
 #include "Color.h"
@@ -105,4 +105,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextRenderer__) */
+#endif /* defined(TrenchBroom_TextRenderer) */

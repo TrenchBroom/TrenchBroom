@@ -42,7 +42,7 @@ void Polyhedron<T,FP>::MoveVerticesResult::add(const MoveVertexResult& result) {
         case MoveVertexResult::Type_VertexUnchanged:
             unchangedVertices.push_back(result.originalPosition);
             break;
-            DEFAULT_SWITCH()
+        switchDefault()
     }
 }
 
@@ -359,7 +359,7 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
             if (!allowMergeIncidentVertex || connectingEdge == NULL) {
                 mergeIncidentFaces(vertex, callback);
                 const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
-                _UNUSED(result);
+                unused(result);
                 assert(result.moved());
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
             }
@@ -441,7 +441,7 @@ void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, Callback& callba
 /*
  Splits the given face into triangles by adding new edges from the origin of the given edge
  to every other non-adjacent vertex in the given face.
- ______     ______
+ ____     ___
  |    |     |   /|
  |    |     |  / |
  |    |     | /  |

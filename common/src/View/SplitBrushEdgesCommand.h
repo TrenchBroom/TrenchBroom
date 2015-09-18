@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SplitBrushEdgesCommand__
-#define __TrenchBroom__SplitBrushEdgesCommand__
+#ifndef TrenchBroom_SplitBrushEdgesCommand
+#define TrenchBroom_SplitBrushEdgesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SplitBrushEdgesCommand__) */
+#endif /* defined(TrenchBroom_SplitBrushEdgesCommand) */

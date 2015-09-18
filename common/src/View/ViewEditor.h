@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewEditor__
-#define __TrenchBroom__ViewEditor__
+#ifndef TrenchBroom_ViewEditor
+#define TrenchBroom_ViewEditor
 
 #include "Model/BrushContentType.h"
 #include "View/ViewTypes.h"
@@ -138,4 +138,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewEditor__) */
+#endif /* defined(TrenchBroom_ViewEditor) */

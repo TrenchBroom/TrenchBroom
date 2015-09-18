@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EdgeRenderer__
-#define __TrenchBroom__EdgeRenderer__
+#ifndef TrenchBroom_EdgeRenderer
+#define TrenchBroom_EdgeRenderer
 
 #include "Color.h"
 #include "Reference.h"
@@ -78,4 +78,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EdgeRenderer__) */
+#endif /* defined(TrenchBroom_EdgeRenderer) */

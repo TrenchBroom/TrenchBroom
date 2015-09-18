@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectSelectableNodesVisitor__
-#define __TrenchBroom__CollectSelectableNodesVisitor__
+#ifndef TrenchBroom_CollectSelectableNodesVisitor
+#define TrenchBroom_CollectSelectableNodesVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectableNodes.h"
@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectSelectableNodesVisitor__) */
+#endif /* defined(TrenchBroom_CollectSelectableNodesVisitor) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ContainerBar__
-#define __TrenchBroom__ContainerBar__
+#ifndef TrenchBroom_ContainerBar
+#define TrenchBroom_ContainerBar
 
 #include "View/BorderPanel.h"
 
@@ -32,4 +32,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ContainerBar__) */
+#endif /* defined(TrenchBroom_ContainerBar) */

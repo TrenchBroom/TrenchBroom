@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontTexture__
-#define __TrenchBroom__FontTexture__
+#ifndef TrenchBroom_FontTexture
+#define TrenchBroom_FontTexture
 
 #include "FreeType.h"
 
@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FontTexture__) */
+#endif /* defined(TrenchBroom_FontTexture) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ConvertEntityColorCommand__
-#define __TrenchBroom__ConvertEntityColorCommand__
+#ifndef TrenchBroom_ConvertEntityColorCommand
+#define TrenchBroom_ConvertEntityColorCommand
 
 #include "Color.h"
 #include "Model/EntityAttributeSnapshot.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ConvertEntityColorCommand__) */
+#endif /* defined(TrenchBroom_ConvertEntityColorCommand) */

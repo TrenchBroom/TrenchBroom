@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ReparentNodesCommand__
-#define __TrenchBroom__ReparentNodesCommand__
+#ifndef TrenchBroom_ReparentNodesCommand
+#define TrenchBroom_ReparentNodesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ReparentNodesCommand__) */
+#endif /* defined(TrenchBroom_ReparentNodesCommand) */

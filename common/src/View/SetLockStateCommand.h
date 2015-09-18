@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetLockStateCommand__
-#define __TrenchBroom__SetLockStateCommand__
+#ifndef TrenchBroom_SetLockStateCommand
+#define TrenchBroom_SetLockStateCommand
 
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
@@ -51,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetLockStateCommand__) */
+#endif /* defined(TrenchBroom_SetLockStateCommand) */

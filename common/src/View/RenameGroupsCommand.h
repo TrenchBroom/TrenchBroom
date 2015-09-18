@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenameGroupsCommand__
-#define __TrenchBroom__RenameGroupsCommand__
+#ifndef TrenchBroom_RenameGroupsCommand
+#define TrenchBroom_RenameGroupsCommand
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenameGroupsCommand__) */
+#endif /* defined(TrenchBroom_RenameGroupsCommand) */

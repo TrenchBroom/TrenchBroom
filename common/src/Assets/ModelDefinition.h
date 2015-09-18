@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ModelDefinition__
-#define __TrenchBroom__ModelDefinition__
+#ifndef TrenchBroom_ModelDefinition
+#define TrenchBroom_ModelDefinition
 
 #include "IO/Path.h"
 #include "Model/EntityAttributes.h"
@@ -115,4 +115,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ModelDefinition__) */
+#endif /* defined(TrenchBroom_ModelDefinition) */

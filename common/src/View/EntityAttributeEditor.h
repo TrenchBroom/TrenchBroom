@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeEditor__
-#define __TrenchBroom__EntityAttributeEditor__
+#ifndef TrenchBroom_EntityAttributeEditor
+#define TrenchBroom_EntityAttributeEditor
 
 #include "View/ViewTypes.h"
 
@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityAttributeEditor__) */
+#endif /* defined(TrenchBroom_EntityAttributeEditor) */

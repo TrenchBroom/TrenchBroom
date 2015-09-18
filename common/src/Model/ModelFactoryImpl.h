@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ModelFactoryImpl__
-#define __TrenchBroom__ModelFactoryImpl__
+#ifndef TrenchBroom_ModelFactoryImpl
+#define TrenchBroom_ModelFactoryImpl
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ModelFactoryImpl__) */
+#endif /* defined(TrenchBroom_ModelFactoryImpl) */

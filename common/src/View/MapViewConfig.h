@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewConfig__
-#define __TrenchBroom__MapViewConfig__
+#ifndef TrenchBroom_MapViewConfig
+#define TrenchBroom_MapViewConfig
 
 #include "Notifier.h"
 
@@ -84,4 +84,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewConfig__) */
+#endif /* defined(TrenchBroom_MapViewConfig) */

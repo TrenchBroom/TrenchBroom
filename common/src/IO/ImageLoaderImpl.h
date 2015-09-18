@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ImageLoaderImpl__
-#define __TrenchBroom__ImageLoaderImpl__
+#ifndef TrenchBroom_ImageLoaderImpl
+#define TrenchBroom_ImageLoaderImpl
 
 #include "ByteBuffer.h"
 #include "IO/ImageLoader.h"
@@ -73,4 +73,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ImageLoaderImpl__) */
+#endif /* defined(TrenchBroom_ImageLoaderImpl) */

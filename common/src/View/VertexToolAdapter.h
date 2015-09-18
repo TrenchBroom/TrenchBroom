@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VertexToolAdapter__
-#define __TrenchBroom__VertexToolAdapter__
+#ifndef TrenchBroom_VertexToolAdapter
+#define TrenchBroom_VertexToolAdapter
 
 #include "Model/Hit.h"
 #include "View/MoveToolAdapter.h"
@@ -93,4 +93,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VertexToolAdapter__) */
+#endif /* defined(TrenchBroom_VertexToolAdapter) */

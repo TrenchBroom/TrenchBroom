@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureCollectionCommand__
-#define __TrenchBroom__TextureCollectionCommand__
+#ifndef TrenchBroom_TextureCollectionCommand
+#define TrenchBroom_TextureCollectionCommand
 
 #include "View/DocumentCommand.h"
 #include "StringUtils.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureCollectionCommand__) */
+#endif /* defined(TrenchBroom_TextureCollectionCommand) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindLayerVisitor__
-#define __TrenchBroom__FindLayerVisitor__
+#ifndef TrenchBroom_FindLayerVisitor
+#define TrenchBroom_FindLayerVisitor
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -38,4 +38,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FindLayerVisitor__) */
+#endif /* defined(TrenchBroom_FindLayerVisitor) */

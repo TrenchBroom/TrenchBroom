@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVRotateTool__
-#define __TrenchBroom__UVRotateTool__
+#ifndef TrenchBroom_UVRotateTool
+#define TrenchBroom_UVRotateTool
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVRotateTool__) */
+#endif /* defined(TrenchBroom_UVRotateTool) */

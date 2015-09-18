@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FlashSelectionAnimation__
-#define __TrenchBroom__FlashSelectionAnimation__
+#ifndef TrenchBroom_FlashSelectionAnimation
+#define TrenchBroom_FlashSelectionAnimation
 
 #include "View/Animation.h"
 
@@ -44,4 +44,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FlashSelectionAnimation__) */
+#endif /* defined(TrenchBroom_FlashSelectionAnimation) */

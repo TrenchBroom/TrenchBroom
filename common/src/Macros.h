@@ -22,16 +22,16 @@
 
 // This macro is used to silence compiler warnings about unused variables. These are usually only used in assertions
 // and thus may become unused in release builds.
-#define _UNUSED(x) ((void)x)
+#define unused(x) ((void)x)
 
 // The following macro is used to silence a compiler warning in MSVC and GCC when a switch is used in a function to compute
 // a return value, and there is no default path.
 #ifdef __clang__
-#define DEFAULT_SWITCH()
+#define switchDefault()
 #else
-#define DEFAULT_SWITCH() default: assert(false); throw "Unhandled switch case";
+#define switchDefault() default: assert(false); throw "Unhandled switch case";
 #endif
 
-#define CHECK_BOOL(funexp) if (!(funexp)) assert(false);
+#define assertResult(funexp) if (!(funexp)) assert(false);
 
 #endif

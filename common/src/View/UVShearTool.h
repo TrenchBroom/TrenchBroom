@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVShearTool__
-#define __TrenchBroom__UVShearTool__
+#ifndef TrenchBroom_UVShearTool
+#define TrenchBroom_UVShearTool
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
@@ -61,4 +61,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVShearTool__) */
+#endif /* defined(TrenchBroom_UVShearTool) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BorderPanel__
-#define __TrenchBroom__BorderPanel__
+#ifndef TrenchBroom_BorderPanel
+#define TrenchBroom_BorderPanel
 
 #include <wx/panel.h>
 
@@ -44,4 +44,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BorderPanel__) */
+#endif /* defined(TrenchBroom_BorderPanel) */

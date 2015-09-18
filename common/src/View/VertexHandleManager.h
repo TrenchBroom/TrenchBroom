@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VertexHandleManager__
-#define __TrenchBroom__VertexHandleManager__
+#ifndef TrenchBroom_VertexHandleManager
+#define TrenchBroom_VertexHandleManager
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -219,4 +219,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VertexHandleManager__) */
+#endif /* defined(TrenchBroom_VertexHandleManager) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef TrenchBroom_Layer
+#define TrenchBroom_Layer
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -69,4 +69,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(TrenchBroom_Layer) */

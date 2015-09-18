@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GridRenderer__
-#define __TrenchBroom__GridRenderer__
+#ifndef TrenchBroom_GridRenderer
+#define TrenchBroom_GridRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GridRenderer__) */
+#endif /* defined(TrenchBroom_GridRenderer) */

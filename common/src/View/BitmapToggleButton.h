@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BitmapToggleButton__
-#define __TrenchBroom__BitmapToggleButton__
+#ifndef TrenchBroom_BitmapToggleButton
+#define TrenchBroom_BitmapToggleButton
 
 #include <wx/bitmap.h>
 #include <wx/panel.h>
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BitmapToggleButton__) */
+#endif /* defined(TrenchBroom_BitmapToggleButton) */

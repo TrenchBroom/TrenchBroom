@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Octree__
-#define __TrenchBroom__Octree__
+#ifndef TrenchBroom_Octree
+#define TrenchBroom_Octree
 
 #include "CollectionUtils.h"
 #include "Macros.h"
@@ -196,7 +196,7 @@ namespace TrenchBroom {
                 OctreeNode<F,T>* node = m_root->addObject(bounds, object);
                 if (node == NULL)
                     throw OctreeException("Unknown error when inserting into octree");
-                CHECK_BOOL(MapUtils::insertOrFail(m_objectMap, object, node));
+                assertResult(MapUtils::insertOrFail(m_objectMap, object, node));
             }
             
             void removeObject(T object) {
@@ -243,4 +243,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Octree__) */
+#endif /* defined(TrenchBroom_Octree) */

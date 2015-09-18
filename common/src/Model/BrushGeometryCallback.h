@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushGeometryCallback__
-#define __TrenchBroom__BrushGeometryCallback__
+#ifndef TrenchBroom_BrushGeometryCallback
+#define TrenchBroom_BrushGeometryCallback
 
 #include "TrenchBroom.h"
 #include "Polyhedron.h"
@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushGeometryCallback__) */
+#endif /* defined(TrenchBroom_BrushGeometryCallback) */

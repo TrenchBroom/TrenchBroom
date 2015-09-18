@@ -38,7 +38,7 @@ namespace TrenchBroom {
             case Justify_Center:
                 center(str);
                 break;
-            DEFAULT_SWITCH()
+            switchDefault()
         }
     }
 

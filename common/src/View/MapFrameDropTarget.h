@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFrameDropTarget__
-#define __TrenchBroom__MapFrameDropTarget__
+#ifndef TrenchBroom_MapFrameDropTarget
+#define TrenchBroom_MapFrameDropTarget
 
 #include "View/ViewTypes.h"
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFrameDropTarget__) */
+#endif /* defined(TrenchBroom_MapFrameDropTarget) */

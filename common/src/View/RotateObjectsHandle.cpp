@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return m_position;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return Vec3::PosZ;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return Vec3::PosZ;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
             };
         }
         
@@ -217,7 +217,7 @@ namespace TrenchBroom {
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
             };
         }
 
@@ -297,7 +297,7 @@ namespace TrenchBroom {
                 case HitArea_Center:
                 case HitArea_None:
                     return Color(1.0f, 1.0f, 1.0f, 1.0f);
-                DEFAULT_SWITCH()
+                switchDefault()
             };
         }
     }

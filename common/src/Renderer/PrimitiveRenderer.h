@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PrimitiveRenderer__
-#define __TrenchBroom__PrimitiveRenderer__
+#ifndef TrenchBroom_PrimitiveRenderer
+#define TrenchBroom_PrimitiveRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PrimitiveRenderer__) */
+#endif /* defined(TrenchBroom_PrimitiveRenderer) */

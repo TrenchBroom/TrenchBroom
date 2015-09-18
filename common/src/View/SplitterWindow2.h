@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SplitterWindow2__
-#define __TrenchBroom__SplitterWindow2__
+#ifndef TrenchBroom_SplitterWindow2
+#define TrenchBroom_SplitterWindow2
 
 #include "Macros.h"
 
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                         break;
                     case SplitMode_Unset:
                         break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
             }
             
@@ -118,7 +118,7 @@ namespace TrenchBroom {
                         break;
                     case SplitMode_Unset:
                         break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
             }
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                         return p.x;
                     case SplitMode_Unset:
                         return 0;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
             }
             
@@ -144,7 +144,7 @@ namespace TrenchBroom {
                         return p.y;
                     case SplitMode_Unset:
                         return 0;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
             }
         };
@@ -153,4 +153,4 @@ namespace TrenchBroom {
 
 wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow2* window);
 
-#endif /* defined(__TrenchBroom__SplitterWindow2__) */
+#endif /* defined(TrenchBroom_SplitterWindow2) */

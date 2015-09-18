@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewShortcut__
-#define __TrenchBroom__ViewShortcut__
+#ifndef TrenchBroom_ViewShortcut
+#define TrenchBroom_ViewShortcut
 
 #include "Preference.h"
 #include "View/Action.h"
@@ -60,4 +60,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewShortcut__) */
+#endif /* defined(TrenchBroom_ViewShortcut) */

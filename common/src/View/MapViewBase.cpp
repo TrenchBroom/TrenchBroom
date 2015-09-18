@@ -430,7 +430,7 @@ namespace TrenchBroom {
                 case Math::RotationAxis_Yaw:
                     axis = Vec3::PosZ;
                     break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
 
             if (clockwise)

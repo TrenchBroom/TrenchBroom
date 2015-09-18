@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RecentDocuments__
-#define __TrenchBroom__RecentDocuments__
+#ifndef TrenchBroom_RecentDocuments
+#define TrenchBroom_RecentDocuments
 
 #include "CollectionUtils.h"
 #include "Notifier.h"
@@ -186,4 +186,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RecentDocuments__) */
+#endif /* defined(TrenchBroom_RecentDocuments) */

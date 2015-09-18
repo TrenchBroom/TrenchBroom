@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SplitterWindow4__
-#define __TrenchBroom__SplitterWindow4__
+#ifndef TrenchBroom_SplitterWindow4
+#define TrenchBroom_SplitterWindow4
 
 #include "Macros.h"
 
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                         return t.x;
                     case Dim_Y:
                         return t.y;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
             }
         };
@@ -113,4 +113,4 @@ namespace TrenchBroom {
 
 wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow4* window);
 
-#endif /* defined(__TrenchBroom__SplitterWindow4__) */
+#endif /* defined(TrenchBroom_SplitterWindow4) */

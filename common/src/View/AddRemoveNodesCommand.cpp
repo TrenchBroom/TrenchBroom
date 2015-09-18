@@ -70,7 +70,7 @@ namespace TrenchBroom {
                     return "Add objects";
                 case Action_Remove:
                     return "Remove objects";
-				DEFAULT_SWITCH()
+				switchDefault()
             }
         }
         

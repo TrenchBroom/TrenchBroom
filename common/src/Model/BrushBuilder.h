@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushBuilder__
-#define __TrenchBroom__BrushBuilder__
+#ifndef TrenchBroom_BrushBuilder
+#define TrenchBroom_BrushBuilder
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushBuilder__) */
+#endif /* defined(TrenchBroom_BrushBuilder) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UndoableCommand__
-#define __TrenchBroom__UndoableCommand__
+#ifndef TrenchBroom_UndoableCommand
+#define TrenchBroom_UndoableCommand
 
 #include "View/Command.h"
 
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UndoableCommand__) */
+#endif /* defined(TrenchBroom_UndoableCommand) */

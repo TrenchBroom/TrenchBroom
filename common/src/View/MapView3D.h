@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView3D__
-#define __TrenchBroom__MapView3D__
+#ifndef TrenchBroom_MapView3D
+#define TrenchBroom_MapView3D
 
 #include "MathUtils.h"
 #include "Model/ModelTypes.h"
@@ -153,4 +153,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView3D__) */
+#endif /* defined(TrenchBroom_MapView3D) */

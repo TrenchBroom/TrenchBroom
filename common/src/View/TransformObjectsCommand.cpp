@@ -62,7 +62,7 @@ namespace TrenchBroom {
                     return "Rotate objects";
                 case Action_Flip:
                     return "Flip objects";
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         

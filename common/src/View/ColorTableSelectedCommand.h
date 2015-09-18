@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ColorTableSelectedCommand__
-#define __TrenchBroom__ColorTableSelectedCommand__
+#ifndef TrenchBroom_ColorTableSelectedCommand
+#define TrenchBroom_ColorTableSelectedCommand
 
 #include <wx/colour.h>
 #include <wx/event.h>
@@ -46,4 +46,4 @@ typedef void (wxEvtHandler::*ColorTableSelectedCommandFunction)(TrenchBroom::Vie
 wxDECLARE_EVENT(COLOR_TABLE_SELECTED_EVENT, TrenchBroom::View::ColorTableSelectedCommand);
 #define ColorTableSelectedHandler(func) wxEVENT_HANDLER_CAST(ColorTableSelectedCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__ColorTableSelectedCommand__) */
+#endif /* defined(TrenchBroom_ColorTableSelectedCommand) */

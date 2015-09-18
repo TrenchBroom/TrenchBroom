@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderService__
-#define __TrenchBroom__RenderService__
+#ifndef TrenchBroom_RenderService
+#define TrenchBroom_RenderService
 
 #include "AttrString.h"
 #include "TrenchBroom.h"
@@ -85,4 +85,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderService__) */
+#endif /* defined(TrenchBroom_RenderService) */

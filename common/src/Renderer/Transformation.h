@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Transformation__
-#define __TrenchBroom__Transformation__
+#ifndef TrenchBroom_Transformation
+#define TrenchBroom_Transformation
 
 #include "VecMath.h"
 
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Transformation__) */
+#endif /* defined(TrenchBroom_Transformation) */

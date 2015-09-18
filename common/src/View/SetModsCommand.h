@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetModsCommand__
-#define __TrenchBroom__SetModsCommand__
+#ifndef TrenchBroom_SetModsCommand
+#define TrenchBroom_SetModsCommand
 
 #include "View/DocumentCommand.h"
 #include "StringUtils.h"
@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetModsCommand__) */
+#endif /* defined(TrenchBroom_SetModsCommand) */

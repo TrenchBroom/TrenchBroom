@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectSelectableBrushFacesVisitor__
-#define __TrenchBroom__CollectSelectableBrushFacesVisitor__
+#ifndef TrenchBroom_CollectSelectableBrushFacesVisitor
+#define TrenchBroom_CollectSelectableBrushFacesVisitor
 
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 
@@ -42,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectSelectableBrushFacesVisitor__) */
+#endif /* defined(TrenchBroom_CollectSelectableBrushFacesVisitor) */

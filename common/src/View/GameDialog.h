@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameDialog__
-#define __TrenchBroom__GameDialog__
+#ifndef TrenchBroom_GameDialog
+#define TrenchBroom_GameDialog
 
 #include "StringUtils.h"
 #include "Model/MapFormat.h"
@@ -101,4 +101,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameDialog__) */
+#endif /* defined(TrenchBroom_GameDialog) */

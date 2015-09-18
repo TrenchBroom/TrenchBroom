@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFactory__
-#define __TrenchBroom__GameFactory__
+#ifndef TrenchBroom_GameFactory
+#define TrenchBroom_GameFactory
 
 #include "StringUtils.h"
 #include "Preference.h"
@@ -65,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameFactory__) */
+#endif /* defined(TrenchBroom_GameFactory) */

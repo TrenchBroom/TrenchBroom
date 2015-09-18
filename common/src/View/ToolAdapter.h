@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolAdapter__
-#define __TrenchBroom__ToolAdapter__
+#ifndef TrenchBroom_ToolAdapter
+#define TrenchBroom_ToolAdapter
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -337,4 +337,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolAdapter__) */
+#endif /* defined(TrenchBroom_ToolAdapter) */

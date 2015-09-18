@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeIndex__
-#define __TrenchBroom__EntityAttributeIndex__
+#ifndef TrenchBroom_EntityAttributeIndex
+#define TrenchBroom_EntityAttributeIndex
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -67,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityAttributeIndex__) */
+#endif /* defined(TrenchBroom_EntityAttributeIndex) */

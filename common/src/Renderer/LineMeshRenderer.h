@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__LineMeshRenderer__
-#define __TrenchBroom__LineMeshRenderer__
+#ifndef TrenchBroom_LineMeshRenderer
+#define TrenchBroom_LineMeshRenderer
 
 #include "Renderer/LineMesh.h"
 
@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__LineMeshRenderer__) */
+#endif /* defined(TrenchBroom_LineMeshRenderer) */

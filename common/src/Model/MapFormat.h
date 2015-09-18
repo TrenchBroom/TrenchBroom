@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFormat__
-#define __TrenchBroom__MapFormat__
+#ifndef TrenchBroom_MapFormat
+#define TrenchBroom_MapFormat
 
 #include "StringUtils.h"
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFormat__) */
+#endif /* defined(TrenchBroom_MapFormat) */

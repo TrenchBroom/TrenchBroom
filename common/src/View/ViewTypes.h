@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewTypes__
-#define __TrenchBroom__ViewTypes__
+#ifndef TrenchBroom_ViewTypes
+#define TrenchBroom_ViewTypes
 
 #include "SharedPointer.h"
 
@@ -30,4 +30,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewTypes__) */
+#endif /* defined(TrenchBroom_ViewTypes) */

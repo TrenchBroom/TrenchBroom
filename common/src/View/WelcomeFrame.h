@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WelcomeFrame__
-#define __TrenchBroom__WelcomeFrame__
+#ifndef TrenchBroom_WelcomeFrame
+#define TrenchBroom_WelcomeFrame
 
 #include "IO/Path.h"
 
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WelcomeFrame__) */
+#endif /* defined(TrenchBroom_WelcomeFrame) */

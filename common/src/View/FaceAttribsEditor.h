@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceAttribsEditor__
-#define __TrenchBroom__FaceAttribsEditor__
+#ifndef TrenchBroom_FaceAttribsEditor
+#define TrenchBroom_FaceAttribsEditor
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -101,4 +101,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceAttribsEditor__) */
+#endif /* defined(TrenchBroom_FaceAttribsEditor) */

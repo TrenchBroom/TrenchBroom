@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ClipToolAdapter__
-#define __TrenchBroom__ClipToolAdapter__
+#ifndef TrenchBroom_ClipToolAdapter
+#define TrenchBroom_ClipToolAdapter
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -140,4 +140,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ClipToolAdapter__) */
+#endif /* defined(TrenchBroom_ClipToolAdapter) */

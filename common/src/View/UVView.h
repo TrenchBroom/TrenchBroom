@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVView__
-#define __TrenchBroom__UVView__
+#ifndef TrenchBroom_UVView
+#define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -114,4 +114,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVView__) */
+#endif /* defined(TrenchBroom_UVView) */

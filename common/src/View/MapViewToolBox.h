@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewToolBox__
-#define __TrenchBroom__MapViewToolBox__
+#ifndef TrenchBroom_MapViewToolBox
+#define TrenchBroom_MapViewToolBox
 
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
@@ -97,4 +97,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewToolBox__) */
+#endif /* defined(TrenchBroom_MapViewToolBox) */

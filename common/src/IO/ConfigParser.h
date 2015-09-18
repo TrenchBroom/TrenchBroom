@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ConfigParser__
-#define __TrenchBroom__ConfigParser__
+#ifndef TrenchBroom_ConfigParser
+#define TrenchBroom_ConfigParser
 
 #include "ConfigTypes.h"
 #include "IO/Parser.h"
@@ -67,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ConfigParser__) */
+#endif /* defined(TrenchBroom_ConfigParser) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FileSystem__
-#define __TrenchBroom__FileSystem__
+#ifndef TrenchBroom_FileSystem
+#define TrenchBroom_FileSystem
 
 #include "StringUtils.h"
 #include "IO/MappedFile.h"
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FileSystem__) */
+#endif /* defined(TrenchBroom_FileSystem) */

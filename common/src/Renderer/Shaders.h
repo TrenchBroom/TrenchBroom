@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Shaders__
-#define __TrenchBroom__Shaders__
+#ifndef TrenchBroom_Shaders
+#define TrenchBroom_Shaders
 
 #include "Renderer/ShaderConfig.h"
 
@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Shaders__) */
+#endif /* defined(TrenchBroom_Shaders) */

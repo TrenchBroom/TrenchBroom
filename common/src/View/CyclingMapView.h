@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CyclingMapView__
-#define __TrenchBroom__CyclingMapView__
+#ifndef TrenchBroom_CyclingMapView
+#define TrenchBroom_CyclingMapView
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -89,4 +89,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CyclingMapView__) */
+#endif /* defined(TrenchBroom_CyclingMapView) */

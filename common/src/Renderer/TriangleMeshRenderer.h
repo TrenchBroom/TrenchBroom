@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TriangleMeshRenderer__
-#define __TrenchBroom__TriangleMeshRenderer__
+#ifndef TrenchBroom_TriangleMeshRenderer
+#define TrenchBroom_TriangleMeshRenderer
 
 #include "Renderer/VertexSpec.h"
 #include "Renderer/TriangleMesh.h"
@@ -132,4 +132,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TriangleMeshRenderer__) */
+#endif /* defined(TrenchBroom_TriangleMeshRenderer) */

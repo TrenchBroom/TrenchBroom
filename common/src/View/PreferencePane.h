@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferencePane__
-#define __TrenchBroom__PreferencePane__
+#ifndef TrenchBroom_PreferencePane
+#define TrenchBroom_PreferencePane
 
 #include <wx/panel.h>
 #include <wx/slider.h>
@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PreferencePane__) */
+#endif /* defined(TrenchBroom_PreferencePane) */

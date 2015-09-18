@@ -224,7 +224,7 @@ namespace TrenchBroom {
                     return m_camera.up().firstAxis();
                 case Math::Direction_Down:
                     return -m_camera.up().firstAxis();
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 

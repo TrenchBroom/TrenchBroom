@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MockObserver__
-#define __TrenchBroom__MockObserver__
+#ifndef TrenchBroom_MockObserver
+#define TrenchBroom_MockObserver
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -73,4 +73,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__MockObserver__) */
+#endif /* defined(TrenchBroom_MockObserver) */

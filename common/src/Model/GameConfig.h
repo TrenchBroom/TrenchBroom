@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameConfig__
-#define __TrenchBroom__GameConfig__
+#ifndef TrenchBroom_GameConfig
+#define TrenchBroom_GameConfig
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -113,4 +113,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameConfig__) */
+#endif /* defined(TrenchBroom_GameConfig) */

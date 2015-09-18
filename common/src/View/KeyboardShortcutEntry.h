@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcutEntry__
-#define __TrenchBroom__KeyboardShortcutEntry__
+#ifndef TrenchBroom_KeyboardShortcutEntry
+#define TrenchBroom_KeyboardShortcutEntry
 
 #include "View/ActionContext.h"
 
@@ -69,4 +69,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardShortcutEntry__) */
+#endif /* defined(TrenchBroom_KeyboardShortcutEntry) */

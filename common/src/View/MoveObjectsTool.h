@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsTool__
-#define __TrenchBroom__MoveObjectsTool__
+#ifndef TrenchBroom_MoveObjectsTool
+#define TrenchBroom_MoveObjectsTool
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -59,4 +59,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsTool__) */
+#endif /* defined(TrenchBroom_MoveObjectsTool) */

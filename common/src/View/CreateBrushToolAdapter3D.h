@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CreateBrushToolAdapter3D__
-#define __TrenchBroom__CreateBrushToolAdapter3D__
+#ifndef TrenchBroom_CreateBrushToolAdapter3D
+#define TrenchBroom_CreateBrushToolAdapter3D
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -77,4 +77,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CreateBrushToolAdapter3D__) */
+#endif /* defined(TrenchBroom_CreateBrushToolAdapter3D) */

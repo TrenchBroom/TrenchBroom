@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceRenderer__
-#define __TrenchBroom__FaceRenderer__
+#ifndef TrenchBroom_FaceRenderer
+#define TrenchBroom_FaceRenderer
 
 #include "Color.h"
 #include "Assets/AssetTypes.h"
@@ -68,4 +68,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceRenderer__) */
+#endif /* defined(TrenchBroom_FaceRenderer) */

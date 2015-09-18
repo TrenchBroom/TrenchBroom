@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NodeSerializer__
-#define __TrenchBroom__NodeSerializer__
+#ifndef TrenchBroom_NodeSerializer
+#define TrenchBroom_NodeSerializer
 
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
@@ -113,4 +113,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NodeSerializer__) */
+#endif /* defined(TrenchBroom_NodeSerializer) */

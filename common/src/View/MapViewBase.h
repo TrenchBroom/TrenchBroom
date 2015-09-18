@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewBase__
-#define __TrenchBroom__MapViewBase__
+#ifndef TrenchBroom_MapViewBase
+#define TrenchBroom_MapViewBase
 
 #include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
@@ -219,4 +219,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewBase__) */
+#endif /* defined(TrenchBroom_MapViewBase) */

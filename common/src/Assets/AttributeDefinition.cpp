@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 case Type_TargetSourceAttribute:
                 case Type_TargetDestinationAttribute:
                     return "";
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 

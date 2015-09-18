@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TransformObjectVisitor__
-#define __TrenchBroom__TransformObjectVisitor__
+#ifndef TrenchBroom_TransformObjectVisitor
+#define TrenchBroom_TransformObjectVisitor
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TransformObjectVisitor__) */
+#endif /* defined(TrenchBroom_TransformObjectVisitor) */

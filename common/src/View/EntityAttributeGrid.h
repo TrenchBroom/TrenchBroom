@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeGrid__
-#define __TrenchBroom__EntityAttributeGrid__
+#ifndef TrenchBroom_EntityAttributeGrid
+#define TrenchBroom_EntityAttributeGrid
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -94,4 +94,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityAttributeGrid__) */
+#endif /* defined(TrenchBroom_EntityAttributeGrid) */

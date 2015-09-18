@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindPlanePointsCommand__
-#define __TrenchBroom__FindPlanePointsCommand__
+#ifndef TrenchBroom_FindPlanePointsCommand
+#define TrenchBroom_FindPlanePointsCommand
 
 #include "View/DocumentCommand.h"
 
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FindPlanePointsCommand__) */
+#endif /* defined(TrenchBroom_FindPlanePointsCommand) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushFaceAttributes__
-#define __TrenchBroom__BrushFaceAttributes__
+#ifndef TrenchBroom_BrushFaceAttributes
+#define TrenchBroom_BrushFaceAttributes
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -79,4 +79,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushFaceAttributes__) */
+#endif /* defined(TrenchBroom_BrushFaceAttributes) */

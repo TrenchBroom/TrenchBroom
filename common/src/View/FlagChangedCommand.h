@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FlagChangedCommand__
-#define __TrenchBroom__FlagChangedCommand__
+#ifndef TrenchBroom_FlagChangedCommand
+#define TrenchBroom_FlagChangedCommand
 
 #include <wx/event.h>
 
@@ -57,4 +57,4 @@ typedef void (wxEvtHandler::*FlagChangedCommandFunction)(TrenchBroom::View::Flag
 wxDECLARE_EVENT(FLAG_CHANGED_EVENT, TrenchBroom::View::FlagChangedCommand);
 #define FlagChangedHandler(func) wxEVENT_HANDLER_CAST(FlagChangedCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__FlagChangedCommand__) */
+#endif /* defined(TrenchBroom_FlagChangedCommand) */

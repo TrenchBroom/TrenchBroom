@@ -73,7 +73,7 @@ namespace TrenchBroom {
                     return "Remove Attribute";
                 case Action_Rename:
                     return "Rename Attribute";
-				DEFAULT_SWITCH()
+				switchDefault()
             }
         }
         

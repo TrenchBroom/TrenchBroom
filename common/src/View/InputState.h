@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__InputState__
-#define __TrenchBroom__InputState__
+#ifndef TrenchBroom_InputState
+#define TrenchBroom_InputState
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -112,4 +112,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__InputState__) */
+#endif /* defined(TrenchBroom_InputState) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Bsp29Model__
-#define __TrenchBroom__Bsp29Model__
+#ifndef TrenchBroom_Bsp29Model
+#define TrenchBroom_Bsp29Model
 
 #include "VecMath.h"
 #include "StringUtils.h"
@@ -79,4 +79,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Bsp29Model__) */
+#endif /* defined(TrenchBroom_Bsp29Model) */

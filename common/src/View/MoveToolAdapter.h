@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveToolAdapter__
-#define __TrenchBroom__MoveToolAdapter__
+#ifndef TrenchBroom_MoveToolAdapter
+#define TrenchBroom_MoveToolAdapter
 
 #include "View/ToolAdapter.h"
 
@@ -90,4 +90,4 @@ namespace TrenchBroom {
 #pragma warning(pop)
 #endif
 
-#endif /* defined(__TrenchBroom__MoveToolAdapter__) */
+#endif /* defined(TrenchBroom_MoveToolAdapter) */

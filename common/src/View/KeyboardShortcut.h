@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcut__
-#define __TrenchBroom__KeyboardShortcut__
+#ifndef TrenchBroom_KeyboardShortcut
+#define TrenchBroom_KeyboardShortcut
 
 #include <wx/accel.h>
 #include <wx/defs.h>
@@ -105,4 +105,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardShortcut__) */
+#endif /* defined(TrenchBroom_KeyboardShortcut) */

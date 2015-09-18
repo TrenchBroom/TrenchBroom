@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModelManager__
-#define __TrenchBroom__EntityModelManager__
+#ifndef TrenchBroom_EntityModelManager
+#define TrenchBroom_EntityModelManager
 
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
@@ -90,4 +90,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityModelManager__) */
+#endif /* defined(TrenchBroom_EntityModelManager) */

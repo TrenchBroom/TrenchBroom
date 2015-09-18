@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Face__
-#define __TrenchBroom__Face__
+#ifndef TrenchBroom_Face
+#define TrenchBroom_Face
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -201,4 +201,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Face__) */
+#endif /* defined(TrenchBroom_Face) */

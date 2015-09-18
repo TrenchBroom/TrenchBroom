@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Selection__
-#define __TrenchBroom__Selection__
+#ifndef TrenchBroom_Selection
+#define TrenchBroom_Selection
 
 #include "Model/ModelTypes.h"
 
@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Selection__) */
+#endif /* defined(TrenchBroom_Selection) */

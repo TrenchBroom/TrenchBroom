@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 case Assets::TextureManager::SortOrder_Usage:
                     m_sortOrderChoice->SetSelection(1);
                     break;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
             
         }

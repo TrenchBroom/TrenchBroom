@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Md2Model__
-#define __TrenchBroom__Md2Model__
+#ifndef TrenchBroom_Md2Model
+#define TrenchBroom_Md2Model
 
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
@@ -78,4 +78,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Md2Model__) */
+#endif /* defined(TrenchBroom_Md2Model) */

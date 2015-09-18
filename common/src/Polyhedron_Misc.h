@@ -49,7 +49,7 @@ Plane<T,3> Polyhedron<T,FP>::Callback::plane(const Face* face) const {
     const V& p3 = e3->origin()->position();
 
     Plane<T,3> plane;
-    CHECK_BOOL(setPlanePoints(plane, p2, p1, p3));
+    assertResult(setPlanePoints(plane, p2, p1, p3));
     return plane;
 }
 

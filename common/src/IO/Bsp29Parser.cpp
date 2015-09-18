@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const char* cursor = m_begin;
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
-            _UNUSED(version);
+            unused(version);
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();

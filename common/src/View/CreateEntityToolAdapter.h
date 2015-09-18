@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CreateEntityToolAdapter__
-#define __TrenchBroom__CreateEntityToolAdapter__
+#ifndef TrenchBroom_CreateEntityToolAdapter
+#define TrenchBroom_CreateEntityToolAdapter
 
 #include "View/ToolAdapter.h"
 #include "StringUtils.h"
@@ -65,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CreateEntityToolAdapter__) */
+#endif /* defined(TrenchBroom_CreateEntityToolAdapter) */

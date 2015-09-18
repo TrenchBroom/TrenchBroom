@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferenceDialog__
-#define __TrenchBroom__PreferenceDialog__
+#ifndef TrenchBroom_PreferenceDialog
+#define TrenchBroom_PreferenceDialog
 
 #include <wx/dialog.h>
 
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PreferenceDialog__) */
+#endif /* defined(TrenchBroom_PreferenceDialog) */

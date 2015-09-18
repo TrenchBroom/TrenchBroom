@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Command__
-#define __TrenchBroom__Command__
+#ifndef TrenchBroom_Command
+#define TrenchBroom_Command
 
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
@@ -60,4 +60,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Command__) */
+#endif /* defined(TrenchBroom_Command) */

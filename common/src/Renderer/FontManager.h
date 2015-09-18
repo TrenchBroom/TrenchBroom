@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontManager__
-#define __TrenchBroom__FontManager__
+#ifndef TrenchBroom_FontManager
+#define TrenchBroom_FontManager
 
 #include "Renderer/FontDescriptor.h"
 
@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FontManager__) */
+#endif /* defined(TrenchBroom_FontManager) */

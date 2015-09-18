@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SmartColorEditor__
-#define __TrenchBroom__SmartColorEditor__
+#ifndef TrenchBroom_SmartColorEditor
+#define TrenchBroom_SmartColorEditor
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SmartColorEditor__) */
+#endif /* defined(TrenchBroom_SmartColorEditor) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectNodesByVisibilityVisitor__
-#define __TrenchBroom__CollectNodesByVisibilityVisitor__
+#ifndef TrenchBroom_CollectNodesByVisibilityVisitor
+#define TrenchBroom_CollectNodesByVisibilityVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchNodesByVisibility.h"
@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectNodesByVisibilityVisitor__) */
+#endif /* defined(TrenchBroom_CollectNodesByVisibilityVisitor) */

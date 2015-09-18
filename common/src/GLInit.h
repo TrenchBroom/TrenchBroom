@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GLInit__
-#define __TrenchBroom__GLInit__
+#ifndef TrenchBroom_GLInit
+#define TrenchBroom_GLInit
 
 namespace TrenchBroom {
     void initGLFunctions();
 }
 
-#endif /* defined(__TrenchBroom__GLInit__) */
+#endif /* defined(TrenchBroom_GLInit) */
 

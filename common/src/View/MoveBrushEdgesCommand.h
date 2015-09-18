@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveBrushEdgesCommand__
-#define __TrenchBroom__MoveBrushEdgesCommand__
+#ifndef TrenchBroom_MoveBrushEdgesCommand
+#define TrenchBroom_MoveBrushEdgesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveBrushEdgesCommand__) */
+#endif /* defined(TrenchBroom_MoveBrushEdgesCommand) */

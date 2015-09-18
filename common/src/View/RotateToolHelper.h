@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateToolHelper__
-#define __TrenchBroom__RotateToolHelper__
+#ifndef TrenchBroom_RotateToolHelper
+#define TrenchBroom_RotateToolHelper
 
 #include "StringUtils.h"
 #include "TrenchBroom.h"
@@ -92,4 +92,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateToolHelper__) */
+#endif /* defined(TrenchBroom_RotateToolHelper) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SwitchableMapViewContainer__
-#define __TrenchBroom__SwitchableMapViewContainer__
+#ifndef TrenchBroom_SwitchableMapViewContainer
+#define TrenchBroom_SwitchableMapViewContainer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SwitchableMapViewContainer__) */
+#endif /* defined(TrenchBroom_SwitchableMapViewContainer) */

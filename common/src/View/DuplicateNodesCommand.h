@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DuplicateNodesCommand__
-#define __TrenchBroom__DuplicateNodesCommand__
+#ifndef TrenchBroom_DuplicateNodesCommand
+#define TrenchBroom_DuplicateNodesCommand
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__DuplicateNodesCommand__) */
+#endif /* defined(TrenchBroom_DuplicateNodesCommand) */

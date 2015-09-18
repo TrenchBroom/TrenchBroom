@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GroupRenderer__
-#define __TrenchBroom__GroupRenderer__
+#ifndef TrenchBroom_GroupRenderer
+#define TrenchBroom_GroupRenderer
 
 #include "AttrString.h"
 #include "Color.h"
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GroupRenderer__) */
+#endif /* defined(TrenchBroom_GroupRenderer) */

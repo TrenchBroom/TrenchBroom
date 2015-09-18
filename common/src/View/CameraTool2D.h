@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool2D__
-#define __TrenchBroom__CameraTool2D__
+#ifndef TrenchBroom_CameraTool2D
+#define TrenchBroom_CameraTool2D
 
 #include "VecMath.h"
 #include "View/Tool.h"
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool2D__) */
+#endif /* defined(TrenchBroom_CameraTool2D) */

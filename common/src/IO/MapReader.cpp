@@ -289,7 +289,7 @@ namespace TrenchBroom {
                     break;
                 case ParentInfo::Type_None:
                     break;
-                DEFAULT_SWITCH();
+                switchDefault();
             }
         }
 

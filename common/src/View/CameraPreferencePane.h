@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraPreferencePane__
-#define __TrenchBroom__CameraPreferencePane__
+#ifndef TrenchBroom_CameraPreferencePane
+#define TrenchBroom_CameraPreferencePane
 
 #include "View/PreferencePane.h"
 
@@ -90,4 +90,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraPreferencePane__) */
+#endif /* defined(TrenchBroom_CameraPreferencePane) */

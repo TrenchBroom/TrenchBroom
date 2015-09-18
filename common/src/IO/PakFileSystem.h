@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PakFileSystem__
-#define __TrenchBroom__PakFileSystem__
+#ifndef TrenchBroom_PakFileSystem
+#define TrenchBroom_PakFileSystem
 
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
@@ -70,4 +70,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PakFileSystem__) */
+#endif /* defined(TrenchBroom_PakFileSystem) */

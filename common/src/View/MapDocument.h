@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef TrenchBroom_MapDocument
+#define TrenchBroom_MapDocument
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
@@ -416,4 +416,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif /* defined(TrenchBroom_MapDocument) */

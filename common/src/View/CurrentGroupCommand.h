@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CurrentGroupCommand__
-#define __TrenchBroom__CurrentGroupCommand__
+#ifndef TrenchBroom_CurrentGroupCommand
+#define TrenchBroom_CurrentGroupCommand
 
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CurrentGroupCommand__) */
+#endif /* defined(TrenchBroom_CurrentGroupCommand) */

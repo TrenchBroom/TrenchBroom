@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityDefinitionLoader__
-#define __TrenchBroom__EntityDefinitionLoader__
+#ifndef TrenchBroom_EntityDefinitionLoader
+#define TrenchBroom_EntityDefinitionLoader
 
 #include "Assets/AssetTypes.h"
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityDefinitionLoader__) */
+#endif /* defined(TrenchBroom_EntityDefinitionLoader) */

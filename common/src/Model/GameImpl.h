@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameImpl__
-#define __TrenchBroom__GameImpl__
+#ifndef TrenchBroom_GameImpl
+#define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -97,4 +97,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameImpl__) */
+#endif /* defined(TrenchBroom_GameImpl) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapInspector__
-#define __TrenchBroom__MapInspector__
+#ifndef TrenchBroom_MapInspector
+#define TrenchBroom_MapInspector
 
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapInspector__) */
+#endif /* defined(TrenchBroom_MapInspector) */

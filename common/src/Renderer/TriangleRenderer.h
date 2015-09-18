@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TriangleRenderer__
-#define __TrenchBroom__TriangleRenderer__
+#ifndef TrenchBroom_TriangleRenderer
+#define TrenchBroom_TriangleRenderer
 
 #include "Color.h"
 #include "Renderer/Renderable.h"
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TriangleRenderer__) */
+#endif /* defined(TrenchBroom_TriangleRenderer) */

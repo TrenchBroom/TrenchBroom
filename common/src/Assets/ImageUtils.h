@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ImageUtils__
-#define __TrenchBroom__ImageUtils__
+#ifndef TrenchBroom_ImageUtils
+#define TrenchBroom_ImageUtils
 
 #include "Assets/Texture.h"
 
@@ -28,4 +28,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ImageUtils__) */
+#endif /* defined(TrenchBroom_ImageUtils) */

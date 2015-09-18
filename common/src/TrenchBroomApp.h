@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#ifndef TrenchBroom_TrenchBroomApp
+#define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
 #include "IO/Path.h"
@@ -95,4 +95,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif /* defined(TrenchBroom_TrenchBroomApp) */

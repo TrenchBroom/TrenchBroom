@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GLContext__
-#define __TrenchBroom__GLContext__
+#ifndef TrenchBroom_GLContext
+#define TrenchBroom_GLContext
 
 #include "SharedPointer.h"
 
@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GLContext__) */
+#endif /* defined(TrenchBroom_GLContext) */

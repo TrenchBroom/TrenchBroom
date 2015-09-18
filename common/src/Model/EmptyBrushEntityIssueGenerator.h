@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EmptyBrushEntityIssueGenerator__
-#define __TrenchBroom__EmptyBrushEntityIssueGenerator__
+#ifndef TrenchBroom_EmptyBrushEntityIssueGenerator
+#define TrenchBroom_EmptyBrushEntityIssueGenerator
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EmptyBrushEntityIssueGenerator__) */
+#endif /* defined(TrenchBroom_EmptyBrushEntityIssueGenerator) */

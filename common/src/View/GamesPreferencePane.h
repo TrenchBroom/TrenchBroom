@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GamesPreferencePane__
-#define __TrenchBroom__GamesPreferencePane__
+#ifndef TrenchBroom_GamesPreferencePane
+#define TrenchBroom_GamesPreferencePane
 
 #include <iostream>
 
@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GamesPreferencePane__) */
+#endif /* defined(TrenchBroom_GamesPreferencePane) */

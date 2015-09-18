@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AttributableNode__
-#define __TrenchBroom__AttributableNode__
+#ifndef TrenchBroom_AttributableNode
+#define TrenchBroom_AttributableNode
 
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
@@ -189,4 +189,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__AttributableNode__) */
+#endif /* defined(TrenchBroom_AttributableNode) */

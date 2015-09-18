@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AttrString__
-#define __TrenchBroom__AttrString__
+#ifndef TrenchBroom_AttrString
+#define TrenchBroom_AttrString
 
 #include "StringUtils.h"
 
@@ -66,4 +66,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__AttrString__) */
+#endif /* defined(TrenchBroom_AttrString) */

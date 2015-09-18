@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Snapshot__
-#define __TrenchBroom__Snapshot__
+#ifndef TrenchBroom_Snapshot
+#define TrenchBroom_Snapshot
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -57,4 +57,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Snapshot__) */
+#endif /* defined(TrenchBroom_Snapshot) */

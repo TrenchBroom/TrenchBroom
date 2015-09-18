@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FgdParser__
-#define __TrenchBroom__FgdParser__
+#ifndef TrenchBroom_FgdParser
+#define TrenchBroom_FgdParser
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -115,4 +115,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FgdParser__) */
+#endif /* defined(TrenchBroom_FgdParser) */

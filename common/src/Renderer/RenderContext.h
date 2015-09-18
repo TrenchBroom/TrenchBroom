@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderContext__
-#define __TrenchBroom__RenderContext__
+#ifndef TrenchBroom_RenderContext
+#define TrenchBroom_RenderContext
 
 #include "Renderer/Transformation.h"
 #include "Renderer/RenderBatch.h"
@@ -136,4 +136,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderContext__) */
+#endif /* defined(TrenchBroom_RenderContext) */

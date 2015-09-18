@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NodePredicates__
-#define __TrenchBroom__NodePredicates__
+#ifndef TrenchBroom_NodePredicates
+#define TrenchBroom_NodePredicates
 
 #include <stdio.h>
 
@@ -166,4 +166,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NodePredicates__) */
+#endif /* defined(TrenchBroom_NodePredicates) */

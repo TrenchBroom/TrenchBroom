@@ -307,7 +307,7 @@ namespace TrenchBroom {
                 newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
                 const bool clipResult = newBrush->clip(worldBounds, clipFace);
                 assert(clipResult);
-                _UNUSED(clipResult);
+                unused(clipResult);
                 
                 newNodes[brush->parent()].push_back(newBrush);
                 newDragFaces.push_back(newDragFace);

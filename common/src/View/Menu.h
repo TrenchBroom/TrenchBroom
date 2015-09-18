@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Menu__
-#define __TrenchBroom__Menu__
+#ifndef TrenchBroom_Menu
+#define TrenchBroom_Menu
 
 #include "Preference.h"
 #include "SharedPointer.h"
@@ -187,4 +187,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Menu__) */
+#endif /* defined(TrenchBroom_Menu) */

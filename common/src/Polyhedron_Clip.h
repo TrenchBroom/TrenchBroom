@@ -98,7 +98,7 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::checkIntersects(const Pl
             case Math::PointStatus::PSInside:
                 ++inside;
                 break;
-            DEFAULT_SWITCH()
+            switchDefault()
         }
     }
     

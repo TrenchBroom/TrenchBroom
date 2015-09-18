@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeEntityAttributesCommand__
-#define __TrenchBroom__ChangeEntityAttributesCommand__
+#ifndef TrenchBroom_ChangeEntityAttributesCommand
+#define TrenchBroom_ChangeEntityAttributesCommand
 
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
@@ -66,4 +66,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeEntityAttributesCommand__) */
+#endif /* defined(TrenchBroom_ChangeEntityAttributesCommand) */
