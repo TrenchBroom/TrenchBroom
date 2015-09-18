@@ -20,13 +20,13 @@
 #include "TrenchBroom.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Misc.h"
-#include "Polyhedron_Clip.h"
 #include "Polyhedron_Vertex.h"
 #include "Polyhedron_Edge.h"
 #include "Polyhedron_HalfEdge.h"
 #include "Polyhedron_Face.h"
 #include "Polyhedron_VertexManipulation.h"
 #include "Polyhedron_ConvexHull.h"
+#include "Polyhedron_Clip.h"
 
 namespace TrenchBroom {
     namespace Model {
