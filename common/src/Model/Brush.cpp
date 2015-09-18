@@ -49,11 +49,9 @@ namespace TrenchBroom {
         class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
             BrushFace* m_addedFace;
-            BrushFaceList& m_droppedFaces;
         public:
-            AddFaceToGeometryCallback(BrushFace* addedFace, BrushFaceList& droppedFaces) :
-            m_addedFace(addedFace),
-            m_droppedFaces(droppedFaces) {
+            AddFaceToGeometryCallback(BrushFace* addedFace) :
+            m_addedFace(addedFace) {
                 assert(m_addedFace != NULL);
             }
             
@@ -65,8 +63,10 @@ namespace TrenchBroom {
             void faceWillBeDeleted(BrushGeometry::Face* face) {
                 BrushFace* brushFace = face->payload();
                 if (brushFace != NULL) {
-                    assert(!VectorUtils::contains(m_droppedFaces, brushFace));
-                    m_droppedFaces.push_back(brushFace);
+                    assert(!brushFace->selected());
+                    
+                    delete brushFace;
+                    face->setPayload(NULL);
                 }
             }
         };
@@ -74,68 +74,88 @@ namespace TrenchBroom {
         class Brush::AddFacesToGeometry {
         private:
             BrushGeometry& m_geometry;
-            BrushFaceList m_addedFaces;
-            BrushFaceList m_droppedFaces;
-            BrushFaceList m_redundandFaces;
             bool m_brushEmpty;
         public:
             AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false) {
                 BrushFaceList::const_iterator it, end;
-                size_t droppedFaceCount = 0;
                 for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
                     BrushFace* face = *it;
-                    AddFaceToGeometryCallback callback(face, m_droppedFaces);
+                    AddFaceToGeometryCallback callback(face);
                     const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
-                    if (result.unchanged())
-                        m_redundandFaces.push_back(face);
-                    else if (result.empty())
+                    if (result.empty())
                         m_brushEmpty = true;
-                    else
-                        m_addedFaces.push_back(face);
-                    if (droppedFaceCount < m_droppedFaces.size()) {
-                        BrushFaceList::iterator dIt = m_droppedFaces.begin();
-                        std::advance(dIt, droppedFaceCount);
-                        VectorUtils::eraseAll(m_addedFaces, dIt, m_droppedFaces.end());
-                        droppedFaceCount = m_droppedFaces.size();
-                    }
                 }
-            }
-            
-            const BrushFaceList& addedFaces() const {
-                return m_addedFaces;
-            }
-            
-            const BrushFaceList& droppedFaces() const {
-                return m_droppedFaces;
-            }
-            
-            const BrushFaceList& redundandFaces() const {
-                return m_redundandFaces;
-            }
-            
-            bool hasRedundandFaces() const {
-                return !m_redundandFaces.empty();
-            }
-            
-            bool hasDroppedFaces() const {
-                return !m_droppedFaces.empty();
             }
             
             bool brushEmpty() const {
                 return m_brushEmpty;
             }
+        };
+
+        class Brush::CanMoveBoundaryCallback : public BrushGeometry::Callback {
+        private:
+            BrushFace* m_addedFace;
+            bool m_hasDroppedFaces;
+        public:
+            CanMoveBoundaryCallback(BrushFace* addedFace) :
+            m_addedFace(addedFace),
+            m_hasDroppedFaces(false) {
+                assert(m_addedFace != NULL);
+            }
             
-            bool fullySpecified() const {
-                BrushFaceGeometry* first = m_geometry.faces().front();
-                BrushFaceGeometry* current = first;
-                do {
-                    if (current->payload() == NULL)
-                        return false;
-                    current = current->next();
-                } while (current != first);
-                return true;
+            void faceWasCreated(BrushGeometry::Face* face) {
+                face->setPayload(m_addedFace);
+                m_addedFace->setGeometry(face);
+            }
+            
+            void faceWillBeDeleted(BrushGeometry::Face* face) {
+                if (face->payload() != NULL)
+                    m_hasDroppedFaces = true;
+            }
+            
+            bool hasDroppedFaces() const {
+                return m_hasDroppedFaces;
+            }
+        };
+        
+        class Brush::CanMoveBoundary {
+        private:
+            BrushGeometry& m_geometry;
+            bool m_hasDroppedFaces;
+            bool m_hasRedundandFaces;
+            bool m_brushEmpty;
+        public:
+            CanMoveBoundary(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
+            m_geometry(geometry),
+            m_hasDroppedFaces(false),
+            m_hasRedundandFaces(false),
+            m_brushEmpty(false) {
+                BrushFaceList::const_iterator it, end;
+                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
+                    BrushFace* face = *it;
+                    CanMoveBoundaryCallback callback(face);
+                    const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
+                    if (result.unchanged())
+                        m_hasRedundandFaces = true;
+                    else if (result.empty())
+                        m_brushEmpty = true;
+                    else
+                        m_hasDroppedFaces |= callback.hasDroppedFaces();
+                }
+            }
+
+            bool hasDroppedFaces() const {
+                return m_hasDroppedFaces;
+            }
+            
+            bool hasRedundandFaces() const {
+                return m_hasRedundandFaces;
+            }
+            
+            bool brushEmpty() const {
+                return m_brushEmpty;
             }
         };
 
@@ -229,6 +249,19 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
         
+        bool Brush::fullySpecified() const {
+            assert(m_geometry != NULL);
+            
+            BrushFaceGeometry* first = m_geometry->faces().front();
+            BrushFaceGeometry* current = first;
+            do {
+                if (current->payload() == NULL)
+                    return false;
+                current = current->next();
+            } while (current != first);
+            return true;
+        }
+
         void Brush::faceDidChange() {
             invalidateContentType();
         }
@@ -304,17 +337,16 @@ namespace TrenchBroom {
             }
             
             BrushGeometry testGeometry(worldBounds);
-            AddFacesToGeometry addFaces(testGeometry, testFaces);
+            CanMoveBoundary canMove(testGeometry, testFaces);
             const bool inWorldBounds = worldBounds.contains(testGeometry.bounds()) && testGeometry.closed();
 
             restoreFaceLinks(m_geometry);
             delete testFace;
             
             return (inWorldBounds &&
-                    addFaces.fullySpecified() &&
-                    !addFaces.brushEmpty() &&
-                    !addFaces.hasRedundandFaces() &&
-                    !addFaces.hasDroppedFaces());
+                    !canMove.brushEmpty() &&
+                    !canMove.hasRedundandFaces() &&
+                    !canMove.hasDroppedFaces());
         }
         
         void Brush::moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture) {
@@ -393,7 +425,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             MoveVerticesCallback callback;
             const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(vertexPositions, delta, true, callback);
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             
             return result.newVertexPositions;
@@ -420,7 +452,7 @@ namespace TrenchBroom {
                 }
             }
 
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             return Vec3::List(newVertexPositions.begin(), newVertexPositions.end());
         }
@@ -448,7 +480,7 @@ namespace TrenchBroom {
             MoveVerticesCallback callback;
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             
             Edge3::List result;
@@ -487,7 +519,7 @@ namespace TrenchBroom {
             const BrushGeometry::MoveVerticesResult result = m_geometry->splitEdge(edgePosition.start(), edgePosition.end(), delta, callback);
             
             assert(result.allVerticesMoved());
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             
             return result.newVertexPositions.front();
@@ -516,7 +548,7 @@ namespace TrenchBroom {
             MoveVerticesCallback callback;
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             
             Polygon3::List result;
@@ -553,30 +585,30 @@ namespace TrenchBroom {
             MoveVerticesCallback callback;
             const BrushGeometry::MoveVerticesResult result = m_geometry->splitFace(facePosition.vertices(), delta, callback);
             assert(result.allVerticesMoved());
-            updateBrushAfterVertexMove(worldBounds, callback);
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
             
             return result.newVertexPositions.front();
         }
 
-        void Brush::updateBrushAfterVertexMove(const BBox3& worldBounds, const MoveVerticesCallback& result) {
+        void Brush::updateFacesFromGeometry(const BBox3& worldBounds) {
             m_faces.clear();
             
             BrushGeometry::Face* first = m_geometry->faces().front();
             BrushGeometry::Face* current = first;
             do {
                 BrushFace* face = current->payload();
-                if (face->brush() == NULL)
-                    addFace(face);
-                else
-                    m_faces.push_back(face);
+                if (face != NULL) { // could happen if the brush isn't fully specified
+                    if (face->brush() == NULL)
+                        addFace(face);
+                    else
+                        m_faces.push_back(face);
+                }
                 current = current->next();
             } while (current != first);
             
             invalidateFaces();
             invalidateContentType();
-
-            assert(checkGeometry());
         }
 
         void Brush::invalidateFaces() {
@@ -592,24 +624,7 @@ namespace TrenchBroom {
             m_geometry = new BrushGeometry(worldBounds);
             
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
-            const BrushFaceList& addedFaces = addFacesToGeometry.addedFaces();
-            const BrushFaceList& droppedFaces = addFacesToGeometry.droppedFaces();
-            
-            detachFaces(droppedFaces);
-            VectorUtils::deleteAll(droppedFaces);
-            m_faces.clear();
-
-            BrushFaceList::const_iterator it, end;
-            for (it = addedFaces.begin(), end = addedFaces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                if (face->brush() == NULL)
-                    addFace(face);
-                else
-                    m_faces.push_back(face);
-                face->invalidate();
-            }
-
-            invalidateContentType();
+            updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
         }
 

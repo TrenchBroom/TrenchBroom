@@ -51,6 +51,8 @@ namespace TrenchBroom {
                                                       Vec3(0.0, 1.0, 0.0)));
             
             Brush brush(worldBounds, faces);
+            assert(!brush.fullySpecified());
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(1u, brushFaces.size());
             ASSERT_EQ(faces[0], brushFaces[0]);
@@ -97,6 +99,8 @@ namespace TrenchBroom {
             faces.push_back(bottom);
             
             Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
@@ -134,6 +138,8 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(Vec3(-161.0, 603.0, 128.0), Vec3(-161.0, 672.0, 128.0), Vec3(-217.0, 672.0, 128.0)));
             
             Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(7u, brushFaces.size());
         }
@@ -167,6 +173,8 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(Vec3(3504.0, 1344.0, 1280.0), Vec3(3280.0, 1344.0, 1280.0), Vec3(3280.0, 1152.0, 1280.0)));
             
             Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(9u, brushFaces.size());
         }
@@ -194,6 +202,8 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(Vec3(-64.0, -864.0, 896.0), Vec3(-32.0, -864.0, 896.0), Vec3(-32.0, -832.0, 896.0)));
             
             Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
@@ -250,6 +260,8 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(Vec3(1280.0, 896.0, 896.0), Vec3(1280.0, 896.0, 1056.0), Vec3(1296.0, 896.0, 1056.0)));
             
             Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }

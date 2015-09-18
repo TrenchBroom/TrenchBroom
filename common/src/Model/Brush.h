@@ -51,7 +51,8 @@ namespace TrenchBroom {
             
             class AddFaceToGeometryCallback;
             class AddFacesToGeometry;
-            
+            class CanMoveBoundaryCallback;
+            class CanMoveBoundary;
             class MoveVerticesCallback;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
@@ -78,6 +79,8 @@ namespace TrenchBroom {
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
 
+            bool fullySpecified() const;
+            
             void faceDidChange();
         private:
             void addFaces(const BrushFaceList& faces);
@@ -141,7 +144,7 @@ namespace TrenchBroom {
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
-            void updateBrushAfterVertexMove(const BBox3& worldBounds, const MoveVerticesCallback& result);
+            void updateFacesFromGeometry(const BBox3& worldBounds);
             void invalidateFaces();
         public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);
