@@ -140,23 +140,12 @@ namespace TrenchBroom {
         };
 
         class Brush::MoveVerticesCallback : public BrushGeometry::Callback {
-        private:
-            typedef std::map<BrushFace*, BrushFace*> ClonedFacesMap;
-            
-            // Maps cloned faces to the faces of which they were originally cloned.
-            // If a face is created from a clone, the new face should also map to the original of the clone.
-            ClonedFacesMap m_clonedFaces;
-            BrushFaceList m_droppedFaces;
         public:
             void faceWillBeDeleted(BrushFaceGeometry* faceGeometry) {
                 BrushFace* face = faceGeometry->payload();
-                ClonedFacesMap::iterator it = m_clonedFaces.find(face);
-                if (it != m_clonedFaces.end()) {
-                    m_clonedFaces.erase(it);
-                    delete face;
-                } else {
-                    m_droppedFaces.push_back(face);
-                }
+                assert(!face->selected());
+                delete face;
+                faceGeometry->setPayload(NULL);
             }
             
             void faceDidChange(BrushFaceGeometry* faceGeometry) {
@@ -165,73 +154,22 @@ namespace TrenchBroom {
             }
             
             void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) {
-                BrushFace* originalFace = findOriginal(originalGeometry->payload());
+                BrushFace* originalFace = originalGeometry->payload();
                 assert(originalFace != NULL);
                 assert(cloneGeometry->payload() == NULL);
                 
                 BrushFace* clonedFace = originalFace->clone();
                 cloneGeometry->setPayload(clonedFace);
                 clonedFace->setGeometry(cloneGeometry);
-
-                m_clonedFaces[clonedFace] = originalFace;
             }
             
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
-                BrushFace* remainingFace = remainingGeometry->payload();
                 BrushFace* faceToDelete = geometryToDelete->payload();
-                assert(remainingFace != NULL);
                 assert(faceToDelete != NULL);
+                assert(!faceToDelete->selected());
                 
-                ClonedFacesMap::iterator remainingFaceIt = m_clonedFaces.find(remainingFace);
-                ClonedFacesMap::iterator faceToDeleteIt = m_clonedFaces.find(faceToDelete);
-
-                if (faceToDeleteIt != m_clonedFaces.end()) {
-                    // If the face to delete is a clone, we just delete it:
-                    m_clonedFaces.erase(faceToDeleteIt);
-                    delete faceToDelete;
-                } else {
-                    // The face to delete is an original face.
-                    if (remainingFaceIt != m_clonedFaces.end()) {
-                        // If the remaining face is a clone, we swap them
-                        swapFaces(remainingGeometry, geometryToDelete);
-                        // and then we delete the remaining face
-                        m_clonedFaces.erase(remainingFaceIt);
-                        delete remainingFace;
-                    } else {
-                        // The remaining face is an original, too, we add the face to delete to the dropped faces:
-                        m_droppedFaces.push_back(faceToDelete);
-                    }
-                }
-            }
-            
-            bool hasAddedFaces() const {
-                return !m_clonedFaces.empty();
-            }
-            
-            bool hasDroppedFaces() const {
-                return !m_droppedFaces.empty();
-            }
-            
-            BrushFaceList addedFaces() const {
-                return MapUtils::keyList(m_clonedFaces);
-            }
-            
-            const BrushFaceList& droppedFaces() const {
-                return m_droppedFaces;
-            }
-        private:
-            BrushFace* findOriginal(BrushFace* possibleClone) const {
-                return MapUtils::find(m_clonedFaces, possibleClone, possibleClone);
-            }
-            
-            void swapFaces(BrushFaceGeometry* geometry1, BrushFaceGeometry* geometry2) const {
-                BrushFace* face1 = geometry1->payload();
-                BrushFace* face2 = geometry2->payload();
-                
-                geometry1->setPayload(face2);
-                face2->setGeometry(geometry1);
-                geometry2->setPayload(face1);
-                face1->setGeometry(geometry2);
+                delete faceToDelete;
+                geometryToDelete->setPayload(NULL);
             }
         };
 
@@ -622,17 +560,21 @@ namespace TrenchBroom {
         }
 
         void Brush::updateBrushAfterVertexMove(const BBox3& worldBounds, const MoveVerticesCallback& result) {
-            if (!result.hasAddedFaces() && !result.hasDroppedFaces())
-                return;
+            m_faces.clear();
             
-            const BrushFaceList addedFaces = result.addedFaces();
-            const BrushFaceList& droppedFaces = result.droppedFaces();
-            
-            removeFaces(droppedFaces.begin(), droppedFaces.end());
-            VectorUtils::deleteAll(droppedFaces);
+            BrushGeometry::Face* first = m_geometry->faces().front();
+            BrushGeometry::Face* current = first;
+            do {
+                BrushFace* face = current->payload();
+                if (face->brush() == NULL)
+                    addFace(face);
+                else
+                    m_faces.push_back(face);
+                current = current->next();
+            } while (current != first);
             
             invalidateFaces();
-            addFaces(addedFaces);
+            invalidateContentType();
 
             assert(checkGeometry());
         }
