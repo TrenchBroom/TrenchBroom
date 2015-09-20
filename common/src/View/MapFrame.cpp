@@ -67,7 +67,8 @@ namespace TrenchBroom {
         m_mapView(NULL),
         m_console(NULL),
         m_inspector(NULL),
-        m_lastFocus(NULL) {}
+        m_lastFocus(NULL),
+        m_gridChoice(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
@@ -78,7 +79,8 @@ namespace TrenchBroom {
         m_mapView(NULL),
         m_console(NULL),
         m_inspector(NULL),
-        m_lastFocus(NULL)  {
+        m_lastFocus(NULL),
+        m_gridChoice(NULL)  {
             Create(frameManager, document);
         }
 
@@ -93,6 +95,7 @@ namespace TrenchBroom {
             m_contextManager = new GLContextManager();
 
             createGui();
+            createToolBar();
             createMenuBar();
 
             m_document->setParentLogger(logger());
@@ -286,19 +289,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER | wxTB_FLAT);
-            toolBar->SetMargins(2, 2);
-            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
-            toolBar->AddSeparator();
-            toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
-            toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
-            toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
-            toolBar->Realize();
-            
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
             hSplitter->SetName("MapFrameHSplitter");
@@ -329,6 +319,28 @@ namespace TrenchBroom {
             wxPersistenceManager::Get().RegisterAndRestore(vSplitter);
         }
 
+        void MapFrame::createToolBar() {
+            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER | wxTB_FLAT);
+            toolBar->SetMargins(2, 2);
+            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
+            toolBar->AddSeparator();
+            toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
+            toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
+            toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
+            toolBar->AddSeparator();
+            
+            const wxString gridSizes[9] = { "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
+            m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 9, gridSizes);
+            m_gridChoice->SetSelection(static_cast<int>(m_document->grid().size()));
+            toolBar->AddControl(m_gridChoice);
+            
+            toolBar->Realize();
+        }
+        
         void MapFrame::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
@@ -338,6 +350,9 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
+            
+            Grid& grid = m_document->grid();
+            grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
         }
 
         void MapFrame::unbindObservers() {
@@ -349,6 +364,9 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
+
+            Grid& grid = m_document->grid();
+            grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument* document) {
@@ -368,6 +386,11 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
             if (actionManager.isMenuShortcutPreference(path))
                 rebuildMenuBar();
+        }
+
+        void MapFrame::gridDidChange() {
+            const Grid& grid = m_document->grid();
+            m_gridChoice->SetSelection(static_cast<int>(grid.size()));
         }
 
         void MapFrame::bindEvents() {
@@ -449,6 +472,9 @@ namespace TrenchBroom {
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+            
+            m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
+            m_gridChoice->Bind(wxEVT_MOUSEWHEEL, &MapFrame::OnToolBarGridChoiceMouseWheel, this);
         }
 
         void MapFrame::OnFileSave(wxCommandEvent& event) {
@@ -1053,6 +1079,23 @@ namespace TrenchBroom {
                         event.Enable(false);
                     break;
             }
+        }
+
+        void MapFrame::OnToolBarSetGridSize(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const size_t size = static_cast<size_t>(event.GetSelection());
+            assert(size < Grid::MaxSize);
+            m_document->grid().setSize(size);
+        }
+
+        void MapFrame::OnToolBarGridChoiceMouseWheel(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (event.GetWheelRotation() > 0)
+                m_document->grid().decSize();
+            else if (event.GetWheelRotation() < 0)
+                m_document->grid().incSize();
         }
 
         bool MapFrame::canLoadPointFile() const {

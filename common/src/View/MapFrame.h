@@ -26,6 +26,7 @@
 
 #include <wx/frame.h>
 
+class wxChoice;
 class wxTimer;
 class wxTimerEvent;
 
@@ -58,6 +59,8 @@ namespace TrenchBroom {
             Inspector* m_inspector;
 
             wxWindow* m_lastFocus;
+            
+            wxChoice* m_gridChoice;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -87,6 +90,8 @@ namespace TrenchBroom {
             void addRecentDocumentsMenu(wxMenuBar* menuBar);
             void removeRecentDocumentsMenu(wxMenuBar* menuBar);
             void updateRecentDocumentsMenu();
+        private: // tool bar
+            void createToolBar();
         private: // gui creation
             void createGui();
         private: // notification handlers
@@ -97,6 +102,7 @@ namespace TrenchBroom {
             void documentDidChange(View::MapDocument* document);
             void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
+            void gridDidChange();
         private: // menu event handlers
             void bindEvents();
 
@@ -169,6 +175,9 @@ namespace TrenchBroom {
             void OnFlipObjectsVertically(wxCommandEvent& event);
             
             void OnUpdateUI(wxUpdateUIEvent& event);
+            
+            void OnToolBarSetGridSize(wxCommandEvent& event);
+            void OnToolBarGridChoiceMouseWheel(wxMouseEvent& event);
         private:
             bool canLoadPointFile() const;
             bool canUnloadPointFile() const;
