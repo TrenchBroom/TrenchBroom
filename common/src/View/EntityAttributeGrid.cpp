@@ -57,42 +57,48 @@ namespace TrenchBroom {
         
         void EntityAttributeGrid::OnAttributeGridSelectCell(wxGridEvent& event) {
             if (IsBeingDeleted()) return;
-
-            const Model::AttributeName name = m_table->attributeName(event.GetRow());
-            if (!m_ignoreSelection) {
-                m_lastSelectedName = name;
-                m_lastSelectedCol = event.GetCol();
-            }
-            
-            EntityAttributeSelectedCommand command;
-            command.setName(name);
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
+            fireSelectionEvent(event.GetRow(), event.GetCol());
         }
         
         void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (event.ShiftDown()) {
-                if (event.GetCol() > 0) {
-                    m_grid->SelectRow(event.GetRow());
-                    m_grid->GoToCell(event.GetRow(), event.GetCol() - 1);
-                } else if (event.GetRow() > 0) {
-                    m_grid->SelectRow(event.GetRow() - 1);
-                    m_grid->GoToCell(event.GetRow() - 1, m_grid->GetNumberCols() - 1);
-                }
+                if (event.GetCol() > 0)
+                    moveCursorTo(event.GetRow(), event.GetCol() - 1);
+                else if (event.GetRow() > 0)
+                    moveCursorTo(event.GetRow() - 1, m_grid->GetNumberCols() - 1);
             } else {
-                if (event.GetCol() < m_grid->GetNumberCols() - 1) {
-                    m_grid->SelectRow(event.GetRow());
-                    m_grid->GoToCell(event.GetRow(), event.GetCol() + 1);
-                } else if (event.GetRow() < m_grid->GetNumberRows() - 1) {
-                    m_grid->SelectRow(event.GetRow() + 1);
-                    m_grid->GoToCell(event.GetRow() + 1, 0);
-                }
+                if (event.GetCol() < m_grid->GetNumberCols() - 1)
+                    moveCursorTo(event.GetRow(), event.GetCol() + 1);
+                else if (event.GetRow() < m_grid->GetNumberRows() - 1)
+                    moveCursorTo(event.GetRow() + 1, 0);
             }
         }
         
+        void EntityAttributeGrid::moveCursorTo(const int row, const int col) {
+            {
+                const SetBool ignoreSelection(m_ignoreSelection);
+                m_grid->GoToCell(row, col);
+                m_grid->SelectRow(row);
+            }
+            fireSelectionEvent(row, col);
+        }
+
+        void EntityAttributeGrid::fireSelectionEvent(const int row, const int col) {
+            if (!m_ignoreSelection) {
+                const Model::AttributeName name = m_table->attributeName(row);
+                m_lastSelectedName = name;
+                m_lastSelectedCol = col;
+                
+                EntityAttributeSelectedCommand command;
+                command.setName(name);
+                command.SetEventObject(this);
+                command.SetId(GetId());
+                ProcessEvent(command);
+            }
+        }
+
         void EntityAttributeGrid::OnAttributeGridKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 

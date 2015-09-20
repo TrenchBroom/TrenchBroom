@@ -49,14 +49,15 @@ namespace TrenchBroom {
         public:
             EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
             ~EntityAttributeGrid();
-            
+        private:
             void OnAttributeGridSize(wxSizeEvent& event);
             void OnAttributeGridSelectCell(wxGridEvent& event);
             void OnAttributeGridTab(wxGridEvent& event);
-            
+            void moveCursorTo(int row, int col);
+            void fireSelectionEvent(int row, int col);
+        private:
             void OnAttributeGridKeyDown(wxKeyEvent& event);
             void OnAttributeGridKeyUp(wxKeyEvent& event);
-        private:
             bool isInsertRowShortcut(const wxKeyEvent& event) const;
             bool isRemoveRowShortcut(const wxKeyEvent& event) const;
         private:
