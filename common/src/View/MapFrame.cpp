@@ -474,7 +474,6 @@ namespace TrenchBroom {
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
             
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
-            m_gridChoice->Bind(wxEVT_MOUSEWHEEL, &MapFrame::OnToolBarGridChoiceMouseWheel, this);
         }
 
         void MapFrame::OnFileSave(wxCommandEvent& event) {
@@ -1087,15 +1086,6 @@ namespace TrenchBroom {
             const size_t size = static_cast<size_t>(event.GetSelection());
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
-        }
-
-        void MapFrame::OnToolBarGridChoiceMouseWheel(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (event.GetWheelRotation() > 0)
-                m_document->grid().decSize();
-            else if (event.GetWheelRotation() < 0)
-                m_document->grid().incSize();
         }
 
         bool MapFrame::canLoadPointFile() const {

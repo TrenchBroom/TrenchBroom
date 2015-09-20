@@ -32,6 +32,7 @@
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
+#include "View/Grid.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -165,6 +166,18 @@ namespace TrenchBroom {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 
+        void SelectionTool::doMouseScroll(const InputState& inputState) {
+            if (!inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
+                return;
+            
+            MapDocumentSPtr document = lock(m_document);
+            Grid& grid = document->grid();
+            if (inputState.scrollY() < 0.0f)
+                grid.incSize();
+            else if (inputState.scrollY() > 0.0f)
+                grid.decSize();
+        }
+        
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             if (!handleClick(inputState) || !isMultiClick(inputState))
                 return false;

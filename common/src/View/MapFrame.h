@@ -177,7 +177,6 @@ namespace TrenchBroom {
             void OnUpdateUI(wxUpdateUIEvent& event);
             
             void OnToolBarSetGridSize(wxCommandEvent& event);
-            void OnToolBarGridChoiceMouseWheel(wxMouseEvent& event);
         private:
             bool canLoadPointFile() const;
             bool canUnloadPointFile() const;
