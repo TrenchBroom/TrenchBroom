@@ -41,9 +41,6 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& plane, Callback& callback) {
-    if (isCoplanarToAnyFace(plane, callback))
-        return ClipResult(ClipResult::Type_ClipUnchanged);
-    
     const ClipResult vertexResult = checkIntersects(plane);
     if (!vertexResult.success())
         return vertexResult;
@@ -64,18 +61,6 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
     
     assert(checkInvariant());
     return ClipResult(ClipResult::Type_ClipSuccess);
-}
-
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::isCoplanarToAnyFace(const Plane<T,3>& plane, const Callback& callback) const {
-    typename FaceList::const_iterator it, end;
-    for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-        const Face* face = *it;
-        const Plane<T,3> facePlane = callback.plane(face);
-        if (plane.equals(facePlane))
-            return true;
-    }
-    return false;
 }
 
 template <typename T, typename FP>

@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Main__
-#define __TrenchBroom__Main__
+#ifndef TrenchBroom_Main
+#define TrenchBroom_Main
 
 #include "TrenchBroomApp.h"
 
 DECLARE_APP(TrenchBroom::View::TrenchBroomApp)
 
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif /* defined(TrenchBroom_TrenchBroomApp) */

@@ -414,7 +414,6 @@ public: // Clipping
     ClipResult clip(const Plane<T,3>& plane);
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
 private:
-    bool isCoplanarToAnyFace(const Plane<T,3>& plane, const Callback& callback) const;
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
 
     Seam intersectWithPlane(const Plane<T,3>& plane, Callback& callback);

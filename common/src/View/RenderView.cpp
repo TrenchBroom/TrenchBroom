@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_glContext(contextManager.createContext(this)),
         m_attribs(attribs),
         m_initialized(false),
-        m_vbo(0xFF) {
+        m_vbo(1024) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
             
