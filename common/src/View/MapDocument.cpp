@@ -1308,6 +1308,10 @@ namespace TrenchBroom {
             return m_modificationCount != m_lastSaveModificationCount;
         }
         
+        size_t MapDocument::modificationCount() const {
+            return m_modificationCount;
+        }
+
         void MapDocument::setLastSaveModificationCount() {
             m_lastSaveModificationCount = m_modificationCount;
             documentModificationStateDidChangeNotifier();

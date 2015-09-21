@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"

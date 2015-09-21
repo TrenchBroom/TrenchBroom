@@ -20,7 +20,7 @@
 #include "StandardMapParser.h"
 
 #include "Logger.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {

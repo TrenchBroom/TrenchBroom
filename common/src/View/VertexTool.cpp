@@ -19,7 +19,7 @@
 
 #include "VertexTool.h"
 
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"

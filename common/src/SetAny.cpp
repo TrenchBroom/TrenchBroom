@@ -17,16 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SetBool.h"
+#include "SetAny.h"
 
 namespace TrenchBroom {
-    SetBool::SetBool(bool& value, bool setTo) :
-    m_value(value),
-    m_setTo(setTo) {
-        m_value = m_setTo;
-    }
-    
-    SetBool::~SetBool() {
-        m_value = !m_setTo;
-    }
+    SetBool::SetBool(bool& value, bool newValue) :
+    SetAny(value, newValue) {}
 }

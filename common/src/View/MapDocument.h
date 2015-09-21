@@ -388,6 +388,7 @@ namespace TrenchBroom {
             void setPath(const IO::Path& path);
         public: // modification count
             bool modified() const;
+            size_t modificationCount() const;
         private:
             void setLastSaveModificationCount();
             void clearModificationCount();

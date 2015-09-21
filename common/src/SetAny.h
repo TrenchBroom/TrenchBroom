@@ -17,19 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SetBool
-#define TrenchBroom_SetBool
+#ifndef TrenchBroom_SetAny
+#define TrenchBroom_SetAny
 
 #include <cassert>
 #include <iostream>
 
 namespace TrenchBroom {
-    class SetBool {
+    template <typename T>
+    class SetAny {
     private:
-        bool& m_value;
-        bool m_setTo;
+        T& m_value;
+        T m_oldValue;
+        T m_newValue;
     public:
-        SetBool(bool& value, bool setTo = true);
+        SetAny(T& value, T newValue) :
+        m_value(value),
+        m_oldValue(m_value) {
+            m_value = newValue;
+        }
+        
+        virtual ~SetAny() {
+            m_value = m_oldValue;
+        }
+    };
+    
+    class SetBool : public SetAny<bool> {
+    public:
+        SetBool(bool& value, bool newValue = true);
         ~SetBool();
     };
 
@@ -55,4 +70,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(TrenchBroom_SetBool) */
+#endif /* defined(TrenchBroom_SetAny) */

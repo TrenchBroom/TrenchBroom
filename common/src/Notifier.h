@@ -22,7 +22,7 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "SetBool.h"
+#include "SetAny.h"
 
 #include <algorithm>
 #include <cassert>

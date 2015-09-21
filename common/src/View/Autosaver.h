@@ -33,6 +33,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Command;
+        
         class Autosaver {
         private:
             View::MapDocumentWPtr m_document;
@@ -44,13 +46,12 @@ namespace TrenchBroom {
             
             time_t m_lastSaveTime;
             time_t m_lastModificationTime;
-            bool m_dirty;
+            size_t m_lastModificationCount;
         public:
-            Autosaver(View::MapDocumentWPtr document, const time_t saveInterval = 10 * 60, const time_t idleInterval = 3, const size_t maxBackups = 30);
+            Autosaver(View::MapDocumentWPtr document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, size_t maxBackups = 30);
             ~Autosaver();
             
             void triggerAutosave(Logger* logger);
-            void updateLastModificationTime();
         private:
             void autosave(View::MapDocumentSPtr document);
             IO::WritableDiskFileSystem createBackupFileSystem(const IO::Path& mapPath) const;
@@ -59,6 +60,10 @@ namespace TrenchBroom {
             void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
             void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
             String makeBackupName(const IO::Path& mapBasename, const size_t index) const;
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void documentModificationCountDidChangeNotifier();
         };
 
         size_t extractBackupNo(const IO::Path& path);

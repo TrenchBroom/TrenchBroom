@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Renderer/Camera.h"
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
