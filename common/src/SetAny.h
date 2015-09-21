@@ -45,7 +45,6 @@ namespace TrenchBroom {
     class SetBool : public SetAny<bool> {
     public:
         SetBool(bool& value, bool newValue = true);
-        ~SetBool();
     };
 
     template <typename R>
