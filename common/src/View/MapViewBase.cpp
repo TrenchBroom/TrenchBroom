@@ -235,6 +235,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
+            Bind(wxEVT_MENU, &MapViewBase::OnDeactivateTool,               this, CommandIds::Actions::DeactivateTool);
             
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
@@ -562,6 +563,10 @@ namespace TrenchBroom {
             return doCancel();
         }
 
+        void MapViewBase::OnDeactivateTool(wxCommandEvent& event) {
+            m_toolBox.deactivateAllTools();
+        }
+        
         void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 

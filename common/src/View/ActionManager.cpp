@@ -382,6 +382,8 @@ namespace TrenchBroom {
 
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE, WXK_CONTROL), ActionContext_Any,
+                               Action(View::CommandIds::Actions::DeactivateTool, "Deactivate current tool", true));
         }
 
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {

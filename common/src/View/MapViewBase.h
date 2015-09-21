@@ -146,6 +146,8 @@ namespace TrenchBroom {
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
+            
+            void OnDeactivateTool(wxCommandEvent& event);
         private: // group management
             void OnGroupSelectedObjects(wxCommandEvent& event);
             void OnUngroupSelectedObjects(wxCommandEvent& event);

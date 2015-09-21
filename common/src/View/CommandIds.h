@@ -150,6 +150,7 @@ namespace TrenchBroom {
                 const int CycleMapViews                      = Lowest +  52;
                 
                 const int ToggleFlyMode                      = Lowest +  53;
+                const int DeactivateTool                     = Lowest +  54;
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */
