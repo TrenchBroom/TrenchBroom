@@ -85,8 +85,6 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-            mutable MeshVertex::List m_cachedVertices;
-            mutable bool m_vertexCacheValid;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -187,13 +185,9 @@ namespace TrenchBroom {
             
             bool containsPoint(const Vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
-            
-            void invalidate();
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
-            void validateVertexCache() const;
-            void invalidateVertexCache();
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);

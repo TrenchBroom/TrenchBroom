@@ -607,16 +607,7 @@ namespace TrenchBroom {
                 current = current->next();
             } while (current != first);
             
-            invalidateFaces();
             invalidateContentType();
-        }
-
-        void Brush::invalidateFaces() {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                face->invalidate();
-            }
         }
 
         void Brush::rebuildGeometry(const BBox3& worldBounds) {

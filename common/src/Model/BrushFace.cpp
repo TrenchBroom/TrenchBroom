@@ -48,7 +48,6 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(NULL),
-        m_vertexCacheValid(false),
         m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
@@ -107,8 +106,6 @@ namespace TrenchBroom {
             delete m_texCoordSystem;
             m_texCoordSystem = NULL;
             m_geometry = NULL;
-            m_cachedVertices.clear();
-            m_vertexCacheValid = false;
         }
 
         BrushFace* BrushFace::clone() const {
@@ -221,7 +218,6 @@ namespace TrenchBroom {
                 m_attribs.texture()->incUsageCount();
 
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
-            invalidate();
 
             if (m_brush != NULL)
                 m_brush->faceDidChange();
@@ -299,7 +295,6 @@ namespace TrenchBroom {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
             m_attribs.setTexture(texture);
-            invalidateVertexCache();
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
             if (m_brush != NULL)
@@ -311,28 +306,24 @@ namespace TrenchBroom {
                 return;
 
             m_attribs.setXOffset(i_xOffset);
-            invalidateVertexCache();
         }
 
         void BrushFace::setYOffset(const float i_yOffset) {
             if (i_yOffset == yOffset())
                 return;
             m_attribs.setYOffset(i_yOffset);
-            invalidateVertexCache();
         }
 
         void BrushFace::setXScale(const float i_xScale) {
             if (i_xScale == xScale())
                 return;
             m_attribs.setXScale(i_xScale);
-            invalidateVertexCache();
         }
 
         void BrushFace::setYScale(const float i_yScale) {
             if (i_yScale == yScale())
                 return;
             m_attribs.setYScale(i_yScale);
-            invalidateVertexCache();
         }
 
         void BrushFace::setRotation(const float rotation) {
@@ -342,7 +333,6 @@ namespace TrenchBroom {
             const float oldRotation = m_attribs.rotation();
             m_attribs.setRotation(rotation);
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-            invalidateVertexCache();
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
@@ -391,19 +381,16 @@ namespace TrenchBroom {
 
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attribs);
-            invalidateVertexCache();
         }
 
         void BrushFace::rotateTexture(const float angle) {
             const float oldRotation = m_attribs.rotation();
             m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attribs);
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
-            invalidate();
         }
 
         void BrushFace::shearTexture(const Vec2f& factors) {
             m_texCoordSystem->shearTexture(m_boundary.normal, factors);
-            invalidate();
         }
 
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
@@ -418,7 +405,6 @@ namespace TrenchBroom {
             if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
                 swap(m_points[1], m_points[2]);
             correctPoints();
-            invalidateVertexCache();
         }
 
         void BrushFace::invert() {
@@ -426,7 +412,6 @@ namespace TrenchBroom {
 
             m_boundary.flip();
             swap(m_points[1], m_points[2]);
-            invalidateVertexCache();
         }
 
         void BrushFace::updatePointsFromVertices() {
@@ -464,20 +449,17 @@ namespace TrenchBroom {
                       best->next()->origin()->position());
 
             m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
-            invalidateVertexCache();
         }
 
         void BrushFace::snapPlanePointsToInteger() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].round();
             setPoints(m_points[0], m_points[1], m_points[2]);
-            invalidateVertexCache();
         }
 
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
             setPoints(m_points[0], m_points[1], m_points[2]);
-            invalidateVertexCache();
         }
 
         Mat4x4 BrushFace::projectToBoundaryMatrix() const {
@@ -526,7 +508,6 @@ namespace TrenchBroom {
             if (m_geometry == geometry)
                 return;
             m_geometry = geometry;
-            invalidateVertexCache();
         }
 
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
@@ -554,20 +535,35 @@ namespace TrenchBroom {
 
         void BrushFace::addToMesh(Mesh& mesh) const {
             assert(m_geometry != NULL);
-            if (!m_vertexCacheValid)
-                validateVertexCache();
 
+            MeshVertex::List vertices;
+            vertices.reserve(3 * (vertexCount() - 2));
+            
+            assert(m_geometry != NULL);
+            const BrushHalfEdge* first = m_geometry->boundary().front();
+            const BrushHalfEdge* current = first;
+            
+            const Vec3& v1 = first->origin()->position();
+            do {
+                const Vec3& v2 = current->origin()->position();
+                
+                // The boundary is in CCW order, but the renderer expects CW order:
+                current = current->previous();
+                const Vec3& v3 = current->origin()->position();
+                
+                vertices.push_back(MeshVertex(v1, m_boundary.normal, textureCoords(v1)));
+                vertices.push_back(MeshVertex(v2, m_boundary.normal, textureCoords(v2)));
+                vertices.push_back(MeshVertex(v3, m_boundary.normal, textureCoords(v3)));
+            } while (current != first);
+
+            
             mesh.beginTriangleSet(m_attribs.texture());
-            mesh.addTrianglesToSet(m_cachedVertices);
+            mesh.addTrianglesToSet(vertices);
             mesh.endTriangleSet();
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
-        }
-
-        void BrushFace::invalidate() {
-            invalidateVertexCache();
         }
 
         bool BrushFace::containsPoint(const Vec3& point) const {
@@ -608,34 +604,6 @@ namespace TrenchBroom {
         void BrushFace::correctPoints() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].correct();
-        }
-
-        void BrushFace::validateVertexCache() const {
-            m_cachedVertices.clear();
-            m_cachedVertices.reserve(3 * (vertexCount() - 2));
-
-            assert(m_geometry != NULL);
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-            
-            const Vec3& v1 = first->origin()->position();
-            do {
-                const Vec3& v2 = current->origin()->position();
-
-                // The boundary is in CCW order, but the renderer expects CW order:
-                current = current->previous();
-                const Vec3& v3 = current->origin()->position();
-                
-                m_cachedVertices.push_back(MeshVertex(v1, m_boundary.normal, textureCoords(v1)));
-                m_cachedVertices.push_back(MeshVertex(v2, m_boundary.normal, textureCoords(v2)));
-                m_cachedVertices.push_back(MeshVertex(v3, m_boundary.normal, textureCoords(v3)));
-            } while (current != first);
-            
-            m_vertexCacheValid = true;
-        }
-
-        void BrushFace::invalidateVertexCache() {
-            m_vertexCacheValid = false;
         }
     }
 }

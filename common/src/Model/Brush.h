@@ -145,7 +145,6 @@ namespace TrenchBroom {
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
             void updateFacesFromGeometry(const BBox3& worldBounds);
-            void invalidateFaces();
         public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
