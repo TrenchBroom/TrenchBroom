@@ -66,11 +66,11 @@ namespace TrenchBroom {
             DefaultFilter(context) {}
             
             bool doShow(const Model::BrushFace* face) const {
-                return true;
+                return visible(face);
             }
             
             bool doShow(const Model::BrushEdge* edge) const {
-                return true;
+                return visible(edge);
             }
             
             bool doIsTransparent(const Model::Brush* brush) const {
@@ -313,9 +313,9 @@ namespace TrenchBroom {
                 }
             }
             
-            bool collectLocked() const   { return (m_renderers & Renderer_Locked) != 0; }
+            bool collectLocked() const    { return (m_renderers & Renderer_Locked)    != 0; }
             bool collectSelection() const { return (m_renderers & Renderer_Selection) != 0; }
-            bool collectDefault() const  { return (m_renderers & Renderer_Default) != 0; }
+            bool collectDefault() const   { return (m_renderers & Renderer_Default)   != 0; }
             
             bool selected(const Model::Node* node) const {
                 return node->selected() || node->descendantSelected() || node->parentSelected();
