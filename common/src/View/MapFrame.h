@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Inspector* m_inspector;
 
             wxWindow* m_lastFocus;
-            
+
             wxChoice* m_gridChoice;
         public:
             MapFrame();
@@ -86,7 +86,6 @@ namespace TrenchBroom {
         private: // menu bar
             void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
-            void destroyMenuBar();
             void createMenuBar();
             void addRecentDocumentsMenu(wxMenuBar* menuBar);
             void removeRecentDocumentsMenu(wxMenuBar* menuBar);
@@ -174,9 +173,9 @@ namespace TrenchBroom {
 
             void OnFlipObjectsHorizontally(wxCommandEvent& event);
             void OnFlipObjectsVertically(wxCommandEvent& event);
-            
+
             void OnUpdateUI(wxUpdateUIEvent& event);
-            
+
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
             bool canLoadPointFile() const;

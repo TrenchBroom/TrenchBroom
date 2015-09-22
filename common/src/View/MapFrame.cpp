@@ -251,17 +251,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::rebuildMenuBar() {
-            destroyMenuBar();
-            createMenuBar();
-        }
-
-        void MapFrame::destroyMenuBar() {
             wxMenuBar* oldMenuBar = GetMenuBar();
-            if (oldMenuBar != NULL) {
-                removeRecentDocumentsMenu(oldMenuBar);
-                SetMenuBar(NULL);
-                delete oldMenuBar;
-            }
+            removeRecentDocumentsMenu(oldMenuBar);
+            createMenuBar();
+#if not defined __LINUX__
+#if not defined wxUSE_IDLEMENUUPDATES
+            // Don't delete the old menu bar on Ubuntu. It will leak, but otherwise we crash on the next idle update.
+            oldMenuBar->Destroy();
+#endif
+#endif
         }
 
         void MapFrame::createMenuBar() {
@@ -309,7 +307,7 @@ namespace TrenchBroom {
             m_inspector = new Inspector(hSplitter, m_document, *m_contextManager);
 
             m_mapView->connectTopWidgets(m_inspector);
-            
+
             vSplitter->splitHorizontally(m_mapView, infoPanel, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
 
@@ -338,15 +336,15 @@ namespace TrenchBroom {
             toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->AddSeparator();
-            
+
             const wxString gridSizes[9] = { "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
             m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 9, gridSizes);
             m_gridChoice->SetSelection(static_cast<int>(m_document->grid().size()));
             toolBar->AddControl(m_gridChoice);
-            
+
             toolBar->Realize();
         }
-        
+
         void MapFrame::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
@@ -356,7 +354,7 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
-            
+
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
         }
@@ -392,12 +390,8 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
             if (actionManager.isMenuShortcutPreference(path)) {
                 rebuildMenuBar();
-            } else if (path == Preferences::MapViewLayout.path()) {
-                destroyMenuBar();
+            } else if (path == Preferences::MapViewLayout.path())
                 m_mapView->switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
-                createMenuBar();
-            }
-
         }
 
         void MapFrame::gridDidChange() {
@@ -466,7 +460,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
-            
+
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
@@ -480,11 +474,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsVertically);
-            
+
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
-            
+
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
         }
 
@@ -664,7 +658,7 @@ namespace TrenchBroom {
             if (canSelectByBrush())
                 m_document->selectInside(true);
         }
-        
+
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -672,7 +666,7 @@ namespace TrenchBroom {
                 const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
                 if (string.empty())
                     return;
-                
+
                 std::vector<size_t> positions;
                 wxStringTokenizer tokenizer(string, ", ");
                 while (tokenizer.HasMoreTokens()) {
@@ -682,7 +676,7 @@ namespace TrenchBroom {
                         positions.push_back(static_cast<size_t>(position));
                     }
                 }
-                
+
                 m_document->selectNodesWithFilePosition(positions);
             }
         }
@@ -741,7 +735,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditDeactivateTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            
+
             m_mapView->deactivateTool();
         }
 
@@ -877,7 +871,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Left);
         }
-        
+
         void MapFrame::OnFlipObjectsVertically(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Up);
@@ -1103,23 +1097,23 @@ namespace TrenchBroom {
         bool MapFrame::canLoadPointFile() const {
             return m_document->canLoadPointFile();
         }
-        
+
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
         }
-        
+
         bool MapFrame::canUndo() const {
             return m_document->canUndoLastCommand();
         }
-        
+
         bool MapFrame::canRedo() const {
             return m_document->canRedoNextCommand();
         }
-        
+
         bool MapFrame::canCut() const {
             return canDelete();
         }
-        
+
         bool MapFrame::canCopy() const {
             return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
         }
@@ -1132,15 +1126,15 @@ namespace TrenchBroom {
         bool MapFrame::canDelete() const {
             return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
-        
+
         bool MapFrame::canDuplicate() const {
             return m_document->hasSelectedNodes() && !m_mapView->clipToolActive() && !m_mapView->vertexToolActive();
         }
-        
+
         bool MapFrame::canSelectSiblings() const {
             return canChangeSelection() && m_document->hasSelectedNodes();
         }
-        
+
         bool MapFrame::canSelectByBrush() const {
             return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() ;
         }
@@ -1148,11 +1142,11 @@ namespace TrenchBroom {
         bool MapFrame::canSelect() const {
             return canChangeSelection();
         }
-        
+
         bool MapFrame::canDeselect() const {
             return canChangeSelection() && m_document->hasSelectedNodes();
         }
-        
+
         bool MapFrame::canChangeSelection() const {
             return m_document->editorContext().canChangeSelection();
         }
@@ -1160,15 +1154,15 @@ namespace TrenchBroom {
         bool MapFrame::canGroup() const {
             return m_document->hasSelectedNodes();
         }
-        
+
         bool MapFrame::canUngroup() const {
             return m_document->selectedNodes().hasOnlyGroups();
         }
-        
+
         bool MapFrame::canHide() const {
             return m_document->hasSelectedNodes();
         }
-        
+
         bool MapFrame::canIsolate() const {
             return m_document->hasSelectedNodes();
         }
@@ -1176,27 +1170,27 @@ namespace TrenchBroom {
         bool MapFrame::canCreateConvexHull() const {
             return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
         }
-        
+
         bool MapFrame::canSnapVertices() const {
             return m_document->selectedNodes().hasOnlyBrushes();
         }
-        
+
         bool MapFrame::canDecGridSize() const {
             return m_document->grid().size() > 0;
         }
-        
+
         bool MapFrame::canIncGridSize() const {
             return m_document->grid().size() < Grid::MaxSize;
         }
-        
+
         bool MapFrame::canMoveCameraToNextPoint() const {
             return m_mapView->canMoveCameraToNextTracePoint();
         }
-        
+
         bool MapFrame::canMoveCameraToPreviousPoint() const {
             return m_mapView->canMoveCameraToPreviousTracePoint();
         }
-        
+
         bool MapFrame::canCenterCamera() const {
             return m_document->hasSelectedNodes();
         }
