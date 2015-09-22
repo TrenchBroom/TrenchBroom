@@ -86,6 +86,7 @@ namespace TrenchBroom {
         private: // menu bar
             void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
+            void destroyMenuBar();
             void createMenuBar();
             void addRecentDocumentsMenu(wxMenuBar* menuBar);
             void removeRecentDocumentsMenu(wxMenuBar* menuBar);

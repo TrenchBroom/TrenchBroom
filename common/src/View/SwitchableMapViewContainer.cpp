@@ -197,22 +197,11 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::bindObservers() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &SwitchableMapViewContainer::preferenceDidChange);
-            
             m_toolBox->refreshViewsNotifier.addObserver(this, &SwitchableMapViewContainer::refreshViews);
         }
         
         void SwitchableMapViewContainer::unbindObservers() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &SwitchableMapViewContainer::preferenceDidChange);
-            
             m_toolBox->refreshViewsNotifier.removeObserver(this, &SwitchableMapViewContainer::refreshViews);
-        }
-        
-        void SwitchableMapViewContainer::preferenceDidChange(const IO::Path& path) {
-            if (path == Preferences::MapViewLayout.path())
-                switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
         }
 
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {

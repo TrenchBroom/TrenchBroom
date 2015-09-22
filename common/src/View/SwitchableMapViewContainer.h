@@ -92,7 +92,6 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            void preferenceDidChange(const IO::Path& path);
             void refreshViews(Tool* tool);
         private: // implement MapView interface
             bool doGetIsCurrent() const;

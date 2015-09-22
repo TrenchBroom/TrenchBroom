@@ -251,11 +251,17 @@ namespace TrenchBroom {
         }
 
         void MapFrame::rebuildMenuBar() {
-            wxMenuBar* oldMenuBar = GetMenuBar();
-            removeRecentDocumentsMenu(oldMenuBar);
-
+            destroyMenuBar();
             createMenuBar();
-            delete oldMenuBar;
+        }
+
+        void MapFrame::destroyMenuBar() {
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            if (oldMenuBar != NULL) {
+                removeRecentDocumentsMenu(oldMenuBar);
+                SetMenuBar(NULL);
+                delete oldMenuBar;
+            }
         }
 
         void MapFrame::createMenuBar() {
@@ -384,8 +390,14 @@ namespace TrenchBroom {
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {
             const ActionManager& actionManager = ActionManager::instance();
-            if (actionManager.isMenuShortcutPreference(path))
+            if (actionManager.isMenuShortcutPreference(path)) {
                 rebuildMenuBar();
+            } else if (path == Preferences::MapViewLayout.path()) {
+                destroyMenuBar();
+                m_mapView->switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
+                createMenuBar();
+            }
+
         }
 
         void MapFrame::gridDidChange() {
