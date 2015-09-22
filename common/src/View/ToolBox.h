@@ -73,6 +73,7 @@ namespace TrenchBroom {
             ToolBox();
         public: // focus window management
             void addWindow(wxWindow* window);
+            void removeWindow(wxWindow* window);
         private:
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

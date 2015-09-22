@@ -49,6 +49,14 @@ namespace TrenchBroom {
             m_focusGroup.push_back(window);
         }
 
+        void ToolBox::removeWindow(wxWindow* window) {
+            window->Unbind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
+            window->Unbind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
+            window->Unbind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
+            window->Unbind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
+            VectorUtils::erase(m_focusGroup, window);
+        }
+
         void ToolBox::OnSetFocus(wxFocusEvent& event) {
             if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
                 m_ignoreNextClick = false;

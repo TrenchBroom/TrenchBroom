@@ -81,6 +81,7 @@ namespace TrenchBroom {
         }
         
         MapViewBase::~MapViewBase() {
+            m_toolBox.removeWindow(this);
             unbindObservers();
             m_animationManager->Delete();
             delete m_compass;
