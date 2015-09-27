@@ -177,8 +177,11 @@ namespace TrenchBroom {
             
             const Math::Axis::Type axis = plane.normal.firstComponent();
             const Plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
+            for (size_t i = 0; i < 3; ++i)
+                points[i] = swizzle(points[i], axis);
+            
             const FloatType waveLength = 1.0 / frequency;
-            const FloatType pointDistance = std::max(64.0, waveLength);
+            const FloatType pointDistance = std::min(64.0, waveLength);
             
             FloatType multiplier = 10.0;
             GridSearchCursor cursor(swizzledPlane, frequency);
