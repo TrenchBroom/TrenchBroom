@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class ClipToolAdapter3D;
         class CreateComplexBrushToolAdapter3D;
         class CreateEntityToolAdapter;
+        class CreateSimpleBrushToolAdapter3D;
         class FlyModeHelper;
         class GLContextManager;
         class MoveObjectsToolAdapter;
@@ -62,6 +63,7 @@ namespace TrenchBroom {
             ClipToolAdapter3D* m_clipToolAdapter;
             CreateComplexBrushToolAdapter3D* m_createComplexBrushToolAdapter;
             CreateEntityToolAdapter* m_createEntityToolAdapter;
+            CreateSimpleBrushToolAdapter3D* m_createSimpleBrushToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
             RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;

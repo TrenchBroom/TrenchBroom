@@ -99,11 +99,11 @@ namespace TrenchBroom {
                         return actSize * Math::round(f / actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && s == f) ? s + actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s + actualSize() : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && s == f) ? s - actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s - actualSize() : s;
                     }
 					switchDefault()
                 }

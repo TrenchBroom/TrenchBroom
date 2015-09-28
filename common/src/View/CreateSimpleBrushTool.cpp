@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateComplexBrushTool.h"
+#include "CreateSimpleBrushTool.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -32,18 +32,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
-        CreateBrushToolBase(false, document) {}
-
-        void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
-            if (polyhedron.closed()) {
-                MapDocumentSPtr document = lock(m_document);
-                const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                Model::Brush* brush = builder.createBrush(polyhedron, document->currentTextureName());
-                updateBrush(brush);
-            } else {
-                updateBrush(NULL);
-            }
+        CreateSimpleBrushTool::CreateSimpleBrushTool(MapDocumentWPtr document) :
+        CreateBrushToolBase(true, document) {}
+        
+        void CreateSimpleBrushTool::update(const BBox3& bounds) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            updateBrush(builder.createBrush(bounds, document->currentTextureName()));
         }
+
     }
 }

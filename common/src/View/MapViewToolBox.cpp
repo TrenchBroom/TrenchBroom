@@ -22,6 +22,7 @@
 #include "View/ClipTool.h"
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
+#include "View/CreateSimpleBrushTool.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
@@ -35,6 +36,7 @@ namespace TrenchBroom {
         m_clipTool(NULL),
         m_createComplexBrushTool(NULL),
         m_createEntityTool(NULL),
+        m_createSimpleBrushTool(NULL),
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
@@ -59,6 +61,10 @@ namespace TrenchBroom {
         
         CreateEntityTool* MapViewToolBox::createEntityTool() {
             return m_createEntityTool;
+        }
+
+        CreateSimpleBrushTool* MapViewToolBox::createSimpleBrushTool() {
+            return m_createSimpleBrushTool;
         }
 
         MoveObjectsTool* MapViewToolBox::moveObjectsTool() {
@@ -153,6 +159,7 @@ namespace TrenchBroom {
             m_clipTool = new ClipTool(document);
             m_createComplexBrushTool = new CreateComplexBrushTool(document);
             m_createEntityTool = new CreateEntityTool(document);
+            m_createSimpleBrushTool = new CreateSimpleBrushTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document);
             m_resizeBrushesTool = new ResizeBrushesTool(document);
             m_rotateObjectsTool = new RotateObjectsTool(document);
@@ -176,6 +183,7 @@ namespace TrenchBroom {
             registerTool(m_vertexTool, bookCtrl);
             registerTool(m_createEntityTool, bookCtrl);
             registerTool(m_selectionTool, bookCtrl);
+            registerTool(m_createSimpleBrushTool, bookCtrl);
         }
         
         void MapViewToolBox::destroyTools() {
@@ -184,6 +192,7 @@ namespace TrenchBroom {
             delete m_rotateObjectsTool;
             delete m_resizeBrushesTool;
             delete m_moveObjectsTool;
+            delete m_createSimpleBrushTool;
             delete m_createEntityTool;
             delete m_createComplexBrushTool;
             delete m_clipTool;

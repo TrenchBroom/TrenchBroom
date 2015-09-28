@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class ClipTool;
         class CreateComplexBrushTool;
         class CreateEntityTool;
+        class CreateSimpleBrushTool;
         class MoveObjectsTool;
         class ResizeBrushesTool;
         class RotateObjectsTool;
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             ClipTool* m_clipTool;
             CreateComplexBrushTool* m_createComplexBrushTool;
             CreateEntityTool* m_createEntityTool;
+            CreateSimpleBrushTool* m_createSimpleBrushTool;
             MoveObjectsTool* m_moveObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
@@ -59,6 +61,7 @@ namespace TrenchBroom {
             ClipTool* clipTool();
             CreateComplexBrushTool* createComplexBrushTool();
             CreateEntityTool* createEntityTool();
+            CreateSimpleBrushTool* createSimpleBrushTool();
             MoveObjectsTool* moveObjectsTool();
             ResizeBrushesTool* resizeBrushesTool();
             RotateObjectsTool* rotateObjectsTool();

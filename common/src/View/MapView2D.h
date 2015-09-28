@@ -44,8 +44,8 @@ namespace TrenchBroom {
     namespace View {
         class CameraTool2D;
         class ClipToolAdapter2D;
-        class CreateComplexBrushToolAdapter2D;
         class CreateEntityToolAdapter;
+        class CreateSimpleBrushToolAdapter2D;
         class GLContextManager;
         class MoveObjectsToolAdapter;
         class ResizeBrushesToolAdapter;
@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             ClipToolAdapter2D* m_clipToolAdapter;
             CreateEntityToolAdapter* m_createEntityToolAdapter;
+            CreateSimpleBrushToolAdapter2D* m_createSimpleBrushToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
             RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;

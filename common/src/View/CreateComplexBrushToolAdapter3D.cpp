@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const Vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
             
             m_currentPolyhedron.addPoint(snapped);
-            m_tool->updateBrush(m_currentPolyhedron);
+            m_tool->update(m_currentPolyhedron);
             
             return true;
         }
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             Model::BrushFace::VertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
                 m_currentPolyhedron.addPoint((*it)->position());
-            m_tool->updateBrush(m_currentPolyhedron);
+            m_tool->update(m_currentPolyhedron);
             
             return true;
         }
@@ -128,7 +128,7 @@ namespace TrenchBroom {
 
         void CreateComplexBrushToolAdapter3D::doCancelPlaneDrag() {
             m_currentPolyhedron = m_lastPolyhedron;
-            m_tool->updateBrush(m_currentPolyhedron);
+            m_tool->update(m_currentPolyhedron);
         }
 
         void CreateComplexBrushToolAdapter3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             m_currentPolyhedron.addPoint(bottomRight3);
             m_currentPolyhedron.addPoint(topRight3);
             
-            m_tool->updateBrush(m_currentPolyhedron);
+            m_tool->update(m_currentPolyhedron);
         }
 
         void CreateComplexBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
@@ -192,7 +192,7 @@ namespace TrenchBroom {
                 return false;
             
             m_currentPolyhedron = Polyhedron3();
-            m_tool->updateBrush(m_currentPolyhedron);
+            m_tool->update(m_currentPolyhedron);
             return true;
         }
     }

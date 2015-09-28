@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateComplexBrushTool
-#define TrenchBroom_CreateComplexBrushTool
+#ifndef TrenchBroom_CreateBrushToolBase
+#define TrenchBroom_CreateBrushToolBase
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Polyhedron.h"
 #include "Model/ModelTypes.h"
-#include "View/CreateBrushToolBase.h"
+#include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -35,12 +35,26 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateComplexBrushTool : public CreateBrushToolBase {
+        class CreateBrushToolBase : public Tool {
+        protected:
+            MapDocumentWPtr m_document;
+        private:
+            Model::Brush* m_brush;
+            Renderer::BrushRenderer* m_brushRenderer;
         public:
-            CreateComplexBrushTool(MapDocumentWPtr document);
-            void update(const Polyhedron3& polyhedron);
+            CreateBrushToolBase(bool initiallyActive, MapDocumentWPtr document);
+            virtual ~CreateBrushToolBase();
+        public:
+            void createBrush();
+            void cancel();
+            
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        protected:
+            void updateBrush(Model::Brush* brush);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_CreateComplexBrushTool) */
+#endif /* defined(TrenchBroom_CreateBrushToolBase) */

@@ -40,6 +40,7 @@
 #include "View/CommandIds.h"
 #include "View/CreateComplexBrushToolAdapter3D.h"
 #include "View/CreateEntityToolAdapter.h"
+#include "View/CreateSimpleBrushToolAdapter3D.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -63,6 +64,7 @@ namespace TrenchBroom {
         m_clipToolAdapter(NULL),
         m_createComplexBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
+        m_createSimpleBrushToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
         m_rotateObjectsToolAdapter(NULL),
@@ -87,6 +89,7 @@ namespace TrenchBroom {
             m_clipToolAdapter = new ClipToolAdapter3D(toolBox.clipTool(), grid);
             m_createComplexBrushToolAdapter = new CreateComplexBrushToolAdapter3D(toolBox.createComplexBrushTool(), m_document);
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
+            m_createSimpleBrushToolAdapter = new CreateSimpleBrushToolAdapter3D(toolBox.createSimpleBrushTool(), m_document);
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
@@ -104,6 +107,7 @@ namespace TrenchBroom {
             addTool(m_createEntityToolAdapter);
             addTool(m_setBrushFaceAttributesTool);
             addTool(toolBox.selectionTool());
+            addTool(m_createSimpleBrushToolAdapter);
         }
 
         void MapView3D::destroyToolChain() {
@@ -113,6 +117,7 @@ namespace TrenchBroom {
             delete m_rotateObjectsToolAdapter;
             delete m_resizeBrushesToolAdapter;
             delete m_moveObjectsToolAdapter;
+            delete m_createSimpleBrushToolAdapter;
             delete m_createEntityToolAdapter;
             delete m_createComplexBrushToolAdapter;
             delete m_clipToolAdapter;

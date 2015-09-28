@@ -34,6 +34,7 @@
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolAdapter.h"
+#include "View/CreateSimpleBrushToolAdapter2D.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         m_camera(),
         m_clipToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
+        m_createSimpleBrushToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
         m_rotateObjectsToolAdapter(NULL),
@@ -95,6 +97,7 @@ namespace TrenchBroom {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter2D(toolBox.clipTool(), grid);
             m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
+            m_createSimpleBrushToolAdapter = new CreateSimpleBrushToolAdapter2D(toolBox.createSimpleBrushTool(), m_document);
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter2D(toolBox.rotateObjectsTool());
@@ -109,6 +112,7 @@ namespace TrenchBroom {
             addTool(m_vertexToolAdapter);
             addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
+            addTool(m_createSimpleBrushToolAdapter);
         }
 
         void MapView2D::destroyToolChain() {
@@ -117,6 +121,7 @@ namespace TrenchBroom {
             delete m_resizeBrushesToolAdapter;
             delete m_rotateObjectsToolAdapter;
             delete m_moveObjectsToolAdapter;
+            delete m_createSimpleBrushToolAdapter;
             delete m_createEntityToolAdapter;
             delete m_clipToolAdapter;
         }
