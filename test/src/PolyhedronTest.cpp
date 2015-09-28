@@ -603,6 +603,30 @@ TEST(PolyhedronTest, testAddManyPointsCrash) {
     ASSERT_TRUE(hasTriangleOf(p, p7, p5, p6));
 }
 
+TEST(PolyhedronTest, testAdd8PointsCrash) {
+    // a horizontal rectangle
+    const Vec3d p1( 0,  0,  0);
+    const Vec3d p2( 0, 32,  0);
+    const Vec3d p3(32, 32,  0);
+    const Vec3d p4(32,  0,  0);
+    
+    // a vertical rectangle
+    const Vec3d p5(32, 16, 16);
+    const Vec3d p6(32, 16, 32);
+    const Vec3d p7(32, 32, 32);
+    const Vec3d p8(32, 32, 16);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6);
+    p.addPoint(p7);
+    p.addPoint(p8); // assertion failure here
+}
+
 TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
     const Vec3d  p1(0.0,  0.0, 0.0);
     const Vec3d  p2(0.0,  0.0, 4.0);

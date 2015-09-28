@@ -266,9 +266,10 @@ template <typename T, typename FP>
 void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
     assert(polyhedron());
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
-    split(seam, callback);
-    if (!seam.empty())
+    if (!seam.empty()) {
+        split(seam, callback);
         addPointToPolyhedron(position, seam, callback);
+    }
 }
 
 // Adds the given point to this polyhedron by weaving a cap over the given seam.
