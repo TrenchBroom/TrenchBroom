@@ -20,6 +20,7 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
+#include "SetAny.h"
 
 #include <wx/time.h>
 
@@ -103,6 +104,15 @@ namespace TrenchBroom {
         
         const wxLongLong CommandProcessor::CollationInterval(1000);
         
+        struct CommandProcessor::SubmitAndStoreResult {
+            bool submitted;
+            bool stored;
+            
+            SubmitAndStoreResult() :
+            submitted(false),
+            stored(false) {}
+        };
+        
         CommandProcessor::CommandProcessor(MapDocumentCommandFacade* document) :
         m_document(document),
         m_clearRepeatableCommandStack(false),
@@ -164,8 +174,9 @@ namespace TrenchBroom {
         
         bool CommandProcessor::submitAndStoreCommand(UndoableCommand* command) {
             CommandPtr ptr(command);
-            if (submitAndStoreCommand(ptr, true)) {
-                if (m_groupLevel == 0)
+            const SubmitAndStoreResult result = submitAndStoreCommand(ptr, true);
+            if (result.submitted) {
+                if (result.stored && m_groupLevel == 0)
                     pushRepeatableCommand(ptr);
                 return true;
             }
@@ -191,8 +202,7 @@ namespace TrenchBroom {
             
             CommandPtr command = popNextCommand();
             if (doCommand(command.get())) {
-                pushLastCommand(command, false);
-                if (m_groupLevel == 0)
+                if (pushLastCommand(command, false) && m_groupLevel == 0)
                     pushRepeatableCommand(command);
                 return true;
             }
@@ -215,7 +225,7 @@ namespace TrenchBroom {
             name << "Repeat " << commands.size() << " Commands";
 
             CommandPtr repeatableCommand = CommandPtr(createCommandGroup(name.str(), commands));
-            return submitAndStoreCommand(repeatableCommand, false);
+            return submitAndStoreCommand(repeatableCommand, false).submitted;
         }
         
         void CommandProcessor::clearRepeatableCommands() {
@@ -223,13 +233,16 @@ namespace TrenchBroom {
             m_clearRepeatableCommandStack = false;
         }
 
-        bool CommandProcessor::submitAndStoreCommand(CommandPtr command, const bool collate) {
-            if (!doCommand(command.get()))
-                return false;
-            storeCommand(command, collate);
+        CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(CommandPtr command, const bool collate) {
+            SubmitAndStoreResult result;
+            result.submitted = doCommand(command.get());
+            if (!result.submitted)
+                return result;
+
+            result.stored = storeCommand(command, collate);
             if (!m_nextCommandStack.empty())
                 m_nextCommandStack.clear();
-            return true;
+            return result;
         }
         
         bool CommandProcessor::doCommand(Command* command) {
@@ -258,22 +271,24 @@ namespace TrenchBroom {
             return false;
         }
         
-        void CommandProcessor::storeCommand(CommandPtr command, const bool collate) {
+        bool CommandProcessor::storeCommand(CommandPtr command, const bool collate) {
             if (m_groupLevel == 0)
-                pushLastCommand(command, collate);
-            else
-                pushGroupedCommand(command);
+                return pushLastCommand(command, collate);
+            return pushGroupedCommand(command, collate);
         }
         
-        void CommandProcessor::pushGroupedCommand(CommandPtr command) {
+        bool CommandProcessor::pushGroupedCommand(CommandPtr command, const bool collate) {
             assert(m_groupLevel > 0);
             if (!m_groupedCommands.empty()) {
                 CommandPtr lastCommand = m_groupedCommands.back();
-                if (!lastCommand->collateWith(command.get()))
+                if (collate && !lastCommand->collateWith(command.get())) {
                     m_groupedCommands.push_back(command);
+                    return false;
+                }
             } else {
                 m_groupedCommands.push_back(command);
             }
+            return true;
         }
         
         CommandPtr CommandProcessor::popGroupedCommand() {
@@ -305,20 +320,25 @@ namespace TrenchBroom {
                                     commandUndoneNotifier);
         }
         
-        void CommandProcessor::pushLastCommand(CommandPtr command, const bool collate) {
+        bool CommandProcessor::pushLastCommand(CommandPtr command, const bool collate) {
             assert(m_groupLevel == 0);
             
             const wxLongLong timestamp = ::wxGetLocalTimeMillis();
-            if (collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval) {
+            const SetLate<wxLongLong> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
+            
+            if (collatable(collate, timestamp)) {
                 CommandPtr lastCommand = m_lastCommandStack.back();
-                if (!lastCommand->collateWith(command.get()))
-                    m_lastCommandStack.push_back(command);
-            } else {
-                m_lastCommandStack.push_back(command);
+                if (lastCommand->collateWith(command.get()))
+                    return false;
             }
-            m_lastCommandTimestamp = timestamp;
+            m_lastCommandStack.push_back(command);
+            return true;
         }
 
+        bool CommandProcessor::collatable(const bool collate, const wxLongLong timestamp) const {
+            return collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
+        }
+        
         void CommandProcessor::pushNextCommand(CommandPtr command) {
             assert(m_groupLevel == 0);
             m_nextCommandStack.push_back(command);

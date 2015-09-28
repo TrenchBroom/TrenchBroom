@@ -42,6 +42,20 @@ namespace TrenchBroom {
         }
     };
     
+    template <typename T>
+    class SetLate {
+    private:
+        T& m_value;
+        T m_newValue;
+    public:
+        SetLate(T& value, T newValue) :
+        m_value(value) {}
+        
+        ~SetLate() {
+            m_value = m_newValue;
+        }
+    };
+    
     class SetBool : public SetAny<bool> {
     public:
         SetBool(bool& value, bool newValue = true);

@@ -82,6 +82,8 @@ namespace TrenchBroom {
             String m_groupName;
             CommandStack m_groupedCommands;
             size_t m_groupLevel;
+
+            struct SubmitAndStoreResult;
         public:
             CommandProcessor(MapDocumentCommandFacade* document);
             
@@ -110,20 +112,23 @@ namespace TrenchBroom {
             bool repeatLastCommands();
             void clearRepeatableCommands();
         private:
-            bool submitAndStoreCommand(CommandPtr command, bool collate);
+            SubmitAndStoreResult submitAndStoreCommand(CommandPtr command, bool collate);
             bool doCommand(Command* command);
             bool undoCommand(CommandPtr command);
-            void storeCommand(CommandPtr command, bool collate);
+            bool storeCommand(CommandPtr command, bool collate);
             
-            void beginGroup(const String& name, const bool undoable);
-            void pushGroupedCommand(CommandPtr command);
+            void beginGroup(const String& name, bool undoable);
+            bool pushGroupedCommand(CommandPtr command, bool collate);
             CommandPtr popGroupedCommand();
             void createAndStoreCommandGroup();
             UndoableCommand* createCommandGroup(const String& name, const CommandList& commands);
 
-            void pushLastCommand(CommandPtr command, bool collate);
+            bool pushLastCommand(CommandPtr command, bool collate);
+            bool collatable(bool collate, wxLongLong timestamp) const;
+            
             void pushNextCommand(CommandPtr command);
             void pushRepeatableCommand(CommandPtr command);
+            
             
             CommandPtr popLastCommand();
             CommandPtr popNextCommand();
