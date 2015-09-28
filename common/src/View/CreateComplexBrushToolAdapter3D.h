@@ -17,27 +17,40 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushToolAdapter2D
-#define TrenchBroom_CreateBrushToolAdapter2D
+#ifndef TrenchBroom_CreateComplexBrushToolAdapter3D
+#define TrenchBroom_CreateComplexBrushToolAdapter3D
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Polyhedron.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
-        class CreateBrushTool;
+        class CreateComplexBrushTool;
         class Grid;
-        
-        class CreateBrushToolAdapter2D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+
+        class CreateComplexBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
-            CreateBrushTool* m_tool;
+            CreateComplexBrushTool* m_tool;
             MapDocumentWPtr m_document;
+            
+            Plane3 m_plane;
             Vec3 m_initialPoint;
-            BBox3 m_bounds;
+            Polyhedron3 m_lastPolyhedron;
+            Polyhedron3 m_currentPolyhedron;
         public:
-            CreateBrushToolAdapter2D(CreateBrushTool* tool, MapDocumentWPtr document);
+            CreateComplexBrushToolAdapter3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
+        public:
+            void performCreateBrush();
         private:
             Tool* doGetTool();
+
+            bool doMouseClick(const InputState& inputState);
+            bool doMouseDoubleClick(const InputState& inputState);
             
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -45,15 +58,14 @@ namespace TrenchBroom {
             void doCancelPlaneDrag();
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
 
+            void updatePolyhedron(const Vec3& current);
+            
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            
+
             bool doCancel();
-        private:
-            bool updateBounds(const InputState& inputState, const Vec3& currentPoint);
-            void snapBounds(const InputState& inputState, BBox3& bounds);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushToolAdapter2D) */
+#endif /* defined(TrenchBroom_CreateComplexBrushToolAdapter3D) */

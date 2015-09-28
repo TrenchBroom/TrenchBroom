@@ -32,7 +32,7 @@ namespace TrenchBroom {
     
     namespace View {
         class ClipTool;
-        class CreateBrushTool;
+        class CreateComplexBrushTool;
         class CreateEntityTool;
         class MoveObjectsTool;
         class ResizeBrushesTool;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             
             ClipTool* m_clipTool;
-            CreateBrushTool* m_createBrushTool;
+            CreateComplexBrushTool* m_createComplexBrushTool;
             CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             ~MapViewToolBox();
         public: // tools
             ClipTool* clipTool();
-            CreateBrushTool* createBrushTool();
+            CreateComplexBrushTool* createComplexBrushTool();
             CreateEntityTool* createEntityTool();
             MoveObjectsTool* moveObjectsTool();
             ResizeBrushesTool* resizeBrushesTool();
@@ -65,8 +65,8 @@ namespace TrenchBroom {
             SelectionTool* selectionTool();
             VertexTool* vertexTool();
             
-            void toggleCreateBrushTool();
-            bool createBrushToolActive() const;
+            void toggleCreateComplexBrushTool();
+            bool createComplexBrushToolActive() const;
             
             void toggleClipTool();
             bool clipToolActive() const;

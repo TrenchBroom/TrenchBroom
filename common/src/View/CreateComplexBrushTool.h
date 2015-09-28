@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushTool
-#define TrenchBroom_CreateBrushTool
+#ifndef TrenchBroom_CreateComplexBrushTool
+#define TrenchBroom_CreateComplexBrushTool
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -35,16 +35,15 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateBrushTool : public Tool {
+        class CreateComplexBrushTool : public Tool {
         private:
             MapDocumentWPtr m_document;
             Model::Brush* m_brush;
             Renderer::BrushRenderer* m_brushRenderer;
         public:
-            CreateBrushTool(MapDocumentWPtr document);
-            ~CreateBrushTool();
+            CreateComplexBrushTool(MapDocumentWPtr document);
+            ~CreateComplexBrushTool();
             
-            void updateBrush(const BBox3& bounds);
             void updateBrush(const Polyhedron3& polyhedron);
         public:
             void createBrush();
@@ -59,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushTool) */
+#endif /* defined(TrenchBroom_CreateComplexBrushTool) */

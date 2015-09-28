@@ -327,7 +327,7 @@ namespace TrenchBroom {
             wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER | wxTB_FLAT);
             toolBar->SetMargins(2, 2);
             toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
@@ -433,7 +433,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditShowHiddenObjects, this, CommandIds::Menu::EditUnhideAll);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditDeactivateTool, this, CommandIds::Menu::EditDeactivateTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateBrushTool, this, CommandIds::Menu::EditToggleCreateBrushTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateComplexBrushTool, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
@@ -739,10 +739,10 @@ namespace TrenchBroom {
             m_mapView->deactivateTool();
         }
 
-        void MapFrame::OnEditToggleCreateBrushTool(wxCommandEvent& event) {
+        void MapFrame::OnEditToggleCreateComplexBrushTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_mapView->toggleCreateBrushTool();
+            m_mapView->toggleCreateComplexBrushTool();
         }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
@@ -973,9 +973,9 @@ namespace TrenchBroom {
                     event.Check(!m_mapView->anyToolActive());
                     event.Enable(true);
                     break;
-                case CommandIds::Menu::EditToggleCreateBrushTool:
-                    event.Check(m_mapView->createBrushToolActive());
-                    event.Enable(m_mapView->canToggleCreateBrushTool());
+                case CommandIds::Menu::EditToggleCreateComplexBrushTool:
+                    event.Check(m_mapView->CreateComplexBrushToolActive());
+                    event.Enable(m_mapView->canToggleCreateComplexBrushTool());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Check(m_mapView->clipToolActive());

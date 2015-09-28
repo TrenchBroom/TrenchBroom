@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateBrushTool.h"
+#include "CreateComplexBrushTool.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -32,22 +32,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateBrushTool::CreateBrushTool(MapDocumentWPtr document) :
+        CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_brush(NULL),
         m_brushRenderer(new Renderer::BrushRenderer(false)) {}
 
-        CreateBrushTool::~CreateBrushTool() {
+        CreateComplexBrushTool::~CreateComplexBrushTool() {
             delete m_brushRenderer;
             delete m_brush;
         }
         
-        void CreateBrushTool::updateBrush(const BBox3& bounds) {
-            updateBrush(Polyhedron3(bounds));
-        }
-        
-        void CreateBrushTool::updateBrush(const Polyhedron3& polyhedron) {
+        void CreateComplexBrushTool::updateBrush(const Polyhedron3& polyhedron) {
             delete m_brush;
             m_brush = NULL;
             
@@ -58,7 +54,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CreateBrushTool::createBrush() {
+        void CreateComplexBrushTool::createBrush() {
             if (m_brush != NULL) {
                 MapDocumentSPtr document = lock(m_document);
                 const Transaction transaction(document, "Create brush");
@@ -69,18 +65,18 @@ namespace TrenchBroom {
             }
         }
 
-        void CreateBrushTool::cancel() {
+        void CreateComplexBrushTool::cancel() {
             delete m_brush;
             m_brush = NULL;
         }
 
-        void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateComplexBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_brush != NULL)
                 renderBrush(renderContext, renderBatch);
             
         }
         
-        void CreateBrushTool::renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateComplexBrushTool::renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(m_brush != NULL);
             
             m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
@@ -99,7 +95,7 @@ namespace TrenchBroom {
             boundsRenderer.render(renderContext, renderBatch);
         }
 
-        String CreateBrushTool::doGetIconName() const {
+        String CreateComplexBrushTool::doGetIconName() const {
             return "BrushTool.png";
         }
     }

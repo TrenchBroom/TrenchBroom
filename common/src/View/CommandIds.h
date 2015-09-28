@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 const int ViewMoveCameraToPosition           = Lowest + 109;
                 const int EditReplaceTexture                 = Lowest + 110;
 
-                const int EditToggleCreateBrushTool          = Lowest + 111;
+                const int EditToggleCreateComplexBrushTool          = Lowest + 111;
                 const int EditToggleVertexTool               = Lowest + 112;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
                 const int EditCreateConvexHull               = Lowest + 116;

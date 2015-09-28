@@ -20,7 +20,7 @@
 #include "MapViewToolBox.h"
 #include "Model/EditorContext.h"
 #include "View/ClipTool.h"
-#include "View/CreateBrushTool.h"
+#include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
         m_document(document),
         m_clipTool(NULL),
-        m_createBrushTool(NULL),
+        m_createComplexBrushTool(NULL),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
@@ -53,8 +53,8 @@ namespace TrenchBroom {
             return m_clipTool;
         }
 
-        CreateBrushTool* MapViewToolBox::createBrushTool() {
-            return m_createBrushTool;
+        CreateComplexBrushTool* MapViewToolBox::createComplexBrushTool() {
+            return m_createComplexBrushTool;
         }
         
         CreateEntityTool* MapViewToolBox::createEntityTool() {
@@ -81,12 +81,12 @@ namespace TrenchBroom {
             return m_vertexTool;
         }
 
-        void MapViewToolBox::toggleCreateBrushTool() {
-            toggleTool(m_createBrushTool);
+        void MapViewToolBox::toggleCreateComplexBrushTool() {
+            toggleTool(m_createComplexBrushTool);
         }
         
-        bool MapViewToolBox::createBrushToolActive() const {
-            return toolActive(m_createBrushTool);
+        bool MapViewToolBox::createComplexBrushToolActive() const {
+            return toolActive(m_createComplexBrushTool);
         }
 
         void MapViewToolBox::toggleClipTool() {
@@ -151,7 +151,7 @@ namespace TrenchBroom {
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
             m_clipTool = new ClipTool(document);
-            m_createBrushTool = new CreateBrushTool(document);
+            m_createComplexBrushTool = new CreateComplexBrushTool(document);
             m_createEntityTool = new CreateEntityTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document);
             m_resizeBrushesTool = new ResizeBrushesTool(document);
@@ -159,8 +159,8 @@ namespace TrenchBroom {
             m_selectionTool = new SelectionTool(document);
             m_vertexTool = new VertexTool(document);
             
-            deactivateWhen(m_createBrushTool, m_moveObjectsTool);
-            deactivateWhen(m_createBrushTool, m_resizeBrushesTool);
+            deactivateWhen(m_createComplexBrushTool, m_moveObjectsTool);
+            deactivateWhen(m_createComplexBrushTool, m_resizeBrushesTool);
             deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
             deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             registerTool(m_moveObjectsTool, bookCtrl);
             registerTool(m_rotateObjectsTool, bookCtrl);
             registerTool(m_resizeBrushesTool, bookCtrl);
-            registerTool(m_createBrushTool, bookCtrl);
+            registerTool(m_createComplexBrushTool, bookCtrl);
             registerTool(m_clipTool, bookCtrl);
             registerTool(m_vertexTool, bookCtrl);
             registerTool(m_createEntityTool, bookCtrl);
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             delete m_resizeBrushesTool;
             delete m_moveObjectsTool;
             delete m_createEntityTool;
-            delete m_createBrushTool;
+            delete m_createComplexBrushTool;
             delete m_clipTool;
         }
         
@@ -217,7 +217,7 @@ namespace TrenchBroom {
         void MapViewToolBox::updateEditorContext() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setBlockSelection(createBrushToolActive() || clipToolActive() || vertexToolActive());
+            editorContext.setBlockSelection(createComplexBrushToolActive() || clipToolActive() || vertexToolActive());
         }
     }
 }

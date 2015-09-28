@@ -38,7 +38,7 @@
 #include "View/CameraTool3D.h"
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
-#include "View/CreateBrushToolAdapter3D.h"
+#include "View/CreateComplexBrushToolAdapter3D.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_clipToolAdapter(NULL),
-        m_createBrushToolAdapter(NULL),
+        m_createComplexBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter3D(toolBox.clipTool(), grid);
-            m_createBrushToolAdapter = new CreateBrushToolAdapter3D(toolBox.createBrushTool(), m_document);
+            m_createComplexBrushToolAdapter = new CreateComplexBrushToolAdapter3D(toolBox.createComplexBrushTool(), m_document);
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             addTool(m_moveObjectsToolAdapter);
             addTool(m_rotateObjectsToolAdapter);
             addTool(m_resizeBrushesToolAdapter);
-            addTool(m_createBrushToolAdapter);
+            addTool(m_createComplexBrushToolAdapter);
             addTool(m_clipToolAdapter);
             addTool(m_vertexToolAdapter);
             addTool(m_createEntityToolAdapter);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             delete m_resizeBrushesToolAdapter;
             delete m_moveObjectsToolAdapter;
             delete m_createEntityToolAdapter;
-            delete m_createBrushToolAdapter;
+            delete m_createComplexBrushToolAdapter;
             delete m_clipToolAdapter;
         }
 
@@ -208,8 +208,8 @@ namespace TrenchBroom {
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (m_toolBox.createBrushToolActive())
-                m_createBrushToolAdapter->performCreateBrush();
+            if (m_toolBox.createComplexBrushToolActive())
+                m_createComplexBrushToolAdapter->performCreateBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {

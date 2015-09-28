@@ -171,7 +171,7 @@ namespace TrenchBroom {
             editMenu->addSeparator();
             
             Menu* toolMenu = editMenu->addMenu("Tools");
-            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", KeyboardShortcut('B'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", KeyboardShortcut('B'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
@@ -231,7 +231,7 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createViewShortcuts() {
-            createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateBrushTool,
+            createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateComplexBrushTool,
                                Action(View::CommandIds::Actions::Nothing, "", false),
                                Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
             
