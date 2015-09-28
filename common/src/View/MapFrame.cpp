@@ -254,8 +254,8 @@ namespace TrenchBroom {
             wxMenuBar* oldMenuBar = GetMenuBar();
             removeRecentDocumentsMenu(oldMenuBar);
             createMenuBar();
-#if not defined __LINUX__
-#if not defined wxUSE_IDLEMENUUPDATES
+#ifndef __LINUX__
+#ifndef wxUSE_IDLEMENUUPDATES
             // Don't delete the old menu bar on Ubuntu. It will leak, but otherwise we crash on the next idle update.
             oldMenuBar->Destroy();
 #endif
