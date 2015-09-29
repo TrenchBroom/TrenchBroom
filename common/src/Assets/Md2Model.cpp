@@ -103,7 +103,7 @@ namespace TrenchBroom {
             
             Mesh mesh(size);
             mesh.addTriangleFans(fans, skin);
-            mesh.addTriangleStrips(fans, skin);
+            mesh.addTriangleStrips(strips, skin);
             
             return new Renderer::TexturedTriangleMeshRenderer(mesh);
         }

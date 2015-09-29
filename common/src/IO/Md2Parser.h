@@ -56,7 +56,7 @@ namespace TrenchBroom {
             typedef std::vector<Md2Skin> Md2SkinList;
             
             struct Md2Vertex {
-                Vec<unsigned char, 3> position;
+                unsigned char x, y, z;
                 unsigned char normalIndex;
             };
             typedef std::vector<Md2Vertex> Md2VertexList;
@@ -67,9 +67,9 @@ namespace TrenchBroom {
                 char name[Md2Layout::FrameNameLength];
                 Md2VertexList vertices;
                 
-                Md2Frame(const size_t vertexCount);
-                Vec3f vertex(const size_t index) const;
-                const Vec3f& normal(const size_t index) const;
+                Md2Frame(size_t vertexCount);
+                Vec3f vertex(size_t index) const;
+                const Vec3f& normal(size_t index) const;
             };
             typedef std::vector<Md2Frame> Md2FrameList;
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 size_t vertexCount;
                 Md2MeshVertexList vertices;
                 
-                Md2Mesh(const int i_vertexCount);
+                Md2Mesh(int i_vertexCount);
             };
             typedef std::vector<Md2Mesh> Md2MeshList;
             

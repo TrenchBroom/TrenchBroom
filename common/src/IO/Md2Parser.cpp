@@ -204,9 +204,10 @@ namespace TrenchBroom {
 
         Vec3f Md2Parser::Md2Frame::vertex(const size_t index) const {
             const Md2Vertex& vertex = vertices[index];
-            return Vec3f(static_cast<float>(vertex.position[0]) * scale[0] + offset[0],
-                         static_cast<float>(vertex.position[1]) * scale[1] + offset[1],
-                         static_cast<float>(vertex.position[2]) * scale[2] + offset[2]);
+            const Vec3f position(static_cast<float>(vertex.x),
+                                 static_cast<float>(vertex.y),
+                                 static_cast<float>(vertex.z));
+            return position * scale + offset;
         }
 
         const Vec3f& Md2Parser::Md2Frame::normal(const size_t index) const {
@@ -226,6 +227,7 @@ namespace TrenchBroom {
         m_palette(palette),
         m_fs(fs) {}
         
+        // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* Md2Parser::doParseModel() {
             const char* cursor = m_begin;
             const int ident = readInt<int32_t>(cursor);

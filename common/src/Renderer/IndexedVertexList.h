@@ -43,9 +43,11 @@ namespace TrenchBroom {
             
             IndexedVertexList(const size_t vertexCount, const size_t primCount) :
             m_primStart(0),
-            m_vertices(vertexCount),
-            m_indices(primCount),
-            m_counts(primCount) {}
+            m_vertices(),
+            m_indices(),
+            m_counts() {
+                reserve(vertexCount, primCount);
+            }
 
             void reserve(const size_t vertexCount, const size_t primitiveCount) {
                 m_vertices.reserve(vertexCount);
