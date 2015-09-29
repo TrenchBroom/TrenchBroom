@@ -326,19 +326,21 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            const Model::LayerList layers = world->allLayers();
+			if (world != NULL) {
+				const Model::LayerList layers = world->allLayers();
 
-            for (size_t i = 0; i < layers.size(); ++i) {
-                Model::Layer* layer = layers[i];
-                LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), layer);
-                entry->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-                entry->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-                entry->Bind(wxEVT_RIGHT_UP, &LayerListView::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+				for (size_t i = 0; i < layers.size(); ++i) {
+					Model::Layer* layer = layers[i];
+					LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), layer);
+					entry->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+					entry->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+					entry->Bind(wxEVT_RIGHT_UP, &LayerListView::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
 
-                scrollWindowSizer->Add(entry, 0, wxEXPAND);
-                scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
-                m_entries.push_back(entry);
-            }
+					scrollWindowSizer->Add(entry, 0, wxEXPAND);
+					scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
+					m_entries.push_back(entry);
+				}
+			}
 
             scrollWindowSizer->AddStretchSpacer();
             m_scrollWindow->SetSizer(scrollWindowSizer);

@@ -89,6 +89,7 @@ namespace TrenchBroom {
             void mapViewConfigDidChange();
             void gridDidChange();
             void preferenceDidChange(const IO::Path& path);
+			void documentDidChange(MapDocument* document);
         private: // interaction events
             void bindEvents();
             

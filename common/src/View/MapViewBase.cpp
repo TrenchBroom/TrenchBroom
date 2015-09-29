@@ -102,6 +102,9 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
+			document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+			document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+			document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
 
             Grid& grid = document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
@@ -129,6 +132,9 @@ namespace TrenchBroom {
                 document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
+				document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+				document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+				document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
 
                 Grid& grid = document->grid();
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
@@ -189,7 +195,12 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapViewBase::bindEvents() {
+		void MapViewBase::documentDidChange(MapDocument* document) {
+			updatePickResult();
+			Refresh();
+		}
+
+		void MapViewBase::bindEvents() {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
