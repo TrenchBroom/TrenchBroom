@@ -140,8 +140,19 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
         HalfEdge* halfEdge = currentEdge->firstEdge();
         const Math::PointStatus::Type os = plane.pointStatus(halfEdge->origin()->position());
         const Math::PointStatus::Type ds = plane.pointStatus(halfEdge->destination()->position());
-        if ((os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSInside) ||
-            (os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSAbove) ||
+        if (os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSInside) {
+            // If both ends of the edge are inside the plane, we must ensure that we return the correct
+            // half edge, which is either the current one or its twin. Since the returned half edge is supposed
+            // to be clipped away, we must examine the destination of its successor. If that is below the plane,
+            // we return the twin, otherwise we return the half edge.
+            const Math::PointStatus::Type ss = plane.pointStatus(halfEdge->next()->destination()->position());
+            assert(ss != Math::PointStatus::PSInside);
+            if (ss == Math::PointStatus::PSBelow)
+                return halfEdge->twin();
+            return halfEdge;
+        }
+        
+        if ((os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSAbove) ||
             (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove))
             return halfEdge->twin();
         
