@@ -236,6 +236,7 @@ namespace TrenchBroom {
             } catch (GeometryException& e) {
                 if (logger() != NULL)
                     logger()->error("Error parsing brush at line %u: %s", startLine, e.what());
+                VectorUtils::clearAndDelete(m_faces);
             }
 
         }
