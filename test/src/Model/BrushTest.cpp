@@ -50,21 +50,7 @@ namespace TrenchBroom {
                                                       Vec3(1.0, 0.0, 0.0),
                                                       Vec3(0.0, 1.0, 0.0)));
             
-            Brush brush(worldBounds, faces);
-            assert(!brush.fullySpecified());
-            
-            const BrushFaceList& brushFaces = brush.faces();
-            ASSERT_EQ(1u, brushFaces.size());
-            ASSERT_EQ(faces[0], brushFaces[0]);
-
-            // This is just to force the asString method to be generated so that we can use it with the debugger.
-            const BrushFace* face = brushFaces.front();
-            const BrushFace::EdgeList& edges = face->edges();
-            const BrushGeometry::Edge* edge = *edges.begin();
-            const BrushGeometry::HalfEdge* half = edge->firstEdge();
-            const String s = half->asString();
-            StringStream ss;
-            ss << s;
+            ASSERT_THROW(Brush(worldBounds, faces), GeometryException);
         }
         
         TEST(BrushTest, constructBrushWithFaces) {
@@ -266,6 +252,33 @@ namespace TrenchBroom {
             ASSERT_EQ(6u, brushFaces.size());
         }
         
+        TEST(BrushTest, constructWithFailingFaces6) {
+            /* from 768_negke
+             {
+             ( -80 -80 -3840  ) ( -80 -80 -3824  ) ( -32 -32 -3808 ) mmetal1_2b 0 0 0 1 1 // front / right
+             ( -96 -32 -3840  ) ( -96 -32 -3824  ) ( -80 -80 -3824 ) mmetal1_2 0 0 0 1 1 // left
+             ( -96 -32 -3824  ) ( -32 -32 -3808  ) ( -80 -80 -3824 ) mmetal1_2b 0 0 0 1 1 // top
+             ( -32 -32 -3840  ) ( -32 -32 -3808  ) ( -96 -32 -3824 ) mmetal1_2b 0 0 0 1 1 // back
+             ( -32 -32 -3840  ) ( -96 -32 -3840  ) ( -80 -80 -3840 ) mmetal1_2b 0 0 0 1 1 // bottom
+             }
+             */
+            
+            const BBox3 worldBounds(4096.0);
+            
+            BrushFaceList faces;
+            faces.push_back(BrushFace::createParaxial(Vec3(-80.0, -80.0, -3840.0), Vec3(-80.0, -80.0, -3824.0), Vec3(-32.0, -32.0, -3808.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(-96.0, -32.0, -3840.0), Vec3(-96.0, -32.0, -3824.0), Vec3(-80.0, -80.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(-96.0, -32.0, -3824.0), Vec3(-32.0, -32.0, -3808.0), Vec3(-80.0, -80.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(-32.0, -32.0, -3840.0), Vec3(-32.0, -32.0, -3808.0), Vec3(-96.0, -32.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(Vec3(-32.0, -32.0, -3840.0), Vec3(-96.0, -32.0, -3840.0), Vec3(-80.0, -80.0, -3840.0)));
+            
+            Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+            
+            const BrushFaceList& brushFaces = brush.faces();
+            ASSERT_EQ(5u, brushFaces.size());
+        }
+
         TEST(BrushTest, pick) {
             const BBox3 worldBounds(4096.0);
             
