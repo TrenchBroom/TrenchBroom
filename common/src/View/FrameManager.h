@@ -42,7 +42,7 @@ namespace TrenchBroom {
             FrameList m_frames;
             MapFrame* m_topFrame;
         public:
-            FrameManager(const bool singleFrame);
+            FrameManager(bool singleFrame);
             ~FrameManager();
             
             MapFrame* newFrame();
