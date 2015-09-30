@@ -616,6 +616,8 @@ namespace TrenchBroom {
             
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
             updateFacesFromGeometry(worldBounds);
+            if (!fullySpecified())
+                throw GeometryException("Brush is not fully specified");
             nodeBoundsDidChange();
         }
 
