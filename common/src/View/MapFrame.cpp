@@ -336,6 +336,8 @@ namespace TrenchBroom {
             toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->AddSeparator();
+            toolBar->AddCheckTool(CommandIds::Menu::EditToggleTextureLock, "Texture Lock", textureLockBitmap(), wxNullBitmap, "Toggle Texture Lock");
+            toolBar->AddSeparator();
 
             const wxString gridSizes[9] = { "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
             m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 9, gridSizes);
@@ -774,6 +776,13 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_document->setTextureLock(!m_document->textureLock());
+            GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
+        }
+
+        wxBitmap MapFrame::textureLockBitmap() {
+            if (m_document->textureLock())
+                return IO::loadImageResource("TextureLockOn.png");
+            return IO::loadImageResource("TextureLockOff.png");
         }
 
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
