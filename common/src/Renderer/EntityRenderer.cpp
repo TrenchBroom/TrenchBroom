@@ -265,10 +265,9 @@ namespace TrenchBroom {
                 return;
             
             VertexArray array = VertexArray::swap(GL_TRIANGLES, vertices);
-            SetVboState vboState(m_vbo);
-            vboState.mapped();
+            
+            ActivateVbo activate(m_vbo);
             array.prepare(m_vbo);
-            vboState.active();
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 

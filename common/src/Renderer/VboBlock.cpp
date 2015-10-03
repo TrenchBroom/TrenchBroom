@@ -23,13 +23,29 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        MapVboBlock::MapVboBlock(VboBlock* block) :
+        m_block(block) {
+            assert(m_block != NULL);
+            m_block->map();
+        }
+        
+        MapVboBlock::~MapVboBlock() {
+            m_block->unmap();
+        }
+
         VboBlock::VboBlock(Vbo& vbo, const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next) :
         m_vbo(vbo),
         m_free(true),
         m_offset(offset),
         m_capacity(capacity),
         m_previous(previous),
-        m_next(next) {}
+        m_next(next),
+        m_buffer(NULL) {}
+        
+        VboBlock::~VboBlock() {
+            delete [] m_buffer;
+            m_buffer = NULL;
+        }
         
         Vbo& VboBlock::vbo() const {
             return m_vbo;
@@ -47,6 +63,28 @@ namespace TrenchBroom {
             m_vbo.freeBlock(this);
         }
         
+        bool VboBlock::mapped() const {
+            return m_buffer != NULL;
+        }
+        
+        void VboBlock::map() {
+            assert(!mapped());
+            m_buffer = new unsigned char[m_capacity];
+            assert(m_buffer != NULL);
+            m_vbo.mapPartially();
+        }
+        
+        void VboBlock::unmap() {
+            assert(mapped());
+            const GLintptr offset = static_cast<GLintptr>(m_offset);
+            const GLsizeiptr size = static_cast<GLsizeiptr>(m_capacity);
+            glBufferSubData(GL_ARRAY_BUFFER, offset, size, m_buffer);
+            delete [] m_buffer;
+            m_buffer = NULL;
+            GL_CHECK_ERROR()
+            m_vbo.unmapPartially();
+        }
+
         VboBlock* VboBlock::previous() const {
             return m_previous;
         }

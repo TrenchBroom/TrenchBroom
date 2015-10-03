@@ -273,11 +273,8 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_LINES, vertices);
 
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.mapped();
+            Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-
-            setVboState.active();
             vertexArray.render();
         }
 
@@ -289,11 +286,9 @@ namespace TrenchBroom {
             
             glFrontFace(GL_CW);
             
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.mapped();
+            Renderer::ActivateVbo activate(sharedVbo());
             m_entityModelManager.prepare(sharedVbo());
-
-            setVboState.active();
+            
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -319,8 +314,7 @@ namespace TrenchBroom {
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
             Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
             
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.active();
+            Renderer::ActivateVbo activate(sharedVbo());
             
             glDisable(GL_DEPTH_TEST);
             glFrontFace(GL_CCW);
@@ -348,10 +342,8 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.mapped();
+            Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            setVboState.active();
             vertexArray.render();
         }
         
@@ -360,8 +352,7 @@ namespace TrenchBroom {
             StringRendererMap stringRenderers;
             
             { // create and upload all vertex arrays
-                Renderer::SetVboState mapVbo(sharedVbo());
-                mapVbo.mapped();
+                Renderer::ActivateVbo activate(sharedVbo());
                 
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 StringMap::const_iterator it, end;

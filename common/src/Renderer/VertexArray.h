@@ -69,12 +69,11 @@ namespace TrenchBroom {
                 assert(m_vertexCount > 0);
                 assert(m_block == NULL);
 
-                SetVboState mapVbo(vbo);
-                mapVbo.mapped();
-                
-                const VertexList& vertices = doGetVertices();
+                ActivateVbo activate(vbo);
                 m_block = vbo.allocateBlock(size());
-                m_block->writeBuffer(0, vertices);
+                
+                MapVboBlock map(m_block);
+                m_block->writeBuffer(0, doGetVertices());
             }
             
             virtual void setup() {

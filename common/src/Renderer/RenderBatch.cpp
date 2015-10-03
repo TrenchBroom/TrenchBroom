@@ -44,12 +44,10 @@ namespace TrenchBroom {
         }
         
         void RenderBatch::render(RenderContext& renderContext) {
-            SetVboState setVboState(m_vbo);
-            setVboState.mapped();
+            ActivateVbo activate(m_vbo);
+
             prepareRenderables();
-            setVboState.active();
             renderRenderables(renderContext);
-            
         }
 
         void RenderBatch::prepareRenderables() {

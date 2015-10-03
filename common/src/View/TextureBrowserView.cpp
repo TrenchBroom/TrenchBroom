@@ -173,8 +173,7 @@ namespace TrenchBroom {
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
             
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.active();
+            Renderer::ActivateVbo activate(sharedVbo());
             
             glDisable(GL_DEPTH_TEST);
             glFrontFace(GL_CCW);
@@ -216,10 +215,8 @@ namespace TrenchBroom {
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
             
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.mapped();
+            Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            setVboState.active();
             vertexArray.render();
         }
         
@@ -242,7 +239,7 @@ namespace TrenchBroom {
             
             size_t num = 0;
             
-            Renderer::SetVboState setVboState(sharedVbo());
+            Renderer::ActivateVbo activate(sharedVbo());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -265,9 +262,7 @@ namespace TrenchBroom {
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
 
-                                setVboState.mapped();
                                 vertexArray.prepare(sharedVbo());
-                                setVboState.active();
                                 vertexArray.render();
                                 
                                 ++num;
@@ -303,10 +298,8 @@ namespace TrenchBroom {
             
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
 
-            Renderer::SetVboState setVboState(sharedVbo());
-            setVboState.mapped();
+            Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            setVboState.active();
             vertexArray.render();
         }
         
@@ -314,13 +307,9 @@ namespace TrenchBroom {
             typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
             StringRendererMap stringRenderers;
             
-            Renderer::SetVboState activateVbo(sharedVbo());
-            activateVbo.active();
+            Renderer::ActivateVbo activate(sharedVbo());
 
             { // create and upload all vertex arrays
-                Renderer::SetVboState mapVbo(sharedVbo());
-                mapVbo.mapped();
-                
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 StringMap::const_iterator it, end;
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {

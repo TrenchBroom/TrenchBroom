@@ -23,6 +23,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
+class wxKeyEvent;
+
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;

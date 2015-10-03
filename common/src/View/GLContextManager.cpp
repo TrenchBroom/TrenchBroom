@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vbo(new Renderer::Vbo(0xFFF)),
+        m_vbo(new Renderer::Vbo(0xFFFFFF)),
         m_fontManager(new Renderer::FontManager()),
         m_shaderManager(new Renderer::ShaderManager()) {}
         

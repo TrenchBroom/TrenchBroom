@@ -73,6 +73,7 @@ namespace TrenchBroom {
         MOCK_METHOD2(DeleteBuffers, void(GLsizei, const GLuint*));
         MOCK_METHOD2(BindBuffer, void(GLenum, GLuint));
         MOCK_METHOD4(BufferData, void(GLenum, GLsizeiptr, const GLvoid*, GLenum));
+        MOCK_METHOD4(BufferSubData, void(GLenum, GLintptr, GLsizeiptr, const GLvoid*));
         MOCK_METHOD2(MapBuffer, void*(GLenum, GLenum));
         MOCK_METHOD1(UnmapBuffer, GLboolean(GLenum));
         
