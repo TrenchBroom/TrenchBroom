@@ -78,6 +78,7 @@ namespace TrenchBroom {
             
             template <typename T>
             size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+                assert(mapped());
                 assert(address + buffer.size() * sizeof(T) <= m_capacity);
                 const T* ptr = &(buffer[0]);
                 const size_t size = buffer.size() * sizeof(T);

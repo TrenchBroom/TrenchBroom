@@ -218,6 +218,7 @@ namespace TrenchBroom {
             
             if (begin < end) {
                 unsigned char* buffer = map();
+                
                 unsigned char* temp = new unsigned char[end - begin];
                 memcpy(temp, buffer + begin, end - begin);
                 
