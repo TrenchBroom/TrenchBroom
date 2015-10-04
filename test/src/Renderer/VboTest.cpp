@@ -143,12 +143,13 @@ namespace TrenchBroom {
                 for (unsigned char i = 0; i < 124; i++)
                     writeBuffer.push_back(i);
                 
+                EXPECT_CALL(glMock, BufferSubData(GL_ARRAY_BUFFER, 0, 124, _));
+
                 MapVboBlock map(block1);
                 const size_t offset = block1->writeBuffer(0, writeBuffer);
                 ASSERT_EQ(124u, offset);
                 
-                // upload block data, then deactivate buffer by leaving block
-                EXPECT_CALL(glMock, BufferSubData(GL_ARRAY_BUFFER, 0, 124, _));
+                // deactivate buffer by leaving block
                 EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             
