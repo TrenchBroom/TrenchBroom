@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 KeySizeMap sizes;
             public:
                 void addSet(const Key& key, const size_t vertexCount) {
-                    sizes[key].setVertexCount += vertexCount;
+                    sizes[key].setVertexCount += 3 * (vertexCount - 2);
                 }
                 void addFan(const Key& key, const size_t vertexCount) {
                     addFans(key, vertexCount, 1);
@@ -100,11 +100,12 @@ namespace TrenchBroom {
                 IndexedList triangleFans;
                 IndexedList triangleStrips;
                 
-                MeshData() {}
-                MeshData(const typename MeshSize::Size& size) :
+                MeshData() :
                 triangleSet(0),
                 triangleFans(0, 0),
-                triangleStrips(0, 0) {
+                triangleStrips(0, 0) {}
+                
+                void reserve(const typename MeshSize::Size& size) {
                     triangleSet.reserve(size.setVertexCount);
                     triangleFans.reserve(size.fanVertexCount, size.fanPrimitiveCount);
                     triangleStrips.reserve(size.stripVertexCount, size.stripPrimitiveCount);
@@ -172,6 +173,8 @@ namespace TrenchBroom {
                                   const typename VertexSpec::Vertex& v3) {
                 assert(m_currentType == TriangleType_Set);
                 MeshData& meshData = m_currentData->second;
+                assert(3 <= meshData.triangleSet.capacity() - meshData.triangleSet.size());
+
                 meshData.triangleSet.push_back(v1);
                 meshData.triangleSet.push_back(v2);
                 meshData.triangleSet.push_back(v3);
@@ -182,6 +185,8 @@ namespace TrenchBroom {
                 assert(m_currentType == TriangleType_Set);
                 assert(vertices.size() % 3 == 0);
                 MeshData& meshData = m_currentData->second;
+                assert(vertices.size() <= meshData.triangleSet.capacity() - meshData.triangleSet.size());
+                
                 VectorUtils::append(meshData.triangleSet, vertices);
                 m_vertexCount += vertices.size();
             }
@@ -279,8 +284,13 @@ namespace TrenchBroom {
                 typename MeshSize::KeySizeMap::const_iterator it, end;
                 for (it = meshSize.sizes.begin(), end = meshSize.sizes.end(); it != end; ++it) {
                     const Key& key = it->first;
+                    
+                    std::pair<typename MeshDataMap::iterator, bool> result = m_meshData.insert(std::make_pair(key, MeshData()));
+                    assert(result.second);
+                    
                     const typename MeshSize::Size& size = it->second;
-                    MapUtils::insertOrFail(m_meshData, key, MeshData(size));
+                    MeshData& meshData = result.first->second;
+                    meshData.reserve(size);
                 }
             }
             

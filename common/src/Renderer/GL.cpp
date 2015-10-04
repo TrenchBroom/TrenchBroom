@@ -66,6 +66,7 @@ namespace TrenchBroom {
     Func2<void, GLsizei, const GLuint*> glDeleteBuffers;
     Func2<void, GLenum, GLuint> glBindBuffer;
     Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum> glBufferData;
+    Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*> glBufferSubData;
     Func2<GLvoid*, GLenum, GLenum> glMapBuffer;
     Func1<GLboolean, GLenum> glUnmapBuffer;
     

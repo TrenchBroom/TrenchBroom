@@ -43,7 +43,6 @@ namespace TrenchBroom {
             GLAttribs m_attribs;
             bool m_initialized;
             Color m_focusColor;
-            Renderer::Vbo m_vbo;
         protected:
             RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs);
         public:

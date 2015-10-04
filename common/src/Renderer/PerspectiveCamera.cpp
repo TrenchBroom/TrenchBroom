@@ -110,11 +110,9 @@ namespace TrenchBroom {
             VertexArray triangleArray = VertexArray::ref(GL_TRIANGLE_FAN, triangleVertices);
             VertexArray lineArray = VertexArray::ref(GL_LINES, lineVertices);
             
-            SetVboState setVboState(vbo);
-            setVboState.mapped();
+            ActivateVbo activate(vbo);
             triangleArray.prepare(vbo);
             lineArray.prepare(vbo);
-            setVboState.active();
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
             triangleArray.render();

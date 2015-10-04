@@ -107,16 +107,20 @@ namespace TrenchBroom {
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, transformation);
             const float newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
+            assert(!Math::isnan(newAngle));
             attribs.setRotation(newAngle);
 
             // calculate the current texture coordinates of the face's center
             const Vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
+            assert(!oldInvariantTechCoords.nan());
             
             // compute the new texture axes
             const Vec3 offset = transformation * Vec3::Null;
             m_xAxis           = transformation * m_xAxis - offset;
             m_yAxis           = transformation * m_yAxis - offset;
-
+            assert(!m_xAxis.nan());
+            assert(!m_yAxis.nan());
+            
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = transformation * oldInvariant;
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
@@ -124,6 +128,7 @@ namespace TrenchBroom {
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
+            assert(!newOffset.nan());
             attribs.setOffset(newOffset);
         }
 

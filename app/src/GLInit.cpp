@@ -70,6 +70,7 @@ namespace TrenchBroom {
     static Func2<void, GLsizei, const GLuint*>& _glDeleteBuffers = glDeleteBuffers;
     static Func2<void, GLenum, GLuint>& _glBindBuffer = glBindBuffer;
     static Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum>& _glBufferData = glBufferData;
+    static Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*>& _glBufferSubData = glBufferSubData;
     static Func2<GLvoid*, GLenum, GLenum>& _glMapBuffer = glMapBuffer;
     static Func1<GLboolean, GLenum>& _glUnmapBuffer = glUnmapBuffer;
     
@@ -195,6 +196,7 @@ namespace TrenchBroom {
         _glDeleteBuffers.bindFunc(glDeleteBuffers);
         _glBindBuffer.bindFunc(glBindBuffer);
         _glBufferData.bindFunc(glBufferData);
+        _glBufferSubData.bindFunc(glBufferSubData);
         _glMapBuffer.bindFunc(glMapBuffer);
         _glUnmapBuffer.bindFunc(glUnmapBuffer);
         

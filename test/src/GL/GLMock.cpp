@@ -66,6 +66,7 @@ namespace TrenchBroom {
         glDeleteBuffers.bindMemFunc(this, &GLMock::DeleteBuffers);
         glBindBuffer.bindMemFunc(this, &GLMock::BindBuffer);
         glBufferData.bindMemFunc(this, &GLMock::BufferData);
+        glBufferSubData.bindMemFunc(this, &GLMock::BufferSubData);
         glMapBuffer.bindMemFunc(this, &GLMock::MapBuffer);
         glUnmapBuffer.bindMemFunc(this, &GLMock::UnmapBuffer);
         

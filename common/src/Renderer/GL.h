@@ -229,6 +229,7 @@ namespace TrenchBroom {
     extern Func2<void, GLsizei, const GLuint*> glDeleteBuffers;
     extern Func2<void, GLenum, GLuint> glBindBuffer;
     extern Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum> glBufferData;
+    extern Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*> glBufferSubData;
     extern Func2<GLvoid*, GLenum, GLenum> glMapBuffer;
     extern Func1<GLboolean, GLenum> glUnmapBuffer;
     

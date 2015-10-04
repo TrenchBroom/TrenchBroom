@@ -38,8 +38,7 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, &attribs.front(), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_glContext(contextManager.createContext(this)),
         m_attribs(attribs),
-        m_initialized(false),
-        m_vbo(1024) {
+        m_initialized(false) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
             
@@ -181,10 +180,8 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             Renderer::VertexArray array = Renderer::VertexArray::swap(GL_QUADS, vertices);
             
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            array.prepare(m_vbo);
-            setVboState.active();
+            Renderer::ActivateVbo activate(sharedVbo());
+            array.prepare(sharedVbo());
             array.render();
             glEnable(GL_DEPTH_TEST);
         }
