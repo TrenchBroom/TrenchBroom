@@ -295,6 +295,7 @@ namespace TrenchBroom {
             }
 
             m_window->Refresh();
+			m_window->Update();
         }
 
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
