@@ -254,7 +254,8 @@ namespace TrenchBroom {
                             const size_t edgeVertexCount) :
             filter(i_filter),
             opaqueMesh(opaqueMeshSize),
-            transparentMesh(transparentMeshSize) {
+            transparentMesh(transparentMeshSize),
+            edgeVertices(0) {
                 edgeVertices.reserve(edgeVertexCount);
             }
         private:

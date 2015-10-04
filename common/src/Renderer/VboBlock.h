@@ -50,39 +50,32 @@ namespace TrenchBroom {
             VboBlock* m_previous;
             VboBlock* m_next;
             
-            unsigned char* m_buffer;
+            bool m_mapped;
         public:
             VboBlock(Vbo& vbo, const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next);
-            ~VboBlock();
             
             Vbo& vbo() const;
             size_t offset() const;
             size_t capacity() const;
             
             template <typename T>
-            size_t writeElement(const size_t address, const T& element) {
-                assert(mapped());
-                assert(address + sizeof(T) <= m_capacity);
-                reinterpret_cast<T>(m_buffer + address) = element;
-            }
-            
-            template <typename T>
             size_t writeElements(const size_t address, const std::vector<T>& elements) {
                 assert(mapped());
-                assert(address + elements.size() * sizeof(T) <= m_capacity);
-                typename std::vector<T>::const_iterator it, end;
-                for (it = elements.begin(), end = elements.end(); it != end; ++it)
-                    reinterpret_cast<T>(m_buffer + address) = *it;
-                return elements.size() * sizeof(T);
+                return writeBuffer(address, elements);
             }
             
             template <typename T>
             size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
                 assert(mapped());
-                assert(address + buffer.size() * sizeof(T) <= m_capacity);
-                const T* ptr = &(buffer[0]);
+                
                 const size_t size = buffer.size() * sizeof(T);
-                memcpy(m_buffer + address, ptr, size);
+                assert(address + size <= m_capacity);
+                
+                const GLvoid* ptr = static_cast<const GLvoid*>(&(buffer[0]));
+                const GLintptr offset = static_cast<GLintptr>(m_offset + address);
+                const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
+                glBufferSubData(GL_ARRAY_BUFFER, offset, sizei, ptr);
+
                 return size;
             }
 

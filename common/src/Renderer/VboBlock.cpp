@@ -40,12 +40,7 @@ namespace TrenchBroom {
         m_capacity(capacity),
         m_previous(previous),
         m_next(next),
-        m_buffer(NULL) {}
-        
-        VboBlock::~VboBlock() {
-            delete [] m_buffer;
-            m_buffer = NULL;
-        }
+        m_mapped(false) {}
         
         Vbo& VboBlock::vbo() const {
             return m_vbo;
@@ -64,24 +59,18 @@ namespace TrenchBroom {
         }
         
         bool VboBlock::mapped() const {
-            return m_buffer != NULL;
+            return m_mapped;
         }
         
         void VboBlock::map() {
             assert(!mapped());
-            m_buffer = new unsigned char[m_capacity];
-            assert(m_buffer != NULL);
+            m_mapped = true;
             m_vbo.mapPartially();
         }
         
         void VboBlock::unmap() {
             assert(mapped());
-            const GLintptr offset = static_cast<GLintptr>(m_offset);
-            const GLsizeiptr size = static_cast<GLsizeiptr>(m_capacity);
-            glBufferSubData(GL_ARRAY_BUFFER, offset, size, m_buffer);
-            delete [] m_buffer;
-            m_buffer = NULL;
-            GL_CHECK_ERROR()
+            m_mapped = false;
             m_vbo.unmapPartially();
         }
 

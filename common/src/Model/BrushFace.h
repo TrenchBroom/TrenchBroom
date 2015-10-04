@@ -85,6 +85,9 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
+            
+            mutable bool m_cachedVerticesValid;
+            mutable MeshVertex::List m_cachedVertices;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -188,6 +191,9 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
+            
+            void invalidateCachedVertices();
+            void validateCachedVertices() const;
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
