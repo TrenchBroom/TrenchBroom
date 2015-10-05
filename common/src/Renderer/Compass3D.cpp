@@ -32,15 +32,15 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             if (m_restriction.isRestricted(Math::Axis::AX)) {
-                renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderAxisOutline(renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::CompassAxisOutlineColor));
                 renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
-            } else if (m_restriction.isRestricted(Math::Axis::AY)) {
                 renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
                 renderAxisOutline(renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::CompassAxisOutlineColor));
                 renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
+            } else if (m_restriction.isRestricted(Math::Axis::AY)) {
+                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
+                renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
+                renderAxisOutline(renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::CompassAxisOutlineColor));
+                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
             } else if (m_restriction.isRestricted(Math::Axis::AZ)) {
                 renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
                 renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));

@@ -95,6 +95,9 @@ namespace TrenchBroom {
             void OnMouseMotion(wxMouseEvent& event);
             
             void OnToggleMovementRestriction(wxCommandEvent& event);
+            void OnSetMovementRestrictionX(wxCommandEvent& event);
+            void OnSetMovementRestrictionY(wxCommandEvent& event);
+            void OnSetMovementRestrictionZ(wxCommandEvent& event);
             
             void OnPerformCreateBrush(wxCommandEvent& event);
 

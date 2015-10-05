@@ -284,8 +284,14 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut('F'), ActionContext_Any, Action(),
                                Action(View::CommandIds::Actions::ToggleFlyMode, "Toggle fly mode", true));
 
-            createViewShortcut(KeyboardShortcut('X'), ActionContext_Any, Action(),
+            createViewShortcut(KeyboardShortcut('<'), ActionContext_Any, Action(),
                                Action(View::CommandIds::Actions::ToggleMovementRestriction, "Toggle movement axis", true));
+            createViewShortcut(KeyboardShortcut('X'), ActionContext_Any, Action(),
+                               Action(View::CommandIds::Actions::SetMovementRestrictionX, "Set movement axis X", true));
+            createViewShortcut(KeyboardShortcut('Y'), ActionContext_Any, Action(),
+                               Action(View::CommandIds::Actions::SetMovementRestrictionY, "Set movement axis Y", true));
+            createViewShortcut(KeyboardShortcut('Z'), ActionContext_Any, Action(),
+                               Action(View::CommandIds::Actions::SetMovementRestrictionZ, "Set movement axis Z", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::MoveObjectsUp, "Move objects up", true),

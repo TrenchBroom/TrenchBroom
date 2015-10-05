@@ -19,62 +19,93 @@
 
 #include "MovementRestriction.h"
 
-#include "Renderer/Camera.h"
-
 namespace TrenchBroom {
     namespace View {
         MovementRestriction::MovementRestriction() :
-        m_horizontalRestriction(Restriction_None),
-        m_xAxis(Vec3::PosX),
-        m_yAxis(Vec3::PosY),
+        m_restriction(Restriction_None),
         m_verticalRestriction(false) {}
         
-        void MovementRestriction::toggleHorizontalRestriction(const Renderer::Camera& camera) {
-            switch (m_horizontalRestriction) {
+        void MovementRestriction::toggleRestriction() {
+            switch (m_restriction) {
                 case Restriction_None:
-                    if (camera.right().firstComponent() == Math::Axis::AX)
-                        m_yAxis = Vec3::Null;
-                    else
-                        m_xAxis = Vec3::Null;
-                    m_horizontalRestriction = Restriction_LeftRight;
+                    m_restriction = Restriction_X;
                     break;
-                case Restriction_LeftRight:
-                    if (m_xAxis == Vec3::Null) {
-                        m_xAxis = Vec3::PosX;
-                        m_yAxis = Vec3::Null;
-                    } else {
-                        m_xAxis = Vec3::Null;
-                        m_yAxis = Vec3::PosY;
-                    }
-                    m_horizontalRestriction = Restriction_ForwardBack;
+                case Restriction_X:
+                    m_restriction = Restriction_Y;
                     break;
-                case Restriction_ForwardBack:
-                    m_xAxis = Vec3f::PosX;
-                    m_yAxis = Vec3f::PosY;
-                    m_horizontalRestriction = Restriction_None;
+                case Restriction_Y:
+                    m_restriction = Restriction_Z;
                     break;
+                case Restriction_Z:
+                    m_restriction = Restriction_None;
+                    break;
+                switchDefault()
             }
         }
         
-        void MovementRestriction::setVerticalRestriction(const bool verticalRestriction) {
+        void MovementRestriction::toggleVerticalRestriction(const bool verticalRestriction) {
             m_verticalRestriction = verticalRestriction;
         }
         
-        bool MovementRestriction::isRestricted(const Math::Axis::Type axis) const {
+        void MovementRestriction::toggleRestriction(const Math::Axis::Type axis) {
+            if (isRestricted(axis)) {
+                m_restriction = Restriction_None;
+                return;
+            }
+            
             switch (axis) {
                 case Math::Axis::AX:
-                    return m_xAxis.null();
+                    m_restriction = Restriction_X;
+                    break;
                 case Math::Axis::AY:
-                    return m_yAxis.null();
+                    m_restriction = Restriction_Y;
+                    break;
                 default:
-                    return m_verticalRestriction;
+                    m_restriction = Restriction_Z;
+                    break;
+            }
+        }
+
+        bool MovementRestriction::isRestricted(const Math::Axis::Type axis) const {
+            if (!m_verticalRestriction && m_restriction == Restriction_None)
+                return false;
+            switch (axis) {
+                case Math::Axis::AX:
+                    return !m_verticalRestriction && m_restriction == Restriction_X;
+                case Math::Axis::AY:
+                    return !m_verticalRestriction && m_restriction == Restriction_Y;
+                default:
+                    return  m_verticalRestriction || m_restriction == Restriction_Z;
             }
         }
         
         Vec3 MovementRestriction::apply(const Vec3& v) const {
-            if (m_verticalRestriction)
-                return v.dot(Vec3::PosZ) * Vec3::PosZ;
-            return v.dot(m_xAxis) * Vec3::PosX + v.dot(m_yAxis) * Vec3::PosY;
+            return v.dot(xAxis()) * Vec3::PosX + v.dot(yAxis()) * Vec3::PosY + v.dot(zAxis()) * Vec3::PosZ;
+        }
+
+        const Vec3& MovementRestriction::xAxis() const {
+            return canMoveAlong(Math::Axis::AX) ? Vec3::PosX : Vec3::Null;
+        }
+        
+        const Vec3& MovementRestriction::yAxis() const {
+            return canMoveAlong(Math::Axis::AY) ? Vec3::PosY : Vec3::Null;
+        }
+        
+        const Vec3& MovementRestriction::zAxis() const {
+            return canMoveAlong(Math::Axis::AZ) ? Vec3::PosZ : Vec3::Null;
+        }
+
+        bool MovementRestriction::canMoveAlong(const Math::Axis::Type axis) const {
+            if (!m_verticalRestriction && m_restriction == Restriction_None)
+                return true;
+            switch (axis) {
+                case Math::Axis::AX:
+                    return !m_verticalRestriction && m_restriction == Restriction_X;
+                case Math::Axis::AY:
+                    return !m_verticalRestriction && m_restriction == Restriction_Y;
+                default:
+                    return  m_verticalRestriction || m_restriction == Restriction_Z;
+            }
         }
     }
 }

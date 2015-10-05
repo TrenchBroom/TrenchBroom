@@ -160,6 +160,9 @@ namespace TrenchBroom {
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
+            Bind(wxEVT_MENU, &MapView3D::OnSetMovementRestrictionX,      this, CommandIds::Actions::SetMovementRestrictionX);
+            Bind(wxEVT_MENU, &MapView3D::OnSetMovementRestrictionY,      this, CommandIds::Actions::SetMovementRestrictionY);
+            Bind(wxEVT_MENU, &MapView3D::OnSetMovementRestrictionZ,      this, CommandIds::Actions::SetMovementRestrictionZ);
             Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
 
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
@@ -206,7 +209,28 @@ namespace TrenchBroom {
         void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            m_movementRestriction.toggleRestriction();
+            Refresh();
+        }
+
+        void MapView3D::OnSetMovementRestrictionX(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_movementRestriction.toggleRestriction(Math::Axis::AX);
+            Refresh();
+        }
+        
+        void MapView3D::OnSetMovementRestrictionY(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_movementRestriction.toggleRestriction(Math::Axis::AY);
+            Refresh();
+        }
+        
+        void MapView3D::OnSetMovementRestrictionZ(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_movementRestriction.toggleRestriction(Math::Axis::AZ);
             Refresh();
         }
 
@@ -333,7 +357,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::updateVerticalMovementRestriction(const wxKeyboardState& state) {
-            m_movementRestriction.setVerticalRestriction(state.AltDown());
+            m_movementRestriction.toggleVerticalRestriction(state.AltDown());
             Refresh();
         }
 
