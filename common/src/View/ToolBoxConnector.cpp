@@ -295,7 +295,7 @@ namespace TrenchBroom {
             }
 
             m_window->Refresh();
-			m_window->Update();
+			m_window->Update(); // neccessary for smooth rendering on Windows
         }
 
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
