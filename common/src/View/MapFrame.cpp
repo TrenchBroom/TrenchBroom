@@ -59,7 +59,7 @@
 namespace TrenchBroom {
     namespace View {
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, "MapFrame"),
+        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         m_gridChoice(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(NULL, wxID_ANY, "MapFrame"),
+        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             SetTitle(m_document->filename());
             OSXSetModified(m_document->modified());
 #else
-            SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : ""));
+            SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : "") + wxString(" - TrenchBroom"));
 #endif
             SetRepresentedFilename(m_document->path().asString());
         }

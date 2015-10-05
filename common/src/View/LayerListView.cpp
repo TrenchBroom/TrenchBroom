@@ -31,6 +31,7 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/tglbtn.h>
+#include <wx/wupdlock.h>
 
 wxDEFINE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
 wxDEFINE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
@@ -318,6 +319,8 @@ namespace TrenchBroom {
         }
 
         void LayerListView::reload() {
+			wxWindowUpdateLocker locker(this);
+
             m_selection = -1;
             m_scrollWindow->DestroyChildren();
             m_entries.clear();
