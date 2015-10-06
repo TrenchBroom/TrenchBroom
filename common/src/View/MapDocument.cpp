@@ -225,6 +225,7 @@ namespace TrenchBroom {
             registerIssueGenerators();
             
             initializeWorld(worldBounds);
+            clearModificationCount();
             
             documentWasNewedNotifier(this);
         }
