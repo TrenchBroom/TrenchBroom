@@ -276,7 +276,11 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                setOrigin(transformation * origin());
+                const Vec3 bottomCenter = Vec3(bounds().center().xy(), bounds().min.z());
+                const Vec3 delta = bottomCenter - origin();
+                const Vec3 transformedCenter = transformation * bottomCenter;
+                
+                setOrigin(transformedCenter - delta);
                 applyRotation(stripTranslation(transformation));
             }
         }
