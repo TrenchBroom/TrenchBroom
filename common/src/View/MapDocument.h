@@ -325,6 +325,7 @@ namespace TrenchBroom {
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void clearWorld();
+            void initializeWorld(const BBox3& worldBounds);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;

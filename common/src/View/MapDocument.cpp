@@ -224,6 +224,8 @@ namespace TrenchBroom {
             loadAssets();
             registerIssueGenerators();
             
+            initializeWorld(worldBounds);
+            
             documentWasNewedNotifier(this);
         }
         
@@ -945,6 +947,12 @@ namespace TrenchBroom {
             delete m_world;
             m_world = NULL;
             m_currentLayer = NULL;
+        }
+        
+        void MapDocument::initializeWorld(const BBox3& worldBounds) {
+            const Model::BrushBuilder builder(m_world, worldBounds);
+            Model::Brush* brush = builder.createCuboid(Vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            addNode(brush, m_world->defaultLayer());
         }
         
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {

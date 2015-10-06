@@ -74,6 +74,7 @@ namespace TrenchBroom {
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
             bindEvents();
             bindObservers();
+            initializeCamera();
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass3D(m_movementRestriction));
         }
@@ -84,6 +85,11 @@ namespace TrenchBroom {
             unbindObservers();
         }
         
+        void MapView3D::initializeCamera() {
+            m_camera.moveTo(Vec3f(-80.0f, -128.0f, 96.0f));
+            m_camera.lookAt(Vec3::Null, Vec3::PosZ);
+        }
+
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter3D(toolBox.clipTool(), grid);
