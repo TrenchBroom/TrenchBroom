@@ -33,18 +33,21 @@ namespace TrenchBroom {
             typedef std::vector<GLint> IndexArray;
             typedef std::vector<GLsizei> CountArray;
             
+            bool m_allowDynamicGrowth;
             size_t m_primStart;
             typename T::Vertex::List m_vertices;
             IndexArray m_indices;
             CountArray m_counts;
         public:
             IndexedVertexList() :
+            m_allowDynamicGrowth(true),
             m_primStart(0),
             m_vertices(0),
             m_indices(0),
             m_counts(0) {}
             
             IndexedVertexList(const size_t vertexCount, const size_t primCount) :
+            m_allowDynamicGrowth(false),
             m_primStart(0),
             m_vertices(0),
             m_indices(0),
@@ -59,12 +62,12 @@ namespace TrenchBroom {
             }
             
             void addVertex(const typename T::Vertex& vertex) {
-                assert(m_vertices.capacity() > m_vertices.size());
+                assert(m_allowDynamicGrowth || m_vertices.capacity() > m_vertices.size());
                 m_vertices.push_back(vertex);
             }
             
             void addVertices(const typename T::Vertex::List& vertices) {
-                assert(vertices.size() <= m_vertices.capacity() - m_vertices.size());
+                assert(m_allowDynamicGrowth || vertices.size() <= m_vertices.capacity() - m_vertices.size());
                 VectorUtils::append(m_vertices, vertices);
             }
             
@@ -74,9 +77,9 @@ namespace TrenchBroom {
             }
             
             void addPrimitives(const IndexedVertexList& primitives) {
-                assert(primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
-                assert(primitives.indices().size() <= m_indices.capacity() - m_indices.size());
-                assert(primitives.counts().size() <= m_counts.capacity() - m_counts.size());
+                assert(m_allowDynamicGrowth || primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
+                assert(m_allowDynamicGrowth || primitives.indices().size() <= m_indices.capacity() - m_indices.size());
+                assert(m_allowDynamicGrowth || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
                 VectorUtils::append(m_vertices, primitives.vertices());
                 VectorUtils::append(m_indices, primitives.indices());
                 VectorUtils::append(m_counts, primitives.counts());
@@ -85,8 +88,8 @@ namespace TrenchBroom {
             
             void endPrimitive() {
                 if (m_primStart < m_vertices.size()) {
-                    assert(m_indices.capacity() > m_indices.size());
-                    assert(m_counts.capacity() > m_counts.size());
+                    assert(m_allowDynamicGrowth || m_indices.capacity() > m_indices.size());
+                    assert(m_allowDynamicGrowth || m_counts.capacity() > m_counts.size());
                     
                     m_indices.push_back(static_cast<GLint>(m_primStart));
                     m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));

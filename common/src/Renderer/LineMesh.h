@@ -37,6 +37,43 @@ namespace TrenchBroom {
         
         template <class VertexSpec>
         class LineMesh {
+        public:
+            class MeshSize {
+                size_t lineVertexCount;
+                size_t stripVertexCount;
+                size_t stripPrimitiveCount;
+                size_t loopVertexCount;
+                size_t loopPrimitiveCount;
+                
+                MeshSize() :
+                lineVertexCount(0),
+                stripVertexCount(0),
+                stripPrimitiveCount(0),
+                loopVertexCount(0),
+                loopPrimitiveCount(0) {}
+                
+                void addLine() {
+                    lineVertexCount += 2;
+                }
+                
+                void addStrip(const size_t vertexCount) {
+                    addStrips(vertexCount, 1);
+                }
+                
+                void addStrips(const size_t vertexCount, const size_t primCount) {
+                    stripPrimitiveCount += primCount;
+                    stripVertexCount += vertexCount;
+                }
+                
+                void addLoop(const size_t vertexCount) {
+                    addLoops(vertexCount, 1);
+                }
+                
+                void addLoops(const size_t vertexCount, const size_t primCount) {
+                    loopPrimitiveCount += primCount;
+                    loopVertexCount += vertexCount;
+                }
+            };
         private:
             typedef enum {
                 LineType_Lines,
@@ -53,7 +90,25 @@ namespace TrenchBroom {
             IndexedList m_lineLoops;
             LineType m_currentType;
         public:
-            LineMesh() : m_currentType(LineType_Unset) {}
+            LineMesh() :
+            m_lines(),
+            m_lineStrips(),
+            m_lineLoops(),
+            m_currentType(LineType_Unset) {}
+            
+            LineMesh(const MeshSize& size) :
+            m_lines(0),
+            m_lineStrips(0),
+            m_lineLoops(0),
+            m_currentType(LineType_Unset) {
+                reserve(size);
+            }
+
+            void reserve(const MeshSize& meshSize) {
+                m_lines.reserve(meshSize.lineVertexCount);
+                m_lineStrips.reserve(meshSize.stripVertexCount, meshSize.stripPrimitiveCount);
+                m_lineLoops.reserve(meshSize.loopVertexCount, meshSize.loopPrimitiveCount);
+            }
             
             LineMeshRenderData renderData() {
                 LineMeshRenderData result;
