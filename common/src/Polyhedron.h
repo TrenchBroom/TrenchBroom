@@ -71,6 +71,9 @@ public:
     typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
     typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
     typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
+private:
+    typedef std::set<Vertex*> VertexSet;
+    typedef std::set<Face*> FaceSet;
 public:
     class Vertex : public Allocator<Vertex> {
     private:
@@ -389,7 +392,6 @@ private:
     
     Seam createSeam(const SplittingCriterion& criterion);
     
-    typedef std::set<Face*> FaceSet;
     void split(const Seam& seam, Callback& callback);
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
     
@@ -413,6 +415,18 @@ public: // Clipping
 
     ClipResult clip(const Plane<T,3>& plane);
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
+public: // Subtract
+    typedef std::vector<typename V::List> SubtractResult;
+    SubtractResult subtract(const Polyhedron& subtrahend) const;
+    SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
+private:
+    typedef std::map<Vertex*, FaceSet> VertexFaceMap;
+    typedef std::map<Face*, VertexSet> FaceVertexMap;
+    
+    void clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
+    FaceVertexMap findFaceVertices(const Polyhedron& subtrahend, const Callback& callback) const;
+    VertexFaceMap findClosestFaces(const Polyhedron& subtrahend, const Callback& callback) const;
+    T faceVertexDistance(const Face* face, const Vertex* vertex) const;
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
 

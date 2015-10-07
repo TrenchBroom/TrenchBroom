@@ -2269,6 +2269,107 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
 }
 
+bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
+bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
+    Polyhedron3d::SubtractResult::iterator it, end;
+    for (it = result.begin(), end = result.end(); it != end; ++it) {
+        const Vec3d::List& current = *it;
+        if (current.size() == vertices.size()) {
+            size_t count = 0;
+            
+            for (size_t j = 0; j < vertices.size(); ++j) {
+                if (!VectorUtils::contains(current, vertices[j]))
+                    break;
+                ++count;
+            }
+            
+            if (count == vertices.size()) {
+                result.erase(it);
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
+    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d subtrahend(BBox3d(32.0));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(6u, result.size());
+
+    Vec3d::List frontVertices;
+    frontVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
+    frontVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
+    frontVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
+    frontVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
+    frontVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
+    frontVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
+    frontVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
+    frontVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
+
+    Vec3d::List backVertices;
+    backVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
+    backVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
+    backVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
+    backVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
+    backVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
+    backVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
+    backVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
+    backVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
+    
+    Vec3d::List leftVertices;
+    leftVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
+    leftVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
+    leftVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
+    leftVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
+    leftVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
+    leftVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
+    leftVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
+    leftVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
+    
+    Vec3d::List rightVertices;
+    rightVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
+    rightVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
+    rightVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
+    rightVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
+    rightVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
+    rightVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
+    rightVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
+    rightVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
+
+    Vec3d::List bottomVertices;
+    bottomVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
+    bottomVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
+    bottomVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
+    bottomVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
+    bottomVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
+    bottomVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
+    bottomVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
+    bottomVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
+
+    Vec3d::List topVertices;
+    topVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
+    topVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
+    topVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
+    topVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
+    topVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
+    topVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
+    topVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
+    topVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
+
+    ASSERT_TRUE(findAndRemove(result, frontVertices));
+    ASSERT_TRUE(findAndRemove(result, backVertices));
+    ASSERT_TRUE(findAndRemove(result, leftVertices));
+    ASSERT_TRUE(findAndRemove(result, rightVertices));
+    ASSERT_TRUE(findAndRemove(result, bottomVertices));
+    ASSERT_TRUE(findAndRemove(result, topVertices));
+    
+    ASSERT_TRUE(result.empty());
+}
+
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }
