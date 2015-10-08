@@ -33,6 +33,8 @@ class Polyhedron {
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
 public:
+    typedef std::vector<Polyhedron> List;
+
     class Vertex;
     class Edge;
     class HalfEdge;
@@ -190,7 +192,8 @@ public:
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
         V origin() const;
-        bool hasPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
@@ -263,15 +266,15 @@ public: // swap function
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
-    bool hasVertex(const V& position) const;
+    bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
     
     size_t edgeCount() const;
     const EdgeList& edges() const;
-    bool hasEdge(const V& pos1, const V& pos2) const;
+    bool hasEdge(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     
     size_t faceCount() const;
     const FaceList& faces() const;
-    bool hasFace(const typename V::List& positions) const;
+    bool hasFace(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
     const BBox<T,3>& bounds() const;
     
@@ -416,12 +419,13 @@ public: // Clipping
     ClipResult clip(const Plane<T,3>& plane);
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
 public: // Subtract
-    typedef std::vector<typename V::List> SubtractResult;
+    typedef List SubtractResult;
+    
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
 private:
     typedef std::map<Vertex*, FaceSet> VertexFaceMap;
-    typedef std::map<Face*, VertexSet> FaceVertexMap;
+    typedef std::map<Face*, typename V::Set> FaceVertexMap;
     
     bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
     FaceVertexMap findFaceVertices(const Polyhedron& subtrahend, const Callback& callback) const;

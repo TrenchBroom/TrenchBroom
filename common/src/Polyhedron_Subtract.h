@@ -38,20 +38,11 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
     
     typename FaceVertexMap::const_iterator it, end;
     for (it = map.begin(), end = map.end(); it != end; ++it) {
-        const Face* subtrahendFace = it->first;
-        const VertexSet& myVertices = it->second;
-        typename V::List vertices;
-        vertices.reserve(subtrahendFace->boundary().size() + myVertices.size());
+        Polyhedron polyhedron;
         
-        const HalfEdge* firstEdge = subtrahendFace->boundary().front();
-        const HalfEdge* currentEdge = firstEdge;
-        do {
-            vertices.push_back(currentEdge->origin()->position());
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
-
-        V::toList(myVertices.begin(), myVertices.end(), GetVertexPosition(), vertices);
-        result.push_back(vertices);
+        const typename V::Set& vertices = it->second;
+        polyhedron.addPoints(vertices.begin(), vertices.end());
+        result.push_back(polyhedron);
     }
     
     return result;
@@ -84,7 +75,7 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
         const Plane3 plane = callback.plane(currentFace);
         
         bool hasVertexAbove = false;
-        VertexSet vertices;
+        typename V::Set vertices;
         Vertex* firstVertex = m_vertices.front();
         Vertex* currentVertex = firstVertex;
         do {
@@ -98,7 +89,7 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
                     case Math::PointStatus::PSAbove:
                         hasVertexAbove = true;
                     case Math::PointStatus::PSInside:
-                        vertices.insert(currentVertex);
+                        vertices.insert(currentVertex->position());
                         break;
                     default:
                         break;
@@ -107,8 +98,16 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
         
-        if (hasVertexAbove)
+        if (hasVertexAbove) {
+            const HalfEdge* firstEdge = currentFace->boundary().front();
+            const HalfEdge* currentEdge = firstEdge;
+            do {
+                vertices.insert(currentEdge->origin()->position());
+                currentEdge = currentEdge->next();
+            } while (currentEdge != firstEdge);
+            
             result.insert(std::make_pair(currentFace, vertices));
+        }
         
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
