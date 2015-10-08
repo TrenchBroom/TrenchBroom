@@ -418,8 +418,8 @@ public: // Clipping
 
     ClipResult clip(const Plane<T,3>& plane);
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
-public: // Subtract
-    typedef List SubtractResult;
+public: // Subtraction
+    typedef std::list<Polyhedron> SubtractResult;
     
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
@@ -431,6 +431,11 @@ private:
     FaceVertexMap findFaceVertices(const Polyhedron& subtrahend, const Callback& callback) const;
     VertexFaceMap findClosestFaces(const Polyhedron& subtrahend, const Callback& callback) const;
     T faceVertexDistance(const Face* face, const Vertex* vertex) const;
+    
+    void resolveIntersections(SubtractResult& result, const Callback& callback) const;
+public: // Intersection
+    Polyhedron intersect(const Polyhedron& other) const;
+    Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
 

@@ -34,7 +34,6 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
     const FaceVertexMap map = findFaceVertices(subtrahend, callback);
     
     SubtractResult result;
-    result.reserve(map.size());
     
     typename FaceVertexMap::const_iterator it, end;
     for (it = map.begin(), end = map.end(); it != end; ++it) {
@@ -45,6 +44,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
         result.push_back(polyhedron);
     }
     
+    resolveIntersections(result, callback);
     return result;
 }
 
@@ -75,7 +75,7 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
         const Plane3 plane = callback.plane(currentFace);
         
         bool hasVertexAbove = false;
-        typename V::Set vertices;
+        typename V::Set allVertices;
         Vertex* firstVertex = m_vertices.front();
         Vertex* currentVertex = firstVertex;
         do {
@@ -89,7 +89,7 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
                     case Math::PointStatus::PSAbove:
                         hasVertexAbove = true;
                     case Math::PointStatus::PSInside:
-                        vertices.insert(currentVertex->position());
+                        allVertices.insert(currentVertex->position());
                         break;
                     default:
                         break;
@@ -99,14 +99,16 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
         } while (currentVertex != firstVertex);
         
         if (hasVertexAbove) {
+            std::cout << "before " << allVertices.size();
             const HalfEdge* firstEdge = currentFace->boundary().front();
             const HalfEdge* currentEdge = firstEdge;
             do {
-                vertices.insert(currentEdge->origin()->position());
+                allVertices.insert(currentEdge->origin()->position());
                 currentEdge = currentEdge->next();
             } while (currentEdge != firstEdge);
+            std::cout << " after " << allVertices.size() << std::endl;
             
-            result.insert(std::make_pair(currentFace, vertices));
+            result.insert(std::make_pair(currentFace, allVertices));
         }
         
         currentFace = currentFace->next();
@@ -156,11 +158,38 @@ T Polyhedron<T,FP>::faceVertexDistance(const Face* face, const Vertex* vertex) c
     const HalfEdge* currentEdge = firstEdge;
     do {
         const Vertex* currentVertex = currentEdge->origin();
-        const T distance = currentVertex->position().distanceTo(vertex->position());
+        const T distance = currentVertex->position().squaredDistanceTo(vertex->position());
         closestDistance = Math::min(distance, closestDistance);
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return closestDistance;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::resolveIntersections(SubtractResult& result, const Callback& callback) const {
+    typename SubtractResult::iterator cur = result.begin();
+    while (cur != result.end()) {
+        Polyhedron& first = *cur;
+        
+        typename SubtractResult::iterator it = cur;
+        typename SubtractResult::iterator end = result.end();
+        while (++it != end) {
+            Polyhedron& second = *it;
+            Polyhedron intersection = first.intersect(second, callback);
+            if (!intersection.empty()) {
+                const SubtractResult firstResult = first.subtract(intersection, callback);
+                assert(firstResult.size() == 1);
+                
+                const SubtractResult secondResult = second.subtract(intersection, callback);
+                assert(secondResult.size() == 1);
+                
+                first = firstResult.front();
+                second = secondResult.front();
+                result.push_back(intersection);
+            }
+        }
+        ++cur;
+    }
 }
 
 #endif /* Polyhedron_Subtract_h */
