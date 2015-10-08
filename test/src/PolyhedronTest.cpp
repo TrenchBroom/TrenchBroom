@@ -2370,6 +2370,30 @@ TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
     ASSERT_TRUE(result.empty());
 }
 
+TEST(PolyhedronTest, subtractDisjunctCuboidFromCuboid) {
+    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d subtrahend(BBox3d(Vec3d(96.0, 96.0, 96.0), Vec3d(128.0, 128.0, 128.0)));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_TRUE(result.empty());
+}
+
+TEST(PolyhedronTest, subtractCuboidFromInnerCuboid) {
+    const Polyhedron3d minuend(BBox3d(32.0));
+    const Polyhedron3d subtrahend(BBox3d(64.0));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_TRUE(result.empty());
+}
+
+TEST(PolyhedronTest, subtractCuboidFromIdenticalCuboid) {
+    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d subtrahend(BBox3d(64.0));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_TRUE(result.empty());
+}
+
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }

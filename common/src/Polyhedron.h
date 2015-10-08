@@ -423,7 +423,7 @@ private:
     typedef std::map<Vertex*, FaceSet> VertexFaceMap;
     typedef std::map<Face*, VertexSet> FaceVertexMap;
     
-    void clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
+    bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
     FaceVertexMap findFaceVertices(const Polyhedron& subtrahend, const Callback& callback) const;
     VertexFaceMap findClosestFaces(const Polyhedron& subtrahend, const Callback& callback) const;
     T faceVertexDistance(const Face* face, const Vertex* vertex) const;

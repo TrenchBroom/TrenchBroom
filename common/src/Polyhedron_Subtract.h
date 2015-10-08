@@ -28,7 +28,9 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron subtrahend, const Callback& callback) const {
-    clipSubtrahend(subtrahend, callback);
+    if (!clipSubtrahend(subtrahend, callback))
+        return SubtractResult(0);
+    
     const FaceVertexMap map = findFaceVertices(subtrahend, callback);
     
     SubtractResult result;
@@ -56,13 +58,16 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const {
+bool Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const {
     Face* first = m_faces.front();
     Face* current = first;
     do {
-        subtrahend.clip(callback.plane(current));
+        const ClipResult result = subtrahend.clip(callback.plane(current));
+        if (result.empty())
+            return false;
         current = current->next();
     } while (current != first);
+    return true;
 }
 
 template <typename T, typename FP>
