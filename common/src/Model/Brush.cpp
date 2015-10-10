@@ -249,6 +249,16 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
         
+        BrushFace* Brush::findFaceByNormal(const Vec3& normal) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->boundary().normal.equals(normal))
+                    return face;
+            }
+            return NULL;
+        }
+
         bool Brush::fullySpecified() const {
             assert(m_geometry != NULL);
             
@@ -589,6 +599,64 @@ namespace TrenchBroom {
             nodeBoundsDidChange();
             
             return result.newVertexPositions.front();
+        }
+
+        BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
+            const BrushGeometry::SubtractResult result = m_geometry->subtract(*subtrahend->m_geometry);
+            
+            BrushList brushes(0);
+            brushes.reserve(result.size());
+            
+            BrushGeometry::SubtractResult::const_iterator it, end;
+            for (it = result.begin(), end = result.end(); it != end; ++it) {
+                const BrushGeometry& geometry = *it;
+                Brush* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahend);
+                brushes.push_back(brush);
+            }
+            
+            return brushes;
+        }
+
+        Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
+            BrushFaceList faces(0);
+            faces.reserve(geometry.faceCount());
+            
+            BrushGeometry::Face* firstFace = geometry.faces().front();
+            BrushGeometry::Face* currentFace = firstFace;
+            do {
+                const BrushGeometry::HalfEdge* h1 = currentFace->boundary().front();
+                const BrushGeometry::HalfEdge* h0 = h1->next();
+                const BrushGeometry::HalfEdge* h2 = h0->next();
+                
+                const Vec3& p0 = h0->origin()->position();
+                const Vec3& p1 = h1->origin()->position();
+                const Vec3& p2 = h2->origin()->position();
+                
+                BrushFaceAttributes attribs(defaultTextureName);
+                
+                BrushFace* face = factory.createFace(p0, p1, p2, attribs);
+                const BrushFace* original = findMatchingFace(face->boundary());
+                if (original == NULL)
+                    original = subtrahend->findMatchingFace(face->boundary().flipped());
+                if (original != NULL)
+                    face->setAttribs(original->attribs());
+                
+                faces.push_back(face);
+                
+                currentFace = currentFace->next();
+            } while (currentFace != firstFace);
+            
+            return factory.createBrush(worldBounds, faces);
+        }
+
+        BrushFace* Brush::findMatchingFace(const Plane3& boundary) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->boundary().equals(boundary))
+                    return face;
+            }
+            return NULL;
         }
 
         void Brush::updateFacesFromGeometry(const BBox3& worldBounds) {

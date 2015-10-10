@@ -726,5 +726,64 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(p + d, newPositions.front());
         }
         
+        TEST(BrushTest, subtractCuboidFromCuboid) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const String minuendTexture("minuend");
+            const String subtrahendTexture("subtrahend");
+            const String defaultTexture("default");
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* minuend    = builder.createCuboid(BBox3(Vec3(-32.0, -16.0, -32.0), Vec3(32.0, 16.0, 32.0)), minuendTexture);
+            Brush* subtrahend = builder.createCuboid(BBox3(Vec3(-16.0, -32.0, -64.0), Vec3(16.0, 32.0,  0.0)), subtrahendTexture);
+
+            const BrushList result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
+            ASSERT_EQ(3u, result.size());
+
+            const Vec3 leftTopNormal  = Vec3( 2.0, 0.0,  1.0).normalized();
+            const Vec3 rightTopNormal = Vec3(-2.0, 0.0,  1.0).normalized();
+            const Vec3 topLeftNormal  = Vec3(-2.0, 0.0, -1.0).normalized();
+            const Vec3 topRightNormal = Vec3( 2.0, 0.0, -1.0).normalized();
+            Brush* left = NULL;
+            Brush* top = NULL;
+            Brush* right = NULL;
+            BrushList::const_iterator it, end;
+            for (it = result.begin(), end = result.end(); it != end; ++it) {
+                Brush* brush = *it;
+                if (brush->findFaceByNormal(Vec3::PosZ) != NULL)
+                    top = brush;
+                else if (brush->findFaceByNormal(leftTopNormal) != NULL)
+                    left = brush;
+                else if (brush->findFaceByNormal(rightTopNormal) != NULL)
+                    right = brush;
+            }
+            
+            ASSERT_TRUE(left != NULL && top != NULL && right != NULL);
+            
+            // left brush
+            ASSERT_EQ(subtrahendTexture, left->findFaceByNormal(Vec3::PosX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    left->findFaceByNormal(leftTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegZ)->textureName());
+            
+            // top brush
+            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topLeftNormal)->textureName());
+            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topRightNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::NegY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosZ)->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFaceByNormal(Vec3::NegZ)->textureName());
+            
+            // right brush
+            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosX)->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFaceByNormal(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    right->findFaceByNormal(rightTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegZ)->textureName());
+        }
     }
 }

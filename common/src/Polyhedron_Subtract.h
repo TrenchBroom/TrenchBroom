@@ -99,14 +99,12 @@ typename Polyhedron<T,FP>::FaceVertexMap Polyhedron<T,FP>::findFaceVertices(cons
         } while (currentVertex != firstVertex);
         
         if (hasVertexAbove) {
-            std::cout << "before " << allVertices.size();
             const HalfEdge* firstEdge = currentFace->boundary().front();
             const HalfEdge* currentEdge = firstEdge;
             do {
                 allVertices.insert(currentEdge->origin()->position());
                 currentEdge = currentEdge->next();
             } while (currentEdge != firstEdge);
-            std::cout << " after " << allVertices.size() << std::endl;
             
             result.insert(std::make_pair(currentFace, allVertices));
         }
