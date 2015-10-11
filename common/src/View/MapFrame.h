@@ -149,6 +149,7 @@ namespace TrenchBroom {
             void OnEditToggleVertexTool(wxCommandEvent& event);
 
             void OnEditCreateBrushFromConvexHull(wxCommandEvent& event);
+            void OnEditSubtractBrushes(wxCommandEvent& event);
 
             void OnEditReplaceTexture(wxCommandEvent& event);
 
@@ -198,6 +199,7 @@ namespace TrenchBroom {
             bool canHide() const;
             bool canIsolate() const;
             bool canCreateConvexHull() const;
+            bool canSubtractBrushes() const;
             bool canSnapVertices() const;
             bool canDecGridSize() const;
             bool canIncGridSize() const;

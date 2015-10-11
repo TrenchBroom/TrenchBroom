@@ -180,7 +180,8 @@ namespace TrenchBroom {
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
-            editMenu->addModifiableActionItem(CommandIds::Menu::EditCreateConvexHull, "Create Convex Hull", KeyboardShortcut('U', WXK_CONTROL));
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditCreateConvexHull, "Create Convex Hull", KeyboardShortcut('+', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditSubtractBrushes, "Subtract Brushes", KeyboardShortcut('-', WXK_CONTROL, WXK_SHIFT));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
             

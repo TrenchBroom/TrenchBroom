@@ -758,6 +758,44 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, textureLock()));
         }
         
+        bool MapDocument::subtractBrushes() {
+            Transaction transaction(this, "Subtract Brushes");
+            
+            const Model::BrushList subtrahends = selectedNodes().brushes();
+            if (subtrahends.empty())
+                return false;
+
+            deselectAll();
+            
+            Model::BrushList::const_iterator sIt, sEnd;
+            Model::BrushList::const_iterator mIt, mEnd;
+            for (sIt = subtrahends.begin(), sEnd = subtrahends.end(); sIt != sEnd; ++sIt) {
+                Model::Brush* subtrahend = *sIt;
+                select(subtrahend);
+                selectTouching(false);
+                
+                Model::BrushList minuends = selectedNodes().brushes();
+                deselectAll();
+                
+                if (!minuends.empty()) {
+                    Model::ParentChildrenMap toAdd;
+                    
+                    for (mIt = minuends.begin(), mEnd = minuends.end(); mIt != mEnd; ++mIt) {
+                        Model::Brush* minuend = *mIt;
+                        const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+                        VectorUtils::append(toAdd[minuend->parent()], result);
+                    }
+                    
+                    addNodes(toAdd);
+                    removeNodes(Model::NodeList(minuends.begin(), minuends.end()));
+                }
+            }
+            
+            removeNodes(Model::NodeList(subtrahends.begin(), subtrahends.end()));
+            
+            return true;
+        }
+
         bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
             return submit(ChangeEntityAttributesCommand::set(name, value));
         }
