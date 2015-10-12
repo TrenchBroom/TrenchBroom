@@ -2536,6 +2536,109 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
     ASSERT_TRUE(result.empty());
 }
 
+TEST(PolyhedronTest, subtractRhombusFromCuboid) {
+    
+    /*
+     ______
+     |    |
+     | /\ |
+     | \/ |
+     |____|
+     
+     */
+
+    Vec3d::List subtrahendVertices;
+    subtrahendVertices.push_back(Vec3d(-32.0,   0.0, +96.0));
+    subtrahendVertices.push_back(Vec3d(  0.0, -32.0, +96.0));
+    subtrahendVertices.push_back(Vec3d(+32.0,   0.0, +96.0));
+    subtrahendVertices.push_back(Vec3d(  0.0, +32.0, +96.0));
+    subtrahendVertices.push_back(Vec3d(-32.0,   0.0, -96.0));
+    subtrahendVertices.push_back(Vec3d(  0.0, -32.0, -96.0));
+    subtrahendVertices.push_back(Vec3d(+32.0,   0.0, -96.0));
+    subtrahendVertices.push_back(Vec3d(  0.0, +32.0, -96.0));
+    
+    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(8u, result.size());
+
+    Vec3d::List leftWedge;
+    leftWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
+    leftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
+    leftWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
+    leftWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
+    leftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
+    leftWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
+    
+    Vec3d::List bottomWedge;
+    bottomWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
+    bottomWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
+    bottomWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
+    bottomWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
+    bottomWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
+    bottomWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
+    
+    Vec3d::List rightWedge;
+    rightWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
+    rightWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
+    rightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
+    rightWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
+    rightWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
+    rightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
+    
+    Vec3d::List topWedge;
+    topWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
+    topWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
+    topWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
+    topWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
+    topWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
+    topWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
+
+    Vec3d::List bottomLeftWedge;
+    bottomLeftWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
+    bottomLeftWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
+    bottomLeftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
+    bottomLeftWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
+    bottomLeftWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
+    bottomLeftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
+
+    Vec3d::List bottomRightWedge;
+    bottomRightWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
+    bottomRightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
+    bottomRightWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
+    bottomRightWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
+    bottomRightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
+    bottomRightWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
+    
+    Vec3d::List topRightWedge;
+    topRightWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
+    topRightWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
+    topRightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
+    topRightWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
+    topRightWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
+    topRightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
+    
+    Vec3d::List topLeftWedge;
+    topLeftWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
+    topLeftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
+    topLeftWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
+    topLeftWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
+    topLeftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
+    topLeftWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
+    
+    ASSERT_TRUE(findAndRemove(result, leftWedge));
+    ASSERT_TRUE(findAndRemove(result, bottomWedge));
+    ASSERT_TRUE(findAndRemove(result, rightWedge));
+    ASSERT_TRUE(findAndRemove(result, topWedge));
+    ASSERT_TRUE(findAndRemove(result, bottomLeftWedge));
+    ASSERT_TRUE(findAndRemove(result, bottomRightWedge));
+    ASSERT_TRUE(findAndRemove(result, topRightWedge));
+    ASSERT_TRUE(findAndRemove(result, topLeftWedge));
+    
+    ASSERT_TRUE(result.empty());
+}
+
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }

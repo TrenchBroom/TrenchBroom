@@ -243,8 +243,11 @@ public: // Constructors
     Polyhedron(const BBox<T,3>& bounds);
     Polyhedron(const BBox<T,3>& bounds, Callback& callback);
     
-    Polyhedron(typename V::List positions);
-    Polyhedron(typename V::List positions, Callback& callback);
+    Polyhedron(const typename V::List& positions);
+    Polyhedron(const typename V::List& positions, Callback& callback);
+
+    Polyhedron(const typename V::Set& positions);
+    Polyhedron(const typename V::Set& positions, Callback& callback);
 
     Polyhedron(const Polyhedron<T,FP>& other);
 private: // Constructor helpers
@@ -425,11 +428,13 @@ public: // Subtraction
     SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
 private:
     typedef std::map<Vertex*, FaceSet> VertexFaceMap;
-    typedef std::map<Face*, typename V::Set> FaceVertexMap;
     
     bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
-    FaceVertexMap findFaceVertices(const Polyhedron& subtrahend, const Callback& callback) const;
-    VertexFaceMap findClosestFaces(const Polyhedron& subtrahend, const Callback& callback) const;
+    void buildInitialFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    void buildMissingFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    
+    typename V::Set findFaceVertices(Face* face, const VertexList& vertices, Math::PointStatus::Type skipStatus, const VertexFaceMap& vertexProximity, const Callback& callback) const;
+    VertexFaceMap findClosestFaces(const FaceList& faces, const VertexList& vertices, Math::PointStatus::Type skipStatus, const Callback& callback) const;
     T faceVertexDistance(const Face* face, const Vertex* vertex) const;
     
     void resolveIntersections(SubtractResult& result, const Callback& callback) const;

@@ -96,13 +96,24 @@ Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
 }
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(typename V::List positions) {
+Polyhedron<T,FP>::Polyhedron(const typename V::List& positions) {
     Callback c;
     addPoints(positions.begin(), positions.end(), c);
 }
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(typename V::List positions, Callback& callback) {
+Polyhedron<T,FP>::Polyhedron(const typename V::List& positions, Callback& callback) {
+    addPoints(positions.begin(), positions.end(), callback);
+}
+
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions) {
+    Callback c;
+    addPoints(positions.begin(), positions.end(), c);
+}
+
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
     addPoints(positions.begin(), positions.end(), callback);
 }
 
