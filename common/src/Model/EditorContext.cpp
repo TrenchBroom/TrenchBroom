@@ -190,6 +190,8 @@ namespace TrenchBroom {
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
                 return false;
+            if (!visible(brush->entity()))
+                return false;
             return brush->visible();
         }
         
