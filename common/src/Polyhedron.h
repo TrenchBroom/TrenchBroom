@@ -191,6 +191,7 @@ public:
         Face* previous() const;
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
+        void printBoundary() const;
         V origin() const;
         bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
@@ -270,6 +271,8 @@ public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
     bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    void printVertices() const;
     
     size_t edgeCount() const;
     const EdgeList& edges() const;
@@ -427,17 +430,14 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
 private:
-    typedef std::map<Vertex*, FaceSet> VertexFaceMap;
+    class ClosestVertices;
     
     bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
-    void buildInitialFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
-    void buildMissingFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    void buildInitialFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const;
+    void buildMissingFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const;
+    bool isMissingFragment(const Face* face, const SubtractResult& result) const;
     
-    typename V::Set findFaceVertices(Face* face, const VertexList& vertices, Math::PointStatus::Type skipStatus, const VertexFaceMap& vertexProximity, const Callback& callback) const;
-    VertexFaceMap findClosestFaces(const FaceList& faces, const VertexList& vertices, Math::PointStatus::Type skipStatus, const Callback& callback) const;
-    T faceVertexDistance(const Face* face, const Vertex* vertex) const;
-    
-    void resolveIntersections(SubtractResult& result, const Callback& callback) const;
+    void resolveIntersections(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
 public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;

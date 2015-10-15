@@ -755,6 +755,19 @@ namespace SetUtils {
     }
     
     template <typename T, typename C>
+    void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
+        result.insert(lhs.begin(), lhs.end());
+        result.insert(rhs.begin(), rhs.end());
+    }
+
+    template <typename T, typename C>
+    std::set<T, C> merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result;
+        merge(lhs, rhs, result);
+        return result;
+    }
+    
+    template <typename T, typename C>
     void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T, C> >(result, result.end()));
     }

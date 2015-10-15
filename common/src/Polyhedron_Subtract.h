@@ -32,13 +32,64 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
         return SubtractResult(0);
     
     SubtractResult result;
+    const ClosestVertices closestVertices(m_vertices, subtrahend.vertices());
     
-    buildInitialFragments(subtrahend, result, callback);
-    buildMissingFragments(subtrahend, result, callback);
-    resolveIntersections(result, callback);
+    buildInitialFragments(subtrahend, closestVertices, result, callback);
+    resolveIntersections(subtrahend, result, callback);
+    buildMissingFragments(subtrahend, closestVertices, result, callback);
     
     return result;
 }
+
+template <typename T, typename FP>
+class Polyhedron<T,FP>::ClosestVertices {
+private:
+    typedef std::map<Vertex*, VertexSet> ClosestVertexMap;
+    ClosestVertexMap m_closestVertices;
+public:
+    ClosestVertices(const VertexList& vertexList1, const VertexList& vertexList2) {
+        add(vertexList1, vertexList2);
+        add(vertexList2, vertexList1);
+    }
+    
+    const VertexSet& get(Vertex* vertex) const {
+        static const VertexSet EmptySet = VertexSet();
+        typename ClosestVertexMap::const_iterator it = m_closestVertices.find(vertex);
+        if (it == m_closestVertices.end())
+            return EmptySet;
+        return it->second;
+    }
+private:
+    void add(const VertexList& vertexList1, const VertexList& vertexList2) {
+        Vertex* first1 = vertexList1.front();
+        Vertex* cur1 = first1;
+        do {
+            VertexSet closestVertices;
+            T closestDistance = std::numeric_limits<T>::max();
+            
+            Vertex* first2 = vertexList2.front();
+            Vertex* cur2 = first2;
+            do {
+                const T distance = cur1->position().squaredDistanceTo(cur2->position());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestVertices.clear();
+                    closestVertices.insert(cur2);
+                } else if (distance == closestDistance) {
+                    closestVertices.insert(cur2);
+                }
+                
+                cur2 = cur2->next();
+            } while (cur2 != first2);
+            
+            typename VertexSet::iterator it, end;
+            for (it = closestVertices.begin(), end = closestVertices.end(); it != end; ++it)
+                m_closestVertices[*it].insert(cur1);
+            
+            cur1 = cur1->next();
+        } while (cur1 != first1);
+    }
+};
 
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const {
@@ -54,116 +105,107 @@ bool Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& ca
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::buildInitialFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
-    const VertexFaceMap vertexProximity = findClosestFaces(subtrahend.faces(), m_vertices, Math::PointStatus::PSBelow, callback);
+void Polyhedron<T,FP>::buildInitialFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const {
     
     Face* firstFace = subtrahend.faces().front();
     Face* currentFace = firstFace;
     do {
-        const typename V::Set vertices = findFaceVertices(currentFace, m_vertices, Math::PointStatus::PSBelow, vertexProximity, callback);
-        if (!vertices.empty())
-            result.push_back(Polyhedron(vertices));
+        const Plane<T,3> plane = callback.plane(currentFace);
+        bool allOnPlane = true;
+        typename V::Set allVertices;
+        
+        const HalfEdge* firstEdge = currentFace->boundary().front();
+        const HalfEdge* currentEdge = firstEdge;
+        do {
+            allVertices.insert(currentEdge->origin()->position());
+            
+            const VertexSet& closest = closestVertices.get(currentEdge->origin());
+            
+            typename VertexSet::const_iterator it, end;
+            for (it = closest.begin(), end = closest.end(); it != end; ++it) {
+                Vertex* vertex = *it;
+                const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
+                if (status != Math::PointStatus::PSBelow) {
+                    allVertices.insert(vertex->position());
+                    if (status == Math::PointStatus::PSAbove)
+                        allOnPlane = false;
+                }
+            }
+            
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+
+        if (!allOnPlane)
+            result.push_back(Polyhedron(allVertices));
+
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::buildMissingFragments(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
+void Polyhedron<T,FP>::buildMissingFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const {
 
-}
-
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::V::Set Polyhedron<T,FP>::findFaceVertices(Face* face, const VertexList& vertices, Math::PointStatus::Type skipStatus, const VertexFaceMap& vertexProximity, const Callback& callback) const {
-    const Plane3 plane = callback.plane(face);
-    
-    bool hasVertexAbove = false;
-    typename V::Set allVertices;
-    Vertex* firstVertex = vertices.front();
-    Vertex* currentVertex = firstVertex;
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
     do {
-        typename VertexFaceMap::const_iterator it = vertexProximity.find(currentVertex);
-        assert(it != vertexProximity.end());
-        
-        const FaceSet& closestFaces = it->second;
-        if (closestFaces.count(face) > 0) {
-            const Math::PointStatus::Type status = plane.pointStatus(currentVertex->position());
-            if (status != skipStatus) {
-                if (status != Math::PointStatus::PSInside)
-                    hasVertexAbove = true;
-                allVertices.insert(currentVertex->position());
-            }
-        }
-        currentVertex = currentVertex->next();
-    } while (currentVertex != firstVertex);
-    
-    if (!hasVertexAbove)
-        return V::EmptySet;
-    
-    const HalfEdge* firstEdge = face->boundary().front();
-    const HalfEdge* currentEdge = firstEdge;
-    do {
-        allVertices.insert(currentEdge->origin()->position());
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-    
-    return allVertices;
-}
+        if (isMissingFragment(currentFace, result)) {
+            const Plane<T,3> plane = callback.plane(currentFace);
+            bool allOnPlane = true;
+            typename V::Set allVertices;
 
+            const HalfEdge* firstEdge = currentFace->boundary().front();
+            const HalfEdge* currentEdge = firstEdge;
+            
+            do {
+                allVertices.insert(currentEdge->origin()->position());
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::VertexFaceMap Polyhedron<T,FP>::findClosestFaces(const FaceList& faces, const VertexList& vertices, const Math::PointStatus::Type skipStatus, const Callback& callback) const {
-    VertexFaceMap result;
-    Vertex* firstVertex = vertices.front();
-    Vertex* currentVertex = firstVertex;
-    do {
-        T closestDistance = std::numeric_limits<T>::max();
-        FaceSet closestFaces;
-        
-        Face* firstFace = faces.front();
-        Face* currentFace = firstFace;
-        do {
-            const Plane3 plane = callback.plane(currentFace);
-            if (plane.pointStatus(currentVertex->position()) != skipStatus) {
-                const T distance = faceVertexDistance(currentFace, currentVertex);
-                if (Math::lt(distance, closestDistance)) {
-                    closestDistance = distance;
-                    closestFaces.clear();
-                    closestFaces.insert(currentFace);
-                } else if (Math::eq(distance, closestDistance)) {
-                    closestFaces.insert(currentFace);
+                const VertexSet& lastClosest = closestVertices.get(currentEdge->previous()->origin());
+                const VertexSet& currentClosest = closestVertices.get(currentEdge->origin());
+                VertexSet toAdd;
+                SetUtils::intersection(lastClosest, currentClosest, toAdd);
+                
+//                if (toAdd.empty())
+//                    SetUtils::merge(lastClosest, currentClosest, toAdd);
+                
+                typename VertexSet::const_iterator it, end;
+                for (it = toAdd.begin(), end = toAdd.end(); it != end; ++it) {
+                    Vertex* vertex = *it;
+                    const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
+                    if (status != Math::PointStatus::PSAbove) {
+                        allVertices.insert(vertex->position());
+                        allOnPlane &= (status == Math::PointStatus::PSBelow);
+                    }
                 }
-            }
-            currentFace = currentFace->next();
-        } while (currentFace != firstFace);
-        
-        result.insert(std::make_pair(currentVertex, closestFaces));
-        currentVertex = currentVertex->next();
-    } while (currentVertex != firstVertex);
-    
-    return result;
+                
+                currentEdge = currentEdge->next();
+            } while (currentEdge != firstEdge);
+            
+            if (!allOnPlane)
+                result.push_back(Polyhedron(allVertices));
+        }
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
 }
 
 template <typename T, typename FP>
-T Polyhedron<T,FP>::faceVertexDistance(const Face* face, const Vertex* vertex) const {
-    T closestDistance = std::numeric_limits<T>::max();
-    
-    const HalfEdge* firstEdge = face->boundary().front();
-    const HalfEdge* currentEdge = firstEdge;
-    do {
-        const Vertex* currentVertex = currentEdge->origin();
-        const T distance = currentVertex->position().squaredDistanceTo(vertex->position());
-        closestDistance = Math::min(distance, closestDistance);
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-    return closestDistance;
+bool Polyhedron<T,FP>::isMissingFragment(const Face* face, const SubtractResult& result) const {
+    const typename V::List vertices = V::asList(face->boundary().begin(), face->boundary().end(), GetVertexPosition());
+    typename SubtractResult::const_iterator it, end;
+    for (it = result.begin(), end = result.end(); it != end; ++it) {
+        const Polyhedron& polyhedron = *it;
+        if (polyhedron.hasVertices(vertices))
+            return false;
+    }
+    return true;
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::resolveIntersections(SubtractResult& result, const Callback& callback) const {
-    typename SubtractResult::iterator cur = result.begin();
+void Polyhedron<T,FP>::resolveIntersections(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
+    typename SubtractResult::iterator cur, it, end;
+    cur = result.begin();
     while (cur != result.end()) {
-        typename SubtractResult::iterator it = cur;
-        typename SubtractResult::iterator end = result.end();
+        it = cur;
+        end = result.end();
         
         bool increment = true;
         while (++it != end) {
@@ -184,6 +226,19 @@ void Polyhedron<T,FP>::resolveIntersections(SubtractResult& result, const Callba
         }
         if (increment)
             ++cur;
+    }
+
+    it = result.begin();
+    end = result.end();
+    while (it != end) {
+        Polyhedron intersection = it->intersect(subtrahend, callback);
+        if (!intersection.empty()) {
+            const SubtractResult firstResult = it->subtract(intersection, callback);
+            result.insert(result.end(), firstResult.begin(), firstResult.end());
+            it = result.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 

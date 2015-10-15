@@ -379,6 +379,27 @@ bool Polyhedron<T,FP>::hasVertex(const V& position, const T epsilon) const {
 }
 
 template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasVertices(const typename V::List& positions, const T epsilon) const {
+    typename V::List::const_iterator it, end;
+    for (it = positions.begin(), end = positions.end(); it != end; ++it) {
+        if (!hasVertex(*it, epsilon))
+            return false;
+    }
+    return true;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::printVertices() const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        std::cout << currentVertex->position().asString() << std::endl;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+}
+
+
+template <typename T, typename FP>
 size_t Polyhedron<T,FP>::edgeCount() const {
     return m_edges.size();
 }

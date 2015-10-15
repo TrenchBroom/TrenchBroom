@@ -81,6 +81,16 @@ const typename Polyhedron<T,FP>::HalfEdgeList& Polyhedron<T,FP>::Face::boundary(
 }
 
 template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::printBoundary() const {
+    const HalfEdge* firstEdge = m_boundary.front();
+    const HalfEdge* currentEdge = firstEdge;
+    do {
+        std::cout << currentEdge->asString() << std::endl;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+}
+
+template <typename T, typename FP>
 typename Polyhedron<T,FP>::V Polyhedron<T,FP>::Face::origin() const {
     const HalfEdge* edge = *m_boundary.begin();
     return edge->origin()->position();
