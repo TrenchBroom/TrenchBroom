@@ -42,6 +42,7 @@ namespace TrenchBroom {
             wxCheckBox* m_invertPanHAxisCheckBox;
             wxCheckBox* m_invertPanVAxisCheckBox;
             wxSlider* m_moveSpeedSlider;
+            wxCheckBox* m_invertMouseWheelCheckBox;
             wxCheckBox* m_enableAltMoveCheckBox;
             wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             
             void OnMoveSpeedChanged(wxScrollEvent& event);
             
+            void OnInvertMouseWheelChanged(wxCommandEvent& event);
             void OnEnableAltMoveChanged(wxCommandEvent& event);
             void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
             void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);

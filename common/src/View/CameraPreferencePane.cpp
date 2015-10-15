@@ -105,6 +105,15 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveSpeed, value);
         }
         
+        void CameraPreferencePane::OnInvertMouseWheelChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            const bool value = event.GetInt() != 0;
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::CameraMouseWheelInvert, value);
+        }
+
         void CameraPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -251,6 +260,7 @@ namespace TrenchBroom {
             
             wxStaticText* moveSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
             m_moveSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            m_invertMouseWheelCheckBox = new wxCheckBox(box, wxID_ANY, "Invert mouse wheel");
             m_enableAltMoveCheckBox = new wxCheckBox(box, wxID_ANY, "Alt+MMB drag to move camera");
             m_invertAltMoveAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Z axis in Alt+MMB drag");
             m_moveInCursorDirCheckBox = new wxCheckBox(box, wxID_ANY, "Move camera towards cursor");
@@ -301,24 +311,25 @@ namespace TrenchBroom {
             sizer->Add(movePrefsHeader,             wxGBPosition(10, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             sizer->Add(moveSpeedLabel,              wxGBPosition(11, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_moveSpeedSlider,           wxGBPosition(11, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_enableAltMoveCheckBox,     wxGBPosition(12, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_invertAltMoveAxisCheckBox, wxGBPosition(13, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_moveInCursorDirCheckBox,   wxGBPosition(14, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(new BorderLine(box),         wxGBPosition(15, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(m_invertMouseWheelCheckBox,  wxGBPosition(12, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(m_enableAltMoveCheckBox,     wxGBPosition(13, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(m_invertAltMoveAxisCheckBox, wxGBPosition(14, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(m_moveInCursorDirCheckBox,   wxGBPosition(15, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(new BorderLine(box),         wxGBPosition(16, 0), wxGBSpan(1,2), LineFlags, LMargin);
             
-            sizer->Add(flyPrefsHeader,              wxGBPosition(16, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(flySpeedLabel,               wxGBPosition(17, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_flySpeedSlider,            wxGBPosition(17, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_invertFlyVAxisCheckBox,    wxGBPosition(18, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(flyPrefsHeader,              wxGBPosition(17, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(flySpeedLabel,               wxGBPosition(18, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_flySpeedSlider,            wxGBPosition(18, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(m_invertFlyVAxisCheckBox,    wxGBPosition(19, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             
-            sizer->Add(forwardKeyLabel,             wxGBPosition(19, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_forwardKeyEditor,          wxGBPosition(19, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(backwardKeyLabel,            wxGBPosition(20, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_backwardKeyEditor,         wxGBPosition(20, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(leftKeyLabel,                wxGBPosition(21, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_leftKeyEditor,             wxGBPosition(21, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(rightKeyLabel,               wxGBPosition(22, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_rightKeyEditor,            wxGBPosition(22, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->Add(forwardKeyLabel,             wxGBPosition(20, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_forwardKeyEditor,          wxGBPosition(20, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->Add(backwardKeyLabel,            wxGBPosition(21, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_backwardKeyEditor,         wxGBPosition(21, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->Add(leftKeyLabel,                wxGBPosition(22, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_leftKeyEditor,             wxGBPosition(22, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->Add(rightKeyLabel,               wxGBPosition(23, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_rightKeyEditor,            wxGBPosition(23, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
@@ -331,6 +342,7 @@ namespace TrenchBroom {
             m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertLookVAxisChanged, this);
             m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertPanHAxisChanged, this);
             m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertPanVAxisChanged, this);
+            m_invertMouseWheelCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertMouseWheelChanged, this);
             m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnEnableAltMoveChanged, this);
             m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnMoveCameraInCursorDirChanged, this);
             m_invertFlyVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertFlyVAxisChanged, this);
@@ -361,6 +373,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraPanInvertV);
             
             prefs.resetToDefault(Preferences::CameraMoveSpeed);
+            prefs.resetToDefault(Preferences::CameraMouseWheelInvert);
             prefs.resetToDefault(Preferences::CameraEnableAltMove);
             prefs.resetToDefault(Preferences::CameraAltMoveInvert);
             prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
@@ -387,6 +400,7 @@ namespace TrenchBroom {
             m_invertPanVAxisCheckBox->SetValue(prefs.get(Preferences::CameraPanInvertV));
             
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
+            m_invertMouseWheelCheckBox->SetValue(prefs.get(Preferences::CameraMouseWheelInvert));
             m_enableAltMoveCheckBox->SetValue(prefs.get(Preferences::CameraEnableAltMove));
             m_invertAltMoveAxisCheckBox->SetValue(prefs.get(Preferences::CameraAltMoveInvert));
             m_moveInCursorDirCheckBox->SetValue(prefs.get(Preferences::CameraMoveInCursorDir));
