@@ -297,6 +297,7 @@ public: // Accessors
     FaceHit pickFace(const Ray<T,3>& ray) const;
 private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    Vertex* findClosestVertex(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
@@ -357,6 +358,8 @@ private:
     T computeNextMergePointForIncidentNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
     T computeNextMergePointForOppositeNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
     T computeNextMergePointForPlane(const V& origin, const V& destination, const Plane<T,3>& plane, T lastFrac) const;
+    
+    bool denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const;
     
     void mergeVertices(HalfEdge* connectingEdge, Callback& callback);
 
@@ -430,14 +433,14 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
 private:
-    class ClosestVertices;
+    typedef std::map<Vec<T,3>, Vec<T,3> > ClosestVertices;
     
     bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
-    void buildInitialFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const;
-    void buildMissingFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const;
-    bool isMissingFragment(const Face* face, const SubtractResult& result) const;
-    
-    void resolveIntersections(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    void chopMinuend(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    void removeSubtrahend(const Polyhedron& subtrahend, SubtractResult& result) const;
+    ClosestVertices findClosestVertices(const SubtractResult& result) const;
+    void simplifySubtractResult(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    Vertex* findMovableVertex(const Polyhedron& fragment, const typename V::Set& exclude) const;
 public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;

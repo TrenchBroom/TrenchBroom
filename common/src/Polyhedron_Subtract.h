@@ -32,64 +32,14 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(Polyhedron 
         return SubtractResult(0);
     
     SubtractResult result;
-    const ClosestVertices closestVertices(m_vertices, subtrahend.vertices());
+    result.push_back(*this);
     
-    buildInitialFragments(subtrahend, closestVertices, result, callback);
-    resolveIntersections(subtrahend, result, callback);
-    buildMissingFragments(subtrahend, closestVertices, result, callback);
+    chopMinuend(subtrahend, result, callback);
+    removeSubtrahend(subtrahend, result);
+    simplifySubtractResult(subtrahend, result, callback);
     
     return result;
 }
-
-template <typename T, typename FP>
-class Polyhedron<T,FP>::ClosestVertices {
-private:
-    typedef std::map<Vertex*, VertexSet> ClosestVertexMap;
-    ClosestVertexMap m_closestVertices;
-public:
-    ClosestVertices(const VertexList& vertexList1, const VertexList& vertexList2) {
-        add(vertexList1, vertexList2);
-        add(vertexList2, vertexList1);
-    }
-    
-    const VertexSet& get(Vertex* vertex) const {
-        static const VertexSet EmptySet = VertexSet();
-        typename ClosestVertexMap::const_iterator it = m_closestVertices.find(vertex);
-        if (it == m_closestVertices.end())
-            return EmptySet;
-        return it->second;
-    }
-private:
-    void add(const VertexList& vertexList1, const VertexList& vertexList2) {
-        Vertex* first1 = vertexList1.front();
-        Vertex* cur1 = first1;
-        do {
-            VertexSet closestVertices;
-            T closestDistance = std::numeric_limits<T>::max();
-            
-            Vertex* first2 = vertexList2.front();
-            Vertex* cur2 = first2;
-            do {
-                const T distance = cur1->position().squaredDistanceTo(cur2->position());
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestVertices.clear();
-                    closestVertices.insert(cur2);
-                } else if (distance == closestDistance) {
-                    closestVertices.insert(cur2);
-                }
-                
-                cur2 = cur2->next();
-            } while (cur2 != first2);
-            
-            typename VertexSet::iterator it, end;
-            for (it = closestVertices.begin(), end = closestVertices.end(); it != end; ++it)
-                m_closestVertices[*it].insert(cur1);
-            
-            cur1 = cur1->next();
-        } while (cur1 != first1);
-    }
-};
 
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const {
@@ -105,141 +55,110 @@ bool Polyhedron<T,FP>::clipSubtrahend(Polyhedron& subtrahend, const Callback& ca
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::buildInitialFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const {
-    
-    Face* firstFace = subtrahend.faces().front();
-    Face* currentFace = firstFace;
+void Polyhedron<T,FP>::chopMinuend(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
+    const Face* firstFace = subtrahend.faces().front();
+    const Face* currentFace = firstFace;
     do {
         const Plane<T,3> plane = callback.plane(currentFace);
-        bool allOnPlane = true;
-        typename V::Set allVertices;
         
-        const HalfEdge* firstEdge = currentFace->boundary().front();
-        const HalfEdge* currentEdge = firstEdge;
-        do {
-            allVertices.insert(currentEdge->origin()->position());
-            
-            const VertexSet& closest = closestVertices.get(currentEdge->origin());
-            
-            typename VertexSet::const_iterator it, end;
-            for (it = closest.begin(), end = closest.end(); it != end; ++it) {
-                Vertex* vertex = *it;
-                const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
-                if (status != Math::PointStatus::PSBelow) {
-                    allVertices.insert(vertex->position());
-                    if (status == Math::PointStatus::PSAbove)
-                        allOnPlane = false;
-                }
+        typename SubtractResult::iterator it, end;
+        for (it = result.begin(), end = result.end(); it != end; ++it) {
+            Polyhedron front = *it;
+            const ClipResult clipResult = front.clip(plane);
+            if (clipResult.success()) {
+                it->clip(plane.flipped());
+                it = result.insert(it, front);
+                ++it;
             }
-            
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
-
-        if (!allOnPlane)
-            result.push_back(Polyhedron(allVertices));
-
-        currentFace = currentFace->next();
-    } while (currentFace != firstFace);
-}
-
-template <typename T, typename FP>
-void Polyhedron<T,FP>::buildMissingFragments(const Polyhedron& subtrahend, const ClosestVertices& closestVertices, SubtractResult& result, const Callback& callback) const {
-
-    Face* firstFace = m_faces.front();
-    Face* currentFace = firstFace;
-    do {
-        if (isMissingFragment(currentFace, result)) {
-            const Plane<T,3> plane = callback.plane(currentFace);
-            bool allOnPlane = true;
-            typename V::Set allVertices;
-
-            const HalfEdge* firstEdge = currentFace->boundary().front();
-            const HalfEdge* currentEdge = firstEdge;
-            
-            do {
-                allVertices.insert(currentEdge->origin()->position());
-
-                const VertexSet& lastClosest = closestVertices.get(currentEdge->previous()->origin());
-                const VertexSet& currentClosest = closestVertices.get(currentEdge->origin());
-                VertexSet toAdd;
-                SetUtils::intersection(lastClosest, currentClosest, toAdd);
-                
-//                if (toAdd.empty())
-//                    SetUtils::merge(lastClosest, currentClosest, toAdd);
-                
-                typename VertexSet::const_iterator it, end;
-                for (it = toAdd.begin(), end = toAdd.end(); it != end; ++it) {
-                    Vertex* vertex = *it;
-                    const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
-                    if (status != Math::PointStatus::PSAbove) {
-                        allVertices.insert(vertex->position());
-                        allOnPlane &= (status == Math::PointStatus::PSBelow);
-                    }
-                }
-                
-                currentEdge = currentEdge->next();
-            } while (currentEdge != firstEdge);
-            
-            if (!allOnPlane)
-                result.push_back(Polyhedron(allVertices));
         }
+        
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
 }
 
 template <typename T, typename FP>
-bool Polyhedron<T,FP>::isMissingFragment(const Face* face, const SubtractResult& result) const {
-    const typename V::List vertices = V::asList(face->boundary().begin(), face->boundary().end(), GetVertexPosition());
+void Polyhedron<T,FP>::removeSubtrahend(const Polyhedron& subtrahend, SubtractResult& result) const {
+    const typename V::List vertices = V::asList(subtrahend.vertices().begin(), subtrahend.vertices().end(), GetVertexPosition());
+    
+    typename SubtractResult::iterator it, end;
+    for (it = result.begin(), end = result.end(); it != end; ++it) {
+        const Polyhedron& fragment = *it;
+        if (fragment.hasVertices(vertices)) {
+            result.erase(it);
+            break;
+        }
+    }
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::ClosestVertices Polyhedron<T,FP>::findClosestVertices(const SubtractResult& result) const {
+    ClosestVertices closestVertices;
+    
     typename SubtractResult::const_iterator it, end;
     for (it = result.begin(), end = result.end(); it != end; ++it) {
-        const Polyhedron& polyhedron = *it;
-        if (polyhedron.hasVertices(vertices))
-            return false;
+        const Polyhedron& fragment = *it;
+        const Vertex* firstVertex = fragment.vertices().front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            if (closestVertices.count(currentVertex->position()) == 0) {
+                const Vertex* closestMinuendVertex = findClosestVertex(currentVertex->position());
+                closestVertices[currentVertex->position()] = closestMinuendVertex->position();
+            }
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
     }
-    return true;
+    
+    return closestVertices;
 }
 
 template <typename T, typename FP>
-void Polyhedron<T,FP>::resolveIntersections(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
-    typename SubtractResult::iterator cur, it, end;
-    cur = result.begin();
-    while (cur != result.end()) {
-        it = cur;
-        end = result.end();
+void Polyhedron<T,FP>::simplifySubtractResult(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const {
+    typename V::Set exclude;
+    SetUtils::makeSet(V::asList(subtrahend.vertices().begin(), subtrahend.vertices().end(), GetVertexPosition()), exclude);
+    SetUtils::makeSet(V::asList(m_vertices.begin(), m_vertices.end(), GetVertexPosition()), exclude);
+    
+    const ClosestVertices closest = findClosestVertices(result);
+    
+    typename SubtractResult::iterator it = result.begin();
+    typename SubtractResult::iterator end = result.end();
+    while (it != end) {
+        Polyhedron& fragment = *it;
+        Vertex* currentVertex;
         
-        bool increment = true;
-        while (++it != end) {
-            Polyhedron intersection = cur->intersect(*it, callback);
-            if (!intersection.empty()) {
-                const SubtractResult firstResult = cur->subtract(intersection, callback);
-                const SubtractResult secondResult = it->subtract(intersection, callback);
-
-                result.insert(result.end(), firstResult.begin(), firstResult.end());
-                result.insert(result.end(), secondResult.begin(), secondResult.end());
-                result.push_back(intersection);
-                
-                result.erase(it);
-                cur = result.erase(cur);
-                increment = false;
+        bool incrementIt = true;
+        while ((currentVertex = findMovableVertex(fragment, exclude)) != NULL) {
+            const V& currentPosition = currentVertex->position();
+            typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
+            assert(clIt != closest.end());
+            
+            const V& targetPosition = clIt->second;
+            const V delta = targetPosition - currentPosition;
+            const typename V::List positions(1, currentPosition);
+            const MoveVerticesResult moveResult = fragment.moveVertices(positions, delta, true);
+            if (moveResult.hasUnchangedVertices() || moveResult.hasUnknownVertices() || fragment.faceCount() < 4) {
+                it = result.erase(it);
+                incrementIt = false;
                 break;
             }
         }
-        if (increment)
-            ++cur;
-    }
-
-    it = result.begin();
-    end = result.end();
-    while (it != end) {
-        Polyhedron intersection = it->intersect(subtrahend, callback);
-        if (!intersection.empty()) {
-            const SubtractResult firstResult = it->subtract(intersection, callback);
-            result.insert(result.end(), firstResult.begin(), firstResult.end());
-            it = result.erase(it);
-        } else {
+        
+        if (incrementIt)
             ++it;
-        }
     }
 }
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findMovableVertex(const Polyhedron& fragment, const typename V::Set& exclude) const {
+    
+    Vertex* firstVertex = fragment.vertices().front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        if (exclude.count(currentVertex->position()) == 0)
+            return currentVertex;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+    return NULL;
+}
+
 
 #endif /* Polyhedron_Subtract_h */

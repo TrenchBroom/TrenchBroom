@@ -277,7 +277,7 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::moveEdgeVertex(Ver
     const V originalPosition(vertex->position());
     Edge* edge = *m_edges.begin();
     Vertex* other = edge->otherVertex(vertex);
-    if (other->position() == destination) {
+    if (other->position().equals(destination)) {
         if (!allowMergeIncidentVertex)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
         
@@ -300,10 +300,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolygonVertex(
         return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
     
     Vertex* occupant = findVertexByPosition(destination);
-    if (occupant != NULL) {
+    if (occupant != NULL && occupant != vertex) {
         HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
-        if (connectingEdge == NULL)
-            connectingEdge = occupant->findConnectingEdge(vertex);
         if (!allowMergeIncidentVertex || connectingEdge == NULL)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
 
@@ -353,8 +351,11 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
         lastFrac = curFrac;
         
         const V newPosition = originalPosition + lastFrac * (destination - originalPosition);
+        if (denaturedPolyhedron(vertex, newPosition))
+            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+        
         Vertex* occupant = findVertexByPosition(newPosition);
-        if (occupant != NULL) {
+        if (occupant != NULL && occupant != vertex) {
             HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
             if (!allowMergeIncidentVertex || connectingEdge == NULL) {
                 mergeIncidentFaces(vertex, callback);
@@ -565,6 +566,39 @@ T Polyhedron<T,FP>::computeNextMergePointForPlane(const V& origin, const V& dest
         }
     }
     return 1.0;
+}
+
+// Checks if all vertices but the given one lie on a plane and the given new position lies on that plane or on
+// another side as the given vertex currently does.
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    
+    size_t count = 0;
+    V points[3];
+    Plane<T,3> plane;
+    bool allOnPlane = true;
+    do {
+        if (count < 3) {
+            if (currentVertex != vertex)
+                points[count++] = currentVertex->position();
+            if (count == 3)
+                setPlanePoints(plane, points);
+        } else {
+            if (currentVertex != vertex) {
+                const Math::PointStatus::Type status = plane.pointStatus(currentVertex->position());
+                if (status != Math::PointStatus::PSInside)
+                    allOnPlane = false;
+            }
+        }
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex && allOnPlane);
+    
+    if (!allOnPlane)
+        return false;
+    
+    return plane.pointStatus(vertex->position()) != plane.pointStatus(newPosition);
 }
 
 // Merges the origin and destination vertex of the given edge into one vertex, thereby

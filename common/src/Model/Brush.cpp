@@ -181,9 +181,16 @@ namespace TrenchBroom {
                 BrushFace* clonedFace = originalFace->clone();
                 cloneGeometry->setPayload(clonedFace);
                 clonedFace->setGeometry(cloneGeometry);
+                
+                originalFace->invalidate();
+                clonedFace->invalidate();
             }
             
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
+                BrushFace* remainingFace = remainingGeometry->payload();
+                assert(remainingFace != NULL);
+                remainingFace->invalidate();
+                
                 BrushFace* faceToDelete = geometryToDelete->payload();
                 assert(faceToDelete != NULL);
                 assert(!faceToDelete->selected());
