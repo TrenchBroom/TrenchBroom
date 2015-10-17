@@ -550,12 +550,50 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::findFaceByPositions(const typ
 }
 
 template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasVertex(const Vertex* vertex) const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        if (currentVertex == vertex)
+            return true;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+    return false;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasEdge(const Edge* edge) const {
+    const Edge* firstEdge = m_edges.front();
+    const Edge* currentEdge = firstEdge;
+    do {
+        if (currentEdge == edge)
+            return true;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return false;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasFace(const Face* face) const {
+    const Face* firstFace = m_faces.front();
+    const Face* currentFace = firstFace;
+    do {
+        if (currentFace == face)
+            return true;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return false;
+}
+
+template <typename T, typename FP>
 bool Polyhedron<T,FP>::checkInvariant() const {
     if (!checkConvex())
         return false;
     if (polyhedron() && !checkClosed())
         return false;
     if (polyhedron() && !checkNoDegenerateFaces())
+        return false;
+    if (polyhedron() && !checkVertexLeavingEdges())
         return false;
     /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
@@ -632,6 +670,28 @@ bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
                 return false;
         }
     }
+    return true;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::checkVertexLeavingEdges() const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        const HalfEdge* leaving = currentVertex->leaving();
+        if (leaving == NULL)
+            return false;
+        if (leaving->origin() != currentVertex)
+            return false;
+        const Edge* edge = leaving->edge();
+        if (edge == NULL)
+            return false;
+        if (!edge->fullySpecified())
+            return false;
+        if (!hasEdge(edge))
+            return false;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
     return true;
 }
 

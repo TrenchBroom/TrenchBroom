@@ -302,6 +302,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolygonVertex(
     Vertex* occupant = findVertexByPosition(destination);
     if (occupant != NULL && occupant != vertex) {
         HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
+        if (connectingEdge == NULL)
+            connectingEdge = occupant->findConnectingEdge(vertex);
         if (!allowMergeIncidentVertex || connectingEdge == NULL)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
 
@@ -365,6 +367,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
             }
             mergeVertices(connectingEdge, callback);
+            assert(!hasVertex(occupant));
+            assert(hasVertex(vertex));
         }
         
         vertex->setPosition(newPosition);
@@ -442,7 +446,7 @@ void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, Callback& callba
 /*
  Splits the given face into triangles by adding new edges from the origin of the given edge
  to every other non-adjacent vertex in the given face.
- ____     ___
+  ____       ___
  |    |     |   /|
  |    |     |  / |
  |    |     | /  |
@@ -607,17 +611,27 @@ bool Polyhedron<T,FP>::denaturedPolyhedron(const Vertex* vertex, const V& newPos
 // Assumes that these incident faces are triangles.
 template <typename T, typename FP>
 void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, Callback& callback) {
-    HalfEdge* oppositeEdge = connectingEdge->twin();
+    HalfEdge* opposingEdge = connectingEdge->twin();
     
     Vertex* origin = connectingEdge->origin();
-    Vertex* destination = oppositeEdge->origin();
+    Vertex* destination = opposingEdge->origin();
     
     // First we merge the triangles that will become invalid by the merge to their neighbours.
     // We assume they are both triangles.
     assert(connectingEdge->face()->vertexCount() == 3);
-    assert(oppositeEdge->face()->vertexCount() == 3);
-    mergeNeighbours(connectingEdge->previous(), callback);
-    mergeNeighbours(oppositeEdge->next(), callback);
+    assert(opposingEdge->face()->vertexCount() == 3);
+    
+    // We choose two edges of the faces incident to the connecting edge so that these edges do
+    // not share a face! Otherwise the destination vertex would already get deleted during
+    // the neighbour merge, and the resulting polyhedron becomes invalid.
+    if (connectingEdge->previous()->twin()->face() != opposingEdge->next()->twin()->face()) {
+        mergeNeighbours(connectingEdge->previous(), callback);
+        mergeNeighbours(opposingEdge->next(), callback);
+    } else {
+        mergeNeighbours(connectingEdge->next(), callback);
+        mergeNeighbours(opposingEdge->previous(), callback);
+    }
+    
     
     // Now we delete the destination of the connecting edge.
     // First we have to change the origin of all edges originating
@@ -634,18 +648,20 @@ void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, Callback& callbac
         curEdge = next;
     } while (curEdge != firstEdge);
     
+    origin->setLeaving(connectingEdge->previous()->twin());
+    
     Face* leftFace = connectingEdge->face();
     leftFace->removeFromBoundary(connectingEdge);
     
-    Face* rightFace = oppositeEdge->face();
-    rightFace->removeFromBoundary(oppositeEdge);
+    Face* rightFace = opposingEdge->face();
+    rightFace->removeFromBoundary(opposingEdge);
     
     Edge* edge = connectingEdge->edge();
     m_edges.remove(edge);
     delete edge;
     
     delete connectingEdge;
-    delete oppositeEdge;
+    delete opposingEdge;
     
     m_vertices.remove(destination);
     delete destination;
@@ -922,7 +938,7 @@ void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback
         HalfEdge* next = cur->next();
         HalfEdge* twin = cur->twin();
         Vertex* origin = cur->origin();
-        
+
         m_edges.remove(edge);
         delete edge;
         

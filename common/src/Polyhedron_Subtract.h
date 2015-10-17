@@ -134,6 +134,7 @@ void Polyhedron<T,FP>::simplifySubtractResult(const Polyhedron& subtrahend, Subt
             const V& targetPosition = clIt->second;
             const V delta = targetPosition - currentPosition;
             const typename V::List positions(1, currentPosition);
+            
             const MoveVerticesResult moveResult = fragment.moveVertices(positions, delta, true);
             if (moveResult.hasUnchangedVertices() || moveResult.hasUnknownVertices() || fragment.faceCount() < 4) {
                 it = result.erase(it);

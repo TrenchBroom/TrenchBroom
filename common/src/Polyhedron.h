@@ -301,11 +301,16 @@ private: // General purpose methods
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
+    bool hasVertex(const Vertex* vertex) const;
+    bool hasEdge(const Edge* edge) const;
+    bool hasFace(const Face* face) const;
+    
     bool checkInvariant() const;
     bool checkConvex() const;
     bool checkClosed() const;
     bool checkNoCoplanarFaces() const;
     bool checkNoDegenerateFaces() const;
+    bool checkVertexLeavingEdges() const;
     
     void updateBounds();
 private:  // Moving vertices
