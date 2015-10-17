@@ -78,7 +78,7 @@ namespace TrenchBroom {
         void ToolBox::OnEnterWindow(wxMouseEvent& event) {
             wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
             wxWindow* currentFocus = newFocus->FindFocus();
-            if (VectorUtils::contains(m_focusGroup, currentFocus))
+            if (VectorUtils::contains(m_focusGroup, currentFocus) && !currentFocus->HasCapture())
                 newFocus->SetFocus();
             event.Skip();
         }
