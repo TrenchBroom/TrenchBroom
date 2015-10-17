@@ -625,9 +625,14 @@ namespace TrenchBroom {
             
             const Model::BrushBuilder builder(m_world, m_worldBounds);
             Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
+            brush->cloneFaceAttributesFrom(selectedNodes().brushes());
+            
+            // The nodelist is either empty or contains only brushes.
+            const Model::NodeList toRemove = selectedNodes().nodes();
             
             const Transaction transaction(this, "Create brush");
             deselectAll();
+            removeNodes(toRemove);
             addNode(brush, currentParent());
             return true;
         }

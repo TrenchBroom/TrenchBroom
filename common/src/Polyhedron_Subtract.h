@@ -123,28 +123,30 @@ void Polyhedron<T,FP>::simplifySubtractResult(const Polyhedron& subtrahend, Subt
     typename SubtractResult::iterator end = result.end();
     while (it != end) {
         Polyhedron& fragment = *it;
-        Vertex* currentVertex;
+        typename V::Set newFragmentVertices;
         
-        bool incrementIt = true;
-        while ((currentVertex = findMovableVertex(fragment, exclude)) != NULL) {
+        const Vertex* firstVertex = fragment.vertices().front();
+        const Vertex* currentVertex = firstVertex;
+        
+        do {
             const V& currentPosition = currentVertex->position();
-            typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
-            assert(clIt != closest.end());
-            
-            const V& targetPosition = clIt->second;
-            const V delta = targetPosition - currentPosition;
-            const typename V::List positions(1, currentPosition);
-            
-            const MoveVerticesResult moveResult = fragment.moveVertices(positions, delta, true);
-            if (moveResult.hasUnchangedVertices() || moveResult.hasUnknownVertices() || fragment.faceCount() < 4) {
-                it = result.erase(it);
-                incrementIt = false;
-                break;
+            if (exclude.count(currentPosition) == 0) {
+                typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
+                assert(clIt != closest.end());
+                const V& targetPosition = clIt->second;
+                newFragmentVertices.insert(targetPosition);
+            } else {
+                newFragmentVertices.insert(currentPosition);
             }
-        }
-        
-        if (incrementIt)
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+
+        fragment = Polyhedron(newFragmentVertices);
+        if (!fragment.polyhedron()) {
+            it = result.erase(it);
+        } else {
             ++it;
+        }
     }
 }
 

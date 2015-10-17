@@ -328,6 +328,51 @@ namespace TrenchBroom {
             invalidateContentType();
         }
         
+        void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
+            BrushFaceList::iterator fIt, fEnd;
+            BrushList::const_iterator bIt, bEnd;
+            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+                BrushFace* destination = *fIt;
+                
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Brush* brush = *bIt;
+                    const BrushFace* source = brush->findFaceWithBoundary(destination->boundary());
+                    if (source != NULL) {
+                        destination->setAttribs(source->attribs());
+                        break;
+                    }
+                }
+            }
+        }
+
+        void Brush::cloneInvertedFaceAttributesFrom(const BrushList& brushes) {
+            BrushFaceList::iterator fIt, fEnd;
+            BrushList::const_iterator bIt, bEnd;
+            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+                BrushFace* destination = *fIt;
+                
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Brush* brush = *bIt;
+                    const BrushFace* source = brush->findFaceWithBoundary(destination->boundary().flipped());
+                    if (source != NULL) {
+                        // Todo: invert the face attributes?
+                        destination->setAttribs(source->attribs());
+                        break;
+                    }
+                }
+            }
+        }
+
+        BrushFace* Brush::findFaceWithBoundary(const Plane3& boundary) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->boundary().equals(boundary))
+                    return face;
+            }
+            return NULL;
+        }
+
         bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
             const NotifyNodeChange nodeChange(this);
             try {
@@ -640,30 +685,16 @@ namespace TrenchBroom {
                 const Vec3& p2 = h2->origin()->position();
                 
                 BrushFaceAttributes attribs(defaultTextureName);
-                
-                BrushFace* face = factory.createFace(p0, p1, p2, attribs);
-                const BrushFace* original = findMatchingFace(face->boundary());
-                if (original == NULL)
-                    original = subtrahend->findMatchingFace(face->boundary().flipped());
-                if (original != NULL)
-                    face->setAttribs(original->attribs());
-                
-                faces.push_back(face);
+                faces.push_back(factory.createFace(p0, p1, p2, attribs));
                 
                 currentFace = currentFace->next();
             } while (currentFace != firstFace);
             
-            return factory.createBrush(worldBounds, faces);
-        }
-
-        BrushFace* Brush::findMatchingFace(const Plane3& boundary) const {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                if (face->boundary().equals(boundary))
-                    return face;
-            }
-            return NULL;
+            Brush* brush = factory.createBrush(worldBounds, faces);
+            // The const_cast is okay because the called method doesn't modify its arguments.
+            brush->cloneFaceAttributesFrom(BrushList(1, const_cast<Brush*>(this)));
+            brush->cloneInvertedFaceAttributesFrom(BrushList(1, const_cast<Brush*>(subtrahend)));
+            return brush;
         }
 
         void Brush::updateFacesFromGeometry(const BBox3& worldBounds) {
