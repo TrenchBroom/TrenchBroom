@@ -316,7 +316,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::updateControls() {
-            const SetBool ignoreSelection(m_ignoreSelection);
+            // const SetBool ignoreSelection(m_ignoreSelection);
             wxGridUpdateLocker lockGrid(m_grid);
             m_table->update();
             
@@ -324,6 +324,8 @@ namespace TrenchBroom {
             if (row != -1) {
                 m_grid->SelectRow(row);
                 m_grid->GoToCell(row, m_lastSelectedCol);
+            } else {
+                fireSelectionEvent(row, m_lastSelectedCol);
             }
         }
         

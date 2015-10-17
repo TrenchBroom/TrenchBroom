@@ -351,7 +351,9 @@ namespace TrenchBroom {
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             assert(!attributables.empty());
             
-            const SetBool ignoreUpdates(m_ignoreUpdates);
+            // Ignoring the updates here fails if the user changes the entity classname because in that
+            // case, we must really refresh everything from the entity.
+            // const SetBool ignoreUpdates(m_ignoreUpdates);
             if (col == 0)
                 renameAttribute(rowIndex, value.ToStdString(), attributables);
             else
