@@ -33,6 +33,8 @@ class Polyhedron {
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
 public:
+    typedef std::vector<Polyhedron> List;
+
     class Vertex;
     class Edge;
     class HalfEdge;
@@ -71,6 +73,9 @@ public:
     typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
     typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
     typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
+private:
+    typedef std::set<Vertex*> VertexSet;
+    typedef std::set<Face*> FaceSet;
 public:
     class Vertex : public Allocator<Vertex> {
     private:
@@ -186,8 +191,10 @@ public:
         Face* previous() const;
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
+        void printBoundary() const;
         V origin() const;
-        bool hasPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
@@ -237,8 +244,11 @@ public: // Constructors
     Polyhedron(const BBox<T,3>& bounds);
     Polyhedron(const BBox<T,3>& bounds, Callback& callback);
     
-    Polyhedron(typename V::List positions);
-    Polyhedron(typename V::List positions, Callback& callback);
+    Polyhedron(const typename V::List& positions);
+    Polyhedron(const typename V::List& positions, Callback& callback);
+
+    Polyhedron(const typename V::Set& positions);
+    Polyhedron(const typename V::Set& positions, Callback& callback);
 
     Polyhedron(const Polyhedron<T,FP>& other);
 private: // Constructor helpers
@@ -260,15 +270,17 @@ public: // swap function
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
-    bool hasVertex(const V& position) const;
+    bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    void printVertices() const;
     
     size_t edgeCount() const;
     const EdgeList& edges() const;
-    bool hasEdge(const V& pos1, const V& pos2) const;
+    bool hasEdge(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     
     size_t faceCount() const;
     const FaceList& faces() const;
-    bool hasFace(const typename V::List& positions) const;
+    bool hasFace(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
     const BBox<T,3>& bounds() const;
     
@@ -285,14 +297,20 @@ public: // Accessors
     FaceHit pickFace(const Ray<T,3>& ray) const;
 private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    Vertex* findClosestVertex(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    
+    bool hasVertex(const Vertex* vertex) const;
+    bool hasEdge(const Edge* edge) const;
+    bool hasFace(const Face* face) const;
     
     bool checkInvariant() const;
     bool checkConvex() const;
     bool checkClosed() const;
     bool checkNoCoplanarFaces() const;
     bool checkNoDegenerateFaces() const;
+    bool checkVertexLeavingEdges() const;
     
     void updateBounds();
 private:  // Moving vertices
@@ -346,6 +364,8 @@ private:
     T computeNextMergePointForOppositeNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
     T computeNextMergePointForPlane(const V& origin, const V& destination, const Plane<T,3>& plane, T lastFrac) const;
     
+    bool denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const;
+    
     void mergeVertices(HalfEdge* connectingEdge, Callback& callback);
 
     struct CleanupResult;
@@ -389,7 +409,6 @@ private:
     
     Seam createSeam(const SplittingCriterion& criterion);
     
-    typedef std::set<Face*> FaceSet;
     void split(const Seam& seam, Callback& callback);
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
     
@@ -413,6 +432,23 @@ public: // Clipping
 
     ClipResult clip(const Plane<T,3>& plane);
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
+public: // Subtraction
+    typedef std::list<Polyhedron> SubtractResult;
+    
+    SubtractResult subtract(const Polyhedron& subtrahend) const;
+    SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
+private:
+    typedef std::map<Vec<T,3>, Vec<T,3> > ClosestVertices;
+    
+    bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
+    void chopMinuend(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    void removeSubtrahend(const Polyhedron& subtrahend, SubtractResult& result) const;
+    ClosestVertices findClosestVertices(const SubtractResult& result) const;
+    void simplifySubtractResult(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
+    Vertex* findMovableVertex(const Polyhedron& fragment, const typename V::Set& exclude) const;
+public: // Intersection
+    Polyhedron intersect(const Polyhedron& other) const;
+    Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
 

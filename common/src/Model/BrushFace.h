@@ -176,6 +176,7 @@ namespace TrenchBroom {
             
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
+            void invalidate();
             
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             

@@ -736,12 +736,22 @@ namespace VectorUtils {
 
 namespace SetUtils {
     template <typename T>
+    void makeSet(const std::vector<T>& vec, std::set<T>& result) {
+        result.insert(vec.begin(), vec.end());
+    }
+
+    template <typename T>
     std::set<T> makeSet(const std::vector<T>& vec) {
         std::set<T> result;
-        result.insert(vec.begin(), vec.end());
+        makeSet(vec);
         return result;
     }
 
+    template <typename T, typename C>
+    void makeSet(const std::vector<T>& vec, std::set<T,C>& result) {
+        result.insert(vec.begin(), vec.end());
+    }
+    
 	template <typename T, typename C>
     void minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T, C> >(result, result.end()));
@@ -751,6 +761,19 @@ namespace SetUtils {
     std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         std::set<T, C> result;
         minus(lhs, rhs, result);
+        return result;
+    }
+    
+    template <typename T, typename C>
+    void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
+        result.insert(lhs.begin(), lhs.end());
+        result.insert(rhs.begin(), rhs.end());
+    }
+
+    template <typename T, typename C>
+    std::set<T, C> merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result;
+        merge(lhs, rhs, result);
         return result;
     }
     

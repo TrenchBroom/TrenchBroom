@@ -81,22 +81,45 @@ const typename Polyhedron<T,FP>::HalfEdgeList& Polyhedron<T,FP>::Face::boundary(
 }
 
 template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::printBoundary() const {
+    const HalfEdge* firstEdge = m_boundary.front();
+    const HalfEdge* currentEdge = firstEdge;
+    do {
+        std::cout << currentEdge->asString() << std::endl;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+}
+
+template <typename T, typename FP>
 typename Polyhedron<T,FP>::V Polyhedron<T,FP>::Face::origin() const {
     const HalfEdge* edge = *m_boundary.begin();
     return edge->origin()->position();
 }
 
 template <typename T, typename FP>
-bool Polyhedron<T,FP>::Face::hasPositions(const typename V::List& positions, const T epsilon) const {
+bool Polyhedron<T,FP>::Face::hasVertexPosition(const V& position, const T epsilon) const {
+    const HalfEdge* firstEdge = m_boundary.front();
+    const HalfEdge* currentEdge = firstEdge;
+    do {
+        if (currentEdge->origin()->position().equals(position, epsilon))
+            return true;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return false;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Face::hasVertexPositions(const typename V::List& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
     
-    typename HalfEdgeList::const_iterator it, end;
-    for (it = m_boundary.begin(), end = m_boundary.end(); it != end; ++it) {
-        const HalfEdge* edge = *it;
-        if (edge->hasOrigins(positions))
+    const HalfEdge* firstEdge = m_boundary.front();
+    const HalfEdge* currentEdge = firstEdge;
+    do {
+        if (currentEdge->hasOrigins(positions, epsilon))
             return true;
-    }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
     return false;
 }
 

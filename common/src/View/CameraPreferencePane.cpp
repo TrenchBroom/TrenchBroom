@@ -41,7 +41,6 @@ namespace TrenchBroom {
             bindEvents();
         }
         
-        
         void CameraPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 

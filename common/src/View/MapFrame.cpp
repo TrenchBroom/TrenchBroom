@@ -441,6 +441,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditCreateBrushFromConvexHull, this, CommandIds::Menu::EditCreateConvexHull);
+            Bind(wxEVT_MENU, &MapFrame::OnEditSubtractBrushes, this, CommandIds::Menu::EditSubtractBrushes);
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
@@ -772,6 +773,13 @@ namespace TrenchBroom {
                 m_document->createBrushFromConvexHull();
         }
 
+        void MapFrame::OnEditSubtractBrushes(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canSubtractBrushes())
+                m_document->subtractBrushes();
+        }
+
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -1001,6 +1009,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCreateConvexHull:
                     event.Enable(canCreateConvexHull());
                     break;
+                case CommandIds::Menu::EditSubtractBrushes:
+                    event.Enable(canSubtractBrushes());
+                    break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(canSnapVertices());
                     break;
@@ -1177,6 +1188,10 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canCreateConvexHull() const {
+            return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
+        }
+
+        bool MapFrame::canSubtractBrushes() const {
             return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
         }
 

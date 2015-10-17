@@ -165,7 +165,7 @@ public:
         return *this;
     }
     
-    Plane<T,S> flipped() {
+    Plane<T,S> flipped() const {
         return Plane<T,S>(*this).flip();
     }
     

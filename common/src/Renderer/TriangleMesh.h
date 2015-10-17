@@ -72,12 +72,16 @@ namespace TrenchBroom {
                 KeySizeMap sizes;
             public:
                 void addSet(const Key& key, const size_t vertexCount) {
+                    assert(vertexCount >= 3);
                     sizes[key].setVertexCount += 3 * (vertexCount - 2);
                 }
                 void addFan(const Key& key, const size_t vertexCount) {
                     addFans(key, vertexCount, 1);
                 }
                 void addFans(const Key& key, const size_t vertexCount, const size_t primCount) {
+                    assert(vertexCount >= 3);
+                    assert(primCount > 0);
+                    
                     Size& size = sizes[key];
                     size.fanVertexCount += vertexCount;
                     size.fanPrimitiveCount += primCount;
@@ -86,6 +90,9 @@ namespace TrenchBroom {
                     addStrips(key, vertexCount, 1);
                 }
                 void addStrips(const Key& key, const size_t vertexCount, const size_t primCount) {
+                    assert(vertexCount >= 3);
+                    assert(primCount > 0);
+
                     Size& size = sizes[key];
                     size.stripVertexCount += vertexCount;
                     size.stripPrimitiveCount += primCount;;

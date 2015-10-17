@@ -86,6 +86,8 @@ namespace TrenchBroom {
             virtual bool translateObjects(const Vec3& delta) = 0;
             virtual bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) = 0;
             virtual bool flipObjects(const Vec3& center, Math::Axis::Type axis) = 0;
+        public: // CSG operations
+            virtual bool subtractBrushes() = 0;
         public: // modifying entity attributes
             virtual bool setAttribute(const AttributeName& name, const AttributeValue& value) = 0;
             virtual bool renameAttribute(const AttributeName& oldName, const AttributeName& newName) = 0;

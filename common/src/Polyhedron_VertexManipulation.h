@@ -277,7 +277,7 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::moveEdgeVertex(Ver
     const V originalPosition(vertex->position());
     Edge* edge = *m_edges.begin();
     Vertex* other = edge->otherVertex(vertex);
-    if (other->position() == destination) {
+    if (other->position().equals(destination)) {
         if (!allowMergeIncidentVertex)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
         
@@ -300,7 +300,7 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolygonVertex(
         return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
     
     Vertex* occupant = findVertexByPosition(destination);
-    if (occupant != NULL) {
+    if (occupant != NULL && occupant != vertex) {
         HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
         if (connectingEdge == NULL)
             connectingEdge = occupant->findConnectingEdge(vertex);
@@ -353,8 +353,11 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
         lastFrac = curFrac;
         
         const V newPosition = originalPosition + lastFrac * (destination - originalPosition);
+        if (denaturedPolyhedron(vertex, newPosition))
+            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+        
         Vertex* occupant = findVertexByPosition(newPosition);
-        if (occupant != NULL) {
+        if (occupant != NULL && occupant != vertex) {
             HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
             if (!allowMergeIncidentVertex || connectingEdge == NULL) {
                 mergeIncidentFaces(vertex, callback);
@@ -364,6 +367,8 @@ typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::movePolyhedronVert
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
             }
             mergeVertices(connectingEdge, callback);
+            assert(!hasVertex(occupant));
+            assert(hasVertex(vertex));
         }
         
         vertex->setPosition(newPosition);
@@ -441,7 +446,7 @@ void Polyhedron<T,FP>::chopFace(Face* face, HalfEdge* halfEdge, Callback& callba
 /*
  Splits the given face into triangles by adding new edges from the origin of the given edge
  to every other non-adjacent vertex in the given face.
- ____     ___
+  ____       ___
  |    |     |   /|
  |    |     |  / |
  |    |     | /  |
@@ -567,23 +572,66 @@ T Polyhedron<T,FP>::computeNextMergePointForPlane(const V& origin, const V& dest
     return 1.0;
 }
 
+// Checks if all vertices but the given one lie on a plane and the given new position lies on that plane or on
+// another side as the given vertex currently does.
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    
+    size_t count = 0;
+    V points[3];
+    Plane<T,3> plane;
+    bool allOnPlane = true;
+    do {
+        if (count < 3) {
+            if (currentVertex != vertex)
+                points[count++] = currentVertex->position();
+            if (count == 3)
+                setPlanePoints(plane, points);
+        } else {
+            if (currentVertex != vertex) {
+                const Math::PointStatus::Type status = plane.pointStatus(currentVertex->position());
+                if (status != Math::PointStatus::PSInside)
+                    allOnPlane = false;
+            }
+        }
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex && allOnPlane);
+    
+    if (!allOnPlane)
+        return false;
+    
+    return plane.pointStatus(vertex->position()) != plane.pointStatus(newPosition);
+}
+
 // Merges the origin and destination vertex of the given edge into one vertex, thereby
 // deleting the edge, the destination vertex, and the faces incident to the connecting edge
 // and its twin.
 // Assumes that these incident faces are triangles.
 template <typename T, typename FP>
 void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, Callback& callback) {
-    HalfEdge* oppositeEdge = connectingEdge->twin();
+    HalfEdge* opposingEdge = connectingEdge->twin();
     
     Vertex* origin = connectingEdge->origin();
-    Vertex* destination = oppositeEdge->origin();
+    Vertex* destination = opposingEdge->origin();
     
     // First we merge the triangles that will become invalid by the merge to their neighbours.
     // We assume they are both triangles.
     assert(connectingEdge->face()->vertexCount() == 3);
-    assert(oppositeEdge->face()->vertexCount() == 3);
-    mergeNeighbours(connectingEdge->previous(), callback);
-    mergeNeighbours(oppositeEdge->next(), callback);
+    assert(opposingEdge->face()->vertexCount() == 3);
+    
+    // We choose two edges of the faces incident to the connecting edge so that these edges do
+    // not share a face! Otherwise the destination vertex would already get deleted during
+    // the neighbour merge, and the resulting polyhedron becomes invalid.
+    if (connectingEdge->previous()->twin()->face() != opposingEdge->next()->twin()->face()) {
+        mergeNeighbours(connectingEdge->previous(), callback);
+        mergeNeighbours(opposingEdge->next(), callback);
+    } else {
+        mergeNeighbours(connectingEdge->next(), callback);
+        mergeNeighbours(opposingEdge->previous(), callback);
+    }
+    
     
     // Now we delete the destination of the connecting edge.
     // First we have to change the origin of all edges originating
@@ -600,18 +648,20 @@ void Polyhedron<T,FP>::mergeVertices(HalfEdge* connectingEdge, Callback& callbac
         curEdge = next;
     } while (curEdge != firstEdge);
     
+    origin->setLeaving(connectingEdge->previous()->twin());
+    
     Face* leftFace = connectingEdge->face();
     leftFace->removeFromBoundary(connectingEdge);
     
-    Face* rightFace = oppositeEdge->face();
-    rightFace->removeFromBoundary(oppositeEdge);
+    Face* rightFace = opposingEdge->face();
+    rightFace->removeFromBoundary(opposingEdge);
     
     Edge* edge = connectingEdge->edge();
     m_edges.remove(edge);
     delete edge;
     
     delete connectingEdge;
-    delete oppositeEdge;
+    delete opposingEdge;
     
     m_vertices.remove(destination);
     delete destination;
@@ -888,7 +938,7 @@ void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback
         HalfEdge* next = cur->next();
         HalfEdge* twin = cur->twin();
         Vertex* origin = cur->origin();
-        
+
         m_edges.remove(edge);
         delete edge;
         

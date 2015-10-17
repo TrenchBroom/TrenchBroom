@@ -151,9 +151,8 @@ template <typename T, typename FP>
 void Polyhedron<T,FP>::addThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
-    typename VertexList::iterator it = m_vertices.begin();
-    const Vertex* v1 = *it++;
-    const Vertex* v2 = *it++;
+    Vertex* v1 = m_vertices.front();
+    Vertex* v2 = v1->next();
     
     if (linearlyDependent(v1->position(), v2->position(), position))
         addPointToEdge(position);
@@ -166,9 +165,8 @@ template <typename T, typename FP>
 void Polyhedron<T,FP>::addPointToEdge(const V& position) {
     assert(edge());
     
-    typename VertexList::iterator it = m_vertices.begin();
-    Vertex* v1 = *it++;
-    Vertex* v2 = *it++;
+    Vertex* v1 = m_vertices.front();
+    Vertex* v2 = v1->next();
     assert(linearlyDependent(v1->position(), v2->position(), position));
     
     if (!position.containedWithinSegment(v1->position(), v2->position()))

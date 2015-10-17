@@ -96,13 +96,24 @@ Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
 }
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(typename V::List positions) {
+Polyhedron<T,FP>::Polyhedron(const typename V::List& positions) {
     Callback c;
     addPoints(positions.begin(), positions.end(), c);
 }
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(typename V::List positions, Callback& callback) {
+Polyhedron<T,FP>::Polyhedron(const typename V::List& positions, Callback& callback) {
+    addPoints(positions.begin(), positions.end(), callback);
+}
+
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions) {
+    Callback c;
+    addPoints(positions.begin(), positions.end(), c);
+}
+
+template <typename T, typename FP>
+Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
     addPoints(positions.begin(), positions.end(), callback);
 }
 
@@ -363,9 +374,30 @@ const typename Polyhedron<T,FP>::VertexList& Polyhedron<T,FP>::vertices() const 
 }
 
 template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasVertex(const V& position) const {
-    return findVertexByPosition(position) != NULL;
+bool Polyhedron<T,FP>::hasVertex(const V& position, const T epsilon) const {
+    return findVertexByPosition(position, epsilon) != NULL;
 }
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasVertices(const typename V::List& positions, const T epsilon) const {
+    typename V::List::const_iterator it, end;
+    for (it = positions.begin(), end = positions.end(); it != end; ++it) {
+        if (!hasVertex(*it, epsilon))
+            return false;
+    }
+    return true;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::printVertices() const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        std::cout << currentVertex->position().asString() << std::endl;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+}
+
 
 template <typename T, typename FP>
 size_t Polyhedron<T,FP>::edgeCount() const {
@@ -378,8 +410,8 @@ const typename Polyhedron<T,FP>::EdgeList& Polyhedron<T,FP>::edges() const {
 }
 
 template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasEdge(const V& pos1, const V& pos2) const {
-    return findEdgeByPositions(pos1, pos2) != NULL;
+bool Polyhedron<T,FP>::hasEdge(const V& pos1, const V& pos2, const T epsilon) const {
+    return findEdgeByPositions(pos1, pos2, epsilon) != NULL;
 }
 
 template <typename T, typename FP>
@@ -393,8 +425,8 @@ const typename Polyhedron<T,FP>::FaceList& Polyhedron<T,FP>::faces() const {
 }
 
 template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasFace(const typename V::List& positions) const {
-    return findFaceByPositions(positions) != NULL;
+bool Polyhedron<T,FP>::hasFace(const typename V::List& positions, const T epsilon) const {
+    return findFaceByPositions(positions, epsilon) != NULL;
 }
 
 template <typename T, typename FP>
@@ -452,47 +484,105 @@ struct Polyhedron<T,FP>::FaceHit {
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::FaceHit Polyhedron<T,FP>::pickFace(const Ray<T,3>& ray) const {
     const Math::Side side = polygon() ? Math::Side_Both : Math::Side_Front;
-    typename FaceList::const_iterator it, end;
-    for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-        Face* face = *it;
-        const T distance = face->intersectWithRay(ray, side);
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
+    do {
+        const T distance = currentFace->intersectWithRay(ray, side);
         if (!Math::isnan(distance))
-            return FaceHit(face, distance);
-    }
+            return FaceHit(currentFace, distance);
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
     return FaceHit();
 }
 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findVertexByPosition(const V& position, const T epsilon) const {
-    typename VertexList::const_iterator it, end;
-    for (it = m_vertices.begin(), end = m_vertices.end(); it != end; ++it) {
-        Vertex* vertex = *it;
-        if (position.equals(vertex->position(), epsilon))
-            return vertex;
-    }
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        if (position.equals(currentVertex->position(), epsilon))
+            return currentVertex;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
     return NULL;
 }
 
 template <typename T, typename FP>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findClosestVertex(const V& position) const {
+    T closestDistance = std::numeric_limits<T>::max();
+    Vertex* closestVertex = NULL;
+    
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        const T distance = position.squaredDistanceTo(currentVertex->position());
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestVertex = currentVertex;
+        }
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+    return closestVertex;
+}
+
+template <typename T, typename FP>
 typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
-    typename EdgeList::const_iterator it, end;
-    for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
-        Edge* edge = *it;
-        if (edge->hasPositions(pos1, pos2, epsilon))
-            return edge;
-    }
+    Edge* firstEdge = m_edges.front();
+    Edge* currentEdge = firstEdge;
+    do {
+        currentEdge = currentEdge->next();
+        if (currentEdge->hasPositions(pos1, pos2, epsilon))
+            return currentEdge;
+    } while (currentEdge != firstEdge);
     return NULL;
 }
 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
-    typename FaceList::const_iterator it, end;
-    for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-        Face* face = *it;
-        if (face->hasPositions(positions, epsilon))
-            return face;
-    }
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
+    do {
+        if (currentFace->hasVertexPositions(positions, epsilon))
+            return currentFace;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
     return NULL;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasVertex(const Vertex* vertex) const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        if (currentVertex == vertex)
+            return true;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+    return false;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasEdge(const Edge* edge) const {
+    const Edge* firstEdge = m_edges.front();
+    const Edge* currentEdge = firstEdge;
+    do {
+        if (currentEdge == edge)
+            return true;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return false;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::hasFace(const Face* face) const {
+    const Face* firstFace = m_faces.front();
+    const Face* currentFace = firstFace;
+    do {
+        if (currentFace == face)
+            return true;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return false;
 }
 
 template <typename T, typename FP>
@@ -502,6 +592,8 @@ bool Polyhedron<T,FP>::checkInvariant() const {
     if (polyhedron() && !checkClosed())
         return false;
     if (polyhedron() && !checkNoDegenerateFaces())
+        return false;
+    if (polyhedron() && !checkVertexLeavingEdges())
         return false;
     /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
@@ -578,6 +670,28 @@ bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
                 return false;
         }
     }
+    return true;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::checkVertexLeavingEdges() const {
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        const HalfEdge* leaving = currentVertex->leaving();
+        if (leaving == NULL)
+            return false;
+        if (leaving->origin() != currentVertex)
+            return false;
+        const Edge* edge = leaving->edge();
+        if (edge == NULL)
+            return false;
+        if (!edge->fullySpecified())
+            return false;
+        if (!hasEdge(edge))
+            return false;
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
     return true;
 }
 

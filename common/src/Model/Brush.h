@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
         class BrushContentTypeBuilder;
+        class ModelFactory;
         class PickResult;
         
         class Brush : public Node, public Object {
@@ -79,6 +80,8 @@ namespace TrenchBroom {
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
 
+            BrushFace* findFaceByNormal(const Vec3& normal) const;
+            
             bool fullySpecified() const;
             
             void faceDidChange();
@@ -110,6 +113,10 @@ namespace TrenchBroom {
             
             void detachFaces(const BrushFaceList& faces);
             void detachFace(BrushFace* face);
+        public: // clone face attributes from matching faces of other brushes
+            void cloneFaceAttributesFrom(const BrushList& brushes);
+            void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
+            BrushFace* findFaceWithBoundary(const Plane3& boundary) const;
         public: // clipping
             bool clip(const BBox3& worldBounds, BrushFace* face);
         public: // move face along normal
@@ -143,6 +150,11 @@ namespace TrenchBroom {
             Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            
+            // CSG operations
+            BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+        private:
+            Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
             void updateFacesFromGeometry(const BBox3& worldBounds);
         public: // brush geometry

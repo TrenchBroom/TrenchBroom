@@ -107,6 +107,7 @@ namespace TrenchBroom {
             delete m_texCoordSystem;
             m_texCoordSystem = NULL;
             m_geometry = NULL;
+            m_cachedVertices.clear();
         }
 
         BrushFace* BrushFace::clone() const {
@@ -503,6 +504,7 @@ namespace TrenchBroom {
         }
 
         size_t BrushFace::vertexCount() const {
+            assert(m_geometry != NULL);
             return m_geometry->boundary().size();
         }
 
@@ -524,6 +526,10 @@ namespace TrenchBroom {
             if (m_geometry == geometry)
                 return;
             m_geometry = geometry;
+            invalidateCachedVertices();
+        }
+
+        void BrushFace::invalidate() {
             invalidateCachedVertices();
         }
 
