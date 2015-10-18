@@ -68,8 +68,6 @@ namespace TrenchBroom {
         public:
             bool keyDown(wxKeyEvent& event);
             bool keyUp(wxKeyEvent& event);
-        private:
-            bool key(wxKeyEvent& event, bool down);
         public:
             void motion(wxMouseEvent& event);
         private:
