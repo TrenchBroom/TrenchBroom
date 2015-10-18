@@ -94,6 +94,8 @@ namespace TrenchBroom {
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
 
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
+            m_currentMouseDelta = wxPoint(0,0);
+            m_lastMousePos = m_originalMousePos;
             resetMouse();
         }
 
@@ -119,19 +121,19 @@ namespace TrenchBroom {
 
             wxCriticalSectionLocker lock(m_critical);
 
-            if (forward.matches(event)) {
+            if (forward.matchesKey(event)) {
                 m_forward = down;
                 return true;
             }
-            if (backward.matches(event)) {
+            if (backward.matchesKey(event)) {
                 m_backward = down;
                 return true;
             }
-            if (left.matches(event)) {
+            if (left.matchesKey(event)) {
                 m_left = down;
                 return true;
             }
-            if (right.matches(event)) {
+            if (right.matchesKey(event)) {
                 m_right = down;
                 return true;
             }

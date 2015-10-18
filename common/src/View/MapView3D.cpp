@@ -188,17 +188,19 @@ namespace TrenchBroom {
         void MapView3D::OnKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (!m_flyModeHelper->keyDown(event))
+            if (!m_flyModeHelper->keyDown(event)) {
                 key(event);
-            event.Skip();
+                event.Skip();
+            }
         }
         
         void MapView3D::OnKeyUp(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (!m_flyModeHelper->keyUp(event))
+            if (!m_flyModeHelper->keyUp(event)) {
                 key(event);
-            event.Skip();
+                event.Skip();
+            }
         }
         
         void MapView3D::key(wxKeyEvent& event) {

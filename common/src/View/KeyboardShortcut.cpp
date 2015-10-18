@@ -622,6 +622,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool KeyboardShortcut::matchesKey(const wxKeyEvent& event) const {
+            return event.GetKeyCode() == m_key;
+        }
+
         bool KeyboardShortcut::alwaysShowModifier() const {
             switch (m_key) {
                 case WXK_BACK:
