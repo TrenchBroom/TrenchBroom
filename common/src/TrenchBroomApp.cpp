@@ -230,6 +230,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        void TrenchBroomApp::OnFatalException() {
+            handleException();
+        }
+
         void TrenchBroomApp::handleException() {
             try {
                 throw;

@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             bool OnExceptionInMainLoop();
             void OnUnhandledException();
+            void OnFatalException();
         private:
             void handleException();
         public:
