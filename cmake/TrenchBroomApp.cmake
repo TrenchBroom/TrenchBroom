@@ -93,7 +93,7 @@ IF(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" "$CMAKE_CURRENT_BINARY_DIR"
         COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" "$CMAKE_CURRENT_BINARY_DIR"
 	)
-	
+
     # Copy DLLs to app directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
@@ -129,14 +129,6 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	)
 ENDIF()
 
-IF(APPLE)
-    # Configure plist file
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
-
-    # Configure the XCode generator project
-    SET_XCODE_ATTRIBUTES(TrenchBroom)
-ENDIF()
-
 # Common CPack configuration
 GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
 GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_VERSION_BUILD_ID)
@@ -147,6 +139,24 @@ SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 SET(CPACK_PACKAGE_VENDOR "Kristian Duske")
+
+IF(APPLE)
+    # Configure variables that are substituted into the plist
+    # Set CFBundleExecutable
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_EXECUTABLE_NAME "${OUTPUT_NAME}")
+    # Set CFBundleName, which controls the application menu label
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "TrenchBroom")
+    # Set CFBundleShortVersionString to "2.0.0". This is displayed in the Finder and Spotlight.
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING "${CPACK_PACKAGE_VERSION}")
+    # Set CFBundleVersion to the git revision. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION_BUILD_ID}")
+
+    # Set the path to the plist template
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
+
+    # Configure the XCode generator project
+    SET_XCODE_ATTRIBUTES(TrenchBroom)
+ENDIF()
 
 # Platform specific CPack configuration
 IF(WIN32)
