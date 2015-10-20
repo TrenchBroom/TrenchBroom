@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool2D::pan(const InputState& inputState) const {
-            return inputState.mouseButtonsPressed(MouseButtons::MBRight);
+            return inputState.mouseButtonsPressed(MouseButtons::MBRight) || inputState.mouseButtonsPressed(MouseButtons::MBMiddle);
         }
     }
 }
