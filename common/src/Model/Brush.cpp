@@ -331,34 +331,42 @@ namespace TrenchBroom {
         void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
             BrushFaceList::iterator fIt, fEnd;
             BrushList::const_iterator bIt, bEnd;
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                const Brush* brush = *bIt;
+                cloneFaceAttributesFrom(brush);
+            }
+        }
+
+        void Brush::cloneFaceAttributesFrom(const Brush* brush) {
+            BrushFaceList::iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
-                
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                    const Brush* brush = *bIt;
-                    const BrushFace* source = brush->findFaceWithBoundary(destination->boundary());
-                    if (source != NULL) {
-                        destination->setAttribs(source->attribs());
-                        break;
-                    }
+                const BrushFace* source = brush->findFaceWithBoundary(destination->boundary());
+                if (source != NULL) {
+                    destination->setAttribs(source->attribs());
+                    break;
                 }
             }
         }
 
         void Brush::cloneInvertedFaceAttributesFrom(const BrushList& brushes) {
-            BrushFaceList::iterator fIt, fEnd;
             BrushList::const_iterator bIt, bEnd;
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                const Brush* brush = *bIt;
+                cloneInvertedFaceAttributesFrom(brush);
+            }
+        }
+
+        void Brush::cloneInvertedFaceAttributesFrom(const Brush* brush) {
+            BrushFaceList::iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
                 
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                    const Brush* brush = *bIt;
-                    const BrushFace* source = brush->findFaceWithBoundary(destination->boundary().flipped());
-                    if (source != NULL) {
-                        // Todo: invert the face attributes?
-                        destination->setAttribs(source->attribs());
-                        break;
-                    }
+                const BrushFace* source = brush->findFaceWithBoundary(destination->boundary().flipped());
+                if (source != NULL) {
+                    // Todo: invert the face attributes?
+                    destination->setAttribs(source->attribs());
+                    break;
                 }
             }
         }
@@ -669,6 +677,18 @@ namespace TrenchBroom {
             return brushes;
         }
 
+        bool Brush::intersect(const BBox3& worldBounds, const Brush* brush) {
+            const BrushFaceList& theirFaces = brush->faces();
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = theirFaces.begin(), end = theirFaces.end(); it != end; ++it) {
+                const BrushFace* theirFace = *it;
+                addFace(theirFace->clone());
+            }
+            
+            return rebuildGeometry(worldBounds);
+        }
+
         Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());
@@ -692,8 +712,8 @@ namespace TrenchBroom {
             
             Brush* brush = factory.createBrush(worldBounds, faces);
             // The const_cast is okay because the called method doesn't modify its arguments.
-            brush->cloneFaceAttributesFrom(BrushList(1, const_cast<Brush*>(this)));
-            brush->cloneInvertedFaceAttributesFrom(BrushList(1, const_cast<Brush*>(subtrahend)));
+            brush->cloneFaceAttributesFrom(this);
+            brush->cloneInvertedFaceAttributesFrom(subtrahend);
             return brush;
         }
 
@@ -716,7 +736,7 @@ namespace TrenchBroom {
             invalidateContentType();
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+        bool Brush::rebuildGeometry(const BBox3& worldBounds) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             
@@ -725,6 +745,7 @@ namespace TrenchBroom {
             if (!fullySpecified())
                 throw GeometryException("Brush is not fully specified");
             nodeBoundsDidChange();
+            return !addFacesToGeometry.brushEmpty();
         }
 
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {

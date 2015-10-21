@@ -233,8 +233,6 @@ namespace TrenchBroom {
             void reparentNodes(const Model::ParentChildrenMap& nodes);
             bool deleteObjects();
             bool duplicateObjects();
-        public: // creating new brushes from convex hull of selection
-            bool createBrushFromConvexHull();
         public: // group management
             void groupSelection(const String& name);
             void ungroupSelection();
@@ -258,7 +256,9 @@ namespace TrenchBroom {
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public:
-            bool subtractBrushes();
+            bool csgConvexMerge();
+            bool csgSubtract();
+            bool csgIntersect();
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);

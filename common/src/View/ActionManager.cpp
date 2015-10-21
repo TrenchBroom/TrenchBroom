@@ -176,12 +176,15 @@ namespace TrenchBroom {
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
             
-            editMenu->addSeparator();
-            editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
+            Menu* csgMenu = editMenu->addMenu("CSG");
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('+', WXK_CONTROL, WXK_SHIFT));
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('-', WXK_CONTROL, WXK_SHIFT));
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut('#', WXK_CONTROL, WXK_SHIFT));
+            
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
-            editMenu->addModifiableActionItem(CommandIds::Menu::EditCreateConvexHull, "Create Convex Hull", KeyboardShortcut('+', WXK_CONTROL, WXK_SHIFT));
-            editMenu->addModifiableActionItem(CommandIds::Menu::EditSubtractBrushes, "Subtract Brushes", KeyboardShortcut('-', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+            editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
             

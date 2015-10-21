@@ -440,8 +440,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
 
-            Bind(wxEVT_MENU, &MapFrame::OnEditCreateBrushFromConvexHull, this, CommandIds::Menu::EditCreateConvexHull);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSubtractBrushes, this, CommandIds::Menu::EditSubtractBrushes);
+            Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
+            Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
+            Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
@@ -766,18 +767,25 @@ namespace TrenchBroom {
             m_mapView->toggleVertexTool();
         }
 
-        void MapFrame::OnEditCreateBrushFromConvexHull(wxCommandEvent& event) {
+        void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canCreateConvexHull())
-                m_document->createBrushFromConvexHull();
+            if (canDoCsgConvexMerge())
+                m_document->csgConvexMerge();
         }
 
-        void MapFrame::OnEditSubtractBrushes(wxCommandEvent& event) {
+        void MapFrame::OnEditCsgSubtract(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canSubtractBrushes())
-                m_document->subtractBrushes();
+            if (canDoCsgSubtract())
+                m_document->csgSubtract();
+        }
+
+        void MapFrame::OnEditCsgIntersect(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canDoCsgIntersect())
+                m_document->csgIntersect();
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -1006,11 +1014,14 @@ namespace TrenchBroom {
                     event.Check(m_mapView->vertexToolActive());
                     event.Enable(m_mapView->canToggleVertexTool());
                     break;
-                case CommandIds::Menu::EditCreateConvexHull:
-                    event.Enable(canCreateConvexHull());
+                case CommandIds::Menu::EditCsgConvexMerge:
+                    event.Enable(canDoCsgConvexMerge());
                     break;
-                case CommandIds::Menu::EditSubtractBrushes:
-                    event.Enable(canSubtractBrushes());
+                case CommandIds::Menu::EditCsgSubtract:
+                    event.Enable(canDoCsgSubtract());
+                    break;
+                case CommandIds::Menu::EditCsgIntersect:
+                    event.Enable(canDoCsgIntersect());
                     break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(canSnapVertices());
@@ -1187,12 +1198,17 @@ namespace TrenchBroom {
             return m_document->hasSelectedNodes();
         }
 
-        bool MapFrame::canCreateConvexHull() const {
-            return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
+        bool MapFrame::canDoCsgConvexMerge() const {
+            return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
+                   (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushes().size() > 1);
         }
 
-        bool MapFrame::canSubtractBrushes() const {
-            return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
+        bool MapFrame::canDoCsgSubtract() const {
+            return m_document->selectedNodes().hasOnlyBrushes();
+        }
+
+        bool MapFrame::canDoCsgIntersect() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushes().size() > 1;
         }
 
         bool MapFrame::canSnapVertices() const {

@@ -115,7 +115,9 @@ namespace TrenchBroom {
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const BrushList& brushes);
+            void cloneFaceAttributesFrom(const Brush* brush);
             void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
+            void cloneInvertedFaceAttributesFrom(const Brush* brush);
             BrushFace* findFaceWithBoundary(const Plane3& boundary) const;
         public: // clipping
             bool clip(const BBox3& worldBounds, BrushFace* face);
@@ -153,12 +155,13 @@ namespace TrenchBroom {
             
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            bool intersect(const BBox3& worldBounds, const Brush* brush);
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
             void updateFacesFromGeometry(const BBox3& worldBounds);
         public: // brush geometry
-            void rebuildGeometry(const BBox3& worldBounds);
+            bool rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
             bool checkGeometry() const;

@@ -148,8 +148,9 @@ namespace TrenchBroom {
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
             void OnEditToggleVertexTool(wxCommandEvent& event);
 
-            void OnEditCreateBrushFromConvexHull(wxCommandEvent& event);
-            void OnEditSubtractBrushes(wxCommandEvent& event);
+            void OnEditCsgConvexMerge(wxCommandEvent& event);
+            void OnEditCsgSubtract(wxCommandEvent& event);
+            void OnEditCsgIntersect(wxCommandEvent& event);
 
             void OnEditReplaceTexture(wxCommandEvent& event);
 
@@ -198,8 +199,9 @@ namespace TrenchBroom {
             bool canUngroup() const;
             bool canHide() const;
             bool canIsolate() const;
-            bool canCreateConvexHull() const;
-            bool canSubtractBrushes() const;
+            bool canDoCsgConvexMerge() const;
+            bool canDoCsgSubtract() const;
+            bool canDoCsgIntersect() const;
             bool canSnapVertices() const;
             bool canDecGridSize() const;
             bool canIncGridSize() const;

@@ -588,55 +588,6 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool MapDocument::createBrushFromConvexHull() {
-            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
-                return false;
-            
-            Polyhedron3 polyhedron;
-            
-            if (hasSelectedBrushFaces()) {
-                const Model::BrushFaceList& faces = selectedBrushFaces();
-                Model::BrushFaceList::const_iterator fIt, fEnd;
-                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
-                    const Model::BrushFace* face = *fIt;
-                    const Model::BrushFace::VertexList vertices = face->vertices();
-                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position());
-                    }
-                }
-            } else if (selectedNodes().hasOnlyBrushes()) {
-                const Model::BrushList& brushes = selectedNodes().brushes();
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                    const Model::Brush* brush = *bIt;
-                    const Model::Brush::VertexList vertices = brush->vertices();
-                    Model::Brush::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position());
-                    }
-                }
-            }
-            
-            if (!polyhedron.polyhedron() || !polyhedron.closed())
-                return false;
-            
-            const Model::BrushBuilder builder(m_world, m_worldBounds);
-            Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
-            brush->cloneFaceAttributesFrom(selectedNodes().brushes());
-            
-            // The nodelist is either empty or contains only brushes.
-            const Model::NodeList toRemove = selectedNodes().nodes();
-            
-            const Transaction transaction(this, "Create brush");
-            deselectAll();
-            removeNodes(toRemove);
-            addNode(brush, currentParent());
-            return true;
-        }
-        
         void MapDocument::groupSelection(const String& name) {
             if (!hasSelectedNodes())
                 return;
@@ -763,8 +714,57 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, textureLock()));
         }
         
-        bool MapDocument::subtractBrushes() {
-            Transaction transaction(this, "Subtract Brushes");
+        bool MapDocument::csgConvexMerge() {
+            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+                return false;
+            
+            Polyhedron3 polyhedron;
+            
+            if (hasSelectedBrushFaces()) {
+                const Model::BrushFaceList& faces = selectedBrushFaces();
+                Model::BrushFaceList::const_iterator fIt, fEnd;
+                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushFace* face = *fIt;
+                    const Model::BrushFace::VertexList vertices = face->vertices();
+                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position());
+                    }
+                }
+            } else if (selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = selectedNodes().brushes();
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Model::Brush* brush = *bIt;
+                    const Model::Brush::VertexList vertices = brush->vertices();
+                    Model::Brush::VertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position());
+                    }
+                }
+            }
+            
+            if (!polyhedron.polyhedron() || !polyhedron.closed())
+                return false;
+            
+            const Model::BrushBuilder builder(m_world, m_worldBounds);
+            Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
+            brush->cloneFaceAttributesFrom(selectedNodes().brushes());
+            
+            // The nodelist is either empty or contains only brushes.
+            const Model::NodeList toRemove = selectedNodes().nodes();
+            
+            const Transaction transaction(this, "CSG Convex Merge");
+            deselectAll();
+            removeNodes(toRemove);
+            addNode(brush, currentParent());
+            return true;
+        }
+        
+        bool MapDocument::csgSubtract() {
+            Transaction transaction(this, "CSG Subtract");
             
             const Model::BrushList subtrahends = selectedNodes().brushes();
             if (subtrahends.empty())
@@ -797,6 +797,36 @@ namespace TrenchBroom {
             }
             
             removeNodes(Model::NodeList(subtrahends.begin(), subtrahends.end()));
+            
+            return true;
+        }
+
+        bool MapDocument::csgIntersect() {
+            const Model::BrushList brushes = selectedNodes().brushes();
+            if (brushes.empty())
+                return false;
+            
+            Model::Brush* result = brushes.front()->clone(m_worldBounds);
+
+            bool empty = false;
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end && !empty; ++it) {
+                Model::Brush* brush = *it;
+                empty |= !result->intersect(m_worldBounds, brush);
+            }
+            
+            const Model::NodeList toRemove(brushes.begin(), brushes.end());
+            
+            Transaction transaction(this, "CSG Intersect");
+            deselect(toRemove);
+            removeNodes(toRemove);
+            
+            if (!empty) {
+                addNode(result, currentParent());
+                select(result);
+            } else {
+                delete result;
+            }
             
             return true;
         }

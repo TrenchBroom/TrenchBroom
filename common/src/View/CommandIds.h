@@ -75,15 +75,16 @@ namespace TrenchBroom {
                 const int EditToggleCreateComplexBrushTool          = Lowest + 111;
                 const int EditToggleVertexTool               = Lowest + 112;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
-                const int EditCreateConvexHull               = Lowest + 116;
-                const int EditSubtractBrushes                = Lowest + 117;
-                const int EditGroupSelection                 = Lowest + 118;
-                const int EditUngroupSelection               = Lowest + 119;
-                const int EditHideSelection                  = Lowest + 120;
-                const int EditIsolateSelection               = Lowest + 121;
-                const int EditUnhideAll                      = Lowest + 122;
-                const int EditToggleClipTool                 = Lowest + 123;
-                const int EditDeactivateTool                 = Lowest + 124;
+                const int EditCsgConvexMerge                 = Lowest + 116;
+                const int EditCsgSubtract                    = Lowest + 117;
+                const int EditCsgIntersect                   = Lowest + 118;
+                const int EditGroupSelection                 = Lowest + 119;
+                const int EditUngroupSelection               = Lowest + 120;
+                const int EditHideSelection                  = Lowest + 121;
+                const int EditIsolateSelection               = Lowest + 122;
+                const int EditUnhideAll                      = Lowest + 123;
+                const int EditToggleClipTool                 = Lowest + 124;
+                const int EditDeactivateTool                 = Lowest + 125;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 
