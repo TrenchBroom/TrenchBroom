@@ -56,12 +56,12 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesToolAdapter::doModifierKeyChange(const InputState& inputState) {
-            // here we must always update the drag faces, otherwise the won't get cleared when the shift key is released
-            m_tool->updateDragFaces(inputState.pickResult());
+            updateDragFaces(inputState);
         }
         
         void ResizeBrushesToolAdapter::doMouseMove(const InputState& inputState) {
-            updateDragFaces(inputState);
+            if (handleInput(inputState))
+                updateDragFaces(inputState);
         }
         
         bool ResizeBrushesToolAdapter::doStartMouseDrag(const InputState& inputState) {
@@ -94,14 +94,13 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (!handleInput(inputState) || !m_tool->hasDragFaces())
-                return;
-            
-            Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer();
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setRenderOccluded();
-            renderEdges->setColor(pref(Preferences::ResizeHandleColor));
-            renderBatch.addOneShot(renderEdges);
+            if (m_tool->hasDragFaces()) {
+                Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer();
+                Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
+                renderEdges->setRenderOccluded();
+                renderEdges->setColor(pref(Preferences::ResizeHandleColor));
+                renderBatch.addOneShot(renderEdges);
+            }
         }
 
         Renderer::EdgeRenderer ResizeBrushesToolAdapter::buildEdgeRenderer() {
@@ -129,7 +128,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesToolAdapter::updateDragFaces(const InputState& inputState) {
-            if (handleInput(inputState) && !dragging())
+            if (!dragging())
                 m_tool->updateDragFaces(inputState.pickResult());
         }
 
