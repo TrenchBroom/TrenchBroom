@@ -20,6 +20,7 @@ call generate-changelog.bat %1
 GOTO end
 
 :error
+cd ..
 ECHO Unit tests failed, aborting build.
 EXIT /B 1
 
