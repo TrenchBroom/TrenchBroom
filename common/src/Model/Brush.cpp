@@ -329,7 +329,6 @@ namespace TrenchBroom {
         }
         
         void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
-            BrushFaceList::iterator fIt, fEnd;
             BrushList::const_iterator bIt, bEnd;
             for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                 const Brush* brush = *bIt;
@@ -344,7 +343,6 @@ namespace TrenchBroom {
                 const BrushFace* source = brush->findFaceWithBoundary(destination->boundary());
                 if (source != NULL) {
                     destination->setAttribs(source->attribs());
-                    break;
                 }
             }
         }
@@ -361,12 +359,10 @@ namespace TrenchBroom {
             BrushFaceList::iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
-                
                 const BrushFace* source = brush->findFaceWithBoundary(destination->boundary().flipped());
                 if (source != NULL) {
                     // Todo: invert the face attributes?
                     destination->setAttribs(source->attribs());
-                    break;
                 }
             }
         }
@@ -711,7 +707,6 @@ namespace TrenchBroom {
             } while (currentFace != firstFace);
             
             Brush* brush = factory.createBrush(worldBounds, faces);
-            // The const_cast is okay because the called method doesn't modify its arguments.
             brush->cloneFaceAttributesFrom(this);
             brush->cloneInvertedFaceAttributesFrom(subtrahend);
             return brush;
