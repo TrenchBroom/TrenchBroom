@@ -735,6 +735,14 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
+    template <typename T, typename C>
+    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
+        typename std::set<T,C>::iterator tmp = it;
+        ++it;
+        set.erase(tmp);
+        return it;
+    }
+    
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(vec.begin(), vec.end());

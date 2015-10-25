@@ -33,7 +33,7 @@ class Polyhedron {
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
 public:
-    typedef std::vector<Polyhedron> List;
+    typedef std::list<Polyhedron> List;
 
     class Vertex;
     class Edge;
@@ -385,6 +385,8 @@ public: // Convex hull and adding points
     template <typename I> void addPoints(I cur, I end, Callback& callback);
     void addPoint(const V& position);
     void addPoint(const V& position, Callback& callback);
+    void merge(const Polyhedron& other);
+    void merge(const Polyhedron& other, Callback& callback);
 private:
     class Seam;
 
@@ -436,16 +438,10 @@ public: // Subtraction
     typedef std::list<Polyhedron> SubtractResult;
     
     SubtractResult subtract(const Polyhedron& subtrahend) const;
-    SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
+    SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
-    typedef std::map<Vec<T,3>, Vec<T,3> > ClosestVertices;
-    
-    bool clipSubtrahend(Polyhedron& subtrahend, const Callback& callback) const;
-    void chopMinuend(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
-    void removeSubtrahend(const Polyhedron& subtrahend, SubtractResult& result) const;
-    ClosestVertices findClosestVertices(const SubtractResult& result) const;
-    void simplifySubtractResult(const Polyhedron& subtrahend, SubtractResult& result, const Callback& callback) const;
-    Vertex* findMovableVertex(const Polyhedron& fragment, const typename V::Set& exclude) const;
+    class Subtract;
+    class Merge;
 public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;
