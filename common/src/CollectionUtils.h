@@ -736,11 +736,28 @@ namespace VectorUtils {
 
 namespace SetUtils {
     template <typename T, typename C>
-    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
-        typename std::set<T,C>::iterator tmp = it;
-        ++it;
-        set.erase(tmp);
-        return it;
+    bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
+        if (lhs.size() > rhs.size())
+            return false;
+
+        typedef typename std::set<T,C>::const_iterator Iter;
+        Iter lIt = lhs.begin();
+        Iter lEnd = lhs.end();
+        Iter rIt = rhs.begin();
+        Iter rEnd = rhs.end();
+        
+        C cmp;
+        
+        while (lIt != lEnd) {
+            // forward rhs until we find the element
+            while (rIt != rEnd && cmp(*rIt, *lIt)) ++rIt;
+            if (rIt == rEnd || cmp(*lIt, *rIt)) // we didn't find it
+                return false;
+            
+            // we found it, continue with next element
+            ++lIt;
+        }
+        return true;
     }
     
     template <typename T>
@@ -793,6 +810,14 @@ namespace SetUtils {
     template <typename T, typename C>
     void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::vector<T>& result) {
         std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::back_inserter(result));
+    }
+
+    template <typename T, typename C>
+    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
+        typename std::set<T,C>::iterator tmp = it;
+        ++it;
+        set.erase(tmp);
+        return it;
     }
 
     template <typename T, typename C>

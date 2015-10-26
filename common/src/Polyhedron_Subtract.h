@@ -53,7 +53,7 @@ public:
             m_fragments.push_back(m_minuend);
             chopMinuend();
             removeSubtrahend();
-            simplify();
+            // simplify();
         }
     }
 public:
@@ -102,21 +102,57 @@ private:
             const Polyhedron& fragment = *it;
             if (fragment.hasVertices(vertices)) {
                 m_fragments.erase(it);
-                break;
+                return;
             }
         }
+        assert(false);
     }
     
+    class VertexSetCmp {
+    public:
+        bool operator()(const typename V::Set& lhs, const typename V::Set& rhs) const {
+            return compare(lhs, rhs) < 0;
+        }
+    private:
+        int compare(const typename V::Set& lhs, const typename V::Set& rhs) const {
+            if (lhs.size() < rhs.size())
+                return -1;
+            if (lhs.size() > rhs.size())
+                return 1;
+            
+            typename V::Set::const_iterator lIt = lhs.begin();
+            typename V::Set::const_iterator rIt = rhs.begin();
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                const V& lPos = *lIt++;
+                const V& rPos = *rIt++;
+
+                const int cmp = lPos.compare(rPos);
+                if (cmp != 0)
+                    return cmp;
+            }
+            return 0;
+        }
+    };
+    
+    typedef std::set<typename V::Set, VertexSetCmp> NewFragments;
+
     void simplify() {
+        NewFragments newFragments = buildNewFragments();
+        removeDuplicateFragments(newFragments);
+        rebuildFragments(newFragments);
+    }
+    
+    NewFragments buildNewFragments() {
+        NewFragments result;
+        
         typename V::Set exclude;
         SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), exclude);
         SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
         
         const ClosestVertices closest = findClosestVertices();
         
-        typename Polyhedron::List::iterator it = m_fragments.begin();
-        typename Polyhedron::List::iterator end = m_fragments.end();
-        while (it != end) {
+        typename Polyhedron::List::iterator it, end;
+        for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
             Polyhedron& fragment = *it;
             typename V::Set newFragmentVertices;
             
@@ -136,13 +172,11 @@ private:
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);
             
-            fragment = Polyhedron(newFragmentVertices);
-            if (!fragment.polyhedron()) {
-                it = m_fragments.erase(it);
-            } else {
-                ++it;
-            }
+            result.insert(newFragmentVertices);
+            
         }
+        
+        return result;
     }
     
     ClosestVertices findClosestVertices() const {
@@ -163,6 +197,44 @@ private:
         }
         
         return result;
+    }
+    
+    void removeDuplicateFragments(NewFragments& newFragments) const {
+        NewFragments result;
+        const typename NewFragments::iterator end = newFragments.end();
+        while (!newFragments.empty()) {
+            typename NewFragments::iterator lIt = newFragments.begin();
+            typename NewFragments::iterator rIt = newFragments.begin(); ++rIt;
+            while (lIt != end && rIt != end) {
+                if (SetUtils::subset(*lIt, *rIt)) {
+                    newFragments.erase(lIt);
+                    lIt = end;
+                } else if (SetUtils::subset(*rIt, *lIt)) {
+                    rIt = SetUtils::erase(newFragments, rIt);
+                } else {
+                    ++rIt;
+                }
+            }
+            if (lIt != end) {
+                result.insert(*lIt);
+                newFragments.erase(lIt);
+            }
+        }
+        
+        using std::swap;
+        swap(newFragments, result);
+    }
+    
+    void rebuildFragments(const NewFragments& newFragments) {
+        m_fragments.clear();
+        
+        typename NewFragments::const_iterator it, end;
+        for (it = newFragments.begin(), end = newFragments.end(); it != end; ++it) {
+            const typename V::Set& vertices = *it;
+            const Polyhedron fragment(vertices);
+            if (fragment.polyhedron())
+                m_fragments.push_back(fragment);
+        }
     }
 };
 
