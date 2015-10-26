@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 const int ViewMoveCameraToPosition           = Lowest + 109;
                 const int EditReplaceTexture                 = Lowest + 110;
 
-                const int EditToggleCreateComplexBrushTool          = Lowest + 111;
+                const int EditToggleCreateComplexBrushTool   = Lowest + 111;
                 const int EditToggleVertexTool               = Lowest + 112;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
                 const int EditCsgConvexMerge                 = Lowest + 116;
@@ -85,6 +85,9 @@ namespace TrenchBroom {
                 const int EditUnhideAll                      = Lowest + 123;
                 const int EditToggleClipTool                 = Lowest + 124;
                 const int EditDeactivateTool                 = Lowest + 125;
+                
+                const int DebugPrintVertices                 = Lowest + 126;
+                const int DebugCreateBrush                   = Lowest + 127;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 

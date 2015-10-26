@@ -38,6 +38,7 @@ namespace TrenchBroom {
             Brush* createCube(FloatType size, const String& textureName) const;
             Brush* createCuboid(const Vec3& size, const String& textureName) const;
             Brush* createCuboid(const BBox3& bounds, const String& textureName) const;
+            Brush* createBrush(const Vec3::List& points, const String& textureName) const;
             Brush* createBrush(const Polyhedron3& polyhedron, const String& textureName) const;
         };
     }

@@ -256,6 +256,7 @@ namespace TrenchBroom {
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public:
+            bool createBrush(const Vec3::List& points);
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
@@ -288,6 +289,8 @@ namespace TrenchBroom {
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
+        public: // debug commands
+            void printVertices();
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

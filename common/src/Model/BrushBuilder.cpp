@@ -78,6 +78,10 @@ namespace TrenchBroom {
             return m_factory->createBrush(m_worldBounds, faces);
         }
  
+        Brush* BrushBuilder::createBrush(const Vec3::List& points, const String& textureName) const {
+            return createBrush(Polyhedron3(points), textureName);
+        }
+
         Brush* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const String& textureName) const {
             assert(polyhedron.closed());
             

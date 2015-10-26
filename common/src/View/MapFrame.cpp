@@ -199,7 +199,10 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocumentAs() {
             try {
-                wxFileDialog saveDialog(this, "Save map file", "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                const IO::Path& originalPath = m_document->path();
+                const IO::Path directory = originalPath.deleteLastComponent();
+                const IO::Path fileName = originalPath.lastComponent();
+                wxFileDialog saveDialog(this, "Save map file", directory.asString(), fileName.asString(), "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
                 if (saveDialog.ShowModal() == wxID_CANCEL)
                     return false;
 
@@ -462,6 +465,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
 
+            Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
+            
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
 
@@ -892,6 +898,23 @@ namespace TrenchBroom {
             m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
 
+        void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_document->printVertices();
+        }
+
+        void MapFrame::OnDebugCreateBrush(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                const Vec3::List positions = Vec3::parseList(str.ToStdString());
+                m_document->createBrush(positions);
+            }
+        }
+
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Left);
@@ -912,6 +935,7 @@ namespace TrenchBroom {
                 case wxID_SAVE:
                 case wxID_SAVEAS:
                 case wxID_CLOSE:
+                case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileLoadPointFile:
@@ -1100,7 +1124,8 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewSwitchToFaceInspector:
                     event.Enable(true);
                     break;
-                case CommandIds::Menu::FileOpenRecent:
+                case CommandIds::Menu::DebugPrintVertices:
+                case CommandIds::Menu::DebugCreateBrush:
                     event.Enable(true);
                     break;
                 case CommandIds::Actions::FlipObjectsHorizontally:

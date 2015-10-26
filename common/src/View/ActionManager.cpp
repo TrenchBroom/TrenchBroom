@@ -216,7 +216,12 @@ namespace TrenchBroom {
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
-            
+
+#ifndef NDEBUG
+            Menu* debugMenu = m_menuBar->addMenu("Debug");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
+#endif
             Menu* helpMenu = m_menuBar->addMenu("Help");
             helpMenu->addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, "TrenchBroom Help");
             

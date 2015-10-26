@@ -122,6 +122,24 @@ void Polyhedron<T,FP>::addPoint(const V& position, Callback& callback) {
     assert(checkInvariant());
 }
 
+template <typename T, typename FP>
+void Polyhedron<T,FP>::merge(const Polyhedron& other) {
+    Callback c;
+    merge(other, c);
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::merge(const Polyhedron& other, Callback& callback) {
+    if (!other.empty()) {
+        const Vertex* firstVertex = other.vertices().front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            addPoint(currentVertex->position(), callback);
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+    }
+}
+
 // Adds the given point to an empty polyhedron.
 template <typename T, typename FP>
 void Polyhedron<T,FP>::addFirstPoint(const V& position) {
