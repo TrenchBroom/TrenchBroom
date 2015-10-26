@@ -714,6 +714,21 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, textureLock()));
         }
         
+        bool MapDocument::createBrush(const Vec3::List& points) {
+            Model::BrushBuilder builder(m_world, m_worldBounds);
+            Model::Brush* brush = builder.createBrush(points, currentTextureName());
+            if (!brush->fullySpecified()) {
+                delete brush;
+                return false;
+            }
+            
+            Transaction transaction(this, "Create Brush");
+            deselectAll();
+            addNode(brush, currentParent());
+            select(brush);
+            return true;
+        }
+
         bool MapDocument::csgConvexMerge() {
             if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
                 return false;
@@ -935,6 +950,37 @@ namespace TrenchBroom {
             return submit(SplitBrushFacesCommand::split(faces, delta));
         }
         
+        void MapDocument::printVertices() {
+            if (hasSelectedBrushFaces()) {
+                Model::BrushFaceList::const_iterator fIt, fEnd;
+                for (fIt = m_selectedBrushFaces.begin(), fEnd = m_selectedBrushFaces.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushFace* face = *fIt;
+                    const Model::BrushFace::VertexList vertices = face->vertices();
+                    StringStream str;
+                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        str << "(" << vertex->position().asString() << ") ";
+                    }
+                    info(str.str());
+                }
+            } else if (selectedNodes().hasBrushes()) {
+                const Model::BrushList& brushes = selectedNodes().brushes();
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Model::Brush* brush = *bIt;
+                    const Model::Brush::VertexList vertices = brush->vertices();
+                    StringStream str;
+                    Model::Brush::VertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        str << "(" << vertex->position().asString() << ") ";
+                    }
+                    info(str.str());
+                }
+            }
+        }
+
         bool MapDocument::canUndoLastCommand() const {
             return doCanUndoLastCommand();
         }

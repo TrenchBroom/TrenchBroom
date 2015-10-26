@@ -2483,7 +2483,7 @@ TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid) {
     const Polyhedron3d subtrahend(BBox3d(Vec3d(-16.0, -32.0, -64.0), Vec3d(16.0, 32.0,  0.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(5u, result.size());
+    ASSERT_EQ(3u, result.size());
 }
 
 TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
@@ -2674,6 +2674,68 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
     ASSERT_TRUE(findAndRemove(result, topWedge));
     
     ASSERT_TRUE(result.empty());
+}
+
+TEST(PolyhedronTest, mergeRemainingFragments) {
+    Vec3d::List minuendVertices;
+    minuendVertices.push_back(Vec3d(32, -64, 16));
+    minuendVertices.push_back(Vec3d(64, -32, 16));
+    minuendVertices.push_back(Vec3d(64, 32, 16));
+    minuendVertices.push_back(Vec3d(32, 64, 16));
+    minuendVertices.push_back(Vec3d(-64, 64, 16));
+    minuendVertices.push_back(Vec3d(-64, -64, 16));
+    minuendVertices.push_back(Vec3d(64, 32, -16));
+    minuendVertices.push_back(Vec3d(64, -32, -16));
+    minuendVertices.push_back(Vec3d(32, -64, -16));
+    minuendVertices.push_back(Vec3d(-64, -64, -16));
+    minuendVertices.push_back(Vec3d(-64, 64, -16));
+    minuendVertices.push_back(Vec3d(32, 64, -16));
+    
+    Vec3d::List subtrahendVertices;
+    subtrahendVertices.push_back(Vec3d(16, -32, 32));
+    subtrahendVertices.push_back(Vec3d(32, -0, 32));
+    subtrahendVertices.push_back(Vec3d(16, 32, 32));
+    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
+    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
+    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
+    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
+    subtrahendVertices.push_back(Vec3d(16, 32, -32));
+    subtrahendVertices.push_back(Vec3d(32, -0, -32));
+    subtrahendVertices.push_back(Vec3d(16, -32, -32));
+    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
+
+    const Polyhedron3d minuend(minuendVertices);
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(7u, result.size());
+}
+
+TEST(PolyhedronTest, multipleNeighbouringFaces) {
+    Vec3d::List subtrahendVertices;
+    subtrahendVertices.push_back(Vec3d(16, -32, 32));
+    subtrahendVertices.push_back(Vec3d(32, -0, 32));
+    subtrahendVertices.push_back(Vec3d(16, 32, 32));
+    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
+    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
+    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
+    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
+    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
+    subtrahendVertices.push_back(Vec3d(16, 32, -32));
+    subtrahendVertices.push_back(Vec3d(32, -0, -32));
+    subtrahendVertices.push_back(Vec3d(16, -32, -32));
+    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
+    
+    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(7u, result.size());
 }
 
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {

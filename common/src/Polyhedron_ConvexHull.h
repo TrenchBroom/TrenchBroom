@@ -130,12 +130,14 @@ void Polyhedron<T,FP>::merge(const Polyhedron& other) {
 
 template <typename T, typename FP>
 void Polyhedron<T,FP>::merge(const Polyhedron& other, Callback& callback) {
-    const Vertex* firstVertex = other.vertices().front();
-    const Vertex* currentVertex = firstVertex;
-    do {
-        addPoint(currentVertex->position(), callback);
-        currentVertex = currentVertex->next();
-    } while (currentVertex != firstVertex);
+    if (!other.empty()) {
+        const Vertex* firstVertex = other.vertices().front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            addPoint(currentVertex->position(), callback);
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+    }
 }
 
 // Adds the given point to an empty polyhedron.

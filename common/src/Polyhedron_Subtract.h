@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    Merge merge(result, callback);
+    // Merge merge(result, callback);
     return result;
 }
 
@@ -317,7 +317,7 @@ private:
                 Face* firstFace = first.second;
                 Face* secondFace = second.second;
                 
-                if (mergeableNeighbours(secondFace, firstIndex)) {
+                if (mergeableNeighbours(secondFace, *m_indices[firstIndex])) {
                     m_neighbours[ firstIndex].insert(NeighbourEntry(secondIndex,  firstFace, secondFace));
                     m_neighbours[secondIndex].insert(NeighbourEntry( firstIndex, secondFace,  firstFace));
                 }
@@ -336,6 +336,7 @@ private:
             do {
                 const FaceKey key(currentFace, m_callback);
                 NeighbourFaceList& neighbours = result[key];
+                assert(neighbours.size() < 2);
                 neighbours.push_back(std::make_pair(index, currentFace));
                 currentFace = currentFace->next();
             } while (currentFace != firstFace);
@@ -344,14 +345,11 @@ private:
         return result;
     }
     
-    bool mergeableNeighbours(const Face* sharedFace, const size_t neighbourIndex) const {
+    bool mergeableNeighbours(const Face* sharedFace, const Polyhedron& neighbour) const {
         // The two polyhedra which share the given faces can be merged if no vertex of one polyhedron is visible by any
         // other face of the other polyhedron other than the shared face.
         
-        const typename Polyhedron::List::iterator pIt = m_indices[neighbourIndex];
-        const Polyhedron& polyhedron = *pIt;
-
-        const Vertex* firstVertex = polyhedron.vertices().front();
+        const Vertex* firstVertex = neighbour.vertices().front();
         
         const Face* currentFace = sharedFace->next(); // skip the shared face
         do {
@@ -375,87 +373,118 @@ private:
             typename NeighbourEntry::Set::const_iterator eIt, eEnd;
             for (eIt = entries.begin(), eEnd = entries.end(); eIt != eEnd; ++eIt) {
                 const NeighbourEntry& entry = *eIt;
-                
                 const size_t index2 = entry.neighbour;
-                const Face* face1 = entry.face;
-                const Face* face2 = entry.neighbourFace;
                 
                 MergeGroup group;
                 group.insert(index1);
                 group.insert(index2);
                 
-                if (m_mergeGroups.insert(group).second) {
-                    expandMergeGroup(group, index1, face2);
-                    expandMergeGroup(group, index2, face1);
-                }
+                const Polyhedron polyhedron = mergeGroup(group);
+                
+                if (m_mergeGroups.count(group) == 0 &&
+                    !expandMergeGroup(group, polyhedron, index1) &&
+                    !expandMergeGroup(group, polyhedron, index2))
+                    m_mergeGroups.insert(group);
             }
         }
     }
     
-    void expandMergeGroup(const MergeGroup& group, const size_t index1, const Face* face) {
+    bool expandMergeGroup(const MergeGroup& group, const Polyhedron& polyhedron, const size_t index1) {
         const typename Neighbours::const_iterator nIt = m_neighbours.find(index1);
-        if (nIt != m_neighbours.end()) {
+        if (nIt == m_neighbours.end())
+            return false;
+        
+        bool didExpand = false;
+        const typename NeighbourEntry::Set& entries = nIt->second;
+        typename NeighbourEntry::Set::const_iterator eIt, eEnd;
+        for (eIt = entries.begin(), eEnd = entries.end(); eIt != eEnd; ++eIt) {
             MergeGroup newGroup = group;
             
-            const typename NeighbourEntry::Set& entries = nIt->second;
-            typename NeighbourEntry::Set::const_iterator eIt, eEnd;
-            for (eIt = entries.begin(), eEnd = entries.end(); eIt != eEnd; ++eIt) {
-                const NeighbourEntry& entry = *eIt;
-                const size_t index2 = entry.neighbour;
-                if (mergeableNeighbours(face, index2) && newGroup.insert(index2).second) {
+            const NeighbourEntry& entry = *eIt;
+            const size_t index2 = entry.neighbour;
+            const Face* neighbourFace = entry.neighbourFace;
+            
+            if (mergeableNeighbours(neighbourFace, polyhedron) && newGroup.insert(index2).second) {
+                Polyhedron newPolyhedron = polyhedron;
+                newPolyhedron.merge(*m_indices[index2]);
+                
+                if (m_mergeGroups.count(newGroup) == 0 &&
+                    !expandMergeGroup(newGroup, newPolyhedron, index2)) {
                     m_mergeGroups.insert(newGroup);
-                    expandMergeGroup(newGroup, index2, face);
+                    didExpand = true;
                 }
             }
         }
+        return didExpand;
+    }
+    
+    Polyhedron mergeGroup(const MergeGroup& group) const {
+        MergeGroup::const_iterator it = group.begin();
+        MergeGroup::const_iterator end = group.end();
+        
+        Polyhedron result = *m_indices[*it];
+        ++it;
+        while (it != end) {
+            result.merge(*m_indices[*it]);
+            ++it;
+        }
+        
+        return result;
     }
     
     void partitionMergeGroups() {
-        typename MergeGroups::iterator mIt = m_mergeGroups.begin();
-        typename MergeGroups::iterator mCur, mEnd, tmp;
-        while (mIt != m_mergeGroups.end()) {
-            const MergeGroup& first = *mIt;
-
-            mCur = mIt; mCur++;
-            mEnd = m_mergeGroups.end();
-            while (mCur != mEnd) {
-                const MergeGroup& second = *mCur;
+        MergeGroups newMergeGroups;
+        typename MergeGroups::iterator mFirst, mSecond;
+        while (!m_mergeGroups.empty()) {
+            mFirst = m_mergeGroups.begin();
+            mSecond = mFirst; ++mSecond;
+            
+            const MergeGroup& first = *mFirst;
+            bool firstIsDisjoint = true;
+        
+            while (mSecond != m_mergeGroups.end()) {
+                const MergeGroup& second = *mSecond;
                 MergeGroup intersection;
-                MergeGroup firstMinusSecond;
-                MergeGroup secondMinusFirst;
                 
                 SetUtils::intersection(first, second, intersection);
                 if (!intersection.empty()) {
+                    firstIsDisjoint = false;
                     if (first.size() == intersection.size()) {
                         // both sets are identical or first is a subset of second, erase first and break
-                        mIt = SetUtils::erase(m_mergeGroups, mIt);
-                        --mIt; // will be increased at the end of the outer while loop!
-                        break;
+                        m_mergeGroups.erase(mFirst);
                     } else if (second.size() == intersection.size()) {
-                        // second is a subset of first, erase second
-                        mCur = SetUtils::erase(m_mergeGroups, mCur);
+                        // second is a subset of first, erase second and break
+                        m_mergeGroups.erase(mSecond);
                     } else {
                         // the groups must be partitioned properly
+                        MergeGroup firstMinusSecond;
+                        MergeGroup secondMinusFirst;
                         SetUtils::minus(first, intersection, firstMinusSecond);
                         SetUtils::minus(second, intersection, secondMinusFirst);
                         
                         // erase both first and second
-                        SetUtils::erase(m_mergeGroups, mCur);
-                        mIt = SetUtils::erase(m_mergeGroups, mIt);
-                        --mIt; // will be increased at the end of the outer while loop!
+                        m_mergeGroups.erase(mFirst);
+                        m_mergeGroups.erase(mSecond);
                         
                         // insert the new merge groups and break
                         m_mergeGroups.insert(intersection);
                         m_mergeGroups.insert(firstMinusSecond);
                         m_mergeGroups.insert(secondMinusFirst);
-                        break;
                     }
+                    break;
                 } else {
-                    ++mCur;
+                    ++mSecond;
                 }
             }
-            ++mIt;
+
+            if (firstIsDisjoint) {
+                newMergeGroups.insert(first);
+                m_mergeGroups.erase(mFirst);
+            }
         }
+        
+        using std::swap;
+        std::swap(m_mergeGroups, newMergeGroups);
     }
     
     void applyMergeGroups() {

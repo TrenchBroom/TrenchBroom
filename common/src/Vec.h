@@ -218,13 +218,30 @@ public:
     }
     
     static Vec<T,S> parse(const std::string& str) {
-        static const std::string blank(" \t\n\r");
+        size_t pos = 0;
+        return doParse(str, pos);
+    }
+    
+    static Vec<T,S>::List parseList(const std::string& str) {
+        static const std::string blank(" \t\n\r,;");
+        
+        size_t pos = 0;
+        Vec<T,S>::List result;
+
+        while (pos != std::string::npos) {
+            result.push_back(doParse(str, pos));
+            pos = str.find_first_of(blank, pos);
+        }
+        
+        return result;
+    }
+
+private:
+    static Vec<T,S> doParse(const std::string& str, size_t& pos) {
+        static const std::string blank(" \t\n\r()");
 
         Vec<T,S> result;
-
         const char* cstr = str.c_str();
-        size_t pos = 0;
-        
         for (size_t i = 0; i < S; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
                 break;
@@ -232,10 +249,9 @@ public:
             if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
                 break;
         }
-
         return result;
     }
-    
+public:
     T v[S];
     
     Vec() {
