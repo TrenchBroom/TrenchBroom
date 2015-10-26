@@ -227,11 +227,11 @@ public:
         return doParse(str, pos);
     }
     
-    static Vec<T,S>::List parseList(const std::string& str) {
+    static List parseList(const std::string& str) {
         static const std::string blank(" \t\n\r,;");
         
         size_t pos = 0;
-        Vec<T,S>::List result;
+        List result;
 
         while (pos != std::string::npos) {
             result.push_back(doParse(str, pos));
