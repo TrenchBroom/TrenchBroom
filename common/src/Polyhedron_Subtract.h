@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    // Merge merge(result, callback);
+    Merge merge(result, callback);
     return result;
 }
 
@@ -53,7 +53,7 @@ public:
             m_fragments.push_back(m_minuend);
             chopMinuend();
             removeSubtrahend();
-            // simplify();
+            simplify();
         }
     }
 public:
@@ -100,7 +100,7 @@ private:
         typename Polyhedron::List::iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
             const Polyhedron& fragment = *it;
-            if (fragment.hasVertices(vertices)) {
+            if (fragment.hasVertices(vertices, 0.1)) {
                 m_fragments.erase(it);
                 return;
             }
@@ -145,7 +145,8 @@ private:
     NewFragments buildNewFragments() {
         NewFragments result;
         
-        typename V::Set exclude;
+        typedef typename V::LexicographicOrder ExcludeCmp;
+        std::set<V, ExcludeCmp> exclude(ExcludeCmp(0.1));
         SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), exclude);
         SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
         

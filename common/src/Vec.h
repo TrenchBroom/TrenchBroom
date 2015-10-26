@@ -76,12 +76,17 @@ public:
     static const Vec<T,S> Max;
     
     class LexicographicOrder {
+    private:
+        const T m_epsilon;
     public:
+        LexicographicOrder(const T epsilon = Math::Constants<T>::almostZero()) :
+        m_epsilon(epsilon) {}
+        
         bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             for (size_t i = 0; i < S; ++i) {
-                if (Math::lt(lhs[i], rhs[i]))
+                if (Math::lt(lhs[i], rhs[i], m_epsilon))
                     return true;
-                if (Math::gt(lhs[i], rhs[i]))
+                if (Math::gt(lhs[i], rhs[i], m_epsilon))
                     return false;
             }
             return false;

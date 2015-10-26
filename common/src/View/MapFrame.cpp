@@ -199,7 +199,10 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocumentAs() {
             try {
-                wxFileDialog saveDialog(this, "Save map file", "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                const IO::Path& originalPath = m_document->path();
+                const IO::Path directory = originalPath.deleteLastComponent();
+                const IO::Path fileName = originalPath.lastComponent();
+                wxFileDialog saveDialog(this, "Save map file", directory.asString(), fileName.asString(), "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
                 if (saveDialog.ShowModal() == wxID_CANCEL)
                     return false;
 
