@@ -446,12 +446,16 @@ namespace TrenchBroom {
                     return false;
                 case Visibility_Shown:
                     return true;
-		switchDefault()
+                switchDefault()
             }
         }
         
+        bool Node::shown() const {
+            return m_visibilityState == Visibility_Shown;
+        }
+
         bool Node::hidden() const {
-            return !visible();
+            return m_visibilityState == Visibility_Hidden;
         }
         
         VisibilityState Node::visibilityState() const {

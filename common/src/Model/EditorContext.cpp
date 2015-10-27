@@ -74,6 +74,12 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
         
+        bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
+            if (entity == NULL)
+                return false;
+            return entityDefinitionHidden(entity->definition());
+        }
+
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
             if (definition == NULL)
                 return false;
@@ -178,7 +184,7 @@ namespace TrenchBroom {
                 return false;
             if (entity->pointEntity() && !m_showPointEntities)
                 return false;
-            if (entityDefinitionHidden(entity->definition()))
+            if (entityDefinitionHidden(entity))
                 return false;
             return true;
         }
@@ -190,7 +196,7 @@ namespace TrenchBroom {
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
                 return false;
-            if (!visible(brush->entity()))
+            if (entityDefinitionHidden(brush->entity()))
                 return false;
             return brush->visible();
         }

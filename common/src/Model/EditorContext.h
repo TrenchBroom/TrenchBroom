@@ -63,6 +63,7 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType hiddenBrushContentTypes() const;
             void setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes);
             
+            bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
             
