@@ -43,7 +43,8 @@ private:
     const Callback& m_callback;
     typename Polyhedron::List m_fragments;
 
-    typedef std::map<Vec<T,3>, Vec<T,3> > ClosestVertices;
+    typedef typename V::LexicographicOrder VertexCmp;
+    typedef std::map<Vec<T,3>, Vec<T,3>, VertexCmp> ClosestVertices;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
     m_minuend(minuend),
@@ -145,8 +146,9 @@ private:
     NewFragments buildNewFragments() {
         NewFragments result;
         
-        typedef typename V::LexicographicOrder ExcludeCmp;
-        std::set<V, ExcludeCmp> exclude(ExcludeCmp(0.1));
+        typedef std::set<V, VertexCmp> ExcludeSet;
+        ExcludeSet exclude(VertexCmp(0.1));
+        // typename V::Set exclude;
         SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), exclude);
         SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
         
@@ -174,14 +176,13 @@ private:
             } while (currentVertex != firstVertex);
             
             result.insert(newFragmentVertices);
-            
         }
         
         return result;
     }
     
     ClosestVertices findClosestVertices() const {
-        ClosestVertices result;
+        ClosestVertices result(VertexCmp(0.1));
         
         typename Polyhedron::List::const_iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
