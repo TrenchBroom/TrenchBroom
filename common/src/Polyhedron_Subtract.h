@@ -41,7 +41,7 @@ private:
     const Polyhedron& m_minuend;
     Polyhedron m_subtrahend;
     const Callback& m_callback;
-    Polyhedron::List m_fragments;
+    typename Polyhedron::List m_fragments;
 
     typedef std::map<Vec<T,3>, Vec<T,3> > ClosestVertices;
 public:
@@ -57,7 +57,7 @@ public:
         }
     }
 public:
-    Polyhedron::List& result() {
+    typename Polyhedron::List& result() {
         return m_fragments;
     }
 private:
@@ -295,13 +295,13 @@ private:
     
     typedef std::set<MergeGroup, MergeGroupCmp> MergeGroups;
     
-    Polyhedron::List&  m_fragments;
+    typename Polyhedron::List&  m_fragments;
     const Callback& m_callback;
     IndexList m_indices;
     Neighbours m_neighbours;
     MergeGroups m_mergeGroups;
 public:
-    Merge(Polyhedron::List& fragments, const Callback& callback) :
+    Merge(typename Polyhedron::List& fragments, const Callback& callback) :
     m_fragments(fragments),
     m_callback(callback) {
         initialize();
