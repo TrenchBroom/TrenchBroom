@@ -55,6 +55,7 @@ namespace TrenchBroom {
             class CanMoveBoundaryCallback;
             class CanMoveBoundary;
             class MoveVerticesCallback;
+            class QueryCallback;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
@@ -66,9 +67,6 @@ namespace TrenchBroom {
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
-            
-            class Contains;
-            class Intersects;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
@@ -210,7 +208,11 @@ namespace TrenchBroom {
             Group* doGetGroup() const;
             
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
+
+            class Contains;
             bool doContains(const Node* node) const;
+            
+            class Intersects;
             bool doIntersects(const Node* node) const;
         };
     }

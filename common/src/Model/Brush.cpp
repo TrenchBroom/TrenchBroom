@@ -200,6 +200,13 @@ namespace TrenchBroom {
             }
         };
 
+        class Brush::QueryCallback : public BrushGeometry::Callback {
+        public:
+            Plane3 plane(const BrushGeometry::Face* face) const {
+                return face->payload()->boundary();
+            }
+        };
+        
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(NULL),
         m_contentTypeBuilder(NULL),
@@ -960,16 +967,7 @@ namespace TrenchBroom {
             }
             
             bool contains(const Brush* brush) const {
-                if (!m_this->bounds().contains(brush->bounds()))
-                    return false;
-                const BrushGeometry::Vertex* first = brush->m_geometry->vertices().front();
-                const BrushGeometry::Vertex* current = first;
-                do {
-                    if (!m_this->containsPoint(current->position()))
-                        return false;
-                    current = current->next();
-                } while (current != first);
-                return true;
+                return m_this->m_geometry->contains(*brush->m_geometry, QueryCallback());
             }
         };
 
@@ -1005,74 +1003,7 @@ namespace TrenchBroom {
             }
             
             bool intersects(const Brush* brush) {
-                if (!m_this->bounds().intersects(brush->bounds()))
-                    return false;
-                
-                // separating axis theorem
-                // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
-                
-                BrushFaceList::const_iterator faceIt, faceEnd;
-                
-                const BrushVertexList& myVertices = m_this->m_geometry->vertices();
-                const BrushFaceList& theirFaces = brush->faces();
-                for (faceIt = theirFaces.begin(), faceEnd = theirFaces.end(); faceIt != faceEnd; ++faceIt) {
-                    const BrushFace* theirFace = *faceIt;
-                    if (pointStatus(theirFace->boundary(), myVertices) == Math::PointStatus::PSAbove)
-                        return false;
-                }
-                
-                const BrushVertexList& theirVertices = brush->m_geometry->vertices();
-                const BrushFaceList& myFaces = m_this->faces();
-                for (faceIt = myFaces.begin(), faceEnd = myFaces.end(); faceIt != faceEnd; ++faceIt) {
-                    const BrushFace* myFace = *faceIt;
-                    if (pointStatus(myFace->boundary(), theirVertices) == Math::PointStatus::PSAbove)
-                        return false;
-                }
-                
-                const EdgeList& myEdges = m_this->m_geometry->edges();
-                const EdgeList& theirEdges = brush->m_geometry->edges();
-                EdgeList::const_iterator myEdgeIt, myEdgeEnd, theirEdgeIt, theirEdgeEnd;
-                for (myEdgeIt = myEdges.begin(), myEdgeEnd = myEdges.end(); myEdgeIt != myEdgeEnd; ++myEdgeIt) {
-                    const BrushEdge* myEdge = *myEdgeIt;
-                    const Vec3 myEdgeVec = myEdge->vector();
-                    const Vec3& origin = myEdge->firstVertex()->position();
-                    
-                    for (theirEdgeIt = theirEdges.begin(), theirEdgeEnd = theirEdges.end(); theirEdgeIt != theirEdgeEnd; ++theirEdgeIt) {
-                        const BrushEdge* theirEdge = *theirEdgeIt;
-                        const Vec3 theirEdgeVec = theirEdge->vector();
-                        const Vec3 direction = crossed(myEdgeVec, theirEdgeVec);
-                        const Plane3 plane(origin, direction);
-                        
-                        const Math::PointStatus::Type myStatus = pointStatus(plane, myVertices);
-                        if (myStatus != Math::PointStatus::PSInside) {
-                            const Math::PointStatus::Type theirStatus = pointStatus(plane, theirVertices);
-                            if (theirStatus != Math::PointStatus::PSInside) {
-                                if (myStatus != theirStatus)
-                                    return false;
-                            }
-                        }
-                    }
-                }
-                
-                return true;
-            }
-            
-            Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices) const {
-                size_t above = 0;
-                size_t below = 0;
-                const BrushVertex* first = vertices.front();
-                const BrushVertex* current = first;
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Math::PointStatus::Type status = plane.pointStatus(current->position());
-                    if (status == Math::PointStatus::PSAbove)
-                        ++above;
-                    else if (status == Math::PointStatus::PSBelow)
-                        ++below;
-                    if (above > 0 && below > 0)
-                        return Math::PointStatus::PSInside;
-                    current = current->next();
-                }
-                return above > 0 ? Math::PointStatus::PSAbove : Math::PointStatus::PSBelow;
+                return m_this->m_geometry->intersects(*brush->m_geometry, QueryCallback());
             }
         };
         

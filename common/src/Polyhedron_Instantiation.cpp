@@ -29,6 +29,7 @@
 #include "Polyhedron_Clip.h"
 #include "Polyhedron_Subtract.h"
 #include "Polyhedron_Intersect.h"
+#include "Polyhedron_Queries.h"
 
 namespace TrenchBroom {
     namespace Model {

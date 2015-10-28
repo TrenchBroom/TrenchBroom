@@ -453,6 +453,13 @@ private:
     HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback);
     void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, Callback& callback);
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
+public: // geometrical queries
+    bool contains(const V& point, const Callback& callback = Callback()) const;
+    bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;
+    bool intersects(const Polyhedron& other, const Callback& callback = Callback()) const;
+private:
+    bool separate(const Face* faces, const Vertex* vertices, const Callback& callback) const;
+    Math::PointStatus::Type pointStatus(const Plane<T,3>& plane, const Vertex* vertices) const;
 };
 
 #endif
