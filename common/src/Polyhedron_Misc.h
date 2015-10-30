@@ -25,7 +25,7 @@
 template <typename T, typename FP>
 class Polyhedron<T,FP>::VertexDistanceCmp {
 private:
-    const V m_anchor;
+    V m_anchor;
 public:
     VertexDistanceCmp(const V& anchor) :
     m_anchor(anchor) {}
