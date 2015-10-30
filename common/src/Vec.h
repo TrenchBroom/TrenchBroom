@@ -77,7 +77,7 @@ public:
     
     class LexicographicOrder {
     private:
-        const T m_epsilon;
+        T m_epsilon;
     public:
         LexicographicOrder(const T epsilon = Math::Constants<T>::almostZero()) :
         m_epsilon(epsilon) {}
