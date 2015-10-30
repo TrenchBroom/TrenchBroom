@@ -37,6 +37,12 @@ namespace TrenchBroom {
             BrushList m_brushes;
         public:
             bool empty() const;
+            size_t nodeCount() const;
+            size_t layerCount() const;
+            size_t groupCount() const;
+            size_t entityCount() const;
+            size_t brushCount() const;
+            
             bool hasLayers() const;
             bool hasOnlyLayers() const;
             bool hasGroups() const;

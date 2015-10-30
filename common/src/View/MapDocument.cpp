@@ -779,39 +779,31 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::csgSubtract() {
-            Transaction transaction(this, "CSG Subtract");
-            
-            const Model::BrushList subtrahends = selectedNodes().brushes();
-            if (subtrahends.empty())
+            const Model::BrushList brushes = selectedNodes().brushes();
+            if (brushes.size() < 2)
                 return false;
-
-            deselectAll();
             
-            Model::BrushList::const_iterator sIt, sEnd;
-            Model::BrushList::const_iterator mIt, mEnd;
-            for (sIt = subtrahends.begin(), sEnd = subtrahends.end(); sIt != sEnd; ++sIt) {
-                Model::Brush* subtrahend = *sIt;
-                select(subtrahend);
-                selectTouching(false);
-                
-                Model::BrushList minuends = selectedNodes().brushes();
-                deselectAll();
-                
-                if (!minuends.empty()) {
-                    Model::ParentChildrenMap toAdd;
-                    
-                    for (mIt = minuends.begin(), mEnd = minuends.end(); mIt != mEnd; ++mIt) {
-                        Model::Brush* minuend = *mIt;
-                        const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
-                        VectorUtils::append(toAdd[minuend->parent()], result);
-                    }
-                    
-                    addNodes(toAdd);
-                    removeNodes(Model::NodeList(minuends.begin(), minuends.end()));
+            const Model::BrushList minuends(brushes.begin(), brushes.end() - 1);
+            Model::Brush* subtrahend = brushes.back();
+            
+            Model::ParentChildrenMap toAdd;
+            Model::NodeList toRemove;
+            toRemove.push_back(subtrahend);
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = minuends.begin(), end = minuends.end(); it != end; ++it) {
+                Model::Brush* minuend = *it;
+                const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+                if (!result.empty()) {
+                    VectorUtils::append(toAdd[minuend->parent()], result);
+                    toRemove.push_back(minuend);
                 }
             }
             
-            removeNodes(Model::NodeList(subtrahends.begin(), subtrahends.end()));
+            Transaction transaction(this, "CSG Subtract");
+            deselectAll();
+            removeNodes(toRemove);
+            select(addNodes(toAdd));
             
             return true;
         }
