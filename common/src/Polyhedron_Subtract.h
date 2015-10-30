@@ -258,7 +258,7 @@ private:
         for (it = subtrahendPlanes.begin(), end = subtrahendPlanes.end(); it != end; ++it) {
             const Plane<T,3>& plane = *it;
             const Math::PointStatus::Type fragmentVertexStatus = plane.pointStatus(fragmentVertex->position());
-            if (fragmentVertexStatus != Math::PointStatus::PSBelow) {
+            if (fragmentVertexStatus == Math::PointStatus::PSAbove) {
                 const Math::PointStatus::Type minuendVertexStatus = plane.pointStatus(minuendVertex->position());
                 if (minuendVertexStatus == Math::PointStatus::PSBelow)
                     return false;

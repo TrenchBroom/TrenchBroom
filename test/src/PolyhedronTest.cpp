@@ -2516,59 +2516,41 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
     Polyhedron3d subtrahend(BBox3d(Vec3d(-16.0, -8.0, 0.0), Vec3d(16.0, 8.0, 32.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(5u, result.size());
+    ASSERT_EQ(3u, result.size());
     
-    Vec3d::List leftCuboidVertices;
-    leftCuboidVertices.push_back(Vec3d(-32.0, -8.0, 0.0));
-    leftCuboidVertices.push_back(Vec3d(-16.0, -8.0, 0.0));
-    leftCuboidVertices.push_back(Vec3d(-16.0, -8.0, 32.0));
-    leftCuboidVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
-    leftCuboidVertices.push_back(Vec3d(-32.0, +8.0, 0.0));
-    leftCuboidVertices.push_back(Vec3d(-16.0, +8.0, 0.0));
-    leftCuboidVertices.push_back(Vec3d(-16.0, +8.0, 32.0));
-    leftCuboidVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
+    Vec3d::List leftVertices;
+    leftVertices.push_back(Vec3d(-32.0, -8.0, 0.0));
+    leftVertices.push_back(Vec3d(-16.0, -8.0, 0.0));
+    leftVertices.push_back(Vec3d(-16.0, -8.0, 32.0));
+    leftVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
+    leftVertices.push_back(Vec3d(-32.0, +8.0, 0.0));
+    leftVertices.push_back(Vec3d(-16.0, +8.0, 0.0));
+    leftVertices.push_back(Vec3d(-16.0, +8.0, 32.0));
+    leftVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
     
-    Vec3d::List rightCuboidVertices;
-    rightCuboidVertices.push_back(Vec3d(+32.0, -8.0, 0.0));
-    rightCuboidVertices.push_back(Vec3d(+16.0, -8.0, 0.0));
-    rightCuboidVertices.push_back(Vec3d(+16.0, -8.0, 32.0));
-    rightCuboidVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
-    rightCuboidVertices.push_back(Vec3d(+32.0, +8.0, 0.0));
-    rightCuboidVertices.push_back(Vec3d(+16.0, +8.0, 0.0));
-    rightCuboidVertices.push_back(Vec3d(+16.0, +8.0, 32.0));
-    rightCuboidVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
+    Vec3d::List rightVertices;
+    rightVertices.push_back(Vec3d(+32.0, -8.0, 0.0));
+    rightVertices.push_back(Vec3d(+16.0, -8.0, 0.0));
+    rightVertices.push_back(Vec3d(+16.0, -8.0, 32.0));
+    rightVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
+    rightVertices.push_back(Vec3d(+32.0, +8.0, 0.0));
+    rightVertices.push_back(Vec3d(+16.0, +8.0, 0.0));
+    rightVertices.push_back(Vec3d(+16.0, +8.0, 32.0));
+    rightVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
     
-    Vec3d::List topCuboidVertices;
-    topCuboidVertices.push_back(Vec3d(-16.0, -8.0, 32.0));
-    topCuboidVertices.push_back(Vec3d(+16.0, -8.0, 32.0));
-    topCuboidVertices.push_back(Vec3d(+16.0, -8.0, 48.0));
-    topCuboidVertices.push_back(Vec3d(-16.0, -8.0, 48.0));
-    topCuboidVertices.push_back(Vec3d(-16.0, +8.0, 32.0));
-    topCuboidVertices.push_back(Vec3d(+16.0, +8.0, 32.0));
-    topCuboidVertices.push_back(Vec3d(+16.0, +8.0, 48.0));
-    topCuboidVertices.push_back(Vec3d(-16.0, +8.0, 48.0));
-    
-    Vec3d::List leftTopWedgeVertices;
-    leftTopWedgeVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
-    leftTopWedgeVertices.push_back(Vec3d(-16.0, -8.0, 32.0));
-    leftTopWedgeVertices.push_back(Vec3d(-16.0, -8.0, 48.0));
-    leftTopWedgeVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
-    leftTopWedgeVertices.push_back(Vec3d(-16.0, +8.0, 32.0));
-    leftTopWedgeVertices.push_back(Vec3d(-16.0, +8.0, 48.0));
-    
-    Vec3d::List rightTopWedgeVertices;
-    rightTopWedgeVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
-    rightTopWedgeVertices.push_back(Vec3d(+16.0, -8.0, 32.0));
-    rightTopWedgeVertices.push_back(Vec3d(+16.0, -8.0, 48.0));
-    rightTopWedgeVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
-    rightTopWedgeVertices.push_back(Vec3d(+16.0, +8.0, 32.0));
-    rightTopWedgeVertices.push_back(Vec3d(+16.0, +8.0, 48.0));
+    Vec3d::List topVertices;
+    topVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
+    topVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
+    topVertices.push_back(Vec3d(+16.0, -8.0, 48.0));
+    topVertices.push_back(Vec3d(-16.0, -8.0, 48.0));
+    topVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
+    topVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
+    topVertices.push_back(Vec3d(+16.0, +8.0, 48.0));
+    topVertices.push_back(Vec3d(-16.0, +8.0, 48.0));
 
-    ASSERT_TRUE(findAndRemove(result, leftCuboidVertices));
-    ASSERT_TRUE(findAndRemove(result, rightCuboidVertices));
-    ASSERT_TRUE(findAndRemove(result, topCuboidVertices));
-    ASSERT_TRUE(findAndRemove(result, leftTopWedgeVertices));
-    ASSERT_TRUE(findAndRemove(result, rightTopWedgeVertices));
+    ASSERT_TRUE(findAndRemove(result, leftVertices));
+    ASSERT_TRUE(findAndRemove(result, rightVertices));
+    ASSERT_TRUE(findAndRemove(result, topVertices));
     
     ASSERT_TRUE(result.empty());
 }
@@ -2708,30 +2690,6 @@ TEST(PolyhedronTest, mergeRemainingFragments) {
     subtrahendVertices.push_back(Vec3d(-16, -48, -32));
 
     const Polyhedron3d minuend(minuendVertices);
-    const Polyhedron3d subtrahend(subtrahendVertices);
-    
-    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(7u, result.size());
-}
-
-TEST(PolyhedronTest, multipleNeighbouringFaces) {
-    Vec3d::List subtrahendVertices;
-    subtrahendVertices.push_back(Vec3d(16, -32, 32));
-    subtrahendVertices.push_back(Vec3d(32, -0, 32));
-    subtrahendVertices.push_back(Vec3d(16, 32, 32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
-    subtrahendVertices.push_back(Vec3d(16, 32, -32));
-    subtrahendVertices.push_back(Vec3d(32, -0, -32));
-    subtrahendVertices.push_back(Vec3d(16, -32, -32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
-    
-    const Polyhedron3d minuend(BBox3d(64.0));
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
