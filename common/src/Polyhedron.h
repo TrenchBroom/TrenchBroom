@@ -73,6 +73,9 @@ public:
     typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
     typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
     typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
+
+    class VertexDistanceCmp;
+    typedef std::set<Vertex*, VertexDistanceCmp> ClosestVertexSet;
 private:
     typedef std::set<Vertex*> VertexSet;
     typedef std::set<Face*> FaceSet;
@@ -298,6 +301,7 @@ public: // Accessors
 private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
     Vertex* findClosestVertex(const V& position) const;
+    ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     

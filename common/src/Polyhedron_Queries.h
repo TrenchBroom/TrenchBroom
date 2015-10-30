@@ -99,10 +99,10 @@ bool Polyhedron<T,FP>::separate(const Face* firstFace, const Vertex* firstVertex
     do {
         const Plane<T,3> plane = callback.plane(currentFace);
         if (pointStatus(plane, firstVertex) == Math::PointStatus::PSAbove)
-            return false;
+            return true;
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
-    return true;
+    return false;
 }
 
 template <typename T, typename FP>

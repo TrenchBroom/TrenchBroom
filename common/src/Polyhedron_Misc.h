@@ -23,6 +23,26 @@
 #include <map>
 
 template <typename T, typename FP>
+class Polyhedron<T,FP>::VertexDistanceCmp {
+private:
+    const V m_anchor;
+public:
+    VertexDistanceCmp(const V& anchor) :
+    m_anchor(anchor) {}
+    
+    bool operator()(const Vertex* lhs, const Vertex* rhs) const {
+        const T lDist = m_anchor.squaredDistanceTo(lhs->position());
+        const T rDist = m_anchor.squaredDistanceTo(rhs->position());
+        if (lDist < rDist)
+            return true;
+        if (lDist > rDist)
+            return false;
+        return lhs->position().compare(rhs->position()) < 0;
+    }
+};
+
+
+template <typename T, typename FP>
 const typename Polyhedron<T,FP>::V& Polyhedron<T,FP>::GetVertexPosition::operator()(const Vertex* vertex) const {
     return vertex->position();
 }
@@ -525,6 +545,18 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findClosestVertex(const V& 
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
     return closestVertex;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::ClosestVertexSet Polyhedron<T,FP>::findClosestVertices(const V& position) const {
+    ClosestVertexSet result = ClosestVertexSet(VertexDistanceCmp(position));
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        result.insert(currentVertex);
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+    return result;
 }
 
 template <typename T, typename FP>

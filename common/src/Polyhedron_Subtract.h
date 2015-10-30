@@ -139,8 +139,10 @@ private:
 
     void simplify() {
         NewFragments newFragments = buildNewFragments();
-        removeDuplicateFragments(newFragments);
-        rebuildFragments(newFragments);
+        if (!newFragments.empty()) {
+            removeDuplicateFragments(newFragments);
+            rebuildFragments(newFragments);
+        }
     }
     
     NewFragments buildNewFragments() {
@@ -153,6 +155,8 @@ private:
         SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
         
         const ClosestVertices closest = findClosestVertices();
+        if (closest.empty())
+            return result;
         
         typename Polyhedron::List::iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
@@ -181,7 +185,7 @@ private:
         return result;
     }
     
-    ClosestVertices findClosestVertices() const {
+    ClosestVertices findClosestVertices() {
         ClosestVertices result(VertexCmp(0.1));
         
         typename Polyhedron::List::const_iterator it, end;
@@ -191,7 +195,9 @@ private:
             const Vertex* currentVertex = firstVertex;
             do {
                 if (result.count(currentVertex->position()) == 0) {
-                    const Vertex* closestMinuendVertex = m_minuend.findClosestVertex(currentVertex->position());
+                    const Vertex* closestMinuendVertex = selectClosestMinuendVertex(currentVertex);
+                    if (closestMinuendVertex == NULL) // there is no solution
+                        return ClosestVertices(VertexCmp(0.1));
                     result[currentVertex->position()] = closestMinuendVertex->position();
                 }
                 currentVertex = currentVertex->next();
@@ -199,6 +205,66 @@ private:
         }
         
         return result;
+    }
+    
+    const Vertex* selectClosestMinuendVertex(const Vertex* fragmentVertex) {
+        const typename Plane<T,3>::Set subtrahendPlanes = findSubtrahendPlanes(fragmentVertex->position());
+        const Polyhedron::ClosestVertexSet closestVertices = m_minuend.findClosestVertices(fragmentVertex->position());
+        
+        typename Polyhedron::ClosestVertexSet::const_iterator it, end;
+        for (it = closestVertices.begin(), end = closestVertices.end(); it != end; ++it) {
+            const Vertex* currentMinuendVertex = *it;
+            if (checkValidClosestMinuendVertex(fragmentVertex, currentMinuendVertex, subtrahendPlanes))
+                return currentMinuendVertex;
+        }
+        return NULL;
+    }
+    
+    typename Plane<T,3>::Set findSubtrahendPlanes(const V& position) {
+        typename Plane<T,3>::Set result;
+        
+        typename Polyhedron::List::iterator it, end;
+        for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
+            const Polyhedron& fragment = *it;
+            if (fragment.hasVertex(position, 0.1)) {
+                const Face* subtrahendFace = findIncidentSubtrahendFace(fragment);
+                if (subtrahendFace != NULL) {
+                    const Plane<T,3> plane = m_callback.plane(subtrahendFace);
+                    result.insert(plane);
+                }
+            }
+        }
+        return result;
+    }
+    
+    const Face* findIncidentSubtrahendFace(const Polyhedron& fragment) {
+        const Face* firstFragmentFace = fragment.faces().front();
+        const Face* currentFragmentFace = firstFragmentFace;
+        do {
+            const HalfEdgeList& boundary = currentFragmentFace->boundary();
+            typename V::List positions = V::asList(boundary.begin(), boundary.end(), GetVertexPosition());
+            std::reverse(positions.begin(), positions.end());
+            
+            const Face* subtrahendFace = m_subtrahend.findFaceByPositions(positions, 0.1);
+            if (subtrahendFace != NULL)
+                return subtrahendFace;
+            currentFragmentFace = currentFragmentFace->next();
+        } while (currentFragmentFace != firstFragmentFace);
+        return NULL;
+    }
+    
+    bool checkValidClosestMinuendVertex(const Vertex* fragmentVertex, const Vertex* minuendVertex, const typename Plane<T,3>::Set& subtrahendPlanes) {
+        typename Plane<T,3>::Set::const_iterator it, end;
+        for (it = subtrahendPlanes.begin(), end = subtrahendPlanes.end(); it != end; ++it) {
+            const Plane<T,3>& plane = *it;
+            const Math::PointStatus::Type fragmentVertexStatus = plane.pointStatus(fragmentVertex->position());
+            if (fragmentVertexStatus != Math::PointStatus::PSBelow) {
+                const Math::PointStatus::Type minuendVertexStatus = plane.pointStatus(minuendVertex->position());
+                if (minuendVertexStatus == Math::PointStatus::PSBelow)
+                    return false;
+            }
+        }
+        return true;
     }
     
     void removeDuplicateFragments(NewFragments& newFragments) const {
