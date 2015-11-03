@@ -259,30 +259,29 @@ private:
             return true;
         
         const FaceSet incidentFaces = findCommonIncidentFaces(subtrahendVertices);
-        size_t invalidMoveCount = 0;
         
         typename FaceSet::const_iterator it, end;
         for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
             const Face* incidentFace = *it;
             const Plane<T,3> plane = m_callback.plane(incidentFace);
-            if (plane.pointStatus(originalPosition) != Math::PointStatus::PSBelow &&
-                plane.pointStatus(targetPosition)   == Math::PointStatus::PSBelow) {
-                ++invalidMoveCount;
+            if (plane.pointStatus(originalPosition) == Math::PointStatus::PSBelow ||
+                plane.pointStatus(targetPosition)   != Math::PointStatus::PSBelow) {
+                return true;
             }
         }
-        return invalidMoveCount < incidentFaces.size();
+        return false;
     }
     
     VertexSet findSubtrahendVertices(const Polyhedron& fragment) const {
         VertexSet result;
         
-        Vertex* firstFragmentVertex = fragment.vertices().front();
-        Vertex* currentFragmentVertex = firstFragmentVertex;
+        Vertex* firstSubtrahendVertex = m_subtrahend.vertices().front();
+        Vertex* currentSubtrahendVertex = firstSubtrahendVertex;
         do {
-            if (m_subtrahend.hasVertex(currentFragmentVertex->position(), 0.1))
-                result.insert(currentFragmentVertex);
-            currentFragmentVertex = currentFragmentVertex->next();
-        } while (currentFragmentVertex != firstFragmentVertex);
+            if (fragment.hasVertex(currentSubtrahendVertex->position(), 0.1))
+                result.insert(currentSubtrahendVertex);
+            currentSubtrahendVertex = currentSubtrahendVertex->next();
+        } while (currentSubtrahendVertex != firstSubtrahendVertex);
         
         return result;
     }
