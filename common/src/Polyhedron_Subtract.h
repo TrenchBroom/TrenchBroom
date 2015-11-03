@@ -264,12 +264,12 @@ private:
         for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
             const Face* incidentFace = *it;
             const Plane<T,3> plane = m_callback.plane(incidentFace);
-            if (plane.pointStatus(originalPosition) == Math::PointStatus::PSBelow ||
-                plane.pointStatus(targetPosition)   != Math::PointStatus::PSBelow) {
-                return true;
+            if (plane.pointStatus(originalPosition, 0.1) == Math::PointStatus::PSAbove &&
+                plane.pointStatus(targetPosition, 0.1)   == Math::PointStatus::PSBelow) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
     
     VertexSet findSubtrahendVertices(const Polyhedron& fragment) const {
