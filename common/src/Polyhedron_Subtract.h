@@ -259,16 +259,18 @@ private:
             return true;
         
         const FaceSet incidentFaces = findCommonIncidentFaces(subtrahendVertices);
+        size_t invalidMoveCount = 0;
         
         typename FaceSet::const_iterator it, end;
         for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
             const Face* incidentFace = *it;
             const Plane<T,3> plane = m_callback.plane(incidentFace);
             if (plane.pointStatus(originalPosition) != Math::PointStatus::PSBelow &&
-                plane.pointStatus(targetPosition) == Math::PointStatus::PSBelow)
-                return false;
+                plane.pointStatus(targetPosition)   == Math::PointStatus::PSBelow) {
+                ++invalidMoveCount;
+            }
         }
-        return true;
+        return invalidMoveCount < incidentFaces.size();
     }
     
     VertexSet findSubtrahendVertices(const Polyhedron& fragment) const {
