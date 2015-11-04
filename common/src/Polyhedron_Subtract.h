@@ -246,12 +246,6 @@ private:
     }
     
     bool checkValidTargetPosition(const V& originalPosition, const V& targetPosition, const Polyhedron& incidentFragment) const {
-        if (incidentFragment.hasVertex(V(64.0, -20.7528, 2.47521), 0.1) &&
-            incidentFragment.hasVertex(V(64.0, 41.5578, 32.0), 0.1) &&
-            originalPosition.equals(V(64.0, -22.6274, 16.4676), 0.1) &&
-            targetPosition.equals(V(64.0, -64.0, 32.0), 0.1))
-            bool b = true;
-        
         const VertexSet subtrahendVertices = findSubtrahendVertices(incidentFragment);
         if (subtrahendVertices.empty())
             return true;
