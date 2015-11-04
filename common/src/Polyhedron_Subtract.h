@@ -151,13 +151,7 @@ private:
     
     NewFragments buildNewFragments() {
         NewFragments result;
-        
-        typedef std::set<V, VertexCmp> ExcludeSet;
-        ExcludeSet exclude(VertexCmp(0.1));
-        // typename V::Set exclude;
-        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), exclude);
-        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
-        
+
         const ClosestVertices closest = findClosestVertices();
         if (closest.empty())
             return result;
@@ -172,9 +166,8 @@ private:
             
             do {
                 const V& currentPosition = currentVertex->position();
-                if (exclude.count(currentPosition) == 0) {
-                    typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
-                    assert(clIt != closest.end());
+                typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
+                if (clIt != closest.end()) {
                     const V& targetPosition = clIt->second;
                     newFragmentVertices.insert(targetPosition);
                 } else {
@@ -198,9 +191,8 @@ private:
             const V& vertexPosition = mIt->first;
             const IterList& fragments = mIt->second;
             V targetPosition;
-            if (!selectTargetPosition(vertexPosition, fragments, targetPosition))
-                return ClosestVertices(VertexCmp(0.1));
-            result[vertexPosition] = targetPosition;
+            if (selectTargetPosition(vertexPosition, fragments, targetPosition))
+                result[vertexPosition] = targetPosition;
         }
         
         return result;
@@ -254,6 +246,12 @@ private:
     }
     
     bool checkValidTargetPosition(const V& originalPosition, const V& targetPosition, const Polyhedron& incidentFragment) const {
+        if (incidentFragment.hasVertex(V(64.0, -20.7528, 2.47521), 0.1) &&
+            incidentFragment.hasVertex(V(64.0, 41.5578, 32.0), 0.1) &&
+            originalPosition.equals(V(64.0, -22.6274, 16.4676), 0.1) &&
+            targetPosition.equals(V(64.0, -64.0, 32.0), 0.1))
+            bool b = true;
+        
         const VertexSet subtrahendVertices = findSubtrahendVertices(incidentFragment);
         if (subtrahendVertices.empty())
             return true;
@@ -264,7 +262,7 @@ private:
         for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
             const Face* incidentFace = *it;
             const Plane<T,3> plane = m_callback.plane(incidentFace);
-            if (plane.pointStatus(originalPosition, 0.1) == Math::PointStatus::PSAbove &&
+            if (plane.pointStatus(originalPosition, 0.1) != Math::PointStatus::PSBelow &&
                 plane.pointStatus(targetPosition, 0.1)   == Math::PointStatus::PSBelow) {
                 return false;
             }
