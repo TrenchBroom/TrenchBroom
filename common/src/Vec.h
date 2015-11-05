@@ -640,20 +640,24 @@ public:
         return colinear(points[0], points[1], points[2]);
     }
     
-    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         return colinear(*this, p2, p3, epsilon);
     }
 
-    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) {
+    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
         const Vec<T,S> v1 = p2 - p1;
         const Vec<T,S> v2 = p3 - p2;
         const Vec<T,S> v3 = p1 - p3;
         return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
     }
     
-    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         const T d = normalized().dot(other.normalized());
         return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
+    }
+    
+    bool colinearTo(const Vec<T,3>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
+        return 1.0 - dot(other) < epsilon;
     }
     
     Vec<T,S> makePerpendicular() const {

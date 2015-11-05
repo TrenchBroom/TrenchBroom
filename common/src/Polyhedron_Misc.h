@@ -621,8 +621,10 @@ bool Polyhedron<T,FP>::hasFace(const Face* face) const {
 
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::checkInvariant() const {
+    /*
     if (!checkConvex())
         return false;
+     */
     if (polyhedron() && !checkClosed())
         return false;
     if (polyhedron() && !checkNoDegenerateFaces())

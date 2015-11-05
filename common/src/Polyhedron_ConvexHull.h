@@ -115,8 +115,8 @@ void Polyhedron<T,FP>::addPoint(const V& position, Callback& callback) {
             m_bounds.mergeWith(position);
             break;
         default:
-            addFurtherPoint(position, callback);
-            m_bounds.mergeWith(position);
+            if (addFurtherPoint(position, callback))
+                m_bounds.mergeWith(position);
             break;
     }
     assert(checkInvariant());
@@ -193,30 +193,33 @@ void Polyhedron<T,FP>::addPointToEdge(const V& position) {
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::addFurtherPoint(const V& position, Callback& callback) {
-    if (faceCount() == 1)
-        addFurtherPointToPolygon(position, callback);
-    else
+bool Polyhedron<T,FP>::addFurtherPoint(const V& position, Callback& callback) {
+    if (faceCount() == 1) {
+        return addFurtherPointToPolygon(position, callback);
+    } else {
         addFurtherPointToPolyhedron(position, callback);
+        return true;
+    }
 }
 
 //Adds the given point to a polygon. The result is either a differen polygon if the
 // given point is coplanar to the already existing polygon, or a polyhedron if the
 // given point is not coplanar.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
+bool Polyhedron<T,FP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
     Face* face = *m_faces.begin();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
         case Math::PointStatus::PSInside:
             addPointToPolygon(position, callback);
-            break;
+            return true;
         case Math::PointStatus::PSAbove:
             face->flip();
         case Math::PointStatus::PSBelow:
-            makePolyhedron(position, callback);
-            break;
+            return makePolyhedron(position, callback);
     }
+    // will never be reached
+    return true;
 }
 
 // Adds the given coplanar point to a polyhedron that is a polygon or an edge.
@@ -260,7 +263,7 @@ void Polyhedron<T,FP>::makePolygon(const typename V::List& positions, Callback& 
 // Converts a coplanar polyhedron into a non-coplanar one by adding the given
 // point, which is assumed to be non-coplanar to the points in this polyhedron.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::makePolyhedron(const V& position, Callback& callback) {
+bool Polyhedron<T,FP>::makePolyhedron(const V& position, Callback& callback) {
     assert(polygon());
     
     Seam seam;
@@ -274,7 +277,7 @@ void Polyhedron<T,FP>::makePolyhedron(const V& position, Callback& callback) {
         current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
     } while (current != first);
 
-    addPointToPolyhedron(position, seam, callback);
+    return addPointToPolyhedron(position, seam, callback);
 }
 
 // Adds the given point to this polyhedron.
@@ -291,11 +294,31 @@ void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, Callback& 
 // Adds the given point to this polyhedron by weaving a cap over the given seam.
 // Assumes that this polyhedron has been split by the given seam.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
+bool Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(!seam.empty());
     Vertex* newVertex = weaveCap(seam, position, callback);
     cleanupAfterVertexMove(newVertex, callback);
-    assert(checkInvariant() && closed());
+    if (faceCount() == 2) {
+        // If this polyhedron was a polygon, and the added point was too close to it, the cleanup
+        // may erase the new point, and we end up with two coplanar faces. We delete the newly added
+        // face and return to being a polygon.
+        Face* remainingFace = m_faces.front();
+        Face* removedFace = remainingFace->next();
+        m_faces.remove(removedFace);
+        delete removedFace;
+        
+        HalfEdge* firstEdge = remainingFace->boundary().front();
+        HalfEdge* currentEdge = firstEdge;
+        do {
+            Edge* edge = currentEdge->edge();
+            edge->makeFirstEdge(currentEdge);
+            edge->unsetSecondEdge();
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+
+        return false;
+    }
+    return true;
 }
 
 template <typename T, typename FP>
@@ -339,8 +362,6 @@ void Polyhedron<T,FP>::split(const Seam& seam, Callback& callback) {
     FaceSet faceSet;
     VertexList verticesToDelete;
     deleteFaces(first, faceSet, verticesToDelete, callback);
-    
-    assert(checkConvex());
 }
 
 template <typename T, typename FP>

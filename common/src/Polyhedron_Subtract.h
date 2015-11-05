@@ -185,24 +185,24 @@ private:
     }
     
     MoveableVertices findMoveableVertices() const {
-        const PositionSet excludedVertices = findExcludedVertices();
+        const PositionSet exclude = findExcludedVertices();
         MoveableVertices result(VertexCmp(0.1));
         
         typename Polyhedron::List::const_iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
             const Polyhedron& fragment = *it;
-            findMoveableVertices(fragment, result);
+            findMoveableVertices(fragment, exclude, result);
         }
         
         return result;
     }
     
-    void findMoveableVertices(const Polyhedron& fragment, MoveableVertices& result) const {
+    void findMoveableVertices(const Polyhedron& fragment, const PositionSet& exclude, MoveableVertices& result) const {
         const Vertex* firstVertex = fragment.vertices().front();
         const Vertex* currentVertex = firstVertex;
         do {
             const V& currentPosition = currentVertex->position();
-            if (result.count(currentPosition) == 0)
+            if (exclude.count(currentPosition) == 0 && result.count(currentPosition) == 0)
                 result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertices(currentPosition)));
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);

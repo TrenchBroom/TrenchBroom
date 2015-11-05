@@ -171,7 +171,7 @@ bool Polyhedron<T,FP>::Face::visibleFrom(const V& point) const {
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::Face::coplanar(const Face* other) const {
     assert(other != NULL);
-    return normal().equals(other->normal(), Math::Constants<T>::colinearEpsilon());
+    return normal().colinearTo(other->normal());
 }
 
 template <typename T, typename FP>

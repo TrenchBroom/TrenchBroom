@@ -400,14 +400,14 @@ private:
     void addThirdPoint(const V& position, Callback& callback);
     void addPointToEdge(const V& position);
     
-    void addFurtherPoint(const V& position, Callback& callback);
-    void addFurtherPointToPolygon(const V& position, Callback& callback);
+    bool addFurtherPoint(const V& position, Callback& callback);
+    bool addFurtherPointToPolygon(const V& position, Callback& callback);
     void addPointToPolygon(const V& position, Callback& callback);
     void makePolygon(const typename V::List& positions, Callback& callback);
-    void makePolyhedron(const V& position, Callback& callback);
+    bool makePolyhedron(const V& position, Callback& callback);
     
     void addFurtherPointToPolyhedron(const V& position, Callback& callback);
-    void addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
+    bool addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
     
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
