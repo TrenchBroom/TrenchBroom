@@ -790,6 +790,13 @@ namespace SetUtils {
     }
     
     template <typename T, typename C>
+    std::set<T, C> minus(const std::set<T, C>& lhs, const T& rhs) {
+        std::set<T, C> result(lhs);
+        result.erase(rhs);
+        return result;
+    }
+    
+    template <typename T, typename C>
     void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         result.insert(lhs.begin(), lhs.end());
         result.insert(rhs.begin(), rhs.end());
@@ -963,6 +970,13 @@ namespace MapUtils {
         }
     }
 
+    template <typename K, typename V, typename C>
+    std::map<K,V,C> minus(const std::map<K,V,C>& lhs, const K& rhs) {
+        std::map<K,V,C> result(lhs);
+        result.erase(rhs);
+        return result;
+    }
+    
     template <typename K, typename V>
     bool removeAndDelete(std::map<K, V*>& map, const K& key) {
         typedef std::map<K, V*> Map;
