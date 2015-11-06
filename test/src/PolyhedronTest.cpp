@@ -117,6 +117,25 @@ TEST(PolyhedronTest, convexHullWithFailingPoints2) {
     p.addPoint(p7);
 }
 
+TEST(PolyhedronTest, convexHullWithFailingPoints3) {
+    const Vec3d p1(-64,      -64,      -48);
+    const Vec3d p2(-64,       22.5637, -48);
+    const Vec3d p3(-64,       64,      -48);
+    const Vec3d p4(-63.7297,  22.6264, -48);
+    const Vec3d p5(-57.9411,  22.6274, -37.9733);
+    const Vec3d p6(-44.6031, -39.1918, -48);
+    const Vec3d p7(-43.5959, -39.1918, -46.2555);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6); // assertion failure here
+    p.addPoint(p7);
+}
+
 /*
 TEST(PolyhedronTest, testImpossibleSplit) {
     const Vec3d p1( 0.0, 4.0, 8.0);

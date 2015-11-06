@@ -298,21 +298,32 @@ bool Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam,
     assert(!seam.empty());
     Vertex* newVertex = weaveCap(seam, position, callback);
     cleanupAfterVertexMove(newVertex, callback);
-    if (faceCount() == 2) {
+    if (faceCount() < 4) {
         // If this polyhedron was a polygon, and the added point was too close to it, the cleanup
-        // may erase the new point, and we end up with two coplanar faces. We delete the newly added
-        // face and return to being a polygon.
+        // may merge some of the newly added faces, and the result is an invalid polyhedron.
+        // We delete the newly added faces and return to being a polygon.
         Face* remainingFace = m_faces.front();
-        Face* removedFace = remainingFace->next();
-        m_faces.remove(removedFace);
-        delete removedFace;
+        Face* currentFace = remainingFace->next();
+        while (currentFace != remainingFace) {
+            Face* removedFace = currentFace;
+            currentFace = currentFace->next();
+            
+            removedFace->removeBoundaryFromEdges();
+            m_faces.remove(removedFace);
+            delete removedFace;
+        }
         
-        HalfEdge* firstEdge = remainingFace->boundary().front();
-        HalfEdge* currentEdge = firstEdge;
+        Edge* firstEdge = m_edges.front();
+        Edge* currentEdge = firstEdge;
         do {
-            Edge* edge = currentEdge->edge();
-            edge->makeFirstEdge(currentEdge);
-            edge->unsetSecondEdge();
+            if (currentEdge->orphaned()) {
+                Edge* removedEdge = currentEdge;
+                currentEdge = currentEdge->next();
+                
+                m_edges.remove(removedEdge);
+                delete removedEdge;
+            }
+            
             currentEdge = currentEdge->next();
         } while (currentEdge != firstEdge);
 

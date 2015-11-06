@@ -279,4 +279,18 @@ void Polyhedron<T,FP>::Face::updateBoundaryFaces(Face* face) {
     } while (current != first);
 }
 
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::removeBoundaryFromEdges() {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        Edge* edge = current->edge();
+        if (edge != NULL) {
+            edge->makeSecondEdge(current);
+            edge->unsetSecondEdge();
+        }
+        current = current->next();
+    } while (current != first);
+}
+
 #endif

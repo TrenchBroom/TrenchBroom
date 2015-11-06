@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    // Merge merge(result, callback);
+    Merge merge(result, callback);
     return result;
 }
 
@@ -197,6 +197,13 @@ private:
         return result;
     }
     
+    PositionSet findExcludedVertices() const {
+        PositionSet result(VertexCmp(0.1));
+        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
+        return result;
+    }
+    
     void findMoveableVertices(const Polyhedron& fragment, const PositionSet& exclude, MoveableVertices& result) const {
         const Vertex* firstVertex = fragment.vertices().front();
         const Vertex* currentVertex = firstVertex;
@@ -206,13 +213,6 @@ private:
                 result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertices(currentPosition)));
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-    }
-    
-    PositionSet findExcludedVertices() const {
-        PositionSet result(VertexCmp(0.1));
-        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
-        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
-        return result;
     }
     
     FragmentVertexSet fragmentVertices() const {
@@ -272,6 +272,12 @@ private:
             if (newVertices.erase(vertexPosition)) {
                 newVertices.insert(targetPosition);
                 
+                typename V::Set::iterator vIt, vEnd;
+                for (vIt = newVertices.begin(), vEnd = newVertices.end(); vIt != vEnd; ++vIt) {
+                    std::cout << *vIt << std::endl;
+                }
+                std::cout << std::endl;
+                
                 Polyhedron fragment(newVertices);
                 if (fragment.polyhedron()) {
                     if (fragment.intersects(m_subtrahend))
@@ -282,6 +288,10 @@ private:
                 newFragments.insert(newVertices);
             }
         }
+        
+        using std::swap;
+        swap(fragments, newFragments);
+        
         return true;
     }
     

@@ -125,6 +125,7 @@ public:
         bool hasVertex(const Vertex* vertex) const;
         bool hasPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasPositions(const V& position1, const V& position2, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool orphaned() const;
         bool fullySpecified() const;
         bool contains(const V& point, T maxDistance = Math::Constants<T>::almostZero()) const;
         Edge* next() const;
@@ -215,6 +216,7 @@ public:
         void replaceEntireBoundary(HalfEdgeList& newBoundary);
         size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
         void updateBoundaryFaces(Face* face);
+        void removeBoundaryFromEdges();
     };
 public:
     struct GetVertexPosition {

@@ -148,6 +148,11 @@ bool Polyhedron<T,FP>::Edge::hasPositions(const V& position1, const V& position2
 }
 
 template <typename T, typename FP>
+bool Polyhedron<T,FP>::Edge::orphaned() const {
+    return m_first == NULL && m_second == NULL;
+}
+
+template <typename T, typename FP>
 bool Polyhedron<T,FP>::Edge::fullySpecified() const {
     assert(m_first != NULL);
     return m_second != NULL;
