@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    Merge merge(result, callback);
+    // Merge merge(result, callback);
     return result;
 }
 
@@ -180,8 +180,8 @@ private:
     
     ClosestVertices findClosestVertices() {
         const MoveableVertices moveableVertices = findMoveableVertices();
-        const FragmentVertexSet fragments = fragmentVertices();
-        return findClosestVertices(moveableVertices, fragments);
+        const FragmentVertexSet fragmentVertices = findFragmentVertices();
+        return findClosestVertices(moveableVertices, fragmentVertices);
     }
     
     MoveableVertices findMoveableVertices() const {
@@ -215,7 +215,7 @@ private:
         } while (currentVertex != firstVertex);
     }
     
-    FragmentVertexSet fragmentVertices() const {
+    FragmentVertexSet findFragmentVertices() const {
         FragmentVertexSet result;
         
         typename Polyhedron::List::const_iterator it, end;
@@ -266,21 +266,16 @@ private:
     
     bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
         FragmentVertexSet newFragments;
-        typename FragmentVertexSet::iterator fIt,fEnd;
+        typename FragmentVertexSet::const_iterator fIt,fEnd;
         for (fIt = fragments.begin(), fEnd = fragments.end(); fIt != fEnd; ++fIt) {
             typename V::Set newVertices = *fIt;
-            if (newVertices.erase(vertexPosition)) {
+            
+            if (newVertices.erase(vertexPosition) > 0) {
                 newVertices.insert(targetPosition);
                 
-                typename V::Set::iterator vIt, vEnd;
-                for (vIt = newVertices.begin(), vEnd = newVertices.end(); vIt != vEnd; ++vIt) {
-                    std::cout << *vIt << std::endl;
-                }
-                std::cout << std::endl;
-                
-                Polyhedron fragment(newVertices);
-                if (fragment.polyhedron()) {
-                    if (fragment.intersects(m_subtrahend))
+                Polyhedron newFragment(newVertices);
+                if (newFragment.polyhedron()) {
+                    if (newFragment.intersects(m_subtrahend))
                         return false;
                     newFragments.insert(newVertices);
                 }
@@ -293,6 +288,17 @@ private:
         swap(fragments, newFragments);
         
         return true;
+    }
+    
+    bool containsIntersectingFragments(const List& fragments) const {
+        typename List::const_iterator first, second, end;
+        for (first = fragments.begin(), end = fragments.end(); first != end; ++first) {
+            for (second = first, std::advance(second, 1); second != end; ++second) {
+                if (first->intersects(*second))
+                    return true;
+            }
+        }
+        return false;
     }
     
     void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
@@ -332,6 +338,16 @@ private:
                 m_fragments.push_back(fragment);
         }
     }
+};
+
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Partition {
+private:
+    List& m_fragments;
+public:
+    Partition(List& fragments) :
+    m_fragments(fragments) {}
+    
 };
 
 template <typename T, typename FP>

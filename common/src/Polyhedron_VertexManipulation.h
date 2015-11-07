@@ -807,8 +807,7 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
     bool allCoplanar = true;
     
     // First determine whether all incident faces have become coplanar. While doing this,
-    // also remember an edge such that its incident face and its inner neighbour are not
-    // coplanar.
+    // also remember an edge such that its incident faces are not coplanar.
     HalfEdge* firstEdge = vertex->leaving();
     HalfEdge* curEdge = firstEdge;
     do {
@@ -818,7 +817,7 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
         
         if (!face->coplanar(innerNeighbour)) {
             allCoplanar = false;
-            firstEdge = curEdge;
+            firstEdge = innerBorder->twin();
         }
         curEdge = innerBorder->twin();
         ++incidentFaceCount;
@@ -866,11 +865,17 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
         m_vertices.remove(vertex);
         delete vertex;
     } else {
+        assert(!firstEdge->face()->coplanar(firstEdge->twin()->face()));
+        
+        // We have chosen the first edge such that its incident faces are not coplanar.
+        // Now we start search for patches of coplanar faces and merge them.
+        
         // Due to how we have chosen the first edge, we know that the first two
         // incident faces are not coplanar and thus won't be merged. This is important
         // because otherwise, the loop would immediately terminate after one iteration
         // since curEdge is not incremented when two inner neighbours are merged.
         curEdge = firstEdge;
+        bool didIncrement = false;
         do {
             Face* face = curEdge->face();
             
@@ -882,16 +887,16 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
             
             if (face->coplanar(innerNeighbour)) {
                 // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
-                if (innerBorder->twin() == firstEdge)
-                    firstEdge = firstEdge->nextIncident();
                 mergeNeighbours(innerBorder, callback);
             } else if (face->coplanar(outerNeighbour)) {
                 mergeNeighbours(outerBorder, callback);
                 curEdge = curEdge->nextIncident();
+                didIncrement = true;
             } else {
                 curEdge = curEdge->nextIncident();
+                didIncrement = true;
             }
-        } while (curEdge != firstEdge);
+        } while (curEdge != firstEdge || !didIncrement);
     }
     
     return remainingFace;

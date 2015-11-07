@@ -30,6 +30,7 @@
 
 template <typename T, typename FP>
 class Polyhedron {
+private:
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
 public:
@@ -203,6 +204,9 @@ public:
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
     private:
+        template <typename O>
+        void getVertexPositions(O output) const;
+
         bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
         Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
@@ -217,7 +221,12 @@ public:
         size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
         void updateBoundaryFaces(Face* face);
         void removeBoundaryFromEdges();
+        void setLeavingEdges();
+        
+        bool checkBoundary() const;
     };
+private:
+    class Seam;
 public:
     struct GetVertexPosition {
         const V& operator()(const Vertex* vertex) const;
@@ -307,16 +316,21 @@ private: // General purpose methods
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
+    template <typename O>
+    void getVertexPositions(O output) const;
+    
     bool hasVertex(const Vertex* vertex) const;
     bool hasEdge(const Edge* edge) const;
     bool hasFace(const Face* face) const;
     
     bool checkInvariant() const;
+    bool checkFaceBoundaries() const;
     bool checkConvex() const;
     bool checkClosed() const;
     bool checkNoCoplanarFaces() const;
     bool checkNoDegenerateFaces() const;
     bool checkVertexLeavingEdges() const;
+    bool checkEdges() const;
     
     void updateBounds();
 private:  // Moving vertices
@@ -394,7 +408,6 @@ public: // Convex hull and adding points
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
-    class Seam;
 
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
@@ -420,7 +433,7 @@ private:
     void split(const Seam& seam, Callback& callback);
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
     
-    void weaveCap(const Seam& seam, Callback& callback);
+    Face* weaveCap(const Seam& seam, Callback& callback);
     Vertex* weaveCap(const Seam& seam, const V& position, Callback& callback);
     Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const;
 public: // Clipping
@@ -447,6 +460,7 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
     class Subtract;
+    class Partition;
     class Merge;
 public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;

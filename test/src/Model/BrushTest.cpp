@@ -727,6 +727,9 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, subtractCuboidFromCuboid) {
+            bool b = true;
+            return;
+            
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             

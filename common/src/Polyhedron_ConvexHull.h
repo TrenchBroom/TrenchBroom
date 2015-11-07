@@ -70,6 +70,10 @@ public:
     const_iterator end() const {
         return m_edges.end();
     }
+    
+    void clear() {
+        m_edges.clear();
+    }
 private:
     bool checkEdge(Edge* edge) const {
         if (m_edges.empty())
@@ -296,37 +300,22 @@ void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, Callback& 
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(!seam.empty());
+
+    Face* remainingFace = m_faces.front();
+    typename V::List vertices;
+    vertices.reserve(remainingFace->vertexCount());
+    remainingFace->getVertexPositions(std::back_inserter(vertices));
+
     Vertex* newVertex = weaveCap(seam, position, callback);
     cleanupAfterVertexMove(newVertex, callback);
     if (faceCount() < 4) {
         // If this polyhedron was a polygon, and the added point was too close to it, the cleanup
         // may merge some of the newly added faces, and the result is an invalid polyhedron.
-        // We delete the newly added faces and return to being a polygon.
-        Face* remainingFace = m_faces.front();
-        Face* currentFace = remainingFace->next();
-        while (currentFace != remainingFace) {
-            Face* removedFace = currentFace;
-            currentFace = currentFace->next();
-            
-            removedFace->removeBoundaryFromEdges();
-            m_faces.remove(removedFace);
-            delete removedFace;
-        }
+        // We recreate the original polygon.
         
-        Edge* firstEdge = m_edges.front();
-        Edge* currentEdge = firstEdge;
-        do {
-            if (currentEdge->orphaned()) {
-                Edge* removedEdge = currentEdge;
-                currentEdge = currentEdge->next();
-                
-                m_edges.remove(removedEdge);
-                delete removedEdge;
-            }
-            
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
-
+        clear();
+        addPoints(vertices.begin(), vertices.end(), callback);
+        
         return false;
     }
     return true;
@@ -413,7 +402,7 @@ void Polyhedron<T,FP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Verte
 // Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
 // on a plane.
 template <typename T, typename FP>
-void Polyhedron<T,FP>::weaveCap(const Seam& seam, Callback& callback) {
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::weaveCap(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
 
     HalfEdgeList boundary;
@@ -431,6 +420,7 @@ void Polyhedron<T,FP>::weaveCap(const Seam& seam, Callback& callback) {
     Face* face = new Face(boundary);
     callback.faceWasCreated(face);
     m_faces.append(face, 1);
+    return face;
 }
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex

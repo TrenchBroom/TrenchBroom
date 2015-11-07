@@ -163,6 +163,16 @@ T Polyhedron<T,FP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::Side
     return intersectPolygonWithRay(ray, plane, m_boundary.begin(), m_boundary.end(), GetVertexPosition());
 }
 
+template <typename T, typename FP> template <typename O>
+void Polyhedron<T,FP>::Face::getVertexPositions(O output) const {
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        output = currentEdge->origin()->position();
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+}
+
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::Face::visibleFrom(const V& point) const {
     return pointStatus(point) == Math::PointStatus::PSAbove;
@@ -291,6 +301,28 @@ void Polyhedron<T,FP>::Face::removeBoundaryFromEdges() {
         }
         current = current->next();
     } while (current != first);
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::setLeavingEdges() {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        current->setAsLeaving();
+        current = current->next();
+    } while (current != first);
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Face::checkBoundary() const {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        if (current->face() != this)
+            return false;
+        current = current->next();
+    } while (current != first);
+    return true;
 }
 
 #endif
