@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    // Merge merge(result, callback);
+    Merge merge(result, callback);
     return result;
 }
 
@@ -143,6 +143,7 @@ private:
         FragmentVertexSet newFragments = buildNewFragments();
         removeDuplicateFragments(newFragments);
         rebuildFragments(newFragments);
+        partitionFragments();
     }
     
     FragmentVertexSet buildNewFragments() {
@@ -336,6 +337,34 @@ private:
             const Polyhedron fragment(vertices);
             if (fragment.polyhedron())
                 m_fragments.push_back(fragment);
+        }
+    }
+
+    void partitionFragments() {
+        typename List::iterator first, second, end;
+        first = m_fragments.begin();
+        while (first != m_fragments.end()) {
+            second = first;
+            
+            bool increment = true;
+            while (++second != m_fragments.end()) {
+                const Polyhedron intersection = first->intersect(*second, m_callback);
+                if (intersection.polyhedron()) {
+                    const List firstResult = first->subtract(intersection, m_callback);
+                    const List secondResult = second->subtract(intersection, m_callback);
+                    
+                    m_fragments.insert(m_fragments.end(), firstResult.begin(), firstResult.end());
+                    m_fragments.insert(m_fragments.end(), secondResult.begin(), secondResult.end());
+                    m_fragments.push_back(intersection);
+                    
+                    m_fragments.erase(second);
+                    first = m_fragments.erase(first);
+                    increment = false;
+                    break;
+                }
+            }
+            if (increment)
+                ++first;
         }
     }
 };
