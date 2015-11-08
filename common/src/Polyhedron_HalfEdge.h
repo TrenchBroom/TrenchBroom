@@ -148,7 +148,7 @@ template <typename T, typename FP>
 bool Polyhedron<T,FP>::HalfEdge::colinear(const HalfEdge* other) const {
     const V dir = vector().normalized();
     const V otherDir = other->vector().normalized();
-    return Math::eq(otherDir.dot(dir), static_cast<T>(1.0));
+    return dir.colinearTo(otherDir);
 }
 
 template <typename T, typename FP>

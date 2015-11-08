@@ -42,9 +42,39 @@ private:
     Polyhedron m_subtrahend;
     const Callback& m_callback;
     typename Polyhedron::List m_fragments;
-
+    
     typedef typename V::LexicographicOrder VertexCmp;
-    typedef std::map<Vec<T,3>, Vec<T,3>, VertexCmp> ClosestVertices;
+    typedef std::set<V, VertexCmp> PositionSet;
+    typedef std::map<V, V, VertexCmp> ClosestVertices;
+    typedef std::map<V, V, VertexCmp> MoveableVertices;
+    
+    class VertexSetCmp {
+    public:
+        bool operator()(const typename V::Set& lhs, const typename V::Set& rhs) const {
+            return compare(lhs, rhs) < 0;
+        }
+    private:
+        int compare(const typename V::Set& lhs, const typename V::Set& rhs) const {
+            if (lhs.size() < rhs.size())
+                return -1;
+            if (lhs.size() > rhs.size())
+                return 1;
+            
+            typename V::Set::const_iterator lIt = lhs.begin();
+            typename V::Set::const_iterator rIt = rhs.begin();
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                const V& lPos = *lIt++;
+                const V& rPos = *rIt++;
+                
+                const int cmp = lPos.compare(rPos);
+                if (cmp != 0)
+                    return cmp;
+            }
+            return 0;
+        }
+    };
+    
+    typedef std::set<typename V::Set, VertexSetCmp> FragmentVertexSet;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
     m_minuend(minuend),
@@ -109,54 +139,18 @@ private:
         assert(false);
     }
     
-    class VertexSetCmp {
-    public:
-        bool operator()(const typename V::Set& lhs, const typename V::Set& rhs) const {
-            return compare(lhs, rhs) < 0;
-        }
-    private:
-        int compare(const typename V::Set& lhs, const typename V::Set& rhs) const {
-            if (lhs.size() < rhs.size())
-                return -1;
-            if (lhs.size() > rhs.size())
-                return 1;
-            
-            typename V::Set::const_iterator lIt = lhs.begin();
-            typename V::Set::const_iterator rIt = rhs.begin();
-            for (size_t i = 0; i < lhs.size(); ++i) {
-                const V& lPos = *lIt++;
-                const V& rPos = *rIt++;
-
-                const int cmp = lPos.compare(rPos);
-                if (cmp != 0)
-                    return cmp;
-            }
-            return 0;
-        }
-    };
-    
-    typedef std::set<typename V::Set, VertexSetCmp> NewFragments;
-
     void simplify() {
-        NewFragments newFragments = buildNewFragments();
-        if (!newFragments.empty()) {
-            removeDuplicateFragments(newFragments);
-            rebuildFragments(newFragments);
-        }
+        FragmentVertexSet newFragments = buildNewFragments();
+        removeDuplicateFragments(newFragments);
+        rebuildFragments(newFragments);
     }
     
-    NewFragments buildNewFragments() {
-        NewFragments result;
-        
-        typedef std::set<V, VertexCmp> ExcludeSet;
-        ExcludeSet exclude(VertexCmp(0.1));
-        // typename V::Set exclude;
-        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), exclude);
-        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), exclude);
+    FragmentVertexSet buildNewFragments() {
+        FragmentVertexSet result;
         
         const ClosestVertices closest = findClosestVertices();
         if (closest.empty())
-            return result;
+            return findFragmentVertices();
         
         typename Polyhedron::List::iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
@@ -168,9 +162,8 @@ private:
             
             do {
                 const V& currentPosition = currentVertex->position();
-                if (exclude.count(currentPosition) == 0) {
-                    typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
-                    assert(clIt != closest.end());
+                typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
+                if (clIt != closest.end()) {
                     const V& targetPosition = clIt->second;
                     newFragmentVertices.insert(targetPosition);
                 } else {
@@ -186,93 +179,119 @@ private:
     }
     
     ClosestVertices findClosestVertices() {
-        ClosestVertices result(VertexCmp(0.1));
+        MoveableVertices moveableVertices = findMoveableVertices();
+        FragmentVertexSet fragmentVertices = findFragmentVertices();
+        return findClosestVertices(moveableVertices, fragmentVertices);
+    }
+    
+    MoveableVertices findMoveableVertices() const {
+        const PositionSet exclude = findExcludedVertices();
+        MoveableVertices result(VertexCmp(0.1));
         
         typename Polyhedron::List::const_iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
             const Polyhedron& fragment = *it;
+            findMoveableVertices(fragment, exclude, result);
+        }
+        
+        return result;
+    }
+    
+    PositionSet findExcludedVertices() const {
+        PositionSet result(VertexCmp(0.1));
+        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
+        return result;
+    }
+    
+    void findMoveableVertices(const Polyhedron& fragment, const PositionSet& exclude, MoveableVertices& result) const {
+        const Vertex* firstVertex = fragment.vertices().front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            const V& currentPosition = currentVertex->position();
+            if (exclude.count(currentPosition) == 0 && result.count(currentPosition) == 0)
+                result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertex(currentPosition)->position()));
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+    }
+    
+    FragmentVertexSet findFragmentVertices() const {
+        FragmentVertexSet result;
+        
+        typename Polyhedron::List::const_iterator it, end;
+        for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
+            const Polyhedron& fragment = *it;
+            typename V::Set vertices(VertexCmp(0.1));
+            
             const Vertex* firstVertex = fragment.vertices().front();
             const Vertex* currentVertex = firstVertex;
             do {
-                if (result.count(currentVertex->position()) == 0) {
-                    const Vertex* closestMinuendVertex = selectClosestMinuendVertex(currentVertex);
-                    if (closestMinuendVertex == NULL) // there is no solution
-                        return ClosestVertices(VertexCmp(0.1));
-                    result[currentVertex->position()] = closestMinuendVertex->position();
-                }
+                vertices.insert(currentVertex->position());
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);
+            
+            result.insert(vertices);
         }
         
         return result;
     }
     
-    const Vertex* selectClosestMinuendVertex(const Vertex* fragmentVertex) {
-        const typename Plane<T,3>::Set subtrahendPlanes = findSubtrahendPlanes(fragmentVertex->position());
-        const Polyhedron::ClosestVertexSet closestVertices = m_minuend.findClosestVertices(fragmentVertex->position());
+    ClosestVertices findClosestVertices(const MoveableVertices& vertices, FragmentVertexSet& fragments) {
+        ClosestVertices result;
         
-        typename Polyhedron::ClosestVertexSet::const_iterator it, end;
-        for (it = closestVertices.begin(), end = closestVertices.end(); it != end; ++it) {
-            const Vertex* currentMinuendVertex = *it;
-            if (checkValidClosestMinuendVertex(fragmentVertex, currentMinuendVertex, subtrahendPlanes))
-                return currentMinuendVertex;
+        typename MoveableVertices::const_iterator vIt, vEnd;
+        for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+            const V& vertexPosition = vIt->first;
+            const V& targetPosition = vIt->second;
+            
+            if (applyVertexMove(vertexPosition, targetPosition, fragments))
+                result[vertexPosition] = targetPosition;
         }
-        return NULL;
+        
+        return result;
     }
     
-    typename Plane<T,3>::Set findSubtrahendPlanes(const V& position) {
-        typename Plane<T,3>::Set result;
-        
-        typename Polyhedron::List::iterator it, end;
-        for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
-            const Polyhedron& fragment = *it;
-            if (fragment.hasVertex(position, 0.1)) {
-                const Face* subtrahendFace = findIncidentSubtrahendFace(fragment);
-                if (subtrahendFace != NULL) {
-                    const Plane<T,3> plane = m_callback.plane(subtrahendFace);
-                    result.insert(plane);
+    bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
+        FragmentVertexSet newFragments;
+        typename FragmentVertexSet::const_iterator fIt,fEnd;
+        for (fIt = fragments.begin(), fEnd = fragments.end(); fIt != fEnd; ++fIt) {
+            typename V::Set newVertices = *fIt;
+            
+            if (newVertices.erase(vertexPosition) > 0) {
+                newVertices.insert(targetPosition);
+                
+                Polyhedron newFragment(newVertices);
+                if (newFragment.polyhedron()) {
+                    if (newFragment.intersects(m_subtrahend))
+                        return false;
                 }
             }
+            newFragments.insert(newVertices);
         }
-        return result;
-    }
-    
-    const Face* findIncidentSubtrahendFace(const Polyhedron& fragment) {
-        const Face* firstFragmentFace = fragment.faces().front();
-        const Face* currentFragmentFace = firstFragmentFace;
-        do {
-            const HalfEdgeList& boundary = currentFragmentFace->boundary();
-            typename V::List positions = V::asList(boundary.begin(), boundary.end(), GetVertexPosition());
-            std::reverse(positions.begin(), positions.end());
-            
-            const Face* subtrahendFace = m_subtrahend.findFaceByPositions(positions, 0.1);
-            if (subtrahendFace != NULL)
-                return subtrahendFace;
-            currentFragmentFace = currentFragmentFace->next();
-        } while (currentFragmentFace != firstFragmentFace);
-        return NULL;
-    }
-    
-    bool checkValidClosestMinuendVertex(const Vertex* fragmentVertex, const Vertex* minuendVertex, const typename Plane<T,3>::Set& subtrahendPlanes) {
-        typename Plane<T,3>::Set::const_iterator it, end;
-        for (it = subtrahendPlanes.begin(), end = subtrahendPlanes.end(); it != end; ++it) {
-            const Plane<T,3>& plane = *it;
-            const Math::PointStatus::Type fragmentVertexStatus = plane.pointStatus(fragmentVertex->position());
-            if (fragmentVertexStatus == Math::PointStatus::PSAbove) {
-                const Math::PointStatus::Type minuendVertexStatus = plane.pointStatus(minuendVertex->position());
-                if (minuendVertexStatus == Math::PointStatus::PSBelow)
-                    return false;
-            }
-        }
+        
+        using std::swap;
+        swap(fragments, newFragments);
+        
         return true;
     }
     
-    void removeDuplicateFragments(NewFragments& newFragments) const {
-        NewFragments result;
-        const typename NewFragments::iterator end = newFragments.end();
+    bool containsIntersectingFragments(const List& fragments) const {
+        typename List::const_iterator first, second, end;
+        for (first = fragments.begin(), end = fragments.end(); first != end; ++first) {
+            for (second = first, std::advance(second, 1); second != end; ++second) {
+                if (first->intersects(*second))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
+        FragmentVertexSet result;
+        const typename FragmentVertexSet::iterator end = newFragments.end();
         while (!newFragments.empty()) {
-            typename NewFragments::iterator lIt = newFragments.begin();
-            typename NewFragments::iterator rIt = newFragments.begin(); ++rIt;
+            typename FragmentVertexSet::iterator lIt = newFragments.begin();
+            typename FragmentVertexSet::iterator rIt = newFragments.begin(); ++rIt;
             while (lIt != end && rIt != end) {
                 if (SetUtils::subset(*lIt, *rIt)) {
                     newFragments.erase(lIt);
@@ -293,17 +312,29 @@ private:
         swap(newFragments, result);
     }
     
-    void rebuildFragments(const NewFragments& newFragments) {
+    void rebuildFragments(const FragmentVertexSet& newFragments) {
         m_fragments.clear();
         
-        typename NewFragments::const_iterator it, end;
+        typename FragmentVertexSet::const_iterator it, end;
         for (it = newFragments.begin(), end = newFragments.end(); it != end; ++it) {
             const typename V::Set& vertices = *it;
-            const Polyhedron fragment(vertices);
-            if (fragment.polyhedron())
-                m_fragments.push_back(fragment);
+            if (vertices.size() > 3) {
+                const Polyhedron fragment(vertices);
+                if (fragment.polyhedron())
+                    m_fragments.push_back(fragment);
+            }
         }
     }
+};
+
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Partition {
+private:
+    List& m_fragments;
+public:
+    Partition(List& fragments) :
+    m_fragments(fragments) {}
+    
 };
 
 template <typename T, typename FP>
@@ -313,9 +344,9 @@ private:
         size_t neighbour;
         Face* face;
         Face* neighbourFace;
-
+        
         typedef std::set<NeighbourEntry> Set;
-
+        
         NeighbourEntry(const size_t i_neighbour, Face* i_face, Face* i_neighbourFace) :
         neighbour(i_neighbour),
         face(i_face),
@@ -390,16 +421,9 @@ private:
     
     class FaceKey {
     private:
-        Plane<T,3> m_plane;
         typename V::Set m_vertices;
     public:
-        FaceKey(const Face* face, const Callback& callback) {
-            m_plane = callback.plane(face);
-            if (m_plane.distance == 0.0)
-                m_plane.normal.makeAbsolute();
-            else if (m_plane.distance < 0.0)
-                m_plane.flip();
-            
+        FaceKey(const Face* face) {
             const HalfEdge* first = face->boundary().front();
             const HalfEdge* current = first;
             do {
@@ -413,14 +437,6 @@ private:
         }
     private:
         int compare(const FaceKey& other) const {
-            const int planeCmp = m_plane.compare(other.m_plane);
-            if (planeCmp != 0)
-                return planeCmp;
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
-            
             typename V::Set::const_iterator myIt = m_vertices.begin();
             typename V::Set::const_iterator otIt = other.m_vertices.begin();
             
@@ -436,11 +452,11 @@ private:
         }
     };
     
-
+    
     typedef std::pair<size_t, Face*> NeighbourFace;
     typedef std::vector<NeighbourFace> NeighbourFaceList;
     typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
-
+    
     void findMergeableNeighbours() {
         const NeighbourMap neighbourMap = findNeighbours();
         typename NeighbourMap::const_iterator nIt, nEnd;
@@ -451,7 +467,7 @@ private:
             if (neighbourFaces.size() == 2) {
                 const NeighbourFace& first  = neighbourFaces[0];
                 const NeighbourFace& second = neighbourFaces[1];
-
+                
                 const size_t firstIndex = first.first;
                 const size_t secondIndex = second.first;
                 Face* firstFace = first.second;
@@ -474,7 +490,7 @@ private:
             Face* firstFace = fragment.faces().front();
             Face* currentFace = firstFace;
             do {
-                const FaceKey key(currentFace, m_callback);
+                const FaceKey key(currentFace);
                 NeighbourFaceList& neighbours = result[key];
                 assert(neighbours.size() < 2);
                 neighbours.push_back(std::make_pair(index, currentFace));
@@ -581,7 +597,7 @@ private:
             
             const MergeGroup& first = *mFirst;
             bool firstIsDisjoint = true;
-        
+            
             while (mSecond != m_mergeGroups.end()) {
                 const MergeGroup& second = *mSecond;
                 MergeGroup intersection;
@@ -616,7 +632,7 @@ private:
                     ++mSecond;
                 }
             }
-
+            
             if (firstIsDisjoint) {
                 newMergeGroups.insert(first);
                 m_mergeGroups.erase(mFirst);

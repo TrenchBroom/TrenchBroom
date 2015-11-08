@@ -138,6 +138,39 @@ public:
     static const Set EmptySet;
     static const Map EmptyMap;
     
+    template <typename O>
+    class SetOrder {
+    private:
+        O m_order;
+    public:
+        SetOrder(const O& order = O()) :
+        m_order(order) {}
+
+        bool operator()(const Set& lhs, const Set& rhs) const {
+            return compare(lhs, rhs) < 0;
+        }
+    private:
+        int compare(const Set& lhs, const Set& rhs) const {
+            if (lhs.size() < rhs.size())
+                return -1;
+            if (lhs.size() > rhs.size())
+                return 1;
+            
+            typename Set::const_iterator lIt = lhs.begin();
+            typename Set::const_iterator rIt = rhs.begin();
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                const Vec& lPos = *lIt++;
+                const Vec& rPos = *rIt++;
+                
+                if (m_order(lPos, rPos))
+                    return -1;
+                if (m_order(rPos, lPos))
+                    return 1;
+            }
+            return 0;
+        }
+    };
+    
 public:
     static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
@@ -607,20 +640,24 @@ public:
         return colinear(points[0], points[1], points[2]);
     }
     
-    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         return colinear(*this, p2, p3, epsilon);
     }
 
-    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) {
+    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
         const Vec<T,S> v1 = p2 - p1;
         const Vec<T,S> v2 = p3 - p2;
         const Vec<T,S> v3 = p1 - p3;
         return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
     }
     
-    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         const T d = normalized().dot(other.normalized());
         return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
+    }
+    
+    bool colinearTo(const Vec<T,3>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
+        return 1.0 - dot(other) < epsilon;
     }
     
     Vec<T,S> makePerpendicular() const {
@@ -872,8 +909,15 @@ public:
     
     template <typename I, typename G>
     static void toList(I cur, I end, const G& get, typename Vec<T,S>::List& result) {
-        while (cur != end)
-            result.push_back(get(*cur++));
+        addAll(cur, end, get, std::back_inserter(result));
+    }
+    
+    template <typename I, typename G, typename O>
+    static void addAll(I cur, I end, const G& get, O outp) {
+        while (cur != end) {
+            outp = get(*cur);
+            ++cur;
+        }
     }
 };
 

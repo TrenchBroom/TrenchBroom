@@ -163,6 +163,16 @@ T Polyhedron<T,FP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::Side
     return intersectPolygonWithRay(ray, plane, m_boundary.begin(), m_boundary.end(), GetVertexPosition());
 }
 
+template <typename T, typename FP> template <typename O>
+void Polyhedron<T,FP>::Face::getVertexPositions(O output) const {
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        output = currentEdge->origin()->position();
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+}
+
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::Face::visibleFrom(const V& point) const {
     return pointStatus(point) == Math::PointStatus::PSAbove;
@@ -171,7 +181,7 @@ bool Polyhedron<T,FP>::Face::visibleFrom(const V& point) const {
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::Face::coplanar(const Face* other) const {
     assert(other != NULL);
-    return normal().equals(other->normal(), Math::Constants<T>::colinearEpsilon());
+    return normal().colinearTo(other->normal());
 }
 
 template <typename T, typename FP>
@@ -277,6 +287,42 @@ void Polyhedron<T,FP>::Face::updateBoundaryFaces(Face* face) {
         current->setFace(face);
         current = current->next();
     } while (current != first);
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::removeBoundaryFromEdges() {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        Edge* edge = current->edge();
+        if (edge != NULL) {
+            edge->makeSecondEdge(current);
+            edge->unsetSecondEdge();
+        }
+        current = current->next();
+    } while (current != first);
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Face::setLeavingEdges() {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        current->setAsLeaving();
+        current = current->next();
+    } while (current != first);
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::Face::checkBoundary() const {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        if (current->face() != this)
+            return false;
+        current = current->next();
+    } while (current != first);
+    return true;
 }
 
 #endif

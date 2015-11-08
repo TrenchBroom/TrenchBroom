@@ -45,7 +45,7 @@ namespace Math {
         }
         
         static T colinearEpsilon() {
-            static const T value = static_cast<T>(0.01);
+            static const T value = static_cast<T>(0.001);
             return value;
         }
         

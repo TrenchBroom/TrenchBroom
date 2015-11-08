@@ -692,6 +692,20 @@ namespace TrenchBroom {
             return rebuildGeometry(worldBounds);
         }
 
+        BrushList Brush::partition(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* other) const {
+            Brush* intersection = clone(worldBounds);
+            if (!intersection->intersect(worldBounds, other)) {
+                delete intersection;
+                return EmptyBrushList;
+            }
+            
+            BrushList result(1, intersection);
+            VectorUtils::append(result,  this->subtract(factory, worldBounds, defaultTextureName, intersection));
+            VectorUtils::append(result, other->subtract(factory, worldBounds, defaultTextureName, intersection));
+            
+            return result;
+        }
+
         Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());

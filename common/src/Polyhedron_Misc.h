@@ -583,6 +583,16 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::findFaceByPositions(const typ
     return NULL;
 }
 
+template <typename T, typename FP> template <typename O>
+void Polyhedron<T,FP>::getVertexPositions(O output) const {
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        output = currentVertex->position();
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+}
+
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::hasVertex(const Vertex* vertex) const {
     const Vertex* firstVertex = m_vertices.front();
@@ -621,7 +631,11 @@ bool Polyhedron<T,FP>::hasFace(const Face* face) const {
 
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::checkInvariant() const {
+    /*
     if (!checkConvex())
+        return false;
+     */
+    if (!checkFaceBoundaries())
         return false;
     if (polyhedron() && !checkClosed())
         return false;
@@ -629,10 +643,26 @@ bool Polyhedron<T,FP>::checkInvariant() const {
         return false;
     if (polyhedron() && !checkVertexLeavingEdges())
         return false;
+    if (polyhedron() && !checkEdges())
+        return false;
     /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
         return false;
      */
+    return true;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::checkFaceBoundaries() const {
+    if (m_faces.empty())
+        return true;
+    Face* first = m_faces.front();
+    Face* current = first;
+    do {
+        if (!current->checkBoundary())
+            return false;
+        current = current->next();
+    } while (current != first);
     return true;
 }
 
@@ -726,6 +756,33 @@ bool Polyhedron<T,FP>::checkVertexLeavingEdges() const {
             return false;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
+    return true;
+}
+
+template <typename T, typename FP>
+bool Polyhedron<T,FP>::checkEdges() const {
+    if (m_edges.empty())
+        return true;
+    
+    Edge* firstEdge = m_edges.front();
+    Edge* currentEdge = firstEdge;
+    do {
+        if (!currentEdge->fullySpecified())
+            return false;
+        Face* firstFace = currentEdge->firstFace();
+        if (firstFace == NULL)
+            return false;
+        if (!m_faces.contains(firstFace))
+            return false;
+        
+        Face* secondFace = currentEdge->secondFace();
+        if (secondFace == NULL)
+            return false;
+        if (!m_faces.contains(secondFace))
+            return false;
+        
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
     return true;
 }
 

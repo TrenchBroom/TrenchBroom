@@ -76,6 +76,166 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
     ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
 }
+
+TEST(PolyhedronTest, convexHullWithFailingPoints) {
+    const Vec3d p1(-64.0,    -45.5049, -34.4752);
+    const Vec3d p2(-64.0,    -43.6929, -48.0);
+    const Vec3d p3(-64.0,     20.753,  -34.4752);
+    const Vec3d p4(-64.0,     64.0,    -48.0);
+    const Vec3d p5(-63.7297,  22.6264, -48.0);
+    const Vec3d p6(-57.9411,  22.6274, -37.9733);
+    const Vec3d p7(-44.6031, -39.1918, -48.0);
+    const Vec3d p8(-43.5959, -39.1918, -46.2555);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4); // so far, all were on the same plane at x=-64
+    p.addPoint(p5); // something is going wrong here, the result is not a proper polyhedron
+    p.addPoint(p6); // assertion failure here
+    p.addPoint(p7);
+    p.addPoint(p8);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints2) {
+    const Vec3d p1(-64.0,    48.7375, -34.4752);
+    const Vec3d p2(-64.0,    64.0,    -48.0);
+    const Vec3d p3(-64.0,    64.0,    -34.4752);
+    const Vec3d p4(-63.7297, 22.6264, -48.0);
+    const Vec3d p5(-57.9411, 22.6274, -37.9733);
+    const Vec3d p6(-40.5744, 28.0,    -48.0);
+    const Vec3d p7(-40.5744, 64.0,    -48.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3); // so far, all were on the same plane at x=-64
+    p.addPoint(p4); // wasn't added due to being too close
+    p.addPoint(p5); // assertion failure here
+    p.addPoint(p6);
+    p.addPoint(p7);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints3) {
+    const Vec3d p1(-64,      -64,      -48);
+    const Vec3d p2(-64,       22.5637, -48);
+    const Vec3d p3(-64,       64,      -48);
+    const Vec3d p4(-63.7297,  22.6264, -48);
+    const Vec3d p5(-57.9411,  22.6274, -37.9733);
+    const Vec3d p6(-44.6031, -39.1918, -48);
+    const Vec3d p7(-43.5959, -39.1918, -46.2555);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6); // assertion failure here
+    p.addPoint(p7);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints4) {
+    const Vec3d p01(-64, 64, -48);
+    const Vec3d p02(-43.5959, -39.1918, -46.2555);
+    const Vec3d p03(-40.5744, -38.257, -48);
+    const Vec3d p04(-36.9274, -64, -48);
+    const Vec3d p05(1.58492, -39.1918, 32);
+    const Vec3d p06(9.2606, -64, 32);
+    const Vec3d p07(12.8616, -64, 32);
+    const Vec3d p08(12.8616, -36.5751, 32);
+    const Vec3d p09(26.7796, -22.6274, -48);
+    const Vec3d p10(39.5803, -64, -48);
+    const Vec3d p11(57.9411, -22.6274, 5.9733);
+    const Vec3d p12(64, -64, -5.70392);
+    const Vec3d p13(64, -64, 2.47521);
+    const Vec3d p14(64, -48.7375, 2.47521);
+    
+    Polyhedron3d p;
+    p.addPoint(p01);
+    p.addPoint(p02);
+    p.addPoint(p03);
+    p.addPoint(p04);
+    p.addPoint(p05); // assertion failure here
+    p.addPoint(p06);
+    p.addPoint(p07);
+    p.addPoint(p08);
+    p.addPoint(p09);
+    p.addPoint(p10);
+    p.addPoint(p11);
+    p.addPoint(p12);
+    p.addPoint(p13);
+    p.addPoint(p14);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints5) {
+    const Vec3d p01(-64, -64, -64);
+    const Vec3d p02(-64, -64, 64);
+    const Vec3d p03(-64, -32, 64);
+    const Vec3d p04(-32, -64, -64);
+    const Vec3d p05(-32, -64, 64);
+    const Vec3d p06(-32, -0, -64);
+    const Vec3d p07(-32, -0, 64);
+    const Vec3d p08(-0, -32, -64);
+    const Vec3d p09(-0, -32, 64);
+    const Vec3d p10(64, -64, -64);
+    
+    Polyhedron3d p;
+    p.addPoint(p01);
+    p.addPoint(p02);
+    p.addPoint(p03);
+    p.addPoint(p04);
+    p.addPoint(p05);
+    p.addPoint(p06);
+    p.addPoint(p07);
+    p.addPoint(p08);
+    p.addPoint(p09);
+    p.addPoint(p10); // assertion failure here
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints6) {
+    const Vec3d p1(-32, -16, -32);
+    const Vec3d p2(-32, 16, -32);
+    const Vec3d p3(-32, 16, -0);
+    const Vec3d p4(-16, -16, -32);
+    const Vec3d p5(-16, -16, -0);
+    const Vec3d p6(-16, 16, -32);
+    const Vec3d p7(-16, 16, -0);
+    const Vec3d p8(32, -16, -32);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6);
+    p.addPoint(p7);
+    p.addPoint(p8);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints7) {
+    const Vec3d p1(12.8616, -36.5751, 32);
+    const Vec3d p2(57.9411, -22.6274, 5.9733);
+    const Vec3d p3(64, -64, 2.47521);
+    const Vec3d p4(64, -64, 32);
+    const Vec3d p5(64, -48.7375, 2.47521);
+    const Vec3d p6(64, -24.7084, 32);
+    const Vec3d p7(64, -22.6274, 16.4676);
+    const Vec3d p8(64, 64, 32);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6);
+    p.addPoint(p7);
+    p.addPoint(p8);
+}
+
 /*
 TEST(PolyhedronTest, testImpossibleSplit) {
     const Vec3d p1( 0.0, 4.0, 8.0);
