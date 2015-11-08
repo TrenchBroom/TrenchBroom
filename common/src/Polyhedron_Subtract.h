@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    // Merge merge(result, callback);
+    Merge merge(result, callback);
     return result;
 }
 
@@ -46,7 +46,7 @@ private:
     typedef typename V::LexicographicOrder VertexCmp;
     typedef std::set<V, VertexCmp> PositionSet;
     typedef std::map<V, V, VertexCmp> ClosestVertices;
-    typedef std::map<V, ClosestVertexSet, VertexCmp> MoveableVertices;
+    typedef std::map<V, V, VertexCmp> MoveableVertices;
 
     class VertexSetCmp {
     public:
@@ -143,7 +143,6 @@ private:
         FragmentVertexSet newFragments = buildNewFragments();
         removeDuplicateFragments(newFragments);
         rebuildFragments(newFragments);
-        // partitionFragments();
     }
     
     FragmentVertexSet buildNewFragments() {
@@ -180,8 +179,8 @@ private:
     }
     
     ClosestVertices findClosestVertices() {
-        const MoveableVertices moveableVertices = findMoveableVertices();
-        const FragmentVertexSet fragmentVertices = findFragmentVertices();
+        MoveableVertices moveableVertices = findMoveableVertices();
+        FragmentVertexSet fragmentVertices = findFragmentVertices();
         return findClosestVertices(moveableVertices, fragmentVertices);
     }
     
@@ -211,7 +210,7 @@ private:
         do {
             const V& currentPosition = currentVertex->position();
             if (exclude.count(currentPosition) == 0 && result.count(currentPosition) == 0)
-                result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertices(currentPosition)));
+                result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertex(currentPosition)->position()));
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
     }
@@ -237,32 +236,19 @@ private:
         return result;
     }
     
-    ClosestVertices findClosestVertices(const MoveableVertices& vertices, const FragmentVertexSet& fragments) {
-        ClosestVertices bestResult;
+    ClosestVertices findClosestVertices(const MoveableVertices& vertices, FragmentVertexSet& fragments) {
+        ClosestVertices result;
         
         typename MoveableVertices::const_iterator vIt, vEnd;
-        for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd && bestResult.size() < vertices.size(); ++vIt) {
+        for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
             const V& vertexPosition = vIt->first;
-            const ClosestVertexSet& targetVertices = vIt->second;
-            const MoveableVertices newVertices = MapUtils::minus(vertices, vertexPosition);
+            const V& targetPosition = vIt->second;
             
-            typename ClosestVertexSet::const_iterator tIt, tEnd;
-            for (tIt = targetVertices.begin(), tEnd = targetVertices.end(); tIt != tEnd && bestResult.size() < vertices.size(); ++tIt) {
-                const V& targetPosition = (*tIt)->position();
-                
-                FragmentVertexSet newFragments(fragments);
-                if (applyVertexMove(vertexPosition, targetPosition, newFragments)) {
-                    ClosestVertices currentResult = findClosestVertices(newVertices, newFragments);
-                    currentResult[vertexPosition] = targetPosition;
-                    if (currentResult.size() > bestResult.size()) {
-                        using std::swap;
-                        swap(currentResult, bestResult);
-                    }
-                }
-            }
+            if (applyVertexMove(vertexPosition, targetPosition, fragments))
+                result[vertexPosition] = targetPosition;
         }
         
-        return bestResult;
+        return result;
     }
     
     bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
@@ -337,34 +323,6 @@ private:
                 if (fragment.polyhedron())
                     m_fragments.push_back(fragment);
             }
-        }
-    }
-
-    void partitionFragments() {
-        typename List::iterator first, second, end;
-        first = m_fragments.begin();
-        while (first != m_fragments.end()) {
-            second = first;
-            
-            bool increment = true;
-            while (++second != m_fragments.end()) {
-                const Polyhedron intersection = first->intersect(*second, m_callback);
-                if (intersection.polyhedron()) {
-                    const List firstResult = first->subtract(intersection, m_callback);
-                    const List secondResult = second->subtract(intersection, m_callback);
-                    
-                    m_fragments.insert(m_fragments.end(), firstResult.begin(), firstResult.end());
-                    m_fragments.insert(m_fragments.end(), secondResult.begin(), secondResult.end());
-                    m_fragments.push_back(intersection);
-                    
-                    m_fragments.erase(second);
-                    first = m_fragments.erase(first);
-                    increment = false;
-                    break;
-                }
-            }
-            if (increment)
-                ++first;
         }
     }
 };
