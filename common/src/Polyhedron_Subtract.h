@@ -42,12 +42,12 @@ private:
     Polyhedron m_subtrahend;
     const Callback& m_callback;
     typename Polyhedron::List m_fragments;
-
+    
     typedef typename V::LexicographicOrder VertexCmp;
     typedef std::set<V, VertexCmp> PositionSet;
     typedef std::map<V, V, VertexCmp> ClosestVertices;
     typedef std::map<V, V, VertexCmp> MoveableVertices;
-
+    
     class VertexSetCmp {
     public:
         bool operator()(const typename V::Set& lhs, const typename V::Set& rhs) const {
@@ -145,9 +145,12 @@ private:
         rebuildFragments(newFragments);
     }
     
-    FragmentVertexSet buildFragmentVertexSet() {
+    FragmentVertexSet buildNewFragments() {
         FragmentVertexSet result;
+        
         const ClosestVertices closest = findClosestVertices();
+        if (closest.empty())
+            return findFragmentVertices();
         
         typename Polyhedron::List::iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
@@ -181,21 +184,16 @@ private:
         return findClosestVertices(moveableVertices, fragmentVertices);
     }
     
-    MoveableVertices findMoveableVertices() {
+    MoveableVertices findMoveableVertices() const {
         const PositionSet exclude = findExcludedVertices();
         MoveableVertices result(VertexCmp(0.1));
-        typename Polyhedron::List::iterator it, end;
+        
+        typename Polyhedron::List::const_iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
             const Polyhedron& fragment = *it;
-            const Vertex* firstVertex = fragment.vertices().front();
-            const Vertex* currentVertex = firstVertex;
-            do {
-                const V& currentPosition = currentVertex->position();
-                if (exclude.count(currentPosition) == 0)
-                    result[currentPosition].push_back(it);
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
+            findMoveableVertices(fragment, exclude, result);
         }
+        
         return result;
     }
     
@@ -217,14 +215,25 @@ private:
         } while (currentVertex != firstVertex);
     }
     
-    bool checkValidTargetPosition(const V& originalPosition, const V& targetPosition, const IterList& incidentFragments) const {
-        typename IterList::const_iterator it, end;
-        for (it = incidentFragments.begin(), end = incidentFragments.end(); it != end; ++it) {
-            const Polyhedron& fragment = **it;
-            if (!checkValidTargetPosition(originalPosition, targetPosition, fragment))
-                return false;
+    FragmentVertexSet findFragmentVertices() const {
+        FragmentVertexSet result;
+        
+        typename Polyhedron::List::const_iterator it, end;
+        for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
+            const Polyhedron& fragment = *it;
+            typename V::Set vertices(VertexCmp(0.1));
+            
+            const Vertex* firstVertex = fragment.vertices().front();
+            const Vertex* currentVertex = firstVertex;
+            do {
+                vertices.insert(currentVertex->position());
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+            
+            result.insert(vertices);
         }
-        return true;
+        
+        return result;
     }
     
     ClosestVertices findClosestVertices(const MoveableVertices& vertices, FragmentVertexSet& fragments) {
@@ -242,45 +251,39 @@ private:
         return result;
     }
     
-    VertexSet findSubtrahendVertices(const Polyhedron& fragment) const {
-        VertexSet result;
-        
-        Vertex* firstSubtrahendVertex = m_subtrahend.vertices().front();
-        Vertex* currentSubtrahendVertex = firstSubtrahendVertex;
-        do {
-            if (fragment.hasVertex(currentSubtrahendVertex->position(), 0.1))
-                result.insert(currentSubtrahendVertex);
-            currentSubtrahendVertex = currentSubtrahendVertex->next();
-        } while (currentSubtrahendVertex != firstSubtrahendVertex);
-        
-        return result;
-    }
-    
-    FaceSet findCommonIncidentFaces(const VertexSet& vertices) const {
-        typename VertexSet::iterator it = vertices.begin();
-        typename VertexSet::iterator end = vertices.end();
-        
-        FaceSet result = incidentFaces(*it);
-        while (++it != end) {
-            FaceSet temp;
-            SetUtils::intersection(result, incidentFaces(*it), temp);
+    bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
+        FragmentVertexSet newFragments;
+        typename FragmentVertexSet::const_iterator fIt,fEnd;
+        for (fIt = fragments.begin(), fEnd = fragments.end(); fIt != fEnd; ++fIt) {
+            typename V::Set newVertices = *fIt;
             
-            using std::swap;
-            swap(result, temp);
+            if (newVertices.erase(vertexPosition) > 0) {
+                newVertices.insert(targetPosition);
+                
+                Polyhedron newFragment(newVertices);
+                if (newFragment.polyhedron()) {
+                    if (newFragment.intersects(m_subtrahend))
+                        return false;
+                }
+            }
+            newFragments.insert(newVertices);
         }
-        return result;
+        
+        using std::swap;
+        swap(fragments, newFragments);
+        
+        return true;
     }
     
-    FaceSet incidentFaces(const Vertex* vertex) const {
-        FaceSet result;
-        
-        HalfEdge* firstEdge = vertex->leaving();
-        HalfEdge* currentEdge = firstEdge;
-        do {
-            result.insert(currentEdge->face());
-            currentEdge = currentEdge->nextIncident();
-        } while (currentEdge != firstEdge);
-        return result;
+    bool containsIntersectingFragments(const List& fragments) const {
+        typename List::const_iterator first, second, end;
+        for (first = fragments.begin(), end = fragments.end(); first != end; ++first) {
+            for (second = first, std::advance(second, 1); second != end; ++second) {
+                if (first->intersects(*second))
+                    return true;
+            }
+        }
+        return false;
     }
     
     void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
@@ -341,9 +344,9 @@ private:
         size_t neighbour;
         Face* face;
         Face* neighbourFace;
-
+        
         typedef std::set<NeighbourEntry> Set;
-
+        
         NeighbourEntry(const size_t i_neighbour, Face* i_face, Face* i_neighbourFace) :
         neighbour(i_neighbour),
         face(i_face),
@@ -449,11 +452,11 @@ private:
         }
     };
     
-
+    
     typedef std::pair<size_t, Face*> NeighbourFace;
     typedef std::vector<NeighbourFace> NeighbourFaceList;
     typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
-
+    
     void findMergeableNeighbours() {
         const NeighbourMap neighbourMap = findNeighbours();
         typename NeighbourMap::const_iterator nIt, nEnd;
@@ -464,7 +467,7 @@ private:
             if (neighbourFaces.size() == 2) {
                 const NeighbourFace& first  = neighbourFaces[0];
                 const NeighbourFace& second = neighbourFaces[1];
-
+                
                 const size_t firstIndex = first.first;
                 const size_t secondIndex = second.first;
                 Face* firstFace = first.second;
@@ -594,7 +597,7 @@ private:
             
             const MergeGroup& first = *mFirst;
             bool firstIsDisjoint = true;
-        
+            
             while (mSecond != m_mergeGroups.end()) {
                 const MergeGroup& second = *mSecond;
                 MergeGroup intersection;
@@ -629,7 +632,7 @@ private:
                     ++mSecond;
                 }
             }
-
+            
             if (firstIsDisjoint) {
                 newMergeGroups.insert(first);
                 m_mergeGroups.erase(mFirst);
