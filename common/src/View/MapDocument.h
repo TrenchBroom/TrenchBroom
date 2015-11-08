@@ -225,8 +225,9 @@ namespace TrenchBroom {
         public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade interface
             void addNode(Model::Node* node, Model::Node* parent);
             void removeNode(Model::Node* node);
-            
+
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
+            Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
             void removeNodes(const Model::NodeList& nodes);
 
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
@@ -260,6 +261,7 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
+            bool csgPartition();
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);

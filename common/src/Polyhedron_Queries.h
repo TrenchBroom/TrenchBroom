@@ -43,7 +43,7 @@ bool Polyhedron<T,FP>::contains(const Polyhedron& other, const Callback& callbac
     const Vertex* theirFirst = other.vertices().front();
     const Vertex* theirCurrent = theirFirst;
     do {
-        if (contains(theirCurrent->position()))
+        if (!contains(theirCurrent->position()))
             return false;
         theirCurrent = theirCurrent->next();
     } while (theirCurrent != theirFirst);

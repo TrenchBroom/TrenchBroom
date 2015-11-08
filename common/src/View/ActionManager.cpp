@@ -179,7 +179,8 @@ namespace TrenchBroom {
             Menu* csgMenu = editMenu->addMenu("CSG");
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('+', WXK_CONTROL, WXK_SHIFT));
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('-', WXK_CONTROL, WXK_SHIFT));
-            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut('#', WXK_CONTROL, WXK_SHIFT));
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut(':', WXK_CONTROL, WXK_SHIFT));
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgPartition, "Partition", KeyboardShortcut('#', WXK_CONTROL, WXK_SHIFT));
             
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));

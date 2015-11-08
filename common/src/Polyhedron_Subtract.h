@@ -31,7 +31,7 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
-    Merge merge(result, callback);
+    // Merge merge(result, callback);
     return result;
 }
 
@@ -143,7 +143,7 @@ private:
         FragmentVertexSet newFragments = buildNewFragments();
         removeDuplicateFragments(newFragments);
         rebuildFragments(newFragments);
-        partitionFragments();
+        // partitionFragments();
     }
     
     FragmentVertexSet buildNewFragments() {
@@ -151,7 +151,7 @@ private:
 
         const ClosestVertices closest = findClosestVertices();
         if (closest.empty())
-            return result;
+            return findFragmentVertices();
         
         typename Polyhedron::List::iterator it, end;
         for (it = m_fragments.begin(), end = m_fragments.end(); it != end; ++it) {
@@ -278,11 +278,9 @@ private:
                 if (newFragment.polyhedron()) {
                     if (newFragment.intersects(m_subtrahend))
                         return false;
-                    newFragments.insert(newVertices);
                 }
-            } else {
-                newFragments.insert(newVertices);
             }
+            newFragments.insert(newVertices);
         }
         
         using std::swap;
@@ -334,9 +332,11 @@ private:
         typename FragmentVertexSet::const_iterator it, end;
         for (it = newFragments.begin(), end = newFragments.end(); it != end; ++it) {
             const typename V::Set& vertices = *it;
-            const Polyhedron fragment(vertices);
-            if (fragment.polyhedron())
-                m_fragments.push_back(fragment);
+            if (vertices.size() > 3) {
+                const Polyhedron fragment(vertices);
+                if (fragment.polyhedron())
+                    m_fragments.push_back(fragment);
+            }
         }
     }
 
