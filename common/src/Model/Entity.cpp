@@ -220,8 +220,6 @@ namespace TrenchBroom {
         }
         
         bool Entity::doIsAttributeValueMutable(const AttributeName& name) const {
-            if (name == AttributeNames::Origin)
-                return false;
             return true;
         }
 
