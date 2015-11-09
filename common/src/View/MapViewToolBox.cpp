@@ -226,7 +226,7 @@ namespace TrenchBroom {
         void MapViewToolBox::updateEditorContext() {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setBlockSelection(createComplexBrushToolActive() || clipToolActive() || vertexToolActive());
+            editorContext.setBlockSelection(createComplexBrushToolActive());
         }
     }
 }

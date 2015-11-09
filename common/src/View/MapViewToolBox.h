@@ -40,6 +40,7 @@ namespace TrenchBroom {
         class RotateObjectsTool;
         class SelectionTool;
         class VertexTool;
+        class Selection;
 
         class MapViewToolBox : public ToolBox {
         private:
