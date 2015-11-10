@@ -44,6 +44,7 @@ namespace TrenchBroom {
             SplitMode m_splitMode;
             wxWindow* m_sash;
             wxWindow* m_windows[NumWindows];
+            wxWindow* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
             float m_sashGravity;
@@ -60,6 +61,9 @@ namespace TrenchBroom {
             
             void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
             void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
+            
+            void maximize(wxWindow* window);
+            void restore();
         private:
             void split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
             void bindMouseEvents(wxWindow* window);
@@ -85,6 +89,8 @@ namespace TrenchBroom {
             bool setSashPosition(int position);
             void sizeWindows();
             int sashSize() const;
+            
+            wxWindow* unmaximizedWindow();
             
             template <typename T>
             void setHV(T& p, const int h, const int v) const {

@@ -217,6 +217,9 @@ namespace TrenchBroom {
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
+            viewMenu->addSeparator();
+            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_SHIFT));
+            
 
 #ifndef NDEBUG
             Menu* debugMenu = m_menuBar->addMenu("Debug");

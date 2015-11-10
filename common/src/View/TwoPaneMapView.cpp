@@ -37,6 +37,7 @@ namespace TrenchBroom {
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
+        m_splitter(NULL),
         m_mapView3D(NULL),
         m_mapView2D(NULL) {
             createGui(toolBox, mapRenderer, contextManager);
@@ -44,12 +45,12 @@ namespace TrenchBroom {
         
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
-            SplitterWindow2* splitter = new SplitterWindow2(this);
-            splitter->setSashGravity(0.5f);
-            splitter->SetName("2PaneMapViewHSplitter");
+            m_splitter = new SplitterWindow2(this);
+            m_splitter->setSashGravity(0.5f);
+            m_splitter->SetName("2PaneMapViewHSplitter");
 
-            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapView2D = new CyclingMapView(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
+            m_mapView3D = new MapView3D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapView2D = new CyclingMapView(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapView2D->linkCamera(m_linkHelper);
@@ -57,14 +58,26 @@ namespace TrenchBroom {
             addMapView(m_mapView3D);
             addMapView(m_mapView2D);
             
-            splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
+            m_splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(splitter, 1, wxEXPAND);
+            sizer->Add(m_splitter, 1, wxEXPAND);
             
             SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            wxPersistenceManager::Get().RegisterAndRestore(m_splitter);
+        }
+
+        void TwoPaneMapView::doMaximizeView(MapView* view) {
+            assert(view == m_mapView2D || view == m_mapView3D);
+            if (view == m_mapView2D)
+                m_splitter->maximize(m_mapView2D);
+            else
+                m_splitter->maximize(m_mapView3D);
+        }
+        
+        void TwoPaneMapView::doRestoreViews() {
+            m_splitter->restore();
         }
     }
 }

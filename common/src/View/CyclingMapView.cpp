@@ -118,6 +118,16 @@ namespace TrenchBroom {
                 m_mapViews[i]->moveCameraToCurrentTracePoint();
         }
 
+        bool CyclingMapView::doCanMaximizeCurrentView() const {
+            return false;
+        }
+        
+        bool CyclingMapView::doCurrentViewMaximized() const {
+            return true;
+        }
+        
+        void CyclingMapView::doToggleMaximizeCurrentView() {}
+
         MapView* CyclingMapView::doGetCurrentMapView() const {
             return m_currentMapView;
         }

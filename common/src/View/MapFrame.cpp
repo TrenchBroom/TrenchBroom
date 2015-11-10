@@ -467,6 +467,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
 
+            Bind(wxEVT_MENU, &MapFrame::OnViewToggleMaximizeCurrentView, this, CommandIds::Menu::ViewToggleMaximizeCurrentView);
+
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
             
@@ -907,6 +909,12 @@ namespace TrenchBroom {
             m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
 
+        void MapFrame::OnViewToggleMaximizeCurrentView(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+         
+            m_mapView->toggleMaximizeCurrentView();
+        }
+
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1135,6 +1143,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewSwitchToEntityInspector:
                 case CommandIds::Menu::ViewSwitchToFaceInspector:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewToggleMaximizeCurrentView:
+                    event.Enable(m_mapView->canMaximizeCurrentView());
+                    event.Check(m_mapView->currentViewMaximized());
                     break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:

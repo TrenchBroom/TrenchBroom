@@ -38,6 +38,8 @@ namespace TrenchBroom {
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
+        m_hSplitter(NULL),
+        m_vSplitter(NULL),
         m_mapView3D(NULL),
         m_mapViewXY(NULL),
         m_mapViewZZ(NULL) {
@@ -46,17 +48,17 @@ namespace TrenchBroom {
         
         void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
-            SplitterWindow2* hSplitter = new SplitterWindow2(this);
-            hSplitter->setSashGravity(0.5f);
-            hSplitter->SetName("3PaneMapViewHSplitter");
+            m_hSplitter = new SplitterWindow2(this);
+            m_hSplitter->setSashGravity(0.5f);
+            m_hSplitter->SetName("3PaneMapViewHSplitter");
             
-            SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
-            vSplitter->setSashGravity(0.5f);
-            vSplitter->SetName("3PaneMapViewVSplitter");
+            m_vSplitter = new SplitterWindow2(m_hSplitter);
+            m_vSplitter->setSashGravity(0.5f);
+            m_vSplitter->SetName("3PaneMapViewVSplitter");
 
-            m_mapView3D = new MapView3D(hSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewZZ = new CyclingMapView(vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
+            m_mapView3D = new MapView3D(m_hSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(m_vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewZZ = new CyclingMapView(m_vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
@@ -66,16 +68,34 @@ namespace TrenchBroom {
             addMapView(m_mapViewXY);
             addMapView(m_mapViewZZ);
             
-            vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
-            hSplitter->splitVertically(m_mapView3D, vSplitter, wxSize(100, 100), wxSize(100, 100));
+            m_vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
+            m_hSplitter->splitVertically(m_mapView3D, m_vSplitter, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(hSplitter, 1, wxEXPAND);
+            sizer->Add(m_hSplitter, 1, wxEXPAND);
             
             SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(hSplitter);
-            wxPersistenceManager::Get().RegisterAndRestore(vSplitter);
+            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
+            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
+        }
+
+        void ThreePaneMapView::doMaximizeView(MapView* view) {
+            assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
+            if (view == m_mapView3D) {
+                m_hSplitter->maximize(m_mapView3D);
+            } else if (view == m_mapViewXY) {
+                m_vSplitter->maximize(m_mapViewXY);
+                m_hSplitter->maximize(m_vSplitter);
+            } else if (view == m_mapViewZZ) {
+                m_vSplitter->maximize(m_mapViewZZ);
+                m_hSplitter->maximize(m_vSplitter);
+            }
+        }
+        
+        void ThreePaneMapView::doRestoreViews() {
+            m_hSplitter->restore();
+            m_vSplitter->restore();
         }
     }
 }

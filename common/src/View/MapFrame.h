@@ -174,6 +174,8 @@ namespace TrenchBroom {
             void OnViewSwitchToMapInspector(wxCommandEvent& event);
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+            
+            void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
 
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);

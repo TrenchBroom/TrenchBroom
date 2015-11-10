@@ -64,6 +64,8 @@ namespace TrenchBroom {
                 const int ViewSwitchToMapInspector           = Lowest +  86;
                 const int ViewSwitchToEntityInspector        = Lowest +  87;
                 const int ViewSwitchToFaceInspector          = Lowest +  88;
+                const int ViewToggleMaximizeCurrentView      = Lowest +  89;
+                
                 const int FileOpenRecent                     = Lowest +  96;
                 const int EditPrintFilePositions             = Lowest + 101;
                 const int EditSelectInside                   = Lowest + 103;

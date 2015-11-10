@@ -73,14 +73,14 @@ namespace TrenchBroom {
             void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
-            
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
-            
             void doCenterCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
-            
             void doMoveCameraToCurrentTracePoint();
+            bool doCanMaximizeCurrentView() const;
+            bool doCurrentViewMaximized() const;
+            void doToggleMaximizeCurrentView();
         private: // implement MapViewContainer interface
             MapView* doGetCurrentMapView() const;
         private: // implement CameraLinkableView interface

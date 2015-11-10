@@ -38,6 +38,7 @@ namespace TrenchBroom {
         wxPanel(parent, wxID_ANY),
         m_splitMode(SplitMode_Unset),
         m_sash(NULL),
+        m_maximizedWindow(NULL),
         m_sashGravity(0.5f),
         m_initialSashPosition(-1),
         m_sashPosition(-1),
@@ -61,6 +62,22 @@ namespace TrenchBroom {
             split(top, bottom, topMin, bottomMin, SplitMode_Vertical);
         }
         
+        void SplitterWindow2::maximize(wxWindow* window) {
+            assert(window == m_windows[0] || window == m_windows[1]);
+            m_maximizedWindow = window;
+            m_maximizedWindow->Show();
+            unmaximizedWindow()->Hide();
+            sizeWindows();
+        }
+        
+        void SplitterWindow2::restore() {
+            if (m_maximizedWindow != NULL) {
+                unmaximizedWindow()->Show();
+                m_maximizedWindow = NULL;
+                sizeWindows();
+            }
+        }
+
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
             assert(window1 != NULL);
             assert(window1->GetParent() == this);
@@ -236,33 +253,42 @@ namespace TrenchBroom {
             if (m_splitMode != SplitMode_Unset) {
                 const wxWindowUpdateLocker lockUpdates(this);
                 
-                const int origH = h(GetClientAreaOrigin());
-                const int origV = h(GetClientAreaOrigin());
-                const int sizeH = h(GetClientSize());
-                const int sizeV = v(GetClientSize());
-                
-                wxPoint pos[2];
-                wxSize size[2];
-                
-                setHV(pos[0], origH, origV);
-                setHV(pos[1], origH + m_sashPosition + sashSize(), origV);
-                setHV(size[0], m_sashPosition, sizeV);
-                setHV(size[1], sizeH - m_sashPosition - sashSize(), sizeV);
-                
-                for (size_t i = 0; i < NumWindows; ++i)
-                    m_windows[i]->SetSize(wxRect(pos[i], size[i]));
-                
-                wxPoint sashPos;
-                wxSize sashSize;
-                
-                setHV(sashPos, origH + m_sashPosition, origV);
-                setHV(sashSize, SplitterWindow2::sashSize(), sizeV);
-                m_sash->SetSize(wxRect(sashPos, sashSize));
+                if (m_maximizedWindow != NULL) {
+                    m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
+                } else {
+                    const int origH = h(GetClientAreaOrigin());
+                    const int origV = h(GetClientAreaOrigin());
+                    const int sizeH = h(GetClientSize());
+                    const int sizeV = v(GetClientSize());
+                    
+                    wxPoint pos[2];
+                    wxSize size[2];
+                    
+                    setHV(pos[0], origH, origV);
+                    setHV(pos[1], origH + m_sashPosition + sashSize(), origV);
+                    setHV(size[0], m_sashPosition, sizeV);
+                    setHV(size[1], sizeH - m_sashPosition - sashSize(), sizeV);
+                    
+                    for (size_t i = 0; i < NumWindows; ++i)
+                        m_windows[i]->SetSize(wxRect(pos[i], size[i]));
+                    
+                    wxPoint sashPos;
+                    wxSize sashSize;
+                    
+                    setHV(sashPos, origH + m_sashPosition, origV);
+                    setHV(sashSize, SplitterWindow2::sashSize(), sizeV);
+                    m_sash->SetSize(wxRect(sashPos, sashSize));
+                }
             }
         }
         
         int SplitterWindow2::sashSize() const {
             return 2;
+        }
+ 
+        wxWindow* SplitterWindow2::unmaximizedWindow() {
+            assert(m_maximizedWindow != NULL);
+            return m_windows[0] == m_maximizedWindow ? m_windows[1] : m_windows[0];
         }
     }
 }

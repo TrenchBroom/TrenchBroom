@@ -48,6 +48,7 @@ namespace TrenchBroom {
             } Dim;
             
             wxWindow* m_windows[NumWindows];
+            wxWindow* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
             wxPoint m_initialSashPosition;
@@ -67,6 +68,9 @@ namespace TrenchBroom {
                        const wxSize& bottomLeftMin  = wxSize(0,0));
 
             void setMinSize(wxWindow* window, const wxSize& minSize);
+
+            void maximize(wxWindow* window);
+            void restore();
         private:
             int leftColMinSize() const;
             int rightColMinSize() const;

@@ -89,6 +89,10 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
             void moveCameraToPreviousTracePoint();
+
+            bool canMaximizeCurrentView() const;
+            bool currentViewMaximized() const;
+            void toggleMaximizeCurrentView();
         private:
             void bindObservers();
             void unbindObservers();

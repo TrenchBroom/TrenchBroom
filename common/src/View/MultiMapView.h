@@ -34,6 +34,7 @@ namespace TrenchBroom {
         private:
             typedef std::vector<MapView*> MapViewList;
             MapViewList m_mapViews;
+            MapView* m_maximizedView;
         protected:
             MultiMapView(wxWindow* parent);
         public:
@@ -44,16 +45,19 @@ namespace TrenchBroom {
             void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
-
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
-        
             void doCenterCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
-            
             void doMoveCameraToCurrentTracePoint();
         private: // implement MapViewContainer interface
+            bool doCanMaximizeCurrentView() const;
+            bool doCurrentViewMaximized() const;
+            void doToggleMaximizeCurrentView();
             MapView* doGetCurrentMapView() const;
+        private: // subclassing interface
+            virtual void doMaximizeView(MapView* view) = 0;
+            virtual void doRestoreViews() = 0;
         };
     }
 }

@@ -32,7 +32,11 @@ namespace TrenchBroom {
         public:
             MapViewContainer(wxWindow* parent);
             virtual ~MapViewContainer();
-        private:
+        public:
+            bool canMaximizeCurrentView() const;
+            bool currentViewMaximized() const;
+            void toggleMaximizeCurrentView();
+        protected:
             MapView* currentMapView() const;
         private: // implement MapView interface
             bool doCanFlipObjects() const;
@@ -40,6 +44,9 @@ namespace TrenchBroom {
 
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
         private: // subclassing interface
+            virtual bool doCanMaximizeCurrentView() const = 0;
+            virtual bool doCurrentViewMaximized() const = 0;
+            virtual void doToggleMaximizeCurrentView() = 0;
             virtual MapView* doGetCurrentMapView() const = 0;
         };
     }

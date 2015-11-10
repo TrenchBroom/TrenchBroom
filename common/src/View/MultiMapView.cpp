@@ -26,7 +26,8 @@
 namespace TrenchBroom {
     namespace View {
         MultiMapView::MultiMapView(wxWindow* parent) :
-        MapViewContainer(parent) {}
+        MapViewContainer(parent),
+        m_maximizedView(NULL) {}
         
         MultiMapView::~MultiMapView() {}
 
@@ -90,6 +91,24 @@ namespace TrenchBroom {
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->moveCameraToCurrentTracePoint();
+            }
+        }
+
+        bool MultiMapView::doCanMaximizeCurrentView() const {
+            return m_maximizedView != NULL || currentMapView() != NULL;
+        }
+        
+        bool MultiMapView::doCurrentViewMaximized() const {
+            return m_maximizedView != NULL;
+        }
+        
+        void MultiMapView::doToggleMaximizeCurrentView() {
+            if (m_maximizedView != NULL) {
+                doRestoreViews();
+                m_maximizedView = NULL;
+            } else {
+                m_maximizedView = currentMapView();
+                doMaximizeView(m_maximizedView);
             }
         }
 

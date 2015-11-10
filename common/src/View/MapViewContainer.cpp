@@ -29,6 +29,18 @@ namespace TrenchBroom {
         
         MapViewContainer::~MapViewContainer() {}
 
+        bool MapViewContainer::canMaximizeCurrentView() const {
+            return doCanMaximizeCurrentView();
+        }
+        
+        bool MapViewContainer::currentViewMaximized() const {
+            return doCurrentViewMaximized();
+        }
+        
+        void MapViewContainer::toggleMaximizeCurrentView() {
+            doToggleMaximizeCurrentView();
+        }
+
         bool MapViewContainer::doCanFlipObjects() const {
             MapView* current = currentMapView();
             if (current == NULL)

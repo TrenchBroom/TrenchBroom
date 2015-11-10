@@ -196,6 +196,18 @@ namespace TrenchBroom {
             m_mapView->moveCameraToCurrentTracePoint();
         }
 
+        bool SwitchableMapViewContainer::canMaximizeCurrentView() const {
+            return m_mapView->canMaximizeCurrentView();
+        }
+        
+        bool SwitchableMapViewContainer::currentViewMaximized() const {
+            return m_mapView->currentViewMaximized();
+        }
+        
+        void SwitchableMapViewContainer::toggleMaximizeCurrentView() {
+            m_mapView->toggleMaximizeCurrentView();
+        }
+
         void SwitchableMapViewContainer::bindObservers() {
             m_toolBox->refreshViewsNotifier.addObserver(this, &SwitchableMapViewContainer::refreshViews);
         }

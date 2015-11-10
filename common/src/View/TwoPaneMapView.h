@@ -40,6 +40,7 @@ namespace TrenchBroom {
         class MapViewBase;
         class MapView3D;
         class MapViewToolBox;
+        class SplitterWindow2;
         
         class TwoPaneMapView : public MultiMapView {
         private:
@@ -47,12 +48,16 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             CameraLinkHelper m_linkHelper;
+            SplitterWindow2* m_splitter;
             MapView3D* m_mapView3D;
             CyclingMapView* m_mapView2D;
         public:
             TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+        private: // implement MultiMapView subclassing interface
+            void doMaximizeView(MapView* view);
+            void doRestoreViews();
         };
     }
 }
