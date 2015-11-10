@@ -149,7 +149,7 @@ namespace TrenchBroom {
                 return Mat4x4::Identity;
             
             if (oldNormal.equals(-newNormal)) {
-                const Vec3 minorAxis = oldNormal.majorAxis(3);
+                const Vec3 minorAxis = oldNormal.majorAxis(2);
                 const Vec3 axis = crossed(oldNormal, minorAxis).normalized();
                 return rotationMatrix(axis, Math::C::pi());
             }
