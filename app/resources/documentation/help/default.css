@@ -1,0 +1,22 @@
+body {
+	margin: 20px;
+	padding: 0;
+	font-family: Helvetica, "Sans-serif";
+}
+
+div#TOC {
+	top: 0px;
+	left: 0px;
+	width: 300px;
+	float: left;
+	overflow:hidden;
+	position:absolute;
+}
+
+div#CONTENT {
+	top: 0px;
+	left: 320px;
+	float: left;
+	overflow:hidden;
+	position:absolute;
+}
