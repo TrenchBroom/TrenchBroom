@@ -104,6 +104,16 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
 
+            // compute the new texture axes
+            const Vec3 offset = transformation * Vec3::Null;
+            m_xAxis           = transformation * m_xAxis - offset;
+            m_yAxis           = transformation * m_yAxis - offset;
+            assert(!m_xAxis.nan());
+            assert(!m_yAxis.nan());
+
+            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+                return;
+            
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, transformation);
             const float newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
@@ -113,13 +123,6 @@ namespace TrenchBroom {
             // calculate the current texture coordinates of the face's center
             const Vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             assert(!oldInvariantTechCoords.nan());
-            
-            // compute the new texture axes
-            const Vec3 offset = transformation * Vec3::Null;
-            m_xAxis           = transformation * m_xAxis - offset;
-            m_yAxis           = transformation * m_yAxis - offset;
-            assert(!m_xAxis.nan());
-            assert(!m_yAxis.nan());
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = transformation * oldInvariant;
