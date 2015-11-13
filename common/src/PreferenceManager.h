@@ -60,6 +60,11 @@ namespace TrenchBroom {
         }
         
         template <typename T>
+        const T& getDefault(const Preference<T>& preference) const {
+            return preference.defaultValue();
+        }
+        
+        template <typename T>
         void set(Preference<T>& preference, const T& value) {
             const T previousValue = preference.value();
             preference.setValue(value);
