@@ -4,8 +4,6 @@ SET(APP_SOURCE_DIR "${APP_DIR}/src")
 FILE(GLOB_RECURSE APP_SOURCE
     "${APP_SOURCE_DIR}/*.h"
     "${APP_SOURCE_DIR}/*.cpp"
-    "${COMMON_SOURCE_DIR}/*.h"
-    "${COMMON_SOURCE_DIR}/*.cpp"
 )
 
 # OS X app bundle configuration, must happen before the executable is added
@@ -77,7 +75,7 @@ IF(WIN32)
 ENDIF()
 
 ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
-TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
+TARGET_LINK_LIBRARIES(TrenchBroom glew common ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Create the cmake script for version management
