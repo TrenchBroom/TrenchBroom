@@ -37,23 +37,10 @@ $endfor$
 $for(include-before)$
 $include-before$
 $endfor$
-$if(title)$
-<div id="$idprefix$header">
-<h1 class="title">$title$</h1>
-$if(subtitle)$
-<h1 class="subtitle">$subtitle$</h1>
-$endif$
-$for(author)$
-<h2 class="author">$author$</h2>
-$endfor$
-$if(date)$
-<h3 class="date">$date$</h3>
-$endif$
-</div>
-$endif$
 $if(toc)$
 <div id="$idprefix$TOC">
 <img src="images/icon.png" alt="TrenchBroom Icon" />
+<h2>Table of Contents</h2>
 $toc$
 </div>
 $endif$
