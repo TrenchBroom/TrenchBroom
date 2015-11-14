@@ -1,5 +1,4 @@
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
-SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 FILE(GLOB_RECURSE APP_SOURCE
     "${APP_SOURCE_DIR}/*.h"
@@ -78,22 +77,15 @@ ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
 TARGET_LINK_LIBRARIES(TrenchBroom glew common ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
+# Generate help docs during build
+# INCLUDE(cmake/GenerateHelp.cmake)
+
 # Create the cmake script for version management
 FIND_PACKAGE(Git)
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 ADD_CUSTOM_TARGET(version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake")
 ADD_DEPENDENCIES(TrenchBroom version)
-
-# Generate help documents
-SET(APP_HELP_SOURCE_DIR "${APP_DIR}/resources/documentation/help")
-SET(APP_HELP_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/help")
-ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_HELP_TARGET_DIR}"
-    COMMAND pandoc -s --toc --toc-depth=2 --template ${APP_HELP_SOURCE_DIR}/template.html -c default.css -o ${APP_HELP_TARGET_DIR}/index.html ${APP_HELP_SOURCE_DIR}/index.md
-    COMMAND ${CMAKE_COMMAND} -E copy "${APP_HELP_SOURCE_DIR}/default.css" "${APP_HELP_TARGET_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_HELP_SOURCE_DIR}/images/" "${APP_HELP_TARGET_DIR}/images"
-)
 
 # Copy some Windows-specific resources
 IF(WIN32)
