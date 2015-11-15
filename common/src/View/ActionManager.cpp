@@ -25,6 +25,7 @@
 #include "View/Menu.h"
 #include "View/Action.h"
 #include "View/ViewShortcut.h"
+#include "View/wxKeyStrings.h"
 
 #include <wx/accel.h>
 #include <wx/menu.h>
@@ -64,6 +65,44 @@ namespace TrenchBroom {
                 ViewShortcut& shortcut = *it;
                 entries.push_back(&shortcut);
             }
+        }
+
+        String ActionManager::getJSTable() {
+            ShortcutEntryList entries;
+            getShortcutEntries(entries);
+            
+            StringStream result;
+            result << "var keys = { mac: {}, windows: {}, linux: {} };" << std::endl;
+            wxKeyStringsWindows().appendJS("windows", result);
+            wxKeyStringsMac().appendJS("mac", result);
+            wxKeyStringsLinux().appendJS("linux", result);
+            result << std::endl;
+            
+            result << "var shortcuts = {};" << std::endl;
+            
+            ShortcutEntryList::const_iterator it, end;
+            for (it = entries.begin(), end = entries.end(); it != end; ++it) {
+                const KeyboardShortcutEntry& entry = **it;
+                const KeyboardShortcut& shortcut = entry.shortcut();
+                result << "shortcuts[\"" << entry.preferencePath().asString() << "\"] = { ";
+                result << "key: " << shortcut.key() << ", ";
+                
+                result << "modifiers: [";
+                bool hadModifier = false;
+                for (size_t i = 0; i < 3; ++i) {
+                    if (shortcut.hasModifier(i)) {
+                        if (hadModifier)
+                            result << ", ";
+                        result << shortcut.modifier(i);
+                        hadModifier = true;
+                    } else {
+                        hadModifier = false;
+                    }
+                }
+                result << "] };" << std::endl;
+            }
+            
+            return result.str();
         }
 
         wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
@@ -225,7 +264,9 @@ namespace TrenchBroom {
             Menu* debugMenu = m_menuBar->addMenu("Debug");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
 #endif
+            
             Menu* helpMenu = m_menuBar->addMenu("Help");
             helpMenu->addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, "TrenchBroom Help");
             

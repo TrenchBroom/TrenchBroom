@@ -78,7 +78,8 @@ TARGET_LINK_LIBRARIES(TrenchBroom glew common ${wxWidgets_LIBRARIES} ${FREETYPE_
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Generate help docs during build
-# INCLUDE(cmake/GenerateHelp.cmake)
+INCLUDE(cmake/GenerateHelp.cmake)
+ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
 
 # Create the cmake script for version management
 FIND_PACKAGE(Git)

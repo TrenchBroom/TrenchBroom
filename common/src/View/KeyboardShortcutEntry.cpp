@@ -53,8 +53,8 @@ namespace TrenchBroom {
             if ((actionContext() & entry->actionContext()) == 0)
                 return false;
             
-            const KeyboardShortcut& mine = doGetShortcut();
-            const KeyboardShortcut& theirs = entry->doGetShortcut();
+            const KeyboardShortcut& mine = shortcut();
+            const KeyboardShortcut& theirs = entry->shortcut();
             
             return mine.hasKey() && theirs.hasKey() && mine == theirs;
         }
@@ -76,11 +76,19 @@ namespace TrenchBroom {
         }
         
         wxString KeyboardShortcutEntry::shortcutDescription() const {
-            return doGetShortcut().shortcutDisplayString();
+            return shortcut().shortcutDisplayString();
         }
         
-        bool KeyboardShortcutEntry::equals(const KeyboardShortcut& shortcut) const {
-            return doGetShortcut() == shortcut;
+        const IO::Path& KeyboardShortcutEntry::preferencePath() const {
+            return doGetPreference().path();
+        }
+        
+        const KeyboardShortcut& KeyboardShortcutEntry::shortcut() const {
+            return doGetShortcut();
+        }
+
+        bool KeyboardShortcutEntry::equals(const KeyboardShortcut& i_shortcut) const {
+            return shortcut() == i_shortcut;
         }
         
         void KeyboardShortcutEntry::updateShortcut(const KeyboardShortcut& shortcut) {

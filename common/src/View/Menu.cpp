@@ -114,11 +114,6 @@ namespace TrenchBroom {
                 return caption;
         }
 
-        const KeyboardShortcut& ActionMenuItem::shortcut() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(m_preference);
-        }
-
         IO::Path ActionMenuItem::path(const String& label) const {
             IO::Path path(label);
             
@@ -174,8 +169,13 @@ namespace TrenchBroom {
             return m_preference.path().asString(" > ");
         }
         
+        const Preference<KeyboardShortcut>& ActionMenuItem::doGetPreference() const {
+            return m_preference;
+        }
+
         const KeyboardShortcut& ActionMenuItem::doGetShortcut() const {
-            return shortcut();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.get(m_preference);
         }
         
         void ActionMenuItem::doUpdateShortcut(const KeyboardShortcut& shortcut) {

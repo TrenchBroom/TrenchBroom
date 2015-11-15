@@ -471,6 +471,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
             
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
@@ -932,6 +933,17 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnDebugCopyJSShortcutMap(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened()) {
+                const String str = ActionManager::instance().getJSTable();
+                wxTheClipboard->SetData(new wxTextDataObject(str));
+            }
+
+        }
+
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Left);
@@ -1150,6 +1162,7 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
+                case CommandIds::Menu::DebugCopyJSShortcuts:
                     event.Enable(true);
                     break;
                 case CommandIds::Actions::FlipObjectsHorizontally:

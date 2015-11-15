@@ -91,6 +91,7 @@ namespace TrenchBroom {
                 
                 const int DebugPrintVertices                 = Lowest + 127;
                 const int DebugCreateBrush                   = Lowest + 128;
+                const int DebugCopyJSShortcuts               = Lowest + 129;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 

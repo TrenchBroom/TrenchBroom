@@ -84,6 +84,9 @@ namespace TrenchBroom {
             int modifier3() const;
             bool hasModifier() const;
             
+            bool hasModifier(size_t index) const;
+            int modifier(size_t index) const;
+            
             wxAcceleratorEntry acceleratorEntry(int id) const;
             int acceleratorFlags() const;
             

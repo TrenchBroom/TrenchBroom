@@ -101,7 +101,6 @@ namespace TrenchBroom {
 
             wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
-            const KeyboardShortcut& shortcut() const;
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
@@ -115,6 +114,7 @@ namespace TrenchBroom {
             int doGetActionContext() const;
             bool doGetModifiable() const;
             wxString doGetActionDescription() const;
+            const Preference<KeyboardShortcut>& doGetPreference() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;

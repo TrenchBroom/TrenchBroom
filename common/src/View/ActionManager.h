@@ -54,6 +54,7 @@ namespace TrenchBroom {
             const ActionMenuItem* findMenuItem(int id) const;
             
             void getShortcutEntries(ShortcutEntryList& entries);
+            String getJSTable();
 
             wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;

@@ -573,6 +573,22 @@ namespace TrenchBroom {
             return m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
         }
         
+        bool KeyboardShortcut::hasModifier(const size_t index) const {
+            return modifier(index) != WXK_NONE;
+        }
+        
+        int KeyboardShortcut::modifier(const size_t index) const {
+            assert(index < 3);
+            switch (index) {
+                case 0:
+                    return m_modifier1;
+                case 1:
+                    return m_modifier2;
+                default:
+                    return m_modifier3;
+            }
+        }
+
         wxAcceleratorEntry KeyboardShortcut::acceleratorEntry(const int id) const {
             return wxAcceleratorEntry(acceleratorFlags(), m_key, id);
         }

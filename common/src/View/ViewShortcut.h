@@ -48,12 +48,11 @@ namespace TrenchBroom {
             int doGetActionContext() const;
             bool doGetModifiable() const;
             wxString doGetActionDescription() const;
+            const Preference<KeyboardShortcut>& doGetPreference() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
         private:
-            const KeyboardShortcut& shortcut() const;
-            
             IO::Path path(const Action& action2D, const Action& action3D) const;
             String buildDescription(const Action& action2D, const Action& action3D) const;
         };
