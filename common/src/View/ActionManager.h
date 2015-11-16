@@ -55,7 +55,11 @@ namespace TrenchBroom {
             
             void getShortcutEntries(ShortcutEntryList& entries);
             String getJSTable();
-
+        private:
+            void getKeysJSTable(StringStream& str);
+            void getMenuJSTable(StringStream& str);
+            void getActionJSTable(StringStream& str);
+        public:
             wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 

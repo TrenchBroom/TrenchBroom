@@ -114,6 +114,7 @@ namespace TrenchBroom {
             int doGetActionContext() const;
             bool doGetModifiable() const;
             wxString doGetActionDescription() const;
+            wxString doGetJsonString() const;
             const Preference<KeyboardShortcut>& doGetPreference() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);

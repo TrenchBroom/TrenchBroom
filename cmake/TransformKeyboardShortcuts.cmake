@@ -1,3 +1,4 @@
 FILE(READ "${INPUT}" HELP_CONTENTS)
-STRING(REGEX REPLACE "#SC\\('([^']+)'\\)" "<script>shortcut(\"\\1\");</script>" HELP_CONTENTS_TRANSLATED "${HELP_CONTENTS}")
-FILE(WRITE "${OUTPUT}" "${HELP_CONTENTS_TRANSLATED}")
+STRING(REGEX REPLACE "#menu\\('([^']+)'\\)" "<script>print_menu_item(\"\\1\");</script>" HELP_CONTENTS "${HELP_CONTENTS}")
+STRING(REGEX REPLACE "#action\\('([^']+)'\\)" "<script>print_action(\"\\1\");</script>" HELP_CONTENTS "${HELP_CONTENTS}")
+FILE(WRITE "${OUTPUT}" "${HELP_CONTENTS}")

@@ -79,6 +79,10 @@ namespace TrenchBroom {
             return shortcut().shortcutDisplayString();
         }
         
+        wxString KeyboardShortcutEntry::jsonString() const {
+            return doGetJsonString();
+        }
+
         const IO::Path& KeyboardShortcutEntry::preferencePath() const {
             return doGetPreference().path();
         }

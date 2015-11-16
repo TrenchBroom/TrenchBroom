@@ -104,6 +104,7 @@ namespace TrenchBroom {
             
             wxString modifierMenuString() const;
             
+            wxString asJsonString() const;
             wxString asString() const;
         };
     }

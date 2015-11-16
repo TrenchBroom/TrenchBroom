@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return buildDescription(m_actions[ActionView_Map2D], m_actions[ActionView_Map3D]);
         }
         
+        wxString ViewShortcut::doGetJsonString() const {
+            return shortcut().asJsonString();
+        }
+
         const Preference<KeyboardShortcut>& ViewShortcut::doGetPreference() const {
             return m_preference;
         }

@@ -741,6 +741,27 @@ namespace TrenchBroom {
             return text;
         }
         
+        wxString KeyboardShortcut::asJsonString() const {
+            wxString str;
+            str << "{ key:" << key() << ", modifiers: [";
+            
+            bool hadModifier = false;
+            for (size_t i = 0; i < 3; ++i) {
+                if (hasModifier(i)) {
+                    if (hadModifier)
+                        str << ", ";
+                    str << modifier(i);
+                    hadModifier = true;
+                } else {
+                    hadModifier = false;
+                }
+            }
+            
+            str << "] }";
+            
+            return str;
+        }
+
         wxString KeyboardShortcut::asString() const {
             wxString str;
             str << m_key << ":" << m_modifier1 << ":" << m_modifier2 << ":" << m_modifier3;

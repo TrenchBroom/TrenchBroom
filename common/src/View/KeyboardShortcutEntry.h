@@ -58,6 +58,7 @@ namespace TrenchBroom {
             
             wxString actionDescription() const;
             wxString shortcutDescription() const;
+            wxString jsonString() const;
             
             const IO::Path& preferencePath() const;
             const KeyboardShortcut& shortcut() const;
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             virtual int doGetActionContext() const = 0;
             virtual bool doGetModifiable() const = 0;
             virtual wxString doGetActionDescription() const = 0;
+            virtual wxString doGetJsonString() const = 0;
             virtual const Preference<KeyboardShortcut>& doGetPreference() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
             virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;

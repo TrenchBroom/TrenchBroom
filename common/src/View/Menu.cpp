@@ -169,6 +169,14 @@ namespace TrenchBroom {
             return m_preference.path().asString(" > ");
         }
         
+        wxString ActionMenuItem::doGetJsonString() const {
+            const IO::Path menuPath = path(label());
+            
+            wxString str;
+            str << "{ path: [\"" << menuPath.asString("\", \"") << "\"], shortcut: " << shortcut().asJsonString() << " }";
+            return str;
+        }
+
         const Preference<KeyboardShortcut>& ActionMenuItem::doGetPreference() const {
             return m_preference;
         }

@@ -31,7 +31,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 
 # Getting Started
 
-In this section, we introduce the startup window, the game configuration to setup TrenchBroom to work with your games, we give an overview of the main window and explain the camera navigation in the 3D and 2D views. Press #SC('Controls/Map view/Move textures up') to activate this!
+In this section, we introduce the startup window, the game configuration to setup TrenchBroom to work with your games, we give an overview of the main window and explain the camera navigation in the 3D and 2D views. Press action #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward') to activate this or select #menu('Menu/Edit/Show All')!
 
 ## Startup
 

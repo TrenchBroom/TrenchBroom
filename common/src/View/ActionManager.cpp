@@ -68,41 +68,41 @@ namespace TrenchBroom {
         }
 
         String ActionManager::getJSTable() {
+            StringStream str;
+            getKeysJSTable(str);
+            getMenuJSTable(str);
+            getActionJSTable(str);
+            return str.str();
+        }
+
+        void ActionManager::getKeysJSTable(StringStream& str) {
+            str << "var keys = { mac: {}, windows: {}, linux: {} };" << std::endl;
+            wxKeyStringsWindows().appendJS("windows", str);
+            wxKeyStringsMac().appendJS("mac", str);
+            wxKeyStringsLinux().appendJS("linux", str);
+            str << std::endl;
+        }
+        
+        void ActionManager::getMenuJSTable(StringStream& str) {
+            str << "var menu = {};" << std::endl;
+            
             ShortcutEntryList entries;
-            getShortcutEntries(entries);
-            
-            StringStream result;
-            result << "var keys = { mac: {}, windows: {}, linux: {} };" << std::endl;
-            wxKeyStringsWindows().appendJS("windows", result);
-            wxKeyStringsMac().appendJS("mac", result);
-            wxKeyStringsLinux().appendJS("linux", result);
-            result << std::endl;
-            
-            result << "var shortcuts = {};" << std::endl;
-            
+            m_menuBar->getShortcutEntries(entries);
             ShortcutEntryList::const_iterator it, end;
             for (it = entries.begin(), end = entries.end(); it != end; ++it) {
                 const KeyboardShortcutEntry& entry = **it;
-                const KeyboardShortcut& shortcut = entry.shortcut();
-                result << "shortcuts[\"" << entry.preferencePath().asString() << "\"] = { ";
-                result << "key: " << shortcut.key() << ", ";
-                
-                result << "modifiers: [";
-                bool hadModifier = false;
-                for (size_t i = 0; i < 3; ++i) {
-                    if (shortcut.hasModifier(i)) {
-                        if (hadModifier)
-                            result << ", ";
-                        result << shortcut.modifier(i);
-                        hadModifier = true;
-                    } else {
-                        hadModifier = false;
-                    }
-                }
-                result << "] };" << std::endl;
+                str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.jsonString() << ";" << std::endl;;
             }
+        }
+        
+        void ActionManager::getActionJSTable(StringStream& str) {
+            str << "var actions = {};" << std::endl;
             
-            return result.str();
+            ViewShortcut::List::iterator it, end;
+            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
+                ViewShortcut& entry = *it;
+                str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.jsonString() << ";" << std::endl;
+            }
         }
 
         wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
