@@ -1,3 +1,7 @@
+====== All Platforms ======
+- We use pandoc (http://www.pandoc.org) to generate the documentation. Install a binary distribution from the website and make sure that it is in your PATH, otherwise your builds will fail.
+
+
 ====== Windows ======
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio (only tested with 2010)
