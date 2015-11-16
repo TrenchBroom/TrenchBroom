@@ -1,3 +1,5 @@
+INCLUDE(cmake/GenerateHelp.cmake)
+
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
@@ -69,6 +71,28 @@ IF(APPLE)
 	)
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
+
+    # Generate a dummy index.html
+    FILE(MAKE_DIRECTORY "${DOC_HELP_TARGET_DIR}")
+    FILE(WRITE "${DOC_HELP_TARGET_DIR}/index.html" "dummy")
+
+    SET(MACOSX_HELP_HTML_FILES "${DOC_HELP_TARGET_DIR}/index.html")
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HELP_HTML_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HELP_HTML_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/help)
+
+    # Configure help files
+    FILE(GLOB_RECURSE MACOSX_HELP_IMAGE_FILES
+        "${DOC_HELP_SOURCE_DIR}/images/*.*"
+    )
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HELP_IMAGE_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HELP_IMAGE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/help/images)
+
+    FILE(GLOB MACOSX_HELP_AUX_FILES
+        "${DOC_HELP_SOURCE_DIR}/*.js"
+        "${DOC_HELP_SOURCE_DIR}/*.css"
+    )
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HELP_AUX_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HELP_AUX_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/help)
 ENDIF()
 
 # Set up resource compilation for Windows
@@ -93,7 +117,6 @@ TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARI
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Generate help docs during build
-INCLUDE(cmake/GenerateHelp.cmake)
 ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
 
 # Create the cmake script for version management
@@ -144,6 +167,14 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/shader"
 	)
+
+    # Copy help files to resource directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_TARGET_DIR}/index.html"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.css" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${DOC_HELP_SOURCE_DIR}/images/" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/images"
+    )
 ENDIF()
 
 # Common CPack configuration
