@@ -38,8 +38,6 @@ namespace TrenchBroom {
         private:
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-            wxExtHelpController* m_helpController;
-
             wxLongLong m_lastActivation;
         public:
             Notifier0 recentDocumentsDidChangeNotifier;

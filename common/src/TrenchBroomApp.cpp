@@ -75,11 +75,6 @@ namespace TrenchBroom {
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
 
-            
-            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help");
-            m_helpController = new wxExtHelpController();
-            assertResult(m_helpController->Initialize(helpPath.asString()));
-
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
@@ -121,9 +116,6 @@ namespace TrenchBroom {
 
         TrenchBroomApp::~TrenchBroomApp() {
             wxImage::CleanUpHandlers();
-
-            delete m_helpController;
-            m_helpController = NULL;
             
             delete m_frameManager;
             m_frameManager = NULL;
@@ -286,7 +278,9 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
             assert(m_helpController != NULL);
-            m_helpController->DisplaySection(01);
+            
+            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help/index.html");
+            wxLaunchDefaultApplication(helpPath.asString());
         }
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
