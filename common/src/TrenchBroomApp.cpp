@@ -22,7 +22,9 @@
 #include <clocale>
 
 #include "GLInit.h"
+#include "Macros.h"
 #include "IO/Path.h"
+#include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "View/AboutFrame.h"
@@ -37,6 +39,7 @@
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
+#include <wx/generic/helpext.h>
 #include <wx/platinfo.h>
 #include <wx/utils.h>
 
@@ -72,6 +75,11 @@ namespace TrenchBroom {
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
 
+            
+            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help");
+            m_helpController = new wxExtHelpController();
+            assertResult(m_helpController->Initialize(helpPath.asString()));
+
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
@@ -97,10 +105,12 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_HELP);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 #endif
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
+            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowHelp, this, wxID_HELP);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
 
@@ -112,6 +122,9 @@ namespace TrenchBroom {
         TrenchBroomApp::~TrenchBroomApp() {
             wxImage::CleanUpHandlers();
 
+            delete m_helpController;
+            m_helpController = NULL;
+            
             delete m_frameManager;
             m_frameManager = NULL;
 
@@ -271,6 +284,11 @@ namespace TrenchBroom {
             openDocument(data.ToStdString());
         }
 
+        void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
+            assert(m_helpController != NULL);
+            m_helpController->DisplaySection(01);
+        }
+
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
             openPreferences();
         }
@@ -313,6 +331,7 @@ namespace TrenchBroom {
                 case wxID_NEW:
                 case wxID_OPEN:
                 case wxID_EXIT:
+                case wxID_HELP:
                 case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;

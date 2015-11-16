@@ -26,6 +26,8 @@
 #include "View/RecentDocuments.h"
 #include <wx/wx.h>
 
+class wxExtHelpController;
+
 namespace TrenchBroom {
     class Logger;
     
@@ -36,6 +38,7 @@ namespace TrenchBroom {
         private:
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
+            wxExtHelpController* m_helpController;
 
             wxLongLong m_lastActivation;
         public:
@@ -74,6 +77,7 @@ namespace TrenchBroom {
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
+            void OnHelpShowHelp(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
             void OnOpenAbout(wxCommandEvent& event);
             void OnExecutableEvent(ExecutableEvent& event);

@@ -58,7 +58,6 @@ namespace TrenchBroom {
                 const int ViewMoveCameraToNextPoint          = Lowest +  78;
                 const int ViewMoveCameraToPreviousPoint      = Lowest +  79;
 
-                const int HelpShowHelp                       = Lowest +  83;
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
                 const int ViewSwitchToMapInspector           = Lowest +  86;

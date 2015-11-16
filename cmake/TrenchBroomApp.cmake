@@ -90,6 +90,7 @@ IF(APPLE)
     FILE(GLOB MACOSX_HELP_AUX_FILES
         "${DOC_HELP_SOURCE_DIR}/*.js"
         "${DOC_HELP_SOURCE_DIR}/*.css"
+        "${DOC_HELP_SOURCE_DIR}/wxhelp.map"
     )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HELP_AUX_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_HELP_AUX_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/help)
@@ -172,6 +173,7 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_TARGET_DIR}/index.html"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/wxhelp.map" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/default.css" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/shortcuts.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/shortcuts_helper.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
