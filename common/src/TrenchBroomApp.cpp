@@ -277,8 +277,6 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
-            assert(m_helpController != NULL);
-            
             const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help/index.html");
             wxLaunchDefaultApplication(helpPath.asString());
         }
