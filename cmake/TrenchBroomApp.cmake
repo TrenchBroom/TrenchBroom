@@ -170,10 +170,10 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     # Copy help files to resource directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
-        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_TARGET_DIR}/index.html"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
-        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.css" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
-        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_TARGET_DIR}/index.html"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.css" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/*.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${DOC_HELP_SOURCE_DIR}/images/" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/images"
     )
 ENDIF()
