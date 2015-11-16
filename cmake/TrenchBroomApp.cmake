@@ -174,7 +174,7 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_TARGET_DIR}/index.html"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/default.css" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/shortcuts.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
-        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/shortcuts-helper.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        COMMAND ${CMAKE_COMMAND} -E copy "${DOC_HELP_SOURCE_DIR}/shortcuts_helper.js"  "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${DOC_HELP_SOURCE_DIR}/images/" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/images"
     )
 ENDIF()
