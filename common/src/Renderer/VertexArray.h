@@ -160,49 +160,6 @@ namespace TrenchBroom {
         public:
             typedef std::vector<GLint> IndexArray;
             typedef std::vector<GLsizei> CountArray;
-
-            typedef enum {
-                PT_Points           = GL_POINTS,
-                PT_Lines            = GL_LINES,
-                PT_LineStrips       = GL_LINE_STRIP,
-                PT_LineLoops        = GL_LINE_LOOP,
-                PT_Triangles        = GL_TRIANGLES,
-                PT_TriangleFans     = GL_TRIANGLE_FAN,
-                PT_TriangleStrips   = GL_TRIANGLE_STRIP,
-                PT_Quads            = GL_QUADS,
-                PT_QuadStrips       = GL_QUAD_STRIP,
-                PT_Polygons =       GL_POLYGON
-            } PrimType;
-            
-            class RenderSpec {
-            private:
-                friend class VertexArray;
-
-                struct IndicesAndCounts {
-                    IndexArray indices;
-                    CountArray counts;
-                    
-                    IndicesAndCounts();
-                    IndicesAndCounts(GLint index, GLsizei count);
-                    IndicesAndCounts(const IndexArray& indices, const CountArray& counts);
-                    IndicesAndCounts(IndexArray& indices, CountArray& counts);
-                    
-                    size_t size() const;
-                    
-                    void merge(PrimType primType, const IndicesAndCounts& other);
-                };
-                
-                typedef std::map<PrimType, IndicesAndCounts> Data;
-                Data m_data;
-            public:
-                RenderSpec(PrimType primType, GLint index, GLsizei count);
-                RenderSpec(PrimType primType, const IndexArray& indices, const CountArray& counts);
-                RenderSpec(PrimType primType, IndexArray& indices, CountArray& counts);
-                
-                void merge(const RenderSpec& other);
-            private:
-                void render() const;
-            };
         private:
             BaseHolder::Ptr m_holder;
             bool m_prepared;
@@ -211,93 +168,93 @@ namespace TrenchBroom {
             explicit VertexArray();
             
             template <typename A1>
-            static VertexArray copy(const GLenum primType, const std::vector<Vertex1<A1> >& vertices) {
+            static VertexArray copy(const std::vector<Vertex1<A1> >& vertices) {
                 BaseHolder::Ptr holder(new CopyHolder<typename Vertex1<A1>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1>
-            static VertexArray swap(const GLenum primType, std::vector<Vertex1<A1> >& vertices) {
+            static VertexArray swap(std::vector<Vertex1<A1> >& vertices) {
                 BaseHolder::Ptr holder(new SwapHolder<typename Vertex1<A1>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             template <typename A1>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex1<A1> >& vertices) {
+            static VertexArray ref(const std::vector<Vertex1<A1> >& vertices) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex1<A1>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             template <typename A1, typename A2>
-            static VertexArray copy(const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices) {
+            static VertexArray copy(const std::vector<Vertex2<A1, A2> >& vertices) {
                 BaseHolder::Ptr holder(new CopyHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             template <typename A1, typename A2>
-            static VertexArray swap(const GLenum primType, std::vector<Vertex2<A1, A2> >& vertices) {
+            static VertexArray swap(std::vector<Vertex2<A1, A2> >& vertices) {
                 BaseHolder::Ptr holder(new SwapHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex2<A1, A2> >& vertices) {
+            static VertexArray ref(const std::vector<Vertex2<A1, A2> >& vertices) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex2<A1, A2>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3>
-            static VertexArray copy(const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices) {
+            static VertexArray copy(const std::vector<Vertex3<A1, A2, A3> >& vertices) {
                 BaseHolder::Ptr holder(new CopyHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             template <typename A1, typename A2, typename A3>
-            static VertexArray swap(const GLenum primType, std::vector<Vertex3<A1, A2, A3> >& vertices) {
+            static VertexArray swap(std::vector<Vertex3<A1, A2, A3> >& vertices) {
                 BaseHolder::Ptr holder(new SwapHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices) {
+            static VertexArray ref(const std::vector<Vertex3<A1, A2, A3> >& vertices) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray copy(const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
+            static VertexArray copy(const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
                 BaseHolder::Ptr holder(new CopyHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray swap(const GLenum primType, std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
+            static VertexArray swap(std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
                 BaseHolder::Ptr holder(new SwapHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3, typename A4>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
+            static VertexArray ref(const std::vector<Vertex4<A1, A2, A3, A4> >& vertices) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex4<A1, A2, A3, A4>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray copy(const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
+            static VertexArray copy(const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
                 BaseHolder::Ptr holder(new CopyHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray swap(const GLenum primType, std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
+            static VertexArray swap(std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
                 BaseHolder::Ptr holder(new SwapHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
             
             template <typename A1, typename A2, typename A3, typename A4, typename A5>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
+            static VertexArray ref(const std::vector<Vertex5<A1, A2, A3, A4, A5> >& vertices) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex5<A1, A2, A3, A4, A5>::Spec>(vertices));
-                return VertexArray(primType, holder);
+                return VertexArray(holder);
             }
 
             VertexArray& operator= (VertexArray other);
@@ -309,11 +266,11 @@ namespace TrenchBroom {
             bool prepared() const;
             void prepare(Vbo& vbo);
             
-            void setup();
-            void render(const RenderSpec& spec);
+            bool setup();
+            void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount);
             void cleanup();
         private:
-            VertexArray(const GLenum primType, BaseHolder::Ptr holder);
+            VertexArray(BaseHolder::Ptr holder);
         };
     }
 }

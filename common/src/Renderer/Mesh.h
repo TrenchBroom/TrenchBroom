@@ -36,9 +36,18 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <class VertexSpec, typename Key = int>
+        template <class VertexSpec>
         class Mesh {
         public:
+            struct IndexData {
+                GLint index;
+                GLsizei count;
+                
+                IndexData(const GLint i_index, const GLsizei i_count) :
+                index(i_index),
+                count(i_count) {}
+            };
+            
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
         private:
@@ -56,45 +65,45 @@ namespace TrenchBroom {
                 return m_vertices.size();
             }
             
-            VertexArray::RenderSpec addPoint(const Vertex& v1) {
+            IndexData addPoint(const Vertex& v1) {
                 assert(checkCapacity(1));
                 
                 const GLint index = currentIndex();
                 m_vertices.push_back(v1);
                 
-                return VertexArray::RenderSpec(VertexArray::PT_Points, index, 1);
+                return IndexData(index, 1);
             }
             
-            VertexArray::RenderSpec addPoints(const VertexList& vertices) {
-                return addVertices(VertexArray::PT_Points, vertices);
+            IndexData addPoints(const VertexList& vertices) {
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addLine(const Vertex& v1, const Vertex& v2) {
+            IndexData addLine(const Vertex& v1, const Vertex& v2) {
                 assert(checkCapacity(2));
                 
                 const GLint index = currentIndex();
                 m_vertices.push_back(v1);
                 m_vertices.push_back(v2);
                 
-                return VertexArray::RenderSpec(VertexArray::PT_Lines, index, 2);
+                return IndexData(index, 2);
             }
             
-            VertexArray::RenderSpec addLines(const VertexList& vertices) {
+            IndexData addLines(const VertexList& vertices) {
                 assert(vertices.size() % 2 == 0);
-                return addVertices(VertexArray::PT_Lines, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addLineStrip(const VertexList& vertices) {
+            IndexData addLineStrip(const VertexList& vertices) {
                 assert(vertices.size() >= 2);
-                return addVertices(VertexArray::PT_LineStrips, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addLineLoop(const VertexList& vertices) {
+            IndexData addLineLoop(const VertexList& vertices) {
                 assert(vertices.size() >= 3);
-                return addVertices(VertexArray::PT_LineLoops, vertices);
+                return addVertices(vertices);
             }
 
-            VertexArray::RenderSpec addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3) {
+            IndexData addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3) {
                 assert(checkCapacity(3));
                 
                 const GLint index = currentIndex();
@@ -102,25 +111,25 @@ namespace TrenchBroom {
                 m_vertices.push_back(v2);
                 m_vertices.push_back(v3);
                 
-                return VertexArray::RenderSpec(VertexArray::PT_Triangles, index, 3);
+                return IndexData(index, 3);
             }
 
-            VertexArray::RenderSpec addTriangles(const VertexList& vertices) {
+            IndexData addTriangles(const VertexList& vertices) {
                 assert(vertices.size() % 3 == 0);
-                return addVertices(VertexArray::PT_Triangles, vertices);
+                return addVertices(vertices);
             }
 
-            VertexArray::RenderSpec addTriangleFan(const VertexList& vertices) {
+            IndexData addTriangleFan(const VertexList& vertices) {
                 assert(vertices.size() >= 3);
-                return addVertices(VertexArray::PT_TriangleFans, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addTriangleStrip(const VertexList& vertices) {
+            IndexData addTriangleStrip(const VertexList& vertices) {
                 assert(vertices.size() >= 3);
-                return addVertices(VertexArray::PT_TriangleStrips, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
+            IndexData addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
                 assert(checkCapacity(4));
                 
                 const GLint index = currentIndex();
@@ -129,23 +138,23 @@ namespace TrenchBroom {
                 m_vertices.push_back(v3);
                 m_vertices.push_back(v4);
                 
-                return VertexArray::RenderSpec(VertexArray::PT_Triangles, index, 4);
+                return IndexData(index, 4);
             }
             
-            VertexArray::RenderSpec addQuads(const VertexList& vertices) {
+            IndexData addQuads(const VertexList& vertices) {
                 assert(vertices.size() % 4 == 0);
-                return addVertices(VertexArray::PT_Quads, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addQuadStrip(const VertexList& vertices) {
+            IndexData addQuadStrip(const VertexList& vertices) {
                 assert(vertices.size() >= 4);
                 assert(vertices.size() % 2 == 0);
-                return addVertices(VertexArray::PT_QuadStrips, vertices);
+                return addVertices(vertices);
             }
             
-            VertexArray::RenderSpec addPolygon(const VertexList& vertices) {
+            IndexData addPolygon(const VertexList& vertices) {
                 assert(vertices.size() >= 3);
-                return addVertices(VertexArray::PT_Polygons, vertices);
+                return addVertices(vertices);
             }
         private:
             bool checkCapacity(const size_t toAdd) const {
@@ -156,13 +165,14 @@ namespace TrenchBroom {
                 return static_cast<GLint>(vertexCount());
             }
             
-            VertexArray::RenderSpec addVertices(const VertexArray::PrimType primType, const VertexList& vertices) {
+            IndexData addVertices(const VertexList& vertices) {
                 assert(checkCapacity(vertices.size()));
                 
                 const GLint index = currentIndex();
+                const GLsizei count = static_cast<GLsizei>(vertices.size());
                 VectorUtils::append(m_vertices, vertices);
                 
-                return VertexArray::RenderSpec(primType, index, vertices.size());
+                return IndexData(index, count);
             }
         };
     }
