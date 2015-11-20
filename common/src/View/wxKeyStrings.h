@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef wxKeyStrings_hpp
-#define wxKeyStrings_hpp
+#ifndef wxKeyStrings_h
+#define wxKeyStrings_h
 
 
 #include "StringUtils.h"
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* wxKeyStrings_hpp */
+#endif /* wxKeyStrings_h */
