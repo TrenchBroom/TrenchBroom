@@ -267,7 +267,9 @@ namespace TrenchBroom {
             void prepare(Vbo& vbo);
             
             bool setup();
+            void render(GLenum primType, GLint index, GLsizei count);
             void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount);
+            void render(GLenum primType, const IndexArray& indices, GLsizei count);
             void cleanup();
         private:
             VertexArray(BaseHolder::Ptr holder);

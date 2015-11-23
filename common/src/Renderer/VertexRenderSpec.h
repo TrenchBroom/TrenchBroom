@@ -26,8 +26,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        
-        template <typename Key = int>
         class VertexRenderSpec {
         public:
             typedef enum {
@@ -45,82 +43,86 @@ namespace TrenchBroom {
             
             typedef VertexArray::IndexArray IndexArray;
             typedef VertexArray::CountArray CountArray;
+        public:
+            virtual ~VertexRenderSpec();
+        };
+        
+        class SimpleVertexRenderSpec : public VertexRenderSpec {
         private:
             struct IndicesAndCounts {
                 IndexArray indices;
                 CountArray counts;
                 
-                IndicesAndCounts(const size_t capacity) :
-                indices(0),
-                counts(0) {
-                    indices.reserve(capacity);
-                    counts.reserve(capacity);
-                }
-                
-                size_t size() const {
-                    return indices.size();
-                }
-                
-                void add(const PrimType primType, const GLint index, const GLsizei count) {
-                    switch (primType) {
-                        case PT_Points:
-                        case PT_Lines:
-                        case PT_Triangles:
-                        case PT_Quads: {
-                            if (size() == 1) {
-                                const GLint myIndex = indices.front();
-                                GLsizei& myCount = counts.front();
-                                
-                                if (index == myIndex + myCount) {
-                                    myCount += count;
-                                    break;
-                                }
-                            }
-                        }
-                        case PT_LineStrips:
-                        case PT_LineLoops:
-                        case PT_TriangleFans:
-                        case PT_TriangleStrips:
-                        case PT_QuadStrips:
-                        case PT_Polygons:
-                            assert(indices.capacity() > indices.size());
-                            indices.push_back(index);
-                            counts.push_back(count);
-                            break;
-                    }
-                }
+                IndicesAndCounts(size_t capacity);
+                size_t size() const;
+                void add(PrimType primType, GLint index, GLsizei count);
             };
-            
-            typedef std::map<PrimType, IndicesAndCounts> PrimTypeIndexData;
-            typedef std::map<Key, PrimTypeIndexData> KeyIndexData;
-            
-            KeyIndexData m_data;
-            typename KeyIndexData::iterator m_current;
+
+            typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
         public:
             class Size {
             private:
-                typedef std::map<PrimType, size_t> PrimTypeSize;
-                typedef std::map<Key, PrimTypeSize> KeySize;
+                friend class SimpleVertexRenderSpec;
                 
-                KeySize m_sizes;
-                typename KeySize::iterator m_current;
+                typedef std::map<PrimType, size_t> PrimTypeToSize;
+                PrimTypeToSize m_sizes;
+            public:
+                void inc(const PrimType primType);
+            private:
+                void initialize(PrimTypeToIndexData& data) const;
+            };
+        private:
+            PrimTypeToIndexData m_data;
+        public:
+            SimpleVertexRenderSpec(const Size& size);
+
+            void add(PrimType primType, GLint index, GLsizei count);
+            
+            void render(VertexArray& vertexArray) const;
+            void doRender(VertexArray& vertexArray) const;
+        private:
+            SimpleVertexRenderSpec(const SimpleVertexRenderSpec& other);
+            SimpleVertexRenderSpec& operator=(const SimpleVertexRenderSpec& other);
+        };
+        
+        template <typename Key>
+        class KeyedVertexRenderSpec : public VertexRenderSpec {
+        public:
+            class KeyFunc {
+            public:
+                virtual ~KeyFunc() {}
+                virtual void before(const Key& key) const = 0;
+                virtual void after(const Key& key) const = 0;
+            };
+        private:
+            typedef std::map<Key, SimpleVertexRenderSpec> KeyToRenderSpec;
+        public:
+            class Size {
+            private:
+                friend class KeyedVertexRenderSpec;
+                
+                typedef std::map<Key, SimpleVertexRenderSpec::Size> KeyToSize;
+                KeyToSize m_sizes;
+                typename KeyToSize::iterator m_current;
             public:
                 Size() : m_current(m_sizes.end()) {}
                 
                 void inc(const Key& key, const PrimType primType) {
-                    if (!isCurrent(key))
-                        m_current = MapUtils::findOrInsert(m_sizes, key, PrimTypeSize());
-                    
-                    PrimTypeSize& primTypeSize = m_current->second;
-                    typename PrimTypeSize::iterator primIt = MapUtils::findOrInsert(primTypeSize, primType, 0);
-                    ++primIt->second;
+                    SimpleVertexRenderSpec::Size& sizeForKey = findCurrent(key);
+                    sizeForKey.inc(primType);
                 }
             private:
+                SimpleVertexRenderSpec::Size& findCurrent(const Key& key) {
+                    if (!isCurrent(key))
+                        m_current = MapUtils::findOrInsert(m_sizes, key, SimpleVertexRenderSpec::Size());
+                    return m_current->second;
+                }
+                
                 bool isCurrent(const Key& key) const {
                     if (m_current == m_sizes.end())
                         return false;
                     
-                    typedef typename KeyIndexData::key_compare Cmp;
+                    typedef typename KeyToSize::key_compare Cmp;
                     const Cmp& cmp = m_sizes.key_comp();
                     
                     const Key& currentKey = m_current->first;
@@ -128,52 +130,43 @@ namespace TrenchBroom {
                         return false;
                     return true;
                 }
-                
-                void initialize(KeyIndexData& keyIndexData) const {
-                    typename KeySize::const_iterator keyIt, keyEnd;
-                    for (keyIt = m_sizes.begin(), keyEnd = m_sizes.end(); keyIt != keyEnd; ++keyIt) {
-                        const Key& key = keyIt->first;
-                        const PrimTypeSize& primTypeSize = keyIt->second;
-                        PrimTypeIndexData& primTypeIndexData = keyIndexData[key];
-                        
-                        typename PrimTypeSize::const_iterator primIt, primEnd;
-                        for (primIt = primTypeSize.begin(), primEnd = primTypeSize.end(); primIt != primEnd; ++primIt) {
-                            const PrimType primType = primIt->first;
-                            const size_t size = primIt->second;
-                            primTypeIndexData.insert(std::make_pair(primType, IndicesAndCounts(size)));
-                        }
-                    }
-                }
             };
+        private:
+            KeyToRenderSpec m_data;
+            typename KeyToRenderSpec::iterator m_current;
         public:
-            VertexRenderSpec(const Size& size) :
-            m_current(m_data.end()) {
-                size.initialize(m_data);
-            }
-            
+            KeyedVertexRenderSpec(const Size& size) :
+            m_current(m_data.end()) {}
+
             void add(const Key& key, const PrimType primType, const GLint index, const GLsizei count) {
-                IndicesAndCounts& currentData = findData(key, primType);
-                currentData.add(index, count);
+                SimpleVertexRenderSpec& current = findCurrent(key);
+                current.add(primType, index, count);
+            }
+
+            void render(VertexArray& vertexArray, const KeyFunc& keyFunc) const {
+                typename KeyToRenderSpec::const_iterator keyIt, keyEnd;
+                for (keyIt = m_data.begin(), keyEnd = m_data.end(); keyIt != keyEnd; ++keyIt) {
+                    const Key& key = keyIt->first;
+                    const SimpleVertexRenderSpec& spec = keyIt->second;
+                    
+                    keyFunc.before(key);
+                    spec.doRender(vertexArray);
+                    keyFunc.after(key);
+                }
             }
         private:
-            IndicesAndCounts& findData(const Key& key, const PrimType primType) {
+            SimpleVertexRenderSpec& findCurrent(const Key& key) {
                 if (!isCurrent(key))
                     m_current = m_data.find(key);
                 assert(m_current != m_data.end());
-                
-                PrimTypeIndexData& primTypeIndexData = m_current->second;
-                
-                typename PrimTypeIndexData::iterator primIt = primTypeIndexData.find(primType);
-                assert(primIt != primTypeIndexData.end());
-                
-                return primIt->second;
+                return m_current->second;
             }
-            
+
             bool isCurrent(const Key& key) const {
                 if (m_current == m_data.end())
                     return false;
                 
-                typedef typename KeyIndexData::key_compare Cmp;
+                typedef typename KeyToRenderSpec::key_compare Cmp;
                 const Cmp& cmp = m_data.key_comp();
                 
                 const Key& currentKey = m_current->first;
@@ -181,25 +174,9 @@ namespace TrenchBroom {
                     return false;
                 return true;
             }
-            
-            void render(VertexArray& vertexArray) const {
-                if (!vertexArray.setup())
-                    return;
-                
-                typename KeyIndexData::const_iterator keyIt, keyEnd;
-                for (keyIt = m_data.begin(), keyEnd = m_data.end(); keyIt != keyEnd; ++keyIt) {
-                    const PrimTypeIndexData& keyData = keyIt->second;
-                    
-                    typename PrimTypeIndexData::const_iterator primIt, primEnd;
-                    for (primIt = keyData.begin(), primEnd = keyData.end(); primIt != primEnd; ++primIt) {
-                        const PrimType primType = primIt->first;
-                        const IndicesAndCounts& indicesAndCounts = primIt->second;
-                        vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts);
-                    }
-                }
-                
-                vertexArray.cleanup();
-            }
+        private:
+            KeyedVertexRenderSpec(const KeyedVertexRenderSpec& other);
+            KeyedVertexRenderSpec& operator=(const KeyedVertexRenderSpec& other);
         };
     }
 }

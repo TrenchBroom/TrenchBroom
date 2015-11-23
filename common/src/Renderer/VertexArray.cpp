@@ -79,6 +79,13 @@ namespace TrenchBroom {
             m_setup = false;
         }
 
+        void VertexArray::render(const GLenum primType, const GLint index, const GLsizei count) {
+            assert(m_prepared);
+            assert(m_setup);
+
+            glDrawArrays(primType, index, count);
+        }
+
         void VertexArray::render(const GLenum primType, const IndexArray& indices, const CountArray& counts, const GLint primCount) {
             assert(m_prepared);
             assert(m_setup);
@@ -86,6 +93,14 @@ namespace TrenchBroom {
             const GLint* indexArray   = indices.data();
             const GLsizei* countArray = counts.data();
             glMultiDrawArrays(primType, indexArray, countArray, primCount);
+        }
+
+        void VertexArray::render(GLenum primType, const IndexArray& indices, const GLsizei count) {
+            assert(m_prepared);
+            assert(m_setup);
+            
+            const GLint* indexArray = indices.data();
+            glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
         }
 
         VertexArray::VertexArray(BaseHolder::Ptr holder) :

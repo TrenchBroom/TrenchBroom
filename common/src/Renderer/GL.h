@@ -248,7 +248,10 @@ namespace TrenchBroom {
     
     extern Func3<void, GLenum, GLint, GLsizei> glDrawArrays;
     extern Func4<void, GLenum, const GLint*, const GLsizei*, GLsizei> glMultiDrawArrays;
-    
+    extern Func4<void, GLenum, GLsizei, GLenum, const GLvoid*> glDrawElements;
+    extern Func6<void, GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid*> glDrawRangeElements;
+    extern Func5<void, GLenum, const GLsizei*, GLenum, const GLvoid**, GLsizei> glMultiDrawElements;
+
     extern Func1<GLuint, GLenum> glCreateShader;
     extern Func1<void, GLuint> glDeleteShader;
     extern Func4<void, GLuint, GLsizei, const GLchar**, const GLint*> glShaderSource;

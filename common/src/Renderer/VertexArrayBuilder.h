@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Mesh
-#define TrenchBroom_Mesh
+#ifndef TrenchBroom_VertexArrayBuilder
+#define TrenchBroom_VertexArrayBuilder
 
 #include "CollectionUtils.h"
 #include "Renderer/IndexedVertexList.h"
@@ -29,15 +29,10 @@
 #include <map>
 #include <vector>
 
-// disable warnings about truncated names in MSVC:
-#ifdef _MSC_VER
-#pragma warning(disable:4503)
-#endif
-
 namespace TrenchBroom {
     namespace Renderer {
         template <class VertexSpec>
-        class Mesh {
+        class VertexArrayBuilder {
         public:
             struct IndexData {
                 GLint index;
@@ -53,16 +48,20 @@ namespace TrenchBroom {
         private:
             VertexList m_vertices;
         public:
-            Mesh() :
+            VertexArrayBuilder() :
             m_vertices(0) {}
 
-            Mesh(const size_t vertexCount) :
+            VertexArrayBuilder(const size_t vertexCount) :
             m_vertices() {
                 m_vertices.reserve(vertexCount);
             }
 
             size_t vertexCount() const {
                 return m_vertices.size();
+            }
+            
+            VertexArray vertexArray() {
+                return VertexArray::swap(m_vertices);
             }
             
             IndexData addPoint(const Vertex& v1) {
@@ -178,4 +177,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Mesh) */
+#endif /* defined(TrenchBroom_VertexArrayBuilder) */
