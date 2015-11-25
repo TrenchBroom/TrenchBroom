@@ -28,7 +28,8 @@
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
-#include "Renderer/TriangleMesh.h"
+#include "Renderer/IndexArray.h"
+#include "Renderer/IndexArrayBuilder.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
@@ -354,59 +355,50 @@ namespace TrenchBroom {
         }
 
         Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            size_t fanVertexCount = 0;
-            size_t stripVertexCount = 0;
-
-            typedef std::vector<Md2MeshList::const_iterator> PrimitiveList;
-            PrimitiveList md2Fans;
-            PrimitiveList md2Strips;
-            
-            md2Fans.reserve(meshes.size());
-            md2Strips.reserve(meshes.size());
-            
             Md2MeshList::const_iterator mIt, mEnd;
+
+            size_t vertexCount = 0;
+            Renderer::IndexArray::Size size;
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
-                const size_t vertexCount = md2Mesh.vertices.size();
-                if (md2Mesh.type == Md2Mesh::Fan) {
-                    fanVertexCount += vertexCount;
-                    md2Fans.push_back(mIt);
-                } else {
-                    stripVertexCount += vertexCount;
-                    md2Strips.push_back(mIt);
-                }
+                vertexCount += md2Mesh.vertices.size();
+                if (md2Mesh.type == Md2Mesh::Fan)
+                    size.inc(Renderer::IndexArray::PT_TriangleFans);
+                else
+                    size.inc(Renderer::IndexArray::PT_TriangleStrips);
             }
-                
-            typedef Assets::Md2Model::Mesh Mesh;
-            
-            Mesh::IndexedList fans(fanVertexCount, md2Fans.size());
-            Mesh::IndexedList strips(stripVertexCount, md2Strips.size());
 
-            buildPrimitives(frame, md2Fans, fans);
-            buildPrimitives(frame, md2Strips, strips);
+            Renderer::IndexArrayBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
+            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
+                const Md2Mesh& md2Mesh = *mIt;
+                vertexCount += md2Mesh.vertices.size();
+                if (md2Mesh.type == Md2Mesh::Fan)
+                    builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
+                else
+                    builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+            }
             
-            return new Assets::Md2Model::Frame(fans, strips);
+            return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
         
-        void Md2Parser::buildPrimitives(const Md2Frame& frame, const std::vector<Md2MeshList::const_iterator>& meshes, Assets::Md2Model::Mesh::IndexedList& list) {
+        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
             typedef Assets::Md2Model::Vertex Vertex;
 
-            std::vector<Md2MeshList::const_iterator>::const_iterator pIt, pEnd;
-            for (pIt = meshes.begin(), pEnd = meshes.end(); pIt != pEnd; ++pIt) {
-                const Md2Mesh& md2Mesh = **pIt;
-                const size_t vertexCount = md2Mesh.vertices.size();
+            Vertex::List result(0);
+            result.reserve(meshVertices.size());
+            
+            Md2MeshVertexList::const_iterator it, end;
+            for (it = meshVertices.begin(), end = meshVertices.end(); it != end; ++it) {
+                const Md2MeshVertex& md2MeshVertex = *it;
                 
-                for (size_t i = 0; i < vertexCount; ++i) {
-                    const Md2MeshVertex& md2MeshVertex = md2Mesh.vertices[i];
-                    
-                    const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
-                    const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
-                    const Vec2f& texCoords = md2MeshVertex.texCoords;
-                    
-                    list.addVertex(Vertex(position, normal, texCoords));
-                }
-                list.endPrimitive();
+                const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
+                const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
+                const Vec2f& texCoords = md2MeshVertex.texCoords;
+                
+                result.push_back(Vertex(position, normal, texCoords));
             }
+            
+            return result;
         }
     }
 }

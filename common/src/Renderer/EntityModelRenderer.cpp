@@ -28,10 +28,10 @@
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/Transformation.h"
 
 namespace TrenchBroom {
@@ -50,9 +50,9 @@ namespace TrenchBroom {
             const Assets::ModelSpecification modelSpec = entity->modelSpecification();
             Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
             if (model != NULL) {
-                TexturedTriangleMeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+                TexturedIndexArrayRenderer* renderer = m_entityModelManager.renderer(modelSpec);
                 if (renderer != NULL)
-                    m_entities[entity] = renderer;
+                    m_entities.insert(std::make_pair(entity, renderer));
             }
         }
         
@@ -111,14 +111,14 @@ namespace TrenchBroom {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                TexturedTriangleMeshRenderer* renderer = it->second;
+                TexturedIndexArrayRenderer* renderer = it->second;
                 
                 const Mat4x4f translation(translationMatrix(entity->origin()));
                 const Mat4x4f rotation(entity->rotation());
                 const Mat4x4f matrix = translation * rotation;
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
                 
-                renderer->render();
+                renderer->render(renderContext);
             }
         }
     }

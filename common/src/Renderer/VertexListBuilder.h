@@ -55,6 +55,10 @@ namespace TrenchBroom {
                 return m_vertices;
             }
             
+            VertexList& vertices() {
+                return m_vertices;
+            }
+            
             IndexData addPoint(const Vertex& v1) {
                 assert(checkCapacity(1));
                 

@@ -111,7 +111,7 @@ namespace TrenchBroom {
             Assets::Texture* loadTexture(const Md2Skin& skin);
             Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes);
             Assets::Md2Model::Frame* buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
-            void buildPrimitives(const Md2Frame& frame, const std::vector<Md2MeshList::const_iterator>& meshes, Assets::Md2Model::Mesh::IndexedList& list);
+            Assets::Md2Model::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
         };
     }
 }

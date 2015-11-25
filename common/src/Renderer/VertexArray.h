@@ -267,6 +267,7 @@ namespace TrenchBroom {
             void prepare(Vbo& vbo);
             
             bool setup();
+            void render(GLenum primType) const;
             void render(GLenum primType, GLint index, GLsizei count) const;
             void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount) const;
             void render(GLenum primType, const IndexArray& indices, GLsizei count) const;

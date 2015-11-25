@@ -19,6 +19,7 @@
 
 #include "EdgeRenderer.h"
 
+#include "Renderer/IndexArray.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -79,10 +80,10 @@ namespace TrenchBroom {
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_color);
-                m_vertexArray.render();
+                m_vertexArray.render(IndexArray::PT_Lines);
             } else {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPCShader);
-                m_vertexArray.render();
+                m_vertexArray.render(IndexArray::PT_Lines);
             }
         }
 

@@ -27,6 +27,10 @@ namespace TrenchBroom {
     namespace Renderer {
         template <typename VertexSpec>
         class IndexArrayBuilder {
+        public:
+            typedef typename VertexSpec::Vertex Vertex;
+            typedef typename Vertex::List VertexList;
+            typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexArray m_indexArray;
@@ -34,6 +38,22 @@ namespace TrenchBroom {
             IndexArrayBuilder(const size_t vertexCount, const IndexArray::Size& indexArraySize) :
             m_vertexListBuilder(vertexCount),
             m_indexArray(indexArraySize) {}
+            
+            const VertexList& vertices() const {
+                return m_vertexListBuilder.vertices();
+            }
+            
+            VertexList& vertices() {
+                return m_vertexListBuilder.vertices();
+            }
+            
+            const IndexArray& indexArray() const {
+                return m_indexArray;
+            }
+            
+            IndexArray& indexArray() {
+                return m_indexArray;
+            }
             
             void addPoint(const Vertex& v) {
                 add(IndexArray::PT_Points, m_vertexListBuilder.addPoint(v));
@@ -91,7 +111,7 @@ namespace TrenchBroom {
                 add(IndexArray::PT_Polygons, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
-            void add(const IndexArray::PrimType primType, const VertexListBuilder::IndexData& data) {
+            void add(const IndexArray::PrimType primType, const IndexData& data) {
                 m_indexArray.add(primType, data.index, data.count);
             }
         };

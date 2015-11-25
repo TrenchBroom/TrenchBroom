@@ -79,6 +79,10 @@ namespace TrenchBroom {
             m_setup = false;
         }
 
+        void VertexArray::render(const GLenum primType) const {
+            render(primType, 0, static_cast<GLsizei>(vertexCount()));
+        }
+
         void VertexArray::render(const GLenum primType, const GLint index, const GLsizei count) const {
             assert(m_prepared);
             assert(m_setup);

@@ -25,14 +25,11 @@
 #include "StringUtils.h"
 #include "VecMath.h"
 #include "Renderer/VertexSpec.h"
+#include "Renderer/IndexArray.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Vbo;
-    }
-    
     namespace Assets {
         class TextureCollection;
         
@@ -40,22 +37,20 @@ namespace TrenchBroom {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-
+            typedef Vertex::List VertexList;
+            
             class Frame {
             private:
-                Vertex::List m_vertices;
-                Renderer::SimpleVertexRenderSpec m_renderSpec;
+                VertexList m_vertices;
+                Renderer::IndexArray m_indices;
                 BBox3f m_bounds;
             public:
-                Frame(const Renderer::SimpleVertexRenderSpec renderSpec);
+                Frame(const VertexList& vertices, const Renderer::IndexArray& indices);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
-                const Vertex::List& vertices() const;
-                const Renderer::SimpleVertexRenderSpec& renderSpec() const;
+                const VertexList& vertices() const;
+                const Renderer::IndexArray& indices() const;
                 const BBox3f& bounds() const;
-            private:
-                void mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices) const;
-                void mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices, const Mat4x4f& transformation) const;
             };
 
             typedef std::vector<Frame*> FrameList;
@@ -67,7 +62,7 @@ namespace TrenchBroom {
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
         private:
-            Renderer::TexturedVertexArrayRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexArrayRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);

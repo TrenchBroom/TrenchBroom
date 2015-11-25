@@ -31,7 +31,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
-#include "Renderer/TriangleMesh.h"
+#include "Renderer/VertexListBuilder.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -39,6 +39,10 @@
 namespace TrenchBroom {
     namespace Assets {
         class TextureManager;
+    }
+    
+    namespace Renderer {
+        class TexturedIndexArray;
     }
     
     namespace Model {
@@ -59,10 +63,9 @@ namespace TrenchBroom {
              */
             typedef Vec3 Points[3];
         private:
-            typedef Renderer::VertexSpecs::P3NT2 MeshVertexSpec;
-            typedef MeshVertexSpec::Vertex MeshVertex;
+            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
+            typedef VertexSpec::Vertex Vertex;
         public:
-            typedef Renderer::TriangleMesh<MeshVertexSpec, const Assets::Texture*> Mesh;
             static const String NoTextureName;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
@@ -86,8 +89,8 @@ namespace TrenchBroom {
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
             
-            mutable bool m_cachedVerticesValid;
-            mutable MeshVertex::List m_cachedVertices;
+            mutable Vertex::List m_cachedVertices;
+            mutable GLint m_vertexIndex;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -184,7 +187,8 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            void addToMesh(Mesh& mesh) const;
+            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
+            void getIndex(Renderer::TexturedIndexArray& array) const;
             Vec2f textureCoords(const Vec3& point) const;
             
             bool containsPoint(const Vec3& point) const;
@@ -193,6 +197,7 @@ namespace TrenchBroom {
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
             
+            bool vertexCacheValid() const;
             void invalidateCachedVertices();
             void validateCachedVertices() const;
             

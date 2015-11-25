@@ -69,11 +69,11 @@ namespace TrenchBroom {
             class CollectTransitiveSelectedLinksVisitor;
             class CollectDirectSelectedLinksVisitor;
 
-            Vertex::List links() const;
-            Vertex::List allLinks() const;
-            Vertex::List transitiveSelectedLinks() const;
-            Vertex::List directSelectedLinks() const;
-            Vertex::List collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
+            void getLinks(Vertex::List& links) const;
+            void getAllLinks(Vertex::List& links) const;
+            void getTransitiveSelectedLinks(Vertex::List& links) const;
+            void getDirectSelectedLinks(Vertex::List& links) const;
+            void collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
             
             EntityLinkRenderer(const EntityLinkRenderer& other);
             EntityLinkRenderer& operator=(const EntityLinkRenderer& other);

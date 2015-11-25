@@ -24,7 +24,7 @@
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
-#include "Renderer/TriangleMeshRenderer.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
         }
         
-        Renderer::TexturedTriangleMeshRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
+        Renderer::TexturedIndexArrayRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             EntityModel* entityModel = model(spec.path);
             if (entityModel == NULL)
                 return NULL;
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             if (m_rendererMismatches.count(spec) > 0)
                 return NULL;
             
-            Renderer::TexturedTriangleMeshRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
+            Renderer::TexturedIndexArrayRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == NULL) {
                 m_rendererMismatches.insert(spec);
                 
@@ -154,7 +154,7 @@ namespace TrenchBroom {
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
             RendererList::const_iterator it, end;
             for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
-                Renderer::TexturedTriangleMeshRenderer* renderer = *it;
+                Renderer::TexturedIndexArrayRenderer* renderer = *it;
                 renderer->prepare(vbo);
             }
             m_unpreparedRenderers.clear();

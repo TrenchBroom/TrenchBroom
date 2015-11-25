@@ -28,6 +28,8 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
+#include "Renderer/IndexArray.h"
+#include "Renderer/TexturedIndexArray.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,7 +50,7 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(NULL),
-        m_cachedVerticesValid(false),
+        m_vertexIndex(-2),
         m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
@@ -556,14 +558,17 @@ namespace TrenchBroom {
                 m_brush->childWasDeselected();
         }
 
-        void BrushFace::addToMesh(Mesh& mesh) const {
+        void BrushFace::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
             validateCachedVertices();
-
-            mesh.beginTriangleSet(m_attribs.texture());
-            mesh.addTrianglesToSet(m_cachedVertices);
-            mesh.endTriangleSet();
+            m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
         }
-
+        
+        void BrushFace::getIndex(Renderer::TexturedIndexArray& array) const {
+            assert(vertexCacheValid());
+            const GLsizei count = static_cast<GLsizei>(vertexCount());
+            array.add(texture(), Renderer::IndexArray::PT_Polygons, m_vertexIndex, count);
+        }
+        
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
@@ -609,34 +614,31 @@ namespace TrenchBroom {
                 m_points[i].correct();
         }
 
+        bool BrushFace::vertexCacheValid() const {
+            return m_vertexIndex > -2;
+        }
+
         void BrushFace::invalidateCachedVertices() {
-            m_cachedVerticesValid = false;
+            m_vertexIndex = -2;
         }
         
         void BrushFace::validateCachedVertices() const {
             assert(m_geometry != NULL);
-            if (!m_cachedVerticesValid) {
+            if (!vertexCacheValid()) {
                 m_cachedVertices.clear();
-                m_cachedVertices.reserve(3 * (vertexCount() - 2));
+                m_cachedVertices.reserve(vertexCount());
 
                 const BrushHalfEdge* first = m_geometry->boundary().front();
-                const BrushHalfEdge* last  = first->next();
-                const BrushHalfEdge* current = first->previous();
-                
-                const Vec3& v1 = first->origin()->position();
+                const BrushHalfEdge* current = first;
                 do {
-                    const Vec3& v2 = current->origin()->position();
+                    const Vec3& position = current->origin()->position();
+                    m_cachedVertices.push_back(Vertex(position, m_boundary.normal, textureCoords(position)));
                     
                     // The boundary is in CCW order, but the renderer expects CW order:
                     current = current->previous();
-                    const Vec3& v3 = current->origin()->position();
-                    
-                    m_cachedVertices.push_back(MeshVertex(v1, m_boundary.normal, textureCoords(v1)));
-                    m_cachedVertices.push_back(MeshVertex(v2, m_boundary.normal, textureCoords(v2)));
-                    m_cachedVertices.push_back(MeshVertex(v3, m_boundary.normal, textureCoords(v3)));
-                } while (current != last);
+                } while (current != first);
                 
-                m_cachedVerticesValid = true;
+                m_vertexIndex = -1;
             }
         }
     }
