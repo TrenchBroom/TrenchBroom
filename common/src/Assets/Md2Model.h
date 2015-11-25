@@ -24,7 +24,6 @@
 #include "Assets/EntityModel.h"
 #include "StringUtils.h"
 #include "VecMath.h"
-#include "Renderer/TriangleMesh.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -41,19 +40,18 @@ namespace TrenchBroom {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
 
             class Frame {
             private:
-                Mesh::IndexedList m_triangleFans;
-                Mesh::IndexedList m_triangleStrips;
+                Vertex::List m_vertices;
+                Renderer::SimpleVertexRenderSpec m_renderSpec;
                 BBox3f m_bounds;
             public:
-                Frame(Mesh::IndexedList& triangleFans, Mesh::IndexedList& triangleStrips);
+                Frame(const Renderer::SimpleVertexRenderSpec renderSpec);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
-                const Mesh::IndexedList& triangleFans() const;
-                const Mesh::IndexedList& triangleStrips() const;
+                const Vertex::List& vertices() const;
+                const Renderer::SimpleVertexRenderSpec& renderSpec() const;
                 const BBox3f& bounds() const;
             private:
                 void mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices) const;
@@ -69,7 +67,7 @@ namespace TrenchBroom {
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
         private:
-            Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedVertexArrayRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);

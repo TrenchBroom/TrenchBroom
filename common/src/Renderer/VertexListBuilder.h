@@ -17,22 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexArrayBuilder
-#define TrenchBroom_VertexArrayBuilder
+#ifndef VertexListBuilder_h
+#define VertexListBuilder_h
 
-#include "CollectionUtils.h"
-#include "Renderer/IndexedVertexList.h"
-#include "Renderer/VertexSpec.h"
-#include "Renderer/VertexArray.h"
-
-#include <cassert>
-#include <map>
-#include <vector>
+#include "Renderer/GL.h"
+#include "Renderer/Vertex.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <class VertexSpec>
-        class VertexArrayBuilder {
+        template <typename VertexSpec>
+        class VertexListBuilder {
         public:
             struct IndexData {
                 GLint index;
@@ -42,30 +36,23 @@ namespace TrenchBroom {
                 index(i_index),
                 count(i_count) {}
             };
-            
+
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
         private:
             VertexList m_vertices;
         public:
-            VertexArrayBuilder() :
-            m_vertices(0) {}
-
-            VertexArrayBuilder(const size_t vertexCount) :
-            m_vertices() {
-                m_vertices.reserve(vertexCount);
+            VertexListBuilder(const size_t capacity) :
+            m_vertices(0) {
+                m_vertices.reserve(capacity);
             }
-
+            
             size_t vertexCount() const {
                 return m_vertices.size();
             }
             
             const VertexList& vertices() const {
                 return m_vertices;
-            }
-            
-            VertexArray vertexArray() {
-                return VertexArray::swap(m_vertices);
             }
             
             IndexData addPoint(const Vertex& v1) {
@@ -105,7 +92,7 @@ namespace TrenchBroom {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
             }
-
+            
             IndexData addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3) {
                 assert(checkCapacity(3));
                 
@@ -116,12 +103,12 @@ namespace TrenchBroom {
                 
                 return IndexData(index, 3);
             }
-
+            
             IndexData addTriangles(const VertexList& vertices) {
                 assert(vertices.size() % 3 == 0);
                 return addVertices(vertices);
             }
-
+            
             IndexData addTriangleFan(const VertexList& vertices) {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
@@ -160,14 +147,6 @@ namespace TrenchBroom {
                 return addVertices(vertices);
             }
         private:
-            bool checkCapacity(const size_t toAdd) const {
-                return m_vertices.capacity() - m_vertices.size() >= toAdd;
-            }
-
-            GLint currentIndex() const {
-                return static_cast<GLint>(vertexCount());
-            }
-            
             IndexData addVertices(const VertexList& vertices) {
                 assert(checkCapacity(vertices.size()));
                 
@@ -177,8 +156,16 @@ namespace TrenchBroom {
                 
                 return IndexData(index, count);
             }
+
+            bool checkCapacity(const size_t toAdd) const {
+                return m_vertices.capacity() - m_vertices.size() >= toAdd;
+            }
+            
+            GLint currentIndex() const {
+                return static_cast<GLint>(vertexCount());
+            }
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexArrayBuilder) */
+#endif /* VertexListBuilder_h */

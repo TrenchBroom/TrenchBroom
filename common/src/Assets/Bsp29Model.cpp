@@ -22,43 +22,29 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/TriangleMesh.h"
-#include "Renderer/TriangleMeshRenderer.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/TexturedIndexArray.h"
+#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Assets {
-        Bsp29Model::Face::Face(Assets::Texture* texture) :
-        m_texture(texture) {}
+        Bsp29Model::Face::Face(Assets::Texture* texture, const size_t vertexCount) :
+        m_texture(texture),
+        m_vertices(0) {
+            m_vertices.reserve(vertexCount);
+        }
         
         void Bsp29Model::Face::addVertex(const Vec3f& vertex, const Vec2f& texCoord) {
-            m_vertices.push_back(vertex);
-            m_texCoords.push_back(texCoord);
+            m_vertices.push_back(Vertex(vertex, texCoord));
         }
 
         Assets::Texture* Bsp29Model::Face::texture() const {
             return m_texture;
         }
         
-        Renderer::VertexSpecs::P3T2::Vertex::List Bsp29Model::Face::vertices() const {
-            typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-            const size_t vertexCount = m_vertices.size();
-            
-            Renderer::VertexSpecs::P3T2::Vertex::List result;
-            result.reserve(3 * (vertexCount - 2));
-
-            for (size_t i = 1; i < vertexCount - 1; ++i) {
-                result.push_back(Vertex(m_vertices[0], m_texCoords[0]));
-                result.push_back(Vertex(m_vertices[i], m_texCoords[i]));
-                result.push_back(Vertex(m_vertices[i+1], m_texCoords[i+1]));
-            }
-            return result;
-        }
-
-        const Vec3f::List& Bsp29Model::Face::vertexPositions() const {
+        const Bsp29Model::Face::VertexList& Bsp29Model::Face::vertices() const {
             return m_vertices;
         }
 
@@ -68,15 +54,15 @@ namespace TrenchBroom {
 
         BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
             BBox3f result;
-            result.min = result.max = faces.front().vertexPositions().front();
+            result.min = result.max = faces.front().vertices().front().v1;
             
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                const Bsp29Model::Face& face = *faceIt;
-                const Vec3f::List& vertices = face.vertexPositions();
-                Vec3f::List::const_iterator vIt, vEnd;
+                const Face& face = *faceIt;
+                const Face::VertexList& vertices = face.vertices();
+                Face::VertexList::const_iterator vIt, vEnd;
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt)
-                    result.mergeWith(*vIt);
+                    result.mergeWith(vIt->v1);
             }
             
             return result;
@@ -97,27 +83,30 @@ namespace TrenchBroom {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
-        Renderer::TexturedTriangleMeshRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            typedef Renderer::TriangleMesh<Renderer::VertexSpecs::P3T2, const Texture*> Mesh;
+        Renderer::TexturedIndexArrayRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
 
             FaceList::const_iterator it, end;
             const SubModel& model = m_subModels.front();
+
+            size_t vertexCount = 0;
+            Renderer::TexturedIndexArray::Size size;
             
-            Mesh::MeshSize size;
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
-                size.addSet(face.texture(), face.vertices().size());
+                const size_t faceVertexCount = face.vertices().size();
+                size.inc(face.texture(), Renderer::IndexArray::PT_Polygons, faceVertexCount);
+                vertexCount += faceVertexCount;
             }
 
-            Mesh mesh(size);
+            Renderer::TexturedIndexArrayBuilder<Face::Vertex::Spec> builder(vertexCount, size);
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
-                mesh.beginTriangleSet(face.texture());
-                mesh.addTrianglesToSet(face.vertices());
-                mesh.endTriangleSet();
+                builder.addPolygon(face.texture(), face.vertices());
             }
-            
-            return new Renderer::TexturedTriangleMeshRenderer(mesh);
+
+            const Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(builder.vertices());
+            const Renderer::TexturedIndexArray& indexArray = builder.indexArray();
+            return new Renderer::TexturedIndexArrayRenderer(vertexArray, indexArray);
         }
 
         BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

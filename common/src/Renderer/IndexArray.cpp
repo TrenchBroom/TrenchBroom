@@ -17,32 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexRenderSpec.h"
-#include "Assets/Texture.h"
+#include "IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        VertexRenderSpec::~VertexRenderSpec() {}
-        
-        void VertexRenderSpec::render(VertexArray& vertexArray) const {
-            if (vertexArray.setup()) {
-                doRender(vertexArray);
-                vertexArray.cleanup();
-            }
-        }
-
-        SimpleVertexRenderSpec::IndicesAndCounts::IndicesAndCounts(const size_t capacity) :
+        IndexArray::IndicesAndCounts::IndicesAndCounts(const size_t capacity) :
         indices(0),
         counts(0) {
             indices.reserve(capacity);
             counts.reserve(capacity);
         }
         
-        size_t SimpleVertexRenderSpec::IndicesAndCounts::size() const {
+        IndexArray::IndicesAndCounts::IndicesAndCounts(const GLint index, const GLsizei count) :
+        indices(1, index),
+        counts(1, count) {}
+
+        size_t IndexArray::IndicesAndCounts::size() const {
             return indices.size();
         }
         
-        void SimpleVertexRenderSpec::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count) {
+        void IndexArray::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count) {
             switch (primType) {
                 case PT_Points:
                 case PT_Lines:
@@ -71,25 +65,37 @@ namespace TrenchBroom {
             }
         }
         
-        void SimpleVertexRenderSpec::Size::inc(const PrimType primType, const size_t count) {
-            typename PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
+        void IndexArray::Size::inc(const PrimType primType, const size_t count) {
+            PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
             primIt->second += count;
         }
         
-        void SimpleVertexRenderSpec::Size::initialize(PrimTypeToIndexData& data) const {
-            typename PrimTypeToSize::const_iterator primIt, primEnd;
+        void IndexArray::Size::initialize(PrimTypeToIndexData& data) const {
+            PrimTypeToSize::const_iterator primIt, primEnd;
             for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const size_t size = primIt->second;
                 data.insert(std::make_pair(primType, IndicesAndCounts(size)));
             }
         }
-
-        SimpleVertexRenderSpec::SimpleVertexRenderSpec(const Size& size) {
+        
+        IndexArray::IndexArray(const Size& size) {
             size.initialize(*m_data);
         }
 
-        void SimpleVertexRenderSpec::doRender(VertexArray& vertexArray) const {
+        IndexArray::IndexArray(const PrimType primType, const GLint index, const GLsizei count) {
+            m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
+        }
+
+        void IndexArray::add(const PrimType primType, const GLint index, const GLsizei count) {
+            PrimTypeToIndexData::iterator it = m_data->find(primType);
+            assert(it != m_data->end());
+            
+            IndicesAndCounts& indicesAndCounts = it->second;
+            indicesAndCounts.add(primType, index, count);
+        }
+
+        void IndexArray::render(const VertexArray& vertexArray) const {
             typename PrimTypeToIndexData::const_iterator primIt, primEnd;
             for (primIt = m_data->begin(), primEnd = m_data->end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
@@ -97,16 +103,6 @@ namespace TrenchBroom {
                 const GLsizei primCount = static_cast<GLsizei>(indicesAndCounts.size());
                 vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
             }
-        }
-
-        void TextureFunc::before(const Assets::Texture* texture) const {
-            if (texture != NULL)
-                texture->activate();
-        }
-        
-        void TextureFunc::after(const Assets::Texture* texture) const {
-            if (texture != NULL)
-                texture->deactivate();
         }
     }
 }

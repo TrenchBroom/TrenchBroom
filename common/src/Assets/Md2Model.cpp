@@ -28,7 +28,8 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(Mesh::IndexedList& triangleFans, Mesh::IndexedList& triangleStrips) {
+        Md2Model::Frame::Frame(const Renderer::SimpleVertexRenderSpec& renderSpec) :
+        m_renderSpec(renderSpec) {
             using std::swap;
 
             swap(m_triangleFans, triangleFans);

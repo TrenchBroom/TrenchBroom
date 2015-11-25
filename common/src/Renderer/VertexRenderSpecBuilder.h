@@ -17,89 +17,108 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KeyedVertexRenderSpecBuilder_h
-#define KeyedVertexRenderSpecBuilder_h
+#ifndef VertexRenderSpecBuilder_h
+#define VertexRenderSpecBuilder_h
 
 #include "Renderer/VertexArrayBuilder.h"
+#include "Renderer/VertexArrayRenderer.h"
 #include "Renderer/VertexRenderSpec.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace Renderer {
-        template <typename Key, typename VertexSpec>
-        class KeyedVertexRenderSpecBuilder {
+        template <typename VertexSpec, typename Key = int, typename Func = DefaultRenderFunc<Key> >
+        class VertexRenderSpecBuilder {
         private:
             VertexArrayBuilder<VertexSpec> m_vertexArrayBuilder;
-            KeyedVertexRenderSpec<Key> m_renderSpec;
+            KeyedVertexRenderSpec<Key, Func> m_renderSpec;
 
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
             typedef typename VertexArrayBuilder<VertexSpec>::IndexData IndexData;
         public:
-            KeyedVertexRenderSpecBuilder(const size_t vertexCount, const KeyedVertexRenderSpec::Size& renderSpecSize) :
+            VertexRenderSpecBuilder(const size_t vertexCount, const typename KeyedVertexRenderSpec<Key, Func>::Size& renderSpecSize) :
             m_vertexArrayBuilder(vertexCount),
             m_renderSpec(renderSpecSize) {}
+            
+            virtual ~VertexRenderSpecBuilder() {}
+            
+            VertexArrayRenderer<Key, Func>* createRenderer() {
+                return new VertexArrayRenderer<Key, Func>(vertexArray(), renderSpec());
+            }
+            
+            VertexArrayRenderer<Key, Func> renderer() {
+                return VertexArrayRenderer<Key, Func>(vertexArray(), renderSpec());
+            }
+            
+            const VertexList& vertices() const {
+                return m_vertexArrayBuilder.vertices();
+            }
             
             VertexArray vertexArray() {
                 return m_vertexArrayBuilder.vertexArray();
             }
             
-            KeyedVertexRenderSpec& renderSpec() {
+            KeyedVertexRenderSpec<Key, Func> renderSpec() {
                 return m_renderSpec;
             }
 
-            void addPoint(const Key& key, const Vertex& v) {
+            void addPoint(const Vertex& v, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Points, m_vertexArrayBuilder.addPoint(v));
             }
             
-            void addPoints(const Key& key, const VertexList& vertices) {
+            void addPoints(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Points, m_vertexArrayBuilder.addPoints(vertices));
             }
             
-            void addLine(const Key& key, const Vertex& v1, const Vertex& v2) {
+            void addLine(const Vertex& v1, const Vertex& v2, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Lines, m_vertexArrayBuilder.addLine(v1, v2));
             }
             
-            void addLines(const Key& key, const VertexList& vertices) {
+            void addLines(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Lines, m_vertexArrayBuilder.addLines(vertices));
             }
             
-            void addLineStrip(const Key& key, const VertexList& vertices) {
+            void addLineStrip(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_LineStrips, m_vertexArrayBuilder.addLineStrip(vertices));
             }
             
-            void addLineLoop(const Key& key, const VertexList& vertices) {
+            void addLineLoop(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_LineLoops, m_vertexArrayBuilder.addLineLoop(vertices));
             }
             
-            void addTriangle(const Key& key, const Vertex& v1, const Vertex& v2, const Vertex& v3) {
+            void addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Triangles, m_vertexArrayBuilder.addTriangle(v1, v2, v3));
             }
             
-            void addTriangles(const Key& key, const VertexList& vertices) {
+            void addTriangles(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Triangles, m_vertexArrayBuilder.addTriangles(vertices));
             }
             
-            void addTriangleFan(const Key& key, const VertexList& vertices) {
+            void addTriangleFan(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_TriangleFans, m_vertexArrayBuilder.addTriangleFan(vertices));
             }
 
-            void addTriangleStrip(const Key& key, const VertexList& vertices) {
+            void addTriangleStrip(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_TriangleStrips, m_vertexArrayBuilder.addTriangleStrip(vertices));
             }
 
-            void addQuad(const Key& key, const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
+            void addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Quads, m_vertexArrayBuilder.addQuad(v1, v2, v3, v4));
             }
             
-            void addQuads(const Key& key, const VertexList& vertices) {
+            void addQuads(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Quads, m_vertexArrayBuilder.addQuads(vertices));
             }
             
-            void addQuadStrip(const Key& key, const VertexList& vertices) {
+            void addQuadStrip(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_QuadStrips, m_vertexArrayBuilder.addQuadStrip(vertices));
             }
             
-            void addPolygon(const Key& key, const VertexList& vertices) {
+            void addPolygon(const VertexList& vertices, const Key& key = 0) {
                 addSpec(key, VertexRenderSpec::PT_Polygons, m_vertexArrayBuilder.addPolygon(vertices));
             }
         private:
@@ -107,7 +126,14 @@ namespace TrenchBroom {
                 m_renderSpec.add(key, primType, data.index, data.count);
             }
         };
+
+        template <typename VertexSpec>
+        class TexturedVertexRenderSpecBuilder : public VertexRenderSpecBuilder<VertexSpec, const Assets::Texture*, TextureFunc> {
+        public:
+            TexturedVertexRenderSpecBuilder(const size_t vertexCount, const TexturedVertexRenderSpec::Size& renderSpecSize) :
+            VertexRenderSpecBuilder<VertexSpec, const Assets::Texture*, TextureFunc>(vertexCount, renderSpecSize) {}
+        };
     }
 }
 
-#endif /* KeyedVertexRenderSpecBuilder_h */
+#endif /* VertexRenderSpecBuilder_h */

@@ -21,10 +21,15 @@
 #define VertexRenderSpec_h
 
 #include "CollectionUtils.h"
+#include "SharedPointer.h"
 #include "Renderer/GL.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Renderer {
         class VertexRenderSpec {
         public:
@@ -45,6 +50,8 @@ namespace TrenchBroom {
             typedef VertexArray::CountArray CountArray;
         public:
             virtual ~VertexRenderSpec();
+            void render(VertexArray& vertexArray) const;
+            virtual void doRender(VertexArray& vertexArray) const = 0;
         };
         
         class SimpleVertexRenderSpec : public VertexRenderSpec {
@@ -59,6 +66,7 @@ namespace TrenchBroom {
             };
 
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
+            typedef std::tr1::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
         public:
             class Size {
             private:
@@ -67,35 +75,25 @@ namespace TrenchBroom {
                 typedef std::map<PrimType, size_t> PrimTypeToSize;
                 PrimTypeToSize m_sizes;
             public:
-                void inc(const PrimType primType);
+                void inc(const PrimType primType, size_t count = 1);
             private:
                 void initialize(PrimTypeToIndexData& data) const;
             };
         private:
-            PrimTypeToIndexData m_data;
+            PrimTypeToIndexDataPtr m_data;
         public:
             SimpleVertexRenderSpec(const Size& size);
 
             void add(PrimType primType, GLint index, GLsizei count);
             
-            void render(VertexArray& vertexArray) const;
             void doRender(VertexArray& vertexArray) const;
-        private:
-            SimpleVertexRenderSpec(const SimpleVertexRenderSpec& other);
-            SimpleVertexRenderSpec& operator=(const SimpleVertexRenderSpec& other);
         };
         
-        template <typename Key>
+        template <typename Key, typename Func>
         class KeyedVertexRenderSpec : public VertexRenderSpec {
-        public:
-            class KeyFunc {
-            public:
-                virtual ~KeyFunc() {}
-                virtual void before(const Key& key) const = 0;
-                virtual void after(const Key& key) const = 0;
-            };
         private:
             typedef std::map<Key, SimpleVertexRenderSpec> KeyToRenderSpec;
+            typedef std::tr1::shared_ptr<KeyToRenderSpec> KeyToRenderSpecPtr;
         public:
             class Size {
             private:
@@ -107,9 +105,9 @@ namespace TrenchBroom {
             public:
                 Size() : m_current(m_sizes.end()) {}
                 
-                void inc(const Key& key, const PrimType primType) {
+                void inc(const Key& key, const PrimType primType, const size_t count = 1) {
                     SimpleVertexRenderSpec::Size& sizeForKey = findCurrent(key);
-                    sizeForKey.inc(primType);
+                    sizeForKey.inc(primType, count);
                 }
             private:
                 SimpleVertexRenderSpec::Size& findCurrent(const Key& key) {
@@ -130,54 +128,78 @@ namespace TrenchBroom {
                         return false;
                     return true;
                 }
+            private:
+                void initialize(KeyToRenderSpec& data) const {
+                    typename KeyToSize::const_iterator keyIt, keyEnd;
+                    for (keyIt = m_sizes.begin(), keyEnd = m_sizes.end(); keyIt != keyEnd; ++keyIt) {
+                        const Key& key = keyIt->first;
+                        const SimpleVertexRenderSpec::Size& size = keyIt->second;
+                        data.insert(std::make_pair(key, SimpleVertexRenderSpec(size)));
+                    }
+                }
             };
         private:
-            KeyToRenderSpec m_data;
+            KeyToRenderSpecPtr m_data;
             typename KeyToRenderSpec::iterator m_current;
+            const Func m_func;
         public:
-            KeyedVertexRenderSpec(const Size& size) :
-            m_current(m_data.end()) {}
+            KeyedVertexRenderSpec(const Size& size, const Func& func = Func()) :
+            m_current(m_data->end()),
+            m_func(func) {
+                size.initialize(*m_data);
+            }
 
             void add(const Key& key, const PrimType primType, const GLint index, const GLsizei count) {
                 SimpleVertexRenderSpec& current = findCurrent(key);
                 current.add(primType, index, count);
             }
 
-            void render(VertexArray& vertexArray, const KeyFunc& keyFunc) const {
+            void doRender(VertexArray& vertexArray) const {
                 typename KeyToRenderSpec::const_iterator keyIt, keyEnd;
-                for (keyIt = m_data.begin(), keyEnd = m_data.end(); keyIt != keyEnd; ++keyIt) {
+                for (keyIt = m_data->begin(), keyEnd = m_data->end(); keyIt != keyEnd; ++keyIt) {
                     const Key& key = keyIt->first;
                     const SimpleVertexRenderSpec& spec = keyIt->second;
                     
-                    keyFunc.before(key);
+                    m_func.before(key);
                     spec.doRender(vertexArray);
-                    keyFunc.after(key);
+                    m_func.after(key);
                 }
             }
         private:
             SimpleVertexRenderSpec& findCurrent(const Key& key) {
                 if (!isCurrent(key))
-                    m_current = m_data.find(key);
-                assert(m_current != m_data.end());
+                    m_current = m_data->find(key);
+                assert(m_current != m_data->end());
                 return m_current->second;
             }
 
             bool isCurrent(const Key& key) const {
-                if (m_current == m_data.end())
+                if (m_current == m_data->end())
                     return false;
                 
                 typedef typename KeyToRenderSpec::key_compare Cmp;
-                const Cmp& cmp = m_data.key_comp();
+                const Cmp& cmp = m_data->key_comp();
                 
                 const Key& currentKey = m_current->first;
                 if (cmp(key, currentKey) || cmp(currentKey, key))
                     return false;
                 return true;
             }
-        private:
-            KeyedVertexRenderSpec(const KeyedVertexRenderSpec& other);
-            KeyedVertexRenderSpec& operator=(const KeyedVertexRenderSpec& other);
         };
+        
+        template <typename Key>
+        class DefaultRenderFunc {
+            void before(const Key& key) const {}
+            void after(const Key& key) const;
+        };
+        
+        class TextureFunc {
+        public:
+            void before(const Assets::Texture* texture) const;
+            void after(const Assets::Texture* texture) const;
+        };
+        
+        typedef KeyedVertexRenderSpec<const Assets::Texture*, TextureFunc> TexturedVertexRenderSpec;
     }
 }
 

@@ -22,9 +22,9 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
-#include "Renderer/TriangleMeshRenderer.h"
-#include "Renderer/TriangleMesh.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/TexturedIndexArray.h"
+#include "Renderer/TexturedIndexArrayBuilder.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 
 #include <cassert>
 
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         MdlBaseFrame::~MdlBaseFrame() {}
 
-        MdlFrame::MdlFrame(const String& name, const MdlFrameVertexList& triangles, const BBox3f& bounds) :
+        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_bounds(bounds) {}
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        const MdlFrameVertexList& MdlFrame::triangles() const {
+        const MdlFrame::VertexList& MdlFrame::triangles() const {
             return m_triangles;
         }
 
@@ -76,8 +76,8 @@ namespace TrenchBroom {
             if (m_triangles.empty())
                 return BBox3f(-8.0f, 8.0f);
             
-            MdlFrameVertexList::const_iterator it = m_triangles.begin();
-            MdlFrameVertexList::const_iterator end = m_triangles.end();
+            VertexList::const_iterator it = m_triangles.begin();
+            VertexList::const_iterator end = m_triangles.end();
             
             BBox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;
@@ -122,25 +122,23 @@ namespace TrenchBroom {
             m_frames.push_back(frame);
         }
 
-        Renderer::TexturedTriangleMeshRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexArrayRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
                 return NULL;
             if (frameIndex >= m_frames.size())
                 return NULL;
+            
             const MdlSkin* skin = m_skins[skinIndex];
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
 
-            typedef Renderer::TriangleMesh<Renderer::VertexSpecs::P3T2, const Texture*> Mesh;
+            const Assets::Texture* texture = skin->firstPicture();
+            const MdlFrame::VertexList& vertices = frame->triangles();
+            const GLsizei vertexCount = static_cast<GLsizei>(vertices.size());
             
-            Mesh::MeshSize size;
-            size.addSet(skin->firstPicture(), frame->triangles().size());
+            const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
+            const Renderer::TexturedIndexArray indexArray(texture, Renderer::IndexArray::PT_Triangles, 0, vertexCount);
             
-            Mesh mesh(size);
-            mesh.beginTriangleSet(skin->firstPicture());
-            mesh.addTrianglesToSet(frame->triangles());
-            mesh.endTriangleSet();
-            
-            return new Renderer::TexturedTriangleMeshRenderer(mesh);
+            return new Renderer::TexturedIndexArrayRenderer(vertexArray, indexArray);
         }
 
         BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
