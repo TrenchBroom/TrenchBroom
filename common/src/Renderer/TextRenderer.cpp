@@ -159,8 +159,8 @@ namespace TrenchBroom {
                 addEntry(entry, onTop, textVertices, rectVertices);
             }
             
-            collection.textArray = VertexArray::swap(GL_QUADS, textVertices);
-            collection.rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            collection.textArray = VertexArray::swap(textVertices);
+            collection.rectArray = VertexArray::swap(rectVertices);
             
             collection.textArray.prepare(vbo);
             collection.rectArray.prepare(vbo);
@@ -212,14 +212,14 @@ namespace TrenchBroom {
             glDisable(GL_TEXTURE_2D);
             
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            collection.rectArray.render();
+            collection.rectArray.render(PT_Triangles);
             
             glEnable(GL_TEXTURE_2D);
             
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            collection.textArray.render();
+            collection.textArray.render(PT_Quads);
             font.deactivate();
         }
     }

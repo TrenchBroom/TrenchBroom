@@ -184,6 +184,19 @@ namespace TrenchBroom {
     
     typedef char GLchar;
     
+    typedef enum {
+        PT_Points           = GL_POINTS,
+        PT_Lines            = GL_LINES,
+        PT_LineStrips       = GL_LINE_STRIP,
+        PT_LineLoops        = GL_LINE_LOOP,
+        PT_Triangles        = GL_TRIANGLES,
+        PT_TriangleFans     = GL_TRIANGLE_FAN,
+        PT_TriangleStrips   = GL_TRIANGLE_STRIP,
+        PT_Quads            = GL_QUADS,
+        PT_QuadStrips       = GL_QUAD_STRIP,
+        PT_Polygons         = GL_POLYGON
+    } PrimType;
+    
     extern Func0<void> glewInitialize;
     
     extern Func0<GLenum> glGetError;

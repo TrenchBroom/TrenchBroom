@@ -27,7 +27,6 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
-#include "Renderer/IndexArray.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -82,11 +81,11 @@ namespace TrenchBroom {
 
             glDisable(GL_DEPTH_TEST);
             shader.set("Alpha", 0.4f);
-            m_entityLinks.render(IndexArray::PT_Lines);
+            m_entityLinks.render(PT_Lines);
             
             glEnable(GL_DEPTH_TEST);
             shader.set("Alpha", 1.0f);
-            m_entityLinks.render(IndexArray::PT_Lines);
+            m_entityLinks.render(PT_Lines);
         }
 
         void EntityLinkRenderer::validate() {

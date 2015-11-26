@@ -21,23 +21,27 @@
 #define IndexArrayRenderer_h
 
 #include "Renderer/IndexArray.h"
-#include "Renderer/Renderable.h"
+#include "Renderer/IndexArrayBuilder.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderContext;
         class Vbo;
         
-        class IndexArrayRenderer : public Renderable {
+        class IndexArrayRenderer {
         private:
             VertexArray m_vertexArray;
             IndexArray m_indexArray;
         public:
+            IndexArrayRenderer();
+            template <typename VertexSpec>
+            IndexArrayRenderer(IndexArrayBuilder<VertexSpec>& builder) :
+            m_vertexArray(VertexArray::swap(builder.vertices())),
+            m_indexArray(builder.indexArray()) {}
             IndexArrayRenderer(const VertexArray& vertexArray, const IndexArray& indexArray);
-        private:
-            void doPrepare(Vbo& vbo);
-            void doRender(RenderContext& renderContext);
+
+            void prepare(Vbo& vbo);
+            void render();
         };
     }
 }

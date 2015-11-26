@@ -19,7 +19,6 @@
 
 #include "EdgeRenderer.h"
 
-#include "Renderer/IndexArray.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -32,11 +31,18 @@ namespace TrenchBroom {
         m_useColor(false),
         m_prepared(false) {}
         
-        EdgeRenderer::EdgeRenderer(const VertexArray& vertexArray) :
+        EdgeRenderer::EdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray) :
         m_vertexArray(vertexArray),
+        m_indexArray(indexArray),
         m_useColor(false),
         m_prepared(false) {}
         
+        EdgeRenderer::EdgeRenderer(const VertexArray& vertexArray, const PrimType primType) :
+        m_vertexArray(vertexArray),
+        m_indexArray(primType, 0, m_vertexArray.vertexCount()),
+        m_useColor(false),
+        m_prepared(false) {}
+
         EdgeRenderer::EdgeRenderer(const EdgeRenderer& other) :
         m_vertexArray(other.m_vertexArray),
         m_color(other.m_color),
@@ -80,10 +86,10 @@ namespace TrenchBroom {
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_color);
-                m_vertexArray.render(IndexArray::PT_Lines);
+                m_indexArray.render(m_vertexArray);
             } else {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPCShader);
-                m_vertexArray.render(IndexArray::PT_Lines);
+                m_indexArray.render(m_vertexArray);
             }
         }
 

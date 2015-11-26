@@ -212,12 +212,12 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
             
             Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            vertexArray.render();
+            vertexArray.render(PT_Quads);
         }
         
         const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
@@ -257,13 +257,13 @@ namespace TrenchBroom {
                                 vertices[2] = TextureVertex(Vec2f(bounds.right(), height - (bounds.bottom() - y)), Vec2f(1.0f, 1.0f));
                                 vertices[3] = TextureVertex(Vec2f(bounds.right(), height - (bounds.top() - y)),    Vec2f(1.0f, 0.0f));
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::copy(GL_QUADS, vertices);
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::copy(vertices);
 
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
 
                                 vertexArray.prepare(sharedVbo());
-                                vertexArray.render();
+                                vertexArray.render(PT_Quads);
                                 
                                 ++num;
                             }
@@ -296,11 +296,11 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
 
             Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            vertexArray.render();
+            vertexArray.render(PT_Quads);
         }
         
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -315,7 +315,7 @@ namespace TrenchBroom {
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const TextVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
+                    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[descriptor].prepare(sharedVbo());
                 }
             }
@@ -330,7 +330,7 @@ namespace TrenchBroom {
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render();
+                vertexArray.render(PT_Quads);
                 font.deactivate();
             }
         }

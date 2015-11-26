@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         GridRenderer::GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds) :
-        m_vertexArray(VertexArray::copy(GL_QUADS, vertices(camera, worldBounds))) {}
+        m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
 
         GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const BBox3& worldBounds) {
             Vertex::List result(4);
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", renderContext.camera().zoom());
                 
-                m_vertexArray.render();
+                m_vertexArray.render(PT_Quads);
             }
         }
     }

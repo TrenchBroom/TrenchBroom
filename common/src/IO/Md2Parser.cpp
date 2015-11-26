@@ -363,9 +363,9 @@ namespace TrenchBroom {
                 const Md2Mesh& md2Mesh = *mIt;
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan)
-                    size.inc(Renderer::IndexArray::PT_TriangleFans);
+                    size.inc(PT_TriangleFans);
                 else
-                    size.inc(Renderer::IndexArray::PT_TriangleStrips);
+                    size.inc(PT_TriangleStrips);
             }
 
             Renderer::IndexArrayBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);

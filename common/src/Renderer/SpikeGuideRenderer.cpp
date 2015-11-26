@@ -68,10 +68,10 @@ namespace TrenchBroom {
         
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render();
+            m_spikeArray.render(PT_Lines);
             
             glPointSize(3.0f);
-            m_pointArray.render();
+            m_pointArray.render(PT_Points);
             glPointSize(1.0f);
         }
 
@@ -88,8 +88,8 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::validate() {
-            m_pointArray = VertexArray::swap(GL_POINTS, m_pointVertices);
-            m_spikeArray = VertexArray::swap(GL_LINES, m_spikeVertices);
+            m_pointArray = VertexArray::swap(m_pointVertices);
+            m_spikeArray = VertexArray::swap(m_spikeVertices);
             m_valid = true;
         }
     }

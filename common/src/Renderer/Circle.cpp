@@ -19,7 +19,6 @@
 
 #include "Circle.h"
 
-#include "Renderer/IndexArray.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
@@ -68,7 +67,7 @@ namespace TrenchBroom {
         }
         
         void Circle::render() {
-            m_array.render(m_filled ? IndexArray::PT_Polygons : IndexArray::PT_LineLoops);
+            m_array.render(m_filled ? PT_Polygons : PT_LineLoops);
         }
         
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {

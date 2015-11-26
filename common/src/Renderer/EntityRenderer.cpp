@@ -30,6 +30,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
+#include "Renderer/IndexArray.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -264,7 +265,7 @@ namespace TrenchBroom {
             if (vertexCount == 0)
                 return;
             
-            VertexArray array = VertexArray::swap(GL_TRIANGLES, vertices);
+            VertexArray array = VertexArray::swap(vertices);
             
             ActivateVbo activate(m_vbo);
             array.prepare(m_vbo);
@@ -276,7 +277,7 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             glPolygonMode(GL_FRONT, GL_LINE);
             shader.set("Color", m_angleColor);
-            array.render();
+            array.render(PT_Triangles);
 
             glPolygonMode(GL_FRONT, GL_FILL);
             glDepthMask(GL_TRUE);
@@ -360,7 +361,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), PT_Lines);
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -379,10 +380,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), PT_Lines);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(GL_TRIANGLES, solidVertices));
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices));
             m_boundsValid = true;
         }
 

@@ -118,7 +118,7 @@ namespace TrenchBroom {
                 const Mat4x4f matrix = translation * rotation;
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
                 
-                renderer->render(renderContext);
+                renderer->render();
             }
         }
     }

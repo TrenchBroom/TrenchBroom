@@ -20,10 +20,9 @@
 #ifndef TrenchBroom_Compass
 #define TrenchBroom_Compass
 
-#include "Renderer/VertexArray.h"
-
 #include "Color.h"
 #include "VecMath.h"
+#include "Renderer/IndexArrayRenderer.h"
 #include "Renderer/Renderable.h"
 
 namespace TrenchBroom {
@@ -41,13 +40,9 @@ namespace TrenchBroom {
             static const float m_headLength;
             static const float m_headRadius;
 
-            VertexArray m_strip;
-            VertexArray m_set;
-            VertexArray m_fans;
-            
-            VertexArray m_backgroundOutline;
-            VertexArray m_background;
-            
+            IndexArrayRenderer m_arrowRenderer;
+            IndexArrayRenderer m_backgroundRenderer;
+            IndexArrayRenderer m_backgroundOutlineRenderer;
             bool m_prepared;
         public:
             Compass();

@@ -56,62 +56,62 @@ namespace TrenchBroom {
             }
             
             void addPoint(const Vertex& v) {
-                add(IndexArray::PT_Points, m_vertexListBuilder.addPoint(v));
+                add(PT_Points, m_vertexListBuilder.addPoint(v));
             }
             
             void addPoints(const VertexList& vertices) {
-                add(IndexArray::PT_Points, m_vertexListBuilder.addPoints(vertices));
+                add(PT_Points, m_vertexListBuilder.addPoints(vertices));
             }
             
             void addLine(const Vertex& v1, const Vertex& v2) {
-                add(IndexArray::PT_Lines, m_vertexListBuilder.addLine(v1, v2));
+                add(PT_Lines, m_vertexListBuilder.addLine(v1, v2));
             }
             
             void addLines(const VertexList& vertices) {
-                add(IndexArray::PT_Lines, m_vertexListBuilder.addLines(vertices));
+                add(PT_Lines, m_vertexListBuilder.addLines(vertices));
             }
             
             void addLineStrip(const VertexList& vertices) {
-                add(IndexArray::PT_LineStrips, m_vertexListBuilder.addLineStrip(vertices));
+                add(PT_LineStrips, m_vertexListBuilder.addLineStrip(vertices));
             }
             
             void addLineLoop(const VertexList& vertices) {
-                add(IndexArray::PT_LineLoops, m_vertexListBuilder.addLineLoop(vertices));
+                add(PT_LineLoops, m_vertexListBuilder.addLineLoop(vertices));
             }
             
             void addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3) {
-                add(IndexArray::PT_Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
+                add(PT_Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
             }
             
             void addTriangles(const VertexList& vertices) {
-                add(IndexArray::PT_Triangles, m_vertexListBuilder.addTriangles(vertices));
+                add(PT_Triangles, m_vertexListBuilder.addTriangles(vertices));
             }
             
             void addTriangleFan(const VertexList& vertices) {
-                add(IndexArray::PT_TriangleFans, m_vertexListBuilder.addTriangleFan(vertices));
+                add(PT_TriangleFans, m_vertexListBuilder.addTriangleFan(vertices));
             }
             
             void addTriangleStrip(const VertexList& vertices) {
-                add(IndexArray::PT_TriangleStrips, m_vertexListBuilder.addTriangleStrip(vertices));
+                add(PT_TriangleStrips, m_vertexListBuilder.addTriangleStrip(vertices));
             }
             
             void addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
-                add(IndexArray::PT_Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
+                add(PT_Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
             }
             
             void addQuads(const VertexList& vertices) {
-                add(IndexArray::PT_Quads, m_vertexListBuilder.addQuads(vertices));
+                add(PT_Quads, m_vertexListBuilder.addQuads(vertices));
             }
             
             void addQuadStrip(const VertexList& vertices) {
-                add(IndexArray::PT_QuadStrips, m_vertexListBuilder.addQuadStrip(vertices));
+                add(PT_QuadStrips, m_vertexListBuilder.addQuadStrip(vertices));
             }
             
             void addPolygon(const VertexList& vertices) {
-                add(IndexArray::PT_Polygons, m_vertexListBuilder.addPolygon(vertices));
+                add(PT_Polygons, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
-            void add(const IndexArray::PrimType primType, const IndexData& data) {
+            void add(const PrimType primType, const IndexData& data) {
                 m_indexArray.add(primType, data.index, data.count);
             }
         };

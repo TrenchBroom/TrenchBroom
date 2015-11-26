@@ -20,7 +20,6 @@
 #ifndef TexturedIndexArrayRenderer_h
 #define TexturedIndexArrayRenderer_h
 
-#include "Renderer/Renderable.h"
 #include "Renderer/TexturedIndexArray.h"
 #include "Renderer/VertexArray.h"
 
@@ -30,19 +29,18 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class RenderContext;
         class Vbo;
         
-        class TexturedIndexArrayRenderer : public Renderable {
+        class TexturedIndexArrayRenderer {
         private:
             VertexArray m_vertexArray;
             TexturedIndexArray m_indexArray;
         public:
             TexturedIndexArrayRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray);
             TexturedIndexArrayRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexArray& indexArray);
-        private:
-            void doPrepare(Vbo& vbo);
-            void doRender(RenderContext& renderContext);
+
+            void prepare(Vbo& vbo);
+            void render();
         };
     }
 }

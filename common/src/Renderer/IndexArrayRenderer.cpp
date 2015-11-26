@@ -21,15 +21,17 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        IndexArrayRenderer::IndexArrayRenderer() {}
+
         IndexArrayRenderer::IndexArrayRenderer(const VertexArray& vertexArray, const IndexArray& indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
 
-        void IndexArrayRenderer::doPrepare(Vbo& vbo) {
+        void IndexArrayRenderer::prepare(Vbo& vbo) {
             m_vertexArray.prepare(vbo);
         }
         
-        void IndexArrayRenderer::doRender(RenderContext& renderContext) {
+        void IndexArrayRenderer::render() {
             if (m_vertexArray.setup()) {
                 m_indexArray.render(m_vertexArray);
                 m_vertexArray.cleanup();

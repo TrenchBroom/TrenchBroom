@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 TextureToSize::iterator m_current;
             public:
                 Size();
-                void inc(const Texture* texture, IndexArray::PrimType primType, size_t count = 1);
+                void inc(const Texture* texture, PrimType primType, size_t count = 1);
                 IndexArray::Size& findCurrent(const Texture* texture);
             private:
                 bool isCurrent(const Texture* texture) const;
@@ -59,8 +59,8 @@ namespace TrenchBroom {
         public:
             TexturedIndexArray(const Size& size);
             TexturedIndexArray(const Texture* texture, const IndexArray& primitives);
-            TexturedIndexArray(const Texture* texture, IndexArray::PrimType primType, GLint index, GLsizei count);
-            void add(const Texture* texture, IndexArray::PrimType primType, GLint index, GLsizei count);
+            TexturedIndexArray(const Texture* texture, PrimType primType, GLint index, GLsizei count);
+            void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             void render(const VertexArray& vertexArray);
         private:
             IndexArray& findCurrent(const Texture* texture);

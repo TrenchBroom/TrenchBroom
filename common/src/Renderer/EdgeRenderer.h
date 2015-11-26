@@ -22,9 +22,8 @@
 
 #include "Color.h"
 #include "Reference.h"
+#include "Renderer/IndexArray.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
 
 #include <vector>
@@ -32,16 +31,19 @@
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
+        class Vbo;
         
         class EdgeRenderer : public Renderable {
         private:
             VertexArray m_vertexArray;
+            IndexArray m_indexArray;
             Color m_color;
             bool m_useColor;
             bool m_prepared;
         public:
             EdgeRenderer();
-            EdgeRenderer(const VertexArray& vertexArray);
+            EdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray);
+            EdgeRenderer(const VertexArray& vertexArray, PrimType primType);
             EdgeRenderer(const EdgeRenderer& other);
             EdgeRenderer& operator= (EdgeRenderer other);
             

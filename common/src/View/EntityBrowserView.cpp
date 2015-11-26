@@ -33,7 +33,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/TriangleMeshRenderer.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
@@ -182,7 +182,7 @@ namespace TrenchBroom {
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
                 Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
-                Renderer::TexturedTriangleMeshRenderer* modelRenderer = NULL;
+                EntityRenderer* modelRenderer = NULL;
                 
                 BBox3f rotatedBounds;
                 if (model != NULL) {
@@ -271,11 +271,11 @@ namespace TrenchBroom {
             }
             
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_LINES, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
 
             Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            vertexArray.render();
+            vertexArray.render(PT_Lines);
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
@@ -338,13 +338,13 @@ namespace TrenchBroom {
                 }
             }
 
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::ActivateVbo activate(sharedVbo());
             vertexArray.prepare(sharedVbo());
-            vertexArray.render();
+            vertexArray.render(PT_Quads);
         }
         
         void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -359,7 +359,7 @@ namespace TrenchBroom {
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const TextVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
+                    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[descriptor].prepare(sharedVbo());
                 }
             }
@@ -374,7 +374,7 @@ namespace TrenchBroom {
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render();
+                vertexArray.render(PT_Quads);
                 font.deactivate();
             }
         }

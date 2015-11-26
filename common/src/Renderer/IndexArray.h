@@ -29,19 +29,6 @@
 namespace TrenchBroom {
     namespace Renderer {
         class IndexArray {
-        public:
-            typedef enum {
-                PT_Points           = GL_POINTS,
-                PT_Lines            = GL_LINES,
-                PT_LineStrips       = GL_LINE_STRIP,
-                PT_LineLoops        = GL_LINE_LOOP,
-                PT_Triangles        = GL_TRIANGLES,
-                PT_TriangleFans     = GL_TRIANGLE_FAN,
-                PT_TriangleStrips   = GL_TRIANGLE_STRIP,
-                PT_Quads            = GL_QUADS,
-                PT_QuadStrips       = GL_QUAD_STRIP,
-                PT_Polygons         = GL_POLYGON
-            } PrimType;
         private:
             struct IndicesAndCounts {
                 VertexArray::IndexArray indices;
@@ -70,8 +57,10 @@ namespace TrenchBroom {
         private:
             PrimTypeToIndexDataPtr m_data;
         public:
+            IndexArray();
             IndexArray(const Size& size);
             IndexArray(PrimType primType, GLint index, GLsizei count);
+            IndexArray(PrimType primType, GLint index, size_t count);
             void add(PrimType primType, GLint index, GLsizei count);
             
             void render(const VertexArray& vertexArray) const;

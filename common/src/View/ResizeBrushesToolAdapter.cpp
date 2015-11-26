@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            return Renderer::EdgeRenderer(Renderer::VertexArray::swap(vertices), PT_Lines);
         }
         
         bool ResizeBrushesToolAdapter::doCancel() {

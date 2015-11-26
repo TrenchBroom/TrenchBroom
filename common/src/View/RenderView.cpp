@@ -178,11 +178,11 @@ namespace TrenchBroom {
             Renderer::Transformation transformation(projection, Mat4x4f::Identity);
             
             glDisable(GL_DEPTH_TEST);
-            Renderer::VertexArray array = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
             
             Renderer::ActivateVbo activate(sharedVbo());
             array.prepare(sharedVbo());
-            array.render();
+            array.render(PT_Quads);
             glEnable(GL_DEPTH_TEST);
         }
 

@@ -28,7 +28,6 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
-#include "Renderer/IndexArray.h"
 #include "Renderer/TexturedIndexArray.h"
 
 namespace TrenchBroom {
@@ -566,7 +565,7 @@ namespace TrenchBroom {
         void BrushFace::getIndex(Renderer::TexturedIndexArray& array) const {
             assert(vertexCacheValid());
             const GLsizei count = static_cast<GLsizei>(vertexCount());
-            array.add(texture(), Renderer::IndexArray::PT_Polygons, m_vertexIndex, count);
+            array.add(texture(), PT_Polygons, m_vertexIndex, count);
         }
         
         Vec2f BrushFace::textureCoords(const Vec3& point) const {

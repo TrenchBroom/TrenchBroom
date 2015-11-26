@@ -29,11 +29,11 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexArray(texture, indexArray) {}
 
-        void TexturedIndexArrayRenderer::doPrepare(Vbo& vbo) {
+        void TexturedIndexArrayRenderer::prepare(Vbo& vbo) {
             m_vertexArray.prepare(vbo);
         }
         
-        void TexturedIndexArrayRenderer::doRender(RenderContext& renderContext) {
+        void TexturedIndexArrayRenderer::render() {
             if (m_vertexArray.setup()) {
                 m_indexArray.render(m_vertexArray);
                 m_vertexArray.cleanup();

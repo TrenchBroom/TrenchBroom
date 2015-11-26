@@ -220,7 +220,7 @@ namespace TrenchBroom {
             RenderTexture(const UVViewHelper& helper) :
             m_helper(helper) {
                 Vertex::List vertices = getVertices();
-                m_vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+                m_vertexArray = Renderer::VertexArray::swap(vertices);
             }
         private:
             Vertex::List getVertices() {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
-                m_vertexArray.render();
+                m_vertexArray.render(PT_Quads);
                 
                 texture->deactivate();
             }
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), PT_LineLoops);
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setOnTop(true);
             renderEdges->setColor(edgeColor);
@@ -340,7 +340,7 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
             vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), PT_Lines);
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setRenderOccluded();
             renderEdges->setWidth(2.0f);

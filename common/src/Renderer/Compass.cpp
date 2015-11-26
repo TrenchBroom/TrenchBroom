@@ -30,7 +30,9 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Transformation.h"
+#include "Renderer/IndexArrayBuilder.h"
 #include "Renderer/Vertex.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
 #include <cassert>
@@ -57,11 +59,9 @@ namespace TrenchBroom {
 
         void Compass::doPrepare(Vbo& vbo) {
             if (!m_prepared) {
-                m_strip.prepare(vbo);
-                m_set.prepare(vbo);
-                m_fans.prepare(vbo);
-                m_backgroundOutline.prepare(vbo);
-                m_background.prepare(vbo);
+                m_arrowRenderer.prepare(vbo);
+                m_backgroundRenderer.prepare(vbo);
+                m_backgroundOutlineRenderer.prepare(vbo);
                 m_prepared = true;
             }
         }
@@ -115,17 +115,19 @@ namespace TrenchBroom {
             Vertex::List headVertices = Vertex::fromLists(head.vertices, head.normals, head.vertices.size());
             Vertex::List capVertices = VectorUtils::concatenate(Vertex::fromLists(shaftCap.vertices, shaftCap.normals, shaftCap.vertices.size()),
                                                                       Vertex::fromLists(headCap.vertices, headCap.normals, headCap.vertices.size()));
-            VertexArray::IndexArray indices(2);
-            indices[0] = 0;
-            indices[1] = static_cast<GLint>(shaftCap.vertices.size());
+
+            const size_t vertexCount = shaftVertices.size() + headVertices.size() + capVertices.size();
+            IndexArray::Size indexArraySize;
+            indexArraySize.inc(PT_TriangleStrips);
+            indexArraySize.inc(PT_TriangleFans);
+            indexArraySize.inc(PT_Triangles, headVertices.size() / 3);
             
-            VertexArray::CountArray counts(2);
-            counts[0] = static_cast<GLsizei>(shaftCap.vertices.size());
-            counts[1] = static_cast<GLsizei>(headCap.vertices.size());
-            
-            m_strip = VertexArray::swap(GL_TRIANGLE_STRIP, shaftVertices);
-            m_set = VertexArray::swap(GL_TRIANGLES, headVertices);
-            m_fans = VertexArray::swap(GL_TRIANGLE_FAN, capVertices, indices, counts);
+            IndexArrayBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+            builder.addTriangleStrip(shaftVertices);
+            builder.addTriangles(headVertices);
+            builder.addTriangleFan(capVertices);
+
+            m_arrowRenderer = IndexArrayRenderer(builder);
         }
         
         void Compass::makeBackground() {
@@ -133,8 +135,21 @@ namespace TrenchBroom {
             Vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Cf::twoPi(), m_segments);
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
-            m_background = VertexArray::swap(GL_TRIANGLE_FAN, verts);
-            m_backgroundOutline = VertexArray::swap(GL_LINE_LOOP, verts);
+            IndexArray::Size backgroundSize;
+            backgroundSize.inc(PT_TriangleFans);
+            
+            IndexArrayBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+            backgroundBuilder.addTriangleFan(verts);
+            
+            m_backgroundRenderer = IndexArrayRenderer(backgroundBuilder);
+            
+            IndexArray::Size outlineSize;
+            outlineSize.inc(PT_LineLoops);
+            
+            IndexArrayBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+            outlineBuilder.addLineLoop(verts);
+            
+            m_backgroundOutlineRenderer = IndexArrayRenderer(outlineBuilder);
         }
 
         Mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {
@@ -155,9 +170,9 @@ namespace TrenchBroom {
             const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
             shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
-            m_background.render();
+            m_backgroundRenderer.render();
             shader.set("Color", prefs.get(Preferences::CompassBackgroundOutlineColor));
-            m_backgroundOutline.render();
+            m_backgroundOutlineRenderer.render();
         }
 
         void Compass::renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
@@ -192,10 +207,7 @@ namespace TrenchBroom {
 
         void Compass::renderAxis(RenderContext& renderContext, const Mat4x4f& transformation) {
             const MultiplyModelMatrix apply(renderContext.transformation(), transformation);
-            
-            m_strip.render();
-            m_set.render();
-            m_fans.render();
+            m_arrowRenderer.render();
         }
     }
 }

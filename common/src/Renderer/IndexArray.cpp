@@ -79,6 +79,8 @@ namespace TrenchBroom {
             }
         }
         
+        IndexArray::IndexArray() {}
+
         IndexArray::IndexArray(const Size& size) {
             size.initialize(*m_data);
         }
@@ -87,6 +89,10 @@ namespace TrenchBroom {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
         }
 
+        IndexArray::IndexArray(const PrimType primType, const GLint index, const size_t count) {
+            m_data->insert(std::make_pair(primType, IndicesAndCounts(index, static_cast<GLsizei>(count))));
+        }
+        
         void IndexArray::add(const PrimType primType, const GLint index, const GLsizei count) {
             PrimTypeToIndexData::iterator it = m_data->find(primType);
             assert(it != m_data->end());

@@ -26,7 +26,7 @@ namespace TrenchBroom {
         TexturedIndexArray::Size::Size() :
         m_current(m_sizes.end()) {}
         
-        void TexturedIndexArray::Size::inc(const Texture* texture, const IndexArray::PrimType primType, const size_t count) {
+        void TexturedIndexArray::Size::inc(const Texture* texture, const PrimType primType, const size_t count) {
             IndexArray::Size& sizeForKey = findCurrent(texture);
             sizeForKey.inc(primType, count);
         }
@@ -69,12 +69,12 @@ namespace TrenchBroom {
             m_data->insert(std::make_pair(texture, primitives));
         }
 
-        TexturedIndexArray::TexturedIndexArray(const Texture* texture, const IndexArray::PrimType primType, const GLint index, const GLsizei count) :
+        TexturedIndexArray::TexturedIndexArray(const Texture* texture, const PrimType primType, const GLint index, const GLsizei count) :
         m_current(m_data->end()) {
             m_data->insert(std::make_pair(texture, IndexArray(primType, index, count)));
         }
 
-        void TexturedIndexArray::add(const Texture* texture, const IndexArray::PrimType primType, const GLint index, const GLsizei count) {
+        void TexturedIndexArray::add(const Texture* texture, const PrimType primType, const GLint index, const GLsizei count) {
             IndexArray& current = findCurrent(texture);
             current.add(primType, index, count);
         }

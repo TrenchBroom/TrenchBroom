@@ -136,7 +136,7 @@ namespace TrenchBroom {
             const GLsizei vertexCount = static_cast<GLsizei>(vertices.size());
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
-            const Renderer::TexturedIndexArray indexArray(texture, Renderer::IndexArray::PT_Triangles, 0, vertexCount);
+            const Renderer::TexturedIndexArray indexArray(texture, PT_Triangles, 0, vertexCount);
             
             return new Renderer::TexturedIndexArrayRenderer(vertexArray, indexArray);
         }
