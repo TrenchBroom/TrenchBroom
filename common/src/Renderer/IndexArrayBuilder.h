@@ -35,6 +35,8 @@ namespace TrenchBroom {
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexArray m_indexArray;
         public:
+            IndexArrayBuilder() {} // default constructors allow dynamic growth
+            
             IndexArrayBuilder(const size_t vertexCount, const IndexArray::Size& indexArraySize) :
             m_vertexListBuilder(vertexCount),
             m_indexArray(indexArraySize) {}

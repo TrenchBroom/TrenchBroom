@@ -23,10 +23,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
-#include "Renderer/LineMesh.h"
-#include "Renderer/LineMeshRenderer.h"
-#include "Renderer/TriangleMesh.h"
-#include "Renderer/TriangleMeshRenderer.h"
+#include "Renderer/IndexArrayBuilder.h"
+#include "Renderer/IndexArrayRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -41,14 +39,14 @@ namespace TrenchBroom {
         class PrimitiveRenderer : public Renderable {
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
-            typedef std::map<float, LineMesh<Vertex::Spec> > LineMeshMap;
-            typedef std::map<float, LineMeshRenderer> LineRendererMap;
-            
+            typedef std::map<float, IndexArrayBuilder<Vertex::Spec> > LineMeshMap;
             LineMeshMap m_lineMeshes;
-            TriangleMesh<Vertex::Spec> m_triangleMesh;
-
-            LineRendererMap m_lineRenderers;
-            SimpleTriangleMeshRenderer m_triangleRenderer;
+            IndexArrayBuilder<Vertex::Spec> m_triangleMesh;
+            
+            typedef std::map<float, IndexArrayRenderer> LineMeshRendererMap;
+            LineMeshRendererMap m_lineMeshRenderers;
+            
+            IndexArrayRenderer m_triangleMeshRenderer;
         public:
             void renderLine(const Color& color, float lineWidth, const Vec3f& start, const Vec3f& end);
             void renderLines(const Color& color, float lineWidth, const Vec3f::List& positions);

@@ -36,11 +36,15 @@ namespace TrenchBroom {
             VertexArray m_vertexArray;
             TexturedIndexArray m_indexArray;
         public:
+            TexturedIndexArrayRenderer();
             TexturedIndexArrayRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray);
             TexturedIndexArrayRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexArray& indexArray);
 
+            bool empty() const;
+            
             void prepare(Vbo& vbo);
             void render();
+            void render(TexturedIndexArray::RenderFunc& func);
         };
     }
 }

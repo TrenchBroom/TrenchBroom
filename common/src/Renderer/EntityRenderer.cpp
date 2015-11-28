@@ -304,9 +304,7 @@ namespace TrenchBroom {
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
             }
         };
 
@@ -383,7 +381,7 @@ namespace TrenchBroom {
                 m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), PT_Lines);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices));
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), PT_Quads);
             m_boundsValid = true;
         }
 

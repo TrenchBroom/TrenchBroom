@@ -260,6 +260,7 @@ namespace TrenchBroom {
             VertexArray& operator= (VertexArray other);
             friend void swap(VertexArray& left, VertexArray& right);
             
+            bool empty() const;
             size_t size() const;
             size_t vertexCount() const;
             

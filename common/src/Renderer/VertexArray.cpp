@@ -42,6 +42,10 @@ namespace TrenchBroom {
             swap(left.m_setup, right.m_setup);
         }
 
+        bool VertexArray::empty() const {
+            return vertexCount() == 0;
+        }
+
         size_t VertexArray::size() const {
             return m_holder == NULL ? 0 : m_holder->size();
         }

@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 IndicesAndCounts(size_t capacity);
                 IndicesAndCounts(GLint index, GLsizei count);
                 size_t size() const;
-                void add(PrimType primType, GLint index, GLsizei count);
+                void add(PrimType primType, GLint index, GLsizei count, bool dynamicGrowth);
             };
             
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
@@ -56,6 +56,7 @@ namespace TrenchBroom {
             };
         private:
             PrimTypeToIndexDataPtr m_data;
+            bool m_dynamicGrowth;
         public:
             IndexArray();
             IndexArray(const Size& size);

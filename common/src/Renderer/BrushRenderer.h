@@ -82,6 +82,12 @@ namespace TrenchBroom {
                 bool doIsTransparent(const Model::Brush* brush) const;
             };
         private:
+            class FilterWrapper;
+            class CountVertices;
+            class CollectVertices;
+            class CountIndices;
+            class CollectIndices;
+        private:
             Filter* m_filter;
             Model::BrushList m_brushes;
             FaceRenderer m_opaqueFaceRenderer;

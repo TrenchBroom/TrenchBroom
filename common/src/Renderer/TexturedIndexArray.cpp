@@ -23,6 +23,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        TexturedIndexArray::RenderFunc::~RenderFunc() {}
+        void TexturedIndexArray::RenderFunc::before(const Texture* texture) {}
+        void TexturedIndexArray::RenderFunc::after(const Texture* texture) {}
+
+        void TexturedIndexArray::DefaultRenderFunc::before(const Texture* texture) {
+            if (texture != NULL)
+                texture->activate();
+        }
+        
+        void TexturedIndexArray::DefaultRenderFunc::after(const Texture* texture) {
+            if (texture != NULL)
+                texture->deactivate();
+        }
+
         TexturedIndexArray::Size::Size() :
         m_current(m_sizes.end()) {}
         
@@ -59,6 +73,9 @@ namespace TrenchBroom {
             }
         }
 
+        TexturedIndexArray::TexturedIndexArray() :
+        m_current(m_data->end()) {}
+
         TexturedIndexArray::TexturedIndexArray(const Size& size) :
         m_current(m_data->end()) {
             size.initialize(*m_data);
@@ -80,16 +97,19 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexArray::render(const VertexArray& vertexArray) {
+            DefaultRenderFunc func;
+            render(vertexArray, func);
+        }
+        
+        void TexturedIndexArray::render(const VertexArray& vertexArray, RenderFunc& func) {
             typename TextureToIndexArray::const_iterator texIt, texEnd;
             for (texIt = m_data->begin(), texEnd = m_data->end(); texIt != texEnd; ++texIt) {
                 const Texture* texture = texIt->first;
                 const IndexArray& indexArray = texIt->second;
 
-                if (texture != NULL)
-                    texture->activate();
+                func.before(texture);
                 indexArray.render(vertexArray);
-                if (texture != NULL)
-                    texture->deactivate();
+                func.after(texture);
             }
         }
 

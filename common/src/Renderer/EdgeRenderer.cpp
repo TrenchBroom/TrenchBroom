@@ -58,6 +58,7 @@ namespace TrenchBroom {
         void swap(EdgeRenderer& left, EdgeRenderer& right) {
             using std::swap;
             swap(left.m_vertexArray, right.m_vertexArray);
+            swap(left.m_indexArray, right.m_indexArray);
             swap(left.m_color, right.m_color);
             swap(left.m_useColor, right.m_useColor);
             swap(left.m_prepared, right.m_prepared);

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             return indices.size();
         }
         
-        void IndexArray::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count) {
+        void IndexArray::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count, const bool dynamicGrowth) {
             switch (primType) {
                 case PT_Points:
                 case PT_Lines:
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 case PT_TriangleStrips:
                 case PT_QuadStrips:
                 case PT_Polygons:
-                    assert(indices.capacity() > indices.size());
+                    assert(dynamicGrowth || indices.capacity() > indices.size());
                     indices.push_back(index);
                     counts.push_back(count);
                     break;
@@ -79,17 +79,21 @@ namespace TrenchBroom {
             }
         }
         
-        IndexArray::IndexArray() {}
+        IndexArray::IndexArray() :
+        m_dynamicGrowth(true) {}
 
-        IndexArray::IndexArray(const Size& size) {
+        IndexArray::IndexArray(const Size& size) :
+        m_dynamicGrowth(false) {
             size.initialize(*m_data);
         }
 
-        IndexArray::IndexArray(const PrimType primType, const GLint index, const GLsizei count) {
+        IndexArray::IndexArray(const PrimType primType, const GLint index, const GLsizei count) :
+        m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
         }
 
-        IndexArray::IndexArray(const PrimType primType, const GLint index, const size_t count) {
+        IndexArray::IndexArray(const PrimType primType, const GLint index, const size_t count) :
+        m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, static_cast<GLsizei>(count))));
         }
         
@@ -98,7 +102,7 @@ namespace TrenchBroom {
             assert(it != m_data->end());
             
             IndicesAndCounts& indicesAndCounts = it->second;
-            indicesAndCounts.add(primType, index, count);
+            indicesAndCounts.add(primType, index, count, m_dynamicGrowth);
         }
 
         void IndexArray::render(const VertexArray& vertexArray) const {

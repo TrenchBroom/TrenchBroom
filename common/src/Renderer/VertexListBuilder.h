@@ -41,11 +41,16 @@ namespace TrenchBroom {
             typedef typename Vertex::List VertexList;
         private:
             VertexList m_vertices;
+            bool m_dynamicGrowth;
         public:
             VertexListBuilder(const size_t capacity) :
-            m_vertices(0) {
+            m_vertices(0),
+            m_dynamicGrowth(false) {
                 m_vertices.reserve(capacity);
             }
+            
+            VertexListBuilder() :
+            m_dynamicGrowth(true) {}
             
             size_t vertexCount() const {
                 return m_vertices.size();
@@ -162,7 +167,7 @@ namespace TrenchBroom {
             }
 
             bool checkCapacity(const size_t toAdd) const {
-                return m_vertices.capacity() - m_vertices.size() >= toAdd;
+                return m_dynamicGrowth || m_vertices.capacity() - m_vertices.size() >= toAdd;
             }
             
             GLint currentIndex() const {

@@ -32,12 +32,20 @@ namespace TrenchBroom {
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray) :
+        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexArray& indexArray) :
         m_vertexArray(vertexArray),
+        m_indexArray(indexArray),
         m_useColor(false),
         m_applyTinting(false),
         m_prepared(false) {}
         
+        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const PrimType primType) :
+        m_vertexArray(vertexArray),
+        m_indexArray(primType, 0, m_vertexArray.vertexCount()),
+        m_useColor(false),
+        m_applyTinting(false),
+        m_prepared(false) {}
+
         TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) :
         m_vertexArray(other.m_vertexArray),
         m_color(other.m_color),
@@ -53,6 +61,7 @@ namespace TrenchBroom {
         void swap(TriangleRenderer& left, TriangleRenderer& right) {
             using std::swap;
             swap(left.m_vertexArray, right.m_vertexArray);
+            swap(left.m_indexArray, right.m_indexArray);
             swap(left.m_color, right.m_color);
             swap(left.m_useColor, right.m_useColor);
             swap(left.m_prepared, right.m_prepared);
@@ -93,7 +102,7 @@ namespace TrenchBroom {
             shader.set("UseColor", m_useColor);
             shader.set("Color", m_color);
             shader.set("CameraPosition", context.camera().position());
-            m_vertexArray.render();
+            m_indexArray.render(m_vertexArray);
         }
     }
 }

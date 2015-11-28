@@ -32,8 +32,20 @@ namespace TrenchBroom {
         class VertexArray;
         
         class TexturedIndexArray {
-        private:
+        public:
             typedef Assets::Texture Texture;
+            
+            struct RenderFunc {
+                virtual ~RenderFunc();
+                virtual void before(const Texture* texture);
+                virtual void after(const Texture* texture);
+            };
+            
+            struct DefaultRenderFunc : public RenderFunc {
+                void before(const Texture* texture);
+                void after(const Texture* texture);
+            };
+        private:
             typedef std::map<const Texture*, IndexArray> TextureToIndexArray;
             typedef std::tr1::shared_ptr<TextureToIndexArray> TextureToIndexArrayPtr;
         public:
@@ -57,11 +69,14 @@ namespace TrenchBroom {
             TextureToIndexArrayPtr m_data;
             TextureToIndexArray::iterator m_current;
         public:
+            TexturedIndexArray();
             TexturedIndexArray(const Size& size);
             TexturedIndexArray(const Texture* texture, const IndexArray& primitives);
             TexturedIndexArray(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
+            
             void render(const VertexArray& vertexArray);
+            void render(const VertexArray& vertexArray, RenderFunc& func);
         private:
             IndexArray& findCurrent(const Texture* texture);
             bool isCurrent(const Texture* texture) const;

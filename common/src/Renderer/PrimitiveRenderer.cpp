@@ -24,55 +24,36 @@
 namespace TrenchBroom {
     namespace Renderer {
         void PrimitiveRenderer::renderLine(const Color& color, const float lineWidth, const Vec3f& start, const Vec3f& end) {
-            m_lineMeshes[lineWidth].beginLines();
             m_lineMeshes[lineWidth].addLine(Vertex(start, color), Vertex(end, color));
-            m_lineMeshes[lineWidth].endLines();
         }
         
         void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const Vec3f::List& positions) {
-            m_lineMeshes[lineWidth].beginLines();
             m_lineMeshes[lineWidth].addLines(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
-            m_lineMeshes[lineWidth].endLines();
         }
 
         void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const BBox3f& bounds) {
             const Vertex::List vertices = BuildCoordinateSystem::xy(x, y).vertices(bounds);
-            m_lineMeshes[lineWidth].beginLines();
             m_lineMeshes[lineWidth].addLines(vertices);
-            m_lineMeshes[lineWidth].endLines();
         }
         
         void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const BBox3f& bounds) {
-            const Vertex::List vertices = BuildCoordinateSystem::xz(x, z).vertices(bounds);
-            m_lineMeshes[lineWidth].beginLines();
-            m_lineMeshes[lineWidth].addLines(vertices);
-            m_lineMeshes[lineWidth].endLines();
+            m_lineMeshes[lineWidth].addLines(BuildCoordinateSystem::xz(x, z).vertices(bounds));
         }
         
         void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const BBox3f& bounds) {
-            const Vertex::List vertices = BuildCoordinateSystem::yz(y, z).vertices(bounds);
-            m_lineMeshes[lineWidth].beginLines();
-            m_lineMeshes[lineWidth].addLines(vertices);
-            m_lineMeshes[lineWidth].endLines();
+            m_lineMeshes[lineWidth].addLines(BuildCoordinateSystem::yz(y, z).vertices(bounds));
         }
 
         void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const BBox3f& bounds) {
-            const Vertex::List vertices = BuildCoordinateSystem::xyz(x, y, z).vertices(bounds);
-            m_lineMeshes[lineWidth].beginLines();
-            m_lineMeshes[lineWidth].addLines(vertices);
-            m_lineMeshes[lineWidth].endLines();
+            m_lineMeshes[lineWidth].addLines(BuildCoordinateSystem::xyz(x, y, z).vertices(bounds));
         }
 
         void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const Vec3f::List& positions) {
-            m_lineMeshes[lineWidth].beginLineLoop();
             m_lineMeshes[lineWidth].addLineLoop(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
-            m_lineMeshes[lineWidth].endLineLoop();
         }
 
         void PrimitiveRenderer::renderFilledPolygon(const Color& color, const Vec3f::List& positions) {
-            m_triangleMesh.beginTriangleFan();
             m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
-            m_triangleMesh.endTriangleFan();
         }
 
         void PrimitiveRenderer::renderCircle(const Color& color, const float lineWidth, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
@@ -83,9 +64,7 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderCircle(const Color& color, const float lineWidth, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
             const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             
-            m_lineMeshes[lineWidth].beginLineStrip();
             m_lineMeshes[lineWidth].addLineStrip(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
-            m_lineMeshes[lineWidth].endLineStrip();
         }
         
         void PrimitiveRenderer::renderFilledCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
@@ -96,26 +75,20 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderFilledCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
             const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
 
-            m_triangleMesh.beginTriangleFan();
             m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
-            m_triangleMesh.endTriangleFan();
         }
 
         void PrimitiveRenderer::doPrepare(Vbo& vbo) {
             LineMeshMap::iterator it, end;
             for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
                 const float lineWidth = it->first;
-                LineMesh<Vertex::Spec>& mesh = it->second;
-                LineMeshRenderer renderer(mesh);
+                IndexArrayBuilder<Vertex::Spec>& mesh = it->second;
+                IndexArrayRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(lineWidth, IndexArrayRenderer(mesh))).first->second;
                 renderer.prepare(vbo);
-                m_lineRenderers[lineWidth] = renderer;
             }
             
-            m_triangleRenderer = SimpleTriangleMeshRenderer(m_triangleMesh);
-            m_triangleRenderer.prepare(vbo);
-
-            m_lineMeshes.clear();
-            m_triangleMesh.clear();
+            m_triangleMeshRenderer = IndexArrayRenderer(m_triangleMesh);
+            m_triangleMeshRenderer.prepare(vbo);
         }
         
         void PrimitiveRenderer::doRender(RenderContext& renderContext) {
@@ -126,10 +99,10 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::renderLines(RenderContext& renderContext) {
-            LineRendererMap::iterator it, end;
-            for (it = m_lineRenderers.begin(), end = m_lineRenderers.end(); it != end; ++it) {
+            LineMeshRendererMap::iterator it, end;
+            for (it = m_lineMeshRenderers.begin(), end = m_lineMeshRenderers.end(); it != end; ++it) {
                 const float lineWidth = it->first;
-                LineMeshRenderer& renderer = it->second;
+                IndexArrayRenderer& renderer = it->second;
                 glLineWidth(lineWidth);
                 renderer.render();
             }
@@ -137,7 +110,7 @@ namespace TrenchBroom {
         }
         
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {
-            m_triangleRenderer.render();
+            m_triangleMeshRenderer.render();
         }
     }
 }

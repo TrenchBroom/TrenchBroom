@@ -57,6 +57,8 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             class QueryCallback;
         public:
+            typedef Renderer::VertexSpec::P3::Vertex EdgeVertex;
+        public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:

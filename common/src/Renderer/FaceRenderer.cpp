@@ -31,17 +31,17 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct TextureMeshFunc : public TexturedTriangleMeshRenderer::MeshFuncBase {
+        struct FaceRenderer::RenderFunc : public TexturedIndexArray::RenderFunc {
             ActiveShader& shader;
             bool applyTexture;
             const Color& defaultColor;
             
-            TextureMeshFunc(ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor) :
+            RenderFunc(ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor) :
             shader(i_shader),
             applyTexture(i_applyTexture),
             defaultColor(i_defaultColor) {}
             
-            void before(const Assets::Texture* const & texture) const {
+            void before(const Assets::Texture* texture) {
                 if (texture != NULL) {
                     texture->activate();
                     shader.set("ApplyTexture", applyTexture);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void after(const Assets::Texture* const & texture) const {
+            void after(const Assets::Texture* texture) {
                 if (texture != NULL)
                     texture->deactivate();
             }
@@ -64,8 +64,8 @@ namespace TrenchBroom {
         m_alpha(1.0f),
         m_prepared(true) {}
         
-        FaceRenderer::FaceRenderer(Model::BrushFace::Mesh& mesh, const Color& faceColor) :
-        m_meshRenderer(mesh),
+        FaceRenderer::FaceRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray, const Color& faceColor) :
+        m_meshRenderer(vertexArray, indexArray),
         m_faceColor(faceColor),
         m_grayscale(false),
         m_tint(false),
@@ -150,14 +150,15 @@ namespace TrenchBroom {
             shader.set("CameraPosition", context.camera().position());
             shader.set("ShadeFaces", shadeFaces);
             shader.set("ShowFog", showFog);
-            
             shader.set("Alpha", m_alpha);
+            
+            RenderFunc func(shader, applyTexture, m_faceColor);
             if (m_alpha < 1.0f) {
                 glDepthMask(GL_FALSE);
-                m_meshRenderer.render(TextureMeshFunc(shader, applyTexture, m_faceColor));
+                m_meshRenderer.render(func);
                 glDepthMask(GL_TRUE);
             } else {
-                m_meshRenderer.render(TextureMeshFunc(shader, applyTexture, m_faceColor));
+                m_meshRenderer.render(func);
             }
         }
     }

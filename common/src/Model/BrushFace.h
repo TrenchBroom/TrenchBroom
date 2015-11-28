@@ -62,7 +62,7 @@ namespace TrenchBroom {
              * 0-----------2
              */
             typedef Vec3 Points[3];
-        private:
+        public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
         public:

@@ -26,8 +26,10 @@
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
+#include "Renderer/IndexArray.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/TexturedIndexArray.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
@@ -169,18 +171,18 @@ namespace TrenchBroom {
         
         void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
             if (m_showOccludedEdges) {
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_edgeRenderer));
+                RenderEdges* renderOccludedEdges = new RenderEdges(Reference::ref(m_edgeRenderer));
                 renderOccludedEdges->setRenderOccluded();
                 renderOccludedEdges->setColor(m_occludedEdgeColor);
                 renderBatch.addOneShot(renderOccludedEdges);
             }
             
-            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_edgeRenderer));
+            RenderEdges* renderUnoccludedEdges = new RenderEdges(Reference::ref(m_edgeRenderer));
             renderUnoccludedEdges->setColor(m_edgeColor);
             renderBatch.addOneShot(renderUnoccludedEdges);
         }
 
-        class FilterWrapper : public BrushRenderer::Filter {
+        class BrushRenderer::FilterWrapper : public BrushRenderer::Filter {
         private:
             const Filter& m_filter;
             bool m_showHiddenBrushes;
@@ -194,48 +196,179 @@ namespace TrenchBroom {
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
         };
 
-        class CountRenderDataSize : public Model::ConstNodeVisitor {
+        class BrushRenderer::CountVertices : public Model::ConstNodeVisitor {
         private:
-            const FilterWrapper& filter;
+            const FilterWrapper& m_filter;
+            size_t m_faceVertexCount;
+            size_t m_edgeVertexCount;
         public:
-            Model::BrushFace::Mesh::MeshSize opaqueMeshSize;
-            Model::BrushFace::Mesh::MeshSize transparentMeshSize;
-            size_t edgeVertexCount;
-        public:
-            CountRenderDataSize(const FilterWrapper& i_filter) :
-            filter(i_filter),
-            edgeVertexCount(0) {}
+            CountVertices(const FilterWrapper& filter) :
+            m_filter(filter),
+            m_faceVertexCount(0),
+            m_edgeVertexCount(0) {}
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
             void doVisit(const Model::Group* group) {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
-                countMesh(brush);
-                countEdges(brush);
+                countFaceVertices(brush);
+                countEdgeVertices(brush);
             }
             
-            void countMesh(const Model::Brush* brush) {
+            void countFaceVertices(const Model::Brush* brush) {
                 const Model::BrushFaceList& faces = brush->faces();
                 Model::BrushFaceList::const_iterator it, end;
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     const Model::BrushFace* face = *it;
-                    if (filter.show(face)) {
-                        if (filter.transparent(brush))
-                            transparentMeshSize.addSet(face->texture(), face->vertexCount());
-                        else
-                            opaqueMeshSize.addSet(face->texture(), face->vertexCount());
+                    if (m_filter.show(face)) {
+                        m_faceVertexCount += face->vertexCount();
                     }
                 }
             }
             
-            void countEdges(const Model::Brush* brush) {
+            void countEdgeVertices(const Model::Brush* brush) {
                 const Model::Brush::EdgeList edges = brush->edges();
                 Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
-                    if (filter.show(edge))
-                        edgeVertexCount += 2;
+                    if (m_filter.show(edge))
+                        m_edgeVertexCount += 2;
+                }
+            }
+        };
+
+        class BrushRenderer::CollectVertices : public Model::ConstNodeVisitor {
+        private:
+            const FilterWrapper& m_filter;
+            VertexListBuilder<Model::BrushFace::Vertex> m_faceVertices;
+            VertexListBuilder<Model::Brush::EdgeVertex> m_edgeVertices;
+        public:
+            CollectVertices(const FilterWrapper& filter, const size_t faceVertexCount, const size_t edgeVertexCount) :
+            m_filter(filter),
+            m_faceVertices(faceVertexCount),
+            m_edgeVertices(edgeVertexCount) {}
+        private:
+            void doVisit(const Model::World* world) {}
+            void doVisit(const Model::Layer* layer) {}
+            void doVisit(const Model::Group* group) {}
+            void doVisit(const Model::Entity* entity) {}
+            void doVisit(const Model::Brush* brush) {
+                collectFaceVertices(brush);
+                collectEdgeVertices(brush);
+            }
+            
+            void collectFaceVertices(const Model::Brush* brush) {
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    const Model::BrushFace* face = *it;
+                    if (m_filter.show(face))
+                        face->getVertices(m_faceVertices);
+                }
+            }
+            
+            void collectEdgeVertices(const Model::Brush* brush) {
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    if (m_filter.show(edge)) {
+                        m_edgeVertices.addLine(Model::Brush::EdgeVertex(edge->firstVertex()->position()),
+                                               Model::Brush::EdgeVertex(edge->secondVertex()->position()));
+                    }
+                }
+            }
+        };
+        
+        class BrushRenderer::CountIndices : public Model::ConstNodeVisitor {
+        private:
+            const FilterWrapper& m_filter;
+            TexturedIndexArray::Size m_opaqueIndexSize;
+            TexturedIndexArray::Size m_transparentIndexSize;
+            IndexArray::Size m_edgeIndexSize;
+        public:
+            CountIndices(const FilterWrapper& filter) :
+            m_filter(filter) {}
+        private:
+            void doVisit(const Model::World* world) {}
+            void doVisit(const Model::Layer* layer) {}
+            void doVisit(const Model::Group* group) {}
+            void doVisit(const Model::Entity* entity) {}
+            void doVisit(const Model::Brush* brush) {
+                countFaceIndices(brush);
+                countEdgeIndices(brush);
+            }
+            
+            void countFaceIndices(const Model::Brush* brush) {
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    const Model::BrushFace* face = *it;
+                    if (m_filter.show(face)) {
+                        if (m_filter.transparent(brush))
+                            m_transparentIndexSize.inc(face->texture(), PT_Polygons);
+                        else
+                            m_opaqueIndexSize.inc(face->texture(), PT_Polygons);
+                    }
+                }
+            }
+            
+            void countEdgeIndices(const Model::Brush* brush) {
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    if (m_filter.show(edge))
+                        m_edgeIndexSize.inc(PT_Lines);
+                }
+            }
+        };
+        
+        class BrushRenderer::CollectIndices : public Model::ConstNodeVisitor {
+        private:
+            const FilterWrapper& m_filter;
+            TexturedIndexArray m_opaqueFaceIndices;
+            TexturedIndexArray m_transparentFaceIndices;
+            IndexArray m_edgeIndices;
+        public:
+            CollectIndices(const FilterWrapper& filter, const TexturedIndexArray::Size& opaqueFaceIndexSize, const TexturedIndexArray::Size& transparentFaceIndexSize, const IndexArray::Size& edgeIndexSize) :
+            m_filter(filter),
+            m_opaqueFaceIndices(opaqueFaceIndexSize),
+            m_transparentFaceIndices(transparentFaceIndexSize),
+            m_edgeIndices(edgeIndexSize) {}
+        private:
+            void doVisit(const Model::World* world) {}
+            void doVisit(const Model::Layer* layer) {}
+            void doVisit(const Model::Group* group) {}
+            void doVisit(const Model::Entity* entity) {}
+            void doVisit(const Model::Brush* brush) {
+                collectFaceIndices(brush);
+                collectEdgeIndices(brush);
+            }
+            
+            void collectFaceIndices(const Model::Brush* brush) {
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    const Model::BrushFace* face = *it;
+                    if (m_filter.show(face)) {
+                        if (m_filter.transparent(brush))
+                            face->getIndex(m_transparentFaceIndices);
+                        else
+                            face->getIndex(m_opaqueFaceIndices);
+                    }
+                }
+            }
+            
+            void collectEdgeIndices(const Model::Brush* brush) {
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    if (m_filter.show(edge))
+                        m_edgeIndices
+                        m_edgeIndexSize.inc(PT_Lines);
                 }
             }
         };

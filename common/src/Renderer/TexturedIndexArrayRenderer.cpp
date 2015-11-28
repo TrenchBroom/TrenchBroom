@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer() {}
+
         TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
@@ -29,6 +31,10 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexArray(texture, indexArray) {}
 
+        bool TexturedIndexArrayRenderer::empty() const {
+            return m_vertexArray.empty();
+        }
+
         void TexturedIndexArrayRenderer::prepare(Vbo& vbo) {
             m_vertexArray.prepare(vbo);
         }
@@ -36,6 +42,13 @@ namespace TrenchBroom {
         void TexturedIndexArrayRenderer::render() {
             if (m_vertexArray.setup()) {
                 m_indexArray.render(m_vertexArray);
+                m_vertexArray.cleanup();
+            }
+        }
+
+        void TexturedIndexArrayRenderer::render(TexturedIndexArray::RenderFunc& func) {
+            if (m_vertexArray.setup()) {
+                m_indexArray.render(m_vertexArray, func);
                 m_vertexArray.cleanup();
             }
         }
