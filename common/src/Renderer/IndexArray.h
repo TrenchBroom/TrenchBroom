@@ -34,9 +34,10 @@ namespace TrenchBroom {
                 VertexArray::IndexArray indices;
                 VertexArray::CountArray counts;
                 
-                IndicesAndCounts(size_t capacity);
+                IndicesAndCounts();
                 IndicesAndCounts(GLint index, GLsizei count);
                 size_t size() const;
+                void reserve(size_t capacity);
                 void add(PrimType primType, GLint index, GLsizei count, bool dynamicGrowth);
             };
             
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             IndexArray(PrimType primType, GLint index, size_t count);
             void add(PrimType primType, GLint index, GLsizei count);
             
-            void render(const VertexArray& vertexArray) const;
+            void render(VertexArray& vertexArray) const;
         };
     }
 }

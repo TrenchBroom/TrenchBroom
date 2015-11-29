@@ -75,8 +75,8 @@ namespace TrenchBroom {
             TexturedIndexArray(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             
-            void render(const VertexArray& vertexArray);
-            void render(const VertexArray& vertexArray, RenderFunc& func);
+            void render(VertexArray& vertexArray);
+            void render(VertexArray& vertexArray, RenderFunc& func);
         private:
             IndexArray& findCurrent(const Texture* texture);
             bool isCurrent(const Texture* texture) const;

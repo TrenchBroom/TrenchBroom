@@ -233,7 +233,6 @@ namespace TrenchBroom {
                 
                 unmap();
             } else {
-                unmap();
                 deactivate();
                 free();
                 activate();

@@ -62,14 +62,13 @@ namespace TrenchBroom {
             }
             
             virtual void prepare(Vbo& vbo) {
-                assert(m_vertexCount > 0);
-                assert(m_block == NULL);
-
-                ActivateVbo activate(vbo);
-                m_block = vbo.allocateBlock(size());
-                
-                MapVboBlock map(m_block);
-                m_block->writeBuffer(0, doGetVertices());
+                if (m_vertexCount > 0 && m_block == NULL) {
+                    ActivateVbo activate(vbo);
+                    m_block = vbo.allocateBlock(size());
+                    
+                    MapVboBlock map(m_block);
+                    m_block->writeBuffer(0, doGetVertices());
+                }
             }
             
             virtual void setup() {
@@ -268,10 +267,10 @@ namespace TrenchBroom {
             void prepare(Vbo& vbo);
             
             bool setup();
-            void render(GLenum primType) const;
-            void render(GLenum primType, GLint index, GLsizei count) const;
-            void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount) const;
-            void render(GLenum primType, const IndexArray& indices, GLsizei count) const;
+            void render(GLenum primType);
+            void render(GLenum primType, GLint index, GLsizei count);
+            void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount);
+            void render(GLenum primType, const IndexArray& indices, GLsizei count);
             void cleanup();
         private:
             VertexArray(BaseHolder::Ptr holder);

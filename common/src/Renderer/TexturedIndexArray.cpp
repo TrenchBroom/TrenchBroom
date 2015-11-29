@@ -74,19 +74,23 @@ namespace TrenchBroom {
         }
 
         TexturedIndexArray::TexturedIndexArray() :
+        m_data(new TextureToIndexArray()),
         m_current(m_data->end()) {}
 
         TexturedIndexArray::TexturedIndexArray(const Size& size) :
+        m_data(new TextureToIndexArray()),
         m_current(m_data->end()) {
             size.initialize(*m_data);
         }
         
         TexturedIndexArray::TexturedIndexArray(const Texture* texture, const IndexArray& primitives) :
+        m_data(new TextureToIndexArray()),
         m_current(m_data->end()) {
             m_data->insert(std::make_pair(texture, primitives));
         }
 
         TexturedIndexArray::TexturedIndexArray(const Texture* texture, const PrimType primType, const GLint index, const GLsizei count) :
+        m_data(new TextureToIndexArray()),
         m_current(m_data->end()) {
             m_data->insert(std::make_pair(texture, IndexArray(primType, index, count)));
         }
@@ -96,12 +100,12 @@ namespace TrenchBroom {
             current.add(primType, index, count);
         }
 
-        void TexturedIndexArray::render(const VertexArray& vertexArray) {
+        void TexturedIndexArray::render(VertexArray& vertexArray) {
             DefaultRenderFunc func;
             render(vertexArray, func);
         }
         
-        void TexturedIndexArray::render(const VertexArray& vertexArray, RenderFunc& func) {
+        void TexturedIndexArray::render(VertexArray& vertexArray, RenderFunc& func) {
             typename TextureToIndexArray::const_iterator texIt, texEnd;
             for (texIt = m_data->begin(), texEnd = m_data->end(); texIt != texEnd; ++texIt) {
                 const Texture* texture = texIt->first;

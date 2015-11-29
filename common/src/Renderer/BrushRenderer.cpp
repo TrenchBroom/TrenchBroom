@@ -69,7 +69,8 @@ namespace TrenchBroom {
 
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
-        m_valid(false),
+        m_verticesValid(true),
+        m_indicesValid(true),
         m_showEdges(true),
         m_grayscale(false),
         m_tint(false),
@@ -84,21 +85,25 @@ namespace TrenchBroom {
 
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
             VectorUtils::append(m_brushes, brushes);
-            invalidate();
+            invalidateIndices();
         }
 
         void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
             m_brushes = brushes;
-            invalidate();
+            invalidateIndices();
         }
 
-        void BrushRenderer::invalidate() {
-            m_valid = false;
+        void BrushRenderer::invalidateVertices() {
+            invalidateIndices();
+            m_vertexArray = VertexArray();
+            m_verticesValid = false;
         }
         
         void BrushRenderer::clear() {
             m_brushes.clear();
-            invalidate();
+            invalidateVertices();
+            m_transparentFaceRenderer = FaceRenderer();
+            m_opaqueFaceRenderer = FaceRenderer();
         }
 
         void BrushRenderer::setFaceColor(const Color& faceColor) {
@@ -141,13 +146,15 @@ namespace TrenchBroom {
             if (showHiddenBrushes == m_showHiddenBrushes)
                 return;
             m_showHiddenBrushes = showHiddenBrushes;
-            invalidate();
+            invalidateVertices();
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_brushes.empty()) {
-                if (!m_valid)
-                    validate();
+                if (!m_verticesValid)
+                    validateVertices();
+                if(!m_indicesValid)
+                    validateIndices();
                 if (renderContext.showFaces())
                     renderFaces(renderBatch);
                 if (renderContext.showEdges() && m_showEdges)
@@ -199,13 +206,15 @@ namespace TrenchBroom {
         class BrushRenderer::CountVertices : public Model::ConstNodeVisitor {
         private:
             const FilterWrapper& m_filter;
-            size_t m_faceVertexCount;
-            size_t m_edgeVertexCount;
+            size_t m_vertexCount;
         public:
             CountVertices(const FilterWrapper& filter) :
             m_filter(filter),
-            m_faceVertexCount(0),
-            m_edgeVertexCount(0) {}
+            m_vertexCount(0) {}
+            
+            size_t vertexCount() const {
+                return m_vertexCount;
+            }
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
@@ -213,7 +222,6 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 countFaceVertices(brush);
-                countEdgeVertices(brush);
             }
             
             void countFaceVertices(const Model::Brush* brush) {
@@ -222,18 +230,8 @@ namespace TrenchBroom {
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     if (m_filter.show(face)) {
-                        m_faceVertexCount += face->vertexCount();
+                        m_vertexCount += face->vertexCount();
                     }
-                }
-            }
-            
-            void countEdgeVertices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge))
-                        m_edgeVertexCount += 2;
                 }
             }
         };
@@ -241,13 +239,15 @@ namespace TrenchBroom {
         class BrushRenderer::CollectVertices : public Model::ConstNodeVisitor {
         private:
             const FilterWrapper& m_filter;
-            VertexListBuilder<Model::BrushFace::Vertex> m_faceVertices;
-            VertexListBuilder<Model::Brush::EdgeVertex> m_edgeVertices;
+            VertexListBuilder<Model::BrushFace::Vertex::Spec> m_builder;
         public:
-            CollectVertices(const FilterWrapper& filter, const size_t faceVertexCount, const size_t edgeVertexCount) :
+            CollectVertices(const FilterWrapper& filter, const size_t faceVertexCount) :
             m_filter(filter),
-            m_faceVertices(faceVertexCount),
-            m_edgeVertices(edgeVertexCount) {}
+            m_builder(faceVertexCount) {}
+            
+            VertexArray vertexArray() {
+                return VertexArray::swap(m_builder.vertices());
+            }
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
@@ -255,7 +255,6 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 collectFaceVertices(brush);
-                collectEdgeVertices(brush);
             }
             
             void collectFaceVertices(const Model::Brush* brush) {
@@ -264,19 +263,7 @@ namespace TrenchBroom {
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     if (m_filter.show(face))
-                        face->getVertices(m_faceVertices);
-                }
-            }
-            
-            void collectEdgeVertices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge)) {
-                        m_edgeVertices.addLine(Model::Brush::EdgeVertex(edge->firstVertex()->position()),
-                                               Model::Brush::EdgeVertex(edge->secondVertex()->position()));
-                    }
+                        face->getVertices(m_builder);
                 }
             }
         };
@@ -290,6 +277,18 @@ namespace TrenchBroom {
         public:
             CountIndices(const FilterWrapper& filter) :
             m_filter(filter) {}
+            
+            const TexturedIndexArray::Size& opaqueIndexSize() const {
+                return m_opaqueIndexSize;
+            }
+            
+            const TexturedIndexArray::Size& transparentIndexSize() const {
+                return m_transparentIndexSize;
+            }
+            
+            const IndexArray::Size& edgeIndexSize() const {
+                return m_edgeIndexSize;
+            }
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
@@ -297,7 +296,6 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 countFaceIndices(brush);
-                countEdgeIndices(brush);
             }
             
             void countFaceIndices(const Model::Brush* brush) {
@@ -310,17 +308,8 @@ namespace TrenchBroom {
                             m_transparentIndexSize.inc(face->texture(), PT_Polygons);
                         else
                             m_opaqueIndexSize.inc(face->texture(), PT_Polygons);
+                        m_edgeIndexSize.inc(PT_LineLoops);
                     }
-                }
-            }
-            
-            void countEdgeIndices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge))
-                        m_edgeIndexSize.inc(PT_Lines);
                 }
             }
         };
@@ -332,11 +321,23 @@ namespace TrenchBroom {
             TexturedIndexArray m_transparentFaceIndices;
             IndexArray m_edgeIndices;
         public:
-            CollectIndices(const FilterWrapper& filter, const TexturedIndexArray::Size& opaqueFaceIndexSize, const TexturedIndexArray::Size& transparentFaceIndexSize, const IndexArray::Size& edgeIndexSize) :
+            CollectIndices(const FilterWrapper& filter, const CountIndices& indexSize) :
             m_filter(filter),
-            m_opaqueFaceIndices(opaqueFaceIndexSize),
-            m_transparentFaceIndices(transparentFaceIndexSize),
-            m_edgeIndices(edgeIndexSize) {}
+            m_opaqueFaceIndices(indexSize.opaqueIndexSize()),
+            m_transparentFaceIndices(indexSize.transparentIndexSize()),
+            m_edgeIndices(indexSize.edgeIndexSize()) {}
+            
+            const TexturedIndexArray& opaqueFaceIndices() const {
+                return m_opaqueFaceIndices;
+            }
+            
+            const TexturedIndexArray& transparentFaceIndices() const {
+                return m_transparentFaceIndices;
+            }
+            
+            const IndexArray& edgeIndices() const {
+                return m_edgeIndices;
+            }
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
@@ -344,7 +345,6 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 collectFaceIndices(brush);
-                collectEdgeIndices(brush);
             }
             
             void collectFaceIndices(const Model::Brush* brush) {
@@ -354,94 +354,48 @@ namespace TrenchBroom {
                     const Model::BrushFace* face = *it;
                     if (m_filter.show(face)) {
                         if (m_filter.transparent(brush))
-                            face->getIndex(m_transparentFaceIndices);
+                            face->getFaceIndex(m_transparentFaceIndices);
                         else
-                            face->getIndex(m_opaqueFaceIndices);
-                    }
-                }
-            }
-            
-            void collectEdgeIndices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge))
-                        m_edgeIndices
-                        m_edgeIndexSize.inc(PT_Lines);
-                }
-            }
-        };
-        
-        class BuildRenderData : public Model::ConstNodeVisitor {
-        private:
-            const FilterWrapper& filter;
-        public:
-            Model::BrushFace::Mesh opaqueMesh;
-            Model::BrushFace::Mesh transparentMesh;
-            VertexSpecs::P3::Vertex::List edgeVertices;
-        public:
-            BuildRenderData(const FilterWrapper& i_filter,
-                            const Model::BrushFace::Mesh::MeshSize& opaqueMeshSize,
-                            const Model::BrushFace::Mesh::MeshSize& transparentMeshSize,
-                            const size_t edgeVertexCount) :
-            filter(i_filter),
-            opaqueMesh(opaqueMeshSize),
-            transparentMesh(transparentMeshSize),
-            edgeVertices(0) {
-                edgeVertices.reserve(edgeVertexCount);
-            }
-        private:
-            void doVisit(const Model::World* world) {}
-            void doVisit(const Model::Layer* layer) {}
-            void doVisit(const Model::Group* group) {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush) {
-                buildMesh(brush);
-                buildEdges(brush);
-            }
-            
-            void buildMesh(const Model::Brush* brush) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (filter.show(face)) {
-                        if (filter.transparent(brush))
-                            face->addToMesh(transparentMesh);
-                        else
-                            face->addToMesh(opaqueMesh);
-                    }
-                }
-            }
-            
-            void buildEdges(const Model::Brush* brush) {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (filter.show(edge)) {
-                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->firstVertex()->position()));
-                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->secondVertex()->position()));
+                            face->getFaceIndex(m_opaqueFaceIndices);
+                        face->getEdgeIndex(m_edgeIndices);
                     }
                 }
             }
         };
         
-        void BrushRenderer::validate() {
+        void BrushRenderer::invalidateIndices() {
+            m_indicesValid = false;
+        }
+        
+        void BrushRenderer::validateVertices() {
+            assert(!m_verticesValid);
+            
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
+            CountVertices countVertices(wrapper);
+            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countVertices);
             
-            CountRenderDataSize counter(wrapper);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), counter);
+            CollectVertices collectVertices(wrapper, countVertices.vertexCount());
+            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectVertices);
             
-            BuildRenderData builder(wrapper, counter.opaqueMeshSize, counter.transparentMeshSize, counter.edgeVertexCount);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), builder);
+            m_vertexArray = collectVertices.vertexArray();
+            m_verticesValid = true;
+        }
+        
+        void BrushRenderer::validateIndices() {
+            assert(!m_indicesValid);
             
-            m_opaqueFaceRenderer = FaceRenderer(builder.opaqueMesh, m_faceColor);
-            m_transparentFaceRenderer = FaceRenderer(builder.transparentMesh, m_faceColor);
-            m_edgeRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, builder.edgeVertices));
+            const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
+            CountIndices countIndices(wrapper);
+            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countIndices);
             
-            m_valid = true;
+            CollectIndices collectIndices(wrapper, countIndices);
+            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectIndices);
+            
+            m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, collectIndices.opaqueFaceIndices(), m_faceColor);
+            m_transparentFaceRenderer = FaceRenderer(m_vertexArray, collectIndices.transparentFaceIndices(), m_faceColor);
+            m_edgeRenderer = EdgeRenderer(m_vertexArray, collectIndices.edgeIndices());
+            
+            m_indicesValid = true;
         }
     }
 }

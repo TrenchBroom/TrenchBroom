@@ -18,15 +18,13 @@
  */
 
 #include "IndexArray.h"
+#include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        IndexArray::IndicesAndCounts::IndicesAndCounts(const size_t capacity) :
+        IndexArray::IndicesAndCounts::IndicesAndCounts() :
         indices(0),
-        counts(0) {
-            indices.reserve(capacity);
-            counts.reserve(capacity);
-        }
+        counts(0) {}
         
         IndexArray::IndicesAndCounts::IndicesAndCounts(const GLint index, const GLsizei count) :
         indices(1, index),
@@ -36,6 +34,11 @@ namespace TrenchBroom {
             return indices.size();
         }
         
+        void IndexArray::IndicesAndCounts::reserve(const size_t capacity) {
+            indices.reserve(capacity);
+            counts.reserve(capacity);
+        }
+
         void IndexArray::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count, const bool dynamicGrowth) {
             switch (primType) {
                 case PT_Points:
@@ -75,37 +78,45 @@ namespace TrenchBroom {
             for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const size_t size = primIt->second;
-                data.insert(std::make_pair(primType, IndicesAndCounts(size)));
+                data[primType].reserve(size);
             }
         }
         
         IndexArray::IndexArray() :
+        m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(true) {}
 
         IndexArray::IndexArray(const Size& size) :
+        m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(false) {
             size.initialize(*m_data);
         }
 
         IndexArray::IndexArray(const PrimType primType, const GLint index, const GLsizei count) :
+        m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
         }
 
         IndexArray::IndexArray(const PrimType primType, const GLint index, const size_t count) :
+        m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, static_cast<GLsizei>(count))));
         }
         
         void IndexArray::add(const PrimType primType, const GLint index, const GLsizei count) {
-            PrimTypeToIndexData::iterator it = m_data->find(primType);
+            PrimTypeToIndexData::iterator it = m_data->end();
+            if (m_dynamicGrowth)
+                it = MapUtils::findOrInsert(*m_data, primType);
+            else
+                it = m_data->find(primType);
             assert(it != m_data->end());
             
             IndicesAndCounts& indicesAndCounts = it->second;
             indicesAndCounts.add(primType, index, count, m_dynamicGrowth);
         }
 
-        void IndexArray::render(const VertexArray& vertexArray) const {
+        void IndexArray::render(VertexArray& vertexArray) const {
             typename PrimTypeToIndexData::const_iterator primIt, primEnd;
             for (primIt = m_data->begin(), primEnd = m_data->end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;

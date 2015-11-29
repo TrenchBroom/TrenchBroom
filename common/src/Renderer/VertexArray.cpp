@@ -68,7 +68,7 @@ namespace TrenchBroom {
             assert(m_prepared);
             assert(!m_setup);
             
-            if (m_holder == NULL || m_holder->vertexCount() > 0)
+            if (m_holder == NULL || m_holder->vertexCount() == 0)
                 return false;
             
             m_holder->setup();
@@ -83,32 +83,53 @@ namespace TrenchBroom {
             m_setup = false;
         }
 
-        void VertexArray::render(const GLenum primType) const {
+        void VertexArray::render(const GLenum primType) {
             render(primType, 0, static_cast<GLsizei>(vertexCount()));
         }
 
-        void VertexArray::render(const GLenum primType, const GLint index, const GLsizei count) const {
+        void VertexArray::render(const GLenum primType, const GLint index, const GLsizei count) {
             assert(m_prepared);
-            assert(m_setup);
-
-            glDrawArrays(primType, index, count);
+            if (!m_setup) {
+                if (setup()) {
+                    glDrawArrays(primType, index, count);
+                    cleanup();
+                }
+            } else {
+                glDrawArrays(primType, index, count);
+            }
         }
 
-        void VertexArray::render(const GLenum primType, const IndexArray& indices, const CountArray& counts, const GLint primCount) const {
+        void VertexArray::render(const GLenum primType, const IndexArray& indices, const CountArray& counts, const GLint primCount) {
+            assert(m_prepared);
+            if (!m_setup) {
+                if (setup()) {
+                    const GLint* indexArray   = indices.data();
+                    const GLsizei* countArray = counts.data();
+                    glMultiDrawArrays(primType, indexArray, countArray, primCount);
+                    cleanup();
+                }
+            } else {
+                const GLint* indexArray   = indices.data();
+                const GLsizei* countArray = counts.data();
+                glMultiDrawArrays(primType, indexArray, countArray, primCount);
+            }
+            
+        }
+
+        void VertexArray::render(GLenum primType, const IndexArray& indices, const GLsizei count) {
             assert(m_prepared);
             assert(m_setup);
             
-            const GLint* indexArray   = indices.data();
-            const GLsizei* countArray = counts.data();
-            glMultiDrawArrays(primType, indexArray, countArray, primCount);
-        }
-
-        void VertexArray::render(GLenum primType, const IndexArray& indices, const GLsizei count) const {
-            assert(m_prepared);
-            assert(m_setup);
-            
-            const GLint* indexArray = indices.data();
-            glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+            if (!m_setup) {
+                if (setup()) {
+                    const GLint* indexArray = indices.data();
+                    glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+                    cleanup();
+                }
+            } else {
+                const GLint* indexArray = indices.data();
+                glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+            }
         }
 
         VertexArray::VertexArray(BaseHolder::Ptr holder) :
