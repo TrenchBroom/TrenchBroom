@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "VecMath.h"
-#include "Renderer/IndexArrayRenderer.h"
+#include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
 namespace TrenchBroom {
@@ -40,9 +40,9 @@ namespace TrenchBroom {
             static const float m_headLength;
             static const float m_headRadius;
 
-            IndexArrayRenderer m_arrowRenderer;
-            IndexArrayRenderer m_backgroundRenderer;
-            IndexArrayRenderer m_backgroundOutlineRenderer;
+            IndexRangeRenderer m_arrowRenderer;
+            IndexRangeRenderer m_backgroundRenderer;
+            IndexRangeRenderer m_backgroundOutlineRenderer;
             bool m_prepared;
         public:
             Compass();

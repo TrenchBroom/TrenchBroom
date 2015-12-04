@@ -19,7 +19,8 @@
 
 #include "VertexArray.h"
 
-#include <algorithm>
+#include "Renderer/IndexArray.h"
+
 #include <cassert>
 #include <limits>
 
@@ -46,8 +47,8 @@ namespace TrenchBroom {
             return vertexCount() == 0;
         }
 
-        size_t VertexArray::size() const {
-            return m_holder == NULL ? 0 : m_holder->size();
+        size_t VertexArray::sizeInBytes() const {
+            return m_holder == NULL ? 0 : m_holder->sizeInBytes();
         }
 
         size_t VertexArray::vertexCount() const {
@@ -59,16 +60,16 @@ namespace TrenchBroom {
         }
 
         void VertexArray::prepare(Vbo& vbo) {
-            if (!m_prepared && m_holder != NULL && m_holder->vertexCount() > 0)
+            if (!prepared() && !empty())
                 m_holder->prepare(vbo);
             m_prepared = true;
         }
 
         bool VertexArray::setup() {
-            assert(m_prepared);
+            assert(prepared());
             assert(!m_setup);
             
-            if (m_holder == NULL || m_holder->vertexCount() == 0)
+            if (empty())
                 return false;
             
             m_holder->setup();
@@ -78,17 +79,17 @@ namespace TrenchBroom {
         
         void VertexArray::cleanup() {
             assert(m_setup);
-            assert(m_holder != NULL && m_holder->vertexCount() > 0);
+            assert(!empty());
             m_holder->cleanup();
             m_setup = false;
         }
 
-        void VertexArray::render(const GLenum primType) {
+        void VertexArray::render(const PrimType primType) {
             render(primType, 0, static_cast<GLsizei>(vertexCount()));
         }
 
-        void VertexArray::render(const GLenum primType, const GLint index, const GLsizei count) {
-            assert(m_prepared);
+        void VertexArray::render(const PrimType primType, const GLint index, const GLsizei count) {
+            assert(prepared());
             if (!m_setup) {
                 if (setup()) {
                     glDrawArrays(primType, index, count);
@@ -99,8 +100,8 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexArray::render(const GLenum primType, const IndexArray& indices, const CountArray& counts, const GLint primCount) {
-            assert(m_prepared);
+        void VertexArray::render(const PrimType primType, const GLIndices& indices, const GLCounts& counts, const GLint primCount) {
+            assert(prepared());
             if (!m_setup) {
                 if (setup()) {
                     const GLint* indexArray   = indices.data();
@@ -116,10 +117,8 @@ namespace TrenchBroom {
             
         }
 
-        void VertexArray::render(GLenum primType, const IndexArray& indices, const GLsizei count) {
-            assert(m_prepared);
-            assert(m_setup);
-            
+        void VertexArray::render(const PrimType primType, const GLIndices& indices, const GLsizei count) {
+            assert(prepared());
             if (!m_setup) {
                 if (setup()) {
                     const GLint* indexArray = indices.data();
@@ -129,6 +128,18 @@ namespace TrenchBroom {
             } else {
                 const GLint* indexArray = indices.data();
                 glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+            }
+        }
+
+        void VertexArray::render(const PrimType primType, const IndexArray& indexArray) {
+            assert(prepared());
+            if (!m_setup) {
+                if (setup()) {
+                    indexArray.render(primType);
+                    cleanup();
+                }
+            } else {
+                indexArray.render(primType);
             }
         }
 

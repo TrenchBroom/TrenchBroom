@@ -17,29 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IndexArrayBuilder_h
-#define IndexArrayBuilder_h
+#ifndef IndexRangeBuilder_h
+#define IndexRangeBuilder_h
 
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 #include "Renderer/VertexListBuilder.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         template <typename VertexSpec>
-        class IndexArrayBuilder {
+        class IndexRangeBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
             typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
-            IndexArray m_indexArray;
+            IndexRangeMap m_indexRange;
         public:
-            IndexArrayBuilder() {} // default constructors allow dynamic growth
+            IndexRangeBuilder() {} // default constructors allow dynamic growth
             
-            IndexArrayBuilder(const size_t vertexCount, const IndexArray::Size& indexArraySize) :
+            IndexRangeBuilder(const size_t vertexCount, const IndexRangeMap::Size& indexRangeSize) :
             m_vertexListBuilder(vertexCount),
-            m_indexArray(indexArraySize) {}
+            m_indexRange(indexRangeSize) {}
             
             const VertexList& vertices() const {
                 return m_vertexListBuilder.vertices();
@@ -49,12 +49,12 @@ namespace TrenchBroom {
                 return m_vertexListBuilder.vertices();
             }
             
-            const IndexArray& indexArray() const {
-                return m_indexArray;
+            const IndexRangeMap& indexArray() const {
+                return m_indexRange;
             }
             
-            IndexArray& indexArray() {
-                return m_indexArray;
+            IndexRangeMap& indexArray() {
+                return m_indexRange;
             }
             
             void addPoint(const Vertex& v) {
@@ -114,10 +114,10 @@ namespace TrenchBroom {
             }
         private:
             void add(const PrimType primType, const IndexData& data) {
-                m_indexArray.add(primType, data.index, data.count);
+                m_indexRange.add(primType, data.index, data.count);
             }
         };
     }
 }
 
-#endif /* IndexArrayBuilder_h */
+#endif /* IndexRangeBuilder_h */

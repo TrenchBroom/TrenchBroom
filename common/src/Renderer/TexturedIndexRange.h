@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TexturedIndexArray_h
-#define TexturedIndexArray_h
+#ifndef TexturedIndexRangeMap_h
+#define TexturedIndexRangeMap_h
 
 #include "SharedPointer.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class VertexArray;
         
-        class TexturedIndexArray {
+        class TexturedIndexRangeMap {
         public:
             typedef Assets::Texture Texture;
             
@@ -46,42 +46,42 @@ namespace TrenchBroom {
                 void after(const Texture* texture);
             };
         private:
-            typedef std::map<const Texture*, IndexArray> TextureToIndexArray;
-            typedef std::tr1::shared_ptr<TextureToIndexArray> TextureToIndexArrayPtr;
+            typedef std::map<const Texture*, IndexRangeMap> TextureToIndexRangeMap;
+            typedef std::tr1::shared_ptr<TextureToIndexRangeMap> TextureToIndexRangeMapPtr;
         public:
             class Size {
             private:
-                friend class TexturedIndexArray;
+                friend class TexturedIndexRangeMap;
                 
-                typedef std::map<const Texture*, IndexArray::Size> TextureToSize;
+                typedef std::map<const Texture*, IndexRangeMap::Size> TextureToSize;
                 TextureToSize m_sizes;
                 TextureToSize::iterator m_current;
             public:
                 Size();
                 void inc(const Texture* texture, PrimType primType, size_t count = 1);
-                IndexArray::Size& findCurrent(const Texture* texture);
+                IndexRangeMap::Size& findCurrent(const Texture* texture);
             private:
                 bool isCurrent(const Texture* texture) const;
             private:
-                void initialize(TextureToIndexArray& data) const;
+                void initialize(TextureToIndexRangeMap& data) const;
             };
         private:
-            TextureToIndexArrayPtr m_data;
-            TextureToIndexArray::iterator m_current;
+            TextureToIndexRangeMapPtr m_data;
+            TextureToIndexRangeMap::iterator m_current;
         public:
-            TexturedIndexArray();
-            TexturedIndexArray(const Size& size);
-            TexturedIndexArray(const Texture* texture, const IndexArray& primitives);
-            TexturedIndexArray(const Texture* texture, PrimType primType, GLint index, GLsizei count);
+            TexturedIndexRangeMap();
+            TexturedIndexRangeMap(const Size& size);
+            TexturedIndexRangeMap(const Texture* texture, const IndexRangeMap& primitives);
+            TexturedIndexRangeMap(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             
             void render(VertexArray& vertexArray);
             void render(VertexArray& vertexArray, RenderFunc& func);
         private:
-            IndexArray& findCurrent(const Texture* texture);
+            IndexRangeMap& findCurrent(const Texture* texture);
             bool isCurrent(const Texture* texture) const;
         };
     }
 }
 
-#endif /* TexturedIndexArray_h */
+#endif /* TexturedIndexRangeMap_h */

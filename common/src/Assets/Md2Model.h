@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 #include "VecMath.h"
 #include "Renderer/VertexSpec.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 
 #include <vector>
 
@@ -42,14 +42,14 @@ namespace TrenchBroom {
             class Frame {
             private:
                 VertexList m_vertices;
-                Renderer::IndexArray m_indices;
+                Renderer::IndexRangeMap m_indices;
                 BBox3f m_bounds;
             public:
-                Frame(const VertexList& vertices, const Renderer::IndexArray& indices);
+                Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
                 const VertexList& vertices() const;
-                const Renderer::IndexArray& indices() const;
+                const Renderer::IndexRangeMap& indices() const;
                 const BBox3f& bounds() const;
             };
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
         private:
-            Renderer::TexturedIndexArrayRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);

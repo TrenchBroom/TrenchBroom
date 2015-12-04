@@ -31,7 +31,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
 
 namespace TrenchBroom {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const Assets::ModelSpecification modelSpec = entity->modelSpecification();
             Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
             if (model != NULL) {
-                TexturedIndexArrayRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+                TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
                 if (renderer != NULL)
                     m_entities.insert(std::make_pair(entity, renderer));
             }
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                TexturedIndexArrayRenderer* renderer = it->second;
+                TexturedIndexRangeRenderer* renderer = it->second;
                 
                 const Mat4x4f translation(translationMatrix(entity->origin()));
                 const Mat4x4f rotation(entity->rotation());

@@ -28,8 +28,8 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
-#include "Renderer/IndexArray.h"
-#include "Renderer/TexturedIndexArray.h"
+#include "Renderer/IndexRange.h"
+#include "Renderer/TexturedIndexRange.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -563,13 +563,13 @@ namespace TrenchBroom {
             m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
         }
         
-        void BrushFace::getFaceIndex(Renderer::TexturedIndexArray& array) const {
+        void BrushFace::getFaceIndex(Renderer::TexturedIndexRangeMap& array) const {
             assert(vertexCacheValid());
             const GLsizei count = static_cast<GLsizei>(vertexCount());
             array.add(texture(), PT_Polygons, m_vertexIndex, count);
         }
         
-        void BrushFace::getEdgeIndex(Renderer::IndexArray& array) const {
+        void BrushFace::getEdgeIndex(Renderer::IndexRangeMap& array) const {
             assert(vertexCacheValid());
             const GLsizei count = static_cast<GLsizei>(vertexCount());
             array.add(PT_LineLoops, m_vertexIndex, count);

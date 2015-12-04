@@ -24,7 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/VertexArray.h"
 
 #include <map>
@@ -34,14 +34,14 @@ namespace TrenchBroom {
         class ActiveShader;
         class RenderBatch;
         class RenderContext;
-        class TexturedIndexArray;
+        class TexturedIndexRangeMap;
         class Vbo;
         
         class FaceRenderer : public Renderable {
         private:
             struct RenderFunc;
             
-            TexturedIndexArrayRenderer m_meshRenderer;
+            TexturedIndexRangeRenderer m_meshRenderer;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             FaceRenderer();
-            FaceRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray, const Color& faceColor);
+            FaceRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexArray, const Color& faceColor);
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator= (FaceRenderer other);
             

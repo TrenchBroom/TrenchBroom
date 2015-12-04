@@ -17,21 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IndexArrayRenderer.h"
+#include "IndexRangeRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        IndexArrayRenderer::IndexArrayRenderer() {}
+        IndexRangeRenderer::IndexRangeRenderer() {}
 
-        IndexArrayRenderer::IndexArrayRenderer(const VertexArray& vertexArray, const IndexArray& indexArray) :
+        IndexRangeRenderer::IndexRangeRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
 
-        void IndexArrayRenderer::prepare(Vbo& vbo) {
+        void IndexRangeRenderer::prepare(Vbo& vbo) {
             m_vertexArray.prepare(vbo);
         }
         
-        void IndexArrayRenderer::render() {
+        void IndexRangeRenderer::render() {
             if (m_vertexArray.setup()) {
                 m_indexArray.render(m_vertexArray);
                 m_vertexArray.cleanup();

@@ -82,12 +82,12 @@ namespace TrenchBroom {
             LineMeshMap::iterator it, end;
             for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
                 const float lineWidth = it->first;
-                IndexArrayBuilder<Vertex::Spec>& mesh = it->second;
-                IndexArrayRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(lineWidth, IndexArrayRenderer(mesh))).first->second;
+                IndexRangeBuilder<Vertex::Spec>& mesh = it->second;
+                IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(lineWidth, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vbo);
             }
             
-            m_triangleMeshRenderer = IndexArrayRenderer(m_triangleMesh);
+            m_triangleMeshRenderer = IndexRangeRenderer(m_triangleMesh);
             m_triangleMeshRenderer.prepare(vbo);
         }
         
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             LineMeshRendererMap::iterator it, end;
             for (it = m_lineMeshRenderers.begin(), end = m_lineMeshRenderers.end(); it != end; ++it) {
                 const float lineWidth = it->first;
-                IndexArrayRenderer& renderer = it->second;
+                IndexRangeRenderer& renderer = it->second;
                 glLineWidth(lineWidth);
                 renderer.render();
             }

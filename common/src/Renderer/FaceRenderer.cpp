@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct FaceRenderer::RenderFunc : public TexturedIndexArray::RenderFunc {
+        struct FaceRenderer::RenderFunc : public TexturedIndexRangeMap::RenderFunc {
             ActiveShader& shader;
             bool applyTexture;
             const Color& defaultColor;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         m_alpha(1.0f),
         m_prepared(true) {}
         
-        FaceRenderer::FaceRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexArray, const Color& faceColor) :
         m_meshRenderer(vertexArray, indexArray),
         m_faceColor(faceColor),
         m_grayscale(false),

@@ -30,7 +30,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"

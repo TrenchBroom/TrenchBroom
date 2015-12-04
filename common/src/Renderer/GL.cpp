@@ -20,6 +20,15 @@
 #include "GL.h"
 
 namespace TrenchBroom {
+    template<> GLenum glType<GLubyte>()   { return GL_UNSIGNED_BYTE; }
+    template<> GLenum glType<GLbyte>()    { return GL_BYTE; }
+    template<> GLenum glType<GLushort>()  { return GL_UNSIGNED_SHORT; }
+    template<> GLenum glType<GLshort>()   { return GL_SHORT; }
+    template<> GLenum glType<GLuint>()    { return GL_UNSIGNED_INT; }
+    template<> GLenum glType<GLint>()     { return GL_INT; }
+    template<> GLenum glType<GLfloat>()   { return GL_FLOAT; }
+    template<> GLenum glType<GLdouble>()  { return GL_DOUBLE; }
+
     Func0<void> glewInitialize;
     
     Func0<GLenum> glGetError;

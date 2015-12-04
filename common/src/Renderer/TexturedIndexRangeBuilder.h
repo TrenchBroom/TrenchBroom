@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TexturedIndexArrayBuilder_h
-#define TexturedIndexArrayBuilder_h
+#ifndef TexturedIndexRangeBuilder_h
+#define TexturedIndexRangeBuilder_h
 
-#include "Renderer/TexturedIndexArray.h"
+#include "Renderer/TexturedIndexRange.h"
 #include "Renderer/VertexListBuilder.h"
 
 namespace TrenchBroom {
@@ -30,7 +30,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         template <typename VertexSpec>
-        class TexturedIndexArrayBuilder {
+        class TexturedIndexRangeBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
@@ -39,11 +39,11 @@ namespace TrenchBroom {
             typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
-            TexturedIndexArray m_indexArray;
+            TexturedIndexRangeMap m_indexRange;
         public:
-            TexturedIndexArrayBuilder(const size_t vertexCount, const TexturedIndexArray::Size& indexArraySize) :
+            TexturedIndexRangeBuilder(const size_t vertexCount, const TexturedIndexRangeMap::Size& indexRangeSize) :
             m_vertexListBuilder(vertexCount),
-            m_indexArray(indexArraySize) {}
+            m_indexRange(indexRangeSize) {}
             
             const VertexList& vertices() const {
                 return m_vertexListBuilder.vertices();
@@ -53,12 +53,13 @@ namespace TrenchBroom {
                 return m_vertexListBuilder.vertices();
             }
             
-            const TexturedIndexArray& indexArray() const {
-                return m_indexArray;
+            const TexturedIndexRangeMap& indices() const {
+                return m_indexRange;
+                
             }
             
-            TexturedIndexArray& indexArray() {
-                return m_indexArray;
+            TexturedIndexRangeMap& indices() {
+                return m_indexRange;
             }
             
             void addPoint(const Texture* texture, const Vertex& v) {
@@ -118,10 +119,10 @@ namespace TrenchBroom {
             }
         private:
             void add(const Texture* texture, const PrimType primType, const IndexData& data) {
-                m_indexArray.add(texture, primType, data.index, data.count);
+                m_indexRange.add(texture, primType, data.index, data.count);
             }
         };
     }
 }
 
-#endif /* TexturedIndexArrayBuilder_h */
+#endif /* TexturedIndexRangeBuilder_h */

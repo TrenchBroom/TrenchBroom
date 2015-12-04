@@ -33,7 +33,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"

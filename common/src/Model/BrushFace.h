@@ -42,8 +42,8 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class IndexArray;
-        class TexturedIndexArray;
+        class IndexRangeMap;
+        class TexturedIndexRangeMap;
     }
     
     namespace Model {
@@ -189,8 +189,8 @@ namespace TrenchBroom {
             void deselect();
 
             void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
-            void getFaceIndex(Renderer::TexturedIndexArray& array) const;
-            void getEdgeIndex(Renderer::IndexArray& array) const;
+            void getFaceIndex(Renderer::TexturedIndexRangeMap& array) const;
+            void getEdgeIndex(Renderer::IndexRangeMap& array) const;
             Vec2f textureCoords(const Vec3& point) const;
             
             bool containsPoint(const Vec3& point) const;

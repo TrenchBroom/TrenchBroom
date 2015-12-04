@@ -28,137 +28,134 @@
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
-#include <map>
-
 namespace TrenchBroom {
     namespace Renderer {
-        class BaseHolder {
-        public:
-            typedef std::tr1::shared_ptr<BaseHolder> Ptr;
-            virtual ~BaseHolder() {}
-            
-            virtual size_t vertexCount() const = 0;
-            virtual size_t size() const = 0;
-
-            virtual void prepare(Vbo& vbo) = 0;
-            virtual void setup() = 0;
-            virtual void cleanup() = 0;
-        };
+        class IndexArray;
         
-        template <typename VertexSpec>
-        class Holder : public BaseHolder {
-        private:
-            typedef typename VertexSpec::Vertex::List VertexList;
-        private:
-            VboBlock* m_block;
-            size_t m_vertexCount;
-        public:
-            size_t vertexCount() const {
-                return m_vertexCount;
-            }
-            
-            size_t size() const {
-                return VertexSpec::Size * m_vertexCount;
-            }
-            
-            virtual void prepare(Vbo& vbo) {
-                if (m_vertexCount > 0 && m_block == NULL) {
-                    ActivateVbo activate(vbo);
-                    m_block = vbo.allocateBlock(size());
-                    
-                    MapVboBlock map(m_block);
-                    m_block->writeBuffer(0, doGetVertices());
-                }
-            }
-            
-            virtual void setup() {
-                assert(m_block != NULL);
-                VertexSpec::setup(m_block->offset());
-            }
-            
-            virtual void cleanup() {
-                VertexSpec::cleanup();
-            }
-        protected:
-            Holder(const size_t vertexCount) :
-            m_block(NULL),
-            m_vertexCount(vertexCount) {}
-            
-            virtual ~Holder() {
-                if (m_block != NULL) {
-                    m_block->free();
-                    m_block = NULL;
-                }
-            }
-        private:
-            virtual const VertexList& doGetVertices() const = 0;
-        };
-        
-        template <typename VertexSpec>
-        class CopyHolder : public Holder<VertexSpec> {
-        public:
-            typedef typename VertexSpec::Vertex::List VertexList;
-        private:
-            VertexList m_vertices;
-        public:
-            CopyHolder(const VertexList& vertices) :
-            Holder<VertexSpec>(vertices.size()),
-            m_vertices(vertices) {}
-            
-            void prepare(Vbo& vbo) {
-                Holder<VertexSpec>::prepare(vbo);
-                VectorUtils::clearToZero(m_vertices);
-            }
-        private:
-            const VertexList& doGetVertices() const {
-                return m_vertices;
-            }
-        };
-        
-        template <typename VertexSpec>
-        class SwapHolder : public Holder<VertexSpec> {
-        public:
-            typedef typename VertexSpec::Vertex::List VertexList;
-        private:
-            VertexList m_vertices;
-        public:
-            SwapHolder(VertexList& vertices) :
-            Holder<VertexSpec>(vertices.size()),
-            m_vertices(0) {
-                using std::swap;
-                swap(m_vertices, vertices);
-            }
-
-            void prepare(Vbo& vbo) {
-                Holder<VertexSpec>::prepare(vbo);
-                VectorUtils::clearToZero(m_vertices);
-            }
-        private:
-            const VertexList& doGetVertices() const {
-                return m_vertices;
-            }
-        };
-        
-        template <typename VertexSpec>
-        class RefHolder : public Holder<VertexSpec> {
-        public:
-            typedef typename VertexSpec::Vertex::List VertexList;
-        private:
-            const VertexList& m_vertices;
-        public:
-            RefHolder(const VertexList& vertices) :
-            Holder<VertexSpec>(vertices.size()),
-            m_vertices(vertices) {}
-        private:
-            const VertexList& doGetVertices() const {
-                return m_vertices;
-            }
-        };
-
         class VertexArray {
-        public:
-            typedef std::vector<GLint> IndexArray;
-            typedef std::vector<GLsizei> CountArray;
+        private:
+            class BaseHolder {
+            public:
+                typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+                virtual ~BaseHolder() {}
+                
+                virtual size_t vertexCount() const = 0;
+                virtual size_t sizeInBytes() const = 0;
+                
+                virtual void prepare(Vbo& vbo) = 0;
+                virtual void setup() = 0;
+                virtual void cleanup() = 0;
+            };
+            
+            template <typename VertexSpec>
+            class Holder : public BaseHolder {
+            private:
+                typedef typename VertexSpec::Vertex::List VertexList;
+            private:
+                VboBlock* m_block;
+                size_t m_vertexCount;
+            public:
+                size_t vertexCount() const {
+                    return m_vertexCount;
+                }
+                
+                size_t sizeInBytes() const {
+                    return VertexSpec::Size * m_vertexCount;
+                }
+                
+                virtual void prepare(Vbo& vbo) {
+                    if (m_vertexCount > 0 && m_block == NULL) {
+                        ActivateVbo activate(vbo);
+                        m_block = vbo.allocateBlock(sizeInBytes());
+                        
+                        MapVboBlock map(m_block);
+                        m_block->writeBuffer(0, doGetVertices());
+                    }
+                }
+                
+                virtual void setup() {
+                    assert(m_block != NULL);
+                    VertexSpec::setup(m_block->offset());
+                }
+                
+                virtual void cleanup() {
+                    VertexSpec::cleanup();
+                }
+            protected:
+                Holder(const size_t vertexCount) :
+                m_block(NULL),
+                m_vertexCount(vertexCount) {}
+                
+                virtual ~Holder() {
+                    if (m_block != NULL) {
+                        m_block->free();
+                        m_block = NULL;
+                    }
+                }
+            private:
+                virtual const VertexList& doGetVertices() const = 0;
+            };
+            
+            template <typename VertexSpec>
+            class CopyHolder : public Holder<VertexSpec> {
+            public:
+                typedef typename VertexSpec::Vertex::List VertexList;
+            private:
+                VertexList m_vertices;
+            public:
+                CopyHolder(const VertexList& vertices) :
+                Holder<VertexSpec>(vertices.size()),
+                m_vertices(vertices) {}
+                
+                void prepare(Vbo& vbo) {
+                    Holder<VertexSpec>::prepare(vbo);
+                    VectorUtils::clearToZero(m_vertices);
+                }
+            private:
+                const VertexList& doGetVertices() const {
+                    return m_vertices;
+                }
+            };
+            
+            template <typename VertexSpec>
+            class SwapHolder : public Holder<VertexSpec> {
+            public:
+                typedef typename VertexSpec::Vertex::List VertexList;
+            private:
+                VertexList m_vertices;
+            public:
+                SwapHolder(VertexList& vertices) :
+                Holder<VertexSpec>(vertices.size()),
+                m_vertices(0) {
+                    using std::swap;
+                    swap(m_vertices, vertices);
+                }
+                
+                void prepare(Vbo& vbo) {
+                    Holder<VertexSpec>::prepare(vbo);
+                    VectorUtils::clearToZero(m_vertices);
+                }
+            private:
+                const VertexList& doGetVertices() const {
+                    return m_vertices;
+                }
+            };
+            
+            template <typename VertexSpec>
+            class RefHolder : public Holder<VertexSpec> {
+            public:
+                typedef typename VertexSpec::Vertex::List VertexList;
+            private:
+                const VertexList& m_vertices;
+            public:
+                RefHolder(const VertexList& vertices) :
+                Holder<VertexSpec>(vertices.size()),
+                m_vertices(vertices) {}
+            private:
+                const VertexList& doGetVertices() const {
+                    return m_vertices;
+                }
+            };
         private:
             BaseHolder::Ptr m_holder;
             bool m_prepared;
@@ -260,17 +257,18 @@ namespace TrenchBroom {
             friend void swap(VertexArray& left, VertexArray& right);
             
             bool empty() const;
-            size_t size() const;
+            size_t sizeInBytes() const;
             size_t vertexCount() const;
             
             bool prepared() const;
             void prepare(Vbo& vbo);
             
             bool setup();
-            void render(GLenum primType);
-            void render(GLenum primType, GLint index, GLsizei count);
-            void render(GLenum primType, const IndexArray& indices, const CountArray& counts, GLint primCount);
-            void render(GLenum primType, const IndexArray& indices, GLsizei count);
+            void render(PrimType primType);
+            void render(PrimType primType, GLint index, GLsizei count);
+            void render(PrimType primType, const GLIndices& indices, const GLCounts& counts, GLint primCount);
+            void render(PrimType primType, const GLIndices& indices, GLsizei count);
+            void render(PrimType primType, const IndexArray& indexArray);
             void cleanup();
         private:
             VertexArray(BaseHolder::Ptr holder);

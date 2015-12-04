@@ -28,8 +28,8 @@
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
-#include "Renderer/IndexArray.h"
-#include "Renderer/IndexArrayBuilder.h"
+#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeBuilder.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
@@ -358,7 +358,7 @@ namespace TrenchBroom {
             Md2MeshList::const_iterator mIt, mEnd;
 
             size_t vertexCount = 0;
-            Renderer::IndexArray::Size size;
+            Renderer::IndexRangeMap::Size size;
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
                 vertexCount += md2Mesh.vertices.size();
@@ -368,7 +368,7 @@ namespace TrenchBroom {
                     size.inc(PT_TriangleStrips);
             }
 
-            Renderer::IndexArrayBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
+            Renderer::IndexRangeBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
                 vertexCount += md2Mesh.vertices.size();

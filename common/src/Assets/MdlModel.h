@@ -27,7 +27,7 @@
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vertex.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 
 #include <vector>
 
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             void addSkin(MdlSkin* skin);
             void addFrame(MdlBaseFrame* frame);
         private:
-            Renderer::TexturedIndexArrayRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);

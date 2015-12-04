@@ -30,13 +30,13 @@ namespace TrenchBroom {
         template <typename T>
         class IndexedVertexList {
         private:
-            typedef std::vector<GLint> IndexArray;
+            typedef std::vector<GLint> IndexRangeMap;
             typedef std::vector<GLsizei> CountArray;
             
             bool m_allowDynamicGrowth;
             size_t m_primStart;
             typename T::Vertex::List m_vertices;
-            IndexArray m_indices;
+            IndexRangeMap m_indices;
             CountArray m_counts;
         public:
             IndexedVertexList() :
@@ -110,11 +110,11 @@ namespace TrenchBroom {
                 return m_indices.size();
             }
             
-            IndexArray& indices() {
+            IndexRangeMap& indices() {
                 return m_indices;
             }
             
-            const IndexArray& indices() const {
+            const IndexRangeMap& indices() const {
                 return m_indices;
             }
             

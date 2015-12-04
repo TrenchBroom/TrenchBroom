@@ -32,7 +32,7 @@ namespace TrenchBroom {
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexArray& indexArray) :
+        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_useColor(false),

@@ -42,11 +42,11 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        class TexturedIndexArrayRenderer;
+        class TexturedIndexRangeRenderer;
         
         class EntityModelRenderer : public Renderable {
         private:
-            typedef std::map<Model::Entity*, TexturedIndexArrayRenderer*> EntityMap;
+            typedef std::map<Model::Entity*, TexturedIndexRangeRenderer*> EntityMap;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;

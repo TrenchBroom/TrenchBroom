@@ -20,54 +20,186 @@
 #ifndef IndexArray_h
 #define IndexArray_h
 
+#include "CollectionUtils.h"
 #include "SharedPointer.h"
 #include "Renderer/GL.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VboBlock.h"
 
-#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class IndexArray {
         private:
-            struct IndicesAndCounts {
-                VertexArray::IndexArray indices;
-                VertexArray::CountArray counts;
+            class BaseHolder {
+            public:
+                typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+                virtual ~BaseHolder() {}
                 
-                IndicesAndCounts();
-                IndicesAndCounts(GLint index, GLsizei count);
-                size_t size() const;
-                void reserve(size_t capacity);
-                void add(PrimType primType, GLint index, GLsizei count, bool dynamicGrowth);
+                virtual size_t indexCount() const = 0;
+                virtual size_t sizeInBytes() const = 0;
+                
+                virtual void prepare(Vbo& vbo) = 0;
+            public:
+                void render(PrimType primType) const;
+                
+                virtual size_t indexOffset() const = 0;
+            private:
+                virtual void doRender(PrimType primType) const = 0;
             };
             
-            typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
-            typedef std::tr1::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
-        public:
-            class Size {
+            template <typename Index>
+            class Holder : public BaseHolder {
+            protected:
+                typedef std::vector<Index> IndexList;
             private:
-                friend class IndexArray;
-                
-                typedef std::map<PrimType, size_t> PrimTypeToSize;
-                PrimTypeToSize m_sizes;
+                VboBlock* m_block;
+                size_t m_indexCount;
             public:
-                void inc(const PrimType primType, size_t count = 1);
+                size_t indexCount() const {
+                    return m_indexCount;
+                }
+                
+                size_t sizeInBytes() const {
+                    return sizeof(Index) * m_indexCount;
+                }
+                
+                virtual void prepare(Vbo& vbo) {
+                    if (m_indexCount > 0 && m_block == NULL) {
+                        ActivateVbo activate(vbo);
+                        m_block = vbo.allocateBlock(sizeInBytes());
+                        
+                        MapVboBlock map(m_block);
+                        m_block->writeBuffer(0, doGetIndices());
+                    }
+                }
+            protected:
+                Holder(const size_t indexCount) :
+                m_block(NULL),
+                m_indexCount(indexCount) {}
+                
+                virtual ~Holder() {
+                    if (m_block != NULL) {
+                        m_block->free();
+                        m_block = NULL;
+                    }
+                }
             private:
-                void initialize(PrimTypeToIndexData& data) const;
+                size_t indexOffset() const {
+                    if (m_indexCount == 0)
+                        return 0;
+                    assert(m_block != NULL);
+                    return m_block->offset();
+                    
+                }
+
+                void doRender(const PrimType primType) {
+                    const GLsizei count  = static_cast<GLsizei>(indexCount());
+                    const GLvoid* offset = reinterpret_cast<GLvoid*>(indexOffset());
+                    const GLenum type    = glType<Index>();
+                    glDrawElements(primType, count, type, offset);
+                }
+            private:
+                virtual const IndexList& doGetIndices() const = 0;
+            };
+            
+            template <typename Index>
+            class CopyHolder : public Holder<Index> {
+            public:
+                typedef typename Holder<Index>::IndexList IndexList;
+            private:
+                IndexList m_indices;
+            public:
+                CopyHolder(const IndexList& indices) :
+                Holder<Index>(indices.size()),
+                m_indices(indices) {}
+                
+                void prepare(Vbo& vbo) {
+                    Holder<Index>::prepare(vbo);
+                    VectorUtils::clearToZero(m_indices);
+                }
+            private:
+                const IndexList& doGetIndices() const {
+                    return m_indices;
+                }
+            };
+            
+            template <typename Index>
+            class SwapHolder : public Holder<Index> {
+            public:
+                typedef typename Holder<Index>::IndexList IndexList;
+            private:
+                IndexList m_indices;
+            public:
+                SwapHolder(IndexList& indices) :
+                Holder<Index>(indices.size()),
+                m_indices(0) {
+                    using std::swap;
+                    swap(m_indices, indices);
+                }
+                
+                void prepare(Vbo& vbo) {
+                    Holder<Index>::prepare(vbo);
+                    VectorUtils::clearToZero(m_indices);
+                }
+            private:
+                const IndexList& doGetIndices() const {
+                    return m_indices;
+                }
+            };
+            
+            template <typename Index>
+            class RefHolder : public Holder<Index> {
+            public:
+                typedef typename Holder<Index>::IndexList IndexList;
+            private:
+                const IndexList& m_indices;
+            public:
+                RefHolder(const IndexList& indices) :
+                Holder<Index>(indices.size()),
+                m_indices(indices) {}
+            private:
+                const IndexList& doGetIndices() const {
+                    return m_indices;
+                }
             };
         private:
-            PrimTypeToIndexDataPtr m_data;
-            bool m_dynamicGrowth;
+            BaseHolder::Ptr m_holder;
+            bool m_prepared;
         public:
-            IndexArray();
-            IndexArray(const Size& size);
-            IndexArray(PrimType primType, GLint index, GLsizei count);
-            IndexArray(PrimType primType, GLint index, size_t count);
-            void add(PrimType primType, GLint index, GLsizei count);
+            explicit IndexArray();
             
-            void render(VertexArray& vertexArray) const;
+            template <typename Index>
+            static IndexArray copy(const std::vector<Index>& indices) {
+                return IndexArray(BaseHolder::Ptr(new CopyHolder<Index>(indices)));
+            }
+            
+            template <typename Index>
+            static IndexArray swap(std::vector<Index>& indices) {
+                return IndexArray(BaseHolder::Ptr(new SwapHolder<Index>(indices)));
+            }
+            
+            template <typename Index>
+            static IndexArray ref(const std::vector<Index>& indices) {
+                return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
+            }
+
+            IndexArray& operator= (IndexArray other);
+            friend void swap(IndexArray& left, IndexArray& right);
+            
+            bool empty() const;
+            size_t sizeInBytes() const;
+            size_t indexCount() const;
+            
+            bool prepared() const;
+            void prepare(Vbo& vbo);
+            
+            void render(PrimType primType) const;
+        private:
+            IndexArray(BaseHolder::Ptr holder);
         };
     }
 }
 
-#endif /* IndexArray_p */
+#endif /* IndexArray_h */

@@ -26,10 +26,10 @@
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/IndexRange.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/TexturedIndexArray.h"
+#include "Renderer/TexturedIndexRange.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
@@ -271,22 +271,22 @@ namespace TrenchBroom {
         class BrushRenderer::CountIndices : public Model::ConstNodeVisitor {
         private:
             const FilterWrapper& m_filter;
-            TexturedIndexArray::Size m_opaqueIndexSize;
-            TexturedIndexArray::Size m_transparentIndexSize;
-            IndexArray::Size m_edgeIndexSize;
+            TexturedIndexRangeMap::Size m_opaqueIndexSize;
+            TexturedIndexRangeMap::Size m_transparentIndexSize;
+            IndexRangeMap::Size m_edgeIndexSize;
         public:
             CountIndices(const FilterWrapper& filter) :
             m_filter(filter) {}
             
-            const TexturedIndexArray::Size& opaqueIndexSize() const {
+            const TexturedIndexRangeMap::Size& opaqueIndexSize() const {
                 return m_opaqueIndexSize;
             }
             
-            const TexturedIndexArray::Size& transparentIndexSize() const {
+            const TexturedIndexRangeMap::Size& transparentIndexSize() const {
                 return m_transparentIndexSize;
             }
             
-            const IndexArray::Size& edgeIndexSize() const {
+            const IndexRangeMap::Size& edgeIndexSize() const {
                 return m_edgeIndexSize;
             }
         private:
@@ -317,9 +317,9 @@ namespace TrenchBroom {
         class BrushRenderer::CollectIndices : public Model::ConstNodeVisitor {
         private:
             const FilterWrapper& m_filter;
-            TexturedIndexArray m_opaqueFaceIndices;
-            TexturedIndexArray m_transparentFaceIndices;
-            IndexArray m_edgeIndices;
+            TexturedIndexRangeMap m_opaqueFaceIndices;
+            TexturedIndexRangeMap m_transparentFaceIndices;
+            IndexRangeMap m_edgeIndices;
         public:
             CollectIndices(const FilterWrapper& filter, const CountIndices& indexSize) :
             m_filter(filter),
@@ -327,15 +327,15 @@ namespace TrenchBroom {
             m_transparentFaceIndices(indexSize.transparentIndexSize()),
             m_edgeIndices(indexSize.edgeIndexSize()) {}
             
-            const TexturedIndexArray& opaqueFaceIndices() const {
+            const TexturedIndexRangeMap& opaqueFaceIndices() const {
                 return m_opaqueFaceIndices;
             }
             
-            const TexturedIndexArray& transparentFaceIndices() const {
+            const TexturedIndexRangeMap& transparentFaceIndices() const {
                 return m_transparentFaceIndices;
             }
             
-            const IndexArray& edgeIndices() const {
+            const IndexRangeMap& edgeIndices() const {
                 return m_edgeIndices;
             }
         private:

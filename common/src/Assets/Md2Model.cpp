@@ -22,16 +22,16 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/IndexArray.h"
-#include "Renderer/TexturedIndexArray.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/IndexRange.h"
+#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexArray& indices) :
+        Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
         m_bounds(m_vertices.begin(), m_vertices.end(), Renderer::GetVertexComponent1()) {}
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return m_vertices;
         }
         
-        const Renderer::IndexArray& Md2Model::Frame::indices() const {
+        const Renderer::IndexRangeMap& Md2Model::Frame::indices() const {
             return m_indices;
         }
         
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             m_skins = NULL;
         }
 
-        Renderer::TexturedIndexArrayRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             const TextureList& textures = m_skins->textures();
             
             assert(skinIndex < textures.size());
@@ -81,12 +81,12 @@ namespace TrenchBroom {
             const Frame* frame = m_frames[frameIndex];
             
             const VertexList& vertices = frame->vertices();
-            const Renderer::IndexArray& indices = frame->indices();
+            const Renderer::IndexRangeMap& indices = frame->indices();
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
-            const Renderer::TexturedIndexArray texturedIndices(skin, indices);
+            const Renderer::TexturedIndexRangeMap texturedIndices(skin, indices);
             
-            return new Renderer::TexturedIndexArrayRenderer(vertexArray, texturedIndices);
+            return new Renderer::TexturedIndexRangeRenderer(vertexArray, texturedIndices);
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

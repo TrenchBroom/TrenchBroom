@@ -22,9 +22,9 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
-#include "Renderer/TexturedIndexArray.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeBuilder.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>
 
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             m_frames.push_back(frame);
         }
 
-        Renderer::TexturedIndexArrayRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexRangeRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
                 return NULL;
             if (frameIndex >= m_frames.size())
@@ -136,9 +136,9 @@ namespace TrenchBroom {
             const GLsizei vertexCount = static_cast<GLsizei>(vertices.size());
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
-            const Renderer::TexturedIndexArray indexArray(texture, PT_Triangles, 0, vertexCount);
+            const Renderer::TexturedIndexRangeMap indexArray(texture, PT_Triangles, 0, vertexCount);
             
-            return new Renderer::TexturedIndexArrayRenderer(vertexArray, indexArray);
+            return new Renderer::TexturedIndexRangeRenderer(vertexArray, indexArray);
         }
 
         BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

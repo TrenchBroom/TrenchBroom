@@ -17,38 +17,38 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturedIndexArrayRenderer.h"
+#include "TexturedIndexRangeRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer() {}
+        TexturedIndexRangeRenderer::TexturedIndexRangeRenderer() {}
 
-        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(const VertexArray& vertexArray, const TexturedIndexArray& indexArray) :
+        TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange) :
         m_vertexArray(vertexArray),
-        m_indexArray(indexArray) {}
+        m_indexRange(indexRange) {}
 
-        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexArray& indexArray) :
+        TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange) :
         m_vertexArray(vertexArray),
-        m_indexArray(texture, indexArray) {}
+        m_indexRange(texture, indexRange) {}
 
-        bool TexturedIndexArrayRenderer::empty() const {
+        bool TexturedIndexRangeRenderer::empty() const {
             return m_vertexArray.empty();
         }
 
-        void TexturedIndexArrayRenderer::prepare(Vbo& vbo) {
+        void TexturedIndexRangeRenderer::prepare(Vbo& vbo) {
             m_vertexArray.prepare(vbo);
         }
         
-        void TexturedIndexArrayRenderer::render() {
+        void TexturedIndexRangeRenderer::render() {
             if (m_vertexArray.setup()) {
-                m_indexArray.render(m_vertexArray);
+                m_indexRange.render(m_vertexArray);
                 m_vertexArray.cleanup();
             }
         }
 
-        void TexturedIndexArrayRenderer::render(TexturedIndexArray::RenderFunc& func) {
+        void TexturedIndexRangeRenderer::render(TexturedIndexRangeMap::RenderFunc& func) {
             if (m_vertexArray.setup()) {
-                m_indexArray.render(m_vertexArray, func);
+                m_indexRange.render(m_vertexArray, func);
                 m_vertexArray.cleanup();
             }
         }

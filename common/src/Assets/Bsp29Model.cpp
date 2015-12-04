@@ -22,9 +22,9 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/TexturedIndexArray.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
+#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeBuilder.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>
 
@@ -83,13 +83,13 @@ namespace TrenchBroom {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
-        Renderer::TexturedIndexArrayRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexRangeRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
 
             FaceList::const_iterator it, end;
             const SubModel& model = m_subModels.front();
 
             size_t vertexCount = 0;
-            Renderer::TexturedIndexArray::Size size;
+            Renderer::TexturedIndexRangeMap::Size size;
             
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
@@ -98,15 +98,15 @@ namespace TrenchBroom {
                 vertexCount += faceVertexCount;
             }
 
-            Renderer::TexturedIndexArrayBuilder<Face::Vertex::Spec> builder(vertexCount, size);
+            Renderer::TexturedIndexRangeBuilder<Face::Vertex::Spec> builder(vertexCount, size);
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
                 builder.addPolygon(face.texture(), face.vertices());
             }
 
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(builder.vertices());
-            const Renderer::TexturedIndexArray& indexArray = builder.indexArray();
-            return new Renderer::TexturedIndexArrayRenderer(vertexArray, indexArray);
+            const Renderer::TexturedIndexRangeMap& indexArray = builder.indices();
+            return new Renderer::TexturedIndexRangeRenderer(vertexArray, indexArray);
         }
 
         BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

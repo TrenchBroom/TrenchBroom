@@ -24,6 +24,7 @@
 #include "Functor.h"
 
 #include <cstddef>
+#include <vector>
 
 namespace TrenchBroom {
 #define GL_FALSE 0
@@ -164,20 +165,24 @@ namespace TrenchBroom {
     
     typedef unsigned int GLenum;
     typedef unsigned int GLbitfield;
-    typedef unsigned int GLuint;
-    typedef int GLint;
     typedef int GLsizei;
     typedef unsigned char GLboolean;
+    typedef void GLvoid;
+    
     typedef signed char GLbyte;
-    typedef short GLshort;
+    typedef signed short GLshort;
+    typedef signed int GLint;
+    typedef signed long GLlong;
     typedef unsigned char GLubyte;
     typedef unsigned short GLushort;
+    typedef unsigned int GLuint;
     typedef unsigned long GLulong;
+    
     typedef float GLfloat;
-    typedef float GLclampf;
     typedef double GLdouble;
+    
+    typedef float GLclampf;
     typedef double GLclampd;
-    typedef void GLvoid;
     
     typedef ptrdiff_t GLintptr;
     typedef ptrdiff_t GLsizeiptr;
@@ -196,6 +201,11 @@ namespace TrenchBroom {
         PT_QuadStrips       = GL_QUAD_STRIP,
         PT_Polygons         = GL_POLYGON
     } PrimType;
+    
+    typedef std::vector<GLint>   GLIndices;
+    typedef std::vector<GLsizei> GLCounts;
+
+    template <typename T> GLenum glType() {}
     
     extern Func0<void> glewInitialize;
     

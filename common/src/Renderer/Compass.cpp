@@ -30,7 +30,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/IndexArrayBuilder.h"
+#include "Renderer/IndexRangeBuilder.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -117,17 +117,17 @@ namespace TrenchBroom {
                                                                       Vertex::fromLists(headCap.vertices, headCap.normals, headCap.vertices.size()));
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + capVertices.size();
-            IndexArray::Size indexArraySize;
+            IndexRangeMap::Size indexArraySize;
             indexArraySize.inc(PT_TriangleStrips);
             indexArraySize.inc(PT_TriangleFans);
             indexArraySize.inc(PT_Triangles, headVertices.size() / 3);
             
-            IndexArrayBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+            IndexRangeBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
             builder.addTriangles(headVertices);
             builder.addTriangleFan(capVertices);
 
-            m_arrowRenderer = IndexArrayRenderer(builder);
+            m_arrowRenderer = IndexRangeRenderer(builder);
         }
         
         void Compass::makeBackground() {
@@ -135,21 +135,21 @@ namespace TrenchBroom {
             Vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Cf::twoPi(), m_segments);
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
-            IndexArray::Size backgroundSize;
+            IndexRangeMap::Size backgroundSize;
             backgroundSize.inc(PT_TriangleFans);
             
-            IndexArrayBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+            IndexRangeBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
             
-            m_backgroundRenderer = IndexArrayRenderer(backgroundBuilder);
+            m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
             
-            IndexArray::Size outlineSize;
+            IndexRangeMap::Size outlineSize;
             outlineSize.inc(PT_LineLoops);
             
-            IndexArrayBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+            IndexRangeBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);
             
-            m_backgroundOutlineRenderer = IndexArrayRenderer(outlineBuilder);
+            m_backgroundOutlineRenderer = IndexRangeRenderer(outlineBuilder);
         }
 
         Mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {
