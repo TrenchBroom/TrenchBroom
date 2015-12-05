@@ -30,7 +30,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/IndexRangeBuilder.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             indexArraySize.inc(PT_TriangleFans);
             indexArraySize.inc(PT_Triangles, headVertices.size() / 3);
             
-            IndexRangeBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+            IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
             builder.addTriangles(headVertices);
             builder.addTriangleFan(capVertices);
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             IndexRangeMap::Size backgroundSize;
             backgroundSize.inc(PT_TriangleFans);
             
-            IndexRangeBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+            IndexRangeMapBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
             
             m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             IndexRangeMap::Size outlineSize;
             outlineSize.inc(PT_LineLoops);
             
-            IndexRangeBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+            IndexRangeMapBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);
             
             m_backgroundOutlineRenderer = IndexRangeRenderer(outlineBuilder);

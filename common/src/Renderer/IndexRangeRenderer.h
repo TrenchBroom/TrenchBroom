@@ -20,8 +20,8 @@
 #ifndef IndexRangeRenderer_h
 #define IndexRangeRenderer_h
 
-#include "Renderer/IndexRange.h"
-#include "Renderer/IndexRangeBuilder.h"
+#include "Renderer/IndexRangeMap.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             IndexRangeRenderer();
             template <typename VertexSpec>
-            IndexRangeRenderer(IndexRangeBuilder<VertexSpec>& builder) :
+            IndexRangeRenderer(IndexRangeMapBuilder<VertexSpec>& builder) :
             m_vertexArray(VertexArray::swap(builder.vertices())),
             m_indexArray(builder.indexArray()) {}
             

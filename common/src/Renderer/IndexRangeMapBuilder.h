@@ -20,13 +20,13 @@
 #ifndef IndexRangeBuilder_h
 #define IndexRangeBuilder_h
 
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         template <typename VertexSpec>
-        class IndexRangeBuilder {
+        class IndexRangeMapBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
@@ -35,9 +35,9 @@ namespace TrenchBroom {
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexRangeMap m_indexRange;
         public:
-            IndexRangeBuilder() {} // default constructors allow dynamic growth
+            IndexRangeMapBuilder() {} // default constructors allow dynamic growth
             
-            IndexRangeBuilder(const size_t vertexCount, const IndexRangeMap::Size& indexRangeSize) :
+            IndexRangeMapBuilder(const size_t vertexCount, const IndexRangeMap::Size& indexRangeSize) :
             m_vertexListBuilder(vertexCount),
             m_indexRange(indexRangeSize) {}
             

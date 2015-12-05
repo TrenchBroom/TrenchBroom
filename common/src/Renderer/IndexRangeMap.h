@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IndexRange_h
-#define IndexRange_h
+#ifndef IndexRangeMap_h
+#define IndexRangeMap_h
 
 #include "SharedPointer.h"
 #include "Renderer/GL.h"
@@ -72,4 +72,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexRange_p */
+#endif /* IndexRangeMap_h */

@@ -26,7 +26,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedIndexRange.h"

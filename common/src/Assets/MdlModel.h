@@ -27,7 +27,7 @@
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vertex.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 
 #include <vector>
 

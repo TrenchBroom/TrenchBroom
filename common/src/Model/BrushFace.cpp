@@ -28,7 +28,7 @@
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRange.h"
 
 namespace TrenchBroom {

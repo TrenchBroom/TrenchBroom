@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "Reference.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 

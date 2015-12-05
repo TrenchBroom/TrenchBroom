@@ -22,7 +22,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRange.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 

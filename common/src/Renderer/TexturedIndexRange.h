@@ -21,7 +21,7 @@
 #define TexturedIndexRangeMap_h
 
 #include "SharedPointer.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 
 namespace TrenchBroom {
     namespace Assets {

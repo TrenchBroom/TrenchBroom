@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IndexRange.h"
+#include "IndexRangeMap.h"
 #include "CollectionUtils.h"
 
 namespace TrenchBroom {

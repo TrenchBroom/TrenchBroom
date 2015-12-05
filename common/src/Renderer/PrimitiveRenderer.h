@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
-#include "Renderer/IndexRangeBuilder.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
@@ -39,9 +39,9 @@ namespace TrenchBroom {
         class PrimitiveRenderer : public Renderable {
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
-            typedef std::map<float, IndexRangeBuilder<Vertex::Spec> > LineMeshMap;
+            typedef std::map<float, IndexRangeMapBuilder<Vertex::Spec> > LineMeshMap;
             LineMeshMap m_lineMeshes;
-            IndexRangeBuilder<Vertex::Spec> m_triangleMesh;
+            IndexRangeMapBuilder<Vertex::Spec> m_triangleMesh;
             
             typedef std::map<float, IndexRangeRenderer> LineMeshRendererMap;
             LineMeshRendererMap m_lineMeshRenderers;

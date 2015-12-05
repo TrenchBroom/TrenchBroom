@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 #include "VecMath.h"
 #include "Renderer/VertexSpec.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 
 #include <vector>
 

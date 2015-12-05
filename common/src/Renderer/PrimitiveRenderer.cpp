@@ -82,7 +82,7 @@ namespace TrenchBroom {
             LineMeshMap::iterator it, end;
             for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
                 const float lineWidth = it->first;
-                IndexRangeBuilder<Vertex::Spec>& mesh = it->second;
+                IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(lineWidth, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vbo);
             }

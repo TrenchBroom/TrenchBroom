@@ -21,7 +21,7 @@
 #define TrenchBroom_TriangleRenderer
 
 #include "Color.h"
-#include "Renderer/IndexRange.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
