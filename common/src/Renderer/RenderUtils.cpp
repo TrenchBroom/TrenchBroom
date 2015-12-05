@@ -19,6 +19,7 @@
 
 #include "RenderUtils.h"
 
+#include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
 namespace TrenchBroom {
@@ -87,6 +88,20 @@ namespace TrenchBroom {
                 if (m_axes[i])
                     result += 2;
             return result;
+        }
+
+        TextureRenderFunc::~TextureRenderFunc() {}
+        void TextureRenderFunc::before(const Assets::Texture* texture) {}
+        void TextureRenderFunc::after(const Assets::Texture* texture) {}
+        
+        void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->activate();
+        }
+        
+        void DefaultTextureRenderFunc::after(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->deactivate();
         }
 
         Vec2f::List circle2D(const float radius, const size_t segments) {

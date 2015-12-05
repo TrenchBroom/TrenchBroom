@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void IndexArray::BaseHolder::render(const PrimType primType) const {
-            doRender(primType);
+        void IndexArray::BaseHolder::render(const PrimType primType, const size_t offset) const {
+            doRender(primType, offset);
         }
 
         IndexArray::IndexArray() :
@@ -62,10 +62,10 @@ namespace TrenchBroom {
             m_prepared = true;
         }
 
-        void IndexArray::render(const PrimType primType) const {
+        void IndexArray::render(const PrimType primType, const size_t offset, size_t count) const {
             assert(prepared());
             if (!empty())
-                m_holder->render(primType);
+                m_holder->render(primType, offset, count);
         }
 
         IndexArray::IndexArray(BaseHolder::Ptr holder) :

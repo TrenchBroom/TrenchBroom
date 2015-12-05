@@ -23,28 +23,20 @@
 #include "SharedPointer.h"
 #include "Renderer/IndexRangeMap.h"
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
     }
     
     namespace Renderer {
+        class TextureRenderFunc;
         class VertexArray;
         
         class TexturedIndexRangeMap {
         public:
             typedef Assets::Texture Texture;
-            
-            struct RenderFunc {
-                virtual ~RenderFunc();
-                virtual void before(const Texture* texture);
-                virtual void after(const Texture* texture);
-            };
-            
-            struct DefaultRenderFunc : public RenderFunc {
-                void before(const Texture* texture);
-                void after(const Texture* texture);
-            };
         private:
             typedef std::map<const Texture*, IndexRangeMap> TextureToIndexRangeMap;
             typedef std::tr1::shared_ptr<TextureToIndexRangeMap> TextureToIndexRangeMapPtr;
@@ -59,10 +51,10 @@ namespace TrenchBroom {
             public:
                 Size();
                 void inc(const Texture* texture, PrimType primType, size_t count = 1);
+            private:
                 IndexRangeMap::Size& findCurrent(const Texture* texture);
-            private:
                 bool isCurrent(const Texture* texture) const;
-            private:
+
                 void initialize(TextureToIndexRangeMap& data) const;
             };
         private:
@@ -76,7 +68,7 @@ namespace TrenchBroom {
             void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
             
             void render(VertexArray& vertexArray);
-            void render(VertexArray& vertexArray, RenderFunc& func);
+            void render(VertexArray& vertexArray, TextureRenderFunc& func);
         private:
             IndexRangeMap& findCurrent(const Texture* texture);
             bool isCurrent(const Texture* texture) const;

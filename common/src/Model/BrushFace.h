@@ -43,6 +43,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class IndexRangeMap;
+        class TexturedIndexArrayMap;
         class TexturedIndexRangeMap;
     }
     
@@ -91,7 +92,8 @@ namespace TrenchBroom {
             BrushFaceGeometry* m_geometry;
             
             mutable Vertex::List m_cachedVertices;
-            mutable GLint m_vertexIndex;
+            mutable size_t m_vertexIndex;
+            mutable bool m_verticesValid;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -189,7 +191,7 @@ namespace TrenchBroom {
             void deselect();
 
             void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
-            void getFaceIndex(Renderer::TexturedIndexRangeMap& array) const;
+            void getFaceIndices(Renderer::TexturedIndexArrayMap& indexArray) const;
             void getEdgeIndex(Renderer::IndexRangeMap& array) const;
             Vec2f textureCoords(const Vec3& point) const;
             

@@ -42,11 +42,11 @@ namespace TrenchBroom {
                 
                 virtual void prepare(Vbo& vbo) = 0;
             public:
-                void render(PrimType primType) const;
+                void render(PrimType primType, size_t offset, size_t count) const;
                 
                 virtual size_t indexOffset() const = 0;
             private:
-                virtual void doRender(PrimType primType) const = 0;
+                virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
             };
             
             template <typename Index>
@@ -94,11 +94,11 @@ namespace TrenchBroom {
                     
                 }
 
-                void doRender(const PrimType primType) {
-                    const GLsizei count  = static_cast<GLsizei>(indexCount());
-                    const GLvoid* offset = reinterpret_cast<GLvoid*>(indexOffset());
-                    const GLenum type    = glType<Index>();
-                    glDrawElements(primType, count, type, offset);
+                void doRender(const PrimType primType, const size_t offset, size_t count) {
+                    const GLsizei renderCount  = static_cast<GLsizei>(count);
+                    const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + offset);
+                    const GLenum indexType     = glType<Index>();
+                    glDrawElements(primType, renderCount, indexType, renderOffset);
                 }
             private:
                 virtual const IndexList& doGetIndices() const = 0;
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             bool prepared() const;
             void prepare(Vbo& vbo);
             
-            void render(PrimType primType) const;
+            void render(PrimType primType, size_t offset, size_t count) const;
         private:
             IndexArray(BaseHolder::Ptr holder);
         };

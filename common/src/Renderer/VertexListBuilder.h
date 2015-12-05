@@ -29,10 +29,10 @@ namespace TrenchBroom {
         class VertexListBuilder {
         public:
             struct IndexData {
-                GLint index;
-                GLsizei count;
+                size_t index;
+                size_t count;
                 
-                IndexData(const GLint i_index, const GLsizei i_count) :
+                IndexData(const size_t i_index, const size_t i_count) :
                 index(i_index),
                 count(i_count) {}
             };
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             IndexData addPoint(const Vertex& v1) {
                 assert(checkCapacity(1));
                 
-                const GLint index = currentIndex();
+                const size_t index = currentIndex();
                 m_vertices.push_back(v1);
                 
                 return IndexData(index, 1);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             IndexData addLine(const Vertex& v1, const Vertex& v2) {
                 assert(checkCapacity(2));
                 
-                const GLint index = currentIndex();
+                const size_t index = currentIndex();
                 m_vertices.push_back(v1);
                 m_vertices.push_back(v2);
                 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             IndexData addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3) {
                 assert(checkCapacity(3));
                 
-                const GLint index = currentIndex();
+                const size_t index = currentIndex();
                 m_vertices.push_back(v1);
                 m_vertices.push_back(v2);
                 m_vertices.push_back(v3);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             IndexData addQuad(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
                 assert(checkCapacity(4));
                 
-                const GLint index = currentIndex();
+                const size_t index = currentIndex();
                 m_vertices.push_back(v1);
                 m_vertices.push_back(v2);
                 m_vertices.push_back(v3);
@@ -159,8 +159,8 @@ namespace TrenchBroom {
             IndexData addVertices(const VertexList& vertices) {
                 assert(checkCapacity(vertices.size()));
                 
-                const GLint index = currentIndex();
-                const GLsizei count = static_cast<GLsizei>(vertices.size());
+                const size_t index = currentIndex();
+                const size_t count = vertices.size();
                 VectorUtils::append(m_vertices, vertices);
                 
                 return IndexData(index, count);
@@ -170,8 +170,8 @@ namespace TrenchBroom {
                 return m_dynamicGrowth || m_vertices.capacity() - m_vertices.size() >= toAdd;
             }
             
-            GLint currentIndex() const {
-                return static_cast<GLint>(vertexCount());
+            size_t currentIndex() const {
+                return static_cast<size_t>(vertexCount());
             }
         };
     }

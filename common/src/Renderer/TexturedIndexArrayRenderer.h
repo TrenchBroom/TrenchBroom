@@ -17,11 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TexturedIndexRangeRenderer_h
-#define TexturedIndexRangeRenderer_h
+#ifndef TexturedIndexArrayRenderer_h
+#define TexturedIndexArrayRenderer_h
 
-#include "Renderer/TexturedIndexRangeMap.h"
-#include "Renderer/VertexArray.h"
+#include "SharedPointer.h"
+#include "Renderer/IndexArray.h"
+#include "Renderer/TexturedIndexArrayMap.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -32,22 +35,16 @@ namespace TrenchBroom {
         class Vbo;
         class TextureRenderFunc;
         
-        class TexturedIndexRangeRenderer {
+        class TexturedIndexArrayRenderer {
         private:
-            VertexArray m_vertexArray;
-            TexturedIndexRangeMap m_indexRange;
+        private:
+            IndexArray m_indexArray;
+            TexturedIndexArrayMap::TextureToRangeMap m_indexRanges;
         public:
-            TexturedIndexRangeRenderer();
-            TexturedIndexRangeRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange);
-            TexturedIndexRangeRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange);
-
-            bool empty() const;
-            
-            void prepare(Vbo& vbo);
-            void render();
-            void render(TextureRenderFunc& func);
+            TexturedIndexArrayRenderer(const TexturedIndexArrayMap& indexArrayMap);
+        private:
         };
     }
 }
 
-#endif /* TexturedIndexRangeRenderer_h */
+#endif /* TexturedIndexArrayRenderer_h */

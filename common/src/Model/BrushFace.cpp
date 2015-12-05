@@ -29,7 +29,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexArrayMap.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,7 +50,9 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(NULL),
-        m_vertexIndex(-2),
+        m_vertexIndex(0),
+        m_verticesValid(false),
+        m_indicesValid(false),
         m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
@@ -563,16 +565,16 @@ namespace TrenchBroom {
             m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
         }
         
-        void BrushFace::getFaceIndex(Renderer::TexturedIndexRangeMap& array) const {
+        void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayMap& indexArray) const {
             assert(vertexCacheValid());
-            const GLsizei count = static_cast<GLsizei>(vertexCount());
-            array.add(texture(), PT_Polygons, m_vertexIndex, count);
+            indexArray.addPolygon(texture(), PT_Polygons, m_vertexIndex, vertexCount());
         }
-        
+
         void BrushFace::getEdgeIndex(Renderer::IndexRangeMap& array) const {
             assert(vertexCacheValid());
+            const GLint index = static_cast<GLint>(m_vertexIndex);
             const GLsizei count = static_cast<GLsizei>(vertexCount());
-            array.add(PT_LineLoops, m_vertexIndex, count);
+            array.add(PT_LineLoops, index, count);
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
@@ -621,11 +623,11 @@ namespace TrenchBroom {
         }
 
         bool BrushFace::vertexCacheValid() const {
-            return m_vertexIndex > -2;
+            return m_verticesValid;
         }
 
         void BrushFace::invalidateCachedVertices() {
-            m_vertexIndex = -2;
+            m_verticesValid = false;
         }
         
         void BrushFace::validateCachedVertices() const {
@@ -644,7 +646,7 @@ namespace TrenchBroom {
                     current = current->previous();
                 } while (current != first);
                 
-                m_vertexIndex = -1;
+                m_verticesValid = true;
             }
         }
     }

@@ -19,24 +19,11 @@
 
 #include "TexturedIndexRangeMap.h"
 
-#include "Assets/Texture.h"
+#include "CollectionUtils.h"
+#include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        TexturedIndexRangeMap::RenderFunc::~RenderFunc() {}
-        void TexturedIndexRangeMap::RenderFunc::before(const Texture* texture) {}
-        void TexturedIndexRangeMap::RenderFunc::after(const Texture* texture) {}
-
-        void TexturedIndexRangeMap::DefaultRenderFunc::before(const Texture* texture) {
-            if (texture != NULL)
-                texture->activate();
-        }
-        
-        void TexturedIndexRangeMap::DefaultRenderFunc::after(const Texture* texture) {
-            if (texture != NULL)
-                texture->deactivate();
-        }
-
         TexturedIndexRangeMap::Size::Size() :
         m_current(m_sizes.end()) {}
         
@@ -101,11 +88,11 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::render(VertexArray& vertexArray) {
-            DefaultRenderFunc func;
+            DefaultTextureRenderFunc func;
             render(vertexArray, func);
         }
         
-        void TexturedIndexRangeMap::render(VertexArray& vertexArray, RenderFunc& func) {
+        void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func) {
             typename TextureToIndexRangeMap::const_iterator texIt, texEnd;
             for (texIt = m_data->begin(), texEnd = m_data->end(); texIt != texEnd; ++texIt) {
                 const Texture* texture = texIt->first;
