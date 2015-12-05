@@ -22,8 +22,8 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/TexturedIndexRange.h"
-#include "Renderer/TexturedIndexRangeBuilder.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 vertexCount += faceVertexCount;
             }
 
-            Renderer::TexturedIndexRangeBuilder<Face::Vertex::Spec> builder(vertexCount, size);
+            Renderer::TexturedIndexRangeMapBuilder<Face::Vertex::Spec> builder(vertexCount, size);
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
                 builder.addPolygon(face.texture(), face.vertices());

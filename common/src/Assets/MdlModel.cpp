@@ -22,8 +22,8 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
-#include "Renderer/TexturedIndexRange.h"
-#include "Renderer/TexturedIndexRangeBuilder.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>

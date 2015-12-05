@@ -29,7 +29,7 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {

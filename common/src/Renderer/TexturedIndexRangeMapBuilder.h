@@ -20,7 +20,7 @@
 #ifndef TexturedIndexRangeBuilder_h
 #define TexturedIndexRangeBuilder_h
 
-#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
 namespace TrenchBroom {
@@ -30,7 +30,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         template <typename VertexSpec>
-        class TexturedIndexRangeBuilder {
+        class TexturedIndexRangeMapBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
             typedef typename Vertex::List VertexList;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             TexturedIndexRangeMap m_indexRange;
         public:
-            TexturedIndexRangeBuilder(const size_t vertexCount, const TexturedIndexRangeMap::Size& indexRangeSize) :
+            TexturedIndexRangeMapBuilder(const size_t vertexCount, const TexturedIndexRangeMap::Size& indexRangeSize) :
             m_vertexListBuilder(vertexCount),
             m_indexRange(indexRangeSize) {}
             

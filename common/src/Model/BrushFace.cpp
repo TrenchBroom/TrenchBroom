@@ -29,7 +29,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeMap.h"
 
 namespace TrenchBroom {
     namespace Model {

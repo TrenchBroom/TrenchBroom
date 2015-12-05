@@ -20,7 +20,7 @@
 #ifndef TexturedIndexRangeRenderer_h
 #define TexturedIndexRangeRenderer_h
 
-#include "Renderer/TexturedIndexRange.h"
+#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
