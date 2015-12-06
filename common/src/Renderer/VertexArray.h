@@ -30,8 +30,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class IndexArray;
-        
         class VertexArray {
         private:
             class BaseHolder {
@@ -268,7 +266,6 @@ namespace TrenchBroom {
             void render(PrimType primType, GLint index, GLsizei count);
             void render(PrimType primType, const GLIndices& indices, const GLCounts& counts, GLint primCount);
             void render(PrimType primType, const GLIndices& indices, GLsizei count);
-            void render(PrimType primType, const IndexArray& indexArray);
             void cleanup();
         private:
             VertexArray(BaseHolder::Ptr holder);

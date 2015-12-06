@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 document->commitPendingAssets();
                 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                Renderer::RenderBatch renderBatch(sharedVbo());
+                Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
                 
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
         }
 
-        class UVView::RenderTexture : public Renderer::Renderable {
+        class UVView::RenderTexture : public Renderer::DirectRenderable {
         private:
             typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
             
@@ -252,8 +252,8 @@ namespace TrenchBroom {
                 return vertices;
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_vertexArray.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_vertexArray.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {

@@ -79,10 +79,14 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        Renderer::Vbo& RenderView::sharedVbo() {
-            return m_glContext->vbo();
+        Renderer::Vbo& RenderView::vertexVbo() {
+            return m_glContext->vertexVbo();
         }
 
+        Renderer::Vbo& RenderView::indexVbo() {
+            return m_glContext->indexVbo();
+        }
+        
         Renderer::FontManager& RenderView::fontManager() {
             return m_glContext->fontManager();
         }
@@ -180,8 +184,8 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
             
-            Renderer::ActivateVbo activate(sharedVbo());
-            array.prepare(sharedVbo());
+            Renderer::ActivateVbo activate(vertexVbo());
+            array.prepare(vertexVbo());
             array.render(PT_Quads);
             glEnable(GL_DEPTH_TEST);
         }

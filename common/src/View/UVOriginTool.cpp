@@ -244,7 +244,7 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        class UVOriginTool::RenderOrigin : public Renderer::Renderable {
+        class UVOriginTool::RenderOrigin : public Renderer::DirectRenderable {
         private:
             const UVViewHelper& m_helper;
             bool m_highlight;
@@ -260,8 +260,8 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_originHandle.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_originHandle.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {

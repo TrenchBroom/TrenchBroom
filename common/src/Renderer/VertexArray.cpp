@@ -19,8 +19,6 @@
 
 #include "VertexArray.h"
 
-#include "Renderer/IndexArray.h"
-
 #include <cassert>
 #include <limits>
 
@@ -128,18 +126,6 @@ namespace TrenchBroom {
             } else {
                 const GLint* indexArray = indices.data();
                 glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
-            }
-        }
-
-        void VertexArray::render(const PrimType primType, const IndexArray& indexArray) {
-            assert(prepared());
-            if (!m_setup) {
-                if (setup()) {
-                    indexArray.render(primType);
-                    cleanup();
-                }
-            } else {
-                indexArray.render(primType);
             }
         }
 

@@ -37,7 +37,8 @@ namespace TrenchBroom {
             GLContext::Ptr m_mainContext;
             bool m_initialized;
             
-            Renderer::Vbo* m_vbo;
+            Renderer::Vbo* m_vertexVbo;
+            Renderer::Vbo* m_indexVbo;
             Renderer::FontManager* m_fontManager;
             Renderer::ShaderManager* m_shaderManager;
         public:
@@ -50,7 +51,8 @@ namespace TrenchBroom {
             bool initialized() const;
             bool initialize();
             
-            Renderer::Vbo& vbo();
+            Renderer::Vbo& vertexVbo();
+            Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
         private:

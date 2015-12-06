@@ -29,7 +29,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/TexturedIndexArrayBuilder.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -52,7 +52,6 @@ namespace TrenchBroom {
         m_geometry(NULL),
         m_vertexIndex(0),
         m_verticesValid(false),
-        m_indicesValid(false),
         m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
@@ -565,16 +564,14 @@ namespace TrenchBroom {
             m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
         }
         
-        void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayMap& indexArray) const {
+        void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const {
             assert(vertexCacheValid());
-            indexArray.addPolygon(texture(), PT_Polygons, m_vertexIndex, vertexCount());
+            builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
         }
 
         void BrushFace::getEdgeIndex(Renderer::IndexRangeMap& array) const {
             assert(vertexCacheValid());
-            const GLint index = static_cast<GLint>(m_vertexIndex);
-            const GLsizei count = static_cast<GLsizei>(vertexCount());
-            array.add(PT_LineLoops, index, count);
+            array.add(PT_LineLoops, m_vertexIndex, vertexCount());
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {

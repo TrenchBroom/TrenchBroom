@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     
                 }
 
-                void doRender(const PrimType primType, const size_t offset, size_t count) {
+                void doRender(const PrimType primType, const size_t offset, const size_t count) const {
                     const GLsizei renderCount  = static_cast<GLsizei>(count);
                     const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + offset);
                     const GLenum indexType     = glType<Index>();

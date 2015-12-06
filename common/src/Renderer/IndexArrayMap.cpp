@@ -20,88 +20,74 @@
 #include "IndexArrayMap.h"
 
 #include "CollectionUtils.h"
+#include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        IndexArrayMap::IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity) :
+        offset(i_offset),
+        capacity(i_capacity),
+        count(0) {}
+
+        size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
+            assert(capacity - count >= i_count);
+            const size_t result = offset + count;
+            count += i_count;
+            return result;
+        }
+
+        IndexArrayMap::Size::Size() :
+        m_indexCount(0) {}
+        
         void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
             PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
             primIt->second += count;
+            m_indexCount += count;
         }
 
-        void IndexArrayMap::Size::initialize(PrimTypeToIndexData& data) const {
+        size_t IndexArrayMap::Size::indexCount() const {
+            return m_indexCount;
+        }
+
+        void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
+            size_t offset = baseOffset;
             PrimTypeToSize::const_iterator primIt, primEnd;
             for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const size_t size = primIt->second;
-                data[primType].reserve(size);
+                data.insert(std::make_pair(primType, IndexArrayRange(offset, size)));
+                offset += size;
             }
         }
 
-        IndexArrayMap::IndexArrayMap() :
-        m_data(new PrimTypeToIndexData()),
-        m_dynamicGrowth(true) {}
-        
         IndexArrayMap::IndexArrayMap(const Size& size) :
-        m_data(new PrimTypeToIndexData()),
-        m_dynamicGrowth(false) {
-            size.initialize(*m_data);
+        m_ranges(new PrimTypeToRangeMap()) {
+            size.initialize(*m_ranges, 0);
         }
 
-        void IndexArrayMap::add(PrimType primType, const size_t index) {
-            IndexList& indices = findIndices(primType, 1);
-            indices.push_back(static_cast<Index>(index));
+        IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset) :
+        m_ranges(new PrimTypeToRangeMap()) {
+            size.initialize(*m_ranges, baseOffset);
         }
-        
-        void IndexArrayMap::addPolygon(PrimType primType, const size_t index, const size_t count) {
-            IndexList& indices = findIndices(primType, 3 * (count - 2));
-            
-            for (size_t i = 0; i < count - 2; ++i) {
-                indices.push_back(static_cast<Index>(index + 0 + 0));
-                indices.push_back(static_cast<Index>(index + i + 1));
-                indices.push_back(static_cast<Index>(index + i + 2));
+
+        size_t IndexArrayMap::add(const PrimType primType, const size_t count) {
+            IndexArrayRange& range = findRange(primType);
+            return range.add(count);
+        }
+
+        void IndexArrayMap::render(IndexArray& indexArray) const {
+            typename PrimTypeToRangeMap::const_iterator primIt, primEnd;
+            for (primIt = m_ranges->begin(), primEnd = m_ranges->end(); primIt != primEnd; ++primIt) {
+                const PrimType primType = primIt->first;
+                const IndexArrayRange& range = primIt->second;
+                indexArray.render(primType, range.offset, range.count);
             }
         }
 
-        size_t IndexArrayMap::countIndices() const {
-            size_t result = 0;
-            
-            PrimTypeToIndexData::const_iterator it, end;
-            for (it = m_data->begin(), end = m_data->end(); it != end; ++it) {
-                const IndexList& indices = it->second;
-                result += indices.size();
-            }
-            
-            return result;
-        }
-
-        void IndexArrayMap::getIndices(IndexList& allIndices, PrimTypeToRangeMap& ranges) const {
-            
-            PrimTypeToIndexData::const_iterator it, end;
-            for (it = m_data->begin(), end = m_data->end(); it != end; ++it) {
-                const PrimType primType = it->first;
-                const IndexList& indices = it->second;
-                
-                const size_t offset = allIndices.size();
-                const size_t count = indices.size();
-                
-                assert(allIndices.capacity() - allIndices.size() >= count);
-                VectorUtils::append(allIndices, indices);
-                ranges[primType] = IndexArrayRange(offset, count);
-            }
-        }
-
-        IndexArrayMap::IndexList& IndexArrayMap::findIndices(const PrimType primType, const size_t toAdd) {
-            
-            PrimTypeToIndexData::iterator it = m_data->end();
-            if (m_dynamicGrowth)
-                it = MapUtils::findOrInsert(*m_data, primType);
-            else
-                it = m_data->find(primType);
-            assert(it != m_data->end());
-            
-            IndexList& indices = it->second;
-            assert(m_dynamicGrowth || indices.capacity() - indices.size() >= toAdd);
-            return indices;
+        IndexArrayMap::IndexArrayRange& IndexArrayMap::findRange(const PrimType primType) {
+            PrimTypeToRangeMap::iterator it = m_ranges->find(primType);
+            assert(it != m_ranges->end());
+            return it->second;
         }
     }
 }

@@ -55,13 +55,15 @@ namespace TrenchBroom {
             size_t countVertices() const;
         };
         
-        struct TextureRenderFunc {
+        class TextureRenderFunc {
+        public:
             virtual ~TextureRenderFunc();
             virtual void before(const Assets::Texture* texture);
             virtual void after(const Assets::Texture* texture);
         };
         
-        struct DefaultTextureRenderFunc : public TextureRenderFunc {
+        class DefaultTextureRenderFunc : public TextureRenderFunc {
+        public:
             void before(const Assets::Texture* texture);
             void after(const Assets::Texture* texture);
         };

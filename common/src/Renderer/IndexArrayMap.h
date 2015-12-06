@@ -20,6 +20,7 @@
 #ifndef IndexArrayMap_h
 #define IndexArrayMap_h
 
+#include "Reference.h"
 #include "SharedPointer.h"
 #include "Renderer/GL.h"
 
@@ -28,21 +29,22 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class IndexArray;
+        
         class IndexArrayMap {
-        public:
-            typedef GLuint Index;
-            typedef std::vector<Index> IndexList;
-            
+        private:
             struct IndexArrayRange {
                 size_t offset;
+                size_t capacity;
                 size_t count;
-                IndexArrayRange(size_t i_offset, size_t i_count);
+                IndexArrayRange(size_t i_offset, size_t i_capacity);
+                
+                size_t add(size_t count);
             };
             
             typedef std::map<PrimType, IndexArrayRange> PrimTypeToRangeMap;
         private:
-            typedef std::map<PrimType, IndexList> PrimTypeToIndexData;
-            typedef std::tr1::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
+            typedef std::tr1::shared_ptr<PrimTypeToRangeMap> PrimTypeToRangeMapPtr;
         public:
             class Size {
             private:
@@ -50,25 +52,25 @@ namespace TrenchBroom {
 
                 typedef std::map<PrimType, size_t> PrimTypeToSize;
                 PrimTypeToSize m_sizes;
+                size_t m_indexCount;
             public:
+                Size();
                 void inc(const PrimType primType, size_t count);
+                size_t indexCount() const;
             private:
-                void initialize(PrimTypeToIndexData& data) const;
+                void initialize(PrimTypeToRangeMap& ranges, size_t baseOffset) const;
             };
         private:
-            PrimTypeToIndexDataPtr m_data;
-            bool m_dynamicGrowth;
+            PrimTypeToRangeMapPtr m_ranges;
         public:
-            IndexArrayMap();
             IndexArrayMap(const Size& size);
-            
-            void add(PrimType primType, size_t index);
-            void addPolygon(PrimType primType, size_t index, size_t count);
-            
-            size_t countIndices() const;
-            void getIndices(IndexList& allIndices, PrimTypeToRangeMap& ranges) const;
+            IndexArrayMap(const Size& size, size_t baseOffset);
+
+            size_t add(PrimType primType, size_t count);
+
+            void render(IndexArray& indexArray) const;
         private:
-            IndexList& findIndices(PrimType primType, size_t toAdd);
+            IndexArrayRange& findRange(PrimType primType);
         };
     }
 }

@@ -31,13 +31,12 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class IndexArray;
+        class TextureRenderFunc;
+        
         class TexturedIndexArrayMap {
         public:
             typedef Assets::Texture Texture;
-            typedef IndexArrayMap::Index Index;
-            typedef IndexArrayMap::IndexList IndexList;
-
-            typedef std::map<const Texture*, IndexArrayMap::PrimTypeToRangeMap> TextureToRangeMap;
         private:
             typedef std::map<const Texture*, IndexArrayMap> TextureToIndexArrayMap;
             typedef std::tr1::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
@@ -49,27 +48,27 @@ namespace TrenchBroom {
                 typedef std::map<const Texture*, IndexArrayMap::Size> TextureToSize;
                 TextureToSize m_sizes;
                 TextureToSize::iterator m_current;
+                size_t m_indexCount;
             public:
                 Size();
+                size_t indexCount() const;
                 void inc(const Texture* texture, PrimType primType, size_t count);
             private:
                 IndexArrayMap::Size& findCurrent(const Texture* texture);
                 bool isCurrent(const Texture* texture) const;
                 
-                void initialize(TextureToIndexArrayMap& data) const;
+                void initialize(TextureToIndexArrayMap& ranges) const;
             };
         private:
-            TextureToIndexArrayMapPtr m_data;
+            TextureToIndexArrayMapPtr m_ranges;
             TextureToIndexArrayMap::iterator m_current;
         public:
             TexturedIndexArrayMap();
             TexturedIndexArrayMap(const Size& size);
-            
-            void add(const Texture* texture, PrimType primType, size_t index);
-            void addPolygon(const Texture* texture, PrimType primType, size_t index, size_t count);
-            
-            size_t countIndices() const;
-            void getIndices(IndexList& allIndices, TextureToRangeMap& ranges) const;
+            size_t add(const Texture* texture, PrimType primType, size_t count);
+
+            void render(IndexArray& vertexArray);
+            void render(IndexArray& vertexArray, TextureRenderFunc& func);
         private:
             IndexArrayMap& findCurrent(const Texture* texture);
             bool isCurrent(const Texture* texture);

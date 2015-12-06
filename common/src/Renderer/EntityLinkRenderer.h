@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class RenderBatch;
         class RenderContext;
         
-        class EntityLinkRenderer : public Renderable {
+        class EntityLinkRenderer : public DirectRenderable {
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
             
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
             void invalidate();
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         private:
             void validate();

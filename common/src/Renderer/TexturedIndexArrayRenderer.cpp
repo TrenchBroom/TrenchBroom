@@ -23,13 +23,26 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(const TexturedIndexArrayMap& indexArrayMap) {
-            const size_t indexCount = indexArrayMap.countIndices();
-            TexturedIndexArrayMap::IndexList indices(0);
-            indices.reserve(indexCount);
-            
-            indexArrayMap.getIndices(indices, m_indexRanges);
-            m_indexArray = IndexArray::swap(indices);
+        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer() {}
+        
+        TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap) :
+        m_indexArray(indexArray),
+        m_indexRanges(indexArrayMap) {}
+
+        bool TexturedIndexArrayRenderer::empty() const {
+            return m_indexArray.empty();
+        }
+        
+        void TexturedIndexArrayRenderer::prepare(Vbo& indexVbo) {
+            m_indexArray.prepare(indexVbo);
+        }
+        
+        void TexturedIndexArrayRenderer::render() {
+            m_indexRanges.render(m_indexArray);
+        }
+        
+        void TexturedIndexArrayRenderer::render(TextureRenderFunc& func) {
+            m_indexRanges.render(m_indexArray, func);
         }
     }
 }

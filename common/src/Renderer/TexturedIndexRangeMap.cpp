@@ -76,13 +76,13 @@ namespace TrenchBroom {
             m_data->insert(std::make_pair(texture, primitives));
         }
 
-        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const PrimType primType, const GLint index, const GLsizei count) :
+        TexturedIndexRangeMap::TexturedIndexRangeMap(const Texture* texture, const PrimType primType, const size_t index, const size_t count) :
         m_data(new TextureToIndexRangeMap()),
         m_current(m_data->end()) {
             m_data->insert(std::make_pair(texture, IndexRangeMap(primType, index, count)));
         }
 
-        void TexturedIndexRangeMap::add(const Texture* texture, const PrimType primType, const GLint index, const GLsizei count) {
+        void TexturedIndexRangeMap::add(const Texture* texture, const PrimType primType, const size_t index, const size_t count) {
             IndexRangeMap& current = findCurrent(texture);
             current.add(primType, index, count);
         }

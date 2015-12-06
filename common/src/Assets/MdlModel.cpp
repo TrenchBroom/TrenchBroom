@@ -133,7 +133,7 @@ namespace TrenchBroom {
 
             const Assets::Texture* texture = skin->firstPicture();
             const MdlFrame::VertexList& vertices = frame->triangles();
-            const GLsizei vertexCount = static_cast<GLsizei>(vertices.size());
+            const size_t vertexCount = vertices.size();
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
             const Renderer::TexturedIndexRangeMap indexArray(texture, PT_Triangles, 0, vertexCount);

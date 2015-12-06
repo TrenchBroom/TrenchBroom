@@ -65,10 +65,10 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void EntityLinkRenderer::doPrepare(Vbo& vbo) {
+        void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_valid) {
                 validate();
-                m_entityLinks.prepare(vbo);
+                m_entityLinks.prepare(vertexVbo);
             }
         }
 

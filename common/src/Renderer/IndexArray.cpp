@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void IndexArray::BaseHolder::render(const PrimType primType, const size_t offset) const {
-            doRender(primType, offset);
+        void IndexArray::BaseHolder::render(const PrimType primType, const size_t offset, const size_t count) const {
+            doRender(primType, offset, count);
         }
 
         IndexArray::IndexArray() :

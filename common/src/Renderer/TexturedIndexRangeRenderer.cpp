@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TexturedIndexRangeRenderer::render(TexturedIndexRangeMap::RenderFunc& func) {
+        void TexturedIndexRangeRenderer::render(TextureRenderFunc& func) {
             if (m_vertexArray.setup()) {
                 m_indexRange.render(m_vertexArray, func);
                 m_vertexArray.cleanup();

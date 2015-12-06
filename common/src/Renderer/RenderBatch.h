@@ -24,32 +24,54 @@
 #include "VecMath.h"
 #include "Color.h"
 
-#include <vector>
+#include <list>
 
 namespace TrenchBroom {
     namespace Renderer {
         class Renderable;
+        class DirectRenderable;
+        class IndexedRenderable;
         class RenderContext;
         class Vbo;
         
         class RenderBatch {
         private:
-            Vbo& m_vbo;
+            Vbo& m_vertexVbo;
+            Vbo& m_indexVbo;
 
-            typedef std::vector<Renderable*> RenderableList;
+            typedef std::list<Renderable*> RenderableList;
+            typedef std::list<DirectRenderable*> DirectRenderableList;
+            typedef std::list<IndexedRenderable*> IndexedRenderableList;
+            
+            DirectRenderableList m_directRenderables;
+            IndexedRenderableList m_indexedRenderables;
+            
             RenderableList m_batch;
             RenderableList m_oneshots;
         public:
-            RenderBatch(Vbo& vbo);
+            RenderBatch(Vbo& vertexVbo, Vbo& indexVbo);
             ~RenderBatch();
             
             void add(Renderable* renderable);
+            void add(DirectRenderable* renderable);
+            void add(IndexedRenderable* renderable);
+            
             void addOneShot(Renderable* renderable);
+            void addOneShot(DirectRenderable* renderable);
+            void addOneShot(IndexedRenderable* renderable);
             
             void render(RenderContext& renderContext);
         private:
+            void doAdd(Renderable* renderable);
+            void doAddOneShot(Renderable* renderable);
+            
             void prepareRenderables();
+            void prepareVertices();
+            void prepareIndices();
+            
             void renderRenderables(RenderContext& renderContext);
+            void renderDirectRenderables(RenderContext& renderContext);
+            void renderIndexedRenderables(RenderContext& renderContext);
         };
     }
 }

@@ -61,9 +61,9 @@ namespace TrenchBroom {
             m_valid = true;
         }
         
-        void SpikeGuideRenderer::doPrepare(Vbo& vbo) {
-            m_pointArray.prepare(vbo);
-            m_spikeArray.prepare(vbo);
+        void SpikeGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_pointArray.prepare(vertexVbo);
+            m_spikeArray.prepare(vertexVbo);
         }
         
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {

@@ -35,11 +35,11 @@ namespace TrenchBroom {
                 GLCounts counts;
                 
                 IndicesAndCounts();
-                IndicesAndCounts(GLint index, GLsizei count);
+                IndicesAndCounts(size_t index, size_t count);
                 
                 size_t size() const;
                 void reserve(size_t capacity);
-                void add(PrimType primType, GLint index, GLsizei count, bool dynamicGrowth);
+                void add(PrimType primType, size_t index, size_t count, bool dynamicGrowth);
             };
             
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
@@ -62,10 +62,9 @@ namespace TrenchBroom {
         public:
             IndexRangeMap();
             IndexRangeMap(const Size& size);
-            IndexRangeMap(PrimType primType, GLint index, GLsizei count);
-            IndexRangeMap(PrimType primType, GLint index, size_t count);
+            IndexRangeMap(PrimType primType, size_t index, size_t count);
             
-            void add(PrimType primType, GLint index, GLsizei count);
+            void add(PrimType primType, size_t index, size_t count);
             
             void render(VertexArray& vertexArray) const;
         };

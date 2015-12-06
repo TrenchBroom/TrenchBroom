@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class PrimitiveRenderer : public Renderable {
+        class PrimitiveRenderer : public DirectRenderable {
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
             typedef std::map<float, IndexRangeMapBuilder<Vertex::Spec> > LineMeshMap;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
             void renderLines(RenderContext& renderContext);
             void renderTriangles(RenderContext& renderContext);

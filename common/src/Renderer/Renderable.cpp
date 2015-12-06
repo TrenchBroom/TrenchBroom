@@ -25,12 +25,24 @@ namespace TrenchBroom {
     namespace Renderer {
         Renderable::~Renderable() {}
         
-        void Renderable::prepare(Vbo& vbo) {
-            doPrepare(vbo);
-        }
-        
         void Renderable::render(RenderContext& renderContext) {
             doRender(renderContext);
+        }
+
+        DirectRenderable::~DirectRenderable() {}
+        
+        void DirectRenderable::prepareVertices(Vbo& vertexVbo) {
+            doPrepareVertices(vertexVbo);
+        }
+        
+        IndexedRenderable::~IndexedRenderable() {}
+        
+        void IndexedRenderable::prepareVertices(Vbo& vertexVbo) {
+            doPrepareVertices(vertexVbo);
+        }
+        
+        void IndexedRenderable::prepareIndices(Vbo& indexVbo) {
+            doPrepareIndices(indexVbo);
         }
     }
 }

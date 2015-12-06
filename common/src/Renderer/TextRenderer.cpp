@@ -141,9 +141,9 @@ namespace TrenchBroom {
             return font.measure(string).rounded();
         }
 
-        void TextRenderer::doPrepare(Vbo& vbo) {
-            prepare(m_entries, false, vbo);
-            prepare(m_entriesOnTop, true, vbo);
+        void TextRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            prepare(m_entries, false, vertexVbo);
+            prepare(m_entriesOnTop, true, vertexVbo);
         }
         
         void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {

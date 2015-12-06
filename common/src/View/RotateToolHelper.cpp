@@ -123,7 +123,7 @@ namespace TrenchBroom {
             renderText(renderContext, renderBatch);
         }
 
-        class RotateToolHelper::AngleIndicatorRenderer : public Renderer::Renderable {
+        class RotateToolHelper::AngleIndicatorRenderer : public Renderer::DirectRenderable {
         private:
             Vec3 m_position;
             Renderer::Circle m_circle;
@@ -132,8 +132,8 @@ namespace TrenchBroom {
             m_position(position),
             m_circle(radius, 24, true, axis, startAxis, endAxis) {}
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_circle.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_circle.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {

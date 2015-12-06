@@ -39,10 +39,16 @@ namespace TrenchBroom {
         private:
         private:
             IndexArray m_indexArray;
-            TexturedIndexArrayMap::TextureToRangeMap m_indexRanges;
+            TexturedIndexArrayMap m_indexRanges;
         public:
-            TexturedIndexArrayRenderer(const TexturedIndexArrayMap& indexArrayMap);
-        private:
+            TexturedIndexArrayRenderer();
+            TexturedIndexArrayRenderer(const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap);
+
+            bool empty() const;
+            
+            void prepare(Vbo& indexVbo);
+            void render();
+            void render(TextureRenderFunc& func);
         };
     }
 }

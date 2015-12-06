@@ -140,6 +140,7 @@ namespace TrenchBroom {
 #define GL_BUFFER_OBJECT_APPLE 0x85B3
 
 #define GL_ARRAY_BUFFER 0x8892
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
 
 #define GL_READ_ONLY 0x88B8
 #define GL_WRITE_ONLY 0x88B9
@@ -205,7 +206,7 @@ namespace TrenchBroom {
     typedef std::vector<GLint>   GLIndices;
     typedef std::vector<GLsizei> GLCounts;
 
-    template <typename T> GLenum glType() {}
+    template <typename T> GLenum glType() { return GL_INVALID_ENUM; }
     
     extern Func0<void> glewInitialize;
     

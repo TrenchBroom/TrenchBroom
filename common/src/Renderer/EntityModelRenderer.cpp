@@ -88,10 +88,10 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void EntityModelRenderer::doPrepare(Vbo& vbo) {
-            m_entityModelManager.prepare(vbo);
+        void EntityModelRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_entityModelManager.prepare(vertexVbo);
         }
-
+        
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             

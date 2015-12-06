@@ -26,9 +26,9 @@ namespace TrenchBroom {
         indices(0),
         counts(0) {}
         
-        IndexRangeMap::IndicesAndCounts::IndicesAndCounts(const GLint index, const GLsizei count) :
-        indices(1, index),
-        counts(1, count) {}
+        IndexRangeMap::IndicesAndCounts::IndicesAndCounts(const size_t index, const size_t count) :
+        indices(1, static_cast<GLint>(index)),
+        counts(1,  static_cast<GLsizei>(count)) {}
 
         size_t IndexRangeMap::IndicesAndCounts::size() const {
             return indices.size();
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             counts.reserve(capacity);
         }
 
-        void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const GLint index, const GLsizei count, const bool dynamicGrowth) {
+        void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const size_t index, const size_t count, const bool dynamicGrowth) {
             switch (primType) {
                 case PT_Points:
                 case PT_Lines:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
                         const GLint myIndex = indices.front();
                         GLsizei& myCount = counts.front();
                         
-                        if (index == myIndex + myCount) {
+                        if (index == static_cast<size_t>(myIndex) + static_cast<size_t>(myCount)) {
                             myCount += count;
                             break;
                         }
@@ -62,8 +62,8 @@ namespace TrenchBroom {
                 case PT_QuadStrips:
                 case PT_Polygons:
                     assert(dynamicGrowth || indices.capacity() > indices.size());
-                    indices.push_back(index);
-                    counts.push_back(count);
+                    indices.push_back(static_cast<GLint>(index));
+                    counts.push_back(static_cast<GLsizei>(count));
                     break;
             }
         }
@@ -92,19 +92,13 @@ namespace TrenchBroom {
             size.initialize(*m_data);
         }
 
-        IndexRangeMap::IndexRangeMap(const PrimType primType, const GLint index, const GLsizei count) :
+        IndexRangeMap::IndexRangeMap(const PrimType primType, const size_t index, const size_t count) :
         m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(false) {
             m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
         }
-
-        IndexRangeMap::IndexRangeMap(const PrimType primType, const GLint index, const size_t count) :
-        m_data(new PrimTypeToIndexData()),
-        m_dynamicGrowth(false) {
-            m_data->insert(std::make_pair(primType, IndicesAndCounts(index, static_cast<GLsizei>(count))));
-        }
         
-        void IndexRangeMap::add(const PrimType primType, const GLint index, const GLsizei count) {
+        void IndexRangeMap::add(const PrimType primType, const size_t index, const size_t count) {
             PrimTypeToIndexData::iterator it = m_data->end();
             if (m_dynamicGrowth)
                 it = MapUtils::findOrInsert(*m_data, primType);

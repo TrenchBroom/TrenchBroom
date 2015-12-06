@@ -64,8 +64,8 @@ namespace TrenchBroom {
             TexturedIndexRangeMap();
             TexturedIndexRangeMap(const Size& size);
             TexturedIndexRangeMap(const Texture* texture, const IndexRangeMap& primitives);
-            TexturedIndexRangeMap(const Texture* texture, PrimType primType, GLint index, GLsizei count);
-            void add(const Texture* texture, PrimType primType, GLint index, GLsizei count);
+            TexturedIndexRangeMap(const Texture* texture, PrimType primType, size_t index, size_t count);
+            void add(const Texture* texture, PrimType primType, size_t index, size_t count);
             
             void render(VertexArray& vertexArray);
             void render(VertexArray& vertexArray, TextureRenderFunc& func);

@@ -171,7 +171,6 @@ namespace TrenchBroom {
         
         class SetupGL : public Renderable {
         private:
-            void doPrepare(Vbo& vbo) {}
             void doRender(RenderContext& renderContext) {
                 glFrontFace(GL_CW);
                 glEnable(GL_CULL_FACE);

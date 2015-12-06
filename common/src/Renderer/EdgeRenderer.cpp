@@ -72,9 +72,9 @@ namespace TrenchBroom {
             m_color = color;
         }
 
-        void EdgeRenderer::doPrepare(Vbo& vbo) {
+        void EdgeRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_prepared) {
-                m_vertexArray.prepare(vbo);
+                m_vertexArray.prepare(vertexVbo);
                 m_prepared = true;
             }
         }
@@ -123,9 +123,9 @@ namespace TrenchBroom {
             setOffset(offset);
         }
 
-        void RenderEdges::doPrepare(Vbo& vbo) {
+        void RenderEdges::doPrepareVertices(Vbo& vertexVbo) {
             EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
-            edgeRenderer.prepare(vbo);
+            edgeRenderer.prepareVertices(vertexVbo);
         }
         
         void RenderEdges::doRender(RenderContext& renderContext) {

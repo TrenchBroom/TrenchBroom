@@ -42,7 +42,8 @@ namespace TrenchBroom {
         public:
             GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
 
-            Renderer::Vbo& vbo();
+            Renderer::Vbo& vertexVbo();
+            Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
             

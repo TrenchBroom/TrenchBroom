@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class Compass : public Renderable {
+        class Compass : public DirectRenderable {
         private:
             static const size_t m_segments;
             static const float m_shaftLength;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         private:
             void makeArrows();

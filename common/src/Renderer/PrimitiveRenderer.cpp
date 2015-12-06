@@ -78,17 +78,17 @@ namespace TrenchBroom {
             m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
         }
 
-        void PrimitiveRenderer::doPrepare(Vbo& vbo) {
+        void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {
             LineMeshMap::iterator it, end;
             for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
                 const float lineWidth = it->first;
                 IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(lineWidth, IndexRangeRenderer(mesh))).first->second;
-                renderer.prepare(vbo);
+                renderer.prepare(vertexVbo);
             }
             
             m_triangleMeshRenderer = IndexRangeRenderer(m_triangleMesh);
-            m_triangleMeshRenderer.prepare(vbo);
+            m_triangleMeshRenderer.prepare(vertexVbo);
         }
         
         void PrimitiveRenderer::doRender(RenderContext& renderContext) {

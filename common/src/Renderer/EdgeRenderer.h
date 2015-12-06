@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class EdgeRenderer : public Renderable {
+        class EdgeRenderer : public DirectRenderable {
         private:
             VertexArray m_vertexArray;
             IndexRangeMap m_indexArray;
@@ -52,11 +52,11 @@ namespace TrenchBroom {
             void setUseColor(bool useColor);
             void setColor(const Color& color);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& context);
         };
 
-        class RenderEdges : public Renderable {
+        class RenderEdges : public DirectRenderable {
         protected:
             TypedReference<EdgeRenderer> m_edgeRenderer;
             bool m_onTop;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             void setRenderOccluded(float offset = 0.2f);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         };
     }

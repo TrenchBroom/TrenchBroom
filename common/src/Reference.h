@@ -98,13 +98,19 @@ namespace TrenchBroom {
     
     namespace Reference {
         template <typename T>
-        TypedReference<T> swap(T& value) { return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::SwapHolder(value))); }
+        TypedReference<T> swap(T& value) {
+            return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::SwapHolder(value)));
+        }
         
         template <typename T>
-        TypedReference<T> copy(const T& value) { return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::CopyHolder(value))); }
+        TypedReference<T> copy(const T& value) {
+            return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::CopyHolder(value)));
+        }
         
         template <typename T>
-        TypedReference<T> ref(T& value) { return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::RefHolder(value))); }
+        TypedReference<T> ref(T& value) {
+            return TypedReference<T>(Holder::Ptr(new typename TypedReference<T>::RefHolder(value)));
+        }
     }
     
     class UntypedReference {

@@ -29,28 +29,24 @@ namespace TrenchBroom {
     namespace Renderer {
         TriangleRenderer::TriangleRenderer() :
         m_useColor(false),
-        m_applyTinting(false),
-        m_prepared(false) {}
+        m_applyTinting(false) {}
         
         TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_useColor(false),
-        m_applyTinting(false),
-        m_prepared(false) {}
+        m_applyTinting(false) {}
         
         TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const PrimType primType) :
         m_vertexArray(vertexArray),
         m_indexArray(primType, 0, m_vertexArray.vertexCount()),
         m_useColor(false),
-        m_applyTinting(false),
-        m_prepared(false) {}
+        m_applyTinting(false) {}
 
         TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) :
         m_vertexArray(other.m_vertexArray),
         m_color(other.m_color),
-        m_useColor(other.m_useColor),
-        m_prepared(other.m_prepared) {}
+        m_useColor(other.m_useColor) {}
         
         TriangleRenderer& TriangleRenderer::operator= (TriangleRenderer other) {
             using std::swap;
@@ -64,7 +60,6 @@ namespace TrenchBroom {
             swap(left.m_indexArray, right.m_indexArray);
             swap(left.m_color, right.m_color);
             swap(left.m_useColor, right.m_useColor);
-            swap(left.m_prepared, right.m_prepared);
         }
         
         void TriangleRenderer::setUseColor(const bool useColor) {
@@ -83,16 +78,11 @@ namespace TrenchBroom {
             m_tintColor = tintColor;
         }
         
-        void TriangleRenderer::doPrepare(Vbo& vbo) {
-            if (!m_prepared) {
-                m_vertexArray.prepare(vbo);
-                m_prepared = true;
-            }
+        void TriangleRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_vertexArray.prepare(vertexVbo);
         }
 
         void TriangleRenderer::doRender(RenderContext& context) {
-            assert(m_prepared);
-            
             if (m_vertexArray.vertexCount() == 0)
                 return;
             
