@@ -114,6 +114,7 @@ namespace TrenchBroom {
         void Vbo::activate() {
             assert(!active());
             
+            GL_CHECK_ERROR()
             if (m_vboId == 0) {
                 glGenBuffers(1, &m_vboId);
                 glBindBuffer(m_type, m_vboId);
@@ -129,11 +130,16 @@ namespace TrenchBroom {
             assert(active());
             assert(!fullyMapped());
             assert(!partiallyMapped());
+            GL_CHECK_ERROR()
             glBindBuffer(m_type, 0);
             GL_CHECK_ERROR()
             m_state = State_Inactive;
         }
         
+        GLenum Vbo::type() const {
+            return m_type;
+        }
+
         void Vbo::free() {
             if (m_vboId > 0) {
                 glDeleteBuffers(1, &m_vboId);

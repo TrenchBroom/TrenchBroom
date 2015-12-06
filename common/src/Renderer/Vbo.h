@@ -84,6 +84,8 @@ namespace TrenchBroom {
             friend class ActivateVbo;
             friend class VboBlock;
             
+            GLenum type() const;
+            
             void free();
             void freeBlock(VboBlock* block);
 
