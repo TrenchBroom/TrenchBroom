@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
         Texture::~Texture() {
             if (m_collection == NULL && m_textureId != 0)
-                glDeleteTextures(1, &m_textureId);
+                glAssert(glDeleteTextures(1, &m_textureId));
             m_textureId = 0;
         }
         
@@ -127,20 +127,19 @@ namespace TrenchBroom {
             assert(textureId > 0);
             assert(!m_buffers.empty());
             
-            glPixelStorei(GL_UNPACK_SWAP_BYTES, false);
-            glPixelStorei(GL_UNPACK_LSB_FIRST, false);
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-            glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-            glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
+            glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
+            glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
+            glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
+            glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
+            glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
             
-            glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            GL_CHECK_ERROR()
+            glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
             
             /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
             const size_t potWidth = Math::nextPOT(m_width);
@@ -154,14 +153,13 @@ namespace TrenchBroom {
             size_t mipHeight = m_height; //potHeight;
             for (size_t j = 0; j < m_buffers.size(); ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
-                glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
-                             static_cast<GLsizei>(mipWidth),
-                             static_cast<GLsizei>(mipHeight),
-                             0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
+                                      static_cast<GLsizei>(mipWidth),
+                                      static_cast<GLsizei>(mipHeight),
+                                      0, GL_RGB, GL_UNSIGNED_BYTE, data));
                 mipWidth  /= 2;
                 mipHeight /= 2;
             }
-            GL_CHECK_ERROR()
             
             m_buffers.clear();
             m_textureId = textureId;
@@ -169,21 +167,18 @@ namespace TrenchBroom {
         
         void Texture::setMode(const int minFilter, const int magFilter) {
             activate();
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-            GL_CHECK_ERROR()
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
             deactivate();
         }
 
         void Texture::activate() const {
             assert(isPrepared());
-            glBindTexture(GL_TEXTURE_2D, m_textureId);
-            GL_CHECK_ERROR()
+            glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
         }
         
         void Texture::deactivate() const {
-            glBindTexture(GL_TEXTURE_2D, 0);
-            GL_CHECK_ERROR()
+            glAssert(glBindTexture(GL_TEXTURE_2D, 0));
         }
 
         void Texture::setCollection(TextureCollection* collection) {

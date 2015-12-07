@@ -192,7 +192,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = EdgeRenderer(VertexArray::swap(vertices), PT_Lines);
+                m_boundsRenderer = EdgeRenderer(VertexArray::swap(vertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List vertices;
                 vertices.reserve(24 * m_groups.size());
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = EdgeRenderer(VertexArray::swap(vertices), PT_Lines);
+                m_boundsRenderer = EdgeRenderer(VertexArray::swap(vertices), GL_LINES);
             }
             
             m_boundsValid = true;

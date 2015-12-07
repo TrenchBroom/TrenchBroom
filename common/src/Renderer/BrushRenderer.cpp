@@ -308,10 +308,10 @@ namespace TrenchBroom {
                     const Model::BrushFace* face = *it;
                     if (m_filter.show(face)) {
                         if (m_filter.transparent(brush))
-                            m_transparentIndexSize.inc(face->texture(), PT_Triangles, face->getFaceIndexCount());
+                            m_transparentIndexSize.inc(face->texture(), GL_TRIANGLES, face->getFaceIndexCount());
                         else
-                            m_opaqueIndexSize.inc(face->texture(), PT_Triangles, face->getFaceIndexCount());
-                        // m_edgeIndexSize.inc(PT_LineLoops);
+                            m_opaqueIndexSize.inc(face->texture(), GL_TRIANGLES, face->getFaceIndexCount());
+                        // m_edgeIndexSize.inc(GL_LINE_LOOP);
                     }
                 }
             }

@@ -27,11 +27,11 @@ namespace TrenchBroom {
         static const float EdgeOffset = 0.0001f;
 
         void glSetEdgeOffset(const float f) {
-            glDepthRange(0.0f, 1.0f - EdgeOffset * f);
+            glAssert(glDepthRange(0.0f, 1.0f - EdgeOffset * f));
         }
         
         void glResetEdgeOffset() {
-            glDepthRange(EdgeOffset, 1.0f);
+            glAssert(glDepthRange(EdgeOffset, 1.0f));
         }
         
         BuildCoordinateSystem BuildCoordinateSystem::xy(const Color& x, const Color& y) {

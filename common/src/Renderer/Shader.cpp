@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_type(type),
         m_shaderId(0) {
             assert(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);
-            m_shaderId = glCreateShader(m_type);
+            glAssert(m_shaderId = glCreateShader(m_type));
             
             if (m_shaderId == 0)
                 throw RenderException("Cannot create shader " + m_name);
@@ -40,19 +40,19 @@ namespace TrenchBroom {
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
 
-            glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, NULL);
+            glAssert(glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, NULL));
             delete[] linePtrs;
             
-            glCompileShader(m_shaderId);
+            glAssert(glCompileShader(m_shaderId));
             GLint compileStatus;
-            glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus);
+            glAssert(glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus));
             
             if (compileStatus == 0) {
                 RenderException ex;
                 ex << "Cannot compile shader " << m_name << ": ";
                 
 				GLint infoLogLength;
-                glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+                glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
 				if (infoLogLength > 0) {
 					char* infoLog = new char[infoLogLength];
 					glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
@@ -70,17 +70,17 @@ namespace TrenchBroom {
         
         Shader::~Shader() {
             if (m_shaderId != 0) {
-                glDeleteShader(m_shaderId);
+                glAssert(glDeleteShader(m_shaderId));
                 m_shaderId = 0;
             }
         }
         
         void Shader::attach(const GLuint programId) {
-            glAttachShader(programId, m_shaderId);
+            glAssert(glAttachShader(programId, m_shaderId));
         }
         
         void Shader::detach(const GLuint programId) {
-            glDetachShader(programId, m_shaderId);
+            glAssert(glDetachShader(programId, m_shaderId));
         }
 
         StringList Shader::loadSource(const IO::Path& path) {

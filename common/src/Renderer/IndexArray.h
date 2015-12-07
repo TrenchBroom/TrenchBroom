@@ -98,7 +98,8 @@ namespace TrenchBroom {
                     const GLsizei renderCount  = static_cast<GLsizei>(count);
                     const GLenum indexType     = glType<Index>();
                     const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(sizeof(Index) * (indexOffset() + offset));
-                    glDrawElements(primType, renderCount, indexType, renderOffset);
+
+                    glAssert(glDrawElements(primType, renderCount, indexType, renderOffset));
                 }
             private:
                 virtual const IndexList& doGetIndices() const = 0;

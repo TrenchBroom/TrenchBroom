@@ -63,59 +63,59 @@ namespace TrenchBroom {
             }
             
             void addPoint(const Texture* texture, const Vertex& v) {
-                add(texture, PT_Points, m_vertexListBuilder.addPoint(v));
+                add(texture, GL_POINTS, m_vertexListBuilder.addPoint(v));
             }
             
             void addPoints(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_Points, m_vertexListBuilder.addPoints(vertices));
+                add(texture, GL_POINTS, m_vertexListBuilder.addPoints(vertices));
             }
             
             void addLine(const Texture* texture, const Vertex& v1, const Vertex& v2) {
-                add(texture, PT_Lines, m_vertexListBuilder.addLine(v1, v2));
+                add(texture, GL_LINES, m_vertexListBuilder.addLine(v1, v2));
             }
             
             void addLines(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_Lines, m_vertexListBuilder.addLines(vertices));
+                add(texture, GL_LINES, m_vertexListBuilder.addLines(vertices));
             }
             
             void addLineStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_LineStrips, m_vertexListBuilder.addLineStrip(vertices));
+                add(texture, GL_LINE_STRIP, m_vertexListBuilder.addLineStrip(vertices));
             }
             
             void addLineLoop(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_LineLoops, m_vertexListBuilder.addLineLoop(vertices));
+                add(texture, GL_LINE_LOOP, m_vertexListBuilder.addLineLoop(vertices));
             }
             
             void addTriangle(const Texture* texture, const Vertex& v1, const Vertex& v2, const Vertex& v3) {
-                add(texture, PT_Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
+                add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangle(v1, v2, v3));
             }
             
             void addTriangles(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_Triangles, m_vertexListBuilder.addTriangles(vertices));
+                add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangles(vertices));
             }
             
             void addTriangleFan(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_TriangleFans, m_vertexListBuilder.addTriangleFan(vertices));
+                add(texture, GL_TRIANGLE_FAN, m_vertexListBuilder.addTriangleFan(vertices));
             }
             
             void addTriangleStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_TriangleStrips, m_vertexListBuilder.addTriangleStrip(vertices));
+                add(texture, GL_TRIANGLE_STRIP, m_vertexListBuilder.addTriangleStrip(vertices));
             }
             
             void addQuad(const Texture* texture, const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
-                add(texture, PT_Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
+                add(texture, GL_QUADS, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
             }
             
             void addQuads(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_Quads, m_vertexListBuilder.addQuads(vertices));
+                add(texture, GL_QUADS, m_vertexListBuilder.addQuads(vertices));
             }
             
             void addQuadStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_QuadStrips, m_vertexListBuilder.addQuadStrip(vertices));
+                add(texture, GL_QUAD_STRIP, m_vertexListBuilder.addQuadStrip(vertices));
             }
             
             void addPolygon(const Texture* texture, const VertexList& vertices) {
-                add(texture, PT_Polygons, m_vertexListBuilder.addPolygon(vertices));
+                add(texture, GL_POLYGON, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
             void add(const Texture* texture, const PrimType primType, const IndexData& data) {

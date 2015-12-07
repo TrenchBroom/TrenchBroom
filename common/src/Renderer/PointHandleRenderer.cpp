@@ -62,10 +62,10 @@ namespace TrenchBroom {
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glDisable(GL_DEPTH_TEST));
             renderHandles(renderContext, m_pointHandles, m_handle);
             renderHandles(renderContext, m_highlights, m_highlight);
-            glEnable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_DEPTH_TEST));
             
             clear();
         }

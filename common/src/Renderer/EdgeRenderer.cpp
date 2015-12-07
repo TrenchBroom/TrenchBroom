@@ -133,10 +133,10 @@ namespace TrenchBroom {
                 glSetEdgeOffset(m_offset);
             
             if (m_width != 1.0f)
-                glLineWidth(m_width);
+                glAssert(glLineWidth(m_width));
             
             if (m_onTop)
-                glDisable(GL_DEPTH_TEST);
+                glAssert(glDisable(GL_DEPTH_TEST));
             
             EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
             edgeRenderer.setUseColor(m_useColor);
@@ -144,10 +144,10 @@ namespace TrenchBroom {
             edgeRenderer.render(renderContext);
             
             if (m_onTop)
-                glEnable(GL_DEPTH_TEST);
+                glAssert(glEnable(GL_DEPTH_TEST));
             
             if (m_width != 1.0f)
-                glLineWidth(1.0f);
+                glAssert(glLineWidth(1.0f));
             
             if (m_offset != 0.0f)
                 glResetEdgeOffset();

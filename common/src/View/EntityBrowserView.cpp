@@ -275,7 +275,7 @@ namespace TrenchBroom {
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(PT_Lines);
+            vertexArray.render(GL_LINES);
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
@@ -284,7 +284,7 @@ namespace TrenchBroom {
             shader.set("Brightness", pref(Preferences::Brightness));
             shader.set("GrayScale", false);
             
-            glFrontFace(GL_CW);
+            glAssert(glFrontFace(GL_CW));
             
             Renderer::ActivateVbo activate(vertexVbo());
             m_entityModelManager.prepare(vertexVbo());
@@ -316,11 +316,11 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
             
-            glDisable(GL_DEPTH_TEST);
-            glFrontFace(GL_CCW);
+            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glFrontFace(GL_CCW));
             renderGroupTitleBackgrounds(layout, y, height);
             renderStrings(layout, y, height);
-            glFrontFace(GL_CW);
+            glAssert(glFrontFace(GL_CW));
         }
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
@@ -344,7 +344,7 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(PT_Quads);
+            vertexArray.render(GL_QUADS);
         }
         
         void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -374,7 +374,7 @@ namespace TrenchBroom {
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render(PT_Quads);
+                vertexArray.render(GL_QUADS);
                 font.deactivate();
             }
         }

@@ -94,7 +94,7 @@ namespace TrenchBroom {
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
                 const size_t faceVertexCount = face.vertices().size();
-                size.inc(face.texture(), PT_Polygons, faceVertexCount);
+                size.inc(face.texture(), GL_POLYGON, faceVertexCount);
                 vertexCount += faceVertexCount;
             }
 

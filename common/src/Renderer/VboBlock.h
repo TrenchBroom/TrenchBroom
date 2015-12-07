@@ -67,7 +67,6 @@ namespace TrenchBroom {
             template <typename T>
             size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
                 assert(mapped());
-                GL_CHECK_ERROR()
                 
                 const size_t size = buffer.size() * sizeof(T);
                 assert(address + size <= m_capacity);
@@ -75,8 +74,7 @@ namespace TrenchBroom {
                 const GLvoid* ptr = static_cast<const GLvoid*>(&(buffer[0]));
                 const GLintptr offset = static_cast<GLintptr>(m_offset + address);
                 const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
-                glBufferSubData(m_vbo.type(), offset, sizei, ptr);
-                GL_CHECK_ERROR()
+                glAssert(glBufferSubData(m_vbo.type(), offset, sizei, ptr));
                 
                 return size;
             }

@@ -115,8 +115,8 @@ namespace TrenchBroom {
             lineArray.prepare(vbo);
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render(PT_TriangleFans);
-            lineArray.render(PT_Lines);
+            triangleArray.render(GL_TRIANGLE_FAN);
+            lineArray.render(GL_LINES);
         }
         
         float PerspectiveCamera::doPickFrustum(const float size, const Ray3f& ray) const {

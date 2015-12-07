@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
         
         void Circle::render() {
-            m_array.render(m_filled ? PT_Polygons : PT_LineLoops);
+            m_array.render(m_filled ? GL_POLYGON : GL_LINE_LOOP);
         }
         
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {

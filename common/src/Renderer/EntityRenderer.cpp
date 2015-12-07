@@ -272,15 +272,16 @@ namespace TrenchBroom {
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
-            glDepthMask(GL_FALSE);
+            glAssert(glDepthMask(GL_FALSE));
 
-            glDisable(GL_DEPTH_TEST);
-            glPolygonMode(GL_FRONT, GL_LINE);
+            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glPolygonMode(GL_FRONT, GL_LINE));
             shader.set("Color", m_angleColor);
-            array.render(PT_Triangles);
+            array.render(GL_TRIANGLES);
 
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glDepthMask(GL_TRUE);
+            glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+            glAssert(glDepthMask(GL_TRUE));
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
@@ -359,7 +360,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), PT_Lines);
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -378,10 +379,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), PT_Lines);
+                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), PT_Quads);
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);
             m_boundsValid = true;
         }
 

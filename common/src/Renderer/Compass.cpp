@@ -80,9 +80,9 @@ namespace TrenchBroom {
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
             const Mat4x4f cameraTransformation = cameraRotationMatrix(camera);
 
-            glClear(GL_DEPTH_BUFFER_BIT);
+            glAssert(glClear(GL_DEPTH_BUFFER_BIT));
             renderBackground(renderContext);
-            glClear(GL_DEPTH_BUFFER_BIT);
+            glAssert(glClear(GL_DEPTH_BUFFER_BIT));
             doRenderCompass(renderContext, cameraTransformation);
         }
 
@@ -118,9 +118,9 @@ namespace TrenchBroom {
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + capVertices.size();
             IndexRangeMap::Size indexArraySize;
-            indexArraySize.inc(PT_TriangleStrips);
-            indexArraySize.inc(PT_TriangleFans);
-            indexArraySize.inc(PT_Triangles, headVertices.size() / 3);
+            indexArraySize.inc(GL_TRIANGLE_STRIP);
+            indexArraySize.inc(GL_TRIANGLE_FAN);
+            indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
             
             IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
             IndexRangeMap::Size backgroundSize;
-            backgroundSize.inc(PT_TriangleFans);
+            backgroundSize.inc(GL_TRIANGLE_FAN);
             
             IndexRangeMapBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
             
             IndexRangeMap::Size outlineSize;
-            outlineSize.inc(PT_LineLoops);
+            outlineSize.inc(GL_LINE_LOOP);
             
             IndexRangeMapBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);
@@ -192,17 +192,17 @@ namespace TrenchBroom {
         }
         
         void Compass::renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
-            glDepthMask(GL_FALSE);
-            glLineWidth(3.0f);
-            glPolygonMode(GL_FRONT, GL_LINE);
+            glAssert(glDepthMask(GL_FALSE));
+            glAssert(glLineWidth(3.0f));
+            glAssert(glPolygonMode(GL_FRONT, GL_LINE));
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
             shader.set("Color", color);
             renderAxis(renderContext, transformation);
             
-            glDepthMask(GL_TRUE);
-            glLineWidth(1.0f);
-            glPolygonMode(GL_FRONT, GL_FILL);
+            glAssert(glDepthMask(GL_TRUE));
+            glAssert(glLineWidth(1.0f));
+            glAssert(glPolygonMode(GL_FRONT, GL_FILL));
         }
 
         void Compass::renderAxis(RenderContext& renderContext, const Mat4x4f& transformation) {

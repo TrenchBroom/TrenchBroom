@@ -175,8 +175,8 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
             
-            glDisable(GL_DEPTH_TEST);
-            glFrontFace(GL_CCW);
+            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glFrontFace(GL_CCW));
             
             renderBounds(layout, y, height);
             renderTextures(layout, y, height);
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(PT_Quads);
+            vertexArray.render(GL_QUADS);
         }
         
         const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
@@ -263,7 +263,7 @@ namespace TrenchBroom {
                                 texture->activate();
 
                                 vertexArray.prepare(vertexVbo());
-                                vertexArray.render(PT_Quads);
+                                vertexArray.render(GL_QUADS);
                                 
                                 ++num;
                             }
@@ -300,7 +300,7 @@ namespace TrenchBroom {
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(PT_Quads);
+            vertexArray.render(GL_QUADS);
         }
         
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -330,7 +330,7 @@ namespace TrenchBroom {
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render(PT_Quads);
+                vertexArray.render(GL_QUADS);
                 font.deactivate();
             }
         }

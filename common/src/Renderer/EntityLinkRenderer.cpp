@@ -79,13 +79,13 @@ namespace TrenchBroom {
             shader.set("CameraPosition", renderContext.camera().position());
             shader.set("MaxDistance", 6000.0f);
 
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
-            m_entityLinks.render(PT_Lines);
+            m_entityLinks.render(GL_LINES);
             
-            glEnable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
-            m_entityLinks.render(PT_Lines);
+            m_entityLinks.render(GL_LINES);
         }
 
         void EntityLinkRenderer::validate() {

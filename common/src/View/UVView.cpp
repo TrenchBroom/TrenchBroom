@@ -201,13 +201,13 @@ namespace TrenchBroom {
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
             
-            glEnable(GL_MULTISAMPLE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glShadeModel(GL_SMOOTH);
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_MULTISAMPLE));
+            glAssert(glEnable(GL_BLEND));
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            glAssert(glShadeModel(GL_SMOOTH));
+            glAssert(glDisable(GL_DEPTH_TEST));
         }
 
         class UVView::RenderTexture : public Renderer::DirectRenderable {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
-                m_vertexArray.render(PT_Quads);
+                m_vertexArray.render(GL_QUADS);
                 
                 texture->deactivate();
             }
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), PT_LineLoops);
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setOnTop(true);
             renderEdges->setColor(edgeColor);
@@ -340,7 +340,7 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
             vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), PT_Lines);
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setRenderOccluded();
             renderEdges->setWidth(2.0f);

@@ -139,8 +139,8 @@ namespace TrenchBroom {
                 const bool shadeFaces = context.shadeFaces();
                 const bool showFog = context.showFog();
                 
-                glEnable(GL_TEXTURE_2D);
-                glActiveTexture(GL_TEXTURE0);
+                glAssert(glEnable(GL_TEXTURE_2D));
+                glAssert(glActiveTexture(GL_TEXTURE0));
                 shader.set("Brightness", prefs.get(Preferences::Brightness));
                 shader.set("RenderGrid", context.showGrid());
                 shader.set("GridSize", static_cast<float>(context.gridSize()));
@@ -158,9 +158,9 @@ namespace TrenchBroom {
                 
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {
-                    glDepthMask(GL_FALSE);
+                    glAssert(glDepthMask(GL_FALSE));
                     m_meshRenderer.render(func);
-                    glDepthMask(GL_TRUE);
+                    glAssert(glDepthMask(GL_TRUE));
                 } else {
                     m_meshRenderer.render(func);
                 }

@@ -566,7 +566,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::getEdgeIndex(Renderer::IndexRangeMap& array) const {
-            array.add(PT_LineLoops, m_vertexIndex, vertexCount());
+            array.add(GL_LINE_LOOP, m_vertexIndex, vertexCount());
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {

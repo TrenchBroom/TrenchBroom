@@ -20,14 +20,37 @@
 #include "GL.h"
 
 namespace TrenchBroom {
-    template<> GLenum glType<GLubyte>()   { return GL_UNSIGNED_BYTE; }
-    template<> GLenum glType<GLbyte>()    { return GL_BYTE; }
-    template<> GLenum glType<GLushort>()  { return GL_UNSIGNED_SHORT; }
-    template<> GLenum glType<GLshort>()   { return GL_SHORT; }
-    template<> GLenum glType<GLuint>()    { return GL_UNSIGNED_INT; }
-    template<> GLenum glType<GLint>()     { return GL_INT; }
-    template<> GLenum glType<GLfloat>()   { return GL_FLOAT; }
-    template<> GLenum glType<GLdouble>()  { return GL_DOUBLE; }
+    void glCheckError(const String& msg) {
+        const GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            RenderException e;
+            e << "OpenGL error: " << error << " (" << glGetErrorMessage(error) << ") " << msg;
+            throw e;
+        }
+    }
+
+    String glGetErrorMessage(const GLenum code) {
+        switch (code) {
+            case GL_INVALID_ENUM:
+                return "GL_INVALID_ENUM";
+            case GL_INVALID_VALUE:
+                return "GL_INVALID_VALUE";
+            case GL_INVALID_OPERATION:
+                return "GL_INVALID_OPERATION";
+            case GL_STACK_OVERFLOW:
+                return "GL_STACK_OVERFLOW";
+            case GL_STACK_UNDERFLOW:
+                return "GL_STACK_UNDERFLOW";
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                return "GL_INVALID_FRAMEBUFFER_OPERATION";
+            case GL_CONTEXT_LOST:
+                return "GL_CONTEXT_LOST";
+            case GL_TABLE_TOO_LARGE1:
+                return "GL_TABLE_TOO_LARGE1";
+            default:
+                return "UNKNOWN";
+        }
+    }
 
     Func0<void> glewInitialize;
     

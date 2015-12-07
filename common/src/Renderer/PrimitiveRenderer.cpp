@@ -92,10 +92,10 @@ namespace TrenchBroom {
         }
         
         void PrimitiveRenderer::doRender(RenderContext& renderContext) {
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glDisable(GL_DEPTH_TEST));
             renderLines(renderContext);
             renderTriangles(renderContext);
-            glEnable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         void PrimitiveRenderer::renderLines(RenderContext& renderContext) {
@@ -103,10 +103,10 @@ namespace TrenchBroom {
             for (it = m_lineMeshRenderers.begin(), end = m_lineMeshRenderers.end(); it != end; ++it) {
                 const float lineWidth = it->first;
                 IndexRangeRenderer& renderer = it->second;
-                glLineWidth(lineWidth);
+                glAssert(glLineWidth(lineWidth));
                 renderer.render();
             }
-            glLineWidth(1.0f);
+            glAssert(glLineWidth(1.0f));
         }
         
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {

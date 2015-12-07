@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", renderContext.camera().zoom());
                 
-                m_vertexArray.render(PT_Quads);
+                m_vertexArray.render(GL_QUADS);
             }
         }
     }

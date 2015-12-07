@@ -68,11 +68,11 @@ namespace TrenchBroom {
         
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render(PT_Lines);
+            m_spikeArray.render(GL_LINES);
             
-            glPointSize(3.0f);
-            m_pointArray.render(PT_Points);
-            glPointSize(1.0f);
+            glAssert(glPointSize(3.0f));
+            m_pointArray.render(GL_POINTS);
+            glAssert(glPointSize(1.0f));
         }
 
         void SpikeGuideRenderer::addPoint(const Vec3& position) {

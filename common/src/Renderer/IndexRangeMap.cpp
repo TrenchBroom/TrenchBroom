@@ -41,10 +41,10 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const size_t index, const size_t count, const bool dynamicGrowth) {
             switch (primType) {
-                case PT_Points:
-                case PT_Lines:
-                case PT_Triangles:
-                case PT_Quads: {
+                case GL_POINTS:
+                case GL_LINES:
+                case GL_TRIANGLES:
+                case GL_QUADS: {
                     if (size() == 1) {
                         const GLint myIndex = indices.front();
                         GLsizei& myCount = counts.front();
@@ -55,12 +55,12 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                case PT_LineStrips:
-                case PT_LineLoops:
-                case PT_TriangleFans:
-                case PT_TriangleStrips:
-                case PT_QuadStrips:
-                case PT_Polygons:
+                case GL_LINE_STRIP:
+                case GL_LINE_LOOP:
+                case GL_TRIANGLE_FAN:
+                case GL_TRIANGLE_STRIP:
+                case GL_QUAD_STRIP:
+                case GL_POLYGON:
                     assert(dynamicGrowth || indices.capacity() > indices.size());
                     indices.push_back(static_cast<GLint>(index));
                     counts.push_back(static_cast<GLsizei>(count));

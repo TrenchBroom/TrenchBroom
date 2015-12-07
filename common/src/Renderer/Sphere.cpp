@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
         
         void Sphere::render() {
-            m_array.render(PT_Triangles);
+            m_array.render(GL_TRIANGLES);
         }
     }
 }

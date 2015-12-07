@@ -102,8 +102,8 @@ namespace TrenchBroom {
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
             
-            glEnable(GL_TEXTURE_2D);
-            glActiveTexture(GL_TEXTURE0);
+            glAssert(glEnable(GL_TEXTURE_2D));
+            glAssert(glActiveTexture(GL_TEXTURE0));
             
             EntityMap::iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {

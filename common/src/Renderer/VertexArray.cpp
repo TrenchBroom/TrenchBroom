@@ -91,11 +91,11 @@ namespace TrenchBroom {
             assert(prepared());
             if (!m_setup) {
                 if (setup()) {
-                    glDrawArrays(primType, index, count);
+                    glAssert(glDrawArrays(primType, index, count));
                     cleanup();
                 }
             } else {
-                glDrawArrays(primType, index, count);
+                glAssert(glDrawArrays(primType, index, count));
             }
         }
 
@@ -105,13 +105,13 @@ namespace TrenchBroom {
                 if (setup()) {
                     const GLint* indexArray   = indices.data();
                     const GLsizei* countArray = counts.data();
-                    glMultiDrawArrays(primType, indexArray, countArray, primCount);
+                    glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
                     cleanup();
                 }
             } else {
                 const GLint* indexArray   = indices.data();
                 const GLsizei* countArray = counts.data();
-                glMultiDrawArrays(primType, indexArray, countArray, primCount);
+                glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
             }
             
         }
@@ -121,12 +121,12 @@ namespace TrenchBroom {
             if (!m_setup) {
                 if (setup()) {
                     const GLint* indexArray = indices.data();
-                    glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+                    glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
                     cleanup();
                 }
             } else {
                 const GLint* indexArray = indices.data();
-                glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray);
+                glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
             }
         }
 
