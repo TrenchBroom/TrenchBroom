@@ -96,8 +96,8 @@ namespace TrenchBroom {
 
                 void doRender(const PrimType primType, const size_t offset, const size_t count) const {
                     const GLsizei renderCount  = static_cast<GLsizei>(count);
-                    const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + offset);
                     const GLenum indexType     = glType<Index>();
+                    const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(sizeof(Index) * (indexOffset() + offset));
                     glDrawElements(primType, renderCount, indexType, renderOffset);
                 }
             private:

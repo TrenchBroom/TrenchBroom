@@ -39,6 +39,8 @@ namespace TrenchBroom {
             Vbo& m_vertexVbo;
             Vbo& m_indexVbo;
 
+            class IndexedRenderableWrapper;
+            
             typedef std::list<Renderable*> RenderableList;
             typedef std::list<DirectRenderable*> DirectRenderableList;
             typedef std::list<IndexedRenderable*> IndexedRenderableList;
@@ -63,15 +65,12 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext);
         private:
             void doAdd(Renderable* renderable);
-            void doAddOneShot(Renderable* renderable);
             
             void prepareRenderables();
             void prepareVertices();
             void prepareIndices();
             
             void renderRenderables(RenderContext& renderContext);
-            void renderDirectRenderables(RenderContext& renderContext);
-            void renderIndexedRenderables(RenderContext& renderContext);
         };
     }
 }

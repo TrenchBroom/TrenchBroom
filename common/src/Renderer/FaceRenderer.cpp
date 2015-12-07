@@ -130,38 +130,41 @@ namespace TrenchBroom {
             if (m_meshRenderer.empty())
                 return;
             
-            ShaderManager& shaderManager = context.shaderManager();
-            ActiveShader shader(shaderManager, Shaders::FaceShader);
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            const bool applyTexture = context.showTextures();
-            const bool shadeFaces = context.shadeFaces();
-            const bool showFog = context.showFog();
-
-            glEnable(GL_TEXTURE_2D);
-            glActiveTexture(GL_TEXTURE0);
-            shader.set("Brightness", prefs.get(Preferences::Brightness));
-            shader.set("RenderGrid", context.showGrid());
-            shader.set("GridSize", static_cast<float>(context.gridSize()));
-            shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-            shader.set("ApplyTexture", applyTexture);
-            shader.set("Texture", 0);
-            shader.set("ApplyTinting", m_tint);
-            if (m_tint)
-                shader.set("TintColor", m_tintColor);
-            shader.set("GrayScale", m_grayscale);
-            shader.set("CameraPosition", context.camera().position());
-            shader.set("ShadeFaces", shadeFaces);
-            shader.set("ShowFog", showFog);
-            shader.set("Alpha", m_alpha);
-            
-            RenderFunc func(shader, applyTexture, m_faceColor);
-            if (m_alpha < 1.0f) {
-                glDepthMask(GL_FALSE);
-                m_meshRenderer.render(func);
-                glDepthMask(GL_TRUE);
-            } else {
-                m_meshRenderer.render(func);
+            if (m_vertexArray.setup()) {
+                ShaderManager& shaderManager = context.shaderManager();
+                ActiveShader shader(shaderManager, Shaders::FaceShader);
+                PreferenceManager& prefs = PreferenceManager::instance();
+                
+                const bool applyTexture = context.showTextures();
+                const bool shadeFaces = context.shadeFaces();
+                const bool showFog = context.showFog();
+                
+                glEnable(GL_TEXTURE_2D);
+                glActiveTexture(GL_TEXTURE0);
+                shader.set("Brightness", prefs.get(Preferences::Brightness));
+                shader.set("RenderGrid", context.showGrid());
+                shader.set("GridSize", static_cast<float>(context.gridSize()));
+                shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
+                shader.set("ApplyTexture", applyTexture);
+                shader.set("Texture", 0);
+                shader.set("ApplyTinting", m_tint);
+                if (m_tint)
+                    shader.set("TintColor", m_tintColor);
+                shader.set("GrayScale", m_grayscale);
+                shader.set("CameraPosition", context.camera().position());
+                shader.set("ShadeFaces", shadeFaces);
+                shader.set("ShowFog", showFog);
+                shader.set("Alpha", m_alpha);
+                
+                RenderFunc func(shader, applyTexture, m_faceColor);
+                if (m_alpha < 1.0f) {
+                    glDepthMask(GL_FALSE);
+                    m_meshRenderer.render(func);
+                    glDepthMask(GL_TRUE);
+                } else {
+                    m_meshRenderer.render(func);
+                }
+                m_vertexArray.cleanup();
             }
         }
     }

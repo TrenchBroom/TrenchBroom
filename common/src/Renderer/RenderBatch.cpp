@@ -25,12 +25,38 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderBatch::IndexedRenderableWrapper : public IndexedRenderable {
+        private:
+            Vbo& m_indexBuffer;
+            IndexedRenderable* m_wrappee;
+        public:
+            IndexedRenderableWrapper(Vbo& indexBuffer, IndexedRenderable* wrappee) :
+            m_indexBuffer(indexBuffer),
+            m_wrappee(wrappee) {
+                assert(m_wrappee != NULL);
+            }
+        private:
+            void doPrepareVertices(Vbo& vertexVbo) {
+                m_wrappee->prepareVertices(vertexVbo);
+            }
+            
+            void doPrepareIndices(Vbo& indexVbo) {
+                m_wrappee->prepareIndices(indexVbo);
+            }
+            
+            void doRender(RenderContext& renderContext) {
+                ActivateVbo activate(m_indexBuffer);
+                m_wrappee->render(renderContext);
+            }
+        };
+        
         RenderBatch::RenderBatch(Vbo& vertexVbo, Vbo& indexVbo) :
         m_vertexVbo(vertexVbo),
         m_indexVbo(indexVbo) {}
         
         RenderBatch::~RenderBatch() {
             ListUtils::clearAndDelete(m_oneshots);
+            ListUtils::clearAndDelete(m_indexedRenderables);
         }
         
         void RenderBatch::add(Renderable* renderable) {
@@ -43,22 +69,28 @@ namespace TrenchBroom {
         }
         
         void RenderBatch::add(IndexedRenderable* renderable) {
-            doAdd(renderable);
-            m_indexedRenderables.push_back(renderable);
+            IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_indexVbo, renderable);
+            doAdd(wrapper);
+            m_indexedRenderables.push_back(wrapper);
         }
         
         void RenderBatch::addOneShot(Renderable* renderable) {
-            doAddOneShot(renderable);
+            doAdd(renderable);
+            m_oneshots.push_back(renderable);
         }
 
         void RenderBatch::addOneShot(DirectRenderable* renderable) {
-            doAddOneShot(renderable);
+            doAdd(renderable);
             m_directRenderables.push_back(renderable);
+            m_oneshots.push_back(renderable);
         }
         
         void RenderBatch::addOneShot(IndexedRenderable* renderable) {
-            doAddOneShot(renderable);
-            m_indexedRenderables.push_back(renderable);
+            IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_indexVbo, renderable);
+
+            doAdd(wrapper);
+            m_indexedRenderables.push_back(wrapper);
+            m_oneshots.push_back(renderable);
         }
         
         void RenderBatch::render(RenderContext& renderContext) {
@@ -71,11 +103,6 @@ namespace TrenchBroom {
         void RenderBatch::doAdd(Renderable* renderable) {
             assert(renderable != NULL);
             m_batch.push_back(renderable);
-        }
-
-        void RenderBatch::doAddOneShot(Renderable* renderable) {
-            assert(renderable != NULL);
-            m_oneshots.push_back(renderable);
         }
 
         void RenderBatch::prepareRenderables() {
@@ -110,24 +137,9 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::renderRenderables(RenderContext& renderContext) {
-            renderDirectRenderables(renderContext);
-            renderIndexedRenderables(renderContext);
-        }
-
-        void RenderBatch::renderDirectRenderables(RenderContext& renderContext) {
-            DirectRenderableList::const_iterator dIt, dEnd;
-            for (dIt = m_directRenderables.begin(), dEnd = m_directRenderables.end(); dIt != dEnd; ++dIt) {
-                DirectRenderable* renderable = *dIt;
-                renderable->render(renderContext);
-            }
-        }
-        
-        void RenderBatch::renderIndexedRenderables(RenderContext& renderContext) {
-            ActivateVbo activate(m_indexVbo);
-
-            IndexedRenderableList::const_iterator iIt, iEnd;
-            for (iIt = m_indexedRenderables.begin(), iEnd = m_indexedRenderables.end(); iIt != iEnd; ++iIt) {
-                IndexedRenderable* renderable = *iIt;
+            RenderableList::const_iterator it, end;
+            for (it = m_batch.begin(), end = m_batch.end(); it != end; ++it) {
+                Renderable* renderable = *it;
                 renderable->render(renderContext);
             }
         }

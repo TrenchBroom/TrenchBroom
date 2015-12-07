@@ -90,10 +90,7 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-            
-            mutable Vertex::List m_cachedVertices;
             mutable size_t m_vertexIndex;
-            mutable bool m_verticesValid;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -191,6 +188,7 @@ namespace TrenchBroom {
             void deselect();
 
             void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
+            size_t getFaceIndexCount() const;
             void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
             void getEdgeIndex(Renderer::IndexRangeMap& array) const;
             Vec2f textureCoords(const Vec3& point) const;
@@ -200,10 +198,6 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
-            
-            bool vertexCacheValid() const;
-            void invalidateCachedVertices();
-            void validateCachedVertices() const;
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);

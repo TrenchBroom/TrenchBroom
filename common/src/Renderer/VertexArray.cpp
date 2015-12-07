@@ -64,11 +64,12 @@ namespace TrenchBroom {
         }
 
         bool VertexArray::setup() {
+            if (empty())
+                return false;
+
             assert(prepared());
             assert(!m_setup);
             
-            if (empty())
-                return false;
             
             m_holder->setup();
             m_setup = true;
