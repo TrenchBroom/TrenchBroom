@@ -84,6 +84,16 @@ namespace TrenchBroom {
             add(texture, GL_QUADS, indices);
         }
         
+        void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
+            assert(vertexCount % 4 == 0);
+            IndexList indices(vertexCount);
+            
+            for (size_t i = 0; i < vertexCount; ++i)
+                indices[i] = baseIndex + static_cast<Index>(i);
+            
+            add(texture, GL_QUADS, indices);
+        }
+
         void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const IndexList& indices) {
             const size_t count = indices.size();
             

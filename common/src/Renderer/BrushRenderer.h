@@ -94,8 +94,7 @@ namespace TrenchBroom {
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             EdgeRenderer m_edgeRenderer;
-            bool m_verticesValid;
-            bool m_indicesValid;
+            bool m_valid;
             
             Color m_faceColor;
             bool m_showEdges;
@@ -112,8 +111,7 @@ namespace TrenchBroom {
             template <typename FilterT>
             BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
-            m_verticesValid(true),
-            m_indicesValid(true),
+            m_valid(true),
             m_showEdges(true),
             m_grayscale(false),
             m_tint(false),
@@ -129,7 +127,7 @@ namespace TrenchBroom {
             void setBrushes(const Model::BrushList& brushes);
             void clear();
             
-            void invalidateVertices();
+            void invalidate();
             
             void setFaceColor(const Color& faceColor);
             void setShowEdges(bool showEdges);
@@ -147,7 +145,7 @@ namespace TrenchBroom {
             void renderFaces(RenderBatch& renderBatch);
             void renderEdges(RenderBatch& renderBatch);
             
-            void invalidateIndices();
+            void validate();
             void validateVertices();
             void validateIndices();
         };

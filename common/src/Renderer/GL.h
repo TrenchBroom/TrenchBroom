@@ -203,16 +203,17 @@ namespace TrenchBroom {
     void glCheckError(const String& msg);
     String glGetErrorMessage(GLenum code);
 
+// #define GL_DEBUG 1
 // #define GL_LOG 1
     
-#ifndef NDEBUG // in debug mode
-#ifdef GL_LOG
-    #define glAssert(C) { std::cout << #C << std::endl; glCheckError("before " #C); (C); glCheckError("after " #C); }
+#if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
+    #if defined(GL_LOG)
+        #define glAssert(C) { std::cout << #C << std::endl; glCheckError("before " #C); (C); glCheckError("after " #C); }
+    #else
+        #define glAssert(C) { glCheckError("before " #C); (C); glCheckError("after " #C); }
+    #endif
 #else
-    #define glAssert(C) { glCheckError("before " #C); (C); glCheckError("after " #C); }
-#endif
-#else
-#define glAssert(C) { (C); }
+    #define glAssert(C) { (C); }
 #endif
 
     template <GLenum T> struct GLType               { typedef GLvoid    Type; };

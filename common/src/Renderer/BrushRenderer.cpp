@@ -70,8 +70,7 @@ namespace TrenchBroom {
 
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
-        m_verticesValid(true),
-        m_indicesValid(true),
+        m_valid(true),
         m_showEdges(true),
         m_grayscale(false),
         m_tint(false),
@@ -86,25 +85,25 @@ namespace TrenchBroom {
 
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
             VectorUtils::append(m_brushes, brushes);
-            invalidateIndices();
+            invalidate();
         }
 
         void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
             m_brushes = brushes;
-            invalidateIndices();
+            invalidate();
         }
 
-        void BrushRenderer::invalidateVertices() {
-            invalidateIndices();
+        void BrushRenderer::invalidate() {
             m_vertexArray = VertexArray();
-            m_verticesValid = false;
+            m_valid = false;
         }
         
         void BrushRenderer::clear() {
             m_brushes.clear();
-            invalidateVertices();
             m_transparentFaceRenderer = FaceRenderer();
             m_opaqueFaceRenderer = FaceRenderer();
+            m_vertexArray = VertexArray();
+            m_valid = true;
         }
 
         void BrushRenderer::setFaceColor(const Color& faceColor) {
@@ -147,15 +146,13 @@ namespace TrenchBroom {
             if (showHiddenBrushes == m_showHiddenBrushes)
                 return;
             m_showHiddenBrushes = showHiddenBrushes;
-            invalidateVertices();
+            invalidate();
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_brushes.empty()) {
-                if (!m_verticesValid)
-                    validateVertices();
-                if(!m_indicesValid)
-                    validateIndices();
+                if (!m_valid)
+                    validate();
                 if (renderContext.showFaces())
                     renderFaces(renderBatch);
                 if (renderContext.showEdges() && m_showEdges)
@@ -308,9 +305,9 @@ namespace TrenchBroom {
                     const Model::BrushFace* face = *it;
                     if (m_filter.show(face)) {
                         if (m_filter.transparent(brush))
-                            m_transparentIndexSize.inc(face->texture(), GL_TRIANGLES, face->getFaceIndexCount());
+                            face->countIndices(m_transparentIndexSize);
                         else
-                            m_opaqueIndexSize.inc(face->texture(), GL_TRIANGLES, face->getFaceIndexCount());
+                            face->countIndices(m_opaqueIndexSize);
                         // m_edgeIndexSize.inc(GL_LINE_LOOP);
                     }
                 }
@@ -366,13 +363,14 @@ namespace TrenchBroom {
             }
         };
         
-        void BrushRenderer::invalidateIndices() {
-            m_indicesValid = false;
+        void BrushRenderer::validate() {
+            assert(!m_valid);
+            validateVertices();
+            validateIndices();
+            m_valid = true;
         }
         
         void BrushRenderer::validateVertices() {
-            assert(!m_verticesValid);
-            
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountVertices countVertices(wrapper);
             Model::Node::accept(m_brushes.begin(), m_brushes.end(), countVertices);
@@ -381,12 +379,9 @@ namespace TrenchBroom {
             Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectVertices);
             
             m_vertexArray = collectVertices.vertexArray();
-            m_verticesValid = true;
         }
         
         void BrushRenderer::validateIndices() {
-            assert(!m_indicesValid);
-            
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountIndices countIndices(wrapper);
             Model::Node::accept(m_brushes.begin(), m_brushes.end(), countIndices);
@@ -403,8 +398,6 @@ namespace TrenchBroom {
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, opaqueIndices, opaqueRanges, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, transparentIndices, transparentRanges, m_faceColor);
             // m_edgeRenderer = EdgeRenderer(m_vertexArray, collectIndices.edgeIndices());
-            
-            m_indicesValid = true;
         }
     }
 }

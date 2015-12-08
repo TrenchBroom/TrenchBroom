@@ -34,7 +34,7 @@ namespace TrenchBroom {
         void ObjectRenderer::invalidate() {
             m_groupRenderer.invalidate();
             m_entityRenderer.invalidate();
-            m_brushRenderer.invalidateVertices();
+            m_brushRenderer.invalidate();
         }
 
         void ObjectRenderer::clear() {

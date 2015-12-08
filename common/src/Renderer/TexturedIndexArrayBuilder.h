@@ -58,6 +58,7 @@ namespace TrenchBroom {
             
             void addQuad(const Texture* texture, Index, Index i1, Index i2, Index i3, Index i4);
             void addQuads(const Texture* texture, const IndexList& indices);
+            void addQuads(const Texture* texture, Index baseIndex, size_t vertexCount);
             
             void addPolygon(const Texture* texture, const IndexList& indices);
             void addPolygon(const Texture* texture, Index baseIndex, size_t vertexCount);

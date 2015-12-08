@@ -31,6 +31,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
+#include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/VertexListBuilder.h"
 #include "Renderer/VertexSpec.h"
 
@@ -44,7 +45,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class IndexRangeMap;
         class TexturedIndexArrayBuilder;
-        class TexturedIndexRangeMap;
     }
     
     namespace Model {
@@ -90,7 +90,10 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
+            
             mutable size_t m_vertexIndex;
+            mutable Vertex::List m_cachedVertices;
+            mutable bool m_verticesValid;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -188,8 +191,10 @@ namespace TrenchBroom {
             void deselect();
 
             void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
-            size_t getFaceIndexCount() const;
+            
+            void countIndices(Renderer::TexturedIndexArrayMap::Size& size) const;
             void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
+            
             void getEdgeIndex(Renderer::IndexRangeMap& array) const;
             Vec2f textureCoords(const Vec3& point) const;
             
@@ -199,6 +204,10 @@ namespace TrenchBroom {
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
             
+            bool vertexCacheValid() const;
+            void invalidateVertexCache();
+            void validateVertexCache() const;
+
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };
