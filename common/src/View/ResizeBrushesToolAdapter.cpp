@@ -95,15 +95,12 @@ namespace TrenchBroom {
         
         void ResizeBrushesToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_tool->hasDragFaces()) {
-                Renderer::EdgeRenderer edgeRenderer = buildEdgeRenderer();
-                Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-                renderEdges->setRenderOccluded();
-                renderEdges->setColor(pref(Preferences::ResizeHandleColor));
-                renderBatch.addOneShot(renderEdges);
+                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
+                edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
         }
 
-        Renderer::EdgeRenderer ResizeBrushesToolAdapter::buildEdgeRenderer() {
+        Renderer::DirectEdgeRenderer ResizeBrushesToolAdapter::buildEdgeRenderer() {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             
@@ -120,7 +117,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return Renderer::EdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
         }
         
         bool ResizeBrushesToolAdapter::doCancel() {

@@ -195,9 +195,8 @@ namespace TrenchBroom {
             void countIndices(Renderer::TexturedIndexArrayMap::Size& size) const;
             void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
             
-            void getEdgeIndex(Renderer::IndexRangeMap& array) const;
             Vec2f textureCoords(const Vec3& point) const;
-            
+
             bool containsPoint(const Vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
         private:

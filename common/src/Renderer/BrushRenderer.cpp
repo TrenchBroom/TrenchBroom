@@ -26,11 +26,10 @@
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
-#include "Renderer/IndexRangeMap.h"
+#include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
-#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
@@ -175,18 +174,9 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
-            return;
-            
-            if (m_showOccludedEdges) {
-                RenderEdges* renderOccludedEdges = new RenderEdges(Reference::ref(m_edgeRenderer));
-                renderOccludedEdges->setRenderOccluded();
-                renderOccludedEdges->setColor(m_occludedEdgeColor);
-                renderBatch.addOneShot(renderOccludedEdges);
-            }
-            
-            RenderEdges* renderUnoccludedEdges = new RenderEdges(Reference::ref(m_edgeRenderer));
-            renderUnoccludedEdges->setColor(m_edgeColor);
-            renderBatch.addOneShot(renderUnoccludedEdges);
+            if (m_showOccludedEdges)
+                m_edgeRenderer.renderOnTop(renderBatch, m_occludedEdgeColor);
+            m_edgeRenderer.render(renderBatch, m_edgeColor);
         }
 
         class BrushRenderer::FilterWrapper : public BrushRenderer::Filter {
@@ -273,7 +263,7 @@ namespace TrenchBroom {
             const FilterWrapper& m_filter;
             TexturedIndexArrayMap::Size m_opaqueIndexSize;
             TexturedIndexArrayMap::Size m_transparentIndexSize;
-            IndexRangeMap::Size m_edgeIndexSize;
+            IndexArrayMap::Size m_edgeIndexSize;
         public:
             CountIndices(const FilterWrapper& filter) :
             m_filter(filter) {}
@@ -286,7 +276,7 @@ namespace TrenchBroom {
                 return m_transparentIndexSize;
             }
             
-            const IndexRangeMap::Size& edgeIndexSize() const {
+            const IndexArrayMap::Size& edgeIndexSize() const {
                 return m_edgeIndexSize;
             }
         private:
@@ -296,6 +286,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 countFaceIndices(brush);
+                countEdgeIndices(brush);
             }
             
             void countFaceIndices(const Model::Brush* brush) {
@@ -308,8 +299,17 @@ namespace TrenchBroom {
                             face->countIndices(m_transparentIndexSize);
                         else
                             face->countIndices(m_opaqueIndexSize);
-                        // m_edgeIndexSize.inc(GL_LINE_LOOP);
                     }
+                }
+            }
+            
+            void countEdgeIndices(const Model::Brush* brush) {
+                const Model::Brush::EdgeList& edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    if (m_filter.show(edge))
+                        m_edgeIndexSize.inc(GL_LINES, 2);
                 }
             }
         };
@@ -319,13 +319,13 @@ namespace TrenchBroom {
             const FilterWrapper& m_filter;
             TexturedIndexArrayBuilder m_opaqueFaceIndexBuilder;
             TexturedIndexArrayBuilder m_transparentFaceIndexBuilder;
-            IndexRangeMap m_edgeIndices;
+            IndexArrayMapBuilder m_edgeIndexBuilder;
         public:
             CollectIndices(const FilterWrapper& filter, const CountIndices& indexSize) :
             m_filter(filter),
             m_opaqueFaceIndexBuilder(indexSize.opaqueIndexSize()),
             m_transparentFaceIndexBuilder(indexSize.transparentIndexSize()),
-            m_edgeIndices(indexSize.edgeIndexSize()) {}
+            m_edgeIndexBuilder(indexSize.edgeIndexSize()) {}
             
             TexturedIndexArrayBuilder& opaqueFaceIndices() {
                 return m_opaqueFaceIndexBuilder;
@@ -335,8 +335,8 @@ namespace TrenchBroom {
                 return m_transparentFaceIndexBuilder;
             }
             
-            const IndexRangeMap& edgeIndices() const {
-                return m_edgeIndices;
+            IndexArrayMapBuilder& edgeIndices() {
+                return m_edgeIndexBuilder;
             }
         private:
             void doVisit(const Model::World* world) {}
@@ -345,6 +345,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
                 collectFaceIndices(brush);
+                collectEdgeIndices(brush);
             }
             
             void collectFaceIndices(const Model::Brush* brush) {
@@ -357,8 +358,18 @@ namespace TrenchBroom {
                             face->getFaceIndices(m_transparentFaceIndexBuilder);
                         else
                             face->getFaceIndices(m_opaqueFaceIndexBuilder);
-                        // face->getEdgeIndex(m_edgeIndices);
                     }
+                }
+            }
+            
+            void collectEdgeIndices(const Model::Brush* brush) {
+                const Model::Brush::EdgeList& edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    const Model::BrushVertex* v1 = edge->firstVertex();
+                    const Model::BrushVertex* v2 = edge->secondVertex();
+                    m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
                 }
             }
         };
@@ -397,7 +408,10 @@ namespace TrenchBroom {
             
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, opaqueIndices, opaqueRanges, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, transparentIndices, transparentRanges, m_faceColor);
-            // m_edgeRenderer = EdgeRenderer(m_vertexArray, collectIndices.edgeIndices());
+            
+            const IndexArray edgeIndices = IndexArray::swap(collectIndices.edgeIndices().indices());
+            const IndexArrayMap& edgeRanges = collectIndices.edgeIndices().ranges();
+            m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, edgeIndices, edgeRanges);
         }
     }
 }

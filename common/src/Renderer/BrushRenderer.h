@@ -93,7 +93,7 @@ namespace TrenchBroom {
             VertexArray m_vertexArray;
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
-            EdgeRenderer m_edgeRenderer;
+            IndexedEdgeRenderer m_edgeRenderer;
             bool m_valid;
             
             Color m_faceColor;

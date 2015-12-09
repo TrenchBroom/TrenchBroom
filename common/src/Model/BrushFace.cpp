@@ -561,6 +561,18 @@ namespace TrenchBroom {
         void BrushFace::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
             validateVertexCache();
             m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
+
+            GLuint index = static_cast<GLuint>(m_vertexIndex);
+            // set the vertex indices
+            const BrushHalfEdge* first = m_geometry->boundary().front();
+            const BrushHalfEdge* current = first;
+            do {
+                BrushVertex* vertex = current->origin();
+                vertex->setPayload(index++);
+                
+                // The boundary is in CCW order, but the renderer expects CW order:
+                current = current->previous();
+            } while (current != first);
         }
         
         void BrushFace::countIndices(Renderer::TexturedIndexArrayMap::Size& size) const {
@@ -575,10 +587,6 @@ namespace TrenchBroom {
                 builder.addQuads(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
             else
                 builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
-        }
-
-        void BrushFace::getEdgeIndex(Renderer::IndexRangeMap& array) const {
-            array.add(GL_LINE_LOOP, m_vertexIndex, vertexCount());
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {

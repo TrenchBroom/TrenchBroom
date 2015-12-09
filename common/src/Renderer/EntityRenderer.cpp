@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
         void EntityRenderer::clear() {
             m_entities.clear();
-            m_wireframeBoundsRenderer = EdgeRenderer();
+            m_wireframeBoundsRenderer = DirectEdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
             m_modelRenderer.clear();
         }
@@ -174,18 +174,9 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
-            if (m_showOccludedBounds) {
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-                if (m_overrideBoundsColor)
-                    renderOccludedEdges->setColor(m_boundsColor);
-                renderOccludedEdges->setRenderOccluded();
-                renderBatch.addOneShot(renderOccludedEdges);
-            }
-            
-            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-            if (m_overrideBoundsColor)
-                renderUnoccludedEdges->setColor(m_boundsColor);
-            renderBatch.addOneShot(renderUnoccludedEdges);
+            if (m_showOccludedBounds)
+                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_boundsColor);
+            m_wireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
         
         void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
@@ -360,7 +351,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -379,7 +370,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             }
             
             m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);

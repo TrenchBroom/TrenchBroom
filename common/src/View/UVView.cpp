@@ -311,12 +311,8 @@ namespace TrenchBroom {
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setOnTop(true);
-            renderEdges->setColor(edgeColor);
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
+            edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.0f);
         }
 
         void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -340,11 +336,8 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
             vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setRenderOccluded();
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

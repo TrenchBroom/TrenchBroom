@@ -20,8 +20,8 @@
 #ifndef Polyhedron_Queries_h
 #define Polyhedron_Queries_h
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::contains(const V& point, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) const {
     if (!bounds().contains(point))
         return false;
     
@@ -36,8 +36,8 @@ bool Polyhedron<T,FP>::contains(const V& point, const Callback& callback) const 
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::contains(const Polyhedron& other, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::contains(const Polyhedron& other, const Callback& callback) const {
     if (!bounds().contains(other.bounds()))
         return false;
     const Vertex* theirFirst = other.vertices().front();
@@ -50,8 +50,8 @@ bool Polyhedron<T,FP>::contains(const Polyhedron& other, const Callback& callbac
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::intersects(const Polyhedron& other, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& callback) const {
     if (!bounds().intersects(other.bounds()))
         return false;
 
@@ -93,8 +93,8 @@ bool Polyhedron<T,FP>::intersects(const Polyhedron& other, const Callback& callb
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::separate(const Face* firstFace, const Vertex* firstVertex, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVertex, const Callback& callback) const {
     const Face* currentFace = firstFace;
     do {
         const Plane<T,3> plane = callback.plane(currentFace);
@@ -105,8 +105,8 @@ bool Polyhedron<T,FP>::separate(const Face* firstFace, const Vertex* firstVertex
     return false;
 }
 
-template <typename T, typename FP>
-Math::PointStatus::Type Polyhedron<T,FP>::pointStatus(const Plane<T,3>& plane, const Vertex* firstVertex) const {
+template <typename T, typename FP, typename VP>
+Math::PointStatus::Type Polyhedron<T,FP,VP>::pointStatus(const Plane<T,3>& plane, const Vertex* firstVertex) const {
     size_t above = 0;
     size_t below = 0;
     const Vertex* currentVertex = firstVertex;

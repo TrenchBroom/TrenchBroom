@@ -66,7 +66,6 @@ namespace TrenchBroom {
         private:
             MoveToolDelegate* m_delegate;
             Vec3f::List m_trace;
-            Renderer::EdgeRenderer m_traceRenderer;
         protected:
             MoveToolHelper(PlaneDragPolicy* policy, MoveToolDelegate* delegate);
         public:

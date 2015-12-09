@@ -186,11 +186,8 @@ namespace TrenchBroom {
             EdgeVertex::List vertices = getHandleVertices(pickResult);
             const Color color(1.0f, 1.0f, 0.0f);
             
-            Renderer::EdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(handleRenderer));
-            renderEdges->setColor(color);
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            handleRenderer.render(renderBatch, color, 2.0f);
         }
 
         UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {

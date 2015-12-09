@@ -20,27 +20,27 @@
 #ifndef TrenchBroom_Polyhedron_Clip_h
 #define TrenchBroom_Polyhedron_Clip_h
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::ClipResult::ClipResult(const Type i_type) :
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::ClipResult::ClipResult(const Type i_type) :
 type(i_type) {}
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::ClipResult::unchanged() const { return type == Type_ClipUnchanged; }
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::ClipResult::unchanged() const { return type == Type_ClipUnchanged; }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::ClipResult::empty() const     { return type == Type_ClipEmpty; }
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::ClipResult::empty() const     { return type == Type_ClipEmpty; }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::ClipResult::success() const   { return type == Type_ClipSuccess; }
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::ClipResult::success() const   { return type == Type_ClipSuccess; }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& plane) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T,3>& plane) {
     Callback c;
     return clip(plane, c);
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& plane, Callback& callback) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T,3>& plane, Callback& callback) {
     const ClipResult vertexResult = checkIntersects(plane);
     if (!vertexResult.success())
         return vertexResult;
@@ -63,8 +63,8 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
     return ClipResult(ClipResult::Type_ClipSuccess);
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::checkIntersects(const Plane<T,3>& plane) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const Plane<T,3>& plane) const {
     size_t above = 0;
     size_t below = 0;
     size_t inside = 0;
@@ -95,8 +95,8 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::checkIntersects(const Pl
     return ClipResult(ClipResult::Type_ClipSuccess);
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::intersectWithPlane(const Plane<T,3>& plane, Callback& callback) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const Plane<T,3>& plane, Callback& callback) {
     Seam seam;
     
     // First, we find a half edge that is intersected by the given plane.
@@ -132,8 +132,8 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::intersectWithPlane(const Plane
     return seam;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEdge(const Plane<T,3>& plane) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersectingEdge(const Plane<T,3>& plane) const {
     Edge* firstEdge = m_edges.front();
     Edge* currentEdge = firstEdge;
     do {
@@ -165,8 +165,8 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
     return NULL;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback) {
     
     // Starting at the given edge, we search the boundary of the current face until we find an edge that is either split in two by the given plane
     // or where its origin is inside it. In the first case, we split the found edge by inserting a vertex at the position where
@@ -232,8 +232,8 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
     return seamDestination->previous();
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, Callback& callback) {
     HalfEdge* newBoundaryLast = oldBoundaryFirst->previous();
     
     HalfEdge* oldBoundarySplitter = new HalfEdge(newBoundaryFirst->origin());
@@ -257,8 +257,8 @@ void Polyhedron<T,FP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* 
     callback.faceWasSplit(oldFace, newFace);
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const {
     HalfEdge* currentEdge = searchFrom->next()->twin()->next();
     const HalfEdge* stopEdge = searchFrom->next();
     do {

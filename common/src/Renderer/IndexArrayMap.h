@@ -63,6 +63,7 @@ namespace TrenchBroom {
         private:
             PrimTypeToRangeMapPtr m_ranges;
         public:
+            IndexArrayMap();
             IndexArrayMap(const Size& size);
             IndexArrayMap(const Size& size, size_t baseOffset);
 

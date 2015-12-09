@@ -60,6 +60,8 @@ namespace TrenchBroom {
             }
         }
 
+        IndexArrayMap::IndexArrayMap() {}
+
         IndexArrayMap::IndexArrayMap(const Size& size) :
         m_ranges(new PrimTypeToRangeMap()) {
             size.initialize(*m_ranges, 0);

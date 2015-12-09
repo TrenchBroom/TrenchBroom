@@ -17,21 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Polyhedron_Misc.h"
-#include "Polyhedron_Vertex.h"
-#include "Polyhedron_Edge.h"
-#include "Polyhedron_HalfEdge.h"
-#include "Polyhedron_Face.h"
-#include "Polyhedron_VertexManipulation.h"
-#include "Polyhedron_ConvexHull.h"
-#include "Polyhedron_Clip.h"
-#include "Polyhedron_Subtract.h"
-#include "Polyhedron_Intersect.h"
-#include "Polyhedron_Queries.h"
-#include "Polyhedron_BrushGeometryPayload.h"
-#include "Polyhedron_DefaultPayload.h"
+#ifndef Polyhedron_BrushGeometryPayload_h
+#define Polyhedron_BrushGeometryPayload_h
 
-template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+#include "Renderer/GL.h"
+
+#include <limits>
+
+namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+    }
+}
+
+struct BrushVertexPayload {
+    typedef TrenchBroom::GLuint Type;
+    static Type defaultValue() {
+        return std::numeric_limits<Type>::max();
+    }
+};
+
+struct BrushFacePayload {
+    typedef TrenchBroom::Model::BrushFace* Type;
+    static Type defaultValue() {
+        return NULL;
+    }
+};
+
+#endif /* Polyhedron_BrushGeometryPayload_h */

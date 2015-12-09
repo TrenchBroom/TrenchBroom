@@ -20,14 +20,14 @@
 #ifndef Polyhedron_Intersect_h
 #define Polyhedron_Intersect_h
 
-template <typename T, typename FP>
-Polyhedron<T,FP> Polyhedron<T,FP>::intersect(const Polyhedron& other) const {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(const Polyhedron& other) const {
     Callback c;
     return intersect(other, c);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP> Polyhedron<T,FP>::intersect(Polyhedron other, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callback& callback) const {
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {

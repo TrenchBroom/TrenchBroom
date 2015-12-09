@@ -20,14 +20,14 @@
 #ifndef Polyhedron_Subtract_h
 #define Polyhedron_Subtract_h
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyhedron& subtrahend) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
     Callback c;
     return subtract(subtrahend, c);
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
     Subtract subtract(*this, subtrahend, callback);
     
     List& result = subtract.result();
@@ -35,8 +35,8 @@ typename Polyhedron<T,FP>::SubtractResult Polyhedron<T,FP>::subtract(const Polyh
     return result;
 }
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::Subtract {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Subtract {
 private:
     const Polyhedron& m_minuend;
     Polyhedron m_subtrahend;
@@ -327,8 +327,8 @@ private:
     }
 };
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::Partition {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Partition {
 private:
     List& m_fragments;
 public:
@@ -337,8 +337,8 @@ public:
     
 };
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::Merge {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Merge {
 private:
     struct NeighbourEntry {
         size_t neighbour;

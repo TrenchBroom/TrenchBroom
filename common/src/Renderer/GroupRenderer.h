@@ -41,7 +41,7 @@ namespace TrenchBroom {
             const Model::EditorContext& m_editorContext;
             Model::GroupList m_groups;
             
-            EdgeRenderer m_boundsRenderer;
+            DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
 
             bool m_showOverlays;
