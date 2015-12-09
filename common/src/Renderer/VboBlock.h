@@ -74,8 +74,8 @@ namespace TrenchBroom {
                 const GLvoid* ptr = static_cast<const GLvoid*>(&(buffer[0]));
                 const GLintptr offset = static_cast<GLintptr>(m_offset + address);
                 const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
-                glBufferSubData(GL_ARRAY_BUFFER, offset, sizei, ptr);
-
+                glAssert(glBufferSubData(m_vbo.type(), offset, sizei, ptr));
+                
                 return size;
             }
 

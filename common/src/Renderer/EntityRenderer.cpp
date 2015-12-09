@@ -30,6 +30,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -92,7 +93,7 @@ namespace TrenchBroom {
 
         void EntityRenderer::clear() {
             m_entities.clear();
-            m_wireframeBoundsRenderer = EdgeRenderer();
+            m_wireframeBoundsRenderer = DirectEdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
             m_modelRenderer.clear();
         }
@@ -173,18 +174,9 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
-            if (m_showOccludedBounds) {
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-                if (m_overrideBoundsColor)
-                    renderOccludedEdges->setColor(m_boundsColor);
-                renderOccludedEdges->setRenderOccluded();
-                renderBatch.addOneShot(renderOccludedEdges);
-            }
-            
-            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-            if (m_overrideBoundsColor)
-                renderUnoccludedEdges->setColor(m_boundsColor);
-            renderBatch.addOneShot(renderUnoccludedEdges);
+            if (m_showOccludedBounds)
+                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_boundsColor);
+            m_wireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
         
         void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
@@ -264,22 +256,23 @@ namespace TrenchBroom {
             if (vertexCount == 0)
                 return;
             
-            VertexArray array = VertexArray::swap(GL_TRIANGLES, vertices);
+            VertexArray array = VertexArray::swap(vertices);
             
             ActivateVbo activate(m_vbo);
             array.prepare(m_vbo);
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
-            glDepthMask(GL_FALSE);
+            glAssert(glDepthMask(GL_FALSE));
 
-            glDisable(GL_DEPTH_TEST);
-            glPolygonMode(GL_FRONT, GL_LINE);
+            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glPolygonMode(GL_FRONT, GL_LINE));
             shader.set("Color", m_angleColor);
-            array.render();
+            array.render(GL_TRIANGLES);
 
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glDepthMask(GL_TRUE);
+            glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+            glAssert(glDepthMask(GL_TRUE));
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
@@ -303,9 +296,7 @@ namespace TrenchBroom {
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
             }
         };
 
@@ -360,7 +351,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -379,10 +370,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(GL_TRIANGLES, solidVertices));
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);
             m_boundsValid = true;
         }
 

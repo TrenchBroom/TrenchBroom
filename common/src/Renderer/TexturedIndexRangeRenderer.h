@@ -17,32 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LineMeshRenderer
-#define TrenchBroom_LineMeshRenderer
+#ifndef TexturedIndexRangeRenderer_h
+#define TexturedIndexRangeRenderer_h
 
-#include "Renderer/LineMesh.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace Renderer {
         class Vbo;
-        class LineMeshRenderer {
+        class TextureRenderFunc;
+        
+        class TexturedIndexRangeRenderer {
         private:
-            LineMeshRenderData m_renderData;
-            bool m_prepared;
+            VertexArray m_vertexArray;
+            TexturedIndexRangeMap m_indexRange;
         public:
-            LineMeshRenderer();
+            TexturedIndexRangeRenderer();
+            TexturedIndexRangeRenderer(const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange);
+            TexturedIndexRangeRenderer(const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange);
+
+            bool empty() const;
             
-            template <typename VertexSpec>
-            LineMeshRenderer(LineMesh<VertexSpec>& mesh) :
-            m_renderData(mesh.renderData()),
-            m_prepared(false) {}
-            
-            bool prepared() const;
             void prepare(Vbo& vbo);
-            
             void render();
+            void render(TextureRenderFunc& func);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_LineMeshRenderer) */
+#endif /* TexturedIndexRangeRenderer_h */

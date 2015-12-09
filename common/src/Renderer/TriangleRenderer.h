@@ -21,6 +21,7 @@
 #define TrenchBroom_TriangleRenderer
 
 #include "Color.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
@@ -31,17 +32,19 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         
-        class TriangleRenderer : public Renderable {
+        class TriangleRenderer : public DirectRenderable {
         private:
             VertexArray m_vertexArray;
+            IndexRangeMap m_indexArray;
+            
             Color m_color;
             bool m_useColor;
             Color m_tintColor;
             bool m_applyTinting;
-            bool m_prepared;
         public:
             TriangleRenderer();
-            TriangleRenderer(const VertexArray& vertexArray);
+            TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
+            TriangleRenderer(const VertexArray& vertexArray, PrimType primType);
             TriangleRenderer(const TriangleRenderer& other);
             TriangleRenderer& operator= (TriangleRenderer other);
             
@@ -52,7 +55,7 @@ namespace TrenchBroom {
             void setApplyTinting(bool applyTinting);
             void setTintColor(const Color& tintColor);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& context);
         };
     }

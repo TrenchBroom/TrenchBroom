@@ -115,13 +115,12 @@ namespace TrenchBroom {
             assert(!active());
             
             if (m_vboId == 0) {
-                glGenBuffers(1, &m_vboId);
-                glBindBuffer(m_type, m_vboId);
-                glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, m_usage);
+                glAssert(glGenBuffers(1, &m_vboId));
+                glAssert(glBindBuffer(m_type, m_vboId));
+                glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, m_usage));
             } else {
-                glBindBuffer(m_type, m_vboId);
+                glAssert(glBindBuffer(m_type, m_vboId));
             }
-            GL_CHECK_ERROR()
             m_state = State_Active;
         }
         
@@ -129,14 +128,17 @@ namespace TrenchBroom {
             assert(active());
             assert(!fullyMapped());
             assert(!partiallyMapped());
-            glBindBuffer(m_type, 0);
-            GL_CHECK_ERROR()
+            glAssert(glBindBuffer(m_type, 0));
             m_state = State_Inactive;
         }
         
+        GLenum Vbo::type() const {
+            return m_type;
+        }
+
         void Vbo::free() {
             if (m_vboId > 0) {
-                glDeleteBuffers(1, &m_vboId);
+                glAssert(glDeleteBuffers(1, &m_vboId));
                 m_vboId = 0;
             }
         }
@@ -302,10 +304,9 @@ namespace TrenchBroom {
 
 #ifdef __APPLE__
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
-            glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId));
+            glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
             unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
-            GL_CHECK_ERROR()
             assert(buffer != NULL);
             m_state = State_FullyMapped;
             
@@ -314,8 +315,7 @@ namespace TrenchBroom {
         
         void Vbo::unmap() {
             assert(fullyMapped());
-            glUnmapBuffer(m_type);
-            GL_CHECK_ERROR()
+            glAssert(glUnmapBuffer(m_type));
             m_state = State_Active;
         }
 

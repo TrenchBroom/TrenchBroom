@@ -52,7 +52,7 @@ namespace TrenchBroom {
             const Model::EditorContext& m_editorContext;
             Model::EntityList m_entities;
             
-            EdgeRenderer m_wireframeBoundsRenderer;
+            DirectEdgeRenderer m_wireframeBoundsRenderer;
             TriangleRenderer m_solidBoundsRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;

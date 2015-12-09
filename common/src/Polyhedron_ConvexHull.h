@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::Seam {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Seam {
 private:
     typedef std::vector<Edge*> SeamList;
     SeamList m_edges;
@@ -83,27 +83,27 @@ private:
     }
 };
 
-template <typename T, typename FP> template <typename I>
-void Polyhedron<T,FP>::addPoints(I cur, I end) {
+template <typename T, typename FP, typename VP> template <typename I>
+void Polyhedron<T,FP,VP>::addPoints(I cur, I end) {
     Callback c;
     while (cur != end)
         addPoint(*cur++, c);
 }
 
-template <typename T, typename FP> template <typename I>
-void Polyhedron<T,FP>::addPoints(I cur, I end, Callback& callback) {
+template <typename T, typename FP, typename VP> template <typename I>
+void Polyhedron<T,FP,VP>::addPoints(I cur, I end, Callback& callback) {
     while (cur != end)
         addPoint(*cur++, callback);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addPoint(const V& position) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPoint(const V& position) {
     Callback c;
     addPoint(position, c);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addPoint(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPoint(const V& position, Callback& callback) {
     assert(checkInvariant());
     switch (vertexCount()) {
         case 0:
@@ -126,14 +126,14 @@ void Polyhedron<T,FP>::addPoint(const V& position, Callback& callback) {
     assert(checkInvariant());
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::merge(const Polyhedron& other) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::merge(const Polyhedron& other) {
     Callback c;
     merge(other, c);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::merge(const Polyhedron& other, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::merge(const Polyhedron& other, Callback& callback) {
     if (!other.empty()) {
         const Vertex* firstVertex = other.vertices().front();
         const Vertex* currentVertex = firstVertex;
@@ -145,15 +145,15 @@ void Polyhedron<T,FP>::merge(const Polyhedron& other, Callback& callback) {
 }
 
 // Adds the given point to an empty polyhedron.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addFirstPoint(const V& position) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addFirstPoint(const V& position) {
     assert(empty());
     m_vertices.append(new Vertex(position), 1);
 }
 
 // Adds the given point to a polyhedron that contains one point.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addSecondPoint(const V& position) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addSecondPoint(const V& position) {
     assert(point());
     
     Vertex* onlyVertex = *m_vertices.begin();
@@ -169,8 +169,8 @@ void Polyhedron<T,FP>::addSecondPoint(const V& position) {
 }
 
 // Adds the given point to a polyhedron that contains one edge.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addThirdPoint(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
     Vertex* v1 = m_vertices.front();
@@ -183,8 +183,8 @@ void Polyhedron<T,FP>::addThirdPoint(const V& position, Callback& callback) {
 }
 
 // Adds a colinear third point to a polyhedron that contains one edge.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addPointToEdge(const V& position) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPointToEdge(const V& position) {
     assert(edge());
     
     Vertex* v1 = m_vertices.front();
@@ -196,8 +196,8 @@ void Polyhedron<T,FP>::addPointToEdge(const V& position) {
 }
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::addFurtherPoint(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback) {
     if (faceCount() == 1) {
         return addFurtherPointToPolygon(position, callback);
     } else {
@@ -209,8 +209,8 @@ bool Polyhedron<T,FP>::addFurtherPoint(const V& position, Callback& callback) {
 //Adds the given point to a polygon. The result is either a differen polygon if the
 // given point is coplanar to the already existing polygon, or a polyhedron if the
 // given point is not coplanar.
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
     Face* face = *m_faces.begin();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
@@ -227,8 +227,8 @@ bool Polyhedron<T,FP>::addFurtherPointToPolygon(const V& position, Callback& cal
 }
 
 // Adds the given coplanar point to a polyhedron that is a polygon or an edge.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addPointToPolygon(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
     typename V::List positions;
     positions.reserve(vertexCount() + 1);
     V::toList(m_vertices.begin(), m_vertices.end(), GetVertexPosition(), positions);
@@ -242,8 +242,8 @@ void Polyhedron<T,FP>::addPointToPolygon(const V& position, Callback& callback) 
 // Creates a new polygon from the given set of coplanar points. Assumes that
 // this polyhedron is empty and that the given point list contains at least three
 // non-colinear points.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::makePolygon(const typename V::List& positions, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::makePolygon(const typename V::List& positions, Callback& callback) {
     assert(empty());
     assert(positions.size() > 2);
     
@@ -266,8 +266,8 @@ void Polyhedron<T,FP>::makePolygon(const typename V::List& positions, Callback& 
 
 // Converts a coplanar polyhedron into a non-coplanar one by adding the given
 // point, which is assumed to be non-coplanar to the points in this polyhedron.
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::makePolyhedron(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::makePolyhedron(const V& position, Callback& callback) {
     assert(polygon());
     
     Seam seam;
@@ -285,8 +285,8 @@ bool Polyhedron<T,FP>::makePolyhedron(const V& position, Callback& callback) {
 }
 
 // Adds the given point to this polyhedron.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
     assert(polyhedron());
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
     if (!seam.empty()) {
@@ -297,8 +297,8 @@ void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, Callback& 
 
 // Adds the given point to this polyhedron by weaving a cap over the given seam.
 // Assumes that this polyhedron has been split by the given seam.
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(!seam.empty());
 
     Face* remainingFace = m_faces.front();
@@ -321,8 +321,8 @@ bool Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam,
     return true;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::createSeam(const SplittingCriterion& criterion) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const SplittingCriterion& criterion) {
     Seam seam;
     
     Edge* first = criterion.findFirstSplittingEdge(m_edges);
@@ -342,8 +342,8 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::createSeam(const SplittingCrit
 }
 
 // Splits this polyhedron along the given seam and removes all faces, edges and vertices which are "above" the seam.
-template <typename T, typename FP>
-void Polyhedron<T,FP>::split(const Seam& seam, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
     
     // First, unset the second half edge of every seam edge.
@@ -364,8 +364,8 @@ void Polyhedron<T,FP>::split(const Seam& seam, Callback& callback) {
     deleteFaces(first, faceSet, verticesToDelete, callback);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback) {
     Face* face = first->face();
     if (!visitedFaces.insert(face).second)
         return;
@@ -401,8 +401,8 @@ void Polyhedron<T,FP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Verte
 
 // Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
 // on a plane.
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::weaveCap(const Seam& seam, Callback& callback) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::weaveCap(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
 
     HalfEdgeList boundary;
@@ -425,8 +425,8 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::weaveCap(const Seam& seam, Ca
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
 // at the location of the given point being shared by all the newly created triangles.
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::weaveCap(const Seam& seam, const V& position, Callback& callback) {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weaveCap(const Seam& seam, const V& position, Callback& callback) {
     assert(seam.size() >= 3);
     
     Vertex* top = new Vertex(position);
@@ -463,8 +463,8 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::weaveCap(const Seam& seam, 
     return top;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const {
     HalfEdgeList boundary;
     boundary.append(h1, 1);
     boundary.append(h2, 1);
@@ -475,8 +475,8 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::createCapTriangle(HalfEdge* h
     return f;
 }
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::SplittingCriterion {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::SplittingCriterion {
 private:
     typedef enum {
         MatchResult_First,
@@ -548,8 +548,8 @@ private:
     virtual bool doMatches(const Face* face) const = 0;
 };
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::SplitByVisibilityCriterion : public Polyhedron<T,FP>::SplittingCriterion {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::SplitByVisibilityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
 private:
     V m_point;
 public:

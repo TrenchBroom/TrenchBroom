@@ -825,7 +825,7 @@ namespace TrenchBroom {
             setupGL(renderContext);
             setRenderOptions(renderContext);
 
-            Renderer::RenderBatch renderBatch(sharedVbo());
+            Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
 
             doRenderGrid(renderContext, renderBatch);
             doRenderMap(m_renderer, renderContext, renderBatch);
@@ -859,12 +859,12 @@ namespace TrenchBroom {
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
             const Renderer::Camera::Viewport& viewport = context.camera().unzoomedViewport();
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
 
-            glEnable(GL_MULTISAMPLE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glShadeModel(GL_SMOOTH);
+            glAssert(glEnable(GL_MULTISAMPLE));
+            glAssert(glEnable(GL_BLEND));
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            glAssert(glShadeModel(GL_SMOOTH));
         }
 
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

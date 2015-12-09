@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class GridRenderer : public Renderable {
+        class GridRenderer : public DirectRenderable {
         private:
             typedef VertexSpecs::P3::Vertex Vertex;
             VertexArray m_vertexArray;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             static Vertex::List vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
             
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         };
     }

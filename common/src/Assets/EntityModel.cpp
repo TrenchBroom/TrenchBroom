@@ -26,7 +26,7 @@ namespace TrenchBroom {
 
         EntityModel::~EntityModel() {}
         
-        Renderer::TexturedTriangleMeshRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexRangeRenderer * EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             return doBuildRenderer(skinIndex, frameIndex);
         }
 

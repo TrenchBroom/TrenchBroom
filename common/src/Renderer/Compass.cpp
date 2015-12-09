@@ -30,7 +30,9 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Transformation.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/Vertex.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
 #include <cassert>
@@ -55,13 +57,11 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void Compass::doPrepare(Vbo& vbo) {
+        void Compass::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_prepared) {
-                m_strip.prepare(vbo);
-                m_set.prepare(vbo);
-                m_fans.prepare(vbo);
-                m_backgroundOutline.prepare(vbo);
-                m_background.prepare(vbo);
+                m_arrowRenderer.prepare(vertexVbo);
+                m_backgroundRenderer.prepare(vertexVbo);
+                m_backgroundOutlineRenderer.prepare(vertexVbo);
                 m_prepared = true;
             }
         }
@@ -80,9 +80,9 @@ namespace TrenchBroom {
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
             const Mat4x4f cameraTransformation = cameraRotationMatrix(camera);
 
-            glClear(GL_DEPTH_BUFFER_BIT);
+            glAssert(glClear(GL_DEPTH_BUFFER_BIT));
             renderBackground(renderContext);
-            glClear(GL_DEPTH_BUFFER_BIT);
+            glAssert(glClear(GL_DEPTH_BUFFER_BIT));
             doRenderCompass(renderContext, cameraTransformation);
         }
 
@@ -115,17 +115,19 @@ namespace TrenchBroom {
             Vertex::List headVertices = Vertex::fromLists(head.vertices, head.normals, head.vertices.size());
             Vertex::List capVertices = VectorUtils::concatenate(Vertex::fromLists(shaftCap.vertices, shaftCap.normals, shaftCap.vertices.size()),
                                                                       Vertex::fromLists(headCap.vertices, headCap.normals, headCap.vertices.size()));
-            VertexArray::IndexArray indices(2);
-            indices[0] = 0;
-            indices[1] = static_cast<GLint>(shaftCap.vertices.size());
+
+            const size_t vertexCount = shaftVertices.size() + headVertices.size() + capVertices.size();
+            IndexRangeMap::Size indexArraySize;
+            indexArraySize.inc(GL_TRIANGLE_STRIP);
+            indexArraySize.inc(GL_TRIANGLE_FAN);
+            indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
             
-            VertexArray::CountArray counts(2);
-            counts[0] = static_cast<GLsizei>(shaftCap.vertices.size());
-            counts[1] = static_cast<GLsizei>(headCap.vertices.size());
-            
-            m_strip = VertexArray::swap(GL_TRIANGLE_STRIP, shaftVertices);
-            m_set = VertexArray::swap(GL_TRIANGLES, headVertices);
-            m_fans = VertexArray::swap(GL_TRIANGLE_FAN, capVertices, indices, counts);
+            IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
+            builder.addTriangleStrip(shaftVertices);
+            builder.addTriangles(headVertices);
+            builder.addTriangleFan(capVertices);
+
+            m_arrowRenderer = IndexRangeRenderer(builder);
         }
         
         void Compass::makeBackground() {
@@ -133,8 +135,21 @@ namespace TrenchBroom {
             Vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Cf::twoPi(), m_segments);
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
-            m_background = VertexArray::swap(GL_TRIANGLE_FAN, verts);
-            m_backgroundOutline = VertexArray::swap(GL_LINE_LOOP, verts);
+            IndexRangeMap::Size backgroundSize;
+            backgroundSize.inc(GL_TRIANGLE_FAN);
+            
+            IndexRangeMapBuilder<Vertex::Spec> backgroundBuilder(verts.size(), backgroundSize);
+            backgroundBuilder.addTriangleFan(verts);
+            
+            m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
+            
+            IndexRangeMap::Size outlineSize;
+            outlineSize.inc(GL_LINE_LOOP);
+            
+            IndexRangeMapBuilder<Vertex::Spec> outlineBuilder(verts.size(), outlineSize);
+            outlineBuilder.addLineLoop(verts);
+            
+            m_backgroundOutlineRenderer = IndexRangeRenderer(outlineBuilder);
         }
 
         Mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {
@@ -155,9 +170,9 @@ namespace TrenchBroom {
             const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
             shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
-            m_background.render();
+            m_backgroundRenderer.render();
             shader.set("Color", prefs.get(Preferences::CompassBackgroundOutlineColor));
-            m_backgroundOutline.render();
+            m_backgroundOutlineRenderer.render();
         }
 
         void Compass::renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
@@ -177,25 +192,22 @@ namespace TrenchBroom {
         }
         
         void Compass::renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
-            glDepthMask(GL_FALSE);
-            glLineWidth(3.0f);
-            glPolygonMode(GL_FRONT, GL_LINE);
+            glAssert(glDepthMask(GL_FALSE));
+            glAssert(glLineWidth(3.0f));
+            glAssert(glPolygonMode(GL_FRONT, GL_LINE));
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
             shader.set("Color", color);
             renderAxis(renderContext, transformation);
             
-            glDepthMask(GL_TRUE);
-            glLineWidth(1.0f);
-            glPolygonMode(GL_FRONT, GL_FILL);
+            glAssert(glDepthMask(GL_TRUE));
+            glAssert(glLineWidth(1.0f));
+            glAssert(glPolygonMode(GL_FRONT, GL_FILL));
         }
 
         void Compass::renderAxis(RenderContext& renderContext, const Mat4x4f& transformation) {
             const MultiplyModelMatrix apply(renderContext.transformation(), transformation);
-            
-            m_strip.render();
-            m_set.render();
-            m_fans.render();
+            m_arrowRenderer.render();
         }
     }
 }

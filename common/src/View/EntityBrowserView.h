@@ -36,7 +36,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class FontDescriptor;
-        class TexturedTriangleMeshRenderer;
+        class TexturedIndexRangeRenderer;
         class Transformation;
     }
     
@@ -47,19 +47,19 @@ namespace TrenchBroom {
         
         class EntityCellData {
         private:
-            typedef Renderer::TexturedTriangleMeshRenderer EntityRenderer;
+            typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
         public:
             Assets::PointEntityDefinition* entityDefinition;
-            Renderer::TexturedTriangleMeshRenderer* modelRenderer;
+            EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
             BBox3f bounds;
             
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, Renderer::TexturedTriangleMeshRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
+            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
         private:
-            typedef Renderer::TexturedTriangleMeshRenderer EntityRenderer;
+            typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
             
             typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
             typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;

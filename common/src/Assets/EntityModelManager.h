@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class TexturedTriangleMeshRenderer;
+        class TexturedIndexRangeRenderer;
         class Vbo;
     }
     
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             typedef std::set<IO::Path> ModelMismatches;
             typedef std::vector<EntityModel*> ModelList;
             
-            typedef std::map<Assets::ModelSpecification, Renderer::TexturedTriangleMeshRenderer*> RendererCache;
+            typedef std::map<Assets::ModelSpecification, Renderer::TexturedIndexRangeRenderer*> RendererCache;
             typedef std::set<Assets::ModelSpecification> RendererMismatches;
-            typedef std::vector<Renderer::TexturedTriangleMeshRenderer*> RendererList;
+            typedef std::vector<Renderer::TexturedIndexRangeRenderer*> RendererList;
             
             Logger* m_logger;
             const IO::EntityModelLoader* m_loader;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             void setLoader(const IO::EntityModelLoader* loader);
             
             EntityModel* model(const IO::Path& path) const;
-            Renderer::TexturedTriangleMeshRenderer* renderer(const Assets::ModelSpecification& spec) const;
+            Renderer::TexturedIndexRangeRenderer* renderer(const Assets::ModelSpecification& spec) const;
         private:
             EntityModel* loadModel(const IO::Path& path) const;
         public:

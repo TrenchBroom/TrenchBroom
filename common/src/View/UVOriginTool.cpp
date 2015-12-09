@@ -216,11 +216,8 @@ namespace TrenchBroom {
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             EdgeVertex::List vertices = getHandleVertices(inputState.pickResult());
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setWidth(2.0f);
-            renderEdges->setRenderOccluded();
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 
         UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const Model::PickResult& pickResult) const {
@@ -244,7 +241,7 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        class UVOriginTool::RenderOrigin : public Renderer::Renderable {
+        class UVOriginTool::RenderOrigin : public Renderer::DirectRenderable {
         private:
             const UVViewHelper& m_helper;
             bool m_highlight;
@@ -260,8 +257,8 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_originHandle.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_originHandle.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {

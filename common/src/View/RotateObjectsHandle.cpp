@@ -235,10 +235,10 @@ namespace TrenchBroom {
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
             
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glDisable(GL_DEPTH_TEST));
             {
-                glDisable(GL_CULL_FACE);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glAssert(glDisable(GL_CULL_FACE));
+                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
                 Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 shader.set("Color", getAngleIndicatorColor(handle));
@@ -251,15 +251,15 @@ namespace TrenchBroom {
                 setVboState.active();
                 circle.render();
                 
-                glPolygonMode(GL_FRONT, GL_FILL);
-                glEnable(GL_CULL_FACE);
+                glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+                glAssert(glEnable(GL_CULL_FACE));
             }
 
             m_pointHandleRenderer.setColor(pointHandleColor);
             m_pointHandleRenderer.renderSingleHandle(renderContext, m_position);
             m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(handle));
 
-            glEnable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
         */
         

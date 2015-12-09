@@ -148,15 +148,9 @@ namespace TrenchBroom {
             if (m_trace.size() > 1) {
                 typedef Renderer::VertexSpecs::P3::Vertex Vertex;
                 Vertex::List vertices = Vertex::fromLists(m_trace, m_trace.size());
-                m_traceRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINE_STRIP, vertices));
-
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_traceRenderer));
-                renderOccludedEdges->setColor(pref(Preferences::OccludedMoveTraceColor));
-                renderBatch.addOneShot(renderOccludedEdges);
-                
-                Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_traceRenderer));
-                renderUnoccludedEdges->setColor(pref(Preferences::MoveTraceColor));
-                renderBatch.addOneShot(renderUnoccludedEdges);
+                Renderer::DirectEdgeRenderer traceRenderer(Renderer::VertexArray::swap(vertices), GL_LINE_STRIP);
+                traceRenderer.renderOnTop(renderBatch, pref(Preferences::OccludedMoveTraceColor));
+                traceRenderer.render(renderBatch, pref(Preferences::MoveTraceColor));
             }
         }
 

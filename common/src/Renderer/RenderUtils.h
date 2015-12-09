@@ -28,6 +28,10 @@
 #include <utility>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace Renderer {
         class Vbo;
         
@@ -51,6 +55,19 @@ namespace TrenchBroom {
             size_t countVertices() const;
         };
         
+        class TextureRenderFunc {
+        public:
+            virtual ~TextureRenderFunc();
+            virtual void before(const Assets::Texture* texture);
+            virtual void after(const Assets::Texture* texture);
+        };
+        
+        class DefaultTextureRenderFunc : public TextureRenderFunc {
+        public:
+            void before(const Assets::Texture* texture);
+            void after(const Assets::Texture* texture);
+        };
+
         Vec2f::List circle2D(float radius, size_t segments);
         Vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
         Vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);

@@ -28,7 +28,7 @@
 #include <queue>
 #include <vector>
 
-template <typename T, typename FP>
+template <typename T, typename FP, typename VP>
 class Polyhedron {
 private:
     typedef Vec<T,3> V;
@@ -83,14 +83,18 @@ private:
 public:
     class Vertex : public Allocator<Vertex> {
     private:
-        friend class Polyhedron<T,FP>;
+        friend class Polyhedron<T,FP,VP>;
         
         V m_position;
         VertexLink m_link;
         HalfEdge* m_leaving;
+        typename VP::Type m_payload;
     private:
         Vertex(const V& position);
     public:
+        typename VP::Type payload() const;
+        void setPayload(typename VP::Type payload);
+
         const V& position() const;
         Vertex* next() const;
         Vertex* previous() const;
@@ -104,7 +108,7 @@ public:
 
     class Edge : public Allocator<Edge> {
     private:
-        friend class Polyhedron<T,FP>;
+        friend class Polyhedron<T,FP,VP>;
         
         HalfEdge* m_first;
         HalfEdge* m_second;
@@ -145,7 +149,7 @@ public:
     
     class HalfEdge : public Allocator<HalfEdge> {
     private:
-        friend class Polyhedron<T,FP>;
+        friend class Polyhedron<T,FP,VP>;
         
         Vertex* m_origin;
         Edge* m_edge;
@@ -181,17 +185,17 @@ public:
 
     class Face : public Allocator<Face> {
     private:
-        friend class Polyhedron<T,FP>;
+        friend class Polyhedron<T,FP,VP>;
         
         // Boundary is counter clockwise.
         HalfEdgeList m_boundary;
-        FP* m_payload;
+        typename FP::Type m_payload;
         FaceLink m_link;
     private:
         Face(HalfEdgeList& boundary);
     public:
-        FP* payload() const;
-        void setPayload(FP* payload);
+        typename FP::Type payload() const;
+        void setPayload(typename FP::Type payload);
         Face* next() const;
         Face* previous() const;
         size_t vertexCount() const;
@@ -264,7 +268,7 @@ public: // Constructors
     Polyhedron(const typename V::Set& positions);
     Polyhedron(const typename V::Set& positions, Callback& callback);
 
-    Polyhedron(const Polyhedron<T,FP>& other);
+    Polyhedron(const Polyhedron<T,FP,VP>& other);
 private: // Constructor helpers
     void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
     void setBounds(const BBox<T,3>& bounds, Callback& callback);
@@ -273,9 +277,9 @@ private: // Copy constructor
 public: // Destructor
     virtual ~Polyhedron();
 public: // operators
-    Polyhedron<T,FP>& operator=(Polyhedron<T,FP> other);
+    Polyhedron<T,FP,VP>& operator=(Polyhedron<T,FP,VP> other);
 public: // swap function
-    friend void swap(Polyhedron<T,FP>& first, Polyhedron<T,FP>& second) {
+    friend void swap(Polyhedron<T,FP,VP>& first, Polyhedron<T,FP,VP>& second) {
         using std::swap;
         swap(first.m_vertices, second.m_vertices);
         swap(first.m_edges, second.m_edges);

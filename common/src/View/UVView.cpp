@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 document->commitPendingAssets();
                 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                Renderer::RenderBatch renderBatch(sharedVbo());
+                Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
                 
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
@@ -201,16 +201,16 @@ namespace TrenchBroom {
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
-            glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
             
-            glEnable(GL_MULTISAMPLE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glShadeModel(GL_SMOOTH);
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_MULTISAMPLE));
+            glAssert(glEnable(GL_BLEND));
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            glAssert(glShadeModel(GL_SMOOTH));
+            glAssert(glDisable(GL_DEPTH_TEST));
         }
 
-        class UVView::RenderTexture : public Renderer::Renderable {
+        class UVView::RenderTexture : public Renderer::DirectRenderable {
         private:
             typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
             
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             RenderTexture(const UVViewHelper& helper) :
             m_helper(helper) {
                 Vertex::List vertices = getVertices();
-                m_vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+                m_vertexArray = Renderer::VertexArray::swap(vertices);
             }
         private:
             Vertex::List getVertices() {
@@ -252,8 +252,8 @@ namespace TrenchBroom {
                 return vertices;
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_vertexArray.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_vertexArray.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
-                m_vertexArray.render();
+                m_vertexArray.render(GL_QUADS);
                 
                 texture->deactivate();
             }
@@ -311,12 +311,8 @@ namespace TrenchBroom {
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setOnTop(true);
-            renderEdges->setColor(edgeColor);
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
+            edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.0f);
         }
 
         void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -340,11 +336,8 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
             vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
-            renderEdges->setRenderOccluded();
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

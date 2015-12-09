@@ -215,6 +215,9 @@ namespace TrenchBroom {
             
             class Intersects;
             bool doIntersects(const Node* node) const;
+        private:
+            Brush(const Brush&);
+            Brush& operator=(const Brush&);
         };
     }
 }

@@ -22,14 +22,16 @@
 
 #include "TrenchBroom.h"
 #include "Polyhedron.h"
+#include "Polyhedron_BrushGeometryPayload.h"
+#include "Polyhedron_DefaultPayload.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
         
-        class BrushGeometryCallback : public Polyhedron<FloatType, BrushFace>::Callback {
+        class BrushGeometryCallback : public Polyhedron<FloatType, BrushFacePayload, DefaultPolyhedronPayload>::Callback {
         private:
-            typedef Polyhedron<FloatType, BrushFace>::Face PolyFace;
+            typedef Polyhedron<FloatType, BrushFacePayload, DefaultPolyhedronPayload>::Face PolyFace;
         public:
             void faceWasCreated(PolyFace* face);
             void faceWillBeDeleted(PolyFace* face);

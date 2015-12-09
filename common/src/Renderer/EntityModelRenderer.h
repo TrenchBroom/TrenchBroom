@@ -40,13 +40,13 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class TexturedTriangleMeshRenderer;
         class RenderBatch;
         class RenderContext;
+        class TexturedIndexRangeRenderer;
         
-        class EntityModelRenderer : public Renderable {
+        class EntityModelRenderer : public DirectRenderable {
         private:
-            typedef std::map<Model::Entity*, TexturedTriangleMeshRenderer*> EntityMap;
+            typedef std::map<Model::Entity*, TexturedIndexRangeRenderer*> EntityMap;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
@@ -88,9 +88,7 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepare(Vbo& vbo);
-            
-            class MeshFunc;
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         };
     }

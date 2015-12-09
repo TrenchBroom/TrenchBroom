@@ -17,31 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LineMeshRenderer.h"
+#ifndef Polyhedron_BrushGeometryPayload_h
+#define Polyhedron_BrushGeometryPayload_h
+
+#include "Renderer/GL.h"
+
+#include <limits>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        LineMeshRenderer::LineMeshRenderer() :
-        m_prepared(false) {}
-        
-        bool LineMeshRenderer::prepared() const {
-            return m_prepared;
-        }
-        
-        void LineMeshRenderer::prepare(Vbo& vbo) {
-            if (m_prepared)
-                return;
-            
-            m_renderData.lines.prepare(vbo);
-            m_renderData.lineStrips.prepare(vbo);
-            m_renderData.lineLoops.prepare(vbo);
-            m_prepared = true;
-        }
-        
-        void LineMeshRenderer::render() {
-            m_renderData.lines.render();
-            m_renderData.lineStrips.render();
-            m_renderData.lineLoops.render();
-        }
+    namespace Model {
+        class BrushFace;
     }
 }
+
+struct BrushVertexPayload {
+    typedef TrenchBroom::GLuint Type;
+    static Type defaultValue() {
+        return std::numeric_limits<Type>::max();
+    }
+};
+
+struct BrushFacePayload {
+    typedef TrenchBroom::Model::BrushFace* Type;
+    static Type defaultValue() {
+        return NULL;
+    }
+};
+
+#endif /* Polyhedron_BrushGeometryPayload_h */

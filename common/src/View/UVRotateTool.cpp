@@ -196,7 +196,7 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        class UVRotateTool::Render : public Renderer::Renderable {
+        class UVRotateTool::Render : public Renderer::DirectRenderable {
         private:
             const UVViewHelper& m_helper;
             bool m_highlight;
@@ -214,9 +214,9 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_center.prepare(vbo);
-                m_outer.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_center.prepare(vertexVbo);
+                m_outer.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {

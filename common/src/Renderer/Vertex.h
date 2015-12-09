@@ -33,6 +33,26 @@ namespace TrenchBroom {
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
         class VertexSpec5;
         
+        struct GetVertexComponent1 {
+            template <typename V> const typename V::Spec::A1::ElementType& operator()(const V& v) const { return v.v1; }
+        };
+        
+        struct GetVertexComponent2 {
+            template <typename V> const typename V::Spec::A2::ElementType& operator()(const V& v) const { return v.v2; }
+        };
+        
+        struct GetVertexComponent3 {
+            template <typename V> const typename V::Spec::A3::ElementType& operator()(const V& v) const { return v.v3; }
+        };
+        
+        struct GetVertexComponent4 {
+            template <typename V> const typename V::Spec::A4::ElementType& operator()(const V& v) const { return v.v4; }
+        };
+        
+        struct GetVertexComponent5 {
+            template <typename V> const typename V::Spec::A5::ElementType& operator()(const V& v) const { return v.v5; }
+        };
+        
         template <typename A1>
         class Vertex1 {
         public:

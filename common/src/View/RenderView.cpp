@@ -79,10 +79,14 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        Renderer::Vbo& RenderView::sharedVbo() {
-            return m_glContext->vbo();
+        Renderer::Vbo& RenderView::vertexVbo() {
+            return m_glContext->vertexVbo();
         }
 
+        Renderer::Vbo& RenderView::indexVbo() {
+            return m_glContext->indexVbo();
+        }
+        
         Renderer::FontManager& RenderView::fontManager() {
             return m_glContext->fontManager();
         }
@@ -109,7 +113,6 @@ namespace TrenchBroom {
         void RenderView::initializeGL() {
             const bool firstInitialization = m_glContext->initialize();
             doInitializeGL(firstInitialization);
-            GL_CHECK_ERROR()
             m_initialized = true;
         }
 
@@ -122,15 +125,14 @@ namespace TrenchBroom {
             clearBackground();
             doRender();
             renderFocusIndicator();
-            GL_CHECK_ERROR()
         }
         
         void RenderView::clearBackground() {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
 
-            glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glAssert(glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a()));
+            glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         }
 
         void RenderView::renderFocusIndicator() {
@@ -172,18 +174,18 @@ namespace TrenchBroom {
             vertices[14] = Vertex(Vec3f(t, t, 0.0f), inner);
             vertices[15] = Vertex(Vec3f(t, h-t, 0.0f), inner);
             
-            glViewport(0, 0, clientSize.x, clientSize.y);
+            glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
 
             const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, Mat4x4f::Identity);
             
-            glDisable(GL_DEPTH_TEST);
-            Renderer::VertexArray array = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            glAssert(glDisable(GL_DEPTH_TEST));
+            Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);
             
-            Renderer::ActivateVbo activate(sharedVbo());
-            array.prepare(sharedVbo());
-            array.render();
-            glEnable(GL_DEPTH_TEST);
+            Renderer::ActivateVbo activate(vertexVbo());
+            array.prepare(vertexVbo());
+            array.render(GL_QUADS);
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         void RenderView::doInitializeGL(const bool firstInitialization) {}

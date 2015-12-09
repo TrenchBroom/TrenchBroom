@@ -21,58 +21,43 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/TriangleMeshRenderer.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/IndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <cassert>
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(Mesh::IndexedList& triangleFans, Mesh::IndexedList& triangleStrips) {
-            using std::swap;
-
-            swap(m_triangleFans, triangleFans);
-            swap(m_triangleStrips, triangleStrips);
-            
-            if (!m_triangleFans.empty())
-                m_bounds.min = m_bounds.max = m_triangleFans.vertices().front().v1;
-            else if (!m_triangleStrips.empty())
-                m_bounds.min = m_bounds.max = m_triangleStrips.vertices().front().v1;
-            mergeBoundsWith(m_bounds, m_triangleFans.vertices());
-            mergeBoundsWith(m_bounds, m_triangleStrips.vertices());
-        }
+        Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
+        m_vertices(vertices),
+        m_indices(indices),
+        m_bounds(m_vertices.begin(), m_vertices.end(), Renderer::GetVertexComponent1()) {}
 
         BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
             BBox3f transformedBounds;
-            if (!m_triangleFans.empty())
-                transformedBounds.min = transformedBounds.max = transformation * m_triangleFans.vertices().front().v1;
-            else if (!m_triangleStrips.empty())
-                transformedBounds.min = transformedBounds.max = transformation * m_triangleStrips.vertices().front().v1;
-            mergeBoundsWith(transformedBounds, m_triangleFans.vertices(), transformation);
-            mergeBoundsWith(transformedBounds, m_triangleStrips.vertices(), transformation);
+            
+            VertexList::const_iterator it = m_vertices.begin();
+            VertexList::const_iterator end = m_vertices.end();
+            
+            transformedBounds.min = transformedBounds.max = transformation * it->v1;
+            while (++it != end)
+                transformedBounds.mergeWith(transformation * it->v1);
             return transformedBounds;
         }
 
-        const Md2Model::Mesh::IndexedList& Md2Model::Frame::triangleFans() const {
-            return m_triangleFans;
+        const Md2Model::VertexList& Md2Model::Frame::vertices() const {
+            return m_vertices;
         }
         
-        const Md2Model::Mesh::IndexedList& Md2Model::Frame::triangleStrips() const {
-            return m_triangleStrips;
+        const Renderer::IndexRangeMap& Md2Model::Frame::indices() const {
+            return m_indices;
         }
         
         const BBox3f& Md2Model::Frame::bounds() const {
             return m_bounds;
-        }
-
-        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices) const {
-            for (size_t i = 0; i < vertices.size(); ++i)
-                bounds.mergeWith(vertices[i].v1);
-        }
-
-        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices, const Mat4x4f& transformation) const {
-            for (size_t i = 0; i < vertices.size(); ++i)
-                bounds.mergeWith(transformation * vertices[i].v1);
         }
 
         Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameList& frames) :
@@ -86,7 +71,7 @@ namespace TrenchBroom {
             m_skins = NULL;
         }
 
-        Renderer::TexturedTriangleMeshRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             const TextureList& textures = m_skins->textures();
             
             assert(skinIndex < textures.size());
@@ -94,18 +79,14 @@ namespace TrenchBroom {
 
             const Assets::Texture* skin = textures[skinIndex];
             const Frame* frame = m_frames[frameIndex];
-            const Mesh::IndexedList& fans = frame->triangleFans();
-            const Mesh::IndexedList& strips = frame->triangleStrips();
             
-            Mesh::MeshSize size;
-            size.addFans(skin, fans.vertexCount(), fans.primCount());
-            size.addStrips(skin, strips.vertexCount(), strips.primCount());
+            const VertexList& vertices = frame->vertices();
+            const Renderer::IndexRangeMap& indices = frame->indices();
             
-            Mesh mesh(size);
-            mesh.addTriangleFans(fans, skin);
-            mesh.addTriangleStrips(strips, skin);
+            const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
+            const Renderer::TexturedIndexRangeMap texturedIndices(skin, indices);
             
-            return new Renderer::TexturedTriangleMeshRenderer(mesh);
+            return new Renderer::TexturedIndexRangeRenderer(vertexArray, texturedIndices);
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

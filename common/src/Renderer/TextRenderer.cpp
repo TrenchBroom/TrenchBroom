@@ -141,9 +141,9 @@ namespace TrenchBroom {
             return font.measure(string).rounded();
         }
 
-        void TextRenderer::doPrepare(Vbo& vbo) {
-            prepare(m_entries, false, vbo);
-            prepare(m_entriesOnTop, true, vbo);
+        void TextRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            prepare(m_entries, false, vertexVbo);
+            prepare(m_entriesOnTop, true, vertexVbo);
         }
         
         void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
@@ -159,8 +159,8 @@ namespace TrenchBroom {
                 addEntry(entry, onTop, textVertices, rectVertices);
             }
             
-            collection.textArray = VertexArray::swap(GL_QUADS, textVertices);
-            collection.rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            collection.textArray = VertexArray::swap(textVertices);
+            collection.rectArray = VertexArray::swap(rectVertices);
             
             collection.textArray.prepare(vbo);
             collection.rectArray.prepare(vbo);
@@ -200,26 +200,26 @@ namespace TrenchBroom {
             
             render(m_entries, renderContext);
             
-            glDisable(GL_DEPTH_TEST);
+            glAssert(glDisable(GL_DEPTH_TEST));
             render(m_entriesOnTop, renderContext);
-            glEnable(GL_DEPTH_TEST);
+            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         void TextRenderer::render(EntryCollection& collection, RenderContext& renderContext) {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
             
-            glDisable(GL_TEXTURE_2D);
+            glAssert(glDisable(GL_TEXTURE_2D));
             
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            collection.rectArray.render();
+            collection.rectArray.render(GL_TRIANGLES);
             
-            glEnable(GL_TEXTURE_2D);
+            glAssert(glEnable(GL_TEXTURE_2D));
             
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            collection.textArray.render();
+            collection.textArray.render(GL_QUADS);
             font.deactivate();
         }
     }

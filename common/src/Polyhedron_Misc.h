@@ -22,8 +22,8 @@
 
 #include <map>
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::VertexDistanceCmp {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::VertexDistanceCmp {
 private:
     V m_anchor;
 public:
@@ -42,21 +42,21 @@ public:
 };
 
 
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::V& Polyhedron<T,FP>::GetVertexPosition::operator()(const Vertex* vertex) const {
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::V& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const Vertex* vertex) const {
     return vertex->position();
 }
 
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::V& Polyhedron<T,FP>::GetVertexPosition::operator()(const HalfEdge* halfEdge) const {
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::V& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const HalfEdge* halfEdge) const {
     return halfEdge->origin()->position();
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Callback::~Callback() {}
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Callback::~Callback() {}
 
-template <typename T, typename FP>
-Plane<T,3> Polyhedron<T,FP>::Callback::plane(const Face* face) const {
+template <typename T, typename FP, typename VP>
+Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     const HalfEdgeList& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
@@ -73,80 +73,80 @@ Plane<T,3> Polyhedron<T,FP>::Callback::plane(const Face* face) const {
     return plane;
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::Callback::faceWasCreated(Face* face) {}
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceWasCreated(Face* face) {}
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::Callback::faceWillBeDeleted(Face* face) {}
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceWillBeDeleted(Face* face) {}
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::Callback::faceDidChange(Face* face) {}
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* face) {}
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::Callback::faceWasSplit(Face* original, Face* clone) {}
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* original, Face* clone) {}
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::Callback::facesWillBeMerged(Face* remaining, Face* toDelete) {}
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::facesWillBeMerged(Face* remaining, Face* toDelete) {}
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron() {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron() {
     updateBounds();
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
     Callback c;
     addPoints(p1, p2, p3, p4, c);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
     addPoints(p1, p2, p3, p4, callback);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds) {
     Callback c;
     setBounds(bounds, c);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
     setBounds(bounds, callback);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const typename V::List& positions) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions) {
     Callback c;
     addPoints(positions.begin(), positions.end(), c);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const typename V::List& positions, Callback& callback) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions, Callback& callback) {
     addPoints(positions.begin(), positions.end(), callback);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions) {
     Callback c;
     addPoints(positions.begin(), positions.end(), c);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
     addPoints(positions.begin(), positions.end(), callback);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
     addPoint(p1, callback);
     addPoint(p2, callback);
     addPoint(p3, callback);
     addPoint(p4, callback);
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, Callback& callback) {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::setBounds(const BBox<T,3>& bounds, Callback& callback) {
     if (bounds.min == bounds.max) {
         addPoint(bounds.min);
         return;
@@ -267,8 +267,8 @@ void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, Callback& callback) {
     m_edges.append(new Edge(f6h2, f5h3), 1); // v7, v8
 }
 
-template <typename T, typename FP>
-class Polyhedron<T,FP>::Copy {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Copy {
 private:
     typedef std::map<const Vertex*, Vertex*> VertexMap;
     typedef typename VertexMap::value_type VertexMapEntry;
@@ -367,39 +367,39 @@ private:
     }
 };
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron(const Polyhedron<T,FP>& other) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
     Copy copy(other.faces(), other.edges(), *this);
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>::~Polyhedron() {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::~Polyhedron() {
     clear();
 }
 
-template <typename T, typename FP>
-Polyhedron<T,FP>& Polyhedron<T,FP>::operator=(Polyhedron<T,FP> other) {
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>& Polyhedron<T,FP,VP>::operator=(Polyhedron<T,FP,VP> other) {
     swap(*this, other);
     return *this;
 }
 
-template <typename T, typename FP>
-size_t Polyhedron<T,FP>::vertexCount() const {
+template <typename T, typename FP, typename VP>
+size_t Polyhedron<T,FP,VP>::vertexCount() const {
     return m_vertices.size();
 }
 
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::VertexList& Polyhedron<T,FP>::vertices() const {
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::VertexList& Polyhedron<T,FP,VP>::vertices() const {
     return m_vertices;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasVertex(const V& position, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasVertex(const V& position, const T epsilon) const {
     return findVertexByPosition(position, epsilon) != NULL;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasVertices(const typename V::List& positions, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
     typename V::List::const_iterator it, end;
@@ -410,8 +410,8 @@ bool Polyhedron<T,FP>::hasVertices(const typename V::List& positions, const T ep
     return true;
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::printVertices() const {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::printVertices() const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
@@ -421,80 +421,80 @@ void Polyhedron<T,FP>::printVertices() const {
 }
 
 
-template <typename T, typename FP>
-size_t Polyhedron<T,FP>::edgeCount() const {
+template <typename T, typename FP, typename VP>
+size_t Polyhedron<T,FP,VP>::edgeCount() const {
     return m_edges.size();
 }
 
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::EdgeList& Polyhedron<T,FP>::edges() const {
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::EdgeList& Polyhedron<T,FP,VP>::edges() const {
     return m_edges;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasEdge(const V& pos1, const V& pos2, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasEdge(const V& pos1, const V& pos2, const T epsilon) const {
     return findEdgeByPositions(pos1, pos2, epsilon) != NULL;
 }
 
-template <typename T, typename FP>
-size_t Polyhedron<T,FP>::faceCount() const {
+template <typename T, typename FP, typename VP>
+size_t Polyhedron<T,FP,VP>::faceCount() const {
     return m_faces.size();
 }
 
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::FaceList& Polyhedron<T,FP>::faces() const {
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() const {
     return m_faces;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasFace(const typename V::List& positions, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasFace(const typename V::List& positions, const T epsilon) const {
     return findFaceByPositions(positions, epsilon) != NULL;
 }
 
-template <typename T, typename FP>
-const BBox<T,3>& Polyhedron<T,FP>::bounds() const {
+template <typename T, typename FP, typename VP>
+const BBox<T,3>& Polyhedron<T,FP,VP>::bounds() const {
     return m_bounds;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::empty() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::empty() const {
     return vertexCount() == 0;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::point() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::point() const {
     return vertexCount() == 1;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::edge() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::edge() const {
     return vertexCount() == 2;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::polygon() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::polygon() const {
     return faceCount() == 1;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::polyhedron() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::polyhedron() const {
     return faceCount() > 3;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::closed() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::closed() const {
     return vertexCount() + faceCount() == edgeCount() + 2;
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::clear() {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::clear() {
     m_faces.clear();
     m_edges.clear();
     m_vertices.clear();
 }
 
-template <typename T, typename FP>
-struct Polyhedron<T,FP>::FaceHit {
+template <typename T, typename FP, typename VP>
+struct Polyhedron<T,FP,VP>::FaceHit {
     Face* face;
     T distance;
     
@@ -503,8 +503,8 @@ struct Polyhedron<T,FP>::FaceHit {
     bool isMatch() const { return face != NULL; }
 };
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::FaceHit Polyhedron<T,FP>::pickFace(const Ray<T,3>& ray) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,3>& ray) const {
     const Math::Side side = polygon() ? Math::Side_Both : Math::Side_Front;
     Face* firstFace = m_faces.front();
     Face* currentFace = firstFace;
@@ -517,8 +517,8 @@ typename Polyhedron<T,FP>::FaceHit Polyhedron<T,FP>::pickFace(const Ray<T,3>& ra
     return FaceHit();
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findVertexByPosition(const V& position, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const V& position, const T epsilon) const {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
     do {
@@ -529,8 +529,8 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findVertexByPosition(const 
     return NULL;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findClosestVertex(const V& position) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position) const {
     T closestDistance = std::numeric_limits<T>::max();
     Vertex* closestVertex = NULL;
     
@@ -547,8 +547,8 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::findClosestVertex(const V& 
     return closestVertex;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::ClosestVertexSet Polyhedron<T,FP>::findClosestVertices(const V& position) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClosestVertexSet Polyhedron<T,FP,VP>::findClosestVertices(const V& position) const {
     ClosestVertexSet result = ClosestVertexSet(VertexDistanceCmp(position));
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
@@ -559,8 +559,8 @@ typename Polyhedron<T,FP>::ClosestVertexSet Polyhedron<T,FP>::findClosestVertice
     return result;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
     Edge* firstEdge = m_edges.front();
     Edge* currentEdge = firstEdge;
     do {
@@ -571,8 +571,8 @@ typename Polyhedron<T,FP>::Edge* Polyhedron<T,FP>::findEdgeByPositions(const V& 
     return NULL;
 }
 
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
     Face* firstFace = m_faces.front();
     Face* currentFace = firstFace;
     do {
@@ -583,8 +583,8 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::findFaceByPositions(const typ
     return NULL;
 }
 
-template <typename T, typename FP> template <typename O>
-void Polyhedron<T,FP>::getVertexPositions(O output) const {
+template <typename T, typename FP, typename VP> template <typename O>
+void Polyhedron<T,FP,VP>::getVertexPositions(O output) const {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
     do {
@@ -593,8 +593,8 @@ void Polyhedron<T,FP>::getVertexPositions(O output) const {
     } while (currentVertex != firstVertex);
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasVertex(const Vertex* vertex) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasVertex(const Vertex* vertex) const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
@@ -605,8 +605,8 @@ bool Polyhedron<T,FP>::hasVertex(const Vertex* vertex) const {
     return false;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasEdge(const Edge* edge) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasEdge(const Edge* edge) const {
     const Edge* firstEdge = m_edges.front();
     const Edge* currentEdge = firstEdge;
     do {
@@ -617,8 +617,8 @@ bool Polyhedron<T,FP>::hasEdge(const Edge* edge) const {
     return false;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::hasFace(const Face* face) const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasFace(const Face* face) const {
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {
@@ -629,8 +629,8 @@ bool Polyhedron<T,FP>::hasFace(const Face* face) const {
     return false;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkInvariant() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkInvariant() const {
     /*
     if (!checkConvex())
         return false;
@@ -652,8 +652,8 @@ bool Polyhedron<T,FP>::checkInvariant() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkFaceBoundaries() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
     if (m_faces.empty())
         return true;
     Face* first = m_faces.front();
@@ -666,8 +666,8 @@ bool Polyhedron<T,FP>::checkFaceBoundaries() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkConvex() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkConvex() const {
     typename FaceList::const_iterator fIt, fEnd;
     for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
@@ -681,8 +681,8 @@ bool Polyhedron<T,FP>::checkConvex() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkClosed() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkClosed() const {
     typename EdgeList::const_iterator eIt, eEnd;
     for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
@@ -700,8 +700,8 @@ bool Polyhedron<T,FP>::checkClosed() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkNoCoplanarFaces() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
     typename EdgeList::const_iterator eIt, eEnd;
     for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
@@ -716,8 +716,8 @@ bool Polyhedron<T,FP>::checkNoCoplanarFaces() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
     typename FaceList::const_iterator fIt, fEnd;
     for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
@@ -737,8 +737,8 @@ bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkVertexLeavingEdges() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
@@ -759,8 +759,8 @@ bool Polyhedron<T,FP>::checkVertexLeavingEdges() const {
     return true;
 }
 
-template <typename T, typename FP>
-bool Polyhedron<T,FP>::checkEdges() const {
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkEdges() const {
     if (m_edges.empty())
         return true;
     
@@ -786,8 +786,8 @@ bool Polyhedron<T,FP>::checkEdges() const {
     return true;
 }
 
-template <typename T, typename FP>
-void Polyhedron<T,FP>::updateBounds() {
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
         m_bounds.min = m_bounds.max = Vec<T,3>::NaN;
     } else {

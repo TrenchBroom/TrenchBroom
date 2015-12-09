@@ -19,6 +19,7 @@
 
 #include "RenderUtils.h"
 
+#include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
 namespace TrenchBroom {
@@ -26,11 +27,11 @@ namespace TrenchBroom {
         static const float EdgeOffset = 0.0001f;
 
         void glSetEdgeOffset(const float f) {
-            glDepthRange(0.0f, 1.0f - EdgeOffset * f);
+            glAssert(glDepthRange(0.0f, 1.0f - EdgeOffset * f));
         }
         
         void glResetEdgeOffset() {
-            glDepthRange(EdgeOffset, 1.0f);
+            glAssert(glDepthRange(EdgeOffset, 1.0f));
         }
         
         BuildCoordinateSystem BuildCoordinateSystem::xy(const Color& x, const Color& y) {
@@ -87,6 +88,20 @@ namespace TrenchBroom {
                 if (m_axes[i])
                     result += 2;
             return result;
+        }
+
+        TextureRenderFunc::~TextureRenderFunc() {}
+        void TextureRenderFunc::before(const Assets::Texture* texture) {}
+        void TextureRenderFunc::after(const Assets::Texture* texture) {}
+        
+        void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->activate();
+        }
+        
+        void DefaultTextureRenderFunc::after(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->deactivate();
         }
 
         Vec2f::List circle2D(const float radius, const size_t segments) {

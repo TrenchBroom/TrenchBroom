@@ -79,13 +79,13 @@ namespace TrenchBroom {
         }
 
         void Transformation::loadProjectionMatrix(const Mat4x4f& matrix) {
-            glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
+            glAssert(glMatrixMode(GL_PROJECTION));
+            glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
         }
         
         void Transformation::loadModelViewMatrix(const Mat4x4f& matrix) {
-            glMatrixMode(GL_MODELVIEW);
-            glLoadMatrixf(reinterpret_cast<const float*>(matrix.v));
+            glAssert(glMatrixMode(GL_MODELVIEW));
+            glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
         }
 
         ReplaceTransformation::ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix) :

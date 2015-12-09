@@ -61,18 +61,18 @@ namespace TrenchBroom {
             m_valid = true;
         }
         
-        void SpikeGuideRenderer::doPrepare(Vbo& vbo) {
-            m_pointArray.prepare(vbo);
-            m_spikeArray.prepare(vbo);
+        void SpikeGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_pointArray.prepare(vertexVbo);
+            m_spikeArray.prepare(vertexVbo);
         }
         
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render();
+            m_spikeArray.render(GL_LINES);
             
-            glPointSize(3.0f);
-            m_pointArray.render();
-            glPointSize(1.0f);
+            glAssert(glPointSize(3.0f));
+            m_pointArray.render(GL_POINTS);
+            glAssert(glPointSize(1.0f));
         }
 
         void SpikeGuideRenderer::addPoint(const Vec3& position) {
@@ -88,8 +88,8 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::validate() {
-            m_pointArray = VertexArray::swap(GL_POINTS, m_pointVertices);
-            m_spikeArray = VertexArray::swap(GL_LINES, m_spikeVertices);
+            m_pointArray = VertexArray::swap(m_pointVertices);
+            m_spikeArray = VertexArray::swap(m_spikeVertices);
             m_valid = true;
         }
     }

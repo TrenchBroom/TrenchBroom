@@ -30,12 +30,8 @@
 #include "Polyhedron_Subtract.h"
 #include "Polyhedron_Intersect.h"
 #include "Polyhedron_Queries.h"
+#include "Polyhedron_BrushGeometryPayload.h"
+#include "Polyhedron_DefaultPayload.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
-    }
-}
-
-template class Polyhedron<FloatType, void>;
-template class Polyhedron<FloatType, TrenchBroom::Model::BrushFace>;
+template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;

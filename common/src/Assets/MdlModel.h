@@ -27,15 +27,11 @@
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vertex.h"
+#include "Renderer/IndexRangeMap.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class TexturedTriangleMeshRenderer;
-        class Vbo;
-    }
-    
     namespace Assets {
         typedef std::vector<float> MdlTimeList;
         
@@ -52,9 +48,6 @@ namespace TrenchBroom {
             const Texture* firstPicture() const;
         };
 
-        typedef Renderer::VertexSpecs::P3T2::Vertex MdlFrameVertex;
-        typedef MdlFrameVertex::List MdlFrameVertexList;
-        
         class MdlFrame;
         
         class MdlBaseFrame {
@@ -64,14 +57,17 @@ namespace TrenchBroom {
         };
         
         class MdlFrame : public MdlBaseFrame {
+        public:
+            typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
+            typedef Vertex::List VertexList;
         private:
             String m_name;
-            MdlFrameVertexList m_triangles;
+            VertexList m_triangles;
             BBox3f m_bounds;
         public:
-            MdlFrame(const String& name, const MdlFrameVertexList& triangles, const BBox3f& bounds);
+            MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds);
             const MdlFrame* firstFrame() const;
-            const MdlFrameVertexList& triangles() const;
+            const VertexList& triangles() const;
             BBox3f bounds() const;
             BBox3f transformedBounds(const Mat4x4f& transformation) const;
         };
@@ -103,7 +99,7 @@ namespace TrenchBroom {
             void addSkin(MdlSkin* skin);
             void addFrame(MdlBaseFrame* frame);
         private:
-            Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);

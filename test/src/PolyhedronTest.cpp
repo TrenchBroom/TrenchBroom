@@ -22,10 +22,11 @@
 #include "CollectionUtils.h"
 
 #include "Polyhedron.h"
+#include "Polyhedron_DefaultPayload.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
-typedef Polyhedron<double, void> Polyhedron3d;
+typedef Polyhedron<double, DefaultPolyhedronPayload> Polyhedron3d;
 typedef Polyhedron3d::Vertex Vertex;
 typedef Polyhedron3d::VertexList VertexList;
 typedef Polyhedron3d::Edge Edge;

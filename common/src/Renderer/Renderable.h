@@ -30,11 +30,27 @@ namespace TrenchBroom {
         class Renderable {
         public:
             virtual ~Renderable();
-            void prepare(Vbo& vbo);
             void render(RenderContext& renderContext);
         private:
-            virtual void doPrepare(Vbo& vbo) = 0;
             virtual void doRender(RenderContext& renderContext) = 0;
+        };
+        
+        class DirectRenderable : public Renderable {
+        public:
+            virtual ~DirectRenderable();
+            void prepareVertices(Vbo& vertexVbo);
+        private:
+            virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
+        };
+
+        class IndexedRenderable : public Renderable {
+        public:
+            virtual ~IndexedRenderable();
+            void prepareVertices(Vbo& vertexVbo);
+            void prepareIndices(Vbo& indexVbo);
+        private:
+            virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
+            virtual void doPrepareIndices(Vbo& indexVbo) = 0;
         };
     }
 }

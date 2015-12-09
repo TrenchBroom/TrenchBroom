@@ -123,7 +123,7 @@ namespace TrenchBroom {
             renderText(renderContext, renderBatch);
         }
 
-        class RotateToolHelper::AngleIndicatorRenderer : public Renderer::Renderable {
+        class RotateToolHelper::AngleIndicatorRenderer : public Renderer::DirectRenderable {
         private:
             Vec3 m_position;
             Renderer::Circle m_circle;
@@ -132,23 +132,23 @@ namespace TrenchBroom {
             m_position(position),
             m_circle(radius, 24, true, axis, startAxis, endAxis) {}
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_circle.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_circle.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {
-                glDisable(GL_DEPTH_TEST);
-                glDisable(GL_CULL_FACE);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glAssert(glDisable(GL_DEPTH_TEST));
+                glAssert(glDisable(GL_CULL_FACE));
+                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
                 
                 Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                 m_circle.render();
 
-                glPolygonMode(GL_FRONT, GL_FILL);
-                glEnable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_TEST);
+                glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+                glAssert(glEnable(GL_CULL_FACE));
+                glAssert(glEnable(GL_DEPTH_TEST));
             }
         };
         

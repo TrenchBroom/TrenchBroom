@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class RenderContext;
         class TextAnchor;
         
-        class TextRenderer : public Renderable {
+        class TextRenderer : public DirectRenderable {
         private:
             static const float DefaultMaxViewDistance;
             static const float DefaultMinZoomFactor;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             
             Vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
             
             void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);

@@ -171,12 +171,11 @@ namespace TrenchBroom {
         
         class SetupGL : public Renderable {
         private:
-            void doPrepare(Vbo& vbo) {}
             void doRender(RenderContext& renderContext) {
-                glFrontFace(GL_CW);
-                glEnable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_TEST);
-                glDepthFunc(GL_LEQUAL);
+                glAssert(glFrontFace(GL_CW));
+                glAssert(glEnable(GL_CULL_FACE));
+                glAssert(glEnable(GL_DEPTH_TEST));
+                glAssert(glDepthFunc(GL_LEQUAL));
                 glResetEdgeOffset();
             }
         };
