@@ -26,7 +26,7 @@
 #include "MathUtils.h"
 #include "TestUtils.h"
 
-typedef Polyhedron<double, DefaultPolyhedronPayload> Polyhedron3d;
+typedef Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3d;
 typedef Polyhedron3d::Vertex Vertex;
 typedef Polyhedron3d::VertexList VertexList;
 typedef Polyhedron3d::Edge Edge;
