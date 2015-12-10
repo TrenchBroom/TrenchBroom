@@ -111,21 +111,22 @@ namespace TrenchBroom {
             }
             
             typedef VertexSpecs::P3N::Vertex Vertex;
-            Vertex::List shaftVertices = Vertex::fromLists(shaft.vertices, shaft.normals, shaft.vertices.size());
-            Vertex::List headVertices = Vertex::fromLists(head.vertices, head.normals, head.vertices.size());
-            Vertex::List capVertices = VectorUtils::concatenate(Vertex::fromLists(shaftCap.vertices, shaftCap.normals, shaftCap.vertices.size()),
-                                                                      Vertex::fromLists(headCap.vertices, headCap.normals, headCap.vertices.size()));
+            Vertex::List shaftVertices    = Vertex::fromLists(shaft.vertices, shaft.normals, shaft.vertices.size());
+            Vertex::List headVertices     = Vertex::fromLists(head.vertices,  head.normals,  head.vertices.size());
+            Vertex::List shaftCapVertices = Vertex::fromLists(shaftCap.vertices, shaftCap.normals, shaftCap.vertices.size());
+            Vertex::List headCapVertices  = Vertex::fromLists(headCap.vertices,  headCap.normals,  headCap.vertices.size());
 
-            const size_t vertexCount = shaftVertices.size() + headVertices.size() + capVertices.size();
+            const size_t vertexCount = shaftVertices.size() + headVertices.size() + shaftCapVertices.size() + headCapVertices.size();
             IndexRangeMap::Size indexArraySize;
             indexArraySize.inc(GL_TRIANGLE_STRIP);
-            indexArraySize.inc(GL_TRIANGLE_FAN);
+            indexArraySize.inc(GL_TRIANGLE_FAN, 2);
             indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
             
             IndexRangeMapBuilder<Vertex::Spec> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
+            builder.addTriangleFan(shaftCapVertices);
+            builder.addTriangleFan(headCapVertices);
             builder.addTriangles(headVertices);
-            builder.addTriangleFan(capVertices);
 
             m_arrowRenderer = IndexRangeRenderer(builder);
         }
