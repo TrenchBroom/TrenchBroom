@@ -67,13 +67,15 @@ namespace TrenchBroom {
         }
         
         void Circle::render() {
-            m_array.render(m_filled ? GL_POLYGON : GL_LINE_LOOP);
+            m_array.render(m_filled ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
         }
         
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
-            const Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            if (m_filled)
+                positions.push_back(Vec2f::Null);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }
@@ -81,7 +83,9 @@ namespace TrenchBroom {
         void Circle::init3D(const float radius, const size_t segments, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
-            const Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            if (m_filled)
+                positions.push_back(Vec3f::Null);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }
