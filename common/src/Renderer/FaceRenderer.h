@@ -51,9 +51,9 @@ namespace TrenchBroom {
         public:
             FaceRenderer();
             FaceRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
-            FaceRenderer(const FaceRenderer& other);
-            FaceRenderer& operator= (FaceRenderer other);
             
+            FaceRenderer(const FaceRenderer& other);
+            FaceRenderer& operator=(FaceRenderer other);
             friend void swap(FaceRenderer& left, FaceRenderer& right);
 
             void setGrayscale(bool grayscale);
