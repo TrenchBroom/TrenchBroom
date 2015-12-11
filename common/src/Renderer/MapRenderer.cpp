@@ -479,11 +479,13 @@ namespace TrenchBroom {
         
         void MapRenderer::entityDefinitionsDidChange() {
             reloadEntityModels();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::modsDidChange() {
             reloadEntityModels();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
         
@@ -499,6 +501,13 @@ namespace TrenchBroom {
         
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
+            
+            View::MapDocumentSPtr document = lock(m_document);
+            if (document->isGamePathPreference(path)) {
+                reloadEntityModels();
+                invalidateRenderers(Renderer_All);
+                invalidateEntityLinkRenderer();
+            }
         }
     }
 }
