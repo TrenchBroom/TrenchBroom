@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
         
         void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
-            typename TextureToIndexArrayMap::const_iterator texIt, texEnd;
+            TextureToIndexArrayMap::const_iterator texIt, texEnd;
             for (texIt = m_ranges->begin(), texEnd = m_ranges->end(); texIt != texEnd; ++texIt) {
                 const Texture* texture = texIt->first;
                 const IndexArrayMap& indexRange = texIt->second;

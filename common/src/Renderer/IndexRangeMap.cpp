@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         void IndexRangeMap::render(VertexArray& vertexArray) const {
-            typename PrimTypeToIndexData::const_iterator primIt, primEnd;
+            PrimTypeToIndexData::const_iterator primIt, primEnd;
             for (primIt = m_data->begin(), primEnd = m_data->end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const IndicesAndCounts& indicesAndCounts = primIt->second;

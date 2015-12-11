@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         void IndexArrayMap::render(IndexArray& indexArray) const {
-            typename PrimTypeToRangeMap::const_iterator primIt, primEnd;
+            PrimTypeToRangeMap::const_iterator primIt, primEnd;
             for (primIt = m_ranges->begin(), primEnd = m_ranges->end(); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const IndexArrayRange& range = primIt->second;
