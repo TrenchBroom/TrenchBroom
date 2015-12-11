@@ -158,6 +158,9 @@ namespace TrenchBroom {
                 const EntityDefinitionClassInfo baseClass = parseBaseClass(status);
                 m_baseClasses[baseClass.name()] = baseClass;
                 return parseDefinition(status);
+            } else if (StringUtils::caseInsensitiveEqual(classname, "@Main")) {
+                skipMainClass(status);
+                return parseDefinition(status);
             } else {
                 const String msg = "Unknown entity definition class '" + classname + "'";
                 status.error(token.line(), token.column(), msg);
@@ -233,7 +236,16 @@ namespace TrenchBroom {
             classInfo.resolveBaseClasses(m_baseClasses, superClasses);
             return classInfo;
         }
-        
+
+        void FgdParser::skipMainClass(ParserStatus& status) {
+            Token token;
+            expect(status, FgdToken::Equality, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::OBracket, token = m_tokenizer.nextToken());
+            do {
+                token = m_tokenizer.nextToken();
+            } while (token.type() != FgdToken::CBracket);
+        }
+
         StringList FgdParser::parseSuperClasses(ParserStatus& status) {
             StringList superClasses;
             Token token;

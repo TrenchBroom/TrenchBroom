@@ -86,6 +86,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition* parsePointClass(ParserStatus& status);
             EntityDefinitionClassInfo parseBaseClass(ParserStatus& status);
             EntityDefinitionClassInfo parseClass(ParserStatus& status);
+            void skipMainClass(ParserStatus& status);
             
             StringList parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinitionList parseModels(ParserStatus& status);
