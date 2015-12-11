@@ -645,6 +645,7 @@ namespace TrenchBroom {
         
         void BrushFace::validateVertexCache() const {
             if (!m_verticesValid) {
+                m_cachedVertices.clear();
                 m_cachedVertices.reserve(vertexCount());
                 
                 const BrushHalfEdge* first = m_geometry->boundary().front();
