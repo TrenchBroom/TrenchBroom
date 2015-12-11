@@ -96,7 +96,7 @@ namespace TrenchBroom {
             DirectEdgeRenderer(const VertexArray& vertexArray, PrimType primType);
 
             DirectEdgeRenderer(const DirectEdgeRenderer& other);
-            DirectEdgeRenderer& operator= (DirectEdgeRenderer other);
+            DirectEdgeRenderer& operator=(DirectEdgeRenderer other);
             
             friend void swap(DirectEdgeRenderer& left, DirectEdgeRenderer& right);
         private:
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             IndexedEdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const IndexArrayMap& indexRanges);
 
             IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
-            IndexedEdgeRenderer& operator= (IndexedEdgeRenderer other);
+            IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);
             
             friend void swap(IndexedEdgeRenderer& left, IndexedEdgeRenderer& right);
         private:

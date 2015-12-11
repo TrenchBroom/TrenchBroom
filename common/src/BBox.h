@@ -102,7 +102,7 @@ public:
     min(other.min),
     max(other.max) {}
 
-    bool operator== (const BBox<T,S>& right) const {
+    bool operator==(const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
     }
     

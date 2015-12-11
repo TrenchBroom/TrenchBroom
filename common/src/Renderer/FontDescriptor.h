@@ -34,7 +34,7 @@ namespace TrenchBroom {
             FontDescriptor(const IO::Path& path, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
             
             int compare(const FontDescriptor& other) const;
-            bool operator< (const FontDescriptor& other) const;
+            bool operator<(const FontDescriptor& other) const;
             
             const IO::Path& path() const;
             String name() const;

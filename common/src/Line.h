@@ -74,7 +74,7 @@ public:
         return direction.compare(other.direction, epsilon);
     }
     
-    bool operator== (const Line<T,S>& other) const {
+    bool operator==(const Line<T,S>& other) const {
         return compare(other) == 0;
     }
     
@@ -82,7 +82,7 @@ public:
         return compare(other) != 0;
     }
     
-    bool operator< (const Line<T,S>& other) const {
+    bool operator<(const Line<T,S>& other) const {
         return compare(other) < 0;
     }
     
@@ -90,7 +90,7 @@ public:
         return compare(other) <= 0;
     }
     
-    bool operator> (const Line<T,S>& other) const {
+    bool operator>(const Line<T,S>& other) const {
         return compare(other) > 0;
     }
     

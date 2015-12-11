@@ -28,7 +28,7 @@ namespace TrenchBroom {
         m_prepared(false),
         m_setup(false) {}
         
-        VertexArray& VertexArray::operator= (VertexArray other) {
+        VertexArray& VertexArray::operator=(VertexArray other) {
             using std::swap;
             swap(*this, other);
             return *this;

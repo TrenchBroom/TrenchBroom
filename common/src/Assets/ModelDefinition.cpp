@@ -33,7 +33,7 @@ namespace TrenchBroom {
         skinIndex(i_skinIndex),
         frameIndex(i_frameIndex) {}
 
-        bool ModelSpecification::operator< (const ModelSpecification& rhs) const {
+        bool ModelSpecification::operator<(const ModelSpecification& rhs) const {
             const int pathCmp = path.compare(rhs.path);
             if (pathCmp < 0)
                 return true;

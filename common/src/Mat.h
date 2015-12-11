@@ -93,21 +93,21 @@ public:
                 v[c][r] = static_cast<T>(other[c][r]);
     }
     
-    Mat<T,R,C>& operator= (const Mat<T,R,C>& right) {
+    Mat<T,R,C>& operator=(const Mat<T,R,C>& right) {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 v[c][r] = right[c][r];
         return *this;
     }
     
-    const Mat<T,R,C> operator- () const {
+    const Mat<T,R,C> operator-() const {
         Mat<T,R,C> result;
         for (size_t c = 0; c < C; c++)
             result[c] = -v[c];
         return result;
     }
     
-    bool operator== (const Mat<T,R,C>& right) const {
+    bool operator==(const Mat<T,R,C>& right) const {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 if (v[c][r] != right[c][r])
@@ -116,7 +116,7 @@ public:
     }
     
     // Matrix addition and subtraction
-    const Mat<T,R,C> operator+ (const Mat<T,R,C>& right) const {
+    const Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result += right;
     }
@@ -127,7 +127,7 @@ public:
         return *this;
     }
     
-    const Mat<T,R,C> operator- (const Mat<T,R,C>& right) const {
+    const Mat<T,R,C> operator-(const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result -= right;
     }
@@ -139,7 +139,7 @@ public:
     }
     
     // Matrix multiplication
-    const Mat<T,R,C> operator* (const Mat<T,C,R>& right) const {
+    const Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
         Mat<T,R,C> result(Mat<T,R,C>::Null);
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
@@ -153,7 +153,7 @@ public:
     }
     
     // Scalar multiplication
-    const Mat<T,R,C> operator* (const T right) const {
+    const Mat<T,R,C> operator*(const T right) const {
         Mat<T,R,C> result(*this);
         return result *= right;
     }
@@ -164,7 +164,7 @@ public:
         return *this;
     }
     
-    const Mat<T,R,C> operator/ (const T right) const {
+    const Mat<T,R,C> operator/(const T right) const {
         Mat<T,R,C> result(*this);
         return result /= right;
     }
@@ -176,7 +176,7 @@ public:
     }
     
     // Vector right multiplication
-    const Vec<T,C> operator* (const Vec<T,C>& right) const {
+    const Vec<T,C> operator*(const Vec<T,C>& right) const {
         Vec<T,C> result;
         for (size_t r = 0; r < R; r++)
             for (size_t c = 0; c < C; ++c)
@@ -184,13 +184,13 @@ public:
         return result;
     }
     
-    const Vec<T,C-1> operator* (const Vec<T,C-1>& right) const {
+    const Vec<T,C-1> operator*(const Vec<T,C-1>& right) const {
         const Vec<T,C> t(right, static_cast<T>(1.0));
         return (*this * t).overLast();
     }
     
     // Vector list right multiplication
-    const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
+    const typename Vec<T,C>::List operator*(const typename Vec<T,C>::List& right) const {
         typename Vec<T,C>::List result;
         result.reserve(right.size());
         
@@ -200,7 +200,7 @@ public:
         return result;
     }
     
-    const typename Vec<T,C-1>::List operator* (const typename Vec<T,C-1>::List& right) const {
+    const typename Vec<T,C-1>::List operator*(const typename Vec<T,C-1>::List& right) const {
         typename Vec<T,C-1>::List result;
         result.reserve(right.size());
         
@@ -262,13 +262,13 @@ public:
 };
 
 template <typename T, size_t R, size_t C>
-Mat<T,R,C> operator* (const T left, const Mat<T,R,C>& right) {
+Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
     return right * left;
 }
 
 // Vector left multiplication with vector of dimension R
 template <typename T, size_t R, size_t C>
-const Vec<T,R> operator* (const Vec<T,R>& left, const Mat<T,R,C>& right) {
+const Vec<T,R> operator*(const Vec<T,R>& left, const Mat<T,R,C>& right) {
     Vec<T,R> result;
     for (size_t c = 0; c < C; c++)
         result[c] = left.dot(right[c]);
@@ -282,7 +282,7 @@ Vec<T,R>& operator*= (Vec<T,R>& left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with list of vectors of dimension R
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List operator* (const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
+const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R>::List result;
     result.reserve(left.size());
     
@@ -302,7 +302,7 @@ const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const 
 
 // Vector left multiplication with vector of dimension R-1
 template <typename T, size_t R, size_t C>
-const Vec<T,R-1> operator* (const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
+const Vec<T,R-1> operator*(const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
     return (Vec<T,R>(left, static_cast<T>(1.0)) * right).overLast();
 }
 
@@ -313,7 +313,7 @@ Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with list of vectors of dimension R-1
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R-1>::List operator* (const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R-1>::List result;
     result.reserve(left.size());
     

@@ -83,7 +83,7 @@ public:
         return normal.compare(other.normal);
     }
     
-    bool operator== (const Plane<T,S>& other) const {
+    bool operator==(const Plane<T,S>& other) const {
         return compare(other) == 0;
     }
     
@@ -91,7 +91,7 @@ public:
         return compare(other) != 0;
     }
     
-    bool operator< (const Plane<T,S>& other) const {
+    bool operator<(const Plane<T,S>& other) const {
         return compare(other) < 0;
     }
     
@@ -99,7 +99,7 @@ public:
         return compare(other) <= 0;
     }
     
-    bool operator> (const Plane<T,S>& other) const {
+    bool operator>(const Plane<T,S>& other) const {
         return compare(other) > 0;
     }
     

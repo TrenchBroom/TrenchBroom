@@ -44,7 +44,7 @@ public:
     origin(other.origin),
     direction(other.direction) {}
 
-    bool operator== (const Ray<T,S>& other) const {
+    bool operator==(const Ray<T,S>& other) const {
         return compare(origin, other.origin) == 0 && compare(direction, other.direction) == 0;
     }
     

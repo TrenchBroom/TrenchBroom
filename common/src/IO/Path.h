@@ -50,12 +50,12 @@ namespace TrenchBroom {
         public:
             Path(const String& path = "");
             
-            Path operator+ (const Path& rhs) const;
+            Path operator+(const Path& rhs) const;
             int compare(const Path& rhs) const;
-            bool operator== (const Path& rhs) const;
+            bool operator==(const Path& rhs) const;
             bool operator!= (const Path& rhs) const;
-            bool operator< (const Path& rhs) const;
-            bool operator> (const Path& rhs) const;
+            bool operator<(const Path& rhs) const;
+            bool operator>(const Path& rhs) const;
             
             String asString(const char sep = separator()) const;
             String asString(const String& sep) const;

@@ -69,7 +69,7 @@ namespace TrenchBroom {
         width(i_width),
         height(i_height) {}
         
-        bool MipSize::operator== (const MipSize& rhs) const {
+        bool MipSize::operator==(const MipSize& rhs) const {
             return width == rhs.width && height == rhs.height;
         }
 

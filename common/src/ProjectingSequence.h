@@ -37,8 +37,8 @@ struct ProjectingSequenceIterators {
         iterator() : m_iterator() {}
         iterator(I iterator) : m_iterator(iterator) {}
         
-        bool operator< (const iterator& other) const { return m_iterator <  other.m_iterator; }
-        bool operator> (const iterator& other) const { return m_iterator >  other.m_iterator; }
+        bool operator<(const iterator& other) const { return m_iterator <  other.m_iterator; }
+        bool operator>(const iterator& other) const { return m_iterator >  other.m_iterator; }
         bool operator==(const iterator& other) const { return m_iterator == other.m_iterator; }
         bool operator!=(const iterator& other) const { return m_iterator != other.m_iterator; }
         
@@ -62,8 +62,8 @@ struct ProjectingSequenceIterators {
         const_iterator() : m_iterator() {}
         const_iterator(I iterator) : m_iterator(iterator) {}
         
-        bool operator< (const const_iterator& other) const { return m_iterator <  other.m_iterator; }
-        bool operator> (const const_iterator& other) const { return m_iterator >  other.m_iterator; }
+        bool operator<(const const_iterator& other) const { return m_iterator <  other.m_iterator; }
+        bool operator>(const const_iterator& other) const { return m_iterator >  other.m_iterator; }
         bool operator==(const const_iterator& other) const { return m_iterator == other.m_iterator; }
         bool operator!=(const const_iterator& other) const { return m_iterator != other.m_iterator; }
         
