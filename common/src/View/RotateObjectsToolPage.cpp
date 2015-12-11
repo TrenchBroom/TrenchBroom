@@ -102,7 +102,9 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_tool->setAngle(Math::radians(m_angle->GetValue() + event.GetValue()));
+            const double newAngleDegs = Math::correct(m_angle->GetValue() + event.GetValue());
+            m_angle->SetValue(newAngleDegs);
+            m_tool->setAngle(Math::radians(newAngleDegs));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {

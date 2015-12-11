@@ -67,8 +67,7 @@ namespace TrenchBroom {
         m_shiftIncrement(0.0),
         m_ctrlIncrement(0.0),
         m_value(0.0),
-        m_digits(0),
-        m_format("%g") {
+        m_digits(1) { // m_digits must be different from 0 because it's being set to 0 below in the constructor
             m_text = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_RIGHT);
             m_spin = new wxSpinButton(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_VERTICAL);
             
@@ -80,6 +79,7 @@ namespace TrenchBroom {
             m_spin->SetRange(-32000, 32000);
             
             DoSetValue(m_value);
+            SetDigits(0);
             
             wxSizer* textSizer = new wxBoxSizer(wxVERTICAL);
             textSizer->Add(m_text, 0, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
@@ -149,7 +149,8 @@ namespace TrenchBroom {
             if (digits == m_digits)
                 return;
             m_digits = digits;
-            m_format.Printf("%6.%%0uf", m_digits);
+            m_format.Clear();
+            m_format << "%." << m_digits << "f";
             DoSetValue(m_value);
         }
         
