@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 Viewport();
                 Viewport(int i_x, int i_y, int i_width, int i_height);
                 
-                bool operator== (const Viewport& other) const;
+                bool operator==(const Viewport& other) const;
 
                 template <typename T>
                 bool contains(const T i_x, const T i_y, const T i_w, const T i_h) const {

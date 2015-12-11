@@ -70,13 +70,9 @@ namespace TrenchBroom {
             }
         }
 
-        TexturedIndexArrayMap::TexturedIndexArrayMap() {}
-        
-        TexturedIndexArrayMap::TexturedIndexArrayMap(const Size& size) :
-        m_ranges(new TextureToIndexArrayMap()),
-        m_current(m_ranges->end()) {
-            size.initialize(*m_ranges);
-        }
+        TexturedIndexArrayMap::TexturedIndexArrayMap() :
+        m_ranges(new TexturedIndexArrayMap()),
+        m_current(m_ranges->end()) {}
 
         size_t TexturedIndexArrayMap::add(const Texture* texture, const PrimType primType, const size_t count) {
             IndexArrayMap& current = findCurrent(texture);

@@ -375,7 +375,7 @@ public:
         return 0;
     }
     
-    bool operator== (const Vec<T,S>& right) const {
+    bool operator==(const Vec<T,S>& right) const {
         return compare(right) == 0;
     }
     
@@ -383,7 +383,7 @@ public:
         return compare(right) != 0;
     }
     
-    bool operator< (const Vec<T,S>& right) const {
+    bool operator<(const Vec<T,S>& right) const {
         return compare(right) < 0;
     }
     
@@ -391,7 +391,7 @@ public:
         return compare(right) <= 0;
     }
 
-    bool operator> (const Vec<T,S>& right) const {
+    bool operator>(const Vec<T,S>& right) const {
         return compare(right) > 0;
     }
     
@@ -400,7 +400,7 @@ public:
     }
 
     template <size_t O>
-    Vec<T,S>& operator= (const Vec<T,O>& right) {
+    Vec<T,S>& operator=(const Vec<T,O>& right) {
         for (size_t i = 0; i < std::min(S,O); ++i)
             v[i] = right[i];
         for (size_t i = std::min(S,O); i < S; ++i)
@@ -408,14 +408,14 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator- () const {
+    const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
         return result;
     }
 
-    const Vec<T,S> operator+ (const Vec<T,S>& right) const {
+    const Vec<T,S> operator+(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] + right[i];
@@ -428,7 +428,7 @@ public:
         return *this;
     }
 
-    const Vec<T,S> operator- (const Vec<T,S>& right) const {
+    const Vec<T,S> operator-(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] - right[i];
@@ -441,7 +441,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator* (const T right) const {
+    const Vec<T,S> operator*(const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right;
@@ -454,7 +454,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator* (const Vec<T,S>& right) const {
+    const Vec<T,S> operator*(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right[i];
@@ -467,7 +467,7 @@ public:
         return *this;
     }
 
-    const Vec<T,S> operator/ (const T right) const {
+    const Vec<T,S> operator/(const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right;
@@ -480,7 +480,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator/ (const Vec<T,S>& right) const {
+    const Vec<T,S> operator/(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right[i];

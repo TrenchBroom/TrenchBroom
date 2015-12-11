@@ -65,7 +65,7 @@ namespace TrenchBroom {
         public:
             TexturedIndexArrayMap();
             TexturedIndexArrayMap(const Size& size);
-            
+
             size_t add(const Texture* texture, PrimType primType, size_t count);
 
             void render(IndexArray& vertexArray);

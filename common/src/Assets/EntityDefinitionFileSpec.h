@@ -46,8 +46,8 @@ namespace TrenchBroom {
             static EntityDefinitionFileSpec external(const IO::Path& path);
             static EntityDefinitionFileSpec unset();
             
-            bool operator< (const EntityDefinitionFileSpec& rhs) const;
-            bool operator== (const EntityDefinitionFileSpec& rhs) const;
+            bool operator<(const EntityDefinitionFileSpec& rhs) const;
+            bool operator==(const EntityDefinitionFileSpec& rhs) const;
 
             bool valid() const;
             bool builtin() const;

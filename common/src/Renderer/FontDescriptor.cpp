@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return m_path.compare(other.m_path);
         }
         
-        bool FontDescriptor::operator< (const FontDescriptor& other) const {
+        bool FontDescriptor::operator<(const FontDescriptor& other) const {
             return compare(other) < 0;
         }
         

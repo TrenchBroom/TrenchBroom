@@ -313,7 +313,7 @@ namespace TrenchBroom {
                 m_index1(index1),
                 m_index2(index2) {}
                 
-                bool operator< (const MidPointIndex& other) const {
+                bool operator<(const MidPointIndex& other) const {
                     if (m_index1 < other.m_index1)
                         return true;
                     if (m_index1 > other.m_index1)

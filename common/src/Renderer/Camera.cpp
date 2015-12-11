@@ -35,7 +35,7 @@ namespace TrenchBroom {
         width(i_width),
         height(i_height) {}
 
-        bool Camera::Viewport::operator== (const Viewport& other) const {
+        bool Camera::Viewport::operator==(const Viewport& other) const {
             return x == other.x && y == other.y && width == other.width && height == other.height;
         }
 

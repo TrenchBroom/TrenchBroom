@@ -58,7 +58,7 @@ namespace TrenchBroom {
             size_t height;
             
             MipSize(const size_t i_width, const size_t i_height);
-            bool operator== (const MipSize& rhs) const;
+            bool operator==(const MipSize& rhs) const;
         };
         
         struct MipData {

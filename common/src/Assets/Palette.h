@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Palette(const Palette& other);
             ~Palette();
             
-            void operator= (Palette other);
+            void operator=(Palette other);
 
             template <typename IndexT, typename ColorT>
             void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {

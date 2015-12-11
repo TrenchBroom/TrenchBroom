@@ -48,7 +48,7 @@ namespace TrenchBroom {
         m_color(other.m_color),
         m_useColor(other.m_useColor) {}
         
-        TriangleRenderer& TriangleRenderer::operator= (TriangleRenderer other) {
+        TriangleRenderer& TriangleRenderer::operator=(TriangleRenderer other) {
             using std::swap;
             swap(*this, other);
             return *this;

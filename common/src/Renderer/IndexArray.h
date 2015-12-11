@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
             }
 
-            IndexArray& operator= (IndexArray other);
+            IndexArray& operator=(IndexArray other);
             friend void swap(IndexArray& left, IndexArray& right);
             
             bool empty() const;

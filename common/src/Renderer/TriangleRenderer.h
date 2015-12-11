@@ -46,7 +46,7 @@ namespace TrenchBroom {
             TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
             TriangleRenderer(const VertexArray& vertexArray, PrimType primType);
             TriangleRenderer(const TriangleRenderer& other);
-            TriangleRenderer& operator= (TriangleRenderer other);
+            TriangleRenderer& operator=(TriangleRenderer other);
             
             friend void swap(TriangleRenderer& left, TriangleRenderer& right);
             

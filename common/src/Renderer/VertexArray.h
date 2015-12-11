@@ -251,7 +251,7 @@ namespace TrenchBroom {
                 return VertexArray(holder);
             }
 
-            VertexArray& operator= (VertexArray other);
+            VertexArray& operator=(VertexArray other);
             friend void swap(VertexArray& left, VertexArray& right);
             
             bool empty() const;

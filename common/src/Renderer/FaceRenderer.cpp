@@ -81,7 +81,7 @@ namespace TrenchBroom {
         m_tintColor(other.m_tintColor),
         m_alpha(other.m_alpha) {}
         
-        FaceRenderer& FaceRenderer::operator= (FaceRenderer other) {
+        FaceRenderer& FaceRenderer::operator=(FaceRenderer other) {
             using std::swap;
             swap(*this, other);
             return *this;

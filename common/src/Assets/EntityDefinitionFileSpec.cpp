@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return EntityDefinitionFileSpec();
         }
         
-        bool EntityDefinitionFileSpec::operator< (const EntityDefinitionFileSpec& rhs) const {
+        bool EntityDefinitionFileSpec::operator<(const EntityDefinitionFileSpec& rhs) const {
             if (m_type < rhs.m_type)
                 return true;
             if (m_type > rhs.m_type)
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return m_path < rhs.m_path;
         }
 
-        bool EntityDefinitionFileSpec::operator== (const EntityDefinitionFileSpec& rhs) const {
+        bool EntityDefinitionFileSpec::operator==(const EntityDefinitionFileSpec& rhs) const {
             return m_type == rhs.m_type && m_path == rhs.m_path;
         }
 

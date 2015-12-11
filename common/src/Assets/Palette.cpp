@@ -44,7 +44,7 @@ namespace TrenchBroom {
             memcpy(m_data, other.m_data, m_size);
         }
 
-        void Palette::operator= (Palette other) {
+        void Palette::operator=(Palette other) {
             using std::swap;
             swap(m_data, other.m_data);
             swap(m_size, other.m_size);
