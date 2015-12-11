@@ -367,9 +367,11 @@ namespace TrenchBroom {
                 Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
-                    const Model::BrushVertex* v1 = edge->firstVertex();
-                    const Model::BrushVertex* v2 = edge->secondVertex();
-                    m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
+                    if (m_filter.show(edge)) {
+                        const Model::BrushVertex* v1 = edge->firstVertex();
+                        const Model::BrushVertex* v2 = edge->secondVertex();
+                        m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
+                    }
                 }
             }
         };
