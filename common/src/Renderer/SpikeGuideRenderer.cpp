@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(ray, pickResult);
             
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().minDistance(1.0).first();
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
                     addPoint(ray.pointAtDistance(hit.distance() - 0.01));
@@ -62,6 +62,8 @@ namespace TrenchBroom {
         }
         
         void SpikeGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            if (!m_valid)
+                validate();
             m_pointArray.prepare(vertexVbo);
             m_spikeArray.prepare(vertexVbo);
         }
