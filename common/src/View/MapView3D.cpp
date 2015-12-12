@@ -19,6 +19,8 @@
 
 #include "MapView3D.h"
 #include "Logger.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -27,6 +29,7 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
+#include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Compass3D.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
@@ -646,6 +649,13 @@ namespace TrenchBroom {
                 const BBox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
+                
+                if (renderContext.showSelectionGuide()) {
+                    Renderer::BoundsGuideRenderer* guideRenderer = new Renderer::BoundsGuideRenderer(m_document);
+                    guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
+                    guideRenderer->setBounds(bounds);
+                    renderBatch.addOneShot(guideRenderer);
+                }
             }
         }
         
