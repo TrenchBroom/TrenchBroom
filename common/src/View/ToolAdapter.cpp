@@ -52,6 +52,54 @@ namespace TrenchBroom {
         void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
         void NoMouseDragPolicy::doCancelMouseDrag() {}
         
+        DelegatingMouseDragPolicy::DelegatingMouseDragPolicy() :
+        m_delegate(NULL) {}
+        
+        DelegatingMouseDragPolicy::~DelegatingMouseDragPolicy() {}
+
+        bool DelegatingMouseDragPolicy::doStartMouseDrag(const InputState& inputState) {
+            assert(m_delegate == NULL);
+            m_delegate = doCreateDelegate(inputState);
+            if (m_delegate == NULL)
+                return false;
+            
+            if (m_delegate->doStartMouseDrag(inputState)) {
+                doMouseDragStarted();
+                return true;
+            }
+            return false;
+        }
+        
+        bool DelegatingMouseDragPolicy::doMouseDrag(const InputState& inputState) {
+            assert(m_delegate != NULL);
+            if (m_delegate->doMouseDrag(inputState)) {
+                doMouseDragged();
+                return true;
+            }
+            return false;
+        }
+        
+        void DelegatingMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {
+            assert(m_delegate != NULL);
+            m_delegate->doEndMouseDrag(inputState);
+            doMouseDragEnded();
+            doDeleteDelegate(m_delegate);
+            m_delegate = NULL;
+        }
+        
+        void DelegatingMouseDragPolicy::doCancelMouseDrag() {
+            assert(m_delegate != NULL);
+            m_delegate->doCancelMouseDrag();
+            doMouseDragCancelled();
+            doDeleteDelegate(m_delegate);
+            m_delegate = NULL;
+        }
+
+        void DelegatingMouseDragPolicy::doMouseDragStarted() {}
+        void DelegatingMouseDragPolicy::doMouseDragged() {}
+        void DelegatingMouseDragPolicy::doMouseDragEnded() {}
+        void DelegatingMouseDragPolicy::doMouseDragCancelled() {}
+
         PlaneDragPolicy::PlaneDragPolicy() : m_dragging(false) {}
         PlaneDragPolicy::~PlaneDragPolicy() {}
         
@@ -88,6 +136,17 @@ namespace TrenchBroom {
             m_dragging = false;
         }
         
+        bool PlaneDragPolicy::dragging() const {
+            return m_dragging;
+        }
+        
+        void PlaneDragPolicy::resetPlane(const InputState& inputState) {
+            doResetPlane(inputState, m_plane, m_lastPoint);
+        }
+        
+        PlaneDragHelper::PlaneDragHelper(PlaneDragPolicy* policy) : m_policy(policy) { assert(m_policy != NULL); }
+        PlaneDragHelper::~PlaneDragHelper() {}
+        
         bool PlaneDragHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             return doStartPlaneDrag(inputState, plane, initialPoint);
         }
@@ -112,23 +171,52 @@ namespace TrenchBroom {
             doRender(inputState, renderContext, renderBatch);
         }
 
-        bool PlaneDragPolicy::dragging() const {
-            return m_dragging;
-        }
-
-        void PlaneDragPolicy::resetPlane(const InputState& inputState) {
-            doResetPlane(inputState, m_plane, m_lastPoint);
-        }
-
-        PlaneDragHelper::PlaneDragHelper(PlaneDragPolicy* policy) : m_policy(policy) { assert(m_policy != NULL); }
-        PlaneDragHelper::~PlaneDragHelper() {}
-
         bool PlaneDragHelper::dragging() const {
             return m_policy->dragging();
         }
         
         void PlaneDragHelper::resetPlane(const InputState& inputState) {
             m_policy->resetPlane(inputState);
+        }
+
+        LineDragPolicy::LineDragPolicy() : m_dragging(false) {}
+        LineDragPolicy::~LineDragPolicy() {}
+
+        bool LineDragPolicy::doStartMouseDrag(const InputState& inputState) {
+            if (doStartLineDrag(inputState, m_line, m_lastDist)) {
+                m_dragging = true;
+                m_refDist = m_lastDist;
+                return true;
+            }
+            return false;
+        }
+
+        bool LineDragPolicy::doMouseDrag(const InputState& inputState) {
+            const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
+            if (lineDist.parallel)
+                return true;
+            
+            const FloatType curDist = lineDist.lineDistance;
+            if (curDist == m_lastDist)
+                return true;
+            
+            const bool result = doLineDrag(inputState, m_lastDist, curDist, m_refDist);
+            m_lastDist = curDist;
+            return result;
+        }
+        
+        void LineDragPolicy::doEndMouseDrag(const InputState& inputState) {
+            doEndLineDrag(inputState);
+            m_dragging = false;
+        }
+        
+        void LineDragPolicy::doCancelMouseDrag() {
+            doCancelLineDrag();
+            m_dragging = false;
+        }
+        
+        bool LineDragPolicy::dragging() const {
+            return m_dragging;
         }
 
         RenderPolicy::~RenderPolicy() {}

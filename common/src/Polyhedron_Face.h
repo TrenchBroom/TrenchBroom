@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Face_h
 #define TrenchBroom_Polyhedron_Face_h
 
+#include <iterator>
+
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Face, typename Polyhedron<T,FP,VP>::GetFaceLink>::Link& Polyhedron<T,FP,VP>::GetFaceLink::operator()(Face* face) const {
     return face->m_link;
@@ -94,6 +96,14 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
     const HalfEdge* edge = *m_boundary.begin();
     return edge->origin()->position();
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions() const {
+    typename V::List positions(0);
+    positions.reserve(vertexCount());
+    getVertexPositions(std::back_inserter(positions));
+    return positions;
 }
 
 template <typename T, typename FP, typename VP>

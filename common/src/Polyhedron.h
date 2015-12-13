@@ -202,6 +202,7 @@ public:
         const HalfEdgeList& boundary() const;
         void printBoundary() const;
         V origin() const;
+        typename V::List vertexPositions() const;
         bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
@@ -311,7 +312,15 @@ public: // Accessors
 
     void clear();
     
-    struct FaceHit;
+    struct FaceHit {
+        Face* face;
+        T distance;
+        
+        FaceHit(Face* i_face, const T i_distance);
+        FaceHit();
+        bool isMatch() const;
+    };
+    
     FaceHit pickFace(const Ray<T,3>& ray) const;
 private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
@@ -405,8 +414,12 @@ private:
     
     void incidentFacesDidChange(Vertex* vertex, Callback& callback);
 public: // Convex hull and adding points
+    void addPoints(const typename V::List& points);
+    void addPoints(const typename V::List& points, Callback& callback);
+private:
     template <typename I> void addPoints(I cur, I end);
     template <typename I> void addPoints(I cur, I end, Callback& callback);
+public:
     void addPoint(const V& position);
     void addPoint(const V& position, Callback& callback);
     void merge(const Polyhedron& other);
