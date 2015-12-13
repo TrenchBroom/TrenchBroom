@@ -99,6 +99,28 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
         };
         
+        class DelegatingMouseDragPolicy : public MouseDragPolicy {
+        private:
+            MouseDragPolicy* m_delegate;
+        protected:
+            DelegatingMouseDragPolicy();
+        public:
+            virtual ~DelegatingMouseDragPolicy();
+        public:
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
+        private:
+            virtual MouseDragPolicy* doCreateDelegate(const InputState& inputState) = 0;
+            virtual void doDeleteDelegate(MouseDragPolicy* delegate) = 0;
+            
+            virtual void doMouseDragStarted();
+            virtual void doMouseDragged();
+            virtual void doMouseDragEnded();
+            virtual void doMouseDragCancelled();
+        };
+        
         class PlaneDragPolicy : public MouseDragPolicy {
         private:
             Plane3 m_plane;
@@ -149,6 +171,29 @@ namespace TrenchBroom {
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
 
+        class LineDragPolicy : public MouseDragPolicy {
+        private:
+            Line3 m_line;
+            FloatType m_lastDist;
+            FloatType m_refDist;
+            bool m_dragging;
+        public:
+            LineDragPolicy();
+            virtual ~LineDragPolicy();
+        public:
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
+            
+            bool dragging() const;
+        private: // subclassing interface
+            virtual bool doStartLineDrag(const InputState& inputState, Line3& ray, FloatType& initialDist) = 0;
+            virtual bool doLineDrag(const InputState& inputState, FloatType lastDist, FloatType curDist, FloatType& refDist) = 0;
+            virtual void doEndLineDrag(const InputState& inputState) = 0;
+            virtual void doCancelLineDrag() = 0;
+        };
+        
         class RenderPolicy {
         public:
             virtual ~RenderPolicy();

@@ -494,14 +494,13 @@ void Polyhedron<T,FP,VP>::clear() {
 }
 
 template <typename T, typename FP, typename VP>
-struct Polyhedron<T,FP,VP>::FaceHit {
-    Face* face;
-    T distance;
-    
-    FaceHit(Face* i_face, const T i_distance) : face(i_face), distance(i_distance) {}
-    FaceHit() : face(NULL), distance(Math::nan<T>()) {}
-    bool isMatch() const { return face != NULL; }
-};
+Polyhedron<T,FP,VP>::FaceHit::FaceHit(Face* i_face, const T i_distance) : face(i_face), distance(i_distance) {}
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::FaceHit::FaceHit() : face(NULL), distance(Math::nan<T>()) {}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != NULL; }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,3>& ray) const {

@@ -83,6 +83,16 @@ private:
     }
 };
 
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points) {
+    addPoints(points.begin(), points.end());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points, Callback& callback) {
+    addPoints(points.begin(), points.end(), callback);
+}
+
 template <typename T, typename FP, typename VP> template <typename I>
 void Polyhedron<T,FP,VP>::addPoints(I cur, I end) {
     Callback c;

@@ -33,15 +33,16 @@ namespace TrenchBroom {
         class CreateComplexBrushTool;
         class Grid;
 
-        class CreateComplexBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateComplexBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateComplexBrushTool* m_tool;
             MapDocumentWPtr m_document;
             
-            Plane3 m_plane;
-            Vec3 m_initialPoint;
-            Polyhedron3 m_lastPolyhedron;
-            Polyhedron3 m_currentPolyhedron;
+            class DragDelegate;
+            class DrawFaceDelegate;
+            class DuplicateFaceDelegate;
+            
+            Polyhedron3 m_polyhedron;
         public:
             CreateComplexBrushToolAdapter3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
         public:
@@ -52,13 +53,12 @@ namespace TrenchBroom {
             bool doMouseClick(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
             
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-
-            void updatePolyhedron(const Vec3& current);
+            MouseDragPolicy* doCreateDelegate(const InputState& inputState);
+            void doDeleteDelegate(MouseDragPolicy* delegate);
+            
+            void doMouseDragStarted();
+            void doMouseDragged();
+            void doMouseDragCancelled();
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

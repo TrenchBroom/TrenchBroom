@@ -38,15 +38,139 @@
 
 namespace TrenchBroom {
     namespace View {
+        class CreateComplexBrushToolAdapter3D::DragDelegate {
+        protected:
+            const Grid& m_grid;
+            Polyhedron3& m_currentPolyhedron;
+            const Polyhedron3 m_initialPolyhedron;
+        protected:
+            DragDelegate(const Grid& grid, Polyhedron3& polyhedron) :
+            m_grid(grid),
+            m_currentPolyhedron(polyhedron),
+            m_initialPolyhedron(polyhedron) {}
+        public:
+            virtual ~DragDelegate() {}
+        };
+        
+        class CreateComplexBrushToolAdapter3D::DrawFaceDelegate : public DragDelegate, public PlaneDragPolicy {
+        private:
+            Plane3 m_plane;
+            Vec3 m_initialPoint;
+        public:
+            DrawFaceDelegate(const Grid& grid, Polyhedron3& polyhedron) :
+            DragDelegate(grid, polyhedron) {}
+        private:
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+                const Model::PickResult& pickResult = inputState.pickResult();
+                const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+                if (!hit.isMatch())
+                    return false;
+                
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                m_initialPoint = initialPoint = hit.hitPoint();
+                m_plane = plane = face->boundary();
+                
+                updatePolyhedron(m_initialPoint);
+                
+                return true;
+            }
+            
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+                updatePolyhedron(curPoint);
+                refPoint = curPoint;
+                return true;
+            }
+
+            void doEndPlaneDrag(const InputState& inputState) {}
+            
+            void doCancelPlaneDrag() {
+                m_currentPolyhedron = m_initialPolyhedron;
+            }
+            
+            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
+        private:
+            void updatePolyhedron(const Vec3& current) {
+                const Math::Axis::Type axis = m_plane.normal.firstComponent();
+                const Plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
+                const Vec3 theMin = swizzle(m_grid.snapDown(min(m_initialPoint, current)), axis);
+                const Vec3 theMax = swizzle(m_grid.snapUp  (max(m_initialPoint, current)), axis);
+                
+                const Vec2     topLeft2(theMin.x(), theMin.y());
+                const Vec2    topRight2(theMax.x(), theMin.y());
+                const Vec2  bottomLeft2(theMin.x(), theMax.y());
+                const Vec2 bottomRight2(theMax.x(), theMax.y());
+                
+                const Vec3     topLeft3 = unswizzle(Vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
+                const Vec3    topRight3 = unswizzle(Vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
+                const Vec3  bottomLeft3 = unswizzle(Vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
+                const Vec3 bottomRight3 = unswizzle(Vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
+                
+                m_currentPolyhedron = m_initialPolyhedron;
+                m_currentPolyhedron.addPoint(topLeft3);
+                m_currentPolyhedron.addPoint(bottomLeft3);
+                m_currentPolyhedron.addPoint(bottomRight3);
+                m_currentPolyhedron.addPoint(topRight3);
+            }
+        };
+        
+        class CreateComplexBrushToolAdapter3D::DuplicateFaceDelegate : public DragDelegate, public LineDragPolicy {
+        private:
+            Vec3 m_dragDir;
+        public:
+            DuplicateFaceDelegate(const Grid& grid, Polyhedron3& polyhedron) :
+            DragDelegate(grid, polyhedron) {}
+        private:
+            bool doStartLineDrag(const InputState& inputState, Line3& line, FloatType& initialDist) {
+                if (!m_currentPolyhedron.polygon())
+                    return false;
+                
+                const Polyhedron3::FaceHit hit = m_currentPolyhedron.pickFace(inputState.pickRay());
+                const Vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
+                const Vec3 direction = hit.face->normal();
+                
+                line = Line3(origin, direction);
+                initialDist = 0.0;
+                m_dragDir = line.direction;
+                
+                return true;
+            }
+            
+            bool doLineDrag(const InputState& inputState, FloatType lastDist, FloatType curDist, FloatType& refDist) {
+                assert(m_initialPolyhedron.polygon());
+                
+                const Vec3 rayDelta             = curDist * m_dragDir;
+                const Vec3 rayAxis              = m_dragDir.firstAxis();
+                const FloatType axisDistance    = rayDelta.dot(rayAxis);
+                const FloatType snappedDistance = m_grid.snap(axisDistance);
+                const FloatType snappedRayDist  = rayAxis.inverseDot(snappedDistance, m_dragDir);
+                const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
+                
+                const Polyhedron3::Face* face = m_initialPolyhedron.faces().front();
+                const Vec3::List points = face->vertexPositions() + snappedRayDelta;
+                
+                m_currentPolyhedron = m_initialPolyhedron;
+                m_currentPolyhedron.addPoints(points);
+                
+                refDist = curDist;
+                return true;
+            }
+            
+            void doEndLineDrag(const InputState& inputState) {}
+            
+            void doCancelLineDrag() {
+                m_currentPolyhedron = m_initialPolyhedron;
+            }
+        };
+        
         CreateComplexBrushToolAdapter3D::CreateComplexBrushToolAdapter3D(CreateComplexBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
-            assert(tool != NULL);
+            assert(m_tool != NULL);
         }
 
         void CreateComplexBrushToolAdapter3D::performCreateBrush() {
             m_tool->createBrush();
-            m_currentPolyhedron = Polyhedron3();
+            m_polyhedron = Polyhedron3();
         }
 
         Tool* CreateComplexBrushToolAdapter3D::doGetTool() {
@@ -70,8 +194,8 @@ namespace TrenchBroom {
             const Model::BrushFace* face = Model::hitToFace(hit);
             const Vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
             
-            m_currentPolyhedron.addPoint(snapped);
-            m_tool->update(m_currentPolyhedron);
+            m_polyhedron.addPoint(snapped);
+            m_tool->update(m_polyhedron);
             
             return true;
         }
@@ -92,73 +216,38 @@ namespace TrenchBroom {
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                m_currentPolyhedron.addPoint((*it)->position());
-            m_tool->update(m_currentPolyhedron);
+                m_polyhedron.addPoint((*it)->position());
+            m_tool->update(m_polyhedron);
             
             return true;
         }
 
-        bool CreateComplexBrushToolAdapter3D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        MouseDragPolicy* CreateComplexBrushToolAdapter3D::doCreateDelegate(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
-                return false;
-            if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
-                return false;
-            
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (!hit.isMatch())
-                return false;
-            
-            const Model::BrushFace* face = Model::hitToFace(hit);
-            m_initialPoint = initialPoint = hit.hitPoint();
-            m_plane = plane = face->boundary();
-            m_lastPolyhedron = m_currentPolyhedron;
-            
-            updatePolyhedron(m_initialPoint);
-            return true;
+                return NULL;
+            if (!inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
+                return NULL;
+
+            const Grid& grid = lock(m_document)->grid();
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+                return new DuplicateFaceDelegate(grid, m_polyhedron);
+            return new DrawFaceDelegate(grid, m_polyhedron);
+        }
+        
+        void CreateComplexBrushToolAdapter3D::doDeleteDelegate(MouseDragPolicy* delegate) {
+            delete delegate;
         }
 
-        bool CreateComplexBrushToolAdapter3D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            updatePolyhedron(curPoint);
-            refPoint = curPoint;
-            return true;
+        void CreateComplexBrushToolAdapter3D::doMouseDragStarted() {
+            m_tool->update(m_polyhedron);
         }
-
-        void CreateComplexBrushToolAdapter3D::doEndPlaneDrag(const InputState& inputState) {}
-
-        void CreateComplexBrushToolAdapter3D::doCancelPlaneDrag() {
-            m_currentPolyhedron = m_lastPolyhedron;
-            m_tool->update(m_currentPolyhedron);
+        
+        void CreateComplexBrushToolAdapter3D::doMouseDragged() {
+            m_tool->update(m_polyhedron);
         }
-
-        void CreateComplexBrushToolAdapter3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
-
-        void CreateComplexBrushToolAdapter3D::updatePolyhedron(const Vec3& current) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-
-            const Math::Axis::Type axis = m_plane.normal.firstComponent();
-            const Plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
-            const Vec3 theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
-            const Vec3 theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
-            
-            const Vec2     topLeft2(theMin.x(), theMin.y());
-            const Vec2    topRight2(theMax.x(), theMin.y());
-            const Vec2  bottomLeft2(theMin.x(), theMax.y());
-            const Vec2 bottomRight2(theMax.x(), theMax.y());
-            
-            const Vec3     topLeft3 = unswizzle(Vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
-            const Vec3    topRight3 = unswizzle(Vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
-            const Vec3  bottomLeft3 = unswizzle(Vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
-            const Vec3 bottomRight3 = unswizzle(Vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
-            
-            m_currentPolyhedron = m_lastPolyhedron;
-            m_currentPolyhedron.addPoint(topLeft3);
-            m_currentPolyhedron.addPoint(bottomLeft3);
-            m_currentPolyhedron.addPoint(bottomRight3);
-            m_currentPolyhedron.addPoint(topRight3);
-            
-            m_tool->update(m_currentPolyhedron);
+        
+        void CreateComplexBrushToolAdapter3D::doMouseDragCancelled() {
+            m_tool->update(m_polyhedron);
         }
 
         void CreateComplexBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
@@ -166,19 +255,19 @@ namespace TrenchBroom {
         void CreateComplexBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
             
-            if (!m_currentPolyhedron.empty()) {
+            if (!m_polyhedron.empty()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
-                const Polyhedron3::EdgeList& edges = m_currentPolyhedron.edges();
+                const Polyhedron3::EdgeList& edges = m_polyhedron.edges();
                 Polyhedron3::EdgeList::const_iterator eIt, eEnd;
                 for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                     const Polyhedron3::Edge* edge = *eIt;
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 }
                 
-                const Polyhedron3::VertexList& vertices = m_currentPolyhedron.vertices();
+                const Polyhedron3::VertexList& vertices = m_polyhedron.vertices();
                 Polyhedron3::VertexList::const_iterator vIt, vEnd;
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Polyhedron3::Vertex* vertex = *vIt;
@@ -188,11 +277,11 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushToolAdapter3D::doCancel() {
-            if (m_currentPolyhedron.empty())
+            if (m_polyhedron.empty())
                 return false;
             
-            m_currentPolyhedron = Polyhedron3();
-            m_tool->update(m_currentPolyhedron);
+            m_polyhedron = Polyhedron3();
+            m_tool->update(m_polyhedron);
             return true;
         }
     }
