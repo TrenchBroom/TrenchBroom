@@ -35,6 +35,7 @@
 #include "View/MapDocument.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -250,8 +251,6 @@ namespace TrenchBroom {
             m_tool->update(m_polyhedron);
         }
 
-        void CreateComplexBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
-
         void CreateComplexBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
             
@@ -272,6 +271,20 @@ namespace TrenchBroom {
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Polyhedron3::Vertex* vertex = *vIt;
                     renderService.renderPointHandle(vertex->position());
+                }
+                
+                if (m_polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
+                    const Polyhedron3::Face* face = m_polyhedron.faces().front();
+                    const Vec3::List pos3 = face->vertexPositions();
+                    Vec3f::List pos3f(pos3.size());
+                    for (size_t i = 0; i < pos3.size(); ++i)
+                        pos3f[i] = Vec3f(pos3[i]);
+                    
+                    renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
+                    renderService.renderFilledPolygon(pos3f);
+
+                    std::reverse(pos3f.begin(), pos3f.end());
+                    renderService.renderFilledPolygon(pos3f);
                 }
             }
         }
