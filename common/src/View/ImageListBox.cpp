@@ -35,6 +35,10 @@ namespace TrenchBroom {
         m_empty(true),
         m_emptyText(emptyText) {}
 
+        wxCoord ImageListBox::itemHeight() const {
+            return m_imageSize.y + 1 + 8;
+        }
+
         void ImageListBox::SetItemCount(size_t itemCount) {
             if (itemCount == 0) {
                 m_empty = true;
@@ -65,10 +69,11 @@ namespace TrenchBroom {
                 dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             
             dc.SetFont(wxNORMAL_FONT->Bold());
-            dc.DrawText(ttl, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 2);
+            const wxString shortTtl = wxControl::Ellipsize(ttl, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
+            dc.DrawText(shortTtl, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 2);
 
             dc.SetFont(*wxSMALL_FONT);
-            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - rect.GetLeft() - m_imageSize.x - 8 - 6);
+            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
             dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 20);
         }
         
@@ -103,12 +108,7 @@ namespace TrenchBroom {
         }
         
         wxCoord ImageListBox::OnMeasureItem(size_t n) const {
-            if (m_empty) {
-                return 64;
-            } else {
-                assert(n < GetItemCount());
-                return m_imageSize.y + 1 + 8;
-            }
+            return itemHeight();
         }
     }
 }

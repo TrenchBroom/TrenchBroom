@@ -42,7 +42,7 @@ namespace TrenchBroom {
             wxStaticText* appName = new wxStaticText(this, wxID_ANY, "TrenchBroom");
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
             wxStaticLine* appLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "A Modern Level Editor");
+            wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "Level Editor");
             wxString versionStr("Version ");
             versionStr << getVersion();
             wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);

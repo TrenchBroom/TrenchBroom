@@ -34,6 +34,7 @@ namespace TrenchBroom {
             
             size_t selection() const;
             bool hasSelection() const;
+            wxCoord itemHeight() const;
             
             void SetItemCount(size_t itemCount);
         private:

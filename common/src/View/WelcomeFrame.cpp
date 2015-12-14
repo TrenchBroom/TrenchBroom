@@ -42,15 +42,17 @@ namespace TrenchBroom {
 
         void WelcomeFrame::createGui() {
             wxPanel* container = new wxPanel(this);
+            container->SetBackgroundColour(*wxWHITE);
+            
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
             m_recentDocumentListBox->SetToolTip("Double click on a map to open it");
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->Add(appPanel, 0, wxEXPAND);
+            innerSizer->Add(appPanel, 0, wxALIGN_CENTRE_VERTICAL);
             innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), 0, wxEXPAND);
             innerSizer->Add(m_recentDocumentListBox, 1, wxEXPAND);
-            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(300, wxDefaultSize.y));
+            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(300, 10 * m_recentDocumentListBox->itemHeight()));
             container->SetSizer(innerSizer);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -109,12 +111,11 @@ namespace TrenchBroom {
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
-            appPanel->SetBackgroundColour(*wxWHITE);
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
-            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "Create document...");
+            m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");
             m_createNewDocumentButton->SetToolTip("Create a new map document");
-            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, "Open document...");
+            m_openOtherDocumentButton = new wxButton(appPanel, wxID_ANY, "Browse...");
             m_openOtherDocumentButton->SetToolTip("Open an existing map document");
             
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
