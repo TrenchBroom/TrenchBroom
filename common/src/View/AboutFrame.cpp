@@ -83,6 +83,7 @@ namespace TrenchBroom {
             wxStaticText* gmockText = createURLText(creditsPanel, "Google Mock", "Google C++ Mocking Framework", "http://code.google.com/p/googlemock/");
             wxStaticText* cmakeText = createURLText(creditsPanel, "CMake", "Cross-Platform Make", "http://www.cmake.org");
             wxStaticText* fontText = createURLText(creditsPanel, "Source Sans Pro", "Sans serif font family for user interface environments", "https://github.com/adobe/source-sans-pro");
+            wxStaticText* pandocText = createURLText(creditsPanel, "Pandoc", "Universal Document Converter", "http://www.pandoc.org/");
             
             wxSizer* creditsSizer = new wxBoxSizer(wxVERTICAL);
             creditsSizer->AddSpacer(20);
@@ -97,6 +98,7 @@ namespace TrenchBroom {
             creditsSizer->Add(gtestText);
             creditsSizer->Add(gmockText);
             creditsSizer->Add(cmakeText);
+            creditsSizer->Add(pandocText);
             creditsSizer->Add(fontText);
             creditsPanel->SetSizer(creditsSizer);
             
