@@ -212,7 +212,7 @@ namespace TrenchBroom {
         void SelectionTool::drillSelection(const InputState& inputState) {
             const Model::Hit::List hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
 
-            const bool forward = inputState.scrollY() > 0.0f != pref(Preferences::CameraMouseWheelInvert);
+            const bool forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
             const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(hits.begin(), hits.end()) : findSelectionPair(hits.rbegin(), hits.rend());
             
             Model::Node* selectedNode = nodePair.first;
