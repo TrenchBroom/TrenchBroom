@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 newFocus->SetFocus();
             event.Skip();
         }
-        
+
         void ToolBox::OnLeaveWindow(wxMouseEvent& event) {
             event.Skip();
         }
@@ -129,7 +129,9 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
-            assert(m_dropReceiver == NULL);
+            // On XFCE, this crashes when dragging an entity across a 2D view into the 3D view
+            // I assume that the drag leave event is swallowed somehow.
+            // assert(m_dropReceiver == NULL);
 
             if (!m_enabled)
                 return false;
