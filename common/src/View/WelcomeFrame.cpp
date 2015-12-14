@@ -111,6 +111,7 @@ namespace TrenchBroom {
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
+            appPanel->SetBackgroundColour(*wxWHITE);
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");
