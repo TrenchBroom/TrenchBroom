@@ -69,6 +69,12 @@ namespace TrenchBroom {
                 TypedReference<T> target(m_target);
                 return target.get();
             }
+
+            template <typename T>
+            T& target() {
+                TypedReference<T> target(m_target);
+                return target.get();
+            }
         };
     }
 }

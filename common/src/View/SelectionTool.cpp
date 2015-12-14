@@ -20,6 +20,8 @@
 #include "SelectionTool.h"
 
 #include "CollectionUtils.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
@@ -167,17 +169,61 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::doMouseScroll(const InputState& inputState) {
-            if (!inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
-                return;
-            
+            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
+                adjustGrid(inputState);
+            else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No))
+                drillSelection(inputState);
+        }
+        
+        void SelectionTool::adjustGrid(const InputState& inputState) {
+            const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
-            if (inputState.scrollY() < 0.0f)
+            if (factor * inputState.scrollY() < 0.0f)
                 grid.incSize();
-            else if (inputState.scrollY() > 0.0f)
+            else if (factor * inputState.scrollY() > 0.0f)
                 grid.decSize();
         }
         
+        template <typename I>
+        I findFirstSelected(I it, I end) {
+            while (it != end) {
+                Model::Node* node = Model::hitToNode(*it);
+                if (node->selected())
+                    break;
+                ++it;
+            }
+            return it;
+        }
+        
+        template <typename I>
+        std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end) {
+            static Model::Node* const NullNode = NULL;
+            
+            const I first = findFirstSelected(it, end);
+            if (first == end)
+                return std::make_pair(NullNode, NullNode);
+            I next = first; ++next;
+            if (next == end)
+                return std::make_pair(Model::hitToNode(*first), NullNode);
+            return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
+        }
+        
+        void SelectionTool::drillSelection(const InputState& inputState) {
+            const Model::Hit::List hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
+
+            const bool forward = inputState.scrollY() > 0.0f != pref(Preferences::CameraMouseWheelInvert);
+            const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(hits.begin(), hits.end()) : findSelectionPair(hits.rbegin(), hits.rend());
+            
+            Model::Node* selectedNode = nodePair.first;
+            Model::Node* nextNode = nodePair.second;
+            if (nextNode != NULL) {
+                MapDocumentSPtr document = lock(m_document);
+                document->deselect(selectedNode);
+                document->select(nextNode);
+            }
+        }
+
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             if (!handleClick(inputState) || !isMultiClick(inputState))
                 return false;

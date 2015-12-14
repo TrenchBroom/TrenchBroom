@@ -51,6 +51,8 @@ namespace TrenchBroom {
             const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
             
             void doMouseScroll(const InputState& inputState);
+            void adjustGrid(const InputState& inputState);
+            void drillSelection(const InputState& inputState);
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
