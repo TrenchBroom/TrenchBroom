@@ -31,7 +31,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 
 # Getting Started {#getting_started}
 
-In this section, we introduce the startup window, the game configuration to setup TrenchBroom to work with your games, we give an overview of the main window and explain the camera navigation in the 3D and 2D views. Press action #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward') to activate this or select #menu('Menu/Edit/Show All')!
+In this section, we introduce the welcome window, the game selection dialog, we give an overview of the main window and explain the camera navigation in the 3D and 2D views.
 
 ## Startup {#startup}
 
@@ -41,7 +41,13 @@ The first thing you will see when TrenchBroom starts is the welcome window. This
 
 You can click the button labelled "New map..." to create a new map or you can click the button labelled "Browse..." to find a map file on your computer. Double click one of the documents in the list on the right of the window to open it. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running. The version information is useful if you wish to report a problem with the editor (see [here](#reporting_bugs) for more information).
 
-## Game Configuration {#game_configuration}
+If you choose to create a new map, TrenchBroom needs to know which game the map should be for, and will show a dialog in which you can select a game and, if applicable, a map format. This dialog may also be shown when you open an existing map. TrenchBroom will try to detect this information from the map file, but if that fails, you need to select the game and map format.
+
+![The game selection dialog](images/GameSelectionDialog.png)
+
+The list of supported games is shown on the right side of the dialog. Below the game list, there is a dropdown menu for choosing a map format; this is only shown if the game supports more than one map format. One example for this is Quake, which supports both the standard format and the Valve 220 format for map files. In the screenshot above, none of the games in the list were actually found on the hard disk. This is because the game path has not been configured yet. TrenchBroom allows you to create maps for missing games, but you will not be able to see the entity models in the editor and other resources such as textures might be missing as well. To open the game configuration preferences, you can click the button labelled "Open preferences...". Click [here](#game_configuration) to find out how to configure the supported games.
+
+Once you have selected a game and a map format, TrenchBroom will open the main editing window. The following section gives an overview of this window and its main elements.
 
 ## Main Window {#main_window}
 
@@ -81,7 +87,23 @@ You can click the button labelled "New map..." to create a new map or you can cl
 
 ## Keeping an Overview
 
+### Hiding and Isolating Objects
+
+### Filtering
+
+### Rendering Options
+
 ## Undo and Redo
+
+# Preferences
+
+## Game Configuration {#game_configuration}
+
+## View Layout and Rendering
+
+## Mouse Input
+
+## Keyboard Shortcuts
 
 # Advanced Topics
 
