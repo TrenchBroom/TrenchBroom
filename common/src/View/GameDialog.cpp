@@ -116,7 +116,7 @@ namespace TrenchBroom {
             wxStaticText* setupMsg = new wxStaticText(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
             setupMsg->Wrap(250);
             
-            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open Preferences...");
+            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
             m_openPreferencesButton->SetToolTip("Open the preferences dialog to edit game paths");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);

@@ -196,7 +196,7 @@ namespace TrenchBroom {
             wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
-            TitleBar* textureBrowserPrefsTitle = new TitleBar(viewBox, "Map Views");
+            TitleBar* textureBrowserPrefsTitle = new TitleBar(viewBox, "Texture Browser");
 
             wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
