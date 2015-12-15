@@ -215,20 +215,14 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::resize(const Ray3& pickRay, const Renderer::Camera& camera) {
             assert(!m_dragFaces.empty());
             
-            const Plane3 dragPlane = orthogonalDragPlane(m_dragOrigin, Vec3(camera.direction()));
-            
             Model::BrushFace* dragFace = m_dragFaces.front();
             const Vec3& faceNormal = dragFace->boundary().normal;
-            const FloatType rayPointDist = dragPlane.intersectWithRay(pickRay);
             
-            // Apparently this can happen when dragging a face that's almost orthogonal to the view vector:
-            // https://github.com/kduske/TrenchBroom/issues/1047
-            if (Math::isnan(rayPointDist))
+            const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
+            if (distance.parallel)
                 return true;
             
-            const Vec3 rayPoint = pickRay.pointAtDistance(rayPointDist);
-            const Vec3 dragVector = rayPoint - m_dragOrigin;
-            const FloatType dragDist = dragVector.dot(faceNormal);
+            const FloatType dragDist = distance.lineDistance;
             
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
