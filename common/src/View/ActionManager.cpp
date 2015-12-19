@@ -258,6 +258,8 @@ namespace TrenchBroom {
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
             viewMenu->addSeparator();
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_SHIFT));
+            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleHideInfoPanel, "Hide Infopanel", KeyboardShortcut('I', WXK_SHIFT));
+            viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleHideInspectorPanel, "Hide Inspectorpanel", KeyboardShortcut('O', WXK_SHIFT));
             
 
 #ifndef NDEBUG

@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             void maximize(wxWindow* window);
             void restore();
+            bool isMaximized(wxWindow* window);
         private:
             void split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
             void bindMouseEvents(wxWindow* window);

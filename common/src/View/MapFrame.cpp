@@ -296,11 +296,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            SplitterWindow2* hSplitter = new SplitterWindow2(this);
+            hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
             hSplitter->SetName("MapFrameHSplitter");
 
-            SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
+            vSplitter = new SplitterWindow2(hSplitter);
             vSplitter->setSashGravity(1.0f);
             vSplitter->SetName("MapFrameVSplitter");
 
@@ -468,6 +468,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
 
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleMaximizeCurrentView, this, CommandIds::Menu::ViewToggleMaximizeCurrentView);
+            Bind(wxEVT_MENU, &MapFrame::OnViewToggleHideInfoPanel, this, CommandIds::Menu::ViewToggleHideInfoPanel);
+            Bind(wxEVT_MENU, &MapFrame::OnViewToggleHideInspectorPanel, this, CommandIds::Menu::ViewToggleHideInspectorPanel);
 
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
@@ -916,6 +918,26 @@ namespace TrenchBroom {
             m_mapView->toggleMaximizeCurrentView();
         }
 
+        void MapFrame::OnViewToggleHideInfoPanel(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (vSplitter->isMaximized(m_mapView)){
+                vSplitter->restore();
+            } else {
+                vSplitter->maximize(m_mapView);
+            }
+        }
+
+        void MapFrame::OnViewToggleHideInspectorPanel(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (hSplitter->isMaximized(vSplitter)){
+                hSplitter->restore();
+            } else {
+                hSplitter->maximize(vSplitter);
+            }
+        }
+
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1159,6 +1181,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewToggleMaximizeCurrentView:
                     event.Enable(m_mapView->canMaximizeCurrentView());
                     event.Check(m_mapView->currentViewMaximized());
+                    break;
+                case CommandIds::Menu::ViewToggleHideInfoPanel:
+                    event.Enable(true);
+                    event.Check(vSplitter->isMaximized(m_mapView));
+                    break;
+                case CommandIds::Menu::ViewToggleHideInspectorPanel:
+                    event.Enable(true);
+                    event.Check(hSplitter->isMaximized(vSplitter));
                     break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:

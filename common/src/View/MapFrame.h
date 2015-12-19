@@ -23,6 +23,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
+#include "SplitterWindow2.h"
 
 #include <wx/frame.h>
 
@@ -52,6 +53,9 @@ namespace TrenchBroom {
 
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
+
+            SplitterWindow2* hSplitter;
+            SplitterWindow2* vSplitter;
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
@@ -176,6 +180,8 @@ namespace TrenchBroom {
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
             
             void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
+            void OnViewToggleHideInfoPanel(wxCommandEvent& event);
+            void OnViewToggleHideInspectorPanel(wxCommandEvent& event);
 
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
