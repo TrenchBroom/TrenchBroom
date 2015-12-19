@@ -259,6 +259,7 @@ namespace TrenchBroom {
                 
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
+                    m_sash->SetSize(wxRect(wxPoint(0, 0),wxPoint(0, 0)));
                 } else {
                     const int origH = h(GetClientAreaOrigin());
                     const int origV = h(GetClientAreaOrigin());
