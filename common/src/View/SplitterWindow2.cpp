@@ -62,6 +62,11 @@ namespace TrenchBroom {
             split(top, bottom, topMin, bottomMin, SplitMode_Vertical);
         }
         
+        bool SplitterWindow2::isMaximized(wxWindow* window) const {
+            assert(window == m_windows[0] || window == m_windows[1]);
+            return (m_maximizedWindow == window);
+        }
+        
         void SplitterWindow2::maximize(wxWindow* window) {
             assert(window == m_windows[0] || window == m_windows[1]);
             m_maximizedWindow = window;
@@ -255,6 +260,7 @@ namespace TrenchBroom {
                 
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
+                    m_sash->SetSize(wxRect(wxPoint(0, 0),wxPoint(0, 0)));
                 } else {
                     const int origH = h(GetClientAreaOrigin());
                     const int origV = h(GetClientAreaOrigin());

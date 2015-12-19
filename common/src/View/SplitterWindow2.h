@@ -62,6 +62,7 @@ namespace TrenchBroom {
             void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
             void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
             
+            bool isMaximized(wxWindow* window) const;
             void maximize(wxWindow* window);
             void restore();
         private:
