@@ -54,8 +54,8 @@ namespace TrenchBroom {
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
 
-            SplitterWindow2* hSplitter;
-            SplitterWindow2* vSplitter;
+            SplitterWindow2* m_hSplitter;
+            SplitterWindow2* m_vSplitter;
 
             GLContextManager* m_contextManager;
             SwitchableMapViewContainer* m_mapView;
@@ -180,8 +180,8 @@ namespace TrenchBroom {
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
             
             void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
-            void OnViewToggleHideInfoPanel(wxCommandEvent& event);
-            void OnViewToggleHideInspectorPanel(wxCommandEvent& event);
+            void OnViewToggleInfoPanel(wxCommandEvent& event);
+            void OnViewToggleInspector(wxCommandEvent& event);
 
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);

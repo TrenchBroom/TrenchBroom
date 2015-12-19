@@ -62,6 +62,11 @@ namespace TrenchBroom {
             split(top, bottom, topMin, bottomMin, SplitMode_Vertical);
         }
         
+        bool SplitterWindow2::isMaximized(wxWindow* window) const {
+            assert(window == m_windows[0] || window == m_windows[1]);
+            return (m_maximizedWindow == window);
+        }
+        
         void SplitterWindow2::maximize(wxWindow* window) {
             assert(window == m_windows[0] || window == m_windows[1]);
             m_maximizedWindow = window;
@@ -76,10 +81,6 @@ namespace TrenchBroom {
                 m_maximizedWindow = NULL;
                 sizeWindows();
             }
-        }
-
-        bool SplitterWindow2::isMaximized(wxWindow* window) {
-            return (m_maximizedWindow == window);
         }
 
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
