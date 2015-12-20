@@ -1,8 +1,8 @@
-var platform = "win";
-if (navigator.platform.indexOf("Win")!=-1) platform="windows";
-if (navigator.platform.indexOf("Mac")!=-1) platform="mac";
-if (navigator.platform.indexOf("X11")!=-1) platform="linux";
-if (navigator.platform.indexOf("Linux")!=-1) OSName="linux";
+var platform = "windows";
+if (navigator.platform.indexOf("Win")!=-1)   platform = "windows";
+if (navigator.platform.indexOf("Mac")!=-1)   platform = "mac";
+if (navigator.platform.indexOf("X11")!=-1)   platform = "linux";
+if (navigator.platform.indexOf("Linux")!=-1) platform = "linux";
 //platform = "mac"; //debug
 
 function key_str(key) {
