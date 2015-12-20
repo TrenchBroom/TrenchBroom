@@ -119,7 +119,7 @@ SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 # Generate help docs during build
 ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
 
-# Create the cmake script for version management
+# Create the cmake script for generating the version information
 FIND_PACKAGE(Git)
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})

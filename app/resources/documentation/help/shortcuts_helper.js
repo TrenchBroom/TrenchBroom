@@ -5,15 +5,16 @@ if (navigator.platform.indexOf("X11")!=-1) platform="linux";
 if (navigator.platform.indexOf("Linux")!=-1) OSName="linux";
 //platform = "mac"; //debug
 
+function key_str(key) {
+	return "<span class=\"shortcut\">" + keys[platform][key] + "</span>";
+}
+
 function shortcut_str(shortcut) {
 	var result = "";
 	if (shortcut) {
-		for (i = 0; i < shortcut.modifiers.length; ++i) {
-			result += keys[platform][shortcut.modifiers[i]];
-			if (i < shortcut.modifiers.length - 1)
-				result += keys[platform]["+"];
-		}
-		result += keys[platform][shortcut.key];
+		for (i = 0; i < shortcut.modifiers.length; ++i)
+			result += key_str(shortcut.modifiers[i]);
+		result += key_str(shortcut.key);
 	} else {
 		result += "&laquo;unknown shortcut&raquo;";
 	}

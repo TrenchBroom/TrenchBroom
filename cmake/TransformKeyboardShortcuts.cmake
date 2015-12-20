@@ -1,4 +1,9 @@
+SET(HELP_MENU_PATTERN       "#menu\\('([^']+)'\\)")
+SET(HELP_MENU_REPLACEMENT   "<script>print_menu_item(\"\\1\");</script>")
+SET(HELP_ACTION_PATTERN     "#action\\('([^']+)'\\)")
+SET(HELP_ACTION_REPLACEMENT "<script>print_action(\"\\1\");</script>")
+
 FILE(READ "${INPUT}" HELP_CONTENTS)
-STRING(REGEX REPLACE "#menu\\('([^']+)'\\)" "<script>print_menu_item(\"\\1\");</script>" HELP_CONTENTS "${HELP_CONTENTS}")
-STRING(REGEX REPLACE "#action\\('([^']+)'\\)" "<script>print_action(\"\\1\");</script>" HELP_CONTENTS "${HELP_CONTENTS}")
+STRING(REGEX REPLACE "${HELP_MENU_PATTERN}"   "${HELP_MENU_REPLACEMENT}"   HELP_CONTENTS "${HELP_CONTENTS}")
+STRING(REGEX REPLACE "${HELP_ACTION_PATTERN}" "${HELP_ACTION_REPLACEMENT}" HELP_CONTENTS "${HELP_CONTENTS}")
 FILE(WRITE "${OUTPUT}" "${HELP_CONTENTS}")

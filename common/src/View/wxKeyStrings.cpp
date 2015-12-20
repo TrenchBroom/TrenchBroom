@@ -124,8 +124,12 @@ namespace TrenchBroom {
             m_strings[WXK_RAW_CONTROL]      = "Ctrl";
             m_strings[WXK_COMMAND]          = "Cmd";
             
-            for (char c = ';'; c <= '~'; ++c)
+            for (char c = '!'; c <= '~'; ++c)
                 m_strings[static_cast<wxKeyCode>(c)] = c;
+            
+            m_strings[static_cast<wxKeyCode>('"')] = "&quot;";
+            m_strings[static_cast<wxKeyCode>('<')] = "&gt;";
+            m_strings[static_cast<wxKeyCode>('>')] = "&lt;";
         }
         
         String wxKeyStrings::operator[](const size_t index) const {
@@ -149,7 +153,7 @@ namespace TrenchBroom {
             m_strings[WXK_TAB]              = "&#x21E5;";
             m_strings[WXK_RETURN]           = "&#x21A9;";
             m_strings[WXK_ESCAPE]           = "&#x238B;";
-            m_strings[WXK_SPACE]            = "&#x2423;";
+            // m_strings[WXK_SPACE]            = "&#x2423;"; The space string illegible.
             m_strings[WXK_DELETE]           = "&#x232B;";
             m_strings[WXK_SHIFT]            = "&#x21E7;";
             m_strings[WXK_ALT]              = "&#x2325;";
