@@ -312,6 +312,7 @@ namespace TrenchBroom {
             m_scrollWindow = new wxScrolledWindow(this);
             m_scrollWindow->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseVoidDown, this);
             m_scrollWindow->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseVoidDown, this);
+            m_scrollWindow->SetBackgroundColour(GetBackgroundColour());
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_scrollWindow, 1, wxEXPAND);
