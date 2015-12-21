@@ -8,7 +8,7 @@ If you want to preview the generated HTML without doing a full build, you can ju
 
     cmake --build . --target GenerateHelp
 
-If you add new resources such as images to the help files, you have to refresh your cmake cache first by running
+You will find the generated documentation files in a directory called "gen-help". If you add new resources such as images to the help files, you have to refresh your cmake cache first by running
 
     cmake ..
 
