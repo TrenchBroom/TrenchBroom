@@ -148,7 +148,7 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     # Copy help files to resource directory
     FOREACH(HELP_FILE ${DOC_HELP_TARGET_FILES})
-        ADD_CUSTOM_COMMAND(OUTPUT "${DOC_HELP_TARGET_DIR}/${HELP_FILE_NAME}"
+        ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         )
     ENDFOREACH(HELP_FILE)
