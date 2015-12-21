@@ -147,10 +147,11 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	)
 
     # Copy help files to resource directory
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
-        COMMAND ${CMAKE_COMMAND} -E copy ${DOC_HELP_TARGET_FILES} "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
-    )
+    FOREACH(HELP_FILE ${DOC_HELP_TARGET_FILES})
+        ADD_CUSTOM_COMMAND(OUTPUT "${DOC_HELP_TARGET_DIR}/${HELP_FILE_NAME}"
+            COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+        )
+    ENDFOREACH(HELP_FILE)
 ENDIF()
 
 # Common CPack configuration
