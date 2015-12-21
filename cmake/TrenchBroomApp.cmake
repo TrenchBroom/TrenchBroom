@@ -17,10 +17,6 @@ ELSE()
     )
 ENDIF()
 
-# Add the help files to the sources to force a file level dependency on them. Otherwise, the custom commands that generate these files are not run during build.
-SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
-
-
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
@@ -102,10 +98,12 @@ SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Create the cmake script for generating the version information
 FIND_PACKAGE(Git)
-CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake" @ONLY)
+CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-ADD_CUSTOM_TARGET(version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake")
-ADD_DEPENDENCIES(TrenchBroom version)
+ADD_CUSTOM_TARGET(GenerateVersion ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
+ADD_DEPENDENCIES(TrenchBroom GenerateVersion)
+
+ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
 
 # Copy some Windows-specific resources
 IF(WIN32)
