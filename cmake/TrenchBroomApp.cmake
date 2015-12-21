@@ -17,6 +17,10 @@ ELSE()
     )
 ENDIF()
 
+# Add the help files to the sources to force a file level dependency on them. Otherwise, the custom commands that generate these files are not run during build.
+SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
+
+
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
@@ -73,7 +77,6 @@ IF(APPLE)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help)
-    SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 ENDIF()
 
 # Set up resource compilation for Windows
@@ -147,6 +150,10 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	)
 
     # Copy help files to resource directory
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
+	)
+
     FOREACH(HELP_FILE ${DOC_HELP_TARGET_FILES})
         ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
