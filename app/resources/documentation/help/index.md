@@ -39,32 +39,38 @@ This section starts off with a small introduction to the most important technica
 
 ## Preliminaries {#preliminaries}
 
-### Maps and Objects
+### Map Definitions
 
-Worldspawn, Entities, Brushes, Faces, Edges, Vertices, Planes, Plane Points, Integer vs. Floating Point Coords
+In Quake-engine based games, levels are usually called maps. The following simple specification of the structure of a map is written in extended Backus-Naur-Form (EBNF), a simple syntax to define hierarchical structures that is widely used in computer science to define the syntax of computer languages. Don't worry, you don't have to understand EBNF as we will explain the definitions line by line.
 
-### Organisation
+    1. Map 			= Entity {Entity}
+    2. Entity 		= {Property} {Brush}
+    3. Property		= Key Value
+    4. Brush 		= {Face}
+    5. Face         = Plane Texture Offset Scale Rotation ...
 
-TrenchBroom organizes the objects of a map a bit differently than how they are organized in the map files. Firstly, TrenchBroom introduces two additional concepts: [Layers](#layers) and [Groups](#groups). Secondly, the worldspawn entity is hidden from you and its properties are associated with the map. The following definitions are written in extended Backus-Naur-Form (EBNF), a simple syntax to define hierarchical structures that is widely used in computer science to define the syntax of computer languages. Don't worry, you don't have to understand EBNF as we will explain the definitions line by line.
+The first line specifies that a **map** contains of an entity followed by zero or more entities. In EBNF, the braces surrounding the word "Entity" indicate that it stands for a possibly empty sequence of entities. Altogether, line one means that a map is just a sequence of one or more entities. An **entity** is a possibly empty sequence of properties followed by zero or more brushes. A **property** is just a key-value pair, and both the key and the value are strings (this information was omitted from the EBNF).
 
-     1. Map 			= {Property} DefaultLayer {Layer}
-     2. Property		= Key Value
-     3. DefaultLayer 	= Layer
-     4. Layer 			= Name {Group} {Entity} {Brush}
-     5. Group 			= Name {Group} {Entity} {Brush}
-     6. Entity 			= PointEntity | BrushEntity
-     7. PointEntity 	= {Property} {Brush}
-     8. BrushEntity 	= {Property} {Brush}
-     9. Brush 			= {Face}
-    10. Face            = Plane Texture Offset Scale Rotation ...
+Line four defines a **Brush** as a possibly empty sequence of faces (but usually it will have at least four, otherwise the brush would be invalid). And in line five, we finally define that a **Face** has a plane, a texture, the X and Y offsets and scales, the rotation angle, and possibly other attributes depending on the game.
 
-The first line defines the structure of a map as TrenchBroom sees it. So to TrenchBroom, a **Map** consists of some properties, a default layer, and some more layers. The braces surrounding the words _Property_ and _Layer_ indicate that there may be multiple properties and layers, or none at all. But there always has to be a default layer. The second line defines a **Property** as a pair of a **Key** and a **Value**, both of which are strings. The third line specifies that the **DefaultLayer** is just a layer. Then, the fourth line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them.
+### TrenchBroom's View of Maps
 
-In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. Line six specifies that an **Entity** is either a point entity or a brush entity. Point entities are used to represent game objects such as the player spawn points, or weapon pickups, whereas brush entities contain brushes that the player can interact with, such as teleporters, doors, and so on. With this in mind, it's a bit surprising that lines seven and eight specify that both point and brush entities can contain brushes. This is because in certain old games such as Quake, there are [map hacks][Tome of Preach] where it's necessary to attach brushes to point entities.
+TrenchBroom organizes the objects of a map a bit differently than how they are organized in the map files. Firstly, TrenchBroom introduces two additional concepts: [Layers](#layers) and [Groups](#groups). Secondly, the worldspawn entity is hidden from you and its properties are associated with the map. To differentiate TrenchBroom's view from the view that other tools and compilers have, we use the term "world" instead of "map" here. In the remainder of this document, we will use the term "map" again.
 
-Line nine prescribes that a **Brush** has zero or more faces (but usually it will have at least four, otherwise the brush would be invalid). And in line 10, we finally define that a **Face** has a plane, a texture, the X and Y offsets and scales, the rotation angle, and possibly other attributes depending on the game.
+    1. World 			= {Property} DefaultLayer {Layer}
+    2. DefaultLayer 	= Layer
+    3. Layer 			= Name {Group} {Entity} {Brush}
+    4. Group 			= Name {Group} {Entity} {Brush}
 
-To summarize, TrenchBroom sees a map as a hierarchy (or tree) consisting first of layers, then groups, entities, and brushes, whereby groups can contain more groups, entities, and brushes, and entities can again contain brushes. Because groups can contain other groups, the hierarchy can be arbitrarily deep, although in practice groups will rarely contain more than one additional level of sub groups.
+The first line defines the structure of a map as TrenchBroom sees it. To TrenchBroom, a **World** consists of zero or more properties, a default layer, and zero or more additional layers. The second line specifies that the **DefaultLayer** is just a layer. Then, the third line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them.
+
+In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. All other definitions are exactly the same as in the previous section.
+
+To summarize, TrenchBroom sees a map as a hierarchy (a tree). The root of the hierarchy is called world and represents the entire map. The world consists first of layers, then groups, entities, and brushes, whereby groups can contain more groups, entities, and brushes, and entities can again contain brushes. Because groups can contain other groups, the hierarchy can be arbitrarily deep, although in practice groups will rarely contain more than one additional level of sub groups.
+
+### Brush Geometry
+
+Edges, Vertices, Planes, Plane Points, Integer vs. Floating Point Coords
 
 ### Documents
 
