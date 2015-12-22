@@ -31,11 +31,46 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 
 ## About This Document
 
-This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help. This document will only teach you how to use this editor.
+This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help (see [References and Links](#references_and_links) to find mapping communities and such). This document will only teach you how to use this editor. 
 
 # Getting Started {#getting_started}
 
-In this section, we introduce the welcome window, the game selection dialog, we give an overview of the main window and explain the camera navigation in the 3D and 2D views.
+This section starts off with a small introduction to the most important technical terms related to mapping for brush-based engines. Additionally, we introduce some concepts on which TrenchBroom is built. Afterwards, we introduce the welcome window, the game selection dialog, we give an overview of the main window and explain the camera navigation in the 3D and 2D views.
+
+## Preliminaries {#preliminaries}
+
+### Maps and Objects
+
+Worldspawn, Entities, Brushes, Faces, Edges, Vertices, Planes, Plane Points, Integer vs. Floating Point Coords
+
+### Organisation
+
+TrenchBroom organizes the objects of a map a bit differently than how they are organized in the map files. Firstly, TrenchBroom introduces two additional concepts: [Layers](#layers) and [Groups](#groups). Secondly, the worldspawn entity is hidden from you and its properties are associated with the map. The following definitions are written in extended Backus-Naur-Form (EBNF), a simple syntax to define hierarchical structures that is widely used in computer science to define the syntax of computer languages. Don't worry, you don't have to understand EBNF as we will explain the definitions line by line.
+
+     1. Map 			= {Property} DefaultLayer {Layer}
+     2. Property		= Key Value
+     3. DefaultLayer 	= Layer
+     4. Layer 			= Name {Group} {Entity} {Brush}
+     5. Group 			= Name {Group} {Entity} {Brush}
+     6. Entity 			= PointEntity | BrushEntity
+     7. PointEntity 	= {Property} {Brush}
+     8. BrushEntity 	= {Property} {Brush}
+     9. Brush 			= {Face}
+    10. Face            = Plane Texture Offset Scale Rotation ...
+
+The first line defines the structure of a map as TrenchBroom sees it. So to TrenchBroom, a **Map** consists of some properties, a default layer, and some more layers. The braces surrounding the words _Property_ and _Layer_ indicate that there may be multiple properties and layers, or none at all. But there always has to be a default layer. The second line defines a **Property** as a pair of a **Key** and a **Value**, both of which are strings. The third line specifies that the **DefaultLayer** is just a layer. Then, the fourth line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them.
+
+In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. Line six specifies that an **Entity** is either a point entity or a brush entity. Point entities are used to represent game objects such as the player spawn points, or weapon pickups, whereas brush entities contain brushes that the player can interact with, such as teleporters, doors, and so on. With this in mind, it's a bit surprising that lines seven and eight specify that both point and brush entities can contain brushes. This is because in certain old games such as Quake, there are [map hacks][Tome of Preach] where it's necessary to attach brushes to point entities.
+
+Line nine prescribes that a **Brush** has zero or more faces (but usually it will have at least four, otherwise the brush would be invalid). And in line 10, we finally define that a **Face** has a plane, a texture, the X and Y offsets and scales, the rotation angle, and possibly other attributes depending on the game.
+
+To summarize, TrenchBroom sees a map as a hierarchy (or tree) consisting first of layers, then groups, entities, and brushes, whereby groups can contain more groups, entities, and brushes, and entities can again contain brushes. Because groups can contain other groups, the hierarchy can be arbitrarily deep, although in practice groups will rarely contain more than one additional level of sub groups.
+
+### Documents
+
+### Mods
+
+### Textures and Texture Collections
 
 ## Startup {#startup}
 
@@ -51,7 +86,7 @@ If you choose to create a new map, TrenchBroom needs to know which game the map 
 
 The list of supported games is shown on the right side of the dialog. Below the game list, there is a dropdown menu for choosing a map format; this is only shown if the game supports more than one map format. One example for this is Quake, which supports both the standard format and the Valve 220 format for map files. In the screenshot above, none of the games in the list were actually found on the hard disk. This is because the respective game paths have not been configured yet. TrenchBroom allows you to create maps for missing games, but you will not be able to see the entity models in the editor and other resources such as textures might be missing as well. To open the game configuration preferences, you can click the button labelled "Open preferences...". Click [here](#game_configuration) to find out how to configure the supported games.
 
-Once you have selected a game and a map format, TrenchBroom will open the main editing window. The following section gives an overview of this window and its main elements.
+Once you have selected a game and a map format, TrenchBroom will open the main editing window. The following section gives an overview of this window and its main elements. If you want to find out how to [work with mods](#mods) and how to [add textures](#texture_management), you can skip ahead to the respective sections.
 
 ## Main Window {#main_window}
 
@@ -80,7 +115,9 @@ At most one of the viewports can have focus, that is, only one of them can recei
 
 ### The Inspector
 
-You can show or hide the inspector by choosing #menu('Menu/View/Toggle Inspector'). You can also switch directly to an inspector page: Choose #menu('Menu/View/Switch to Map Inspector') for the map inspector, #menu('Menu/View/Switch to Entity Inspector') for the entity inspector, and #menu('Menu/View/Switch to Face Inspector') for the face inspector.
+The inspector is located at the right of the main window and contains various controls, distributed on several pages, to change certain properties of the currently selected objects. The **Map Inspector** allows you to edit [layers](#layers) and to set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions).
+
+You can show or hide the inspector by choosing #menu('Menu/View/Toggle Inspector'). To switch directly to a particular inspector page, choose #menu('Menu/View/Switch to Map Inspector') for the map inspector, #menu('Menu/View/Switch to Entity Inspector') for the entity inspector, and #menu('Menu/View/Switch to Face Inspector') for the face inspector.
 
 ### The Info Bar
 
@@ -92,13 +129,21 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 
 # Editing
 
+## Map Setup
+
+### Mods {#mods}
+
+### Entity Definitions {#entity_definitions}
+
+### Texture Management {#texture_management}
+
 ## Creating Objects
 
 ### Creating Simple Brushes
 
 ### Creating Complex Brushes
 
-### Creating Entities
+### Creating Entities {#creating_entities}
 
 ### Duplicating Objects
 
@@ -118,9 +163,13 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 
 ### CSG Operations
 
-## Entity Properties
+## Entity Properties {#entity_properties}
 
 ## Keeping an Overview
+
+### Layers {#layers}
+
+### Groups {#groups}
 
 ### Hiding and Isolating Objects
 
@@ -159,3 +208,11 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 ### The Version Information
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
+
+# References and Links {#references_and_links}
+
+- [func_msgboard] - Quake Mapping Forum
+- [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
+
+[func_msgboard]: http://celephais.net/board/
+[Tome of Preach]: https://tomeofpreach.wordpress.com/
