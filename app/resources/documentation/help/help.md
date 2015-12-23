@@ -25,3 +25,7 @@ The macros are used as follows.
 - Print a menu entry, the default of which is again stored under the given path in the preferences:
 
     \#menu('Menu/Edit/Show All‘)
+
+- Print a key. You can find the key numbers in the shortcuts.js file.
+
+    \#key(123)

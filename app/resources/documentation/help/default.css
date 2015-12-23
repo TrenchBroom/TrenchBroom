@@ -49,11 +49,15 @@ div.figure {
 	display: inline-block;
 	padding: 5px;
 	margin-left: 40px;
+	margin-right: 40px;
 	border-radius: 5px;
 	background-color: gray;
 }
 
 div.figure img {
+	max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
 }
 
 div.figure p {

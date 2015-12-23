@@ -712,3 +712,7 @@ actions["Controls/Map view/Rotate textures counter-clockwise (coarse)"] = { key:
 actions["Controls/Map view/Cycle map view"] = { key:32, modifiers: [] };
 actions["Controls/Map view/Cancel"] = { key:27, modifiers: [] };
 actions["Controls/Map view/Deactivate current tool"] = { key:27, modifiers: [308] };
+actions["Controls/Camera/Move forward"] = { key:87, modifiers: [] };
+actions["Controls/Camera/Move backward"] = { key:83, modifiers: [] };
+actions["Controls/Camera/Move left"] = { key:65, modifiers: [] };
+actions["Controls/Camera/Move right"] = { key:68, modifiers: [] };

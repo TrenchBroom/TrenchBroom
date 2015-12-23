@@ -6,18 +6,25 @@ if (navigator.platform.indexOf("Linux")!=-1) platform = "linux";
 //platform = "mac"; //debug
 
 function key_str(key) {
-	return "<span class=\"shortcut\">" + keys[platform][key] + "</span>";
+	if (keys[platform][key])
+		return "<span class=\"shortcut\">" + keys[platform][key] + "</span>";
+	return null;
 }
 
 function shortcut_str(shortcut) {
 	var result = "";
 	if (shortcut) {
-		for (i = 0; i < shortcut.modifiers.length; ++i)
-			result += key_str(shortcut.modifiers[i]);
-		result += key_str(shortcut.key);
+		if (shortcut.key == 0) {
+			result = null;
+		} else {
+			for (i = 0; i < shortcut.modifiers.length; ++i)
+				result += key_str(shortcut.modifiers[i]);
+			result += key_str(shortcut.key);
+		}
 	} else {
 		result += "&laquo;unknown shortcut&raquo;";
 	}
+
 	return result;
 }
 
@@ -36,7 +43,9 @@ function menu_item_str(key) {
 	var item = menu[key];
 	if (item) {
 		result += menu_path_str(item.path);
-		result += " (" + shortcut_str(item.shortcut) + ")";
+		var shortcut = shortcut_str(item.shortcut);
+		if (shortcut)
+			result += " (" + shortcut + ")";
 	} else {
 		result += "unknown menu item \"" + key + "\"";
 	}
@@ -54,6 +63,10 @@ function action_str(key) {
 	}
 	result += "</b>";
 	return result;
+}
+
+function print_key(key) {
+	document.write(key_str(key));
 }
 
 function print_menu_item(key) {

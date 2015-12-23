@@ -64,21 +64,38 @@ TrenchBroom organizes the objects of a map a bit differently than how they are o
     3. Layer 			= Name {Group} {Entity} {Brush}
     4. Group 			= Name {Group} {Entity} {Brush}
 
-The first line defines the structure of a map as TrenchBroom sees it. To TrenchBroom, a **World** consists of zero or more properties, a default layer, and zero or more additional layers. The second line specifies that the **DefaultLayer** is just a layer. Then, the third line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them.
-
-In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. All other definitions are exactly the same as in the previous section.
+The first line defines the structure of a map as TrenchBroom sees it. To TrenchBroom, a **World** consists of zero or more properties, a default layer, and zero or more additional layers. The second line specifies that the **DefaultLayer** is just a layer. Then, the third line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them. In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. All other definitions are exactly the same as in the previous section.
 
 To summarize, TrenchBroom sees a map as a hierarchy (a tree). The root of the hierarchy is called world and represents the entire map. The world consists first of layers, then groups, entities, and brushes, whereby groups can contain more groups, entities, and brushes, and entities can again contain brushes. Because groups can contain other groups, the hierarchy can be arbitrarily deep, although in practice groups will rarely contain more than one additional level of sub groups.
 
 ### Brush Geometry
 
-Edges, Vertices, Planes, Plane Points, Integer vs. Floating Point Coords
+In standard map files, the geometry of a brush is defined by a set of faces. Apart from the attributes defining the texture mapping, a face also specifies a plane using three plane points. The plane is oriented by the order in which the three points are written in the face specification in the map file. Here is an example:
 
-### Documents
+    ( 32 32 -3824  ) ( -32 32 -3824  ) ( -32 96 -3824 ) mmetal1_2 0 0 0 1 1
+
+The plane points are given as three groups of three numbers. Each group is made up of three numbers that specify the X,Y and Z coordinates of the respective plane point. The three points, p1, p2 and p3, define two vectors, v1 and v2, as follows:
+
+	  *p2
+	 /|\
+	  |
+	  v2
+	  |
+	p1*--v1--->*p3
+
+The normal of the plane is in the direction of the cross product of v1 and v2. In the diagram above, the plane normal points towards you. Together with its normal, the plane divides three dimensional space into two half spaces: The upper half space above the plane, and the lower half space below the plane. In this interpretation, the volume of the brush is the intersection of the lower half spaces defined by the face planes. This way of defining brushes has the advantage that all brushes are automatically convex. However, this representation of brushes does not directly contain any other geometric information of the brush, particularly its vertices, edges, and facets, which must be computed from the plane representation. In TrenchBroom, the vertices, edges, and facets are called the **brush geometry**. TrenchBroom uses the same method as the BSP compilers to compute the brush geometry. Having the brush geometry is necessary mainly for two things: Rendering and vertex editing.
+
+### Entity Definitions {#entity_definitions}
+
+To TrenchBroom, entities are just a sequence of properties (key value pairs), most of which are without any special meaning. In particular, the entity proeprties do not specify which model TrenchBroom should display for the entity in its viewports. Addtionally, some property values have specific types, such as color, angle, or position. But these types cannot be hardcoded into the editor, because depending on the game, mode, or entity, a property called "angle" may have a different type. To give TrenchBroom more information on how to interpret a particular entity and its properties, an entity definition is necessary. Entity definitions specify the spawnflags of an entity, the names and types of its properties, the model to display in the editor, and other things. They are usually specified in a separate file that you can [load into the editor](#entity_definition_setup).
 
 ### Mods
 
+A mod (short for game modification) is a way of extending a Quake-engine based game with custom gameplay and assets. Custom assets include models, sounds, and textures. From the perspective of the game, a mod is a subdirectory in the game directory where the additional assets reside in the form of loose files or archives such as pak files. As far as TrenchBroom is concerned, a mod just provides assets, some of which replace existing assets from the game and some of which are new. For example, a mod might provide a new model for an entity, or it provides an entirely new entity. In order to make these new entities usable in TrenchBroom, two things are required: First, TrenchBroom needs an entity definition for these entities, and TrenchBroom needs to know where it should look for the models to display in the viewports. The first issue can be addressed by pointing TrenchBroom to an alternate [entity definition file](#entity_definitions), and the second issue can be addressed by [adding a mod directory](#mod_setup) for the current map.
+
 ### Textures and Texture Collections
+
+A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a texture collection. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a texture collection](#texture_management).
 
 ## Startup {#startup}
 
@@ -123,9 +140,11 @@ At most one of the viewports can have focus, that is, only one of them can recei
 
 ### The Inspector
 
-The inspector is located at the right of the main window and contains various controls, distributed on several pages, to change certain properties of the currently selected objects. The **Map Inspector** allows you to edit [layers](#layers) and to set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions).
+The inspector is located at the right of the main window and contains various controls, distributed to several pages, to change certain properties of the currently selected objects. You can show or hide the inspector by choosing #menu('Menu/View/Toggle Inspector'). To switch directly to a particular inspector page, choose #menu('Menu/View/Switch to Map Inspector') for the map inspector, #menu('Menu/View/Switch to Entity Inspector') for the entity inspector, and #menu('Menu/View/Switch to Face Inspector') for the face inspector.
 
-You can show or hide the inspector by choosing #menu('Menu/View/Toggle Inspector'). To switch directly to a particular inspector page, choose #menu('Menu/View/Switch to Map Inspector') for the map inspector, #menu('Menu/View/Switch to Entity Inspector') for the entity inspector, and #menu('Menu/View/Switch to Face Inspector') for the face inspector.
+![Map, Entity, and Face inspectors (Mac OS X)](Inspector.png)
+
+The **Map Inspector** allows you to edit [layers](#layers) and to set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions). Additionally, you can manage entity definition files in the entity inspector. The face inspector is used to edit the attributes of the currently selected faces. At the top, it has a graphical [UV editor](#uv_editor). Below that, you can edit the face attributes directly by editing their values. To select a texture for the currently selected faces, you can use the [texture browser](#texture_browser). Finally, the face inspector allows you to [manage your texture collections](#texture_management).
 
 ### The Info Bar
 
@@ -133,15 +152,46 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 
 ## Camera Navigation {#camera_navigation}
 
+Navigation in TrenchBroom is quite simple and straightforward. You will mostly use the mouse to move and pan the camera and to look around. There are also some keyboard shortcuts to help you position the camera with more precision. Just like in Quake, the camera cannot be rolled - in other words, up is always in the positive Z direction and down is always in the negative Z direction. The behavior of the camera can be controlled in the [preferences](#mouse_input).
+
+### Looking and Moving Around
+
+In the 3D view, can look around by holding the right mouse button and dragging the mouse around. There are several ways to move the camera around. First and foremost, you can move the camera forward and backward in the viewing direction by spinning the scroll wheel. If you prefer to have the scroll wheel move the camera in the direction where the mouse cursor is pointing, you can check the "Move camera towards cursor" option in the preferences. To move the camera sideways and up / down, hold the middle mouse button and drag the mouse in any direction. For tablet users, there is an option in the preferences that will enable you to move the camera horizontally by holding #key(307). Additionally, you can use the [fly mode](#fly_mode) keyboard shortcuts even when fly mode is disabled.
+
+### Orbiting
+
+The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.
+
+Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the right mouse button while holding #key(307). The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically. You can change the orbit radius during the orbit with the scroll wheel.
+
+### Fly Mode
+
+Fly mode allows you to move around freely in a map, much like "no clipping" modes in some games do. When fly mode is active, you cannot perform any editing and your mouse cursor is hidden until fly mode is deactivated again. Hit #action('Controls/Map view/Toggle fly mode') to toggle fly mode. The following table lists the keyboard shortcuts you can use to move the camera around when in fly mode.
+
+Direction    Key
+---------    ---
+Forward      #action('Controls/Camera/Move forward')
+Backward     #action('Controls/Camera/Move backward')
+Left         #action('Controls/Camera/Move left')
+Right        #action('Controls/Camera/Move right')
+
+### Automatic Navigation
+
+You can center the camera on the current selection by choosing #menu('Menu/View/Camera/Center on Selection') from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
+
+Finally, you can move the camera to a particular position. To do this, choose #menu('Menu/View/Camera/Move Camera to...') and enter the position into the dialog that pops up. This does not affect the 2D views.
+
+## Navigating the 2D Views
+
 # Selection {#selection}
 
 # Editing
 
 ## Map Setup
 
-### Mods {#mods}
+### Mods {#mod_setup}
 
-### Entity Definitions {#entity_definitions}
+### Entity Definitions {#entity_definition_setup}
 
 ### Texture Management {#texture_management}
 
@@ -162,6 +212,10 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 ## Transforming Objects
 
 ## Working with Textures
+
+### The UV Editor {#uv_editor}
+
+### The Texture Browser {#texture_browser}
 
 ## Shaping brushes
 
@@ -193,7 +247,7 @@ You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
-## Mouse Input
+## Mouse Input {#mouse_input}
 
 ## Keyboard Shortcuts
 
