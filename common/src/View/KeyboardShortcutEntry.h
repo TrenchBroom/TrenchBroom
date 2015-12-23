@@ -58,7 +58,7 @@ namespace TrenchBroom {
             
             wxString actionDescription() const;
             wxString shortcutDescription() const;
-            wxString jsonString() const;
+            wxString asJsonString() const;
             
             const IO::Path& preferencePath() const;
             const KeyboardShortcut& shortcut() const;

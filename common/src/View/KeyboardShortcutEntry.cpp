@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return shortcut().shortcutDisplayString();
         }
         
-        wxString KeyboardShortcutEntry::jsonString() const {
+        wxString KeyboardShortcutEntry::asJsonString() const {
             return doGetJsonString();
         }
 

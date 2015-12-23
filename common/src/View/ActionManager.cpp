@@ -19,6 +19,7 @@
 
 #include "ActionManager.h"
 
+#include "Preferences.h"
 #include "IO/Path.h"
 #include "View/Action.h"
 #include "View/CommandIds.h"
@@ -91,8 +92,13 @@ namespace TrenchBroom {
             ShortcutEntryList::const_iterator it, end;
             for (it = entries.begin(), end = entries.end(); it != end; ++it) {
                 const KeyboardShortcutEntry& entry = **it;
-                str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.jsonString() << ";" << std::endl;;
+                str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;;
             }
+        }
+
+        void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
+        void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref) {
+            str << "actions[\"" << pref.path().asString() << "\"] = " << pref.value().asJsonString() << ";" << std::endl;
         }
         
         void ActionManager::getActionJSTable(StringStream& str) {
@@ -101,8 +107,13 @@ namespace TrenchBroom {
             ViewShortcut::List::iterator it, end;
             for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
                 ViewShortcut& entry = *it;
-                str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.jsonString() << ";" << std::endl;
+                str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
             }
+            
+            printActionPreference(str, Preferences::CameraFlyForward);
+            printActionPreference(str, Preferences::CameraFlyBackward);
+            printActionPreference(str, Preferences::CameraFlyLeft);
+            printActionPreference(str, Preferences::CameraFlyRight);
         }
 
         wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
