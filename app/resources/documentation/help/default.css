@@ -77,11 +77,23 @@ div#CONTENT td, th {
 	padding: 2px 4px 2px 4px;
 }
 
+div#CONTENT p img {
+	float: left;
+	margin: 0px 20px 0px 40px;
+	padding: 5px;
+	border-radius: 5px;
+	background-color: gray;
+}
+
+div#CONTENT h1, h2, h3, h4, h5 {
+	clear: both;
+}
+
 span.shortcut {
 	border: 1px solid black;
 	margin: 0px 1px 0px 1px;
 	padding: 0px 4px 0px 4px;
 	border-radius: 3px;
-	background-color: lightgray;
+	background-color: rgb(220, 220, 220);
 	font-size: 80%;
 }

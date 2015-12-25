@@ -25,6 +25,7 @@ SET(DOC_HELP_TARGET_FILES "${DOC_HELP_TARGET_DIR}/index.html")
 
 FILE(GLOB_RECURSE DOC_HELP_SOURCE_FILES
     "${DOC_HELP_SOURCE_DIR}/images/*.png"
+    "${DOC_HELP_SOURCE_DIR}/images/*.gif"
     "${DOC_HELP_SOURCE_DIR}/*.css"
     "${DOC_HELP_SOURCE_DIR}/*.js"
 )

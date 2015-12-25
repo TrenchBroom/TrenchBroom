@@ -89,6 +89,8 @@ The normal of the plane is in the direction of the cross product of v1 and v2. I
 
 To TrenchBroom, entities are just a sequence of properties (key value pairs), most of which are without any special meaning. In particular, the entity proeprties do not specify which model TrenchBroom should display for the entity in its viewports. Addtionally, some property values have specific types, such as color, angle, or position. But these types cannot be hardcoded into the editor, because depending on the game, mode, or entity, a property called "angle" may have a different type. To give TrenchBroom more information on how to interpret a particular entity and its properties, an entity definition is necessary. Entity definitions specify the spawnflags of an entity, the names and types of its properties, the model to display in the editor, and other things. They are usually specified in a separate file that you can [load into the editor](#entity_definition_setup).
 
+TrenchBroom currently supports MDL, MDL 2, and BSP models.
+
 ### Mods
 
 A mod (short for game modification) is a way of extending a Quake-engine based game with custom gameplay and assets. Custom assets include models, sounds, and textures. From the perspective of the game, a mod is a subdirectory in the game directory where the additional assets reside in the form of loose files or archives such as pak files. As far as TrenchBroom is concerned, a mod just provides assets, some of which replace existing assets from the game and some of which are new. For example, a mod might provide a new model for an entity, or it provides an entirely new entity. In order to make these new entities usable in TrenchBroom, two things are required: First, TrenchBroom needs an entity definition for these entities, and TrenchBroom needs to know where it should look for the models to display in the viewports. The first issue can be addressed by pointing TrenchBroom to an alternate [entity definition file](#entity_definitions), and the second issue can be addressed by [adding a mod directory](#mod_setup) for the current map.
@@ -96,6 +98,8 @@ A mod (short for game modification) is a way of extending a Quake-engine based g
 ### Textures and Texture Collections
 
 A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a texture collection. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a texture collection](#texture_management).
+
+TrenchBroom currently does not support high resolution replacement textures, but this is on the Todo list.
 
 ## Startup {#startup}
 
@@ -181,7 +185,11 @@ You can center the camera on the current selection by choosing #menu('Menu/View/
 
 Finally, you can move the camera to a particular position. To do this, choose #menu('Menu/View/Camera/Move Camera to...') and enter the position into the dialog that pops up. This does not affect the 2D views.
 
-## Navigating the 2D Views
+## Navigating the 2D Viewports
+
+![Linked YZ and XZ viewports](Linked2DViewports.gif)
+
+Navigating the 2D viewports is naturally a lot simpler than navigating the 3D view. You can pan the view by holding and dragging either the middle or the right mouse button, and you can use the scroll wheel to adjust the zoom. Note that if you have set your viewport layout to show more than one 2D view, then the 2D views are linked. Specifically, the zoom factor is linked so that you always have a consistent zoom level across all 2D viewports, and the viewports are panned simultaneously along the same dimensions. This means that if you pan the XY viewport along the X axis, the XZ viewport gets panned along the X axis, too, so that you don't have to pan both viewports manually. Also note that zooming always keeps the coordinates under the mouse pointer invariant, that is, you can focus on a particular object or area by hovering the mouse over it and zooming in or out.
 
 # Selection {#selection}
 
