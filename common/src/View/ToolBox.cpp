@@ -136,6 +136,9 @@ namespace TrenchBroom {
             if (!m_enabled)
                 return false;
 
+            if (m_dropReceiver != NULL)
+                dragLeave(chain, inputState);
+            
             deactivateAllTools();
             m_dropReceiver = chain->dragEnter(inputState, text);
             return m_dropReceiver != NULL;
