@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 return "";
             
             size_t i = HeaderChars;
-            while (i < MaxChars && buf[i] != '\n') ++i;
+            while (i < MaxChars && buf[i] != '\n' && buf[i] != '\r') ++i;
             
             return String(buf + HeaderChars, buf + i);
         }
