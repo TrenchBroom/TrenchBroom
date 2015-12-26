@@ -31,8 +31,6 @@ namespace TrenchBroom {
     namespace View {
         ToolBox::ToolBox() :
         m_dragReceiver(NULL),
-        m_dropReceiver(NULL),
-        m_savedDropReceiver(NULL),
         m_modalTool(NULL),
         m_clickToActivate(true),
         m_ignoreNextClick(false),
@@ -128,64 +126,16 @@ namespace TrenchBroom {
             m_ignoreNextClick = false;
         }
 
-        bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
+        ToolAdapter* ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
             // On XFCE, this crashes when dragging an entity across a 2D view into the 3D view
             // I assume that the drag leave event is swallowed somehow.
             // assert(m_dropReceiver == NULL);
 
             if (!m_enabled)
-                return false;
+                return NULL;
 
             deactivateAllTools();
-            m_dropReceiver = chain->dragEnter(inputState, text);
-            return m_dropReceiver != NULL;
-        }
-
-        bool ToolBox::dragMove(ToolChain* chain, const InputState& inputState, const String& text) {
-            if (m_dropReceiver == NULL)
-                return false;
-
-            if (!m_enabled)
-                return false;
-
-            m_dropReceiver->dragMove(inputState);
-            return true;
-        }
-
-        void ToolBox::dragLeave(ToolChain* chain, const InputState& inputState) {
-            if (m_dropReceiver == NULL)
-                return;
-            if (!m_enabled)
-                return;
-
-            // This is a workaround for a bug in wxWidgets 3.0.0 on GTK2, where a drag leave event
-            // is sent right before the drop event. So we save the drag receiver in an instance variable
-            // and if dragDrop() is called, it can use that variable to find out who the drop receiver is.
-            m_savedDropReceiver = m_dropReceiver;
-
-            m_dropReceiver->dragLeave(inputState);
-            m_dropReceiver = NULL;
-        }
-
-        bool ToolBox::dragDrop(ToolChain* chain, const InputState& inputState, const String& text) {
-            if (m_dropReceiver == NULL && m_savedDropReceiver == NULL)
-                return false;
-
-            if (!m_enabled)
-                return false;
-
-            if (m_dropReceiver == NULL) {
-                m_dropReceiver = m_savedDropReceiver;
-                Tool* tool = m_dropReceiver->tool();
-                if (!tool->active()) // GTK2 fix: has been deactivated by dragLeave()
-                    tool->activate();
-                m_dropReceiver->dragEnter(inputState, text);
-            }
-
-            const bool result = m_dropReceiver->dragDrop(inputState);
-            m_dropReceiver = NULL;
-            m_savedDropReceiver = NULL;
-            return result;
+            return chain->dragEnter(inputState, text);
         }
 
         void ToolBox::modifierKeyChange(ToolChain* chain, const InputState& inputState) {

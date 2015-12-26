@@ -19,6 +19,8 @@
 
 #include "ToolBoxConnector.h"
 
+#include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 
@@ -28,6 +30,8 @@ namespace TrenchBroom {
         m_window(window),
         m_toolBox(NULL),
         m_toolChain(new ToolChain()),
+        m_dropReceiver(NULL),
+        m_savedDropReceiver(NULL),
         m_ignoreNextDrag(false) {
             assert(m_window != NULL);
             bindEvents();
@@ -71,13 +75,14 @@ namespace TrenchBroom {
 
         bool ToolBoxConnector::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_toolBox != NULL);
+            assert(m_dropReceiver == NULL);
 
             mouseMoved(wxPoint(x, y));
             updatePickResult();
 
-            const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
+            m_dropReceiver = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
             m_window->Refresh();
-            return result;
+            return m_dropReceiver != NULL;
         }
 
         bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
@@ -86,27 +91,50 @@ namespace TrenchBroom {
             mouseMoved(wxPoint(x, y));
             updatePickResult();
 
-            const bool result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
+            if (m_dropReceiver == NULL)
+                return false;
+            
+            const bool result = m_dropReceiver->dragMove(m_inputState);
             m_window->Refresh();
             return result;
         }
 
         void ToolBoxConnector::dragLeave() {
             assert(m_toolBox != NULL);
-
-            m_toolBox->dragLeave(m_toolChain, m_inputState);
+            if (m_dropReceiver == NULL)
+                return;
+            
+            // This is a workaround for a bug in wxWidgets 3.0.0 on GTK2, where a drag leave event
+            // is sent right before the drop event. So we save the drag receiver in an instance variable
+            // and if dragDrop() is called, it can use that variable to find out who the drop receiver is.
+            m_savedDropReceiver = m_dropReceiver;
+            
+            m_dropReceiver->dragLeave(m_inputState);
+            m_dropReceiver = NULL;
             m_window->Refresh();
         }
 
         bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_toolBox != NULL);
-
+            if (m_dropReceiver == NULL && m_savedDropReceiver == NULL)
+                return false;
+            
             updatePickResult();
 
-            const bool result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
+            if (m_dropReceiver == NULL) {
+                m_dropReceiver = m_savedDropReceiver;
+                Tool* tool = m_dropReceiver->tool();
+                if (!tool->active()) // GTK2 fix: has been deactivated by dragLeave()
+                    tool->activate();
+                m_dropReceiver->dragEnter(m_inputState, text);
+            }
+
+            const bool result = m_dropReceiver->dragDrop(m_inputState);
+            m_dropReceiver = NULL;
+            m_savedDropReceiver = NULL;
+            
             m_window->Refresh();
-            if (result)
-                m_window->SetFocus();
+            if (result) m_window->SetFocus();
             return result;
         }
 

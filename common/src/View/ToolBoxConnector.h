@@ -46,6 +46,9 @@ namespace TrenchBroom {
             wxWindow* m_window;
             ToolBox* m_toolBox;
             ToolChain* m_toolChain;
+
+            ToolAdapter* m_dropReceiver;
+            ToolAdapter* m_savedDropReceiver;
             
             InputState m_inputState;
             
