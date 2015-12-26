@@ -135,13 +135,15 @@ namespace TrenchBroom {
             typedef std::vector<FlagsAttributeOption> List;
         private:
             int m_value;
-            String m_description;
+            String m_shortDescription;
+            String m_longDescription;
             bool m_isDefault;
         public:
-            FlagsAttributeOption(const int value, const String& description, const bool isDefault);
+            FlagsAttributeOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
             bool operator==(const FlagsAttributeOption& other) const;
             int value() const;
-            const String& description() const;
+            const String& shortDescription() const;
+            const String& longDescription() const;
             bool isDefault() const;
         };
     
@@ -155,7 +157,7 @@ namespace TrenchBroom {
             int defaultValue() const;
             const FlagsAttributeOption::List& options() const;
             const FlagsAttributeOption* option(const int value) const;
-            void addOption(const int value, const String& description, const bool isDefault);
+            void addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
         private:
             bool doEquals(const AttributeDefinition* other) const;
         };

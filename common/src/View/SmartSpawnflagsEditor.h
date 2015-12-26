@@ -60,7 +60,7 @@ namespace TrenchBroom {
             void doUpdateVisual(const Model::AttributableNodeList& attributables);
             void resetScrollPos();
             
-            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels) const;
+            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
             void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
         };

@@ -124,8 +124,9 @@ namespace TrenchBroom {
                 return;
             
             wxArrayString labels;
-            getFlags(attributables, labels);
-            m_flagsEditor->setFlags(labels);
+            wxArrayString tooltips;
+            getFlags(attributables, labels, tooltips);
+            m_flagsEditor->setFlags(labels, tooltips);
             
             int set, mixed;
             getFlagValues(attributables, set, mixed);
@@ -145,17 +146,19 @@ namespace TrenchBroom {
             m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels) const {
+        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const {
             const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
             
             for (size_t i = 0; i < NumFlags; ++i) {
                 wxString label;
+                wxString tooltip;
                 if (definition != NULL) {
                     const Assets::FlagsAttributeDefinition* flagDefs = definition->spawnflags();
                     
                     const Assets::FlagsAttributeOption* flagDef = flagDefs != NULL ? flagDefs->option(static_cast<int>(1 << i)) : NULL;
                     if (flagDef != NULL) {
-                        label << flagDef->description();
+                        label << flagDef->shortDescription();
+                        tooltip << flagDef->longDescription();
                     } else {
                         label << (1 << i);
                     }
@@ -163,6 +166,7 @@ namespace TrenchBroom {
                     label << (1 << i);
                 }
                 labels.push_back(label);
+                tooltips.push_back(tooltip);
             }
         }
 

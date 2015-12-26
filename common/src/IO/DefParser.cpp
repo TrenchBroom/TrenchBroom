@@ -233,7 +233,7 @@ namespace TrenchBroom {
                     token = m_tokenizer.nextToken();
                     String name = token.data();
                     int value = 1 << numOptions++;
-                    definition->addOption(value, name, false);
+                    definition->addOption(value, name, "", false);
                     token = m_tokenizer.peekToken();
                 }
             } catch (...) {

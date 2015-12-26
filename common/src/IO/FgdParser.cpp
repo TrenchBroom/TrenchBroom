@@ -210,7 +210,8 @@ namespace TrenchBroom {
                     if (classInfo.hasSize())
                         status.warn(token.line(), token.column(), "Found multiple size attributes");
                     classInfo.setSize(parseSize(status));
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "model")) {
+                } else if (StringUtils::caseInsensitiveEqual(typeName, "model") ||
+                           StringUtils::caseInsensitiveEqual(typeName, "studio")) {
                     if (!classInfo.models().empty())
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     classInfo.addModelDefinitions(parseModels(status));
@@ -479,7 +480,7 @@ namespace TrenchBroom {
             Token token;
             expect(status, FgdToken::Equality, token = m_tokenizer.nextToken());
             expect(status, FgdToken::OBracket, token = m_tokenizer.nextToken());
-            expect(status, FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
             Assets::ChoiceAttributeOption::List options;
             while (token.type() != FgdToken::CBracket) {
@@ -488,7 +489,7 @@ namespace TrenchBroom {
                 expect(status, FgdToken::String, token = m_tokenizer.nextToken());
                 const String caption = token.data();
                 options.push_back(Assets::ChoiceAttributeOption(value, caption));
-                expect(status, FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
+                expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
             if (defaultValue.present)
@@ -511,7 +512,7 @@ namespace TrenchBroom {
                 expect(status, FgdToken::Colon, token = m_tokenizer.nextToken());
                 
                 expect(status, FgdToken::String, token = m_tokenizer.nextToken());
-                const String caption = token.data();
+                const String shortDescription = token.data();
                 
                 bool defaultValue = false;
                 expect(status, FgdToken::Colon | FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
@@ -522,8 +523,16 @@ namespace TrenchBroom {
                     m_tokenizer.pushToken(token);
                 }
                 
-                definition->addOption(value, caption, defaultValue);
-                expect(status, FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
+                expect(status, FgdToken::Integer | FgdToken::CBracket | FgdToken::Colon, token = m_tokenizer.nextToken());
+                
+                String longDescription;
+                if (token.type() == FgdToken::Colon) {
+                    expect(status, FgdToken::String, token = m_tokenizer.nextToken());
+                    longDescription = token.data();
+                    expect(status, FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
+                }
+                
+                definition->addOption(value, shortDescription, longDescription, defaultValue);
             }
             
             return Assets::AttributeDefinitionPtr(definition);
