@@ -49,6 +49,8 @@ namespace TrenchBroom {
         class ToolBox {
         private:
             ToolAdapter* m_dragReceiver;
+            ToolAdapter* m_dropReceiver;
+            ToolAdapter* m_savedDropReceiver;
             Tool* m_modalTool;
             
             typedef std::vector<Tool*> ToolList;
@@ -91,7 +93,10 @@ namespace TrenchBroom {
             bool ignoreNextClick() const;
             void clearIgnoreNextClick();
             
-            ToolAdapter* dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
+            void dragLeave(ToolChain* chain, const InputState& inputState);
+            bool dragDrop(ToolChain* chain, const InputState& inputState, const String& text);
 
             void modifierKeyChange(ToolChain* chain, const InputState& inputState);
             void mouseDown(ToolChain* chain, const InputState& inputState);
