@@ -242,5 +242,40 @@ ELSEIF(APPLE)
     # Create a script to create a new build and publish it
     CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish-dropbox.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish-dropbox.sh @ONLY)
     CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/generate-changelog.sh.in ${CMAKE_CURRENT_BINARY_DIR}/generate-changelog.sh @ONLY)
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # add architecture to filename
+    SET(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
+    SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
+
+    # generate deb and rpm packages
+    SET(CPACK_GENERATOR "DEB;RPM")
+
+    # software gets installed under /opt
+    SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt")
+
+    #  alter desktop file to match target path
+    SET(LINUX_TARGET_EXECUTABLE_PATH "${CPACK_PACKAGING_INSTALL_PREFIX}/trenchbroom/TrenchBroom")
+    CONFIGURE_FILE(${APP_DIR}/resources/linux/trenchbroom.desktop ${CMAKE_CURRENT_BINARY_DIR}/trenchbroom.desktop)
+
+    # add files
+    INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Resources" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${CMAKE_SOURCE_DIR}/gpl.txt" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/copyright" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/trenchbroom.desktop" DESTINATION /usr/share/applications COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/icon48x48/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/48x48/apps COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/icon256x256/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/256x256/apps COMPONENT TrenchBroom)
+
+    # deb package specifics
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
+    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
+    SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
+
+    # rpm package specifics
+    SET(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
+    SET(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
+    SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
+    SET(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
 ENDIF()
 INCLUDE(CPack)
