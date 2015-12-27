@@ -138,10 +138,11 @@ namespace TrenchBroom {
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
-            ASSERT_EQ(String("Crucified"), options[0].description());
+
+            ASSERT_EQ(String("Crucified"), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(String("ambush"), options[1].description());
+            ASSERT_EQ(String("ambush"), options[1].shortDescription());
             ASSERT_FALSE(options[1].isDefault());
             
             
