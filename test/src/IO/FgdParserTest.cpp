@@ -529,16 +529,16 @@ namespace TrenchBroom {
             const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();
             ASSERT_EQ(4u, options.size());
             ASSERT_EQ(256, options[0].value());
-            ASSERT_EQ(String("Not on Easy"), options[0].description());
+            ASSERT_EQ(String("Not on Easy"), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(512, options[1].value());
-            ASSERT_EQ(String("Not on Normal"), options[1].description());
+            ASSERT_EQ(String("Not on Normal"), options[1].shortDescription());
             ASSERT_TRUE(options[1].isDefault());
             ASSERT_EQ(1024, options[2].value());
-            ASSERT_EQ(String("Not on Hard"), options[2].description());
+            ASSERT_EQ(String("Not on Hard"), options[2].shortDescription());
             ASSERT_FALSE(options[2].isDefault());
             ASSERT_EQ(2048, options[3].value());
-            ASSERT_EQ(String("Not in Deathmatch"), options[3].description());
+            ASSERT_EQ(String("Not in Deathmatch"), options[3].shortDescription());
             ASSERT_TRUE(options[3].isDefault());
             
             VectorUtils::clearAndDelete(definitions);

@@ -21,10 +21,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        wxString getBuildVersion() { return wxString("") }
-        wxString getBuildChannel() { return wxString("") }
-        wxString getBuildTime()    { return wxString("") }
-        wxString getBuildId()      { return wxString("") }
-        wxString getBuildType()    { return wxString("") }
+        wxString getBuildVersion() { return wxString(""); }
+        wxString getBuildChannel() { return wxString(""); }
+        wxString getBuildTime()    { return wxString(""); }
+        wxString getBuildId()      { return wxString(""); }
+        wxString getBuildType()    { return wxString(""); }
     }
 }
