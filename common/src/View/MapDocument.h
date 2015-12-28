@@ -247,6 +247,7 @@ namespace TrenchBroom {
             void hideSelection();
             void show(const Model::NodeList& nodes);
             void showAll();
+            void ensureVisible(const Model::NodeList& nodes);
             void resetVisibility(const Model::NodeList& nodes);
             
             void lock(const Model::NodeList& nodes);

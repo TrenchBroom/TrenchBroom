@@ -555,17 +555,24 @@ namespace TrenchBroom {
         }
         
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
+            Transaction transaction(this, "Add objects");
             AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
-            return command->addedNodes();
+            
+            const Model::NodeList& addedNodes = command->addedNodes();
+            ensureVisible(addedNodes);
+            return addedNodes;
         }
         
         Model::NodeList MapDocument::addNodes(const Model::NodeList& nodes, Model::Node* parent) {
             AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(parent, nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
-            return command->addedNodes();
+
+            const Model::NodeList& addedNodes = command->addedNodes();
+            ensureVisible(addedNodes);
+            return addedNodes;
         }
 
         void MapDocument::removeNodes(const Model::NodeList& nodes) {
@@ -693,6 +700,10 @@ namespace TrenchBroom {
             resetVisibility(collect.nodes());
         }
         
+        void MapDocument::ensureVisible(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::ensureVisible(nodes));
+        }
+
         void MapDocument::resetVisibility(const Model::NodeList& nodes) {
             submit(SetVisibilityCommand::reset(nodes));
         }

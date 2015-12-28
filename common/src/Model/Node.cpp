@@ -470,6 +470,12 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Node::ensureVisible() {
+            if (!visible())
+                return setVisiblityState(Visibility_Shown);
+            return false;
+        }
+
         bool Node::editable() const {
             switch (m_lockState) {
                 case Lock_Inherited:

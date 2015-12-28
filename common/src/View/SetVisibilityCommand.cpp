@@ -26,36 +26,56 @@ namespace TrenchBroom {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
         SetVisibilityCommand* SetVisibilityCommand::show(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Shown);
+            return new SetVisibilityCommand(nodes, Action_Show);
         }
         
         SetVisibilityCommand* SetVisibilityCommand::hide(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Hidden);
+            return new SetVisibilityCommand(nodes, Action_Hide);
         }
         
-        SetVisibilityCommand* SetVisibilityCommand::reset(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Inherited);
+        SetVisibilityCommand* SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
+            return new SetVisibilityCommand(nodes, Action_Ensure);
         }
 
-        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Model::VisibilityState state) :
-        UndoableCommand(Type, makeName(state)),
-        m_nodes(nodes),
-        m_state(state) {}
+        SetVisibilityCommand* SetVisibilityCommand::reset(const Model::NodeList& nodes) {
+            return new SetVisibilityCommand(nodes, Action_Reset);
+        }
 
-        String SetVisibilityCommand::makeName(const Model::VisibilityState state) {
-            switch (state) {
-                case Model::Visibility_Inherited:
+        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
+        UndoableCommand(Type, makeName(action)),
+        m_nodes(nodes),
+        m_action(action) {}
+
+        String SetVisibilityCommand::makeName(const Action action) {
+            switch (action) {
+                case Action_Reset:
                     return "Reset Visibility";
-                case Model::Visibility_Hidden:
+                case Action_Hide:
                     return "Hide Objects";
-                case Model::Visibility_Shown:
+                case Action_Show:
                     return "Show Objects";
+                case Action_Ensure:
+                    return "Ensure Objects Visible";
                 switchDefault()
             }
         }
         
         bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldState = document->setVisibilityState(m_nodes, m_state);
+            switch (m_action) {
+                case Action_Reset:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Inherited);
+                    break;
+                case Action_Hide:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Hidden);
+                    break;
+                case Action_Show:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Shown);
+                    break;
+                case Action_Ensure:
+                    m_oldState = document->setVisibilityEnsured(m_nodes);
+                    break;
+                switchDefault()
+            }
             return true;
         }
 
