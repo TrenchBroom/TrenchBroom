@@ -42,7 +42,7 @@ div#CONTENT {
 }
 
 div#CONTENT p {
-	text-indent: 40px;
+	text-indent: 0px;
 }
 
 div.figure {
@@ -79,7 +79,7 @@ div#CONTENT td, th {
 
 div#CONTENT p img {
 	float: left;
-	margin: 0px 20px 0px 40px;
+	margin: 0px 10px 0px 0px;
 	padding: 5px;
 	border-radius: 5px;
 	background-color: gray;
@@ -87,6 +87,13 @@ div#CONTENT p img {
 
 div#CONTENT h1, h2, h3, h4, h5 {
 	clear: both;
+	color: black;
+}
+
+div#CONTENT h4 {
+	display: inline;
+	float: left;
+	margin: 0px 5px 0px 0px;
 }
 
 span.shortcut {
