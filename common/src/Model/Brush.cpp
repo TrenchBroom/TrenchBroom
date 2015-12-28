@@ -1006,14 +1006,7 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(intersects(brush)); }
 
             bool intersects(const BBox3& bounds) const {
-                if (!m_this->bounds().intersects(bounds))
-                    return false;
-                const Vec3::List vertices = bBoxVertices(bounds);
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    if (m_this->containsPoint(vertices[i]))
-                        return true;
-                }
-                return false;
+                return m_this->bounds().intersects(bounds);
             }
             
             bool intersects(const Brush* brush) {
