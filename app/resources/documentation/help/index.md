@@ -97,7 +97,7 @@ A mod (short for game modification) is a way of extending a Quake-engine based g
 
 Every game has a default mod which is always loaded by TrenchBroom. As an example, the default mod for Quake is _id1_, which is the directory that contains all game content. TrenchBroom supports multiple mods, and in the case of multiple mods, there has to be a policy for resolving name conflicts between resources. For example, a mod might provide an entity model for an entity defined in the default mod in order to replace the default model with a more detailed one. To do this, the mod provides an entity model with the same name as the one it wants to replace. To resolve such name conflicts, TrenchBroom assigns priorities for mods, and if a name conflict occurs between different mods, the mod with the highest priority wins. Note that the default mod always has the loest priority.
 
-### Textures and Texture Collections
+### Textures and Texture Collections {#textures}
 
 A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a texture collection. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a texture collection](#texture_management).
 
@@ -119,7 +119,7 @@ If you choose to create a new map, TrenchBroom needs to know which game the map 
 
 The list of supported games is shown on the right side of the dialog. Below the game list, there is a dropdown menu for choosing a map format; this is only shown if the game supports more than one map format. One example for this is Quake, which supports both the standard format and the Valve 220 format for map files. In the screenshot above, none of the games in the list were actually found on the hard disk. This is because the respective game paths have not been configured yet. TrenchBroom allows you to create maps for missing games, but you will not be able to see the entity models in the editor and other resources such as textures might be missing as well. To open the game configuration preferences, you can click the button labelled "Open preferences...". Click [here](#game_configuration) to find out how to configure the supported games.
 
-Once you have selected a game and a map format, TrenchBroom will open the main editing window. The following section gives an overview of this window and its main elements. If you want to find out how to [work with mods](#mods) and how to [add textures](#texture_management), you can skip ahead to the respective sections.
+Once you have selected a game and a map format, TrenchBroom will open the main editing window with a new map. The following section gives an overview of this window and its main elements. If you want to find out how to [work with mods](#mods) and how to [add textures](#texture_management), you can skip ahead to the respective sections.
 
 ## Main Window {#main_window}
 
@@ -156,7 +156,7 @@ The **Map Inspector** allows you to edit [layers](#layers) and to set up which g
 
 ### The Info Bar
 
-You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel').
+You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel'). It contains the console where TrenchBroom prints out messages, warnings and errors, and the live [issue browser](#issue_browser) where you can view, filter and resolve issues with your map.
 
 ## Camera Navigation {#camera_navigation}
 
@@ -247,27 +247,47 @@ When the editor starts, the mod editor is folded, but you can unfold it by click
 
 The order of the enabled mods is important because it defines the [priorities for loading resources](#mods). You can change the priority of enabled mods by reordering them in the list. For this, you can select an enabled mod and use the small triangles below the list of enabled mods to push it up or down.
 
+Mods are stored in a worldspawn property called "_tb_mod".
+
 ### Loading Entity Definitions {#entity_definition_setup}
 
 ![Entity definition editor](EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](#entitiy_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Currently, TrenchBroom supports Radiant DEF files and [Valve FGD][FGD File Format] files. To reload the entity definitions from the currently loaded external file, you can click the button labeled "Reload" at the bottom. This may be useful if you're editing an entity definition file for a mod you're working on.
 
 Note that FGD files contain much more information than DEF files and are generally preferrable. While TrenchBroom supports both file types, its support for FGD is better and more comprehensive. Unfortunately, DEF files are still relevant because Radiant style editors require them, so TrenchBroom allows you to use them, too.
 
+The path of an external entity definition file is stored in a worldspawn property called "_tb_def".
+
 ### Managing Textures {#texture_management}
 
-![Texture collection editor](TextureCollectionEditor.png)
+![Texture collection editor](TextureCollectionEditor.png) [Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
 
-- Priority / Order of texture collections
+It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
 
 ## Creating Objects
 
+TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
+
 ### Creating Simple Brushes
 
+The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(307). Whenever #key(307) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
+
+![Creating a cuboid in the 3D viewport](CreateSimpleBrush.gif)
+
+If, on the other hand, you draw a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
+
+In either case, the texture assigned to the newly created brush is the _current texture_. The current nexture is set by chooseing a texture in the [texture browser](#texture_browser) or by selecting a face that already has a texture. This concept applies to other ways of creating new brushes, too.
+
+This way of creating brushes only allows you to create cuboids. In the next section, you will learn how to create more complex brush shapes with the complex brush tool.
+
 ### Creating Complex Brushes
+
+
 
 ### Creating Entities {#creating_entities}
 
 ### Duplicating Objects {#duplicating_objects}
+
+### Copy and Paste
 
 ## Editing Objects
 
@@ -319,7 +339,7 @@ Note that FGD files contain much more information than DEF files and are general
 
 ## Command Repetition
 
-## Issue Browser
+## Issue Browser {#issue_browser}
 
 ## Solving Problems
 
