@@ -30,7 +30,7 @@ namespace TrenchBroom {
             const AttributeName Classname         = "classname";
             const AttributeName Origin            = "origin";
             const AttributeName Wad               = "wad";
-            const AttributeName Wal               = "_tb_wals";
+            const AttributeName Textures          = "_tb_textures";
             const AttributeName Mods              = "_tb_mod";
             const AttributeName Spawnflags        = "spawnflags";
             const AttributeName EntityDefinitions = "_tb_def";
