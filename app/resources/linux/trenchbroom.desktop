@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=@LINUX_TARGET_EXECUTABLE_PATH@
+Exec=trenchbroom
 GenericName=A Modern Level Editor for Quake
 Icon=trenchbroom
 Name=TrenchBroom
