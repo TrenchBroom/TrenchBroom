@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ $# -lt 1 ] || [ -z "$1" ] || ([ "$1" != "Alpha" ] && [ "$1" != "Beta" ] && [ "$1" != "Final" ]) ; then
+    echo "You must supply the build channel."
+    echo "Example: publish.sh <channel>"
+    echo "  where <channel> is 'Alpha', 'Beta', or 'Final'"
+    exit 1
+fi
+
+cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@" -DAPP_BUILD_CHANNEL=$1
+cmake --build . --config Release -- $2 $3 $4 $5 $6 $7
+if [ $? -ne 0 ]; then
+    echo "Build failed, aborting."
+    exit 1
+fi
+
+./TrenchBroom-Test
+if [ $? -ne 0 ]; then
+    echo "Unit tests failed, aborting."
+    exit 1
+fi
+
+cmake --build . --config Release --target package -- $2 $3 $4 $5 $6 $7
+if [ $? -ne 0 ]; then
+    echo "Packaging failed, aborting."
+    exit 1
+fi
+
+./upload.sh "$1"

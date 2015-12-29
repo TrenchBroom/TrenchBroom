@@ -1,0 +1,2 @@
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)

@@ -359,6 +359,10 @@ It is not possible to modify or remove points after they have been placed, excep
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
 
+### Contact
+
+- \#trenchbroom on quakenet.org
+
 # References and Links {#references_and_links}
 
 - [func_msgboard] - Quake Mapping Forum

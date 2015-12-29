@@ -34,12 +34,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        wxString getBuildTime() {
-            wxString result;
-            result << BUILD_TIME;
-            return result;
-        }
-        
         wxString getBuildId() {
             wxString result;
             result << BUILD_ID;
