@@ -3,17 +3,19 @@ INCLUDE(cmake/GenerateHelp.cmake)
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
-IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-    FILE(GLOB_RECURSE APP_SOURCE
-        "${APP_SOURCE_DIR}/*.h"
-        "${APP_SOURCE_DIR}/*.cpp"
-    )
-ELSE()
+# Collect the source files for compilation.
+# Unfortunately, Xcode doesn't support object libraries, so we have to compile the common sources with the app sources.
+IF(CMAKE_GENERATOR STREQUAL "Xcode")
     FILE(GLOB_RECURSE APP_SOURCE
         "${APP_SOURCE_DIR}/*.h"
         "${APP_SOURCE_DIR}/*.cpp"
         "${COMMON_SOURCE_DIR}/*.h"
         "${COMMON_SOURCE_DIR}/*.cpp"
+    )
+ELSE()
+    FILE(GLOB_RECURSE APP_SOURCE
+        "${APP_SOURCE_DIR}/*.h"
+        "${APP_SOURCE_DIR}/*.cpp"
     )
 ENDIF()
 
@@ -72,6 +74,7 @@ IF(APPLE)
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
+    # Configure help files
     SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help)
 ENDIF()
 
@@ -87,10 +90,11 @@ IF(WIN32)
     ENDIF()
 ENDIF()
 
-IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
-ELSE()
+# Add TrenchBroom executable target. Again, because Xcode doesn't support object libraries, we have two separate configurations.
+IF(CMAKE_GENERATOR STREQUAL "Xcode")
     ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
+ELSE()
+    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
 ENDIF()
 
 TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
@@ -100,7 +104,9 @@ SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 FIND_PACKAGE(Git)
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-ADD_CUSTOM_TARGET(GenerateVersion ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
+ADD_CUSTOM_TARGET(GenerateVersion 
+    ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" "${CMAKE_CURRENT_BINARY_DIR}/Version.h")
 ADD_DEPENDENCIES(TrenchBroom GenerateVersion)
 
 ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
