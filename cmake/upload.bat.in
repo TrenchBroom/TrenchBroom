@@ -1,8 +1,8 @@
 @ECHO OFF
 
 IF "%~1"=="Alpha" GOTO alpha
-IF "%~1"=="Beta" GOTO dobuild
-IF "%~1"=="Final" GOTO dobuild
+IF "%~1"=="Beta" GOTO beta
+IF "%~1"=="Final" GOTO final
 
 :alpha
 IF "%TB_ALPHA_DEST%"=="" GOTO noalphadest
