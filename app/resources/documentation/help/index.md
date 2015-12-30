@@ -336,6 +336,14 @@ Note that in the image above, the selected brush flashes while it is moved to th
 
 ### Copy and Paste
 
+You can copy objects by selecting them and choosing #menu('Menu/Edit/Copy'). TrenchBroom will create text representations of the selected objects as if they were saved to a map, and put that text representation on the clipboard. This allows you to paste them into map files, and also to directly copy objects from map files and paste them into TrenchBroom. Note that you can also copy brush faces, which will also put a text representation of that brush face on the clipboard. Having copied a brush face, you can paste the attributes of that face (texture, offset, scale, etc.) into other selected brush faces.
+
+There are two menu commands to paste objects from the clipboard into the map. The simpler of the two is #menu('Menu/Edit/Paste at Original Position'), which will simply paste the objects from the clipboard without changing their position. The other command, available at #menu('Menu/Edit/Paste'), does not paste the objects from the clipboard at their original positions, but will try to position them using the current mouse position. If pasted into the 3D viewport, the pasted objects will be placed on top of the brush under the mouse. If no brush is under the mouse, the objects will be placed at a default distance. The bounding box of the pasted objects is snapped to the grid, and TrenchBroom will attempt to keep the center of the bounding box of the pasted objects near the mouse cursor. The following clip illustrates these concepts. The light fixture is copied, then pasted several times.
+
+![Pasting objects in the 3D viewport](PastePositioning3D.gif)
+
+Positioning of objects pasted into a 2D viewport attempts to achieve a similar effect by positiong the pasted objects such that they line up with the far end of the bounds of the most recently selected objects while keeping them under the mouse, with their center snapped to the grid.
+
 ## Editing Objects
 
 ## Transforming Objects

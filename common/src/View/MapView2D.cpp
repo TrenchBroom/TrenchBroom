@@ -183,8 +183,24 @@ namespace TrenchBroom {
         }
 
         Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            // TODO: implement this
-            return Vec3::Null;
+            MapDocumentSPtr document = lock(m_document);
+            View::Grid& grid = document->grid();
+            const BBox3& worldBounds = document->worldBounds();
+
+            const BBox3 referenceBounds = document->referenceBounds();
+            const Ray3& pickRay = MapView2D::pickRay();
+            
+            const Vec3 toMin = referenceBounds.min - pickRay.origin;
+            const Vec3 toMax = referenceBounds.max - pickRay.origin;
+            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const Plane3 dragPlane(anchor, -pickRay.direction);
+            
+            const FloatType distance = dragPlane.intersectWithRay(pickRay);
+            if (Math::isnan(distance))
+                return Vec3::Null;
+            
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
         }
         
         void MapView2D::doCenterCameraOnSelection() {
