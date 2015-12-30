@@ -289,13 +289,67 @@ It is not possible to modify or remove points after they have been placed, excep
 
 ### Creating Entities {#creating_entities}
 
+There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present two ways of creating point entities and one way to create brush entities.
+
+#### Point Entities
+
+There are two ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the context menu. To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
+
+![Dropping an entity with the context menu (Mac OS X)](CreateEntityContextMenu.png)
+
+The location of the newly created entity depends on whether you clicked on the 3D viewport or a 2D viewport. If you clicked on the 3D viewport, then the entity will be placed on the brush under the mouse. If there was no brush under the mouse, then the entity will be placed at a default distance. Note that the bounding box of the entity will be snapped to the grid. If you clicked on the 2D view, then the position of the entity depends on what was under the mouse when you clicked, too. If a selected brush was under the mouse, then the new entity will be placed on that brush. If no selected brush was under the mouse, then the entity will be placed at the far end of the bounding box of the most recently selected objects. Again, the bounding box of the newly created entity will be snapped to the grid.
+
+![Entity browser](EntityBrowser.png) Secondly, you can create new point entities by dragging them from the entity browser. The entity browser can be found in the entity inspector page. At the bottom of the entity browser, you can find a number of controls to change the sort order and to filter the entities displayed in the browser.
+
+The leftmost dropdown list allows you to change the sort order. Entities can be sorted by name or by their usage count, with the most used entities at the top. The "Group" button toggles grouping the entities by their category, which is derived from the first part of the entity name. For example, all entities starting with "key_" are put into a category called "key". The button labeled "Used" toggles all unused entities, when it is pressed, only those entities which are used in the map are shown in the browser. To filter entities by name, enter some text in the search box on the right. Only entities containing the search text will be shown in the browser.
+
+To create a new entity, simply drag it out of the browser and onto the 3D or a 2D viewport. If you drag it onto the 3D viewport, the entity will be positioned on the brush under the mouse, with its bounding box snapped to the grid. If you drag the entity onto a 2D viewport, its position is determined by the far end of the most recently selected object.
+
+#### Brush Entities
+
+![Moving brushes to brush entities](MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity", where "Entity" is the name of the target brush entity, for example "func_button" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world, select the brushes and right click on a world brush or on the void and select "Move brushes to worldspawn".
+
+Often, it is much quicker to create new objects by duplicating existing ones. Objects can be duplicated using dedicated functions in TrenchBroom, or just by copying and pasting them.
+
 ### Duplicating Objects {#duplicating_objects}
+
+The currently selected objects can be duplicated by choosing #menu('Menu/Edit/Duplicate'). This will duplicate the objects in place, that is, the duplicates retain the exact position of the original objects. To give visual feedback, the duplicated objects are flashed in white really quickly. In the following short clip, you can see that the selected brush gets duplicated. After that, the duplicated brush is moved upwards.
+
+![Duplicating a brush in place](DuplicateInPlace.gif)
+
+Very often, you will want to duplicate objects and move them to a different position immediately afterwards, because having duplicates retain the same position as their originals is very seldomly useful. That's why you can also duplicate and move objects at once without having to perform two separate actions. To duplicate and move objects, you can use the following keyboard shortcuts:
+
+Direction     Shortcut (2D)                                                                                        Shortcut (3D)
+---------     -------------                                                                                        -------------
+Left          #action('Controls/Map view/Duplicate and move objects left')                                         #action('Controls/Map view/Duplicate and move objects left')
+Right         #action('Controls/Map view/Duplicate and move objects right')                                        #action('Controls/Map view/Duplicate and move objects right')
+Up            #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')
+Down          #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')    #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')
+Forward       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')       #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')
+Backward      #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')    #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')
+
+Essentially, these are the same keyboard shortcuts that you use to [move objects around](#moving_objects) in the 3D and 2D viewports, but while holding #key(308). In the same vein, you can hold #key(308) while left dragging a selected object to duplicate and move all selected objects.
+
+![Duplicating and moving a brush](DuplicateAndMove.gif)
+
+Note that in the image above, the selected brush flashes while it is moved to the right. This indicates that in this case, the duplication and the translation happened at the same time instead of one after the other as in the previous example.
 
 ### Copy and Paste
 
 ## Editing Objects
 
 ## Transforming Objects
+
+### Moving Objects {#moving_objects}
+
+Direction     Shortcut (2D)                                                            Shortcut (3D)
+---------     -------------                                                            -------------
+Left          #action('Controls/Map view/Move objects left')                           #action('Controls/Map view/Move objects left')
+Right         #action('Controls/Map view/Move objects right')                          #action('Controls/Map view/Move objects right')
+Up            #action('Controls/Map view/Move objects up; Move objects forward')       #action('Controls/Map view/Move objects forward; Move objects up')
+Down          #action('Controls/Map view/Move objects down; Move objects backward')    #action('Controls/Map view/Move objects backward; Move objects down')
+Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
+Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
 
 ## Deleting Objects
 

@@ -88,12 +88,8 @@ div#CONTENT p img {
 div#CONTENT h1, h2, h3, h4, h5 {
 	clear: both;
 	color: black;
-}
-
-div#CONTENT h4 {
-	display: inline;
-	float: left;
-	margin: 0px 5px 0px 0px;
+	padding-top: 10px;
+	margin-top: 0px;
 }
 
 span.shortcut {

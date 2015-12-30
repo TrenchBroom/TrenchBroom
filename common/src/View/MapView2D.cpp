@@ -19,7 +19,13 @@
 
 #include "MapView2D.h"
 #include "Logger.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/CompareHits.h"
+#include "Model/Entity.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Model/PointFile.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
@@ -230,23 +236,32 @@ namespace TrenchBroom {
 
         Vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
-            const BBox3 referenceBounds = document->referenceBounds();
-            const Ray3& pickRay = MapView2D::pickRay();
-            
-            const Vec3 toMin = referenceBounds.min - pickRay.origin;
-            const Vec3 toMax = referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-            const Plane3 dragPlane(anchor, -pickRay.direction);
-            
-            const FloatType distance = dragPlane.intersectWithRay(pickRay);
-            if (Math::isnan(distance))
-                return Vec3::Null;
+
+            Vec3 delta;
+            View::Grid& grid = document->grid();
             
             const BBox3& worldBounds = document->worldBounds();
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
             
-            const Grid& grid = document->grid();
-            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
+            if (hit.isMatch()) {
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
+            } else {
+                const BBox3 referenceBounds = document->referenceBounds();
+                const Ray3& pickRay = MapView2D::pickRay();
+                
+                const Vec3 toMin = referenceBounds.min - pickRay.origin;
+                const Vec3 toMax = referenceBounds.max - pickRay.origin;
+                const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+                const Plane3 dragPlane(anchor, -pickRay.direction);
+                
+                const FloatType distance = dragPlane.intersectWithRay(pickRay);
+                if (Math::isnan(distance))
+                    return Vec3::Null;
+                
+                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            }
         }
 
         ActionContext MapView2D::doGetActionContext() const {
