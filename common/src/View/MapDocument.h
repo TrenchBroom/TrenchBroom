@@ -262,7 +262,6 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
-            bool csgPartition();
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);

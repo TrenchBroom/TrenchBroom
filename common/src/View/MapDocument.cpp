@@ -856,49 +856,6 @@ namespace TrenchBroom {
             return true;
         }
 
-
-        bool MapDocument::csgPartition() {
-            Model::BrushList oldBrushes = selectedNodes().brushes();
-            if (oldBrushes.size() < 2)
-                return false;
-
-            Model::BrushList newBrushes(oldBrushes.begin(), oldBrushes.end());
-            size_t index1 = 0;
-            while (index1 < newBrushes.size()) {
-                size_t index2 = index1 + 1;
-                bool increment = true;
-
-                while (index2 < newBrushes.size()) {
-                    const Model::Brush* brush1 = newBrushes[index1];
-                    const Model::Brush* brush2 = newBrushes[index2];
-                    const Model::BrushList partition = brush1->partition(*m_world, m_worldBounds, currentTextureName(), brush2);
-
-                    if (!partition.empty()) {
-                        Model::BrushList::iterator it;
-                        it = newBrushes.begin(); std::advance(it, index2);
-                        newBrushes.erase(it);
-                        
-                        it = newBrushes.begin(); std::advance(it, index1);
-                        newBrushes.erase(it);
-                        
-                        VectorUtils::append(newBrushes, partition);
-                        increment = false;
-                        break;
-                    }
-                    ++index2;
-                }
-                if (increment)
-                    ++index1;
-            }
-
-            Transaction transaction(this, "CSG Partition");
-            deselectAll();
-            removeNodes(Model::NodeList(oldBrushes.begin(), oldBrushes.end()));
-            select(addNodes(Model::NodeList(newBrushes.begin(), newBrushes.end()), currentParent()));
-            
-            return true;
-        }
-
         bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
             return submit(ChangeEntityAttributesCommand::set(name, value));
         }
