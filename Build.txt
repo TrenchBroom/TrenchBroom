@@ -98,6 +98,10 @@ Build TrenchBroom
   cmake --build . --target TrenchBroom
   You can replace "Release" with "Debug" if you want to create a debug build.
 
+Packaging
+- If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: devscripts, debhelper, rpm
+  sudo apt-get install devscripts debhelper rpm
+
 Notes
 - On some systems, such as Xubuntu, you may have to pass the following extra paramter to cmake when creating the build scripts: -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
   So the first cmake command should be
