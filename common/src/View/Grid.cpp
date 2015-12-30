@@ -112,7 +112,7 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
-            const Vec3 halfSize = bounds.size() * 0.5;
+            const Vec3 halfSize = bounds.size() / 2.0;
             FloatType offsetLength = halfSize.dot(dragPlane.normal);
             if (offsetLength < 0.0)
                 offsetLength = -offsetLength;
