@@ -31,16 +31,24 @@ namespace TrenchBroom {
         public:
             static const CommandType Type;
         private:
+            typedef enum {
+                Action_Reset,
+                Action_Hide,
+                Action_Show,
+                Action_Ensure
+            } Action;
+            
             Model::NodeList m_nodes;
-            Model::VisibilityState m_state;
+            CommandType m_action;
             Model::VisibilityMap m_oldState;
         public:
             static SetVisibilityCommand* show(const Model::NodeList& nodes);
             static SetVisibilityCommand* hide(const Model::NodeList& nodes);
+            static SetVisibilityCommand* ensureVisible(const Model::NodeList& nodes);
             static SetVisibilityCommand* reset(const Model::NodeList& nodes);
         private:
-            SetVisibilityCommand(const Model::NodeList& nodes, Model::VisibilityState state);
-            static String makeName(Model::VisibilityState state);
+            SetVisibilityCommand(const Model::NodeList& nodes, Action action);
+            static String makeName(Action action);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 return false;
             if (name == AttributeNames::Wad)
                 return false;
-            if (name == AttributeNames::Wal)
+            if (name == AttributeNames::Textures)
                 return false;
             return true;
         }
@@ -235,7 +235,7 @@ namespace TrenchBroom {
                 return false;
             if (name == AttributeNames::Wad)
                 return false;
-            if (name == AttributeNames::Wal)
+            if (name == AttributeNames::Textures)
                 return false;
             return true;
         }

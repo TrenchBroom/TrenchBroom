@@ -81,6 +81,7 @@ namespace TrenchBroom {
             Model::NodeList findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const;
         public: // Node Visibility
             Model::VisibilityMap setVisibilityState(const Model::NodeList& nodes, Model::VisibilityState visibilityState);
+            Model::VisibilityMap setVisibilityEnsured(const Model::NodeList& nodes);
             void restoreVisibilityState(const Model::VisibilityMap& nodes);
             Model::LockStateMap setLockState(const Model::NodeList& nodes, Model::LockState lockState);
             void restoreLockState(const Model::LockStateMap& nodes);

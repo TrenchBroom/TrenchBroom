@@ -446,7 +446,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
-            Bind(wxEVT_MENU, &MapFrame::OnEditCsgPartition, this, CommandIds::Menu::EditCsgPartition);
             
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
@@ -801,13 +800,6 @@ namespace TrenchBroom {
                 m_document->csgIntersect();
         }
 
-        void MapFrame::OnEditCsgPartition(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            if (canDoCsgPartition())
-                m_document->csgPartition();
-        }
-
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -1096,9 +1088,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCsgIntersect:
                     event.Enable(canDoCsgIntersect());
                     break;
-                case CommandIds::Menu::EditCsgPartition:
-                    event.Enable(canDoCsgPartition());
-                    break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(canSnapVertices());
                     break;
@@ -1298,10 +1287,6 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canDoCsgIntersect() const {
-            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
-        }
-
-        bool MapFrame::canDoCsgPartition() const {
             return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
         }
 

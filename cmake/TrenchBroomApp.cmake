@@ -3,17 +3,19 @@ INCLUDE(cmake/GenerateHelp.cmake)
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
-IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-    FILE(GLOB_RECURSE APP_SOURCE
-        "${APP_SOURCE_DIR}/*.h"
-        "${APP_SOURCE_DIR}/*.cpp"
-    )
-ELSE()
+# Collect the source files for compilation.
+# Unfortunately, Xcode doesn't support object libraries, so we have to compile the common sources with the app sources.
+IF(CMAKE_GENERATOR STREQUAL "Xcode")
     FILE(GLOB_RECURSE APP_SOURCE
         "${APP_SOURCE_DIR}/*.h"
         "${APP_SOURCE_DIR}/*.cpp"
         "${COMMON_SOURCE_DIR}/*.h"
         "${COMMON_SOURCE_DIR}/*.cpp"
+    )
+ELSE()
+    FILE(GLOB_RECURSE APP_SOURCE
+        "${APP_SOURCE_DIR}/*.h"
+        "${APP_SOURCE_DIR}/*.cpp"
     )
 ENDIF()
 
@@ -72,6 +74,7 @@ IF(APPLE)
 	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
+    # Configure help files
     SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help)
 ENDIF()
 
@@ -87,23 +90,50 @@ IF(WIN32)
     ENDIF()
 ENDIF()
 
-IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
-ELSE()
+# Add TrenchBroom executable target. Again, because Xcode doesn't support object libraries, we have two separate configurations.
+IF(CMAKE_GENERATOR STREQUAL "Xcode")
     ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
+ELSE()
+    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
 ENDIF()
 
 TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
+GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
+GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_BUILD_ID)
+GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
+IF(NOT DEFINED APP_BUILD_CHANNEL)
+    SET(APP_BUILD_CHANNEL "Interim")
+ENDIF()
+
 # Create the cmake script for generating the version information
 FIND_PACKAGE(Git)
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-ADD_CUSTOM_TARGET(GenerateVersion ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
+ADD_CUSTOM_TARGET(GenerateVersion 
+    ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 ADD_DEPENDENCIES(TrenchBroom GenerateVersion)
 
 ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
+
+IF(APPLE)
+    # Configure variables that are substituted into the plist
+    # Set CFBundleExecutable
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_EXECUTABLE_NAME "${OUTPUT_NAME}")
+    # Set CFBundleName, which controls the application menu label
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "TrenchBroom")
+    # Set CFBundleShortVersionString to "2.0.0". This is displayed in the Finder and Spotlight.
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING "${CPACK_PACKAGE_VERSION}")
+    # Set CFBundleVersion to the git revision. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${APP_BUILD_ID}")
+
+    # Set the path to the plist template
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
+
+    # Configure the XCode generator project
+    SET_XCODE_ATTRIBUTES(TrenchBroom)
+ENDIF()
 
 # Copy some Windows-specific resources
 IF(WIN32)
@@ -160,33 +190,12 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 ENDIF()
 
 # Common CPack configuration
-GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
-GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_VERSION_BUILD_ID)
-GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
-SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${APP_VERSION_BUILD_ID}-${CMAKE_BUILD_TYPE}")
+SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${APP_BUILD_CHANNEL}-${APP_BUILD_ID}-${CMAKE_BUILD_TYPE}")
 SET(APP_PACKAGE_DIR_NAME "$ENV{DROPBOX}/TrenchBroom/")
 SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 SET(CPACK_PACKAGE_VENDOR "Kristian Duske")
-
-IF(APPLE)
-    # Configure variables that are substituted into the plist
-    # Set CFBundleExecutable
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_EXECUTABLE_NAME "${OUTPUT_NAME}")
-    # Set CFBundleName, which controls the application menu label
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "TrenchBroom")
-    # Set CFBundleShortVersionString to "2.0.0". This is displayed in the Finder and Spotlight.
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING "${CPACK_PACKAGE_VERSION}")
-    # Set CFBundleVersion to the git revision. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION_BUILD_ID}")
-
-    # Set the path to the plist template
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
-
-    # Configure the XCode generator project
-    SET_XCODE_ATTRIBUTES(TrenchBroom)
-ENDIF()
 
 # Platform specific CPack configuration
 IF(WIN32)
@@ -225,22 +234,52 @@ IF(WIN32)
         DESTINATION Resources COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "ZIP")
     SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
-
-    # A custom target to copy the release build to a Dropbox folder
-    ADD_CUSTOM_TARGET(publish ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${APP_PACKAGE_FILE_NAME}.zip" "${APP_PACKAGE_DIR_NAME}")
-
-    # Create a script to create a new build and publish it
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish-dropbox.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish-dropbox.bat @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/generate-changelog.bat.in ${CMAKE_CURRENT_BINARY_DIR}/generate-changelog.bat @ONLY)
 ELSEIF(APPLE)
     INSTALL(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "DragNDrop")
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # add architecture to filename
+    SET(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
+    SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 
-    # A custom target to copy the release build to a Dropbox folder
-    ADD_CUSTOM_TARGET(publish ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${APP_PACKAGE_FILE_NAME}.dmg" "${APP_PACKAGE_DIR_NAME}")
+    # generate deb and rpm packages
+    SET(CPACK_GENERATOR "DEB;RPM")
 
-    # Create a script to create a new build and publish it
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish-dropbox.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish-dropbox.sh @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/generate-changelog.sh.in ${CMAKE_CURRENT_BINARY_DIR}/generate-changelog.sh @ONLY)
+    # the software will get installed under /opt
+    SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt")
+    SET(LINUX_TARGET_EXECUTABLE_PATH "${CPACK_PACKAGING_INSTALL_PREFIX}/trenchbroom/TrenchBroom")
+    CONFIGURE_FILE(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/postinst)
+
+    # add files
+    INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Resources" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${CMAKE_SOURCE_DIR}/gpl.txt" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/copyright" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop" DESTINATION /usr/share/applications COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/icon48x48/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/48x48/apps COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/icon256x256/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/256x256/apps COMPONENT TrenchBroom)
+
+    # deb package specifics
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
+    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
+    SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
+    SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/postinst;${APP_DIR}/resources/linux/postrm")
+
+    # rpm package specifics
+    SET(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
+    SET(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
+    SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
+    SET(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
+    SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/postinst")
+    SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${APP_DIR}/resources/linux/postrm")
 ENDIF()
 INCLUDE(CPack)
+
+IF(WIN32)
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
+ELSE()
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
+ENDIF()

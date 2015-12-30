@@ -75,7 +75,7 @@ namespace TrenchBroom {
             m_brushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
             m_brushRenderer->setTint(true);
             m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
-            m_brushRenderer->render(renderContext, renderBatch);
+            m_brushRenderer->setTransparencyAlpha(0.7f);
             
             m_brushRenderer->setBrushes(Model::BrushList(1, m_brush));
             m_brushRenderer->render(renderContext, renderBatch);

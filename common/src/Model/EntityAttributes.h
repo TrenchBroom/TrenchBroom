@@ -41,7 +41,7 @@ namespace TrenchBroom {
             extern const AttributeName Classname;
             extern const AttributeName Origin;
             extern const AttributeName Wad;
-            extern const AttributeName Wal;
+            extern const AttributeName Textures;
             extern const AttributeName Mods;
             extern const AttributeName Spawnflags;
             extern const AttributeName EntityDefinitions;

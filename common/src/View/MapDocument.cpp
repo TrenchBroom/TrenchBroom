@@ -555,17 +555,24 @@ namespace TrenchBroom {
         }
         
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
+            Transaction transaction(this, "Add objects");
             AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
-            return command->addedNodes();
+            
+            const Model::NodeList& addedNodes = command->addedNodes();
+            ensureVisible(addedNodes);
+            return addedNodes;
         }
         
         Model::NodeList MapDocument::addNodes(const Model::NodeList& nodes, Model::Node* parent) {
             AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(parent, nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
-            return command->addedNodes();
+
+            const Model::NodeList& addedNodes = command->addedNodes();
+            ensureVisible(addedNodes);
+            return addedNodes;
         }
 
         void MapDocument::removeNodes(const Model::NodeList& nodes) {
@@ -693,6 +700,10 @@ namespace TrenchBroom {
             resetVisibility(collect.nodes());
         }
         
+        void MapDocument::ensureVisible(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::ensureVisible(nodes));
+        }
+
         void MapDocument::resetVisibility(const Model::NodeList& nodes) {
             submit(SetVisibilityCommand::reset(nodes));
         }
@@ -841,49 +852,6 @@ namespace TrenchBroom {
             } else {
                 delete result;
             }
-            
-            return true;
-        }
-
-
-        bool MapDocument::csgPartition() {
-            Model::BrushList oldBrushes = selectedNodes().brushes();
-            if (oldBrushes.size() < 2)
-                return false;
-
-            Model::BrushList newBrushes(oldBrushes.begin(), oldBrushes.end());
-            size_t index1 = 0;
-            while (index1 < newBrushes.size()) {
-                size_t index2 = index1 + 1;
-                bool increment = true;
-
-                while (index2 < newBrushes.size()) {
-                    const Model::Brush* brush1 = newBrushes[index1];
-                    const Model::Brush* brush2 = newBrushes[index2];
-                    const Model::BrushList partition = brush1->partition(*m_world, m_worldBounds, currentTextureName(), brush2);
-
-                    if (!partition.empty()) {
-                        Model::BrushList::iterator it;
-                        it = newBrushes.begin(); std::advance(it, index2);
-                        newBrushes.erase(it);
-                        
-                        it = newBrushes.begin(); std::advance(it, index1);
-                        newBrushes.erase(it);
-                        
-                        VectorUtils::append(newBrushes, partition);
-                        increment = false;
-                        break;
-                    }
-                    ++index2;
-                }
-                if (increment)
-                    ++index1;
-            }
-
-            Transaction transaction(this, "CSG Partition");
-            deselectAll();
-            removeNodes(Model::NodeList(oldBrushes.begin(), oldBrushes.end()));
-            select(addNodes(Model::NodeList(newBrushes.begin(), newBrushes.end()), currentParent()));
             
             return true;
         }

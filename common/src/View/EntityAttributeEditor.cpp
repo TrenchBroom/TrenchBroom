@@ -25,6 +25,7 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
+#include "View/SplitterWindow2.h"
 
 #include <wx/sizer.h>
 
@@ -47,15 +48,21 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
-            m_attributeGrid = new EntityAttributeGrid(parent, document);
-            m_smartEditorManager = new SmartAttributeEditorManager(parent, document);
+            SplitterWindow2* splitter = new SplitterWindow2(parent);
+            splitter->setSashGravity(1.0);
+            splitter->SetName("EntityAttributeEditorSplitter");
+            
+            m_attributeGrid = new EntityAttributeGrid(splitter, document);
+            m_smartEditorManager = new SmartAttributeEditorManager(splitter, document);
+            
+            splitter->splitHorizontally(m_attributeGrid,
+                                        m_smartEditorManager,
+                                        wxSize(100, 50), wxSize(100, 50));
+
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_attributeGrid, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(m_smartEditorManager, 0, wxEXPAND);
-            sizer->SetItemMinSize(m_attributeGrid, 100, 200);
-            sizer->SetItemMinSize(m_smartEditorManager, 100, 160);
+            sizer->Add(splitter, 1, wxEXPAND);
+            sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
             SetSizer(sizer);
             
             m_attributeGrid->Bind(ENTITY_ATTRIBUTE_SELECTED_EVENT, &EntityAttributeEditor::OnEntityAttributeSelected, this);

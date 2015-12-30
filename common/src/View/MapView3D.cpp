@@ -404,20 +404,22 @@ namespace TrenchBroom {
 
                 document->pick(Ray3(pickRay), pickResult);
                 const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
+                
                 if (hit.isMatch()) {
                     const Model::BrushFace* face = Model::hitToFace(hit);
-                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
-                    const Plane3 dragPlane = alignedOrthogonalDragPlane(snappedHitPoint, face->boundary().normal);
-                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                    const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
-                    const Vec3 snappedCenter = grid.snap(bounds.center());
-                    const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay));
-                    return snappedDefaultPoint - snappedCenter;
+                    const Vec3 point = m_camera.defaultPoint(pickRay);
+                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -Vec3(m_camera.direction()));
+                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
-                const Vec3 snappedCenter = grid.snap(bounds.center());
-                const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
-                return snappedDefaultPoint - snappedCenter;
+                const Vec3 oldMin = bounds.min;
+                const Vec3 oldCenter = bounds.center();
+                const Vec3 newCenter = m_camera.defaultPoint();
+                const Vec3 newMin = oldMin + (newCenter - oldCenter);
+                return grid.snap(newMin);
             }
         }
         
@@ -605,7 +607,7 @@ namespace TrenchBroom {
             
             const BBox3& worldBounds = document->worldBounds();
             
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());

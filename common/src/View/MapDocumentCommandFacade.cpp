@@ -303,10 +303,10 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             
             Model::NodeList addedNodes;
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* parent = it->first;
-                const Model::NodeList& children = it->second;
+            Model::ParentChildrenMap::const_iterator pIt, pEnd;
+            for (pIt = nodes.begin(), pEnd = nodes.end(); pIt != pEnd; ++pIt) {
+                Model::Node* parent = pIt->first;
+                const Model::NodeList& children = pIt->second;
                 parent->addChildren(children);
                 VectorUtils::append(addedNodes, children);
             }
@@ -460,6 +460,26 @@ namespace TrenchBroom {
             return result;
         }
         
+        Model::VisibilityMap MapDocumentCommandFacade::setVisibilityEnsured(const Model::NodeList& nodes) {
+            Model::VisibilityMap result;
+            
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                const Model::VisibilityState oldState = node->visibilityState();
+                if (node->ensureVisible()) {
+                    changedNodes.push_back(node);
+                    result[node] = oldState;
+                }
+            }
+            
+            nodeVisibilityDidChangeNotifier(changedNodes);
+            return result;
+        }
+
         void MapDocumentCommandFacade::restoreVisibilityState(const Model::VisibilityMap& nodes) {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());

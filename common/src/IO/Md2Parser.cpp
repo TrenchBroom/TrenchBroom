@@ -371,11 +371,13 @@ namespace TrenchBroom {
             Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
-                vertexCount += md2Mesh.vertices.size();
-                if (md2Mesh.type == Md2Mesh::Fan)
-                    builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
-                else
-                    builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                if (md2Mesh.vertices.size() > 0) {
+                    vertexCount += md2Mesh.vertices.size();
+                    if (md2Mesh.type == Md2Mesh::Fan)
+                        builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
+                    else
+                        builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                }
             }
             
             return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());

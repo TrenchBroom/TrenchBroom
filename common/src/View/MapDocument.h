@@ -247,6 +247,7 @@ namespace TrenchBroom {
             void hideSelection();
             void show(const Model::NodeList& nodes);
             void showAll();
+            void ensureVisible(const Model::NodeList& nodes);
             void resetVisibility(const Model::NodeList& nodes);
             
             void lock(const Model::NodeList& nodes);
@@ -261,7 +262,6 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
-            bool csgPartition();
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);

@@ -155,7 +155,6 @@ namespace TrenchBroom {
             void OnEditCsgConvexMerge(wxCommandEvent& event);
             void OnEditCsgSubtract(wxCommandEvent& event);
             void OnEditCsgIntersect(wxCommandEvent& event);
-            void OnEditCsgPartition(wxCommandEvent& event);
 
             void OnEditReplaceTexture(wxCommandEvent& event);
 
@@ -215,7 +214,6 @@ namespace TrenchBroom {
             bool canDoCsgConvexMerge() const;
             bool canDoCsgSubtract() const;
             bool canDoCsgIntersect() const;
-            bool canDoCsgPartition() const;
             bool canSnapVertices() const;
             bool canDecGridSize() const;
             bool canIncGridSize() const;

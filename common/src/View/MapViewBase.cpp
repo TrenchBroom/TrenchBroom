@@ -1051,7 +1051,7 @@ namespace TrenchBroom {
                 Model::Node* newParent = findNewNodeParent(nodes);
                 if (newParent != NULL) {
                     event.Enable(true);
-                    name << newParent->name() << " in layer " << Model::findLayer(newParent)->name();
+                    name << newParent->name();
                 } else {
                     event.Enable(false);
                     name << "Entity";
@@ -1067,7 +1067,7 @@ namespace TrenchBroom {
             
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             StringStream name;
-            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to " << world->name() << " in layer " << layer->name();
+            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to " << world->name();
             event.Enable(canReparentNodes(nodes, layer));
             event.SetText(name.str());
         }

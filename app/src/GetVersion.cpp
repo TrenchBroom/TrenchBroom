@@ -30,25 +30,19 @@ namespace TrenchBroom {
 
         wxString getBuildChannel() {
             wxString result;
-            result << VERSION_BUILD_CHANNEL;
+            result << BUILD_CHANNEL;
             return result;
         }
 
-        wxString getBuildTime() {
-            wxString result;
-            result << VERSION_BUILD_TIME;
-            return result;
-        }
-        
         wxString getBuildId() {
             wxString result;
-            result << VERSION_BUILD_ID;
+            result << BUILD_ID;
             return result;
         }
         
         wxString getBuildType() {
             wxString result;
-            result << VERSION_BUILD_TYPE;
+            result << BUILD_TYPE;
             return result;
         }
     }

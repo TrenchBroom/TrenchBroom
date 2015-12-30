@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
         const Model::Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
             const Model::PickResult& pickResult = inputState.pickResult();
-            return pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().selected().first();
+            return pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().first();
         }
 
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {

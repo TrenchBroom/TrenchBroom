@@ -1,0 +1,37 @@
+@ECHO OFF
+
+IF "%~1"=="Alpha" GOTO alpha
+IF "%~1"=="Beta" GOTO beta
+IF "%~1"=="Final" GOTO final
+
+:alpha
+IF "%TB_ALPHA_DEST%"=="" GOTO noalphadest
+copy @APP_PACKAGE_FILE_NAME@.* "%TB_ALPHA_DEST%"
+GOTO end
+
+:noalphadest
+ECHO You must set environment variable TB_ALPHA_DEST to a local directory.
+EXIT /B 1
+GOTO end
+
+:beta
+IF "%TB_BETA_DEST%"=="" GOTO nobetadest
+pscp @APP_PACKAGE_FILE_NAME@.* "%TB_BETA_DEST%"
+GOTO end
+
+:nobetadest
+ECHO You must set environment variable TB_BETA_DEST to an scp destination path.
+EXIT /B 1
+GOTO end
+
+:final
+IF "%TB_FINAL_DEST%"=="" GOTO nofinaldest
+pscp @APP_PACKAGE_FILE_NAME@.* "%TB_FINAL_DEST%"
+GOTO end
+
+:nofinaldest
+ECHO You must set environment variable TB_FINAL_DEST to an scp destination path.
+EXIT /B 1
+GOTO end
+
+:end

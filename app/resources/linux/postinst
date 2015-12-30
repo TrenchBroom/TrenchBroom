@@ -1,0 +1,2 @@
+#!/bin/sh
+ln -sf @LINUX_TARGET_EXECUTABLE_PATH@ /usr/bin/trenchbroom

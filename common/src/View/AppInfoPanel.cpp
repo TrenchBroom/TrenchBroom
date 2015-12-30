@@ -48,7 +48,7 @@ namespace TrenchBroom {
             versionStr << getBuildVersion() << " " << getBuildChannel();
             
             wxString buildStr("Build ");
-            buildStr << getBuildTime() << " " << getBuildId() << " " << getBuildType();
+            buildStr << getBuildId() << " " << getBuildType();
             
             wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);
             wxStaticText* build = new wxStaticText(this, wxID_ANY, buildStr);
