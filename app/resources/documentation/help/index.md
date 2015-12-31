@@ -263,6 +263,50 @@ The path of an external entity definition file is stored in a worldspawn propert
 
 It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
 
+## Interacting With the Editor
+
+Before we delve into specific editing operations such as creating new objects, you should learn some basic about how to interact with the editor itself. In particular, it is import to understand the concept of tools in TrenchBroom.
+
+### Working with Tools
+
+All editing functionality in TrenchBroom is provided by tools. There are two types of tools in TrenchBroom: Permanently active tools and modal tools. Modal tools are tools which have to be activated or deactivated manually by the user. Permanently active tools are tools which are always available, unless they are deactivated by a modal tool. The following table lists all tools with a short description:
+
+Tool                  Viewports    Type          Purpose
+----                  ---------    ----          -----------
+Camera Tool           2D, 3D       Permanent     Adjusting the 3D camera and the 2D viewports
+Selection Tool        2D, 3D       Permanent     Selecting objects and brush faces
+Simple Brush Tool     2D, 3D       Permanent*    Creating simple cuboid brushes
+Complex Brush Tool    3D           Modal         Creating arbitrarily shaped brushes
+Entity Drag Tool      2D, 3D       Permanent     Creating entities by drag and drop
+Resize Tool           2D, 3D       Permanent*    Resizing brushes by dragging faces
+Move Tool             2D, 3D       Permanent*    Moving objects around
+Rotate Tool           2D, 3D       Modal         Rotating objects
+Clip Tool             2D, 3D       Modal         Clipping brushes
+Vertex Tool           2D, 3D       Modal         Editing brush vertices, edges, and faces
+
+Tools of the type Permanent* are deactivated whenever a modal tool is active. For example you cannot create cuboid brushes when the vertex tool is active. Additionally, at most one modal tool can be active at a time. You can activate and deactivate modal tools using the menu and keyboard shortcuts listed in the following table:
+
+Tool                  Menu
+----                  -----------
+Complex Brush Tool    #menu('Menu/Edit/Tools/Brush Tool')
+Rotate Tool           #menu('Menu/Edit/Tools/Rotate Tool')
+Clip Tool             #menu('Menu/Edit/Tools/Clip Tool')
+Vertex Tool           #menu('Menu/Edit/Tools/Vertex Tool')
+
+![Tool buttons](ToolbarTools.png) Additionally, tools can be toggled by using the buttons on the left of the toolbar. In the image, the first button is active, however, this particular button does not represent any of the modal tools listed in the table above. Rather, it indicates that no modal tool is currently active, and therefore all permanent tools are available. The buttons icon indicates that objects can be moved, which is only possible if no modal tool is active. The second button represents the convex brush tool, the third button toggles the clip tool, the fourth button is used to toggle the vertex tool and the fifth button toggles the rotate tool.
+
+You can learn more about these tools in later sections. But before you can learn about the tools in detail, you should undertand how TrenchBroom processes mouse input, which is what the following two sections will explain.
+
+### Mouse Input in 3D
+
+It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom's 3D viewport. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically, you need to hold #key(307) during editing. This applies to moving objects and vertices, for the most part.
+
+But this is not always true, since some editing operations are spacially restricted. For example, when resizing a brush, you drag one of its faces along its normal, so the editing operation is restricted to that normal vector. In fact, the mouse pointer's position must be mapped to a one-dimensional value that represents the distance by which the brush face has been dragged. Whenever mouse input has to be mapped to one or two dimensions, TrenchBroom does this mapping automatically and no additional thought is required. But if mouse input must be mapped to three dimensions, TrenchBroom does so by employing the editing plane metaphor explained before.
+
+### Mouse Input in 2D
+
+Mapping mouse input in 2D is much simpler, because the first and second dimension is given by the dimensions of the 2D viewport, and the third dimension (the depth) is usually taken from the context of the editing operation. For example, if you move an object by left dragging it in the XY viewport, then the mouse input is mapped to the X and Y axes, and the object's Z coordinates remain unchanged. When creating new objects, the depth is usually computed from the bounds of the most recently selected objects. So if you create a new brush by left dragging in the XY view, its depth and its height is determined by the most recently selected objects, while its X/Y extents are determined by the mouse drag.
+
 ## Creating Objects
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
@@ -346,7 +390,7 @@ Positioning of objects pasted into a 2D viewport attempts to achieve a similar e
 
 ## Editing Objects
 
-## Transforming Objects
+The following section is divided into several sub sections: First, we introduce editing operations that can be applied to all objects, such as moving, rotating, or deleting them. Then we proceed with the tools to shape brushes, such as the clip tool, the vertex tool, and the CSG operations. Afterwards we explain how you work with textures in TrenchBroom, and then we move on to editing entities and their properties. The final subsection deals with TrenchBroom's undo and redo capabilities.
 
 ### Moving Objects {#moving_objects}
 
@@ -359,15 +403,13 @@ Down          #action('Controls/Map view/Move objects down; Move objects backwar
 Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
 Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
 
-## Deleting Objects
+### Rotating Objects {#rotating_objects}
 
-## Working with Textures
+### Flipping Objects {#flipping_objects}
 
-### The UV Editor {#uv_editor}
+### Deleting Objects
 
-### The Texture Browser {#texture_browser}
-
-## Shaping brushes
+## Shaping Brushes
 
 ### Clipping Tool
 
@@ -375,9 +417,19 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 
 ### CSG Operations
 
+## Working with Textures
+
+### The UV Editor {#uv_editor}
+
+### The Texture Browser {#texture_browser}
+
 ## Entity Properties {#entity_properties}
 
-## Keeping an Overview
+### Linking Entities
+
+## Undo and Redo
+
+# Keeping an Overview
 
 ### Layers {#layers}
 
@@ -388,8 +440,6 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 ### Filtering {#filtering}
 
 ### Rendering Options {#rendering_options}
-
-## Undo and Redo
 
 # Preferences
 
@@ -408,6 +458,8 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 ## Issue Browser {#issue_browser}
 
 ## Solving Problems
+
+### Automatic Backups
 
 ## Display Models for Entities
 
