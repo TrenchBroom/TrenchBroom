@@ -168,12 +168,16 @@ namespace TrenchBroom {
             
             deactivateWhen(m_createComplexBrushTool, m_moveObjectsTool);
             deactivateWhen(m_createComplexBrushTool, m_resizeBrushesTool);
+            deactivateWhen(m_createComplexBrushTool, m_createSimpleBrushTool);
             deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
             deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
+            deactivateWhen(m_rotateObjectsTool, m_createSimpleBrushTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);
             deactivateWhen(m_vertexTool, m_resizeBrushesTool);
+            deactivateWhen(m_vertexTool, m_createSimpleBrushTool);
             deactivateWhen(m_clipTool, m_moveObjectsTool);
             deactivateWhen(m_clipTool, m_resizeBrushesTool);
+            deactivateWhen(m_clipTool, m_createSimpleBrushTool);
             
             registerTool(m_moveObjectsTool, bookCtrl);
             registerTool(m_rotateObjectsTool, bookCtrl);
