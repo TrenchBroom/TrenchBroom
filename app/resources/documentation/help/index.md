@@ -154,6 +154,8 @@ YZ          +Y            +Z         +X             Side
 
 The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane. 
 
+![The compass](Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ). Sometimes the axes are rendered with a white outline to indicate an [axis restriction](#axis_restriction).
+
 At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu('Menu/View/Maximize Current View') from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
 
 ### The Inspector
@@ -343,7 +345,7 @@ Shortcut                                             Effect
 #action('Controls/Map view/Set movement axis Z')     Restrict movement to Z axis
 #action('Controls/Map view/Toggle movement axis')    Cycle through movement axis: X, Y, Z, none
 
-Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport.
+![Axis restriction](AxisRestriction.png) Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport. The compass at the bottom left of each view indicates the current axis restriction by drawing a white outline around the restricted axis. In the image to the left, movement is restricted to the X axis, so the red axis is drawn with a white outline.
 
 ## Creating Objects
 
