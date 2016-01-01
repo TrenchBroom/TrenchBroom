@@ -441,7 +441,7 @@ namespace TrenchBroom {
                     axis = moveDirection(Math::Direction_Right);
                     break;
                 case Math::RotationAxis_Yaw:
-                    axis = Vec3::PosZ;
+                    axis = moveDirection(Math::Direction_Up);
                     break;
                     switchDefault()
             }

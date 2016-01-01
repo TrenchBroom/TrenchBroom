@@ -68,12 +68,11 @@ div.figure p {
 }
 
 div#CONTENT table {
-	border: 1px solid black;
 	border-collapse: collapse;
 }
 
 div#CONTENT td, th {
-	border: 1px solid black;
+	border: 1px solid gray;
 	padding: 2px 4px 2px 4px;
 }
 

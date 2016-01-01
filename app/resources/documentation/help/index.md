@@ -144,6 +144,18 @@ No. of Viewports    Cycling View         Cycling Order
 3                   Bottom right view    XZ > YZ
 4                   None
 
+There are three types of 2D viewports: the XY, the XZ, and the YZ viewport. You can also think of these viewports as the top, the front, and the side view, respectively. The following table summarizes the properties of the three 2D viewports. Remember that Quake-based engines use a right handed coordinate system.
+
+Viewport    Right Axis    Up Axis    Normal Axis    Name
+--------    ----------    -------    -----------    ----
+XY          +X            +Y         +Z             Top
+XZ          +X            +Z         -Y             Front
+YZ          +Y            +Z         +X             Side
+
+The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane. 
+
+![The compass](Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ). Sometimes the axes are rendered with a white outline to indicate an [axis restriction](#axis_restriction).
+
 At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu('Menu/View/Maximize Current View') from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
 
 ### The Inspector
@@ -263,6 +275,84 @@ The path of an external entity definition file is stored in a worldspawn propert
 
 It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
 
+## Interacting With the Editor
+
+Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is import to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
+
+### Working with Tools
+
+All editing functionality in TrenchBroom is provided by tools. There are two types of tools in TrenchBroom: Permanently active tools and modal tools. Modal tools are tools which have to be activated or deactivated manually by the user. Permanently active tools are tools which are always available, unless they are deactivated by a modal tool. The following table lists all tools with a short description:
+
+Tool                  Viewports    Type          Purpose
+----                  ---------    ----          -----------
+Camera Tool           2D, 3D       Permanent     Adjusting the 3D camera and the 2D viewports
+Selection Tool        2D, 3D       Permanent     Selecting objects and brush faces
+Simple Brush Tool     2D, 3D       Permanent*    Creating simple cuboid brushes
+Complex Brush Tool    3D           Modal         Creating arbitrarily shaped brushes
+Entity Drag Tool      2D, 3D       Permanent     Creating entities by drag and drop
+Resize Tool           2D, 3D       Permanent*    Resizing brushes by dragging faces
+Move Tool             2D, 3D       Permanent*    Moving objects around
+Rotate Tool           2D, 3D       Modal         Rotating objects
+Clip Tool             2D, 3D       Modal         Clipping brushes
+Vertex Tool           2D, 3D       Modal         Editing brush vertices, edges, and faces
+
+Tools of the type Permanent* are deactivated whenever a modal tool is active. For example you cannot create cuboid brushes when the vertex tool is active. Additionally, at most one modal tool can be active at a time. You can activate and deactivate modal tools using the menu and keyboard shortcuts listed in the following table:
+
+Tool                  Menu
+----                  -----------
+Complex Brush Tool    #menu('Menu/Edit/Tools/Brush Tool')
+Rotate Tool           #menu('Menu/Edit/Tools/Rotate Tool')
+Clip Tool             #menu('Menu/Edit/Tools/Clip Tool')
+Vertex Tool           #menu('Menu/Edit/Tools/Vertex Tool')
+
+![Tool buttons](ToolbarTools.png) Additionally, tools can be toggled by using the buttons on the left of the toolbar. In the image, the first button is active, however, this particular button does not represent any of the modal tools listed in the table above. Rather, it indicates that no modal tool is currently active, and therefore all permanent tools are available. The buttons icon indicates that objects can be moved, which is only possible if no modal tool is active. The second button represents the convex brush tool, the third button toggles the clip tool, the fourth button is used to toggle the vertex tool and the fifth button toggles the rotate tool.
+
+You can learn more about these tools in later sections. But before you can learn about the tools in detail, you should undertand how TrenchBroom processes mouse input, which is what the following two sections will explain.
+
+### Cancelling Operations and Tools {#cancelling}
+
+To cancel a mouse drag by hitting #action('Controls/Map view/Cancel'). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
+
+State                 Effect
+-----                 ------
+Complex Brush Tool    Discard all placed points; deactivate tool
+Clip Tool             Discard most recently placed clip point; deactivate tool
+Vertex Tool           Discard current vertex selection; deactivate tool
+Selection Tool        Discard current selection
+
+For those tools where a second effect is listed (separated by a semicolon), the second effect only takes place if the first effect couldn't be realized. For example, if the clip tool is active but no clip points have been placed, then hitting #action('Controls/Map view/Cancel') will deactivate the clip tool. Hitting #action('Controls/Map view/Cancel') yet again will deselect all selected objects or brush faces.
+
+In addition, you can hit #action('Controls/Map view/Deactivate current tool') to directly deactivate the current tool regardless of what state the tool is in.
+
+### Mouse Input in 3D
+
+It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom's 3D viewport. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically, you need to hold #key(307) during editing. This applies to moving objects and vertices, for the most part.
+
+But this is not always true, since some editing operations are spacially restricted. For example, when resizing a brush, you drag one of its faces along its normal, so the editing operation is restricted to that normal vector. In fact, the mouse pointer's position must be mapped to a one-dimensional value that represents the distance by which the brush face has been dragged. Whenever mouse input has to be mapped to one or two dimensions, TrenchBroom does this mapping automatically and no additional thought is required. But if mouse input must be mapped to three dimensions, TrenchBroom does so by employing the editing plane metaphor explained before.
+
+### Mouse Input in 2D
+
+Mapping mouse input to 3D coordinates is much simpler in the 2D viewports, because the first and second dimension is given by the fixed viewport axes, and the third dimension (the depth) is usually taken from the context of the editing operation. For example, if you move an object by left dragging it in the XY viewport, then the mouse input is mapped to the X and Y axes, and the object's Z coordinates remain unchanged. When creating new objects, the depth is usually computed from the bounds of the most recently selected objects. So if you create a new brush by left dragging in the XY view, its distance and its height is determined by the most recently selected objects, while its X/Y extents are determined by the mouse drag.
+
+### Axis Restriction {#axis_restriction}
+
+To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis. The following table lists the respective shortcuts and their effects:
+
+Shortcut                                             Effect
+--------                                             ------
+#action('Controls/Map view/Set movement axis X')     Restrict movement to X axis
+#action('Controls/Map view/Set movement axis Y')     Restrict movement to Y axis
+#action('Controls/Map view/Set movement axis Z')     Restrict movement to Z axis
+#action('Controls/Map view/Toggle movement axis')    Cycle through movement axis: X, Y, Z, none
+
+![Axis restriction](AxisRestriction.png) Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport. The compass at the bottom left of each view indicates the current axis restriction by drawing a white outline around the restricted axis. In the image to the left, movement is restricted to the X axis, so the red axis is drawn with a white outline.
+
+### The Grid
+
+TrenchBroom provides you with a static grid to align your objects to each other. The grid size can be 1, 2, 4, 8, 16, etc. up to 256. If grid snapping is enabled, then most editing operations will be snapped to the grid. For example, you can only move objects by the current grid size if grid snapping is enabled. In the 3D viewport, the grid is projected onto the brush faces. Therefore the grid may appear distorted if a brush face is not axis aligned. In the 2D viewports, the grid is just drawn in the background. You can change the brightness of the grid lines in the preferences.
+
+The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(307) and #key(308).
+
 ## Creating Objects
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
@@ -346,9 +436,17 @@ Positioning of objects pasted into a 2D viewport attempts to achieve a similar e
 
 ## Editing Objects
 
-## Transforming Objects
+The following section is divided into several sub sections: First, we introduce editing operations that can be applied to all objects, such as moving, rotating, or deleting them. Then we proceed with the tools to shape brushes, such as the clip tool, the vertex tool, and the CSG operations. Afterwards we explain how you work with textures in TrenchBroom, and then we move on to editing entities and their properties. The final subsection deals with TrenchBroom's undo and redo capabilities.
 
 ### Moving Objects {#moving_objects}
+
+You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. If grid snapping is enabled, the distances by which you move them are snapped to the grid component-wise, that is, if the grid is set to 16 units, you can move objects by 16 units in either direction.
+
+![Moving a brush in the 3D viewport with trace line](MoveTrace.png)
+
+Note that TrenchBroom draws a light blue trace line for you when you move objects with the mouse. The trace line helps to move objects in straight lines and as a visual feedback for your move. Remember that you can [cancel moving objects](#cancelling) by hitting #action('Controls/Map view/Cancel'), and that you can [restrict the movement axis](#axis_restriction) when moving objects with the mouse.
+
+You can also use the keyboard to move objects. Every time you hit one of the shortcuts in the following table, the object will move in the appropriate direction by the current grid size. Also remember that you can [duplicate objects and move them](#duplicating_objects) in the given direction in one operation by holding #key(308) and hitting one of the keyboard shortcuts listed below.
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
@@ -359,7 +457,83 @@ Down          #action('Controls/Map view/Move objects down; Move objects backwar
 Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
 Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
 
-## Deleting Objects
+Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects up') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the Z axis if used in the 3D viewport.
+
+![Additional controls for move tool](MoveObjectsToolPage.png)
+
+The move tool adds a few controls to the info bar above the viewports: A text box and a button labeled "Apply". You can enter a vector into the text box (three space separated numbers), and if you click the button, the currently selected objects will be moved by that vector.
+
+### Rotating Objects {#rotating_objects}
+
+The easiest way to rotate objects in TrenchBroom is to use the following keyboard shortcuts:
+
+Shortcut                                                        Type     Rotation (3D)                         Rotation (2D)
+--------                                                        ----     -------------                         -------------
+#action('Controls/Map view/Roll objects clockwise')             Roll     Clockwise about view axis             Clockwise about normal axis
+#action('Controls/Map view/Roll objects counter-clockwise')     Roll     Counter-clockwise about view axis     Counter-clockwise about normal axis
+#action('Controls/Map view/Pitch objects clockwise')            Pitch    Clockwise about right axis            Clockwise about right axis
+#action('Controls/Map view/Pitch objects counter-clockwise')    Pitch    Counter-Clockwise about right axis    Counter-Clockwise about right axis
+#action('Controls/Map view/Yaw objects clockwise')              Yaw      Clockwise about Z axis                Clockwise about up axis
+#action('Controls/Map view/Yaw objects counter-clockwise')      Yaw      Counter-clockwise about Z axis        Counter-clockwise about up axis
+
+If the rotate tool is active, these keyboard shortcuts rotate the selected objects using the center of rotation and the angle set using the tool's rotation handle and the input controls above the viewports. If the rotate tool is not active, the center of rotation is the center of the bounding box of the currently selected objects (snapped to the grid), and the rotation angle is fixed to 90°.
+
+![Rotation handle](RotateHandle.png) The rotate tool gives you more control over rotation than the keyboard shortcuts do. Hit #menu('Menu/Edit/Tools/Rotate Tool') to activate the rotate tool and a rotation handle will appear in the viewports. The rotation handle allows you to set the center of rotation and to perform the actual rotation of the selected objects about the X, Y, or Z axis. In the 3D viewport, you can rotate the objects about any of those axes by left dragging the appropriate part of the rotate handle, but in a 2D viewport, you can only rotate the objects about the normal axis of that viewport.
+
+In the 3D viewport, the rotation handle will appear as in the image on the left. It has three axes, color coded with the X axis in red, the Y axis in green, and the Z axis in blue as usual. In addition to the axes, it has three quarter circles, again color coded, and four small spherical handles. The center handle (the yellow sphere) changes the center of rotation if you drag it with the left mouse button. Moving the center of rotation works exactly as [moving objects with the move tool](#moving_objects) does. If you hover the mouse over the center handle, you will notice that the coordinates of the center of rotation are displayed above the center handle and that the handle is highlighted by a red outline. To perform a rotation, you have to use one of the three other spherical handles. Clicking and dragging the blue spherical handle with the left mouse button rotates the objects about the Z axis, and likewise for the red and green handles (see the clip below).
+
+In the 2D viewport, the rotation handle will just appear as a circle with two circular handles. The center handle allows you to move the center of rotation on the view plane of that viewport, and the handle on the outer circle allows you to perform the rotation. In the 2D viewports, the handle is also color coded, the colors of the outer circle reflecting the axis of rotation in a similar fashion to the 3D rotate handle.
+
+![Rotating objects about the Z axis in the 3D viewport](RotateTool.gif)
+
+Like the move tool, the rotate tool places some controls above the viewport. The button on the very left, labeled "Reset Center", sets the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
+
+If you look closely at the clip above, you will notice that the entity in the picture, a green armor, rotates nicely with the brush it is placed on. Firstly, its position does not seem to change in relation to the brush, and secondly, its angle of rotation is also changed according to the rotation being performed by the user. Whether and how TrenchBroom can adapt the angle of rotation of an entity depends on the following rules. 
+
+- First, TrenchBroom looks at the entity's classname and its properties to determine its rotation type.
+	- If the entity does not have a classname, then its rotation remains unchanged.
+	- If the classname starts with "light", then TrenchBroom checks its properties.
+		- If it has a property named "mangle", then the value of the property consists of three separate angles.
+		- If it does not have a target property, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+	- If the classname does not start with "light", and
+		- if the entity is not a point entity, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+		- if the entity is a point entity, and if the origin of the entity's bounding box is at the center, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+
+Finally, if TrenchBroom has found a property that contains the rotation angle of the entity, it adapts the value of that property according to the rotation being performed by the user. These rules are quite complicated because sadly, the entity definitions do not contain information about how rotations should be applied to entities. But in practice, they should just perform as expected when you work with the rotate tool in the editor.
+
+### Flipping Objects {#flipping_objects}
+
+Flipping has the effect of mirroring the selected objects, the mirror being a plane which is defined by the center of the bounding box of the selected objects, snapped to the grid, and by a normal vector. The normal vector of the plane depends on the actual flipping command and the viewing direction of the camera in the 3D viewport or the view plane of the focused 2D viewport. The following table explains how the normal vector is derived from this information.
+
+Shortcut                                                  Direction     Normal (2D)   Normal (3D)
+--------                                                  ---------     -----------   -----------
+#action('Controls/Map view/Flip objects horizontally')    Horizontal    Right axis    Axis-aligned right axis
+#action('Controls/Map view/Flip objects vertically')      Vertical      Up axis       Z axis
+
+In the case of the 3D viewport, the normal of the mirror plane is the coordinate system axis that is closest to the right axis of the camera. This means that if the camera is pointing in the general direction of the Y axis, and therefore its right axis points in the general direction of the X axis, the normal of the mirror plane will be the X axis. Sometimes, you will not be able to determine which of the coordinate system axes is closest to the right axis of the camera because the right axis is close to two coordinate system axes. To avoid such confusion, it is best to perform flipping in the 2D viewports.
+
+### Deleting Objects
+
+Deleting objects is as simple as selecting them and choosing #menu('Menu/Edit/Delete'). Note that if you delete all remaining brushes of a brush entity, that entity gets deleted automatically. Likewise, if you delete all remaining objects of a group, that group also gets deleted.
+
+## Shaping Brushes
+
+### Clipping Tool
+
+### Vertex Editing
+
+#### Best Practices
+
+- Don't use it too much on sealing brushes, better to use it on detail.
+- Don't do too much in one go, compile and test often.
+
+### CSG Operations
 
 ## Working with Textures
 
@@ -367,17 +541,13 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 
 ### The Texture Browser {#texture_browser}
 
-## Shaping brushes
-
-### Clipping Tool
-
-### Vertex Editing
-
-### CSG Operations
-
 ## Entity Properties {#entity_properties}
 
-## Keeping an Overview
+### Linking Entities
+
+## Undo and Redo
+
+# Keeping an Overview
 
 ### Layers {#layers}
 
@@ -388,8 +558,6 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 ### Filtering {#filtering}
 
 ### Rendering Options {#rendering_options}
-
-## Undo and Redo
 
 # Preferences
 
@@ -408,6 +576,8 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 ## Issue Browser {#issue_browser}
 
 ## Solving Problems
+
+### Automatic Backups
 
 ## Display Models for Entities
 
