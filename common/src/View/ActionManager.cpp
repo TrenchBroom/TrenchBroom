@@ -256,9 +256,9 @@ namespace TrenchBroom {
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
             
             Menu* cameraMenu = viewMenu->addMenu("Camera");
-            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
+            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
+            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL, WXK_ALT));
+            cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT, WXK_ALT));
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, "Move Camera to...");
             cameraMenu->addSeparator();
 

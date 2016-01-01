@@ -144,6 +144,16 @@ No. of Viewports    Cycling View         Cycling Order
 3                   Bottom right view    XZ > YZ
 4                   None
 
+There are three types of 2D viewports: the XY, the XZ, and the YZ viewport. You can also think of these viewports as the top, the front, and the side view, respectively. The following table summarizes the properties of the three 2D viewports. Remember that Quake-based engines use a right handed coordinate system.
+
+Viewport    Right Axis    Up Axis    Normal Axis    Name
+--------    ----------    -------    -----------    ----
+XY          +X            +Y         +Z             Top
+XZ          +X            +Z         -Y             Front
+YZ          +Y            +Z         +X             Side
+
+The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane. 
+
 At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu('Menu/View/Maximize Current View') from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
 
 ### The Inspector
@@ -265,7 +275,7 @@ It depends on the game how the texture collection paths are saved in the map fil
 
 ## Interacting With the Editor
 
-Before we delve into specific editing operations such as creating new objects, you should learn some basic about how to interact with the editor itself. In particular, it is import to understand the concept of tools in TrenchBroom.
+Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is import to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
 
 ### Working with Tools
 
@@ -297,6 +307,21 @@ Vertex Tool           #menu('Menu/Edit/Tools/Vertex Tool')
 
 You can learn more about these tools in later sections. But before you can learn about the tools in detail, you should undertand how TrenchBroom processes mouse input, which is what the following two sections will explain.
 
+### Cancelling Operations and Tools {#cancelling}
+
+To cancel a mouse drag by hitting #action('Controls/Map view/Cancel'). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
+
+State                 Effect
+-----                 ------
+Complex Brush Tool    Discard all placed points; deactivate tool
+Clip Tool             Discard most recently placed clip point; deactivate tool
+Vertex Tool           Discard current vertex selection; deactivate tool
+Selection Tool        Discard current selection
+
+For those tools where a second effect is listed (separated by a semicolon), the second effect only takes place if the first effect couldn't be realized. For example, if the clip tool is active but no clip points have been placed, then hitting #action('Controls/Map view/Cancel') will deactivate the clip tool. Hitting #action('Controls/Map view/Cancel') yet again will deselect all selected objects or brush faces.
+
+In addition, you can hit #action('Controls/Map view/Deactivate current tool') to directly deactivate the current tool regardless of what state the tool is in.
+
 ### Mouse Input in 3D
 
 It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom's 3D viewport. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically, you need to hold #key(307) during editing. This applies to moving objects and vertices, for the most part.
@@ -305,7 +330,20 @@ But this is not always true, since some editing operations are spacially restric
 
 ### Mouse Input in 2D
 
-Mapping mouse input in 2D is much simpler, because the first and second dimension is given by the dimensions of the 2D viewport, and the third dimension (the depth) is usually taken from the context of the editing operation. For example, if you move an object by left dragging it in the XY viewport, then the mouse input is mapped to the X and Y axes, and the object's Z coordinates remain unchanged. When creating new objects, the depth is usually computed from the bounds of the most recently selected objects. So if you create a new brush by left dragging in the XY view, its depth and its height is determined by the most recently selected objects, while its X/Y extents are determined by the mouse drag.
+Mapping mouse input to 3D coordinates is much simpler in the 2D viewports, because the first and second dimension is given by the fixed viewport axes, and the third dimension (the depth) is usually taken from the context of the editing operation. For example, if you move an object by left dragging it in the XY viewport, then the mouse input is mapped to the X and Y axes, and the object's Z coordinates remain unchanged. When creating new objects, the depth is usually computed from the bounds of the most recently selected objects. So if you create a new brush by left dragging in the XY view, its distance and its height is determined by the most recently selected objects, while its X/Y extents are determined by the mouse drag.
+
+### Axis Restriction {#axis_restriction}
+
+To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis. The following table lists the respective shortcuts and their effects:
+
+Shortcut                                             Effect
+--------                                             ------
+#action('Controls/Map view/Set movement axis X')     Restrict movement to X axis
+#action('Controls/Map view/Set movement axis Y')     Restrict movement to Y axis
+#action('Controls/Map view/Set movement axis Z')     Restrict movement to Z axis
+#action('Controls/Map view/Toggle movement axis')    Cycle through movement axis: X, Y, Z, none
+
+Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport.
 
 ## Creating Objects
 
@@ -394,6 +432,8 @@ The following section is divided into several sub sections: First, we introduce 
 
 ### Moving Objects {#moving_objects}
 
+You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. Remember that you can [cancel moving objects](#cancelling) by hitting #action('Controls/Map view/Cancel'), and that you can [restrict the movement axis](#axis_restriction) when moving objects with the mouse.
+
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
 Left          #action('Controls/Map view/Move objects left')                           #action('Controls/Map view/Move objects left')
@@ -414,6 +454,11 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 ### Clipping Tool
 
 ### Vertex Editing
+
+#### Best Practices
+
+- Don't use it too much on sealing brushes, better to use it on detail.
+- Don't do too much in one go, compile and test often.
 
 ### CSG Operations
 
