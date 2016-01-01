@@ -347,6 +347,12 @@ Shortcut                                             Effect
 
 ![Axis restriction](AxisRestriction.png) Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport. The compass at the bottom left of each view indicates the current axis restriction by drawing a white outline around the restricted axis. In the image to the left, movement is restricted to the X axis, so the red axis is drawn with a white outline.
 
+### The Grid
+
+TrenchBroom provides you with a static grid to align your objects to each other. The grid size can be 1, 2, 4, 8, 16, etc. up to 256. If grid snapping is enabled, then most editing operations will be snapped to the grid. For example, you can only move objects by the current grid size if grid snapping is enabled. In the 3D viewport, the grid is projected onto the brush faces. Therefore the grid may appear distorted if a brush face is not axis aligned. In the 2D viewports, the grid is just drawn in the background. You can change the brightness of the grid lines in the preferences.
+
+The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(307) and #key(308).
+
 ## Creating Objects
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
@@ -434,7 +440,13 @@ The following section is divided into several sub sections: First, we introduce 
 
 ### Moving Objects {#moving_objects}
 
-You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. Remember that you can [cancel moving objects](#cancelling) by hitting #action('Controls/Map view/Cancel'), and that you can [restrict the movement axis](#axis_restriction) when moving objects with the mouse.
+You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. If grid snapping is enabled, the distances by which you move them are snapped to the grid component-wise, that is, if the grid is set to 16 units, you can move objects by 16 units in either direction.
+
+![Moving a brush in the 3D viewport with trace line](MoveTrace.png)
+
+Note that TrenchBroom draws a light blue trace line for you when you move objects with the mouse. The trace line helps to move objects in straight lines and as a visual feedback for your move. Remember that you can [cancel moving objects](#cancelling) by hitting #action('Controls/Map view/Cancel'), and that you can [restrict the movement axis](#axis_restriction) when moving objects with the mouse.
+
+You can also use the keyboard to move objects. Every time you hit one of the shortcuts in the following table, the object will move in the appropriate direction by the current grid size. Also remember that you can [duplicate objects and move them](#duplicating_objects) in the given direction in one operation by holding #key(308) and hitting one of the keyboard shortcuts listed below.
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
@@ -444,6 +456,8 @@ Up            #action('Controls/Map view/Move objects up; Move objects forward')
 Down          #action('Controls/Map view/Move objects down; Move objects backward')    #action('Controls/Map view/Move objects backward; Move objects down')
 Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
 Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
+
+Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects up') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the Z axis if used in the 3D viewport.
 
 ### Rotating Objects {#rotating_objects}
 
