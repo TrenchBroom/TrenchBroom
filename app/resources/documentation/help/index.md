@@ -459,11 +459,68 @@ Backward      #action('Controls/Map view/Move objects backward; Move objects dow
 
 Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects up') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the Z axis if used in the 3D viewport.
 
+![Additional controls for move tool](MoveObjectsToolPage.png)
+
+The move tool adds a few controls to the info bar above the viewports: A text box and a button labeled "Apply". You can enter a vector into the text box (three space separated numbers), and if you click the button, the currently selected objects will be moved by that vector.
+
 ### Rotating Objects {#rotating_objects}
+
+The easiest way to rotate objects in TrenchBroom is to use the following keyboard shortcuts:
+
+Shortcut                                                        Type     Rotation (3D)                         Rotation (2D)
+--------                                                        ----     -------------                         -------------
+#action('Controls/Map view/Roll objects clockwise')             Roll     Clockwise about view axis             Clockwise about normal axis
+#action('Controls/Map view/Roll objects counter-clockwise')     Roll     Counter-clockwise about view axis     Counter-clockwise about normal axis
+#action('Controls/Map view/Pitch objects clockwise')            Pitch    Clockwise about right axis            Clockwise about right axis
+#action('Controls/Map view/Pitch objects counter-clockwise')    Pitch    Counter-Clockwise about right axis    Counter-Clockwise about right axis
+#action('Controls/Map view/Yaw objects clockwise')              Yaw      Clockwise about Z axis                Clockwise about up axis
+#action('Controls/Map view/Yaw objects counter-clockwise')      Yaw      Counter-clockwise about Z axis        Counter-clockwise about up axis
+
+If the rotate tool is active, these keyboard shortcuts rotate the selected objects using the center of rotation and the angle set using the tool's rotation handle and the input controls above the viewports. If the rotate tool is not active, the center of rotation is the center of the bounding box of the currently selected objects (snapped to the grid), and the rotation angle is fixed to 90°.
+
+![Rotation handle](RotateHandle.png) The rotate tool gives you more control over rotation than the keyboard shortcuts do. Hit #menu('Menu/Edit/Tools/Rotate Tool') to activate the rotate tool and a rotation handle will appear in the viewports. The rotation handle allows you to set the center of rotation and to perform the actual rotation of the selected objects about the X, Y, or Z axis. In the 3D viewport, you can rotate the objects about any of those axes by left dragging the appropriate part of the rotate handle, but in a 2D viewport, you can only rotate the objects about the normal axis of that viewport.
+
+In the 3D viewport, the rotation handle will appear as in the image on the left. It has three axes, color coded with the X axis in red, the Y axis in green, and the Z axis in blue as usual. In addition to the axes, it has three quarter circles, again color coded, and four small spherical handles. The center handle (the yellow sphere) changes the center of rotation if you drag it with the left mouse button. Moving the center of rotation works exactly as [moving objects with the move tool](#moving_objects) does. If you hover the mouse over the center handle, you will notice that the coordinates of the center of rotation are displayed above the center handle and that the handle is highlighted by a red outline. To perform a rotation, you have to use one of the three other spherical handles. Clicking and dragging the blue spherical handle with the left mouse button rotates the objects about the Z axis, and likewise for the red and green handles (see the clip below).
+
+In the 2D viewport, the rotation handle will just appear as a circle with two circular handles. The center handle allows you to move the center of rotation on the view plane of that viewport, and the handle on the outer circle allows you to perform the rotation. In the 2D viewports, the handle is also color coded, the colors of the outer circle reflecting the axis of rotation in a similar fashion to the 3D rotate handle.
+
+![Rotating objects about the Z axis in the 3D viewport](RotateTool.gif)
+
+Like the move tool, the rotate tool places some controls above the viewport. The button on the very left, labeled "Reset Center", sets the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
+
+If you look closely at the clip above, you will notice that the entity in the picture, a green armor, rotates nicely with the brush it is placed on. Firstly, its position does not seem to change in relation to the brush, and secondly, its angle of rotation is also changed according to the rotation being performed by the user. Whether and how TrenchBroom can adapt the angle of rotation of an entity depends on the following rules. 
+
+- First, TrenchBroom looks at the entity's classname and its properties to determine its rotation type.
+	- If the entity does not have a classname, then its rotation remains unchanged.
+	- If the classname starts with "light", then TrenchBroom checks its properties.
+		- If it has a property named "mangle", then the value of the property consists of three separate angles.
+		- If it does not have a target property, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+	- If the classname does not start with "light", and
+		- if the entity is not a point entity, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+		- if the entity is a point entity, and if the origin of the entity's bounding box is at the center, and
+			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+
+Finally, if TrenchBroom has found a property that contains the rotation angle of the entity, it adapts the value of that property according to the rotation being performed by the user. These rules are quite complicated because sadly, the entity definitions do not contain information about how rotations should be applied to entities. But in practice, they should just perform as expected when you work with the rotate tool in the editor.
 
 ### Flipping Objects {#flipping_objects}
 
+Flipping has the effect of mirroring the selected objects, the mirror being a plane which is defined by the center of the bounding box of the selected objects, snapped to the grid, and by a normal vector. The normal vector of the plane depends on the actual flipping command and the viewing direction of the camera in the 3D viewport or the view plane of the focused 2D viewport. The following table explains how the normal vector is derived from this information.
+
+Shortcut                                                  Direction     Normal (2D)   Normal (3D)
+--------                                                  ---------     -----------   -----------
+#action('Controls/Map view/Flip objects horizontally')    Horizontal    Right axis    Axis-aligned right axis
+#action('Controls/Map view/Flip objects vertically')      Vertical      Up axis       Z axis
+
+In the case of the 3D viewport, the normal of the mirror plane is the coordinate system axis that is closest to the right axis of the camera. This means that if the camera is pointing in the general direction of the Y axis, and therefore its right axis points in the general direction of the X axis, the normal of the mirror plane will be the X axis. Sometimes, you will not be able to determine which of the coordinate system axes is closest to the right axis of the camera because the right axis is close to two coordinate system axes. To avoid such confusion, it is best to perform flipping in the 2D viewports.
+
 ### Deleting Objects
+
+Deleting objects is as simple as selecting them and choosing #menu('Menu/Edit/Delete'). Note that if you delete all remaining brushes of a brush entity, that entity gets deleted automatically. Likewise, if you delete all remaining objects of a group, that group also gets deleted.
 
 ## Shaping Brushes
 
