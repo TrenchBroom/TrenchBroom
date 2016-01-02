@@ -1064,7 +1064,7 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditToggleCreateComplexBrushTool:
-                    event.Check(m_mapView->CreateComplexBrushToolActive());
+                    event.Check(m_mapView->createComplexBrushToolActive());
                     event.Enable(m_mapView->canToggleCreateComplexBrushTool());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:

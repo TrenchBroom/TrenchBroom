@@ -72,7 +72,7 @@ namespace TrenchBroom {
             
             bool anyToolActive() const;
             void deactivateTool();
-            bool CreateComplexBrushToolActive() const;
+            bool createComplexBrushToolActive() const;
             bool canToggleCreateComplexBrushTool() const;
             void toggleCreateComplexBrushTool();
             bool clipToolActive() const;

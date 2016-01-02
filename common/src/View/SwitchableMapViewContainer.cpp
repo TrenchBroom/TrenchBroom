@@ -103,14 +103,14 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::anyToolActive() const {
-            return CreateComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || vertexToolActive();
+            return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || vertexToolActive();
         }
 
         void SwitchableMapViewContainer::deactivateTool() {
             m_toolBox->deactivateAllTools();
         }
 
-        bool SwitchableMapViewContainer::CreateComplexBrushToolActive() const {
+        bool SwitchableMapViewContainer::createComplexBrushToolActive() const {
             return m_toolBox->createComplexBrushToolActive();
         }
 
