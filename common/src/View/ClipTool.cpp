@@ -76,8 +76,8 @@ namespace TrenchBroom {
             return doAddPoint(point, snapper, helpVectors);
         }
         
-        void ClipTool::ClipStrategy::removeLastPoint() {
-            doRemoveLastPoint();
+        bool ClipTool::ClipStrategy::removeLastPoint() {
+            return doRemoveLastPoint();
         }
         
         bool ClipTool::ClipStrategy::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
@@ -223,10 +223,11 @@ namespace TrenchBroom {
                 ++m_numPoints;
             }
             
-            void doRemoveLastPoint() {
-                if (m_numPoints > 0) {
-                    --m_numPoints;
-                }
+            bool doRemoveLastPoint() {
+                if (m_numPoints == 0)
+                    return false;
+                --m_numPoints;
+                return true;
             }
             
             bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
@@ -329,8 +330,6 @@ namespace TrenchBroom {
             }
             
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const size_t index) {
-                assert(index < m_numPoints);
-                
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
                 renderService.renderPointHandleHighlight(m_points[index].point);
@@ -378,7 +377,7 @@ namespace TrenchBroom {
             bool doCanClip() const { return m_face != NULL; }
             bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const { return false; }
             void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors) {}
-            void doRemoveLastPoint() {}
+            bool doRemoveLastPoint() { return false; }
             bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition ) { return false; }
             bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition) { return false; }
             void doEndDragPoint() {}
@@ -543,11 +542,12 @@ namespace TrenchBroom {
             update();
         }
         
-        void ClipTool::removeLastPoint() {
-            if (m_strategy != NULL) {
-                m_strategy->removeLastPoint();
+        bool ClipTool::removeLastPoint() {
+            if (m_strategy != NULL && m_strategy->removeLastPoint()) {
                 update();
+                return true;
             }
+            return false;
         }
 
         bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {

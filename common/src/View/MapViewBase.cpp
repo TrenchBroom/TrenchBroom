@@ -569,6 +569,13 @@ namespace TrenchBroom {
                 return;
             if (ToolBoxConnector::cancel())
                 return;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelection()) {
+                document->deselectAll();
+            } else if (document->currentGroup() != NULL) {
+                document->closeGroup();
+            }
         }
 
         bool MapViewBase::cancel() {

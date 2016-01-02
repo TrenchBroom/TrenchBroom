@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 bool canClip() const;
                 bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
                 void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors);
-                void removeLastPoint();
+                bool removeLastPoint();
                 bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
                 bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition);
                 void endDragPoint();
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 virtual bool doCanClip() const = 0;
                 virtual bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const = 0;
                 virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors) = 0;
-                virtual void doRemoveLastPoint() = 0;
+                virtual bool doRemoveLastPoint() = 0;
                 virtual bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) = 0;
                 virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition) = 0;
                 virtual void doEndDragPoint() = 0;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
             bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
             void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors);
-            void removeLastPoint();
+            bool removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
             bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition);

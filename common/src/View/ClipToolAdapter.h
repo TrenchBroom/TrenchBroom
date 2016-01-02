@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
             
             bool doCancel() {
-                return m_tool->reset();
+                return m_tool->removeLastPoint() || m_tool->reset();
             }
         protected:
             bool startDrag(const InputState& inputState) {

@@ -299,14 +299,7 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doCancel() {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection()) {
-                document->deselectAll();
-                return true;
-            } else if (document->currentGroup() != NULL) {
-                document->closeGroup();
-                return true;
-            }
+            // closing the current group is handled in MapViewBase
             return false;
         }
     }
