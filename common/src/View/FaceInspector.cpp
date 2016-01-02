@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
             splitter->splitHorizontally(createFaceAttribsEditor(splitter, document, contextManager),
                                         createTextureBrowser(splitter, document, contextManager),
-                                        wxSize(100, 250), wxSize(100, 250));
+                                        wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(splitter, 1, wxEXPAND);

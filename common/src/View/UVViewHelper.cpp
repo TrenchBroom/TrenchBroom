@@ -246,11 +246,20 @@ namespace TrenchBroom {
         void UVViewHelper::resetZoom() {
             assert(valid());
             
+            float w = static_cast<float>(m_camera.unzoomedViewport().width);
+            float h = static_cast<float>(m_camera.unzoomedViewport().height);
+            
+            if (w <= 1.0f || h <= 1.0f)
+                return;
+            
+            if (w > 80.0f)
+                w -= 80.0f;
+            if (h > 80.0f)
+                h -= 80.0f;
+            
             const BBox3 bounds = computeFaceBoundsInCameraCoords();
             const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.unzoomedViewport().width - 80);
-            const float h = static_cast<float>(m_camera.unzoomedViewport().height - 80);
-            
+
             float zoom = 3.0f;
             zoom = Math::min(zoom, w / size.x());
             zoom = Math::min(zoom, h / size.y());

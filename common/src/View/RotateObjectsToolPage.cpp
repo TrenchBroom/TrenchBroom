@@ -53,6 +53,7 @@ namespace TrenchBroom {
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
             m_angle->SetValue(Math::degrees(m_tool->angle()));
+            m_angle->SetDigits(0, 2);
             
             wxString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);

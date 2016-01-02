@@ -207,34 +207,40 @@ namespace TrenchBroom {
             xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
+            m_xOffsetEditor->SetDigits(0, 6);
             
             wxStaticText* yOffsetLabel = new wxStaticText(this, wxID_ANY, "Y Offset");
             yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
+            m_yOffsetEditor->SetDigits(0, 6);
             
             wxStaticText* xScaleLabel = new wxStaticText(this, wxID_ANY, "X Scale");
             xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
+            m_xScaleEditor->SetDigits(0, 6);
             
             wxStaticText* yScaleLabel = new wxStaticText(this, wxID_ANY, "Y Scale");
             yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
+            m_yScaleEditor->SetDigits(0, 6);
             
             wxStaticText* rotationLabel = new wxStaticText(this, wxID_ANY, "Angle");
             rotationLabel->SetFont(rotationLabel->GetFont().Bold());
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
+            m_rotationEditor->SetDigits(0, 6);
             
             m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
+            m_surfaceValueEditor->SetDigits(0, 6);
             
             m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
