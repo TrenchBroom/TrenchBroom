@@ -524,7 +524,32 @@ Deleting objects is as simple as selecting them and choosing #menu('Menu/Edit/De
 
 ## Shaping Brushes
 
-### Clipping Tool
+TrenchBroom offser several tools to change the shapes of brushes. The most powerful of these tools, and also the one that requires the most care, is the vertex tool. Before we discuss this tool, we will introduce the clip tool with which you can chop parts off of brushes. But first, we introduce the resize tool which, as the name suggests, allows you to quickly change the size of brushes.
+
+### Resizing
+
+Brushes can be resized using the resize tool by moving their faces along their respective normal vectors with the mouse. To resize a selected brush, hold #key(306) and move your mouse pointer onto or near the face you wish to move. You will notice that one of the brush's faces is highlighted with a yellow outline. Drag with your left mouse button while still holding #key(306) to move the highlighted face along its normal. Note that you can also move brush faces which are behind the brush as long as these faces have an edge that is visible from the camera.
+
+![Resizing a brush in the 3D viewport](ResizeTool3D.gif)
+
+Note that you cannot change the number of faces of a brush by with the resize tool. This means that you cannot push a face back into a brush indefinitely. TrenchBroom will refuse to move it further as soon as that movement would make other faces disappear. The same applies to pulling a face out of a brush, which can make that face disappear. This is disallowed as well.
+
+If you hold #key(308) when you start dragging, the brush will not be resized. Instead, a new brush will be created. Both of the original and the new brush together will have the same shape that the original would have had if you had just resized it without holding #key(308), and the two brushes are split where the face you were dragging originally sat.
+
+![Splitting a brush in the 3D viewport](ResizeTool3DSplitMode.gif)
+
+You can also resize several brushes at the same time by moving their faces using the resize tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
+
+![Resizing multiple brushes](ResizeTool3DMultipleBrushes.gif)
+
+The resize tool also works in the 2D viewports, of course, but the ability to move faces which are behind the selected brush is absent there. In both cases, TrenchBroom uses two methods to determine how to snap the distance by which you drag the face:
+
+- The distance is snapped to the current grid size, i.e., if you drag a face by 17.5 units along its normal, it will be moved by 16.0 units if the current grid size is 16. This is useful if you are resizing brushes which are part of a curve because their faces will line up after the drag.
+- The vertices of the dragged faces are snapped to the grid planes, i.e., whenever at least one vertex component (X,Y, or Z) is a multiple of the current grid size, the face is snapped to that vertex. This makes it easy to align a face to other adjacent faces.
+
+Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
+
+### Clipping
 
 ### Vertex Editing
 

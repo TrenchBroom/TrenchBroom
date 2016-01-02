@@ -246,6 +246,8 @@ namespace TrenchBroom {
             command->SetEventObject(this);
             command->setLayer(layer);
             QueueEvent(command);
+            
+            event.Skip();
         }
 
         void LayerListView::OnMouseEntryRightUp(wxMouseEvent& event) {
@@ -264,6 +266,8 @@ namespace TrenchBroom {
             command->SetEventObject(this);
             command->setLayer(layer);
             QueueEvent(command);
+
+            event.Skip();
         }
 
         void LayerListView::OnMouseVoidDown(wxMouseEvent& event) {
@@ -276,6 +280,8 @@ namespace TrenchBroom {
             command->SetEventObject(this);
             command->setLayer(NULL);
             QueueEvent(command);
+
+            event.Skip();
         }
 
         void LayerListView::bindObservers() {
