@@ -461,7 +461,8 @@ namespace TrenchBroom {
             m_remainingBrushRenderer->render(renderContext, renderBatch);
             
             m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
-            m_clippedBrushRenderer->setShowEdges(false);
+            m_clippedBrushRenderer->setEdgeColor(Color(pref(Preferences::EdgeColor), 0.5f));
+            m_clippedBrushRenderer->setShowEdges(true);
             m_clippedBrushRenderer->setTint(false);
             m_clippedBrushRenderer->setTransparencyAlpha(0.5f);
             m_clippedBrushRenderer->render(renderContext, renderBatch);

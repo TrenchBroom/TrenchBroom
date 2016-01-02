@@ -306,7 +306,7 @@ namespace TrenchBroom {
             renderer.render(renderContext, renderBatch);
 
             MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes()) {
+            if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const BBox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
