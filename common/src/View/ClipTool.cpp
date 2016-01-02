@@ -55,6 +55,10 @@ namespace TrenchBroom {
             doRender(renderContext, renderBatch, pickResult);
         }
         
+        void ClipTool::ClipStrategy::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const {
+            doRenderFeedback(renderContext, renderBatch, point, snapper);
+        }
+
         bool ClipTool::ClipStrategy::computeThirdPoint(Vec3& point) const {
             return doComputeThirdPoint(point);
         }
@@ -137,6 +141,15 @@ namespace TrenchBroom {
                 renderHighlight(renderContext, renderBatch, pickResult);
             }
             
+            void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const {
+                Vec3 snapped;
+                snapper.snap(point, snapped);
+                
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
+                renderService.renderPointHandle(snapped);
+            }
+
             bool doComputeThirdPoint(Vec3& point) const {
                 assert(m_numPoints == 2);
                 point = m_points[1].point + 128.0 * computeHelpVector();
@@ -356,6 +369,8 @@ namespace TrenchBroom {
                 }
             }
             
+            void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const {}
+
             Vec3 doGetHelpVector() const { return Vec3::Null; }
             
             bool doComputeThirdPoint(Vec3& point) const { return false; }
@@ -457,6 +472,14 @@ namespace TrenchBroom {
             if (m_strategy != NULL)
                 m_strategy->render(renderContext, renderBatch, pickResult);
         }
+        
+        void ClipTool::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const {
+            if (m_strategy != NULL) {
+                m_strategy->renderFeedback(renderContext, renderBatch, point, snapper);
+            } else {
+                PointClipStrategy().renderFeedback(renderContext, renderBatch, point, snapper);
+            }
+        }
 
         bool ClipTool::canClip() const {
             return m_strategy != NULL && m_strategy->canClip();
@@ -526,7 +549,7 @@ namespace TrenchBroom {
                 update();
             }
         }
-        
+
         bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
             if (m_strategy == NULL)
                 return false;

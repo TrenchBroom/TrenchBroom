@@ -87,6 +87,7 @@ namespace TrenchBroom {
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 m_tool->render(renderContext, renderBatch, inputState.pickResult());
+                doRenderFeedback(inputState, renderContext, renderBatch);
             }
             
             bool doCancel() {
@@ -102,6 +103,7 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual bool doAddClipPoint(const InputState& inputState) = 0;
             virtual bool doSetClipPlane(const InputState& inputState) = 0;
+            virtual void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         class ClipToolAdapter2D : public ClipToolAdapter<PlaneDragPolicy> {
@@ -118,6 +120,7 @@ namespace TrenchBroom {
             
             bool doAddClipPoint(const InputState& inputState);
             bool doSetClipPlane(const InputState& inputState);
+            void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
         class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
@@ -133,6 +136,7 @@ namespace TrenchBroom {
             
             bool doAddClipPoint(const InputState& inputState);
             bool doSetClipPlane(const InputState& inputState);
+            void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) const;
             Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) const;

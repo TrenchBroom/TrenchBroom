@@ -100,6 +100,27 @@ namespace TrenchBroom {
             return false;
         }
 
+        void ClipToolAdapter2D::doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (dragging())
+                return;
+            
+            const Renderer::Camera& camera = inputState.camera();
+            const Vec3 viewDir = camera.direction().firstAxis();
+            
+            const Ray3& pickRay = inputState.pickRay();
+            const Vec3 defaultPos = m_tool->defaultClipPointPos();
+            const FloatType distance = pickRay.intersectWithPlane(viewDir, defaultPos);
+            if (Math::isnan(distance))
+                return;
+            
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const PointSnapper snapper(m_grid);
+            if (!m_tool->canAddPoint(hitPoint, snapper))
+                return;
+            
+            m_tool->renderFeedback(renderContext, renderBatch, hitPoint, snapper);
+        }
+
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
 
@@ -176,6 +197,23 @@ namespace TrenchBroom {
             return true;
         }
 
+        void ClipToolAdapter3D::doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (dragging())
+                return;
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            if (!hit.isMatch())
+                return;
+            
+            const Vec3& point = hit.hitPoint();
+            Model::BrushFace* face = hit.target<Model::BrushFace*>();
+            
+            const PointSnapper snapper(m_grid, face);
+            if (!m_tool->canAddPoint(point, snapper))
+                return;
+            
+            m_tool->renderFeedback(renderContext, renderBatch, point, snapper);
+        }
+        
         Vec3::List ClipToolAdapter3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) const {
             assert(face != NULL);
 

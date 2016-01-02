@@ -66,6 +66,7 @@ namespace TrenchBroom {
                 virtual ~ClipStrategy();
                 void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
                 void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
+                void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const;
                 
                 bool computeThirdPoint(Vec3& point) const;
 
@@ -82,6 +83,8 @@ namespace TrenchBroom {
             private:
                 virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
                 virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
+
+                virtual void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const = 0;
 
                 virtual bool doComputeThirdPoint(Vec3& point) const = 0;
 
@@ -125,6 +128,8 @@ namespace TrenchBroom {
         private:
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
+        public:
+            void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point, const PointSnapper& snapper) const;
         public:
             bool canClip() const;
             void performClip();
