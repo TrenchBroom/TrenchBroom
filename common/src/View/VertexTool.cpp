@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             m_handleManager.deselectAllHandles();
             m_mode = Mode_Move;
+            refreshViews();
             return true;
         }
         
@@ -93,6 +94,7 @@ namespace TrenchBroom {
                 m_handleManager.selectFaceHandle(hit.target<Vec3>());
                 m_mode = Mode_Split;
             }
+            refreshViews();
             return true;
         }
         
@@ -105,6 +107,7 @@ namespace TrenchBroom {
                 selectEdge(hits, addToSelection);
             else
                 selectFace(hits, addToSelection);
+            refreshViews();
             return true;
         }
         
@@ -122,6 +125,7 @@ namespace TrenchBroom {
                 if (!modifySelection) m_handleManager.deselectAllVertexHandles();
                 m_handleManager.toggleVertexHandles(contained);
             }
+            refreshViews();
         }
 
         bool VertexTool::beginMove(const Model::Hit& hit) {
@@ -136,6 +140,7 @@ namespace TrenchBroom {
                     m_handleManager.selectEdgeHandle(handlePosition);
                 else
                     m_handleManager.selectFaceHandle(handlePosition);
+                refreshViews();
             }
             
             MapDocumentSPtr document = lock(m_document);
