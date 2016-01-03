@@ -191,6 +191,22 @@ namespace TrenchBroom {
             m_handleManager.renderHighlight(renderContext, renderBatch, position);
         }
 
+        void VertexTool::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            m_handleManager.renderEdgeHighlight(renderContext, renderBatch, handlePosition);
+        }
+        
+        void VertexTool::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            m_handleManager.renderFaceHighlight(renderContext, renderBatch, handlePosition);
+        }
+
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderGuide(renderContext, renderBatch, m_dragHandlePosition);
+        }
+        
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+            m_handleManager.renderGuide(renderContext, renderBatch, position);
+        }
+
         bool VertexTool::cancel() {
             if (m_handleManager.hasSelectedHandles()) {
                 m_handleManager.deselectAllHandles();

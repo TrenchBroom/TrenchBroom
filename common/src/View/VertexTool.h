@@ -81,6 +81,10 @@ namespace TrenchBroom {
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
+            void renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
+            void renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
             
             bool cancel();
             

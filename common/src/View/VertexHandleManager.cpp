@@ -643,20 +643,56 @@ namespace TrenchBroom {
         }
 
         void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
-            
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             renderService.renderPointHandleHighlight(position);
             
-            m_guideRenderer.setPosition(position);
-            m_guideRenderer.setColor(pref(Preferences::HandleColor));
-            renderBatch.add(&m_guideRenderer);
-
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
             renderService.renderStringOnTop(position.asString(), position);
         }
 
+        void VertexHandleManager::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            
+            Model::VertexToEdgesMap::const_iterator it = m_unselectedEdgeHandles.find(handlePosition);
+            if (it != m_unselectedEdgeHandles.end()) {
+                const Model::BrushEdgeSet& edges = it->second;
+                assert(!edges.empty());
+                
+                const Model::BrushEdge* edge = *edges.begin();
+                renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
+            }
+        }
+        
+        void VertexHandleManager::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            
+            Model::VertexToFacesMap::const_iterator it = m_unselectedFaceHandles.find(handlePosition);
+            if (it != m_unselectedFaceHandles.end()) {
+                const Model::BrushFaceSet& faces = it->second;
+                assert(!faces.empty());
+                
+                const Model::BrushFace* face = *faces.begin();
+                const Model::BrushFace::VertexList& vertices = face->vertices();
+
+                Vec3f::List vertexPositions;
+                vertexPositions.reserve(vertices.size());
+                Vec3f::toList(vertices.begin(), vertices.end(), Model::BrushGeometry::GetVertexPosition(), vertexPositions);
+                
+                renderService.renderPolygonOutline(vertexPositions);
+            }
+        }
+
+        void VertexHandleManager::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            m_guideRenderer.setPosition(position);
+            m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
+            renderBatch.add(&m_guideRenderer);
+        }
+        
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
             Model::BrushSet::const_iterator bIt, bEnd;

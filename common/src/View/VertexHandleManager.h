@@ -159,6 +159,9 @@ namespace TrenchBroom {
             void pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool splitMode);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
+            void renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
+            void renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
         private:
             template <typename Element>
             inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& map) {

@@ -195,14 +195,23 @@ namespace TrenchBroom {
                 m_lasso->render(renderContext, renderBatch);
             } else if (dragging()) {
                 m_tool->renderHighlight(renderContext, renderBatch);
+                m_tool->renderGuide(renderContext, renderBatch);
                 renderMoveIndicator(inputState, renderContext, renderBatch);
             } else {
                 const Model::Hit& hit = firstHit(inputState.pickResult());
                 if (hit.isMatch()) {
                     const Vec3 position = hit.target<Vec3>();
                     m_tool->renderHighlight(renderContext, renderBatch, position);
-                    if (m_tool->handleSelected(position))
+                    if (m_tool->handleSelected(position)) {
                         renderMoveIndicator(inputState, renderContext, renderBatch);
+                    } else {
+                        if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                            m_tool->renderEdgeHighlight(renderContext, renderBatch, position);
+                        else if (hit.type() == VertexHandleManager::FaceHandleHit)
+                            m_tool->renderFaceHighlight(renderContext, renderBatch, position);
+                    }
+                    if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                        m_tool->renderGuide(renderContext, renderBatch, position);
                 }
             }
         }
