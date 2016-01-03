@@ -875,11 +875,13 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
-            
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.renderCoordinateSystem(worldBounds);
+            if (pref(Preferences::ShowAxes)) {
+                MapDocumentSPtr document = lock(m_document);
+                const BBox3& worldBounds = document->worldBounds();
+                
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.renderCoordinateSystem(worldBounds);
+            }
         }
 
         void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {

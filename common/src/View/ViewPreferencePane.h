@@ -24,6 +24,7 @@
 
 class wxColourPickerCtrl;
 class wxColourPickerEvent;
+class wxCheckBox;
 class wxChoice;
 class wxSlider;
 
@@ -35,6 +36,7 @@ namespace TrenchBroom {
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxColourPickerCtrl* m_backgroundColorPicker;
+            wxCheckBox* m_showAxes;
             wxChoice* m_textureModeChoice;
             wxChoice* m_textureBrowserIconSizeChoice;
         public:
@@ -44,6 +46,7 @@ namespace TrenchBroom {
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
             void OnBackgroundColorChanged(wxColourPickerEvent& event);
+            void OnShowAxesChanged(wxCommandEvent& event);
             void OnTextureModeChanged(wxCommandEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
         private:

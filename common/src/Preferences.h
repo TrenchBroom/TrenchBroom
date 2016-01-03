@@ -34,6 +34,7 @@ namespace TrenchBroom {
     namespace Preferences {
         extern Preference<int> MapViewLayout;
         
+        extern Preference<bool>  ShowAxes;
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;
