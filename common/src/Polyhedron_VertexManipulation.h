@@ -253,7 +253,8 @@ struct Polyhedron<T,FP,VP>::MoveVertexResult {
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
     assert(vertex != NULL);
-    assert(vertex->position() != destination);
+    if (vertex->position() == destination)
+        return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex->position());
     
     if (point())
         return movePointVertex(vertex, destination);
