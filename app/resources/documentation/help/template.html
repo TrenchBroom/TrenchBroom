@@ -39,9 +39,13 @@ $include-before$
 $endfor$
 $if(toc)$
 <div id="$idprefix$TOC">
+<div id="$idprefix$TOC_INNER">
+<div id="$idprefix$TOC_HEADER">
 <img src="icon.png" alt="TrenchBroom Icon" />
 <h2>Table of Contents</h2>
+</div>
 $toc$
+</div>
 </div>
 $endif$
 <div id="$idprefix$CONTENT">
