@@ -1,6 +1,7 @@
 [Desktop Entry]
 Exec=trenchbroom
 GenericName=Level Editor
+Comment=Level Editor
 Icon=trenchbroom
 Name=TrenchBroom
 Terminal=0
