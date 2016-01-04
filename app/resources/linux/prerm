@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Add icons to the system icons
+# Remove icons from the system icons
 XDG_ICON_RESOURCE="`which xdg-icon-resource 2> /dev/null || true`"
 if [ ! -x "$XDG_ICON_RESOURCE" ]; then
   echo "Error: Could not find xdg-icon-resource" >&2
@@ -9,7 +9,7 @@ if [ ! -x "$XDG_ICON_RESOURCE" ]; then
 fi
 for icon in "@LINUX_TARGET_DIRECTORY@/icons/icon_"*.png; do
   size="${icon##*/icon_}"
-  "$XDG_ICON_RESOURCE" install --novendor --size "${size%.png}" "$icon" "trenchbroom"
+  "$XDG_ICON_RESOURCE" uninstall --novendor --size "${size%.png}" "trenchbroom"
 done
 
 # Update menu cache
