@@ -651,9 +651,11 @@ Next, we take a look at a CSG subtraction with a not so optimal result set. In t
 
 ![CSG subtracting two cuboids](CSGSubtractCuboids.gif)
 
-The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be anyway.
+The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be symmetric anyway.
 
-To summarize, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be much more useful than the implementations found in other tools.
+To perform a CSG subtraction, first select the subtrahends (the brushes you wish to subtract from) and then add the minuend to the selection and choose #menu('Menu/Edit/CSG/Subtract'). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
+
+In summary, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be much more useful than the implementations found in other tools.
 
 #### CSG Intersection
 
