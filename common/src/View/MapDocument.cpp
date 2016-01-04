@@ -793,6 +793,7 @@ namespace TrenchBroom {
             deselectAll();
             removeNodes(toRemove);
             addNode(brush, currentParent());
+            select(brush);
             return true;
         }
         
