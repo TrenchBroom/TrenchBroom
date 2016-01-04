@@ -11,13 +11,23 @@ a {
 }
 
 div#TOC {
+	position: fixed;
 	top: 0px;
 	left: 0px;
 	width: 310px;
+	padding: 0px;
 	float: left;
 	overflow: hidden;
-	position: absolute;
-	padding: 10px;
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+div#TOC_INNER {
+	margin: 10px;
+}
+
+div#TOC_HEADER {
+	text-align: center;
 }
 
 div#TOC ul {

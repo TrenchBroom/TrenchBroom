@@ -612,12 +612,52 @@ Down          #action('Controls/Map view/Move vertices down; Move vertices backw
 Forward       #action('Controls/Map view/Move vertices forward; Move vertices up')       #action('Controls/Map view/Move vertices up; Move vertices forward')
 Backward      #action('Controls/Map view/Move vertices backward; Move vertices down')    #action('Controls/Map view/Move vertices down; Move vertices backward')
 
+This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
+
 #### Best Practices
 
 - Don't use it too much on sealing brushes, better to use it on detail.
 - Don't do too much in one go, compile and test often.
 
 ### CSG Operations
+
+CSG stands for Constructive Solid Geometry. CSG is a technique used in professional modeling tools to create complex shape by combining simple shapes using set operators such as union (sometimes called addition), subtraction, and intersection. However, CSG union and subtraction cannot be directly applied to brushes since they may create concave shapes which cannot be represented directly using brushes (remember that brushes are always convex). But some of these operators can be emulated with brushes. TrenchBroom supports the operations _convex merge_ (in place of union), _subtraction_ (emulated by creating new brushes to represent the resulting concave shape), and _intersection_ (supported directly).
+
+#### CSG Convex Merge
+
+Convex merge takes a set of brushes as its input, computes the _convex hull_ of all vertices of those brushes, and creates a new brush with the shape of the convex hull. The convex hull of a set of points is the smallest convex volume that contains all of the points. In the following animation, two brushes are being merged into one. The operation takes the vertices of both brushes and computes its convex hull. Some of the original brushes' vertices end up as vertices of the convex hull, and some of them are discarded, such as the vertices at the bottom right corner of the top left brush in the 2D viewport. The discarded vertices are those which end up inside the convex hull.
+
+![CSG convex merge](CSGConvexMerge.gif)
+
+As you can see, the newly created brush covers some areas which were not covered by the original brushes. This follows the restriction that the resulting brush must be convex. Whether the resulting brush covers such previously void areas depends on how the input brushes are aligned with each other. To perform a convex merge, select the brushes to be merged and choose #menu('Menu/Edit/CSG/Convex Merge').
+
+#### CSG Subtraction
+
+CSG subtraction takes one brush (the minuend) and subtracts it from a set of brushes (the subtrahends) by subtracting the minuend individually from each subtrahend, so we can reduce the case of multiple subtrahends to the case of one subtrahend for the following explanations. In addition, we can limit ourself to cases where the minuend does not protrude out of the subtrahend because we can chop off such parts of the minuend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). Unfortunately, there is an infinite number of result sets, all of which represent the concave shape that was the result of the subtraction. However, some result sets are better than others because the have a few desirable characteristics:
+
+- The brushes in the result set represent the concave result shape perfectly.
+- The brushes are disjoint (i.e., they do not overlap).
+- The result set contains as few brushes as possible.
+- The brushes are somehow symmetrical if possible.
+- The brushes in the result set only reuse the vertices of the subtrahend and the (chopped) minuend and as few additional vertices as possible.
+
+Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first characteristic, but cannot always be optimal in all of the remaining heuristic. Particularly the last heuristic may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
+
+![CSG subtracting to create an arch](CSGSubtractArch.gif)
+
+The result set contains seven brushes, and it is optimal according to the criteria listed above: It represents the convex result shape perfectly, there is no smaller result set possible, all brushes in the result set disjoint, the brushes are mirror symmetrical, and they only use vertices of the chopped minuend. Remember that chopping the minuend removes all parts of it that protrude out of the subtrahend.
+
+Next, we take a look at a CSG subtraction with a not so optimal result set. In the following animation, there are two cuboids. The outer cuboid (the subtrahend) is axis aligned and the inner cuboid (the minuend) has been rotated about two axes. Three of its edges protrude out of the subtrahend. It may be a bit hard to see that the inner brush is actually a cuboid from the images.
+
+![CSG subtracting two cuboids](CSGSubtractCuboids.gif)
+
+The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be anyway.
+
+To summarize, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be much more useful than the implementations found in other tools.
+
+#### CSG Intersection
+
+#### Textures and CSG Operations
 
 ## Working with Textures
 
