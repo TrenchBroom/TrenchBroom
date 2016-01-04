@@ -247,32 +247,37 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     # the software will get installed under /opt
     SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt")
-    SET(LINUX_TARGET_EXECUTABLE_PATH "${CPACK_PACKAGING_INSTALL_PREFIX}/trenchbroom/TrenchBroom")
-    CONFIGURE_FILE(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/postinst)
+    SET(LINUX_TARGET_DIRECTORY "${CPACK_PACKAGING_INSTALL_PREFIX}/trenchbroom")
+    SET(LINUX_TARGET_EXECUTABLE_PATH "${LINUX_TARGET_DIRECTORY}/TrenchBroom")
+
+    # configure install scripts
+    CONFIGURE_FILE(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/linux/postinst @ONLY)
+    CONFIGURE_FILE(${APP_DIR}/resources/linux/prerm ${CMAKE_CURRENT_BINARY_DIR}/linux/prerm @ONLY)
+    CONFIGURE_FILE(${APP_DIR}/resources/linux/postrm ${CMAKE_CURRENT_BINARY_DIR}/linux/postrm @ONLY)
 
     # add files
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION trenchbroom COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Resources" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${APP_DIR}/resources/linux/icons" DESTINATION trenchbroom COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
     INSTALL(FILES "${CMAKE_SOURCE_DIR}/gpl.txt" DESTINATION trenchbroom COMPONENT TrenchBroom)
     INSTALL(FILES "${APP_DIR}/resources/linux/copyright" DESTINATION trenchbroom COMPONENT TrenchBroom)
-    INSTALL(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop" DESTINATION /usr/share/applications COMPONENT TrenchBroom)
-    INSTALL(FILES "${APP_DIR}/resources/linux/icon48x48/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/48x48/apps COMPONENT TrenchBroom)
-    INSTALL(FILES "${APP_DIR}/resources/linux/icon256x256/trenchbroom.png" DESTINATION /usr/share/icons/hicolor/256x256/apps COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop" DESTINATION trenchbroom COMPONENT TrenchBroom)
 
     # deb package specifics
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
     SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
     SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
     SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
-    SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/postinst;${APP_DIR}/resources/linux/postrm")
+    SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst;${CMAKE_CURRENT_BINARY_DIR}/linux/prerm;${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
 
     # rpm package specifics
     SET(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
     SET(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
     SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
     SET(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-    SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/postinst")
-    SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${APP_DIR}/resources/linux/postrm")
+    SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
+    SET(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
+    SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
 ENDIF()
 INCLUDE(CPack)
 
@@ -283,3 +288,4 @@ ELSE()
 	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
 	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
 ENDIF()
+
