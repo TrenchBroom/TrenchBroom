@@ -105,6 +105,14 @@ namespace TrenchBroom {
                 m_mapViews[i]->clearDropTarget();
         }
 
+        bool CyclingMapView::doCanSelectTall() {
+            return m_currentMapView->canSelectTall();
+        }
+        
+        void CyclingMapView::doSelectTall() {
+            m_currentMapView->selectTall();
+        }
+
         void CyclingMapView::doFocusCameraOnSelection() {
             m_currentMapView->focusCameraOnSelection();
         }

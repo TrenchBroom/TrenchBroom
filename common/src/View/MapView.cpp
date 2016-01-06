@@ -37,6 +37,14 @@ namespace TrenchBroom {
             doClearDropTarget();
         }
 
+        bool MapView::canSelectTall() {
+            return doCanSelectTall();
+        }
+        
+        void MapView::selectTall() {
+            doSelectTall();
+        }
+
         bool MapView::canFlipObjects() const {
             return doCanFlipObjects();
         }

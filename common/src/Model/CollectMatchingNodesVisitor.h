@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_CollectMatchingNodesVisitor
 #define TrenchBroom_CollectMatchingNodesVisitor
 
+#include "CollectionUtils.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -66,6 +67,19 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) { C::addNode(entity); }
             void doVisit(Brush* brush)   { C::addNode(brush);  }
         };
+
+        template <typename V, typename I>
+        Model::NodeList collectMatchingNodes(I cur, I end, Node* root) {
+            NodeList result;
+            while (cur != end) {
+                V visitor(*cur);
+                root->acceptAndRecurse(visitor);
+                result = VectorUtils::setUnion(result, visitor.nodes());
+                ++cur;
+            }
+            return result;
+        }
+        
     }
 }
 

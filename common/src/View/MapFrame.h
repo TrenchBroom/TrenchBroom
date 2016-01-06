@@ -136,6 +136,7 @@ namespace TrenchBroom {
             void OnEditSelectSiblings(wxCommandEvent& event);
             void OnEditSelectTouching(wxCommandEvent& event);
             void OnEditSelectInside(wxCommandEvent& event);
+            void OnEditSelectTall(wxCommandEvent& event);
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
 
@@ -204,6 +205,7 @@ namespace TrenchBroom {
             bool canDuplicate() const;
             bool canSelectSiblings() const;
             bool canSelectByBrush() const;
+            bool canSelectTall() const;
             bool canSelect() const;
             bool canDeselect() const;
             bool canChangeSelection() const;

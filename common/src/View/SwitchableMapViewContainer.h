@@ -101,6 +101,8 @@ namespace TrenchBroom {
             bool doGetIsCurrent() const;
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
+            bool doCanSelectTall();
+            void doSelectTall();
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;

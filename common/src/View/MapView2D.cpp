@@ -18,15 +18,19 @@
  */
 
 #include "MapView2D.h"
+#include "Algorithms.h"
 #include "Logger.h"
 #include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CompareHits.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
+#include "Model/World.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -203,6 +207,55 @@ namespace TrenchBroom {
             return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
         }
         
+        bool MapView2D::doCanSelectTall() {
+            return true;
+        }
+        
+        void MapView2D::doSelectTall() {
+            const MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+            
+            const FloatType min = worldBounds.min.dot(m_camera.direction());
+            const FloatType max = worldBounds.max.dot(m_camera.direction());
+            
+            const Plane3 minPlane(min, Vec3(m_camera.direction()));
+            const Plane3 maxPlane(max, Vec3(m_camera.direction()));
+            
+            const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
+            assert(!selectionBrushes.empty());
+            
+            const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
+            Model::BrushList tallBrushes(0);
+            tallBrushes.reserve(selectionBrushes.size());
+            
+            Model::BrushList::const_iterator sIt, sEnd;
+            for (sIt = selectionBrushes.begin(), sEnd = selectionBrushes.end(); sIt != sEnd; ++sIt) {
+                const Model::Brush* selectionBrush = *sIt;
+                const Model::Brush::VertexList& vertices = selectionBrush->vertices();
+
+                Vec3::List tallVertices(0);
+                tallVertices.reserve(2 * vertices.size());
+                
+                Model::Brush::VertexList::const_iterator vIt, vEnd;
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::BrushVertex* vertex = *vIt;
+                    tallVertices.push_back(minPlane.project(vertex->position()));
+                    tallVertices.push_back(maxPlane.project(vertex->position()));
+                }
+
+                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFace::NoTextureName);
+                tallBrushes.push_back(tallBrush);
+            }
+
+            Transaction transaction(document, "Select Tall");
+            document->deleteObjects();
+
+            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(tallBrushes.begin(), tallBrushes.end(), document->world());
+            document->select(nodes);
+
+            VectorUtils::clearAndDelete(tallBrushes);
+        }
+
         void MapView2D::doFocusCameraOnSelection() {
             const MapDocumentSPtr document = lock(m_document);
             assert(!document->selectedNodes().empty());

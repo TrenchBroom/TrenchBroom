@@ -232,6 +232,14 @@ namespace TrenchBroom {
             m_mapView->clearDropTarget();
         }
         
+        bool SwitchableMapViewContainer::doCanSelectTall() {
+            return m_mapView->canSelectTall();
+        }
+        
+        void SwitchableMapViewContainer::doSelectTall() {
+            m_mapView->selectTall();
+        }
+
         bool SwitchableMapViewContainer::doCanFlipObjects() const {
             return m_mapView->canFlipObjects();
         }

@@ -437,21 +437,9 @@ namespace TrenchBroom {
             select(visitor.nodes());
         }
         
-        template <typename V, typename I>
-        Model::NodeList collectContainedOrTouchingNodes(I cur, I end, Model::World* world) {
-            Model::NodeList result;
-            while (cur != end) {
-                V visitor(*cur);
-                world->acceptAndRecurse(visitor);
-                result = VectorUtils::setUnion(result, visitor.nodes());
-                ++cur;
-            }
-            return result;
-        }
-        
         void MapDocument::selectTouching(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
             
             Transaction transaction(this, "Select touching");
             if (del)
@@ -463,7 +451,7 @@ namespace TrenchBroom {
         
         void MapDocument::selectInside(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
             
             Transaction transaction(this, "Select inside");
             if (del)

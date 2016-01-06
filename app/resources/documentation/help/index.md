@@ -215,29 +215,29 @@ There are two different kinds of things that can be selected in TrenchBroom: obj
 
 In the 3D viewport, selected objects are rendered with red edges and slightly tinted faces to distinguish them visually. The bounding box of the selected objects is rendered in red, with spikes extending from every corner when the mouse hovers over one of the selected objects. These spikes are useful to precisely position objects in relation to other objects. Additionally, the dimensions of the bounding box are displayed in the 3D viewport. In a 2D viewport, selected objects are just rendered with red edges. No spikes or bounding boxes are displayed there since the 2D viewports have a continuous grid anyway.
 
-## Selecting Objects in the 3D Viewport
+## Selecting Objects
 
-To select a single object, simply left click it in the 3D viewport. Left clicking anywhere in the 3D viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(308) while left clicking the objects to be selected. If you click an already selected object while holding #key(308), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(308) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects).
+To select a single object, simply left click it in a viewport. Left clicking anywhere in a viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(308) while left clicking the objects to be selected. If you click an already selected object while holding #key(308), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(308) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects).
 
-You can only select the frontmost object with the mouse. To select an object that is obstructed by another object, you can use the mouse wheel. First, select the frontmost object, that is, the object that occludes the object that you really wish to select. Then, hold #key(308) and scroll up to push the selection away from the camera or scroll down to pull the selection towards the camera. Note that the selection depends on what object is under the mouse, so you need to make sure that the mouse cursor hovers over the object that you wish to select.
+In the 3D viewport, you can only select the frontmost object with the mouse. To select an object that is obstructed by another object, you can use the mouse wheel. First, select the frontmost object, that is, the object that occludes the object that you really wish to select. Then, hold #key(308) and scroll up to push the selection away from the camera or scroll down to pull the selection towards the camera. Note that the selection depends on what object is under the mouse, so you need to make sure that the mouse cursor hovers over the object that you wish to select.
 
 ![Selection drilling in the 3D viewport](DrillSelection.gif)
-
-Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu('Menu/Edit/Select All') from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use a _selection brush_. Just create a new brush that encloses or touches all the objects you wish to select. This brush is called a selection brush. Then choose #menu('Menu/Edit/Select Inside') to select every object enclosed inside that brush, or choose #menu('Menu/Edit/Select Touching') to select every object touched by that brush. If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu('Menu/Edit/Select Siblings'). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group.
-
-![Using a selection brush](SelectTouching.gif)
-
-The menu command #menu('Menu/Edit/Select by Line Number') is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
-
-Finally, you can deselect everything by left clicking in the void, or by choosing #menu('Menu/Edit/Select None').
-
-## Selecting Objects in a 2D Viewport
 
 In a 2D viewport, you can also left click an object to select it. But unlike in the 3D viewport, this will not necessarily select the frontmost object. Instead, TrenchBroom will analyze the objects under the mouse, specifically the faces under the mouse, and it will find the one with the smallest visible area. Having found such a face, it will select the object to which this face belongs. Since entities don't necessarily have faces, the faces of their bounding boxes will be considered instead. The advantage of this technique is that it allows you to easily select occluded objects in the 2D viewports.
 
 You may also think of left click selection like this: In both the 3D viewport or a 2D viewport, TrenchBroom first compiles a set of candidate objects. These are all objects under the mouse. Then, it must choose an object to be selected from these candidates. In the 3D viewport, the frontmost object always wins (unless you're using the scroll wheel to drill the selection), and in a 2D view, the object with the smallest visible area wins. Other than that, selection behaves exactly the same in both viewports, that is, you can hold #key(308) to select multiple objects and so on.
 
-## Selecting Brush Faces in the 3D Viewport
+Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu('Menu/Edit/Select All') from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu('Menu/Edit/Select Touching') to select every object touched by the selection brushes, or choose #menu('Menu/Edit/Select Inside') to select every object enclosed inside them. 
+
+![Using a selection brush](SelectTouching.gif)
+
+A similar operation can be found under #menu('Menu/Edit/Select Tall'), but this particular operation is only available when a 2D view has focus. It projects the selection brushes onto the view plane of the currently focused 2D viewport, which results in a 2D polygon, and then selects every object that is contained entirely within that polygon. You can think of this as a cheap lasso selection tool that works like #menu('Menu/Edit/Select Inside'), but without having to adjust the distance and thickness of the selection brushes.
+
+If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu('Menu/Edit/Select Siblings'). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu('Menu/Edit/Select by Line Number') is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
+
+Finally, you can deselect everything by left clicking in the void, or by choosing #menu('Menu/Edit/Select None').
+
+## Selecting Brush Faces
 
 ![Selected brush face](BrushFaceSelection.png)
 

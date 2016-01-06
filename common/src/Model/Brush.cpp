@@ -754,7 +754,7 @@ namespace TrenchBroom {
 
         bool Brush::rebuildGeometry(const BBox3& worldBounds) {
             delete m_geometry;
-            m_geometry = new BrushGeometry(worldBounds);
+            m_geometry = new BrushGeometry(worldBounds.expanded(1.0));
             
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
             updateFacesFromGeometry(worldBounds);

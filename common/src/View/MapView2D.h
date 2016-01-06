@@ -90,6 +90,8 @@ namespace TrenchBroom {
             void doUpdateViewport(int x, int y, int width, int height);
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            bool doCanSelectTall();
+            void doSelectTall();
             void doFocusCameraOnSelection();
             
             void doMoveCameraToPosition(const Vec3& position);

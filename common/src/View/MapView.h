@@ -36,6 +36,9 @@ namespace TrenchBroom {
             void setToolBoxDropTarget();
             void clearDropTarget();
 
+            bool canSelectTall();
+            void selectTall();
+
             bool canFlipObjects() const;
             void flipObjects(Math::Direction direction);
             
@@ -50,6 +53,9 @@ namespace TrenchBroom {
             
             virtual void doSetToolBoxDropTarget() = 0;
             virtual void doClearDropTarget() = 0;
+
+            virtual bool doCanSelectTall() = 0;
+            virtual void doSelectTall() = 0;
 
             virtual bool doCanFlipObjects() const = 0;
             virtual void doFlipObjects(Math::Direction direction) = 0;

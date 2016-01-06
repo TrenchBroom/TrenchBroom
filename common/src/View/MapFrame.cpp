@@ -427,6 +427,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectInside, this, CommandIds::Menu::EditSelectInside);
+            Bind(wxEVT_MENU, &MapFrame::OnEditSelectTall, this, CommandIds::Menu::EditSelectTall);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
@@ -673,6 +674,13 @@ namespace TrenchBroom {
 
             if (canSelectByBrush())
                 m_document->selectInside(true);
+        }
+
+        void MapFrame::OnEditSelectTall(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canSelectTall())
+                m_mapView->selectTall();
         }
 
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
@@ -1038,6 +1046,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSelectInside:
                     event.Enable(canSelectByBrush());
                     break;
+                case CommandIds::Menu::EditSelectTall:
+                    event.Enable(canSelectTall());
+                    break;
                 case CommandIds::Menu::EditSelectByFilePosition:
                     event.Enable(canSelect());
                     break;
@@ -1246,7 +1257,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canSelectByBrush() const {
-            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() ;
+            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes();
+        }
+
+        bool MapFrame::canSelectTall() const {
+            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() && m_mapView->canSelectTall();
         }
 
         bool MapFrame::canSelect() const {

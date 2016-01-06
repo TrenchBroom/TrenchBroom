@@ -423,6 +423,12 @@ namespace TrenchBroom {
             }
         }
         
+        bool MapView3D::doCanSelectTall() {
+            return false;
+        }
+        
+        void MapView3D::doSelectTall() {}
+
         void MapView3D::doFocusCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();

@@ -129,6 +129,9 @@ namespace TrenchBroom {
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
 
+            bool doCanSelectTall();
+            void doSelectTall();
+
             void doFocusCameraOnSelection();
             
             class ComputeCameraCenterPositionVisitor;
