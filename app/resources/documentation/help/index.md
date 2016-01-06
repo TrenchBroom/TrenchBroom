@@ -618,6 +618,9 @@ This concludes the functionality of the vertex tool. While it is very powerful, 
 
 - Don't use it too much on sealing brushes, better to use it on detail.
 - Don't do too much in one go, compile and test often.
+- When doing terrain, create a quad- or trisoup and only move vertices orthogonal to the grid's plane (along the plane's normal). Don't move vertices sideways.
+- Be careful with detail brushes, they might open vis portals.
+- Detail might also result in PVS leaves too much information, better to turn some detail into actual brushes to force vis to break a room into several PVS leaves. Or use hint brushes to force vis to add more leaves.
 
 ### CSG Operations
 
