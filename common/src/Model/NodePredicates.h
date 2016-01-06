@@ -22,6 +22,9 @@
 
 #include <stdio.h>
 
+#undef True
+#undef False
+
 namespace TrenchBroom {
     namespace Model {
         class Brush;
