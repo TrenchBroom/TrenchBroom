@@ -662,9 +662,23 @@ In summary, TrenchBroom provides you with a CSG subtract algorithm that can prod
 
 #### CSG Intersection
 
+CSG intersection takes a set of brushes and computes their intersection, that is, it computes the largest brush that is contained in each of the input brushes. Another way to think of this is that intersection takes that part of the input brushes where they all overlap, and creates a new brush that represents that part. If there is no such part, then the input brushes are disjoint, and their intersection is empty. The input brushes are then removed from the map.
+
+![CSG intersection of two cuboids](CSGIntersect.gif)
+
+You can perform a CSG intersection by selecting the brushes you wish to intersect, and then choosing #menu('Menu/Edit/CSG/Intersect').
+
 #### Textures and CSG Operations
 
-## Working with Textures
+In each of the CSG operations, new brushes are created, and TrenchBroom has to assign textures to their faces. To determine which texture to assign to a new brush face, TrenchBroom will attempt to find a face in the input brushes that has the same plane as the newly created face. If such a face was found, TrenchBroom assigns the texture and attributes of that brush face to the newly created brush face. Otherwise, it will assign the [current texture](#working_with_textures).
+
+![CSG texture handling](CSGTexturing.gif)
+
+In the example above, a brush is subtracted from another brush to form an archway. The subtrahend has a blue brick texture and the minuend has a dark metal texture. After the subtraction, those faces of the result that line up with the faces of the subtrahend have also been assigned the blue brick texture, while those faces that line up with the faces of the minuend brush have been assigned the dark metal texture. Some of the faces of the result brushes are invisible because they are shared by other brushes - these faces have been assigned the current texture because no face of the subtrahend or the minuend lines up with them.
+
+## Working with Textures {#working_with_textures}
+
+- Current Texture
 
 ### The UV Editor {#uv_editor}
 
@@ -680,7 +694,12 @@ In summary, TrenchBroom provides you with a CSG subtract algorithm that can prod
 
 ### Layers {#layers}
 
+- The default layer
+- The current layer
+
 ### Groups {#groups}
+
+- New objects are added to the current group, and otherwise to the current layer.
 
 ### Hiding and Isolating Objects
 
