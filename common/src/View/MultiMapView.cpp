@@ -70,11 +70,11 @@ namespace TrenchBroom {
             }
         }
         
-        void MultiMapView::doCenterCameraOnSelection() {
+        void MultiMapView::doFocusCameraOnSelection() {
             MapViewList::const_iterator it, end;
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
                 MapView* mapView = *it;
-                mapView->centerCameraOnSelection();
+                mapView->focusCameraOnSelection();
             }
         }
         

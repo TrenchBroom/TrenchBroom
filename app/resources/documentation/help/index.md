@@ -678,11 +678,20 @@ In the example above, a brush is subtracted from another brush to form an archwa
 
 ## Working with Textures {#working_with_textures}
 
+### The Texture Browser {#texture_browser}
+
+### How TrenchBroom Assigns Textures to New Brushes
+
 - Current Texture
+
+### Assigning Textures Manually
+
+- Texture browser
+- Alt(+Cmd)+Left Click (also double click)
+- Copy and Paste
 
 ### The UV Editor {#uv_editor}
 
-### The Texture Browser {#texture_browser}
 
 ## Entity Properties {#entity_properties}
 

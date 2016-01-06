@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 const int ViewMoveCameraRight                = Lowest +  57;
                 const int ViewMoveCameraUp                   = Lowest +  58;
                 const int ViewMoveCameraDown                 = Lowest +  59;
-                const int ViewCenterCameraOnSelection        = Lowest +  72;
+                const int ViewFocusCameraOnSelection         = Lowest +  72;
                 const int ViewIncGridSize                    = Lowest +  74;
                 const int ViewDecGridSize                    = Lowest +  75;
                 const int FileLoadPointFile                  = Lowest +  76;
@@ -83,9 +83,9 @@ namespace TrenchBroom {
                 const int EditCsgIntersect                   = Lowest + 118;
                 const int EditGroupSelection                 = Lowest + 120;
                 const int EditUngroupSelection               = Lowest + 121;
-                const int EditHideSelection                  = Lowest + 122;
-                const int EditIsolateSelection               = Lowest + 123;
-                const int EditUnhideAll                      = Lowest + 124;
+                const int ViewHideSelection                  = Lowest + 122;
+                const int ViewIsolateSelection               = Lowest + 123;
+                const int ViewUnhideAll                      = Lowest + 124;
                 const int EditToggleClipTool                 = Lowest + 125;
                 const int EditDeactivateTool                 = Lowest + 126;
                 

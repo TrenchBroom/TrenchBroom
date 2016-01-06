@@ -75,7 +75,7 @@ namespace TrenchBroom {
             bool doGetIsCurrent() const;
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
-            void doCenterCameraOnSelection();
+            void doFocusCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
             void doMoveCameraToCurrentTracePoint();
             bool doCanMaximizeCurrentView() const;

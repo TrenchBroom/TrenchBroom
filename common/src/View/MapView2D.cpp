@@ -203,7 +203,7 @@ namespace TrenchBroom {
             return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
         }
         
-        void MapView2D::doCenterCameraOnSelection() {
+        void MapView2D::doFocusCameraOnSelection() {
             const MapDocumentSPtr document = lock(m_document);
             assert(!document->selectedNodes().empty());
             

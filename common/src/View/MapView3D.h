@@ -129,11 +129,11 @@ namespace TrenchBroom {
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
 
-            void doCenterCameraOnSelection();
+            void doFocusCameraOnSelection();
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            Vec3f centerCameraOnObjectsPosition(const Model::NodeList& nodes);
+            Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
             void doMoveCameraToPosition(const Vec3& position);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);

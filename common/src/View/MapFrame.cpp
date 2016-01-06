@@ -433,10 +433,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditGroupSelectedObjects, this, CommandIds::Menu::EditGroupSelection);
             Bind(wxEVT_MENU, &MapFrame::OnEditUngroupSelectedObjects, this, CommandIds::Menu::EditUngroupSelection);
 
-            Bind(wxEVT_MENU, &MapFrame::OnEditHideSelectedObjects, this, CommandIds::Menu::EditHideSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnEditIsolateSelectedObjects, this, CommandIds::Menu::EditIsolateSelection);
-            Bind(wxEVT_MENU, &MapFrame::OnEditShowHiddenObjects, this, CommandIds::Menu::EditUnhideAll);
-
             Bind(wxEVT_MENU, &MapFrame::OnEditDeactivateTool, this, CommandIds::Menu::EditDeactivateTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateComplexBrushTool, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
@@ -459,8 +455,12 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
-            Bind(wxEVT_MENU, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnViewFocusCameraOnSelection, this, CommandIds::Menu::ViewFocusCameraOnSelection);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
+            
+            Bind(wxEVT_MENU, &MapFrame::OnViewHideSelectedObjects, this, CommandIds::Menu::ViewHideSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnViewIsolateSelectedObjects, this, CommandIds::Menu::ViewIsolateSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnViewShowHiddenObjects, this, CommandIds::Menu::ViewUnhideAll);
 
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
@@ -721,26 +721,6 @@ namespace TrenchBroom {
                 m_document->ungroupSelection();
         }
 
-        void MapFrame::OnEditHideSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (canHide())
-                m_document->hideSelection();
-        }
-
-        void MapFrame::OnEditIsolateSelectedObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (canIsolate())
-                m_document->isolate(m_document->selectedNodes().nodes());
-        }
-
-        void MapFrame::OnEditShowHiddenObjects(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_document->showAll();
-        }
-
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -868,11 +848,11 @@ namespace TrenchBroom {
                 m_mapView->moveCameraToPreviousTracePoint();
         }
 
-        void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
+        void MapFrame::OnViewFocusCameraOnSelection(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canCenterCamera())
-                m_mapView->centerCameraOnSelection();
+            if (canFocusCamera())
+                m_mapView->focusCameraOnSelection();
         }
 
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
@@ -884,6 +864,26 @@ namespace TrenchBroom {
                 const Vec3 position = Vec3::parse(str.ToStdString());
                 m_mapView->moveCameraToPosition(position);
             }
+        }
+        
+        void MapFrame::OnViewHideSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canHide())
+                m_document->hideSelection();
+        }
+        
+        void MapFrame::OnViewIsolateSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canIsolate())
+                m_document->isolate(m_document->selectedNodes().nodes());
+        }
+        
+        void MapFrame::OnViewShowHiddenObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_document->showAll();
         }
 
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
@@ -1050,15 +1050,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditUngroupSelection:
                     event.Enable(canUngroup());
                     break;
-                case CommandIds::Menu::EditHideSelection:
-                    event.Enable(canHide());
-                    break;
-                case CommandIds::Menu::EditIsolateSelection:
-                    event.Enable(canIsolate());
-                    break;
-                case CommandIds::Menu::EditUnhideAll:
-                    event.Enable(true);
-                    break;
                 case CommandIds::Menu::EditDeactivateTool:
                     event.Check(!m_mapView->anyToolActive());
                     event.Enable(true);
@@ -1154,10 +1145,19 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
                     event.Enable(canMoveCameraToPreviousPoint());
                     break;
-                case CommandIds::Menu::ViewCenterCameraOnSelection:
-                    event.Enable(canCenterCamera());
+                case CommandIds::Menu::ViewFocusCameraOnSelection:
+                    event.Enable(canFocusCamera());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPosition:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewHideSelection:
+                    event.Enable(canHide());
+                    break;
+                case CommandIds::Menu::ViewIsolateSelection:
+                    event.Enable(canIsolate());
+                    break;
+                case CommandIds::Menu::ViewUnhideAll:
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::ViewSwitchToMapInspector:
@@ -1310,7 +1310,7 @@ namespace TrenchBroom {
             return m_mapView->canMoveCameraToPreviousTracePoint();
         }
 
-        bool MapFrame::canCenterCamera() const {
+        bool MapFrame::canFocusCamera() const {
             return m_document->hasSelectedNodes();
         }
 

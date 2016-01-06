@@ -41,7 +41,7 @@ namespace TrenchBroom {
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
-            void centerCameraOnSelection();
+            void focusCameraOnSelection();
             void moveCameraToPosition(const Vec3& position);
             
             void moveCameraToCurrentTracePoint();
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             
             virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
 
-            virtual void doCenterCameraOnSelection() = 0;
+            virtual void doFocusCameraOnSelection() = 0;
             virtual void doMoveCameraToPosition(const Vec3& position) = 0;
             
             virtual void doMoveCameraToCurrentTracePoint() = 0;

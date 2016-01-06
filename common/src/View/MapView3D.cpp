@@ -423,12 +423,12 @@ namespace TrenchBroom {
             }
         }
         
-        void MapView3D::doCenterCameraOnSelection() {
+        void MapView3D::doFocusCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             assert(!nodes.empty());
             
-            const Vec3 newPosition = centerCameraOnObjectsPosition(nodes);
+            const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
             moveCameraToPosition(newPosition);
         }
         
@@ -529,7 +529,7 @@ namespace TrenchBroom {
             }
         };
 
-        Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::NodeList& nodes) {
+        Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
             ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), center);
 

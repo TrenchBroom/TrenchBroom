@@ -142,10 +142,6 @@ namespace TrenchBroom {
             void OnEditGroupSelectedObjects(wxCommandEvent& event);
             void OnEditUngroupSelectedObjects(wxCommandEvent& event);
 
-            void OnEditHideSelectedObjects(wxCommandEvent& event);
-            void OnEditIsolateSelectedObjects(wxCommandEvent& event);
-            void OnEditShowHiddenObjects(wxCommandEvent& event);
-
             void OnEditDeactivateTool(wxCommandEvent& event);
             void OnEditToggleCreateComplexBrushTool(wxCommandEvent& event);
             void OnEditToggleClipTool(wxCommandEvent& event);
@@ -171,9 +167,13 @@ namespace TrenchBroom {
 
             void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
             void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
-            void OnViewCenterCameraOnSelection(wxCommandEvent& event);
+            void OnViewFocusCameraOnSelection(wxCommandEvent& event);
             void OnViewMoveCameraToPosition(wxCommandEvent& event);
 
+            void OnViewHideSelectedObjects(wxCommandEvent& event);
+            void OnViewIsolateSelectedObjects(wxCommandEvent& event);
+            void OnViewShowHiddenObjects(wxCommandEvent& event);
+            
             void OnViewSwitchToMapInspector(wxCommandEvent& event);
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             bool canIncGridSize() const;
             bool canMoveCameraToNextPoint() const;
             bool canMoveCameraToPreviousPoint() const;
-            bool canCenterCamera() const;
+            bool canFocusCamera() const;
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);

@@ -50,8 +50,8 @@ namespace TrenchBroom {
             return doGetPasteObjectsDelta(bounds);
         }
         
-        void MapView::centerCameraOnSelection() {
-            doCenterCameraOnSelection();
+        void MapView::focusCameraOnSelection() {
+            doFocusCameraOnSelection();
         }
         
         void MapView::moveCameraToPosition(const Vec3& position) {

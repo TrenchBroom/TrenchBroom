@@ -105,8 +105,8 @@ namespace TrenchBroom {
                 m_mapViews[i]->clearDropTarget();
         }
 
-        void CyclingMapView::doCenterCameraOnSelection() {
-            m_currentMapView->centerCameraOnSelection();
+        void CyclingMapView::doFocusCameraOnSelection() {
+            m_currentMapView->focusCameraOnSelection();
         }
         
         void CyclingMapView::doMoveCameraToPosition(const Vec3& position) {
