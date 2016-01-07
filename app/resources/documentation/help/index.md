@@ -639,26 +639,26 @@ As you can see, the newly created brush covers some areas which were not covered
 CSG subtraction takes one brush (the minuend) and subtracts it from a set of brushes (the subtrahends) by subtracting the minuend individually from each subtrahend, so we can reduce the case of multiple subtrahends to the case of one subtrahend for the following explanations. In addition, we can limit ourself to cases where the minuend does not protrude out of the subtrahend because we can chop off such parts of the minuend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). Unfortunately, there is an infinite number of result sets, all of which represent the concave shape that was the result of the subtraction. However, some result sets are better than others because the have a few desirable characteristics:
 
 - The brushes in the result set represent the concave result shape perfectly.
-- The brushes are disjoint (i.e., they do not overlap).
+- The brushes are pairwise disjoint (i.e., none of them overlap).
 - The result set contains as few brushes as possible.
 - The brushes are somehow symmetrical if possible.
 - The brushes in the result set only reuse the vertices of the subtrahend and the (chopped) minuend and as few additional vertices as possible.
 
-Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first characteristic, but cannot always be optimal in all of the remaining heuristic. Particularly the last heuristic may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
+Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first two critera, but cannot always be optimal in all of the remaining critera. Particularly the last criterion may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
 
 ![CSG subtracting to create an arch](CSGSubtractArch.gif)
 
-The result set contains seven brushes, and it is optimal according to the criteria listed above: It represents the convex result shape perfectly, there is no smaller result set possible, all brushes in the result set disjoint, the brushes are mirror symmetrical, and they only use vertices of the chopped minuend. Remember that chopping the minuend removes all parts of it that protrude out of the subtrahend.
+The result set contains seven brushes, and it is optimal according to the criteria listed above: It represents the convex result shape perfectly, all brushes are pairwise disjoint, there is no smaller result set possible, all brushes in the result set disjoint, the brushes are mirror symmetrical, and they only use vertices of the chopped minuend. Remember that chopping the minuend removes all parts of it that protrude out of the subtrahend.
 
-Next, we take a look at a CSG subtraction with a not so optimal result set. In the following animation, there are two cuboids. The outer cuboid (the subtrahend) is axis aligned and the inner cuboid (the minuend) has been rotated about two axes. Three of its edges protrude out of the subtrahend. It may be a bit hard to see that the inner brush is actually a cuboid from the images.
+Next, we take a look at a CSG subtraction with a suboptimal result set. In the following animation, there are two cuboids. The outer cuboid (the subtrahend) is axis aligned and the inner cuboid (the minuend) has been rotated about two axes. Several of its corners protrude out of the subtrahend. It may be a bit hard to see that the inner brush is actually a cuboid from the images.
 
 ![CSG subtracting two cuboids](CSGSubtractCuboids.gif)
 
-The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be symmetric anyway.
+The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are pairwise disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be symmetric anyway.
 
 To perform a CSG subtraction, first select the subtrahends (the brushes you wish to subtract from) and then add the minuend to the selection and choose #menu('Menu/Edit/CSG/Subtract'). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
 
-In summary, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be much more useful than the implementations found in other tools.
+In summary, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be more useful than the simplistic implementations found in other tools.
 
 #### CSG Intersection
 
@@ -668,7 +668,7 @@ CSG intersection takes a set of brushes and computes their intersection, that is
 
 You can perform a CSG intersection by selecting the brushes you wish to intersect, and then choosing #menu('Menu/Edit/CSG/Intersect').
 
-#### Textures and CSG Operations
+#### Textures and CSG Operations {#textures_and_csg_operations}
 
 In each of the CSG operations, new brushes are created, and TrenchBroom has to assign textures to their faces. To determine which texture to assign to a new brush face, TrenchBroom will attempt to find a face in the input brushes that has the same plane as the newly created face. If such a face was found, TrenchBroom assigns the texture and attributes of that brush face to the newly created brush face. Otherwise, it will assign the [current texture](#working_with_textures).
 
@@ -678,19 +678,37 @@ In the example above, a brush is subtracted from another brush to form an archwa
 
 ## Working with Textures {#working_with_textures}
 
+There are two aspects to working with textures in a level editor. [Texture management](#texture_management) and texture application. This section deals with the latter, so you will learn different ways to apply textures to brush faces and to manipulate their alignment to the faces. But before we dive into that, we have to cover three general topics: First, we present the texture browser, then we explain how TrenchBroom assigns textures to newly created brush faces, and finally we discuss different texture projection modes in TrenchBroom.
+
 ### The Texture Browser {#texture_browser}
+
+![The texture browser](TextureBrowser.png) The texture browser is part of the face inspector and is used for two purposes: Changing the texture for the currently selected faces and selecting the _current texture_. In the texture browser, textures are displayed with a maximum width of 64 pixels - wider textures are proportionally scaled down. The name of every texture is displayed below the image. Textures that are currently in used have a yellow border, while the current texture has a red border. If you hover over a texture image with the mouse, you will see a tooltip with the name and the dimensions of the texture.
+
+Below the texture browser, there are the same controls as in the [entity browser](#entity_browser): A dropdown for changing the sort order (name or usage count), a button to group by [texture collection](#texture_management), a button to filter by usage, and a text field to filter by name. If the size of the images is too small or too large on your monitor, you can change it in the [preferences](#view_layout_and_rendering).
+
+### Texture Projection Modes
+
+In the original Quake engine, textures are projected onto brush faces along the axes of the coordinate system. In practice, the engine (the compiler, to be precise), uses the normal of a brush face to determine the projection axis - the chose axis is the one that has the smallest angle with the face's normal. Then, the texture is projected onto the brush face along that axis. This leads to some distortion (shearing) that is particularly apparent for slanted brush faces where the face's normal is linearly dependent on all three coordinate system axes. However, this type of projection, which we call _paraxial texture projection_ in TrenchBroom, also has an advantage: If the face's normal is linearly dependent on only two or less coordinate system axes (that is, it lies in the plane defined by two of the axes, e.g., the XY plane), then the paraxial projection ensures that the texture still fits the brush faces without having to change the scaling factors.
+
+The main disadvantage of paraxial texture projection is that it is impossible to do perfect texture locking. _Texture locking_ means that the texture remains perfectly in place on the brush faces during all transformations of the face. For example, if the brush moves by 16 units along the X axis, then the textures on all faces of the brush do not move relatively to the brush. With paraxial texture projection, textures may become distorted due to the face normals changing by the transformation, but it is impossible to compensate for that shearing.
+
+This is (probably) one of the reasons why the Valve 220 map format was introduced for Half Life. This map format extends the brush faces with additional information about the texture axes for each brush faces. In principle, this makes it possible to have arbitrary linear transformations for the texture coordinates due to their projection, but in practice, most editors keep the texture axes perpendicular to the face normals. In that case, the texture is projected onto the face along the normal of the face (and not a coordinate system axis). In TrenchBroom, this mode of texture projection is called _parallel texture projection_, and it is only available in maps that have the Valve 220 map format.
 
 ### How TrenchBroom Assigns Textures to New Brushes
 
-- Current Texture
+In TrenchBroom, there is the notion of a current texture, which we have already mentioned previous sections. Initially, the current texture is unset, and it is changed by two actions: selecting a brush face and selecting the current texture by clicking on a texture in the texture browser. When TrenchBroom creates a new brush or a new brush face, it may consult the current texture to determine which texture to apply to the newly created brush faces. This is not always the case: Sometimes, TrenchBroom can determine textures for newly created brush faces from the context of the operations. We have discussed this earlier for [CSG operations](#textures_and_csg_operations). In other cases, such as when you create a new brush with the mouse, TrenchBroom will always apply the current texture.
 
 ### Assigning Textures Manually
 
 - Texture browser
-- Alt(+Cmd)+Left Click (also double click)
-- Copy and Paste
+- Alt+Left Click: Copy texture (double click to apply to brush)
+- Alt+Cmd+Left Click: Copy texture and face attributes (double click to apply to brush)
+- Copy and Paste (last face on clipboard wins)
+
+### Replacing Textures
 
 ### The UV Editor {#uv_editor}
+
 
 
 ## Entity Properties {#entity_properties}
