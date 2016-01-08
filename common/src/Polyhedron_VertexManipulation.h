@@ -330,9 +330,9 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
     // The idea of this algorithm can be summarized as follows:
     // First, break up all faces incident to the given vertex so that they become triangles.
-    // Second, examine the (straight) path along which the given vertex will travel when moved to the
-    // given location. Determine the closest point on this path where one of the incident triangles
-    // becomes coplanar with one (or more) of its neighbours. This point is given by the value of
+    // Second, examine the line along which the given vertex will travel when moved to the
+    // given location. Determine the closest point on this line where one of the incident triangles
+    // becomes coplanar with one (or more) of its neighbours. This point is represented by the value of
     // curFrac, which is between 0.0 and 1.0, 0.0 being the original vertex position and 1.0 the destination.
     // Third, determine whether the vertex will come to rest on another vertex. If that is the case, and
     // allowMergeIncidentVertices is true, then merge those vertices if possible and conclude the operation.

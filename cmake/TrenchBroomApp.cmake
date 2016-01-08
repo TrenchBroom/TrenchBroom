@@ -19,6 +19,8 @@ ELSE()
     )
 ENDIF()
 
+SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
+
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
