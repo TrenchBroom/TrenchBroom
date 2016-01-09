@@ -229,10 +229,12 @@ IF(WIN32)
     INSTALL(FILES
         ${WIN_LIBS}
         DESTINATION . COMPONENT TrenchBroom)
+    INSTALL(FILES
+        ${DOC_HELP_TARGET_FILES}
+        DESTINATION Resources/help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
         "${APP_DIR}/resources/games"
-        "${APP_DIR}/resources/help"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "ZIP")
