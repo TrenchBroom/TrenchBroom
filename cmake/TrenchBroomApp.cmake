@@ -232,6 +232,7 @@ IF(WIN32)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
         "${APP_DIR}/resources/games"
+        "${APP_DIR}/resources/help"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "ZIP")
