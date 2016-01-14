@@ -35,7 +35,8 @@ namespace Math {
         }
         
         static T pointStatusEpsilon() {
-            static const T value = static_cast<T>(0.01);
+            // static const T value = static_cast<T>(0.01);
+            static const T value = static_cast<T>(0.0001); // this is what tyrbsp uses
             return value;
         }
         

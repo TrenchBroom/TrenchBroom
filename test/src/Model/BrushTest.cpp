@@ -279,6 +279,43 @@ namespace TrenchBroom {
             ASSERT_EQ(5u, brushFaces.size());
         }
 
+        TEST(BrushTest, constructBrushWithManySides) {
+            /*
+             See https://github.com/kduske/TrenchBroom/issues/1153
+             The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting faces
+             have been removed from the brush.
+             
+             {
+             ( 624 688 -456 ) ( 656 760 -480 ) ( 624 680 -480 ) face7 8 0 180 1 -1
+             ( 536 792 -480 ) ( 536 792 -432 ) ( 488 720 -480 ) face12 48 0 180 1 -1
+             ( 568 656 -464 ) ( 568 648 -480 ) ( 520 672 -456 ) face14 -32 0 -180 1 -1
+             ( 520 672 -456 ) ( 520 664 -480 ) ( 488 720 -452 ) face15 8 0 180 1 -1
+             ( 560 728 -440 ) ( 488 720 -452 ) ( 536 792 -432 ) face17 -32 -8 -180 1 1
+             ( 568 656 -464 ) ( 520 672 -456 ) ( 624 688 -456 ) face19 -32 -8 -180 1 1
+             ( 560 728 -440 ) ( 624 688 -456 ) ( 520 672 -456 ) face20 -32 -8 -180 1 1 // assert
+             ( 600 840 -480 ) ( 536 792 -480 ) ( 636 812 -480 ) face22 -32 -8 -180 1 1
+             }
+             */
+            
+            const BBox3 worldBounds(4096.0);
+            
+            BrushFaceList faces;
+            faces.push_back(BrushFace::createParaxial(Vec3(624.0, 688.0, -456.0), Vec3(656.0, 760.0, -480.0), Vec3(624.0, 680.0, -480.0), "face7"));
+            faces.push_back(BrushFace::createParaxial(Vec3(536.0, 792.0, -480.0), Vec3(536.0, 792.0, -432.0), Vec3(488.0, 720.0, -480.0), "face12"));
+            faces.push_back(BrushFace::createParaxial(Vec3(568.0, 656.0, -464.0), Vec3(568.0, 648.0, -480.0), Vec3(520.0, 672.0, -456.0), "face14"));
+            faces.push_back(BrushFace::createParaxial(Vec3(520.0, 672.0, -456.0), Vec3(520.0, 664.0, -480.0), Vec3(488.0, 720.0, -452.0), "face15"));
+            faces.push_back(BrushFace::createParaxial(Vec3(560.0, 728.0, -440.0), Vec3(488.0, 720.0, -452.0), Vec3(536.0, 792.0, -432.0), "face17"));
+            faces.push_back(BrushFace::createParaxial(Vec3(568.0, 656.0, -464.0), Vec3(520.0, 672.0, -456.0), Vec3(624.0, 688.0, -456.0), "face19"));
+            faces.push_back(BrushFace::createParaxial(Vec3(560.0, 728.0, -440.0), Vec3(624.0, 688.0, -456.0), Vec3(520.0, 672.0, -456.0), "face20"));
+            faces.push_back(BrushFace::createParaxial(Vec3(600.0, 840.0, -480.0), Vec3(536.0, 792.0, -480.0), Vec3(636.0, 812.0, -480.0), "face22"));
+            
+            Brush brush(worldBounds, faces);
+            assert(brush.fullySpecified());
+            
+            const BrushFaceList& brushFaces = brush.faces();
+            ASSERT_EQ(8u, brushFaces.size());
+        }
+
         TEST(BrushTest, pick) {
             const BBox3 worldBounds(4096.0);
             
