@@ -69,7 +69,7 @@ namespace TrenchBroom {
             sizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->Add(build, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->AddStretchSpacer();
-            SetSizer(sizer);
+            SetSizerAndFit(sizer);
         }
     }
 }
