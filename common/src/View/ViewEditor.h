@@ -109,6 +109,7 @@ namespace TrenchBroom {
             void documentWasNewedOrLoaded(MapDocument* document);
             void editorContextDidChange();
             void mapViewConfigDidChange();
+            void entityDefinitionsDidChange();
             
             void createGui();
             
