@@ -716,6 +716,11 @@ namespace TrenchBroom {
             document->select(nodes);
         }
         
+        bool MapViewBase::canCreateBrushEntity() {
+            MapDocumentSPtr document = lock(m_document);
+            return document->selectedNodes().hasOnlyBrushes();
+        }
+
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -922,17 +927,25 @@ namespace TrenchBroom {
             for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
                 const Assets::EntityDefinitionGroup& group = *groupIt;
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
-                if (!definitions.empty()) {
+
+                Assets::EntityDefinitionList filteredDefinitions;
+                filteredDefinitions.reserve(definitions.size());
+                
+                Assets::EntityDefinitionList::const_iterator dIt, dEnd;
+                for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
+                    Assets::EntityDefinition* definition = *dIt;
+                    if (definition->name() != Model::AttributeValues::WorldspawnClassname)
+                        filteredDefinitions.push_back(definition);
+                }
+
+                if (!filteredDefinitions.empty()) {
                     const String groupName = group.displayName();
-                    
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
                     
-                    Assets::EntityDefinitionList::const_iterator dIt, dEnd;
-                    for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
+                    for (dIt = filteredDefinitions.begin(), dEnd = filteredDefinitions.end(); dIt != dEnd; ++dIt) {
                         const Assets::EntityDefinition* definition = *dIt;
-                        if (definition->name() != Model::AttributeValues::WorldspawnClassname)
-                            groupMenu->Append(id++, definition->shortName());
+                        groupMenu->Append(id++, definition->shortName());
                     }
                     
                     menu->AppendSubMenu(groupMenu, groupName);
@@ -1032,7 +1045,12 @@ namespace TrenchBroom {
                     updateMoveBrushesToWorldMenuItem(event);
                     break;
                 default:
-                    event.Enable(true);
+                    if (event.GetId() >= CommandIds::MapViewPopupMenu::LowestBrushEntityItem &&
+                        event.GetId() <= CommandIds::MapViewPopupMenu::HighestBrushEntityItem) {
+                        event.Enable(canCreateBrushEntity());
+                    } else {
+                        event.Enable(true);
+                    }
                     break;
             }
         }
