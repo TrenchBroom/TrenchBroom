@@ -416,7 +416,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::selectAllNodes() {
-            submit(SelectionCommand::selectAllNodes());
+            submit(CommandPtr(SelectionCommand::selectAllNodes()));
         }
         
         void MapDocument::selectSiblings() {
@@ -471,28 +471,28 @@ namespace TrenchBroom {
         }
         
         void MapDocument::select(const Model::NodeList& nodes) {
-            submit(SelectionCommand::select(nodes));
+            submit(CommandPtr(SelectionCommand::select(nodes)));
         }
         
         void MapDocument::select(Model::Node* node) {
-            submit(SelectionCommand::select(Model::NodeList(1, node)));
+            submit(CommandPtr(SelectionCommand::select(Model::NodeList(1, node))));
         }
         
         void MapDocument::select(const Model::BrushFaceList& faces) {
-            submit(SelectionCommand::select(faces));
+            submit(CommandPtr(SelectionCommand::select(faces)));
         }
         
         void MapDocument::select(Model::BrushFace* face) {
-            submit(SelectionCommand::select(Model::BrushFaceList(1, face)));
+            submit(CommandPtr(SelectionCommand::select(Model::BrushFaceList(1, face))));
             m_currentTextureName = face->textureName();
         }
         
         void MapDocument::convertToFaceSelection() {
-            submit(SelectionCommand::convertToFaces());
+            submit(CommandPtr(SelectionCommand::convertToFaces()));
         }
         
         void MapDocument::deselectAll() {
-            submit(SelectionCommand::deselectAll());
+            submit(CommandPtr(SelectionCommand::deselectAll()));
         }
         
         void MapDocument::deselect(Model::Node* node) {
@@ -500,11 +500,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::deselect(const Model::NodeList& nodes) {
-            submit(SelectionCommand::deselect(nodes));
+            submit(CommandPtr(SelectionCommand::deselect(nodes)));
         }
         
         void MapDocument::deselect(Model::BrushFace* face) {
-            submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
+            submit(CommandPtr(SelectionCommand::deselect(Model::BrushFaceList(1, face))));
         }
         
         void MapDocument::updateLastSelectionBounds() {
