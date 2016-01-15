@@ -1103,7 +1103,7 @@ namespace TrenchBroom {
             m_commandProcessor.rollbackGroup();
         }
 
-        bool MapDocumentCommandFacade::doSubmit(UndoableCommand* command) {
+        bool MapDocumentCommandFacade::doSubmit(CommandPtr command) {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
     }

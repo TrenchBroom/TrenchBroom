@@ -110,8 +110,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
-            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
+        bool ChangeEntityAttributesCommand::doCollateWith(CommandPtr command) {
+            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
             if (other->m_action != m_action)
                 return false;
             if (other->m_oldName != m_oldName)

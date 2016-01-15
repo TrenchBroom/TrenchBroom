@@ -93,12 +93,12 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
         
-        UndoableCommand* TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new TransformObjectsCommand(m_action, m_transform, m_lockTextures);
+        CommandPtr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new TransformObjectsCommand(m_action, m_transform, m_lockTextures));
         }
         
-        bool TransformObjectsCommand::doCollateWith(UndoableCommand* command) {
-            TransformObjectsCommand* other = static_cast<TransformObjectsCommand*>(command);
+        bool TransformObjectsCommand::doCollateWith(CommandPtr command) {
+            TransformObjectsCommand* other = static_cast<TransformObjectsCommand*>(command.get());
             if (other->m_lockTextures != m_lockTextures)
                 return false;
             if (other->m_action != m_action)

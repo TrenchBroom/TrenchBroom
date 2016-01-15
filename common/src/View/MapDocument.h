@@ -32,6 +32,7 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
+#include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
 class Color;
@@ -94,12 +95,12 @@ namespace TrenchBroom {
             
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier1<Command*> commandDoNotifier;
-            Notifier1<Command*> commandDoneNotifier;
-            Notifier1<Command*> commandDoFailedNotifier;
-            Notifier1<Command*> commandUndoNotifier;
-            Notifier1<Command*> commandUndoneNotifier;
-            Notifier1<Command*> commandUndoFailedNotifier;
+            Notifier1<CommandPtr> commandDoNotifier;
+            Notifier1<CommandPtr> commandDoneNotifier;
+            Notifier1<CommandPtr> commandDoFailedNotifier;
+            Notifier1<CommandPtr> commandUndoNotifier;
+            Notifier1<CommandPtr> commandUndoneNotifier;
+            Notifier1<CommandPtr> commandUndoFailedNotifier;
             
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
@@ -308,7 +309,7 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(UndoableCommand* command);
+            bool submit(CommandPtr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -323,7 +324,7 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(UndoableCommand* command) = 0;
+            virtual bool doSubmit(CommandPtr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking

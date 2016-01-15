@@ -50,8 +50,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ResizeBrushesCommand::doCollateWith(UndoableCommand* command) {
-            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command);
+        bool ResizeBrushesCommand::doCollateWith(CommandPtr command) {
+            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
             if (m_faces != other->m_faces)
                 return false;
             

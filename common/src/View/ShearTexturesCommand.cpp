@@ -52,12 +52,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new ShearTexturesCommand(*this);
+        CommandPtr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new ShearTexturesCommand(*this));
         }
         
-        bool ShearTexturesCommand::doCollateWith(UndoableCommand* command) {
-            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command);
+        bool ShearTexturesCommand::doCollateWith(CommandPtr command) {
+            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command.get());
             m_factors += other->m_factors;
             return true;
         }

@@ -50,7 +50,7 @@ namespace TrenchBroom {
             void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
     }
 }

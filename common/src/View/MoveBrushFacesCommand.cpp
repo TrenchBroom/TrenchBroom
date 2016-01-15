@@ -72,8 +72,8 @@ namespace TrenchBroom {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
-        bool MoveBrushFacesCommand::doCollateWith(UndoableCommand* command) {
-            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command);
+        bool MoveBrushFacesCommand::doCollateWith(CommandPtr command) {
+            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
             
             if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions))
                 return false;

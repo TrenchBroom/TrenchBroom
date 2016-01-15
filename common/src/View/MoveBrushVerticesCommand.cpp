@@ -75,8 +75,8 @@ namespace TrenchBroom {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
+        bool MoveBrushVerticesCommand::doCollateWith(CommandPtr command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
             
             if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
                 return false;

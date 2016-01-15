@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool RenameGroupsCommand::doCollateWith(UndoableCommand* command) {
+        bool RenameGroupsCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

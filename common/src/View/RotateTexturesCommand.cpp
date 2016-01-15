@@ -51,12 +51,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new RotateTexturesCommand(*this);
+        CommandPtr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new RotateTexturesCommand(*this));
         }
         
-        bool RotateTexturesCommand::doCollateWith(UndoableCommand* command) {
-            const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command);
+        bool RotateTexturesCommand::doCollateWith(CommandPtr command) {
+            const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command.get());
             
             m_angle += other->m_angle;
             return true;

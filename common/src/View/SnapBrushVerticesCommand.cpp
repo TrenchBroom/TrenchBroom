@@ -83,7 +83,7 @@ namespace TrenchBroom {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
 
-        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+        bool SnapBrushVerticesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

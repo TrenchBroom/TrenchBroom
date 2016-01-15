@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetLockStateCommand::doCollateWith(UndoableCommand* command) {
+        bool SetLockStateCommand::doCollateWith(CommandPtr command) {
             return false;
         }
 

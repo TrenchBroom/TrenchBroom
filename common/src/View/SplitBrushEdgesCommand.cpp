@@ -74,7 +74,7 @@ namespace TrenchBroom {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
         
-        bool SplitBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
+        bool SplitBrushEdgesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

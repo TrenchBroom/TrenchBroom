@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand* command) {
+        bool EntityDefinitionFileCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool SetModsCommand::doCollateWith(UndoableCommand* command) {
+        bool SetModsCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

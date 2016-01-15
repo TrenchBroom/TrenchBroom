@@ -106,7 +106,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool AddRemoveNodesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

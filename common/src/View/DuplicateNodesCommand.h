@@ -43,9 +43,9 @@ namespace TrenchBroom {
             bool cloneParent(const Model::Node* node) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
     }
 }

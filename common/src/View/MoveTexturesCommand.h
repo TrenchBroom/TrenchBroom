@@ -44,9 +44,9 @@ namespace TrenchBroom {
             void moveTextures(MapDocumentCommandFacade* document, const Vec2f& delta) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
     }
 }

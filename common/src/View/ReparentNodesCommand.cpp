@@ -71,7 +71,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool ReparentNodesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

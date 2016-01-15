@@ -74,7 +74,7 @@ namespace TrenchBroom {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
-        bool SplitBrushFacesCommand::doCollateWith(UndoableCommand* command) {
+        bool SplitBrushFacesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

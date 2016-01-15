@@ -84,7 +84,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand* command) {
+        bool SetVisibilityCommand::doCollateWith(CommandPtr command) {
             return false;
         }
 

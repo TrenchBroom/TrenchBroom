@@ -63,12 +63,12 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
         
-        UndoableCommand* ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new ChangeBrushFaceAttributesCommand(*this);
+        CommandPtr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new ChangeBrushFaceAttributesCommand(*this));
         }
         
-        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand* command) {
-            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command);
+        bool ChangeBrushFaceAttributesCommand::doCollateWith(CommandPtr command) {
+            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command.get());
             return m_request.collateWith(other->m_request);
         }
     }

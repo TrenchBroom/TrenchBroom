@@ -104,11 +104,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
         
-        UndoableCommand* DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new DuplicateNodesCommand();
+        CommandPtr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new DuplicateNodesCommand());
         }
         
-        bool DuplicateNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool DuplicateNodesCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

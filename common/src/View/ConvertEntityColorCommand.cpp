@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand* command) {
+        bool ConvertEntityColorCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

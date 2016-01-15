@@ -40,9 +40,9 @@ namespace TrenchBroom {
             bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
     }
 }

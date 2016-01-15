@@ -21,10 +21,13 @@
 #define TrenchBroom_UndoableCommand
 
 #include "View/Command.h"
+#include "SharedPointer.h"
 
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
+        class UndoableCommand;
+        typedef std::tr1::shared_ptr<UndoableCommand> CommandPtr;
         
         class UndoableCommand : public Command {
         public:
@@ -35,17 +38,17 @@ namespace TrenchBroom {
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* repeat(MapDocumentCommandFacade* document) const;
+            CommandPtr repeat(MapDocumentCommandFacade* document) const;
             
-            virtual bool collateWith(UndoableCommand* command);
+            virtual bool collateWith(CommandPtr command);
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
             
             virtual bool doIsRepeatDelimiter() const;
             virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;
-            virtual UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            virtual CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
             
-            virtual bool doCollateWith(UndoableCommand* command) = 0;
+            virtual bool doCollateWith(CommandPtr command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
         };

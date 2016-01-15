@@ -43,7 +43,7 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
     }
 }

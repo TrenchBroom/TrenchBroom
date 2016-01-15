@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool TextureCollectionCommand::doCollateWith(UndoableCommand* command) {
+        bool TextureCollectionCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

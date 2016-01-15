@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool FindPlanePointsCommand::doCollateWith(UndoableCommand* command) {
+        bool FindPlanePointsCommand::doCollateWith(CommandPtr command) {
             return false;
         }
     }

@@ -21,7 +21,6 @@
 #define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
@@ -36,7 +35,6 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        typedef std::tr1::shared_ptr<UndoableCommand> CommandPtr;
         typedef std::vector<CommandPtr> CommandList;
         
         class CommandGroup : public UndoableCommand {
@@ -45,25 +43,25 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier1<Command*>& m_commandDoNotifier;
-            Notifier1<Command*>& m_commandDoneNotifier;
-            Notifier1<Command*>& m_commandUndoNotifier;
-            Notifier1<Command*>& m_commandUndoneNotifier;
+            Notifier1<CommandPtr>& m_commandDoNotifier;
+            Notifier1<CommandPtr>& m_commandDoneNotifier;
+            Notifier1<CommandPtr>& m_commandUndoNotifier;
+            Notifier1<CommandPtr>& m_commandUndoneNotifier;
         public:
             CommandGroup(const String& name, const CommandList& commands,
-                         Notifier1<Command*>& commandDoNotifier,
-                         Notifier1<Command*>& commandDoneNotifier,
-                         Notifier1<Command*>& commandUndoNotifier,
-                         Notifier1<Command*>& commandUndoneNotifier);
+                         Notifier1<CommandPtr>& commandDoNotifier,
+                         Notifier1<CommandPtr>& commandDoneNotifier,
+                         Notifier1<CommandPtr>& commandUndoNotifier,
+                         Notifier1<CommandPtr>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
 
             bool doIsRepeatDelimiter() const;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
 
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(CommandPtr command);
         };
         
         class CommandProcessor {
@@ -87,12 +85,12 @@ namespace TrenchBroom {
         public:
             CommandProcessor(MapDocumentCommandFacade* document);
             
-            Notifier1<Command*> commandDoNotifier;
-            Notifier1<Command*> commandDoneNotifier;
-            Notifier1<Command*> commandDoFailedNotifier;
-            Notifier1<Command*> commandUndoNotifier;
-            Notifier1<Command*> commandUndoneNotifier;
-            Notifier1<Command*> commandUndoFailedNotifier;
+            Notifier1<CommandPtr> commandDoNotifier;
+            Notifier1<CommandPtr> commandDoneNotifier;
+            Notifier1<CommandPtr> commandDoFailedNotifier;
+            Notifier1<CommandPtr> commandUndoNotifier;
+            Notifier1<CommandPtr> commandUndoneNotifier;
+            Notifier1<CommandPtr> commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
@@ -104,8 +102,8 @@ namespace TrenchBroom {
             void endGroup();
             void rollbackGroup();
             
-            bool submitCommand(Command* command);
-            bool submitAndStoreCommand(UndoableCommand* command);
+            bool submitCommand(CommandPtr command);
+            bool submitAndStoreCommand(CommandPtr command);
             bool undoLastCommand();
             bool redoNextCommand();
             
@@ -113,7 +111,7 @@ namespace TrenchBroom {
             void clearRepeatableCommands();
         private:
             SubmitAndStoreResult submitAndStoreCommand(CommandPtr command, bool collate);
-            bool doCommand(Command* command);
+            bool doCommand(CommandPtr command);
             bool undoCommand(CommandPtr command);
             bool storeCommand(CommandPtr command, bool collate);
             
@@ -121,7 +119,7 @@ namespace TrenchBroom {
             bool pushGroupedCommand(CommandPtr command, bool collate);
             CommandPtr popGroupedCommand();
             void createAndStoreCommandGroup();
-            UndoableCommand* createCommandGroup(const String& name, const CommandList& commands);
+            CommandPtr createCommandGroup(const String& name, const CommandList& commands);
 
             bool pushLastCommand(CommandPtr command, bool collate);
             bool collatable(bool collate, wxLongLong timestamp) const;

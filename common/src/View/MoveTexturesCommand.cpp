@@ -54,12 +54,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new MoveTexturesCommand(*this);
+        CommandPtr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return CommandPtr(new MoveTexturesCommand(*this));
         }
         
-        bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
-            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command);
+        bool MoveTexturesCommand::doCollateWith(CommandPtr command) {
+            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command.get());
             
             if (other->m_cameraUp != m_cameraUp ||
                 other->m_cameraRight != m_cameraRight)
