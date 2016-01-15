@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_DuplicateNodesCommand
 #define TrenchBroom_DuplicateNodesCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -28,11 +29,12 @@ namespace TrenchBroom {
         class DuplicateNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<DuplicateNodesCommand> Ptr;
         private:
             Model::NodeList m_previouslySelectedNodes;
             Model::NodeList m_addedNodes;
         public:
-            static DuplicateNodesCommand* duplicate();
+            static Ptr duplicate();
         private:
             DuplicateNodesCommand();
 
@@ -43,9 +45,9 @@ namespace TrenchBroom {
             bool cloneParent(const Model::Node* node) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

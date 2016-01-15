@@ -142,7 +142,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool SelectionCommand::doCollateWith(CommandPtr command) {
+        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

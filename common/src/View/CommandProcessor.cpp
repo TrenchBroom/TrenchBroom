@@ -31,10 +31,10 @@ namespace TrenchBroom {
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
         CommandGroup::CommandGroup(const String& name, const CommandList& commands,
-                                   Notifier1<CommandPtr>& commandDoNotifier,
-                                   Notifier1<CommandPtr>& commandDoneNotifier,
-                                   Notifier1<CommandPtr>& commandUndoNotifier,
-                                   Notifier1<CommandPtr>& commandUndoneNotifier) :
+                                   Notifier1<Command::Ptr>& commandDoNotifier,
+                                   Notifier1<Command::Ptr>& commandDoneNotifier,
+                                   Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
+                                   Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier) :
         UndoableCommand(Type, name),
         m_commands(commands),
         m_commandDoNotifier(commandDoNotifier),
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
             CommandList::iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 m_commandDoNotifier(command);
                 if (!command->performDo(document))
                     throw CommandProcessorException("Partial failure while executing command group");
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         bool CommandGroup::doPerformUndo(MapDocumentCommandFacade* document) {
             CommandList::reverse_iterator it, end;
             for (it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 m_commandUndoNotifier(command);
                 if (!command->performUndo(document))
                     throw CommandProcessorException("Partial failure while undoing command group");
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         bool CommandGroup::doIsRepeatDelimiter() const {
             CommandList::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 if (command->isRepeatDelimiter())
                     return true;
             }
@@ -79,26 +79,26 @@ namespace TrenchBroom {
         bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
             CommandList::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 if (!command->isRepeatable(document))
                     return false;
             }
             return true;
         }
         
-        CommandPtr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
             CommandList clones;
             CommandList::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 assert(command->isRepeatable(document));
-                CommandPtr clone = command->repeat(document);
+                UndoableCommand::Ptr clone = command->repeat(document);
                 clones.push_back(clone);
             }
-            return CommandPtr(new CommandGroup(name(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier));
+            return UndoableCommand::Ptr(new CommandGroup(name(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier));
         }
         
-        bool CommandGroup::doCollateWith(CommandPtr command) {
+        bool CommandGroup::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
         
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 popGroupedCommand()->performUndo(m_document);
         }
         
-        bool CommandProcessor::submitCommand(CommandPtr command) {
+        bool CommandProcessor::submitCommand(Command::Ptr command) {
             const bool success = doCommand(command);
             if (!success)
                 return false;
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool CommandProcessor::submitAndStoreCommand(CommandPtr command) {
+        bool CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command) {
             const SubmitAndStoreResult result = submitAndStoreCommand(command, true);
             if (result.submitted) {
                 if (result.stored && m_groupLevel == 0)
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             if (m_groupLevel > 0)
                 throw CommandProcessorException("Cannot undo individual commands of a command group");
             
-            CommandPtr command = popLastCommand();
+            UndoableCommand::Ptr command = popLastCommand();
             if (undoCommand(command)) {
                 pushNextCommand(command);
                 popLastRepeatableCommand(command);
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             if (m_groupLevel > 0)
                 throw CommandProcessorException("Cannot redo while in a command group");
             
-            CommandPtr command = popNextCommand();
+            UndoableCommand::Ptr command = popNextCommand();
             if (doCommand(command)) {
                 if (pushLastCommand(command, false) && m_groupLevel == 0)
                     pushRepeatableCommand(command);
@@ -210,9 +210,9 @@ namespace TrenchBroom {
             CommandList commands;
             CommandStack::iterator it, end;
             for (it = m_repeatableCommandStack.begin(), end = m_repeatableCommandStack.end(); it != end; ++it) {
-                CommandPtr command = *it;
+                UndoableCommand::Ptr command = *it;
                 if (command->isRepeatable(m_document))
-                    commands.push_back(CommandPtr(command->repeat(m_document)));
+                    commands.push_back(UndoableCommand::Ptr(command->repeat(m_document)));
             }
             
             if (commands.empty())
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             StringStream name;
             name << "Repeat " << commands.size() << " Commands";
             
-            CommandPtr repeatableCommand = CommandPtr(createCommandGroup(name.str(), commands));
+            UndoableCommand::Ptr repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
             return submitAndStoreCommand(repeatableCommand, false).submitted;
         }
         
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             m_clearRepeatableCommandStack = false;
         }
         
-        CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(CommandPtr command, const bool collate) {
+        CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command, const bool collate) {
             SubmitAndStoreResult result;
             result.submitted = doCommand(command);
             if (!result.submitted)
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        bool CommandProcessor::doCommand(CommandPtr command) {
+        bool CommandProcessor::doCommand(Command::Ptr command) {
             if (command->type() != CommandGroup::Type)
                 commandDoNotifier(command);
             if (command->performDo(m_document)) {
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool CommandProcessor::undoCommand(CommandPtr command) {
+        bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
             if (command->type() != CommandGroup::Type)
                 commandUndoNotifier(command);
             if (command->performUndo(m_document)) {
@@ -268,16 +268,16 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool CommandProcessor::storeCommand(CommandPtr command, const bool collate) {
+        bool CommandProcessor::storeCommand(UndoableCommand::Ptr command, const bool collate) {
             if (m_groupLevel == 0)
                 return pushLastCommand(command, collate);
             return pushGroupedCommand(command, collate);
         }
         
-        bool CommandProcessor::pushGroupedCommand(CommandPtr command, const bool collate) {
+        bool CommandProcessor::pushGroupedCommand(UndoableCommand::Ptr command, const bool collate) {
             assert(m_groupLevel > 0);
             if (!m_groupedCommands.empty()) {
-                CommandPtr lastCommand = m_groupedCommands.back();
+                UndoableCommand::Ptr lastCommand = m_groupedCommands.back();
                 if (collate && !lastCommand->collateWith(command)) {
                     m_groupedCommands.push_back(command);
                     return false;
@@ -288,11 +288,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        CommandPtr CommandProcessor::popGroupedCommand() {
+        UndoableCommand::Ptr CommandProcessor::popGroupedCommand() {
             assert(m_groupLevel > 0);
             if (m_groupedCommands.empty())
                 throw CommandProcessorException("Group command stack is empty");
-            CommandPtr groupedCommand = m_groupedCommands.back();
+            UndoableCommand::Ptr groupedCommand = m_groupedCommands.back();
             m_groupedCommands.pop_back();
             return groupedCommand;
         }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             if (!m_groupedCommands.empty()) {
                 if (m_groupName.empty())
                     m_groupName = m_groupedCommands.front()->name();
-                CommandPtr group(createCommandGroup(m_groupName, m_groupedCommands));
+                UndoableCommand::Ptr group(createCommandGroup(m_groupName, m_groupedCommands));
                 m_groupedCommands.clear();
                 pushLastCommand(group, false);
                 pushRepeatableCommand(group);
@@ -309,22 +309,22 @@ namespace TrenchBroom {
             m_groupName = "";
         }
         
-        CommandPtr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
-            return CommandPtr(new CommandGroup(name, commands,
+        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
+            return UndoableCommand::Ptr(new CommandGroup(name, commands,
                                                commandDoNotifier,
                                                commandDoneNotifier,
                                                commandUndoNotifier,
                                                commandUndoneNotifier));
         }
         
-        bool CommandProcessor::pushLastCommand(CommandPtr command, const bool collate) {
+        bool CommandProcessor::pushLastCommand(UndoableCommand::Ptr command, const bool collate) {
             assert(m_groupLevel == 0);
             
             const wxLongLong timestamp = ::wxGetLocalTimeMillis();
             const SetLate<wxLongLong> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
             
             if (collatable(collate, timestamp)) {
-                CommandPtr lastCommand = m_lastCommandStack.back();
+                UndoableCommand::Ptr lastCommand = m_lastCommandStack.back();
                 if (lastCommand->collateWith(command))
                     return false;
             }
@@ -336,12 +336,12 @@ namespace TrenchBroom {
             return collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
         }
         
-        void CommandProcessor::pushNextCommand(CommandPtr command) {
+        void CommandProcessor::pushNextCommand(UndoableCommand::Ptr command) {
             assert(m_groupLevel == 0);
             m_nextCommandStack.push_back(command);
         }
         
-        void CommandProcessor::pushRepeatableCommand(CommandPtr command) {
+        void CommandProcessor::pushRepeatableCommand(UndoableCommand::Ptr command) {
             if (command->isRepeatDelimiter()) {
                 m_clearRepeatableCommandStack = true;
             } else {
@@ -353,25 +353,25 @@ namespace TrenchBroom {
             }
         }
         
-        CommandPtr CommandProcessor::popLastCommand() {
+        UndoableCommand::Ptr CommandProcessor::popLastCommand() {
             assert(m_groupLevel == 0);
             if (m_lastCommandStack.empty())
                 throw CommandProcessorException("Command stack is empty");
-            CommandPtr lastCommand = m_lastCommandStack.back();
+            UndoableCommand::Ptr lastCommand = m_lastCommandStack.back();
             m_lastCommandStack.pop_back();
             return lastCommand;
         }
         
-        CommandPtr CommandProcessor::popNextCommand() {
+        UndoableCommand::Ptr CommandProcessor::popNextCommand() {
             assert(m_groupLevel == 0);
             if (m_nextCommandStack.empty())
                 throw CommandProcessorException("Command stack is empty");
-            CommandPtr nextCommand = m_nextCommandStack.back();
+            UndoableCommand::Ptr nextCommand = m_nextCommandStack.back();
             m_nextCommandStack.pop_back();
             return nextCommand;
         }
         
-        void CommandProcessor::popLastRepeatableCommand(CommandPtr command) {
+        void CommandProcessor::popLastRepeatableCommand(UndoableCommand::Ptr command) {
             if (!m_repeatableCommandStack.empty() && m_repeatableCommandStack.back() == command)
                 m_repeatableCommandStack.pop_back();
         }

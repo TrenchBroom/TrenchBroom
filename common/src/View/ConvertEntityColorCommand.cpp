@@ -25,8 +25,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ConvertEntityColorCommand::Type = Command::freeType();
         
-        ConvertEntityColorCommand* ConvertEntityColorCommand::convert(const Model::AttributeName& attributeName, const Assets::ColorRange::Type colorRange) {
-            return new ConvertEntityColorCommand(attributeName, colorRange);
+        ConvertEntityColorCommand::Ptr ConvertEntityColorCommand::convert(const Model::AttributeName& attributeName, const Assets::ColorRange::Type colorRange) {
+            return Ptr(new ConvertEntityColorCommand(attributeName, colorRange));
         }
 
         ConvertEntityColorCommand::ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange) :
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ConvertEntityColorCommand::doCollateWith(CommandPtr command) {
+        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

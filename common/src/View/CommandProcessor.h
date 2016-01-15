@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        typedef std::vector<CommandPtr> CommandList;
+        typedef std::vector<UndoableCommand::Ptr> CommandList;
         
         class CommandGroup : public UndoableCommand {
         public:
@@ -43,25 +43,25 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier1<CommandPtr>& m_commandDoNotifier;
-            Notifier1<CommandPtr>& m_commandDoneNotifier;
-            Notifier1<CommandPtr>& m_commandUndoNotifier;
-            Notifier1<CommandPtr>& m_commandUndoneNotifier;
+            Notifier1<Command::Ptr>& m_commandDoNotifier;
+            Notifier1<Command::Ptr>& m_commandDoneNotifier;
+            Notifier1<UndoableCommand::Ptr>& m_commandUndoNotifier;
+            Notifier1<UndoableCommand::Ptr>& m_commandUndoneNotifier;
         public:
             CommandGroup(const String& name, const CommandList& commands,
-                         Notifier1<CommandPtr>& commandDoNotifier,
-                         Notifier1<CommandPtr>& commandDoneNotifier,
-                         Notifier1<CommandPtr>& commandUndoNotifier,
-                         Notifier1<CommandPtr>& commandUndoneNotifier);
+                         Notifier1<Command::Ptr>& commandDoNotifier,
+                         Notifier1<Command::Ptr>& commandDoneNotifier,
+                         Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
+                         Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
 
             bool doIsRepeatDelimiter() const;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
 
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
         
         class CommandProcessor {
@@ -85,12 +85,12 @@ namespace TrenchBroom {
         public:
             CommandProcessor(MapDocumentCommandFacade* document);
             
-            Notifier1<CommandPtr> commandDoNotifier;
-            Notifier1<CommandPtr> commandDoneNotifier;
-            Notifier1<CommandPtr> commandDoFailedNotifier;
-            Notifier1<CommandPtr> commandUndoNotifier;
-            Notifier1<CommandPtr> commandUndoneNotifier;
-            Notifier1<CommandPtr> commandUndoFailedNotifier;
+            Notifier1<Command::Ptr> commandDoNotifier;
+            Notifier1<Command::Ptr> commandDoneNotifier;
+            Notifier1<Command::Ptr> commandDoFailedNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
@@ -102,35 +102,35 @@ namespace TrenchBroom {
             void endGroup();
             void rollbackGroup();
             
-            bool submitCommand(CommandPtr command);
-            bool submitAndStoreCommand(CommandPtr command);
+            bool submitCommand(Command::Ptr command);
+            bool submitAndStoreCommand(UndoableCommand::Ptr command);
             bool undoLastCommand();
             bool redoNextCommand();
             
             bool repeatLastCommands();
             void clearRepeatableCommands();
         private:
-            SubmitAndStoreResult submitAndStoreCommand(CommandPtr command, bool collate);
-            bool doCommand(CommandPtr command);
-            bool undoCommand(CommandPtr command);
-            bool storeCommand(CommandPtr command, bool collate);
+            SubmitAndStoreResult submitAndStoreCommand(UndoableCommand::Ptr command, bool collate);
+            bool doCommand(Command::Ptr command);
+            bool undoCommand(UndoableCommand::Ptr command);
+            bool storeCommand(UndoableCommand::Ptr command, bool collate);
             
             void beginGroup(const String& name, bool undoable);
-            bool pushGroupedCommand(CommandPtr command, bool collate);
-            CommandPtr popGroupedCommand();
+            bool pushGroupedCommand(UndoableCommand::Ptr command, bool collate);
+            UndoableCommand::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
-            CommandPtr createCommandGroup(const String& name, const CommandList& commands);
+            UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
 
-            bool pushLastCommand(CommandPtr command, bool collate);
+            bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
             bool collatable(bool collate, wxLongLong timestamp) const;
             
-            void pushNextCommand(CommandPtr command);
-            void pushRepeatableCommand(CommandPtr command);
+            void pushNextCommand(UndoableCommand::Ptr command);
+            void pushRepeatableCommand(UndoableCommand::Ptr command);
             
             
-            CommandPtr popLastCommand();
-            CommandPtr popNextCommand();
-            void popLastRepeatableCommand(CommandPtr command);
+            UndoableCommand::Ptr popLastCommand();
+            UndoableCommand::Ptr popNextCommand();
+            void popLastRepeatableCommand(UndoableCommand::Ptr command);
         };
     }
 }

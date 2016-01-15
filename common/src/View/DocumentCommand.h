@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             bool performDo(MapDocumentCommandFacade* document);
             bool performUndo(MapDocumentCommandFacade* document);
-            bool collateWith(CommandPtr command);
+            bool collateWith(UndoableCommand::Ptr command);
         private:
             size_t documentModificationCount() const;
         };

@@ -70,7 +70,7 @@ namespace TrenchBroom {
             bool doIsRepeatDelimiter() const;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

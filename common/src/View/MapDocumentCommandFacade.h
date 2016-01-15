@@ -150,7 +150,7 @@ namespace TrenchBroom {
             void doEndTransaction();
             void doRollbackTransaction();
 
-            bool doSubmit(CommandPtr command);
+            bool doSubmit(UndoableCommand::Ptr command);
         };
     }
 }

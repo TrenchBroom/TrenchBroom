@@ -509,12 +509,12 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &VertexTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &VertexTool::nodesDidChange);
-            document->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            document->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
-            document->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            document->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            document->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            document->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            document->commandDoNotifier.addObserver(this, &VertexTool::commandDo);
+            document->commandDoneNotifier.addObserver(this, &VertexTool::commandDone);
+            document->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailed);
+            document->commandUndoNotifier.addObserver(this, &VertexTool::commandUndo);
+            document->commandUndoneNotifier.addObserver(this, &VertexTool::commandUndone);
+            document->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandUndoFailed);
         }
         
         void VertexTool::unbindObservers() {
@@ -523,26 +523,50 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &VertexTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &VertexTool::nodesDidChange);
-                document->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                document->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
-                document->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
-                document->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                document->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-                document->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+                document->commandDoNotifier.removeObserver(this, &VertexTool::commandDo);
+                document->commandDoneNotifier.removeObserver(this, &VertexTool::commandDone);
+                document->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailed);
+                document->commandUndoNotifier.removeObserver(this, &VertexTool::commandUndo);
+                document->commandUndoneNotifier.removeObserver(this, &VertexTool::commandUndone);
+                document->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandUndoFailed);
             }
         }
         
-        void VertexTool::commandDoOrUndo(Command* command) {
+        void VertexTool::commandDo(Command::Ptr command) {
+            commandDoOrUndo(command);
+        }
+        
+        void VertexTool::commandDone(Command::Ptr command) {
+            commandDoneOrUndoFailed(command);
+        }
+        
+        void VertexTool::commandDoFailed(Command::Ptr command) {
+            commandDoFailedOrUndone(command);
+        }
+        
+        void VertexTool::commandUndo(UndoableCommand::Ptr command) {
+            commandDoOrUndo(command);
+        }
+        
+        void VertexTool::commandUndone(UndoableCommand::Ptr command) {
+            commandDoFailedOrUndone(command);
+        }
+        
+        void VertexTool::commandUndoFailed(UndoableCommand::Ptr command) {
+            commandDoneOrUndoFailed(command);
+        }
+
+        void VertexTool::commandDoOrUndo(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->removeBrushes(m_handleManager);
                 m_ignoreChangeNotifications = true;
             }
         }
         
-        void VertexTool::commandDoneOrUndoFailed(Command* command) {
+        void VertexTool::commandDoneOrUndoFailed(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectNewHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
@@ -552,9 +576,9 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::commandDoFailedOrUndone(Command* command) {
+        void VertexTool::commandDoFailedOrUndone(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectOldHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
@@ -564,7 +588,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool VertexTool::isVertexCommand(const Command* command) const {
+        bool VertexTool::isVertexCommand(const Command::Ptr command) const {
             return (command->type() == SnapBrushVerticesCommand::Type ||
                     command->type() == MoveBrushVerticesCommand::Type ||
                     command->type() == MoveBrushEdgesCommand::Type ||

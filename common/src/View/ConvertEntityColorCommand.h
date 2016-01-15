@@ -21,6 +21,7 @@
 #define TrenchBroom_ConvertEntityColorCommand
 
 #include "Color.h"
+#include "SharedPointer.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"
@@ -35,13 +36,14 @@ namespace TrenchBroom {
         class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ConvertEntityColorCommand> Ptr;
         private:
             Model::AttributeName m_attributeName;
             Assets::ColorRange::Type m_colorRange;
             
             Model::EntityAttributeSnapshot::Map m_snapshots;
         public:
-            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            static Ptr convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
         private:
             ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
             
@@ -50,7 +52,7 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_CurrentGroupCommand
 #define TrenchBroom_CurrentGroupCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 
@@ -30,18 +31,19 @@ namespace TrenchBroom {
         class CurrentGroupCommand : public UndoableCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<CurrentGroupCommand> Ptr;
         private:
             Model::Group* m_group;
         public:
-            static CurrentGroupCommand* push(Model::Group* group);
-            static CurrentGroupCommand* pop();
+            static Ptr push(Model::Group* group);
+            static Ptr pop();
         private:
             CurrentGroupCommand(Model::Group* group);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
         };
     }

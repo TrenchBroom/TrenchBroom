@@ -95,12 +95,12 @@ namespace TrenchBroom {
             
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier1<CommandPtr> commandDoNotifier;
-            Notifier1<CommandPtr> commandDoneNotifier;
-            Notifier1<CommandPtr> commandDoFailedNotifier;
-            Notifier1<CommandPtr> commandUndoNotifier;
-            Notifier1<CommandPtr> commandUndoneNotifier;
-            Notifier1<CommandPtr> commandUndoFailedNotifier;
+            Notifier1<Command::Ptr> commandDoNotifier;
+            Notifier1<Command::Ptr> commandDoneNotifier;
+            Notifier1<Command::Ptr> commandDoFailedNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
             
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(CommandPtr command);
+            bool submit(UndoableCommand::Ptr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(CommandPtr command) = 0;
+            virtual bool doSubmit(UndoableCommand::Ptr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking

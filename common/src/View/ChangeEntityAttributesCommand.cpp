@@ -27,21 +27,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        ChangeEntityAttributesCommand* ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            ChangeEntityAttributesCommand* command = new ChangeEntityAttributesCommand(Action_Set);
+        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            Ptr command(new ChangeEntityAttributesCommand(Action_Set));
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
         
-        ChangeEntityAttributesCommand* ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
-            ChangeEntityAttributesCommand* command = new ChangeEntityAttributesCommand(Action_Remove);
+        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
+            Ptr command(new ChangeEntityAttributesCommand(Action_Remove));
             command->setName(name);
             return command;
         }
         
-        ChangeEntityAttributesCommand* ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            ChangeEntityAttributesCommand* command = new ChangeEntityAttributesCommand(Action_Rename);
+        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            Ptr command(new ChangeEntityAttributesCommand(Action_Rename));
             command->setName(oldName);
             command->setNewName(newName);
             return command;
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ChangeEntityAttributesCommand::doCollateWith(CommandPtr command) {
+        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
             ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
             if (other->m_action != m_action)
                 return false;

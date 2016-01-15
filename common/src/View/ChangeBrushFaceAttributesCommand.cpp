@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeBrushFaceAttributesCommand::Type = Command::freeType();
 
-        ChangeBrushFaceAttributesCommand* ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
-            return new ChangeBrushFaceAttributesCommand(request);
+        ChangeBrushFaceAttributesCommand::Ptr ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
+            return Ptr(new ChangeBrushFaceAttributesCommand(request));
         }
 
         ChangeBrushFaceAttributesCommand::ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request) :
@@ -63,11 +63,11 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
         
-        CommandPtr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return CommandPtr(new ChangeBrushFaceAttributesCommand(*this));
+        UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(*this));
         }
         
-        bool ChangeBrushFaceAttributesCommand::doCollateWith(CommandPtr command) {
+        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
             ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command.get());
             return m_request.collateWith(other->m_request);
         }

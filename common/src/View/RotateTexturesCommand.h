@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_RotateTexturesCommand
 #define TrenchBroom_RotateTexturesCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
@@ -27,10 +28,11 @@ namespace TrenchBroom {
         class RotateTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<RotateTexturesCommand> Ptr;
         private:
             float m_angle;
         public:
-            static RotateTexturesCommand* rotate(float angle);
+            static Ptr rotate(float angle);
         private:
             RotateTexturesCommand(float angle);
             
@@ -40,9 +42,9 @@ namespace TrenchBroom {
             bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            CommandPtr doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

@@ -25,20 +25,20 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand* SetVisibilityCommand::show(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Action_Show);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Show));
         }
         
-        SetVisibilityCommand* SetVisibilityCommand::hide(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Action_Hide);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
         }
         
-        SetVisibilityCommand* SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Action_Ensure);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
         }
 
-        SetVisibilityCommand* SetVisibilityCommand::reset(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Action_Reset);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
         }
 
         SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(CommandPtr command) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
 

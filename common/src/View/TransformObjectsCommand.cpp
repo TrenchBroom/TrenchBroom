@@ -28,19 +28,19 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
-        TransformObjectsCommand* TransformObjectsCommand::translate(const Vec3& delta, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const Vec3& delta, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(delta);
-            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+            return Ptr(new TransformObjectsCommand(Action_Translate, transform, lockTextures));
         }
         
-        TransformObjectsCommand* TransformObjectsCommand::rotate(const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
-            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+            return Ptr(new TransformObjectsCommand(Action_Translate, transform, lockTextures));
         }
         
-        TransformObjectsCommand* TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
-            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+            return Ptr(new TransformObjectsCommand(Action_Translate, transform, lockTextures));
         }
 
         TransformObjectsCommand::~TransformObjectsCommand() {
@@ -93,11 +93,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
         
-        CommandPtr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return CommandPtr(new TransformObjectsCommand(m_action, m_transform, m_lockTextures));
+        UndoableCommand::Ptr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return UndoableCommand::Ptr(new TransformObjectsCommand(m_action, m_transform, m_lockTextures));
         }
         
-        bool TransformObjectsCommand::doCollateWith(CommandPtr command) {
+        bool TransformObjectsCommand::doCollateWith(UndoableCommand::Ptr command) {
             TransformObjectsCommand* other = static_cast<TransformObjectsCommand*>(command.get());
             if (other->m_lockTextures != m_lockTextures)
                 return false;

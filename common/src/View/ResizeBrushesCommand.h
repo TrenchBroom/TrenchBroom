@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -30,11 +31,12 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
             Model::BrushFaceList m_faces;
             Vec3 m_delta;
         public:
-            static ResizeBrushesCommand* resize(const Model::BrushFaceList& faces, const Vec3& delta);
+            static Ptr resize(const Model::BrushFaceList& faces, const Vec3& delta);
         private:
             ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta);
             
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(CommandPtr command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
