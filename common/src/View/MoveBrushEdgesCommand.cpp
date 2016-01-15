@@ -29,13 +29,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
         
-        MoveBrushEdgesCommand* MoveBrushEdgesCommand::move(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
             Edge3::List edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
-            return new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta);
+            return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
         
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
@@ -71,8 +71,8 @@ namespace TrenchBroom {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
         
-        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
-            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command);
+        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
+            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
             
             if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions))
                 return false;

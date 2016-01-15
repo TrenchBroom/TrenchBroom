@@ -29,13 +29,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SplitBrushEdgesCommand::Type = Command::freeType();
         
-        SplitBrushEdgesCommand* SplitBrushEdgesCommand::split(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+        SplitBrushEdgesCommand::Ptr SplitBrushEdgesCommand::split(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
             Edge3::List edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
-            return new SplitBrushEdgesCommand(brushes, brushEdges, edgePositions, delta);
+            return Ptr(new SplitBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
         
         SplitBrushEdgesCommand::SplitBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
         
-        bool SplitBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
+        bool SplitBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

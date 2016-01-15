@@ -29,6 +29,7 @@
 #include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
+#include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -80,7 +81,8 @@ namespace TrenchBroom {
             
             void nodesDidChange(const Model::NodeList& nodes);
             void toolChanged(Tool* tool);
-            void commandProcessed(Command* command);
+            void commandDone(Command::Ptr command);
+            void commandUndone(UndoableCommand::Ptr command);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             void entityDefinitionsDidChange();

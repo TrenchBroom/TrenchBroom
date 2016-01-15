@@ -28,18 +28,18 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        ReparentNodesCommand* ReparentNodesCommand::reparent(Model::Node* newParent, const Model::NodeList& children) {
+        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(Model::Node* newParent, const Model::NodeList& children) {
             assert(newParent != NULL);
             assert(!children.empty());
             
             Model::ParentChildrenMap map;
             map[newParent] = children;
-            return new ReparentNodesCommand(map);
+            return Ptr(new ReparentNodesCommand(map));
         }
 
-        ReparentNodesCommand* ReparentNodesCommand::reparent(const Model::ParentChildrenMap& nodes) {
+        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const Model::ParentChildrenMap& nodes) {
             assert(!nodes.empty());
-            return new ReparentNodesCommand(nodes);
+            return Ptr(new ReparentNodesCommand(nodes));
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const Model::ParentChildrenMap& nodes) :
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool ReparentNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

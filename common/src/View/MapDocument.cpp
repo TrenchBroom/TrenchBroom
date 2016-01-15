@@ -416,7 +416,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::selectAllNodes() {
-            submit(SelectionCommand::selectAllNodes());
+            submit(UndoableCommand::Ptr(SelectionCommand::selectAllNodes()));
         }
         
         void MapDocument::selectSiblings() {
@@ -471,28 +471,28 @@ namespace TrenchBroom {
         }
         
         void MapDocument::select(const Model::NodeList& nodes) {
-            submit(SelectionCommand::select(nodes));
+            submit(UndoableCommand::Ptr(SelectionCommand::select(nodes)));
         }
         
         void MapDocument::select(Model::Node* node) {
-            submit(SelectionCommand::select(Model::NodeList(1, node)));
+            submit(UndoableCommand::Ptr(SelectionCommand::select(Model::NodeList(1, node))));
         }
         
         void MapDocument::select(const Model::BrushFaceList& faces) {
-            submit(SelectionCommand::select(faces));
+            submit(UndoableCommand::Ptr(SelectionCommand::select(faces)));
         }
         
         void MapDocument::select(Model::BrushFace* face) {
-            submit(SelectionCommand::select(Model::BrushFaceList(1, face)));
+            submit(UndoableCommand::Ptr(SelectionCommand::select(Model::BrushFaceList(1, face))));
             m_currentTextureName = face->textureName();
         }
         
         void MapDocument::convertToFaceSelection() {
-            submit(SelectionCommand::convertToFaces());
+            submit(UndoableCommand::Ptr(SelectionCommand::convertToFaces()));
         }
         
         void MapDocument::deselectAll() {
-            submit(SelectionCommand::deselectAll());
+            submit(UndoableCommand::Ptr(SelectionCommand::deselectAll()));
         }
         
         void MapDocument::deselect(Model::Node* node) {
@@ -500,11 +500,11 @@ namespace TrenchBroom {
         }
         
         void MapDocument::deselect(const Model::NodeList& nodes) {
-            submit(SelectionCommand::deselect(nodes));
+            submit(UndoableCommand::Ptr(SelectionCommand::deselect(nodes)));
         }
         
         void MapDocument::deselect(Model::BrushFace* face) {
-            submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
+            submit(UndoableCommand::Ptr(SelectionCommand::deselect(Model::BrushFaceList(1, face))));
         }
         
         void MapDocument::updateLastSelectionBounds() {
@@ -544,7 +544,7 @@ namespace TrenchBroom {
         
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
             Transaction transaction(this, "Add objects");
-            AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
+            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
             
@@ -554,7 +554,7 @@ namespace TrenchBroom {
         }
         
         Model::NodeList MapDocument::addNodes(const Model::NodeList& nodes, Model::Node* parent) {
-            AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(parent, nodes);
+            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(parent, nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
 
@@ -927,7 +927,7 @@ namespace TrenchBroom {
         }
         
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
-            MoveBrushVerticesCommand* command = MoveBrushVerticesCommand::move(vertices, delta);
+            MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::move(vertices, delta);
             const bool success = submit(command);
             const bool hasRemainingVertices = command->hasRemainingVertices();
             return MoveVerticesResult(success, hasRemainingVertices);
@@ -1029,7 +1029,7 @@ namespace TrenchBroom {
             doEndTransaction();
         }
         
-        bool MapDocument::submit(UndoableCommand* command) {
+        bool MapDocument::submit(UndoableCommand::Ptr command) {
             return doSubmit(command);
         }
         

@@ -27,6 +27,7 @@
 #include "Model/Node.h"
 #include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
+#include "View/UndoableCommand.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -149,7 +150,7 @@ namespace TrenchBroom {
             void doEndTransaction();
             void doRollbackTransaction();
 
-            bool doSubmit(UndoableCommand* command);
+            bool doSubmit(UndoableCommand::Ptr command);
         };
     }
 }

@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType FindPlanePointsCommand::Type = Command::freeType();
 
-        FindPlanePointsCommand* FindPlanePointsCommand::findPlanePoints() {
-            return new FindPlanePointsCommand();
+        FindPlanePointsCommand::Ptr FindPlanePointsCommand::findPlanePoints() {
+            return Ptr(new FindPlanePointsCommand());
         }
 
         FindPlanePointsCommand::FindPlanePointsCommand() :
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool FindPlanePointsCommand::doCollateWith(UndoableCommand* command) {
+        bool FindPlanePointsCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

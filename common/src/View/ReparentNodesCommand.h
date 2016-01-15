@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ReparentNodesCommand
 #define TrenchBroom_ReparentNodesCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -28,22 +29,24 @@ namespace TrenchBroom {
         class ReparentNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ReparentNodesCommand> Ptr;
         private:
             Model::ParentChildrenMap m_nodes;
             Model::ParentChildrenMap m_removedNodes;
         public:
-            static ReparentNodesCommand* reparent(Model::Node* newParent, const Model::NodeList& children);
-            static ReparentNodesCommand* reparent(const Model::ParentChildrenMap& nodes);
+            static Ptr reparent(Model::Node* newParent, const Model::NodeList& children);
+            static Ptr reparent(const Model::ParentChildrenMap& nodes);
         private:
             ReparentNodesCommand(const Model::ParentChildrenMap& nodes);
+        public:
             ~ReparentNodesCommand();
-            
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

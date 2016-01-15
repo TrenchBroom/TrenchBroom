@@ -29,13 +29,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SplitBrushFacesCommand::Type = Command::freeType();
         
-        SplitBrushFacesCommand* SplitBrushFacesCommand::split(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+        SplitBrushFacesCommand::Ptr SplitBrushFacesCommand::split(const Model::VertexToFacesMap& faces, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
             Polygon3::List facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             
-            return new SplitBrushFacesCommand(brushes, brushFaces, facePositions, delta);
+            return Ptr(new SplitBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
         
         SplitBrushFacesCommand::SplitBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
-        bool SplitBrushFacesCommand::doCollateWith(UndoableCommand* command) {
+        bool SplitBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

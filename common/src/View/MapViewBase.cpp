@@ -94,8 +94,8 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodeLockingDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
-            document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
+            document->commandDoneNotifier.addObserver(this, &MapViewBase::commandDone);
+            document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandUndone);
             document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &MapViewBase::textureCollectionsDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapViewBase::entityDefinitionsDidChange);
@@ -124,8 +124,8 @@ namespace TrenchBroom {
                 document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodeLockingDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
-                document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
+                document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandDone);
+                document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandUndone);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapViewBase::textureCollectionsDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapViewBase::entityDefinitionsDidChange);
@@ -158,11 +158,16 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapViewBase::commandProcessed(Command* command) {
+        void MapViewBase::commandDone(Command::Ptr command) {
             updatePickResult();
             Refresh();
         }
 
+        void MapViewBase::commandUndone(UndoableCommand::Ptr command) {
+            updatePickResult();
+            Refresh();
+        }
+        
         void MapViewBase::selectionDidChange(const Selection& selection) {
             updateAcceleratorTable(HasFocus());
         }

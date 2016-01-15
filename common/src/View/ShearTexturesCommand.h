@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
@@ -29,10 +30,11 @@ namespace TrenchBroom {
         class ShearTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ShearTexturesCommand> Ptr;
         private:
             Vec2f m_factors;
         public:
-            static ShearTexturesCommand* shear(const Vec2f& factors);
+            static Ptr shear(const Vec2f& factors);
         private:
             ShearTexturesCommand(const Vec2f& factors);
             
@@ -42,9 +44,9 @@ namespace TrenchBroom {
             bool shearTextures(MapDocumentCommandFacade* document, const Vec2f& factors);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }

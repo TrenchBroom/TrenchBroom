@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool DocumentCommand::collateWith(UndoableCommand* command) {
+        bool DocumentCommand::collateWith(UndoableCommand::Ptr command) {
             if (UndoableCommand::collateWith(command)) {
                 m_modificationCount += command->documentModificationCount();
                 return true;

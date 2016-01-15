@@ -30,16 +30,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
+        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
             Model::BrushList brushes;
             Model::BrushVerticesMap brushVertices;
             Vec3::List vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
-            return new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo);
+            return Ptr(new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo));
         }
         
-        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(const Model::BrushList& brushes, const size_t snapTo) {
+        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const Model::BrushList& brushes, const size_t snapTo) {
             Model::BrushVerticesMap brushVertices;
             Vec3::List vertexPositions;
             
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo);
+            return Ptr(new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo));
         }
 
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const size_t snapTo) :
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
 
-        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

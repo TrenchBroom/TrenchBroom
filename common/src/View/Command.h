@@ -21,6 +21,7 @@
 #define TrenchBroom_Command
 
 #include "StringUtils.h"
+#include "SharedPointer.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -32,6 +33,7 @@ namespace TrenchBroom {
         class Command {
         public:
             typedef size_t CommandType;
+            typedef std::tr1::shared_ptr<Command> Ptr;
             
             typedef enum {
                 CommandState_Default,

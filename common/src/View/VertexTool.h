@@ -26,6 +26,7 @@
 #include "Model/Hit.h"
 #include "View/MoveToolAdapter.h"
 #include "View/Tool.h"
+#include "View/UndoableCommand.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
@@ -116,10 +117,17 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void commandDoOrUndo(Command* command);
-            void commandDoneOrUndoFailed(Command* command);
-            void commandDoFailedOrUndone(Command* command);
-            bool isVertexCommand(const Command* command) const;
+            void commandDo(Command::Ptr command);
+            void commandDone(Command::Ptr command);
+            void commandDoFailed(Command::Ptr command);
+            void commandUndo(UndoableCommand::Ptr command);
+            void commandUndone(UndoableCommand::Ptr command);
+            void commandUndoFailed(UndoableCommand::Ptr command);
+
+            void commandDoOrUndo(Command::Ptr command);
+            void commandDoneOrUndoFailed(Command::Ptr command);
+            void commandDoFailedOrUndone(Command::Ptr command);
+            bool isVertexCommand(const Command::Ptr command) const;
             
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
