@@ -700,12 +700,19 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 ### Assigning Textures Manually
 
-- Texture browser
-- Alt+Left Click: Copy texture (double click to apply to brush)
-- Alt+Cmd+Left Click: Copy texture and face attributes (double click to apply to brush)
-- Copy and Paste (last face on clipboard wins)
+There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this only copies the texture and not the face attributes such as the offset or scale. If you wish to copy the attributes also, you need to hold #key(308) in addition to holding #key(307). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu('Menu/Edit/Copy'), then selected the faces that you wish to copy to, and choose #menu('Edit/Copy/Paste').
 
 ### Replacing Textures
+
+If you want to replace a particular texture with another one, you can choose #menu('Menu/Edit/Replace Texture...'). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
+
+![Texture Replace Window (Mac OS X)](ReplaceTexture.png)
+
+Select the texture you wish to replace in the left texture browser. This browser by default only shows you the textures which are currently in use in the map. In the screenshot, the texture "b_pv_v1a1" has been selected for replacement and therefore has a red border. Then select the replacement texture in the right texture browser ("b_sr_20c" in the screenshot). Finally, hit the "Replace" button. The replacement is applied to all brush faces in the map if nothing is currently selected. Otherwise, it is applied to the selected brush faces only. If the replacement succeeded, the faces which have been replaced are subsequently selected. Otherwise, the selection remains unchanged.
+
+Note that the window is not modal - you can switch back to the main window to change your selection if you wish.
+
+### Setting Face Attributes
 
 ### The UV Editor {#uv_editor}
 
