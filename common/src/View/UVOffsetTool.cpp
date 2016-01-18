@@ -107,13 +107,14 @@ namespace TrenchBroom {
             
             const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
+            Vec2f distance = Vec2f::Max;
             const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
-            Model::BrushFace::VertexList::const_iterator end = vertices.end();
-            Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position());
-            
-            while (it != end)
-                distance = absMin(distance, m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position()));
+            Model::BrushFace::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const Model::BrushVertex* vertex = *it;
+                const Vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
+                distance = absMin(distance, temp);
+            }
             
             return m_helper.snapDelta(delta, distance);
         }

@@ -273,7 +273,7 @@ namespace TrenchBroom {
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
                 shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
-                shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f)); // TODO: make this a preference
+                shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
                 shader.set("GridMatrix", toTex);
                 shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
@@ -309,10 +309,10 @@ namespace TrenchBroom {
             for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
                 edgeVertices.push_back(Vertex((*it)->position()));
             
-            const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
+            const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             
             Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(edgeVertices), GL_LINE_LOOP);
-            edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.0f);
+            edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
         void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

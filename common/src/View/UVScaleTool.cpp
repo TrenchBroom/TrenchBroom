@@ -184,10 +184,10 @@ namespace TrenchBroom {
                 return;
                 
             EdgeVertex::List vertices = getHandleVertices(pickResult);
-            const Color color(1.0f, 1.0f, 0.0f);
+            const Color color(1.0f, 0.0f, 0.0f, 1.0f);
             
             Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-            handleRenderer.render(renderBatch, color, 2.0f);
+            handleRenderer.render(renderBatch, color, 0.5f);
         }
 
         UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {

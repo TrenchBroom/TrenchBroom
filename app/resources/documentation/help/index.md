@@ -740,6 +740,15 @@ For attributes that represent flag values, such as the surface and content flags
 
 #### Keyboard Shortcuts
 
+In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
+
+Attribute    Keys                                    Default      #key(306) pressed    #key(308) pressed
+---------    ----                                    -------      -----------------    -----------------
+Offset       #key(314)#key(316)#key(315)#key(317)    Grid size    2 * grid size        1.0 
+Angle        #key(366)#key(367)                      15°          90°                  1°
+
+Note that TrenchBroom attempts to match the shortcuts to the directions in which the textures will move visually. This means that pressing #key(315) will move a texture roughly in that directiony visually instead of always applying to the same face attribute. So depending on the camera angle and the orientation of the face itself, pressing #key(315) may affect the X or Y offset by incrementing or decrementing it. The angle is treated similarly: Pressing #key(366) will rotate the texture counter clockwise visually, and pressing #key(367) will rotate it clockwise.
+
 #### The UV Editor {#uv_editor}
 
 

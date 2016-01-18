@@ -188,8 +188,13 @@ namespace Math {
     
     template <typename T>
     T remainder(const T v1, const T v2) {
-        const T n = down(v1 / v2);
-        return v1 - n * v2;
+        const T n1 = down(v1 / v2);
+        const T n2 =   up(v1 / v2);
+        const T r1 = n1 * v2 - v1;
+        const T r2 = n2 * v2 - v1;
+        if (Math::abs(r1) < Math::abs(r2))
+            return r1;
+        return r2;
     }
 
     template <typename T>

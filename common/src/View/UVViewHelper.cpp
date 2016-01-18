@@ -163,8 +163,8 @@ namespace TrenchBroom {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
-            const FloatType x = Math::remainder(position.x(), stripe.x());
-            const FloatType y = Math::remainder(position.y(), stripe.y());
+            const FloatType x = -Math::remainder(position.x(), stripe.x());
+            const FloatType y = -Math::remainder(position.y(), stripe.y());
             
             return Vec2f(x, y);
         }
