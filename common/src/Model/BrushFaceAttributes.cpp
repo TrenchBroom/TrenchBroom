@@ -61,9 +61,7 @@ namespace TrenchBroom {
         }
         
         Vec2f BrushFaceAttributes::modOffset(const Vec2f& offset) const {
-            const Vec2f size = textureSize();
-            return Vec2f(Math::remainder(offset.x(), size.x()),
-                         Math::remainder(offset.y(), size.y()));
+            return offset - offset.roundDownToMultiple(textureSize());
         }
         
         const Vec2f& BrushFaceAttributes::scale() const {

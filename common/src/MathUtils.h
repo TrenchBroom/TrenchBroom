@@ -185,16 +185,24 @@ namespace Math {
             return r / m;
         return v;
     }
+
+    template <typename T>
+    T roundDownToMultiple(const T v, const T m) {
+        return down(v / m) * m;
+    }
     
     template <typename T>
-    T remainder(const T v1, const T v2) {
-        const T n1 = down(v1 / v2);
-        const T n2 =   up(v1 / v2);
-        const T r1 = n1 * v2 - v1;
-        const T r2 = n2 * v2 - v1;
-        if (Math::abs(r1) < Math::abs(r2))
-            return r1;
-        return r2;
+    T roundUpToMultiple(const T v, const T m) {
+        return up(v / m) * m;
+    }
+    
+    template <typename T>
+    T roundToMultiple(const T v, const T m) {
+        const T d = roundDownToMultiple(v, m);
+        const T u = roundUpToMultiple(v, m);
+        if (Math::abs(d - v) < Math::abs(u - v))
+            return d;
+        return u;
     }
 
     template <typename T>

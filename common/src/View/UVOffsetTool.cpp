@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 distance = absMin(distance, temp);
             }
             
-            return m_helper.snapDelta(delta, distance);
+            return m_helper.snapDelta(delta, -distance);
         }
         
         bool UVOffsetTool::doCancel() {

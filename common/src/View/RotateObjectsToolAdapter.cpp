@@ -194,7 +194,7 @@ namespace TrenchBroom {
             const Vec3 refVector = (handlePoint - handlePos).normalized();
             const Vec3 curVector = (curPoint - handlePos).normalized();
             const FloatType angle = m_tool->snapRotationAngle(angleBetween(curVector, refVector, axis));
-            return Math::remainder(angle, Math::C::twoPi());
+            return angle - Math::roundDownToMultiple(angle, Math::C::twoPi());
         }
         
         bool RotateObjectsToolAdapter::doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) {

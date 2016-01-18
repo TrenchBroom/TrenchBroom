@@ -184,7 +184,7 @@ namespace TrenchBroom {
             
             Vec2f distanceInTexCoords = Vec2f::Max;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * (*it)->position()));
+                distanceInTexCoords = absMin(distanceInTexCoords, Vec2f(w2tTransform * (*it)->position()) - newOriginInTexCoords);
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();
@@ -193,13 +193,13 @@ namespace TrenchBroom {
             
             // finally snap to the face center
             const Vec2f faceCenter(w2tTransform * face->boundsCenter());
-            distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - faceCenter);
+            distanceInTexCoords = absMin(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
             const Vec2f distanceInFaceCoords = newOriginInFaceCoords - Vec2f(t2fTransform * Vec3(newOriginInTexCoords + distanceInTexCoords));
-            return m_helper.snapDelta(delta, distanceInFaceCoords);
+            return m_helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
         void UVOriginTool::doEndMouseDrag(const InputState& inputState) {}

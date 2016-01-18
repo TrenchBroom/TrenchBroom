@@ -549,11 +549,25 @@ public:
             result[i] = v[i] / v[S-1];
         return result;
     }
-    
-    Vec<T,S> remainder(const Vec<T,S>& d) const {
+
+    Vec<T,S> roundDownToMultiple(const Vec<T,S>& m) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
-            result[i] = Math::remainder(v[i], d[i]);
+            result[i] = Math::roundDownToMultiple(v[i], m[i]);
+        return result;
+    }
+    
+    Vec<T,S> roundUpToMultiple(const Vec<T,S>& m) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::roundUpToMultiple(v[i], m[i]);
+        return result;
+    }
+    
+    Vec<T,S> roundToMultiple(const Vec<T,S>& m) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::roundToMultiple(v[i], m[i]);
         return result;
     }
 

@@ -137,7 +137,8 @@ namespace TrenchBroom {
                 const Vec2 stripeSize = UVViewHelper::stripeSize();
                 
                 for (size_t i = 0; i < 2; ++i) {
-                    const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
+                    const FloatType closestStrip = Math::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
+                    const FloatType error = Math::abs(hitPointInTexCoords[i] - closestStrip);
                     if (error <= maxDistance) {
                         const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
                         pickResult.addHit(Model::Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
@@ -163,10 +164,8 @@ namespace TrenchBroom {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
-            const FloatType x = -Math::remainder(position.x(), stripe.x());
-            const FloatType y = -Math::remainder(position.y(), stripe.y());
-            
-            return Vec2f(x, y);
+            const Vec2 closest = position.xy().roundToMultiple(stripe);
+            return Vec2f(closest - position.xy());
         }
         
         void UVViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
