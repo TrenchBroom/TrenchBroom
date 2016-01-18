@@ -70,8 +70,11 @@ namespace TrenchBroom {
                     const TextureCollectionSpec spec(path.suffix(2).asString(), path);
                     addTextureCollection(spec, newCollections, newCollectionsByName);
                 }
-                m_builtinCollections = newCollections;
-                m_builtinCollectionsByName = newCollectionsByName;
+                
+                using std::swap;
+                std::swap(m_builtinCollections, newCollections);
+                std::swap(m_builtinCollectionsByName, newCollectionsByName);
+                
                 updateTextures();
             } catch (...) {
                 updateTextures();
@@ -80,17 +83,17 @@ namespace TrenchBroom {
             }
         }
         
-        bool TextureManager::addExternalTextureCollection(const TextureCollectionSpec& spec) {
+        void TextureManager::addExternalTextureCollection(const TextureCollectionSpec& spec) {
             try {
                 addTextureCollection(spec, m_externalCollections, m_externalCollectionsByName);
                 updateTextures();
-                return true;
             } catch (...) {
                 TextureCollection* dummy = new TextureCollection(spec.name());
                 m_externalCollections.push_back(dummy);
                 m_externalCollectionsByName[spec.name()] = dummy;
                 updateTextures();
-                return false;
+                
+                throw;
             }
         }
         
@@ -228,7 +231,7 @@ namespace TrenchBroom {
             m_toRemove.insert(TextureCollectionMapEntry(name, collection));
             
             if (m_logger != NULL)
-                m_logger->debug("Removed texture collection %s", name.c_str());
+                m_logger->debug("Removed texture collection '%s'", name.c_str());
         }
         
         TextureCollection* TextureManager::loadTextureCollection(const TextureCollectionSpec& spec) const {

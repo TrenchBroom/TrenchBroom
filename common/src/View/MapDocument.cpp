@@ -1151,12 +1151,13 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadBuiltinTextures() {
+            const IO::Path::List paths = m_game->findBuiltinTextureCollections();
+            const String names(StringUtils::join(IO::Path::asStrings(paths), ", "));
             try {
-                const IO::Path::List paths = m_game->findBuiltinTextureCollections();
                 m_textureManager->setBuiltinTextureCollections(paths);
-                info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
+                info("Loaded builtin texture collections '%s'", names.c_str());
             } catch (Exception e) {
-                error(String(e.what()));
+                error("Unable to load internal texture collections '%s': %s", names.c_str(), e.what());
             }
         }
         
@@ -1186,11 +1187,13 @@ namespace TrenchBroom {
                 const IO::Path texturePath(name);
                 const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
                 
-                const Assets::TextureCollectionSpec spec(name, absPath);
-                if (m_textureManager->addExternalTextureCollection(spec))
-                    info("Loaded external texture collection '" + name +  "'");
-                else
-                    warn("Could not load external texture collection: '" + name +  "'");
+                try {
+                    const Assets::TextureCollectionSpec spec(name, absPath);
+                    m_textureManager->addExternalTextureCollection(spec);
+                    info("Loaded external texture collection '%s'", name.c_str());
+                } catch (std::exception& e) {
+                    error("Unable to load external texture collection '%s': %s", name.c_str(), e.what());
+                }
             }
         }
         

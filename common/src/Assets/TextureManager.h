@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
             void setBuiltinTextureCollections(const IO::Path::List& paths);
             
-            bool addExternalTextureCollection(const TextureCollectionSpec& spec);
+            void addExternalTextureCollection(const TextureCollectionSpec& spec);
             void removeExternalTextureCollection(const String& name);
             void moveExternalTextureCollectionUp(const String& name);
             void moveExternalTextureCollectionDown(const String& name);
