@@ -24,9 +24,9 @@
 namespace TrenchBroom {
     bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2) {
         for (size_t i = 0; i < 2; ++i) {
-            const float d1 = Math::remainder(tc1[i], 1.0f);
+            const float d1 = tc1[i] - Math::roundDownToMultiple(tc1[i], 1.0f);
             const float c1 = d1 < 0.0f ? 1.0f + d1 : d1;
-            const float d2 = Math::remainder(tc2[i], 1.0f);
+            const float d2 = tc2[i] - Math::roundDownToMultiple(tc2[i], 1.0f);
             const float c2 = d2 < 0.0f ? 1.0f + d2 : d2;
             if (!Math::eq(c1, c2))
                 return false;
