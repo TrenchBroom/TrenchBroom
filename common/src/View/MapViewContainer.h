@@ -42,7 +42,7 @@ namespace TrenchBroom {
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
 
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
         private: // subclassing interface
             virtual bool doCanMaximizeCurrentView() const = 0;
             virtual bool doCurrentViewMaximized() const = 0;

@@ -601,10 +601,11 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canPaste()) {
+                const BBox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() && m_document->hasSelectedNodes()) {
                     const BBox3 bounds = m_document->selectionBounds();
-                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds);
+                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
                 }
             }

@@ -123,8 +123,10 @@ namespace TrenchBroom {
             Vec3 delta = moveDeltaForPoint(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
             
             const Math::Axis::Type a = dragPlane.normal.firstComponent();
-            if (dragPlane.normal[a] > 0.0) delta[a] = position[a] - bounds.min[a];
-            else delta[a] = position[a] - bounds.max[a];
+            if (dragPlane.normal[a] > 0.0)
+                delta[a] = position[a] - bounds.min[a];
+            else
+                delta[a] = position[a] - bounds.max[a];
             
             return delta;
         }

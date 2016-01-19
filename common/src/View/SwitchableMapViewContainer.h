@@ -105,7 +105,7 @@ namespace TrenchBroom {
             void doSelectTall();
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
             void doFocusCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
             void doMoveCameraToCurrentTracePoint();

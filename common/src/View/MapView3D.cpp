@@ -389,7 +389,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        Vec3 MapView3D::doGetPasteObjectsDelta(const BBox3& bounds) const {
+        Vec3 MapView3D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             

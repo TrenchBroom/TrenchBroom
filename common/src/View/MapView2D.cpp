@@ -186,12 +186,11 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds) const {
+        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
             MapDocumentSPtr document = lock(m_document);
             View::Grid& grid = document->grid();
             const BBox3& worldBounds = document->worldBounds();
 
-            const BBox3 referenceBounds = document->referenceBounds();
             const Ray3& pickRay = MapView2D::pickRay();
             
             const Vec3 toMin = referenceBounds.min - pickRay.origin;
