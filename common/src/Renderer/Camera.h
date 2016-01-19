@@ -52,6 +52,10 @@ namespace TrenchBroom {
                     return (i_x >= static_cast<T>(0) && i_x <= static_cast<T>(width) &&
                             i_y >= static_cast<T>(0) && i_y <= static_cast<T>(height));
                 }
+                
+                int minDimension() const {
+                    return width < height ? width : height;
+                }
             };
         public:
             static const float DefaultPointDistance;
