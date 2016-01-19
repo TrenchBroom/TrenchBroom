@@ -365,7 +365,7 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::InsertRows(const size_t pos, const size_t numRows) {
-            assert(pos < m_rows.totalRowCount());
+            assert(pos <= m_rows.totalRowCount());
             
             MapDocumentSPtr document = lock(m_document);
 
