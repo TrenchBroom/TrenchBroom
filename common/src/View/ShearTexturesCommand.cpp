@@ -32,7 +32,7 @@ namespace TrenchBroom {
         ShearTexturesCommand::ShearTexturesCommand(const Vec2f& factors) :
         DocumentCommand(Type, "Shear Textures"),
         m_factors(factors) {
-            assert(factors.x() != 0.0f && factors.y() != 0.0f);
+            assert(factors.x() != 0.0f || factors.y() != 0.0f);
         }
         
         bool ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {

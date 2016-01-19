@@ -84,10 +84,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (m_selector[0]) {
                 const Vec2f factors = Vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                document->shearTextures(factors);
+                if (!factors.null())
+                    document->shearTextures(factors);
             } else if (m_selector[1]) {
                 const Vec2f factors = Vec2f(0.0f, -delta.x() / m_initialHit.y());
-                document->shearTextures(factors);
+                if (!factors.null())
+                    document->shearTextures(factors);
             }
             
             const Vec2f newCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
