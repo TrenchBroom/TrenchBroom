@@ -200,6 +200,10 @@ namespace TrenchBroom {
             textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
             m_textureName = new wxStaticText(this, wxID_ANY, "none");
             
+            wxStaticText* textureSizeLabel = new wxStaticText(this, wxID_ANY, "Size");
+            textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
+            m_textureSize = new wxStaticText(this, wxID_ANY, "");
+            
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
@@ -255,6 +259,7 @@ namespace TrenchBroom {
             const int RowMargin    = LayoutConstants::NarrowVMargin;
             
             const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
+            const int ValueFlags   = wxALIGN_CENTER_VERTICAL | wxRIGHT;
             const int Editor1Flags = wxEXPAND | wxRIGHT;
             const int Editor2Flags = wxEXPAND;
             
@@ -263,7 +268,9 @@ namespace TrenchBroom {
             
             m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
             m_faceAttribsSizer->Add(textureNameLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
+            m_faceAttribsSizer->Add(textureSizeLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_textureSize,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
             ++r, c = 0;
 
             m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
@@ -429,17 +436,29 @@ namespace TrenchBroom {
                 if (textureMulti) {
                     m_textureName->SetLabel("multi");
                     m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                    m_textureSize->SetLabel("multi");
+                    m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                 } else {
                     const String& textureName = m_faces[0]->textureName();
                     if (textureName == Model::BrushFace::NoTextureName) {
                         m_textureName->SetLabel("none");
                         m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                        m_textureSize->SetLabel("");
+                        m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                     } else {
-                        if (texture != NULL)
+                        if (texture != NULL) {
+                            wxString sizeLabel;
+                            sizeLabel << texture->width() << "*" << texture->height();
+
                             m_textureName->SetLabel(textureName);
-                        else
+                            m_textureSize->SetLabel(sizeLabel);
+                            m_textureName->SetForegroundColour(GetForegroundColour());
+                            m_textureSize->SetForegroundColour(GetForegroundColour());
+                        } else {
                             m_textureName->SetLabel(textureName + " (not found)");
-                        m_textureName->SetForegroundColour(GetForegroundColour());
+                            m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                            m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
+                        }
                     }
                 }
                 if (xOffsetMulti) {

@@ -50,6 +50,7 @@ namespace TrenchBroom {
 
             UVEditor* m_uvEditor;
             wxStaticText* m_textureName;
+            wxStaticText* m_textureSize;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
