@@ -769,7 +769,33 @@ At the bottom of the UV editor, you can find a number of controls. On the left, 
 
 ## Entity Properties {#entity_properties}
 
+An entity is, essentially, a collection of properties, and a property is a key value pair where both the key and the value is a string. Some values have a special format, such as colors, points, or angles. But in general, if you are editing an entity, you will be working with strings. In TrenchBroom, you can add, remove, and edit entity properties using the entity property editor, which is located at the top of the entity inspector.
+
+![Entity Property Editor](EntityPropertyEditor.png)
+
+The entity property editor is split into two separate areas. At the top, there is a tabular representation of the properties of the currently selected entities and, if applicable, the defaults for those properties which are not present in the selected entities. The default properties are shown in _italics_ below the actual properties of the selected entities. To hide the default properties, you can uncheck the checkbox at the bottom of the table.
+
+### Editing Properties
+
+To select an entity property, just click in the row that represents that property in the table. The row will be highlighted, and at the same time, the field which you clicked on will get a black outline. The black outline is called a _cursor_ and it indicates that you can change the outlined field by entering text. In the screenshot above, the "origin" property has been selected, and its key has the cursor, indicating that it is ready to be changed.
+
+If you are changing a lot of properties, you may wish to navigate quickly through the table. You can use the cursor keys to move the cursor around in the table. Alternatively, you can hit #key(9) to move field by field. If the cursor is on a key of some property, hitting tab will move the cursor the value field of that property, and hitting tab again will move it to the key field of the next property, and so on until you reaach the end of the table. You can also move in the opposite direction by hittin #key(306)#key(9). #key(13) moves vertically through the list, meaning that if the cursor is on a property key and you hit enter, the cursor will move to the key of the next property in the list. Use this navigation method to mass renamed property keys, for example.
+
+To change the key or the value of a property, set the focus to the appropriate field in the table. If you enter some text now, that text will replace the key of the property. An alternative way to change a field is to click on it while its property is already selected. This will show an actual text field in which you can enter the text.
+
+There are several ways to add a property to an entity. First, you can click on the button with the "+" label at the bottom of the table. This will insert a new property with a default name and no value into the table. Second, you can hit #key(308)#key(13) to add a new property. In both cases, the new property will be selected so that you can start editing its key and value right away as described above. Finally, you can add a property by changing the value of a default property. This will promote the default property to an actual property of the entity.
+
+To remove entity properties, you should select the rows in the table that represent them and hit the button labelled "-" at the bottom of the table.
+
+### Multiple Entity Selections
+
+![Multiple Entity Selections](EntityPropertyEditorMultiSelection.png) If multiple entities are selected, the table will show the union of all their properties and not just those properties which all of the selected entities have in common. Properties which are not present in all of the selected entities have their names grayed out, and properties which have different values in those entities that actually have those properties are displayed with an empty value. In the screenshot, there are three light entities selected. Consequentially, the "classname" property is present in all of them and has the same value everywhere. Likewise, the "origin" property is present in all of these entities, but it has different values in each of them, so it is shown without a value. The "light", "wait", "angle", and "mangle" properties on the other hand are only present in some of the selected entities, but they do have the same values in each of the entities that have them.
+
+If you change an entity property when multiple entities are selected, the change gets applied to all of the selected entities, even if that requires adding that property. So if you were to change the value of the "light" property in the example above to 200, each of the selected entities will subsequently have a "light" property with the value 200, even if only a subset of the selected entities had that property before.
+
 ### Linking Entities
+
+### Entity Link Visualization
 
 ## Undo and Redo
 
