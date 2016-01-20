@@ -85,10 +85,11 @@ namespace TrenchBroom {
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
-                if (hit.isMatch()) {
-                    m_orbit = true;
+                if (hit.isMatch())
                     m_orbitCenter = hit.hitPoint();
-                }
+                else
+                    m_orbitCenter = inputState.camera().defaultPoint(inputState.pickRay());
+                m_orbit = true;
                 return true;
             } else if (look(inputState)) {
                 return true;
