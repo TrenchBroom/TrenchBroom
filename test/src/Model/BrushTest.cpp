@@ -711,6 +711,25 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, moveFaceDownFailure) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCuboid(Vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            
+            Vec3::List vertexPositions(4);
+            vertexPositions[0] = Vec3(-64.0, -64.0, -16.0);
+            vertexPositions[1] = Vec3(+64.0, -64.0, -16.0);
+            vertexPositions[2] = Vec3(+64.0, -64.0, +16.0);
+            vertexPositions[3] = Vec3(-64.0, -64.0, +16.0);
+            
+            const Polygon3 face(vertexPositions);
+            
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, Polygon3::List(1, face), Vec3(0.0, 128.0, 0.0)));
+            delete brush;
+        }
+        
         TEST(BrushTest, splitFace) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);

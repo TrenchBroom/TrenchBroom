@@ -361,6 +361,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
         if (occupant != NULL && occupant != vertex) {
             HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
             if (!allowMergeIncidentVertex || connectingEdge == NULL) {
+                vertex->setPosition(newPosition);
                 mergeIncidentFaces(vertex, callback);
                 const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
                 unused(result);
