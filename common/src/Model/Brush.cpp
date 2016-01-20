@@ -541,7 +541,18 @@ namespace TrenchBroom {
 
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
             const BrushGeometry::MoveVerticesResult result = testGeometry.moveVertices(vertexPositions, delta, false);
-            return result.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
+            if (!result.allVerticesMoved() || !worldBounds.contains(testGeometry.bounds()))
+                return false;
+            
+            Edge3::List::const_iterator it, end;
+            for (it = edgePositions.begin(), end = edgePositions.end(); it != end; ++it) {
+                const Edge3& edge = *it;
+                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
+                if (!testGeometry.hasEdge(newEdge.start(), newEdge.end()))
+                    return false;
+            }
+            
+            return true;
         }
         
         Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
@@ -609,7 +620,19 @@ namespace TrenchBroom {
             
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
             const BrushGeometry::MoveVerticesResult result = testGeometry.moveVertices(vertexPositions, delta, false);
-            return result.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
+
+            if (!result.allVerticesMoved() || !worldBounds.contains(testGeometry.bounds()))
+                return false;
+
+            Polygon3::List::const_iterator fIt, fEnd;
+            for (fIt = facePositions.begin(), fEnd = facePositions.end(); fIt != fEnd; ++fIt) {
+                const Polygon3& face = *fIt;
+                const Polygon3 newFace(face.vertices() + delta);
+                if (!testGeometry.hasFace(newFace.vertices()))
+                    return false;
+            }
+
+            return true;
         }
         
         Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
