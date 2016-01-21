@@ -28,6 +28,7 @@
 
 class wxButton;
 class wxChoice;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -40,21 +41,25 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             RotateObjectsTool* m_tool;
 
+            wxTextCtrl* m_centerTxt;
+            wxButton* m_resetCenterButton;
+            
             SpinControl* m_angle;
             wxChoice* m_axis;
             wxButton* m_rotateButton;
-            wxButton* m_resetButton;
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(Math::Axis::Type axis);
+            void setCenter(const Vec3& center);
         private:
             void createGui();
             
             void OnIdle(wxIdleEvent& event);
+            void OnCenterChanged(wxCommandEvent& event);
+            void OnResetCenter(wxCommandEvent& event);
             void OnAngleChanged(SpinControlEvent& event);
             void OnUpdateRotateButton(wxUpdateUIEvent& event);
             void OnRotate(wxCommandEvent& event);
-            void OnReset(wxCommandEvent& event);
             Vec3 getAxis() const;
         };
     }

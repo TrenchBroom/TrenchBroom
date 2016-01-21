@@ -65,6 +65,7 @@ namespace TrenchBroom {
         
         void RotateObjectsTool::setRotationCenter(const Vec3& position) {
             m_handle.setPosition(position);
+            m_toolPage->setCenter(position);
             refreshViews();
         }
         
