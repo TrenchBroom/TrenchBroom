@@ -71,11 +71,14 @@ namespace TrenchBroom {
         }
         
         bool MultiMapView::doCanSelectTall() {
+            if (currentMapView() == NULL)
+                return false;
             return currentMapView()->canSelectTall();
         }
         
         void MultiMapView::doSelectTall() {
-            currentMapView()->selectTall();
+            if (currentMapView() != NULL)
+                currentMapView()->selectTall();
         }
 
         void MultiMapView::doFocusCameraOnSelection() {

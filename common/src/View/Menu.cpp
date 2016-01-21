@@ -108,7 +108,7 @@ namespace TrenchBroom {
             caption << label();
             if (!suffix.empty())
                 caption << " " << suffix;
-            if (withShortcuts)
+            if (!m_action.modifiable() || withShortcuts)
                 return shortcut().shortcutMenuItemString(caption);
             else
                 return caption;
@@ -129,9 +129,9 @@ namespace TrenchBroom {
 
         void ActionMenuItem::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
             if (type() == Type_Action)
-                menu->Append(id(), menuString("", !m_action.modifiable() || withShortcuts));
+                menu->Append(id(), menuString("", withShortcuts));
             else
-                menu->AppendCheckItem(id(), menuString("", !m_action.modifiable() || withShortcuts));
+                menu->AppendCheckItem(id(), menuString("", withShortcuts));
         }
         
         const ActionMenuItem* ActionMenuItem::doFindActionMenuItem(int id) const {
