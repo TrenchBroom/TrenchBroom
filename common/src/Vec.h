@@ -666,10 +666,18 @@ public:
     }
 
     static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+        const Vec<T,S> p1p2 = p2 - p1;
+        const Vec<T,S> p2p3 = p3 - p2;
+        const Vec<T,S> p1p3 = p3 - p1;
+        
+        return p1p3.equals(p1p2 + p2p3, epsilon);
+        
+        /*
         const Vec<T,S> v1 = p2 - p1;
         const Vec<T,S> v2 = p3 - p2;
         const Vec<T,S> v3 = p1 - p3;
         return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
+        */
     }
     
     bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {

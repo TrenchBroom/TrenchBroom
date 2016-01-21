@@ -46,7 +46,7 @@ namespace Math {
         }
         
         static T colinearEpsilon() {
-            static const T value = static_cast<T>(0.001);
+            static const T value = static_cast<T>(0.00001); // this value seems to hit a sweet spot in relation to the point status epsilon
             return value;
         }
         

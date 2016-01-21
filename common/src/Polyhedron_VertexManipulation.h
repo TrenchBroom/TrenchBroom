@@ -751,15 +751,19 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback) {
     assert(edge1->destination() == edge2->origin());
     
-    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the right side is a degenerate triangle now
+    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) { // the left side will become a degenerate triangle now
         mergeNeighbours(edge1->previous(), callback);
-    else if (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
-        mergeNeighbours(edge1->next(), callback);
-    
-    if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin())
+    } else {
+        while (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
+            mergeNeighbours(edge1->next(), callback);
+    }
+
+    if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin()) {
         mergeNeighbours(edge1->twin()->next(), callback);
-    else if (edge1->twin()->face() != edge2->twin()->face())
-        mergeNeighbours(edge1->twin()->previous(), callback);
+    } else {
+        while (edge1->twin()->face() != edge2->twin()->face())
+            mergeNeighbours(edge1->twin()->previous(), callback);
+    }
 }
 
 // Merges the given successive colinear edges. As a result, the origin of the second

@@ -214,6 +214,7 @@ public:
 
         bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
+        bool verticesOnPlane(const Plane<T,3>& plane) const;
         Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
         void flip();
         void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);

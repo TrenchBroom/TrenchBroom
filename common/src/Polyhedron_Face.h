@@ -191,7 +191,28 @@ bool Polyhedron<T,FP,VP>::Face::visibleFrom(const V& point) const {
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     assert(other != NULL);
-    return normal().colinearTo(other->normal());
+    if (!normal().colinearTo(other->normal()))
+        return false;
+
+    const Plane3 myPlane(m_boundary.front()->origin()->position(), normal());
+    if (!other->verticesOnPlane(myPlane))
+        return false;
+    
+    const Plane3 otherPlane(other->boundary().front()->origin()->position(), other->normal());
+    return verticesOnPlane(otherPlane);
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const Plane<T,3>& plane) const {
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        const Vertex* vertex = currentEdge->origin();
+        if (plane.pointStatus(vertex->position()) != Math::PointStatus::PSInside)
+            return false;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return true;
 }
 
 template <typename T, typename FP, typename VP>
