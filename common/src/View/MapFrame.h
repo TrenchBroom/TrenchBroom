@@ -127,7 +127,8 @@ namespace TrenchBroom {
 
             void OnEditPaste(wxCommandEvent& event);
             void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
-            bool paste();
+            
+            PasteType paste();
 
             void OnEditDelete(wxCommandEvent& event);
             void OnEditDuplicate(wxCommandEvent& event);

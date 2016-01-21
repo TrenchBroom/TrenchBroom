@@ -288,21 +288,21 @@ namespace TrenchBroom {
             return stream.str();
         }
         
-        bool MapDocument::paste(const String& str) {
+        PasteType MapDocument::paste(const String& str) {
             try {
                 const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
-                if (!nodes.empty())
-                    return pasteNodes(nodes);
+                if (!nodes.empty() && pasteNodes(nodes))
+                    return PT_Node;
             } catch (const ParserException& e) {
                 try {
                     const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
-                    if (!faces.empty())
-                        return pasteBrushFaces(faces);
+                    if (!faces.empty() && pasteBrushFaces(faces))
+                        return PT_BrushFace;
                 } catch (const ParserException&) {
                     error("Unable to parse clipboard contents: %s", e.what());
                 }
             }
-            return false;
+            return PT_Failed;
         }
         
         bool MapDocument::pasteNodes(const Model::NodeList& nodes) {

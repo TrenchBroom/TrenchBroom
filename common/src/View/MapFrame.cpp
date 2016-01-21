@@ -603,7 +603,7 @@ namespace TrenchBroom {
             if (canPaste()) {
                 const BBox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
-                if (paste() && m_document->hasSelectedNodes()) {
+                if (paste() == PT_Node && m_document->hasSelectedNodes()) {
                     const BBox3 bounds = m_document->selectionBounds();
                     const Vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
@@ -618,17 +618,17 @@ namespace TrenchBroom {
                 paste();
         }
 
-        bool MapFrame::paste() {
+        PasteType MapFrame::paste() {
             OpenClipboard openClipboard;
             if (!wxTheClipboard->IsOpened() || !wxTheClipboard->IsSupported(wxDF_TEXT)) {
                 logger()->error("Clipboard is empty");
-                return false;
+                return PT_Failed;
             }
 
             wxTextDataObject textData;
             if (!wxTheClipboard->GetData(textData)) {
                 logger()->error("Could not get clipboard contents");
-                return false;
+                return PT_Failed;
             }
 
             const String text = textData.GetText().ToStdString();
