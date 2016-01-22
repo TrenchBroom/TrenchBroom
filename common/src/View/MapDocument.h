@@ -111,6 +111,7 @@ namespace TrenchBroom {
             
             Notifier0 editorContextDidChangeNotifier;
             Notifier0 mapViewConfigDidChangeNotifier;
+            Notifier0 currentLayerDidChangeNotifier;
             
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;

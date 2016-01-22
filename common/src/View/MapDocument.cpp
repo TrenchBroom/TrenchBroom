@@ -162,6 +162,7 @@ namespace TrenchBroom {
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
+            currentLayerDidChangeNotifier();
         }
         
         Model::Group* MapDocument::currentGroup() const {
@@ -1046,7 +1047,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds);
-            m_currentLayer = m_world->defaultLayer();
+            setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
             setPath(DefaultDocumentName);
@@ -1056,7 +1057,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(m_worldBounds, path, this);
-            m_currentLayer = m_world->defaultLayer();
+            setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
             setPath(path);

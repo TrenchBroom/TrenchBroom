@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document);
         private:
-            void OnCurrentLayerSelected(LayerCommand& event);
+            void OnSetCurrentLayer(LayerCommand& event);
             void OnLayerRightClick(LayerCommand& event);
 
             class CollectMoveableNodes;

@@ -34,6 +34,7 @@
 #include <wx/wupdlock.h>
 
 wxDEFINE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
+wxDEFINE_EVENT(LAYER_SET_CURRENT_EVENT, TrenchBroom::View::LayerCommand);
 wxDEFINE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
 wxDEFINE_EVENT(LAYER_TOGGLE_VISIBLE_EVENT, TrenchBroom::View::LayerCommand);
 wxDEFINE_EVENT(LAYER_TOGGLE_LOCKED_EVENT, TrenchBroom::View::LayerCommand);
@@ -68,19 +69,24 @@ namespace TrenchBroom {
         class LayerListView::LayerEntry : public wxPanel {
         private:
             int m_index;
+            MapDocumentWPtr m_document;
             Model::Layer* m_layer;
             wxStaticText* m_nameText;
             wxStaticText* m_infoText;
         public:
-            LayerEntry(wxWindow* parent, int index, Model::Layer* layer) :
+            LayerEntry(wxWindow* parent, int index, MapDocumentWPtr document, Model::Layer* layer) :
             wxPanel(parent),
             m_index(index),
+            m_document(document),
             m_layer(layer) {
                 m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
-                m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_infoText = new wxStaticText(this, wxID_ANY, "");
                 refresh();
 
+                wxWindow* hiddenText = new wxStaticText(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
+                hiddenText->SetFont(GetFont().Bold());
+                hiddenText->Hide();
+                
                 wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "Show or hide this layer");
                 wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "Lock or unlock this layer");
 
@@ -93,6 +99,10 @@ namespace TrenchBroom {
                 lockButton->Bind(wxEVT_BUTTON, &LayerEntry::OnToggleLocked, this);
                 lockButton->Bind(wxEVT_UPDATE_UI, &LayerEntry::OnUpdateLockButton, this);
 
+                wxSizer* itemPanelTopSizer = new wxBoxSizer(wxHORIZONTAL);
+                itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
+                itemPanelTopSizer->Add(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
+                
                 wxSizer* itemPanelBottomSizer = new wxBoxSizer(wxHORIZONTAL);
                 itemPanelBottomSizer->Add(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
@@ -102,7 +112,7 @@ namespace TrenchBroom {
 
                 wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
                 itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-                itemPanelSizer->Add(m_nameText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+                itemPanelSizer->Add(itemPanelTopSizer,    0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
                 SetSizer(itemPanelSizer);
@@ -120,13 +130,21 @@ namespace TrenchBroom {
 
             void refresh() {
                 m_nameText->SetLabel(m_layer->name());
+                if (lock(m_document)->currentLayer() == m_layer)
+                    m_nameText->SetFont(GetFont().Bold());
+                else
+                    m_nameText->SetFont(GetFont());
 
                 wxString info;
                 info << m_layer->childCount() << " objects";
                 m_infoText->SetLabel(info);
+                m_infoText->SetFont(GetFont());
+                
+                Layout();
             }
 
             void bindMouseEvents(wxWindow* window) {
+                window->Bind(wxEVT_LEFT_DCLICK, &LayerEntry::OnMouse, this);
                 window->Bind(wxEVT_LEFT_DOWN, &LayerEntry::OnMouse, this);
                 window->Bind(wxEVT_RIGHT_DOWN, &LayerEntry::OnMouse, this);
                 window->Bind(wxEVT_RIGHT_UP, &LayerEntry::OnMouse, this);
@@ -248,6 +266,22 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
+        void LayerListView::OnMouseEntryDClick(wxMouseEvent& event) {
+            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
+            assert(data != NULL);
+            
+            LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
+            assert(entry != NULL);
+            
+            Model::Layer* layer = entry->layer();
+            
+            LayerCommand* command = new LayerCommand(LAYER_SET_CURRENT_EVENT);
+            command->SetId(GetId());
+            command->SetEventObject(this);
+            command->setLayer(layer);
+            QueueEvent(command);
+        }
+
         void LayerListView::OnMouseEntryRightUp(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -283,6 +317,7 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier.addObserver(this, &LayerListView::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &LayerListView::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListView::documentDidChange);
+            document->currentLayerDidChangeNotifier.addObserver(this, &LayerListView::currentLayerDidChange);
             document->nodesWereAddedNotifier.addObserver(this, &LayerListView::nodesDidChange);
             document->nodesWereRemovedNotifier.addObserver(this, &LayerListView::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListView::nodesDidChange);
@@ -294,6 +329,7 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.removeObserver(this, &LayerListView::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListView::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListView::documentDidChange);
+                document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListView::currentLayerDidChange);
                 document->nodesWereAddedNotifier.removeObserver(this, &LayerListView::nodesDidChange);
                 document->nodesWereRemovedNotifier.removeObserver(this, &LayerListView::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListView::nodesDidChange);
@@ -306,6 +342,10 @@ namespace TrenchBroom {
 
         void LayerListView::nodesDidChange(const Model::NodeList& nodes) {
             reload();
+        }
+
+        void LayerListView::currentLayerDidChange() {
+            refresh();
         }
 
         void LayerListView::createGui() {
@@ -335,8 +375,9 @@ namespace TrenchBroom {
 
 				for (size_t i = 0; i < layers.size(); ++i) {
 					Model::Layer* layer = layers[i];
-					LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), layer);
+					LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), m_document, layer);
 					entry->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+                    entry->Bind(wxEVT_LEFT_DCLICK, &LayerListView::OnMouseEntryDClick, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
 					entry->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
 					entry->Bind(wxEVT_RIGHT_UP, &LayerListView::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
 

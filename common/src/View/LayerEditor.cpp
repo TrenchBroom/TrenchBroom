@@ -48,9 +48,9 @@ namespace TrenchBroom {
             createGui();
         }
 
-        void LayerEditor::OnCurrentLayerSelected(LayerCommand& event) {
+        void LayerEditor::OnSetCurrentLayer(LayerCommand& event) {
             if (IsBeingDeleted()) return;
-
+            
             MapDocumentSPtr document = lock(m_document);
             document->setCurrentLayer(event.layer());
         }
@@ -259,6 +259,7 @@ namespace TrenchBroom {
                 document->addNode(layer, world);
                 if (document->hasSelectedNodes())
                     moveSelectedNodesToLayer(document, layer);
+                document->setCurrentLayer(layer);
                 m_layerList->setSelectedLayer(layer);
             }
         }
@@ -298,7 +299,10 @@ namespace TrenchBroom {
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
             document->select(collectSelectableNodes.nodes());
-            document->reparentNodes(defaultLayer, layer->children());
+            if (layer->hasChildren())
+                document->reparentNodes(defaultLayer, layer->children());
+            if (document->currentLayer() == layer)
+                document->setCurrentLayer(document->world()->defaultLayer());
             document->removeNode(layer);
         }
         
@@ -342,7 +346,7 @@ namespace TrenchBroom {
             SetBackgroundColour(*wxWHITE);
 
             m_layerList = new LayerListView(this, m_document);
-            m_layerList->Bind(LAYER_SELECTED_EVENT, &LayerEditor::OnCurrentLayerSelected, this);
+            m_layerList->Bind(LAYER_SET_CURRENT_EVENT, &LayerEditor::OnSetCurrentLayer, this);
             m_layerList->Bind(LAYER_RIGHT_CLICK_EVENT, &LayerEditor::OnLayerRightClick, this);
             m_layerList->Bind(LAYER_TOGGLE_VISIBLE_EVENT, &LayerEditor::OnToggleLayerVisibleFromList, this);
             m_layerList->Bind(LAYER_TOGGLE_LOCKED_EVENT, &LayerEditor::OnToggleLayerLockedFromList, this);
