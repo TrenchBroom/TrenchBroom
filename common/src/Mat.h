@@ -500,7 +500,9 @@ Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
                       zero,  zero,  zero, one);
 }
 
-// The returned matrix will rotate any point counter-clockwise about the given angles (in radians).
+/**
+ Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
+ */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
     static const T I = static_cast<T>(1.0);
@@ -530,13 +532,17 @@ Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
     return Y * P * R;
 }
 
-// The returned matrix will rotate any point counter-clockwise about the given angles (in radians).
+/**
+ Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
+ */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const Vec<T,3>& a) {
     return rotationMatrix(a.x(), a.y(), a.z());
 }
 
-// The returned matrix will rotate any point counter-clockwise about the given axis by the given angle (in radians).
+/**
+ Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
+ */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
     const T s = std::sin(-angle);
