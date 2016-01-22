@@ -25,6 +25,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        const String QuakeMapTokenizer::NumberDelim = Whitespace + ")";
+
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end),
         m_skipEol(true) {}
@@ -89,11 +91,11 @@ namespace TrenchBroom {
                         discardWhile(Whitespace);
                         break;
                     default: { // whitespace, integer, decimal or word
-                        const char* e = readInteger(Whitespace);
+                        const char* e = readInteger(NumberDelim);
                         if (e != NULL)
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
                         
-                        e = readDecimal(Whitespace);
+                        e = readDecimal(NumberDelim);
                         if (e != NULL)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
