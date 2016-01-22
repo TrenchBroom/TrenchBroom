@@ -4,20 +4,10 @@ SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
 # Collect the source files for compilation.
-# Unfortunately, Xcode doesn't support object libraries, so we have to compile the common sources with the app sources.
-IF(CMAKE_GENERATOR STREQUAL "Xcode")
-    FILE(GLOB_RECURSE APP_SOURCE
-        "${APP_SOURCE_DIR}/*.h"
-        "${APP_SOURCE_DIR}/*.cpp"
-        "${COMMON_SOURCE_DIR}/*.h"
-        "${COMMON_SOURCE_DIR}/*.cpp"
-    )
-ELSE()
-    FILE(GLOB_RECURSE APP_SOURCE
-        "${APP_SOURCE_DIR}/*.h"
-        "${APP_SOURCE_DIR}/*.cpp"
-    )
-ENDIF()
+FILE(GLOB_RECURSE APP_SOURCE
+    "${APP_SOURCE_DIR}/*.h"
+    "${APP_SOURCE_DIR}/*.cpp"
+)
 
 SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 
@@ -92,12 +82,7 @@ IF(WIN32)
     ENDIF()
 ENDIF()
 
-# Add TrenchBroom executable target. Again, because Xcode doesn't support object libraries, we have two separate configurations.
-IF(CMAKE_GENERATOR STREQUAL "Xcode")
-    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
-ELSE()
-    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
-ENDIF()
+ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
 
 TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
