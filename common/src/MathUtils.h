@@ -41,7 +41,8 @@ namespace Math {
         }
         
         static T correctEpsilon() {
-            static const T value = static_cast<T>(0.001); // this is what QBSP uses
+            // static const T value = static_cast<T>(0.001); // this is what QBSP uses
+            static const T value = static_cast<T>(0.0001); // need to be more accurate here because of the finer pointStatusEpsilon value
             return value;
         }
         
