@@ -307,7 +307,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::pasteNodes(const Model::NodeList& nodes) {
-            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, NULL);
+            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, currentLayer());
             Model::Node::accept(nodes.begin(), nodes.end(), mergeNodes);
             
             const Model::NodeList addedNodes = addNodes(mergeNodes.result());
