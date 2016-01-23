@@ -118,7 +118,12 @@ namespace TrenchBroom {
         }
 
         bool HitQuery::visible(const Hit& hit) const {
-            return m_editorContext == NULL || m_editorContext->visible(hitToNode(hit));
+            if (m_editorContext == NULL)
+                return true;
+            Node* node = hitToNode(hit);
+            if (node == NULL)
+                return true;
+            return m_editorContext->visible(hitToNode(hit));
         }
     }
 }
