@@ -257,8 +257,6 @@ namespace TrenchBroom {
                 
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);
-                if (document->hasSelectedNodes())
-                    moveSelectedNodesToLayer(document, layer);
                 document->setCurrentLayer(layer);
                 m_layerList->setSelectedLayer(layer);
             }
