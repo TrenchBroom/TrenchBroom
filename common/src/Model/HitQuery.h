@@ -46,6 +46,8 @@ namespace TrenchBroom {
             
             const Hit& first() const;
             Hit::List all() const;
+        private:
+            bool visible(const Hit& hit) const;
         };
     }
 }

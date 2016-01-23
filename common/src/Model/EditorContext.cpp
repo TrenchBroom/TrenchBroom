@@ -237,8 +237,10 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Group* group) const {
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+            
             Model::Group* containingGroup = group->group();
-            return (containingGroup == NULL || containingGroup->opened()) && visible(group);
+            return (containingGroup == NULL || containingGroup->opened()) /* && visible(group) */;
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
@@ -246,8 +248,10 @@ namespace TrenchBroom {
             // This is necessary so that it is possible to draw new brushes onto grouped brushes.
             // Might break other things though.
             
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+
             // Model::Group* containingGroup = entity->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() && visible(entity);
+            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
@@ -255,12 +259,15 @@ namespace TrenchBroom {
             // This is necessary so that it is possible to draw new brushes onto grouped brushes.
             // Might break other things though.
             
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+
             // Model::Group* containingGroup = brush->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ visible(brush);
+            return /*(containingGroup == NULL || containingGroup->opened()) && visible(brush) */ true;
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            return visible(face);
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+            return /* visible(face) */ true;
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

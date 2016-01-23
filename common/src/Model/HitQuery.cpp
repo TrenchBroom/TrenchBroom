@@ -19,6 +19,8 @@
 
 #include "HitQuery.h"
 
+#include "Model/EditorContext.h"
+#include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 
 namespace TrenchBroom {
@@ -77,6 +79,11 @@ namespace TrenchBroom {
                 
                 bool containsOccluder = false;
                 while (it != end && !containsOccluder) {
+                    if (!visible(*it)) { // Don't consider hidden objects during picking at all.
+                        ++it;
+                        continue;
+                    }
+                    
                     const FloatType distance = it->distance();
                     do {
                         const Hit& hit = *it;
@@ -108,6 +115,10 @@ namespace TrenchBroom {
                     result.push_back(hit);
             }
             return result;
+        }
+
+        bool HitQuery::visible(const Hit& hit) const {
+            return m_editorContext == NULL || m_editorContext->visible(hitToNode(hit));
         }
     }
 }
