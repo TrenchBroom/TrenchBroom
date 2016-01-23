@@ -168,8 +168,8 @@ namespace TrenchBroom {
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
-            void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
-            void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
+            void loadDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -332,8 +332,8 @@ namespace TrenchBroom {
         public: // picking
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
         private: // world management
-            void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
-            void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
+            void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void clearWorld();
             void initializeWorld(const BBox3& worldBounds);
         public: // asset management

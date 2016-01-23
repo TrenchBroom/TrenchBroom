@@ -36,8 +36,8 @@ namespace TrenchBroom {
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(NULL) {}
         
-        Model::World* WorldReader::read(const BBox3& worldBounds) {
-            readEntities(detectFormat(), worldBounds);
+        Model::World* WorldReader::read(Model::MapFormat::Type format, const BBox3& worldBounds) {
+            readEntities(format, worldBounds);
             return m_world;
         }
 

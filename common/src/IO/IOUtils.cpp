@@ -39,26 +39,39 @@ namespace TrenchBroom {
         }
 
         String readGameComment(FILE* stream) {
+            return readInfoComment(stream, "Game");
+        }
+
+        String readFormatComment(FILE* stream) {
+            return readInfoComment(stream, "Format");
+        }
+
+        String readInfoComment(FILE* stream, const String& name) {
             static const size_t MaxChars = 64;
-            static const size_t HeaderChars = 9;
+            const String expectedHeader = "// " + name + ": ";
             char buf[MaxChars];
             
             const size_t numRead = std::fread(buf, 1, MaxChars, stream);
-            if (numRead < HeaderChars)
+            if (numRead < expectedHeader.size())
                 return "";
             
-            const String header(buf, buf + HeaderChars);
-            if (header != "// Game: ")
+            const String header(buf, buf + expectedHeader.size());
+            if (header != expectedHeader)
                 return "";
             
-            size_t i = HeaderChars;
+            size_t i = expectedHeader.size();
             while (i < MaxChars && buf[i] != '\n' && buf[i] != '\r') ++i;
             
-            return String(buf + HeaderChars, buf + i);
+            size_t j = i;
+            while (j < MaxChars && (buf[j] == '\n' || buf[j] == '\r' || buf[j] == ' ' || buf[j] == '\t')) ++j;
+            std::fseek(stream, static_cast<long>(j), SEEK_SET);
+            
+            return StringUtils::trim(String(buf + expectedHeader.size(), buf + i));
         }
 
-        void writeGameComment(FILE* stream, const String& gameName) {
+        void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat) {
             std::fprintf(stream, "// Game: %s\n", gameName.c_str());
+            std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
         }
 
         Vec3f readVec3f(const char*& cursor) {

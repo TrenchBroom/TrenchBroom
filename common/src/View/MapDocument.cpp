@@ -218,11 +218,11 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
         
-        void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
+        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
             info("Creating new document");
             
             clearDocument();
-            createWorld(worldBounds, game, mapFormat);
+            createWorld(mapFormat, worldBounds, game);
             
             loadAssets();
             registerIssueGenerators();
@@ -233,11 +233,11 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
         
-        void MapDocument::loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             info("Loading document from " + path.asString());
             
             clearDocument();
-            loadWorld(worldBounds, game, path);
+            loadWorld(mapFormat, worldBounds, game, path);
             
             loadAssets();
             registerIssueGenerators();
@@ -1053,7 +1053,7 @@ namespace TrenchBroom {
                 m_world->pick(pickRay, pickResult);
         }
         
-        void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
+        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds);
@@ -1063,10 +1063,10 @@ namespace TrenchBroom {
             setPath(DefaultDocumentName);
         }
         
-        void MapDocument::loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->loadMap(m_worldBounds, path, this);
+            m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();

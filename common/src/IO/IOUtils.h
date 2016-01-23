@@ -53,7 +53,10 @@ namespace TrenchBroom {
         };
         
         String readGameComment(FILE* stream);
-        void writeGameComment(FILE* stream, const String& gameName);
+        String readFormatComment(FILE* stream);
+        String readInfoComment(FILE* stream, const String& name);
+        
+        void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat);
         
         template <typename T>
         void advance(const char*& cursor, const size_t i = 1) {

@@ -34,6 +34,7 @@ namespace TrenchBroom {
         }
         
         MapFormat::Type mapFormat(const String& formatName);
+        String formatName(MapFormat::Type format);
     }
 }
 

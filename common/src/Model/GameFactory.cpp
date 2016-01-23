@@ -88,15 +88,18 @@ namespace TrenchBroom {
             return pref.path() == prefPath;
         }
 
-        GamePtr GameFactory::detectGame(const IO::Path& path) const {
+        std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
             if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
-                return GamePtr();
+                return std::make_pair("", MapFormat::Unknown);
             
             const IO::OpenFile file(path, false);
             const String gameName = IO::readGameComment(file.file());
-            if (gameName.empty())
-                return GamePtr();
-            return createGame(gameName);
+            const String formatName = IO::readFormatComment(file.file());
+            const MapFormat::Type format = mapFormat(formatName);
+            if (gameName.empty() || format == MapFormat::Unknown)
+                return std::make_pair("", MapFormat::Unknown);
+            
+            return std::make_pair(gameName, format);
         }
 
         GameFactory::GameFactory() {

@@ -24,6 +24,7 @@
 #include "Preference.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
+#include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             void setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
-            GamePtr detectGame(const IO::Path& path) const;
+            std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void loadGameConfigs();

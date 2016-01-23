@@ -28,9 +28,21 @@ namespace TrenchBroom {
                 return MapFormat::Quake2;
             if (formatName == "Valve")
                 return MapFormat::Valve;
-            if (formatName == "Hexen 2")
+            if (formatName == "Hexen2")
                 return MapFormat::Hexen2;
             return MapFormat::Unknown;
+        }
+
+        String formatName(const MapFormat::Type format) {
+            if (format == MapFormat::Standard)
+                return "Standard";
+            if (format == MapFormat::Quake2)
+                return "Quake2";
+            if (format == MapFormat::Valve)
+                return "Valve";
+            if (format == MapFormat::Hexen2)
+                return "Hexen2";
+            return "Unknown";
         }
     }
 }

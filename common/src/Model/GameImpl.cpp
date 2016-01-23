@@ -88,16 +88,18 @@ namespace TrenchBroom {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        World* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* GameImpl::doLoadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
-            return reader.read(worldBounds);
+            return reader.read(format, worldBounds);
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
+            const String mapFormatName = formatName(world->format());
+            
             IO::OpenFile openFile(path, true);
             FILE* stream = openFile.file();
-            IO::writeGameComment(stream, gameName());
+            IO::writeGameComment(stream, gameName(), mapFormatName);
             
             IO::NodeWriter writer(world, stream);
             writer.writeMap();

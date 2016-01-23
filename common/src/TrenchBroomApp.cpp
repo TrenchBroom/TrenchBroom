@@ -159,8 +159,8 @@ namespace TrenchBroom {
 
         bool TrenchBroomApp::newDocument() {
             String gameName;
-            Model::MapFormat::Type mapFormat;
-            if (!NewDocumentGameDialog::showDialog(NULL, gameName, mapFormat))
+            Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+            if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                 return false;
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
@@ -176,19 +176,24 @@ namespace TrenchBroom {
             MapFrame* frame = NULL;
             const IO::Path path(pathStr);
             try {
+                String gameName = "";
+                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+                
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                Model::GamePtr game = gameFactory.detectGame(path);
-                if (game == NULL) {
-                    String gameName;
-                    if (!OpenDocumentGameDialog::showDialog(NULL, gameName))
+                const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
+                gameName = detected.first;
+                mapFormat = detected.second;
+                
+                if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
+                    if (!GameDialog::showOpenDocumentDialog(NULL, gameName, mapFormat))
                         return false;
-                    game = gameFactory.createGame(gameName);
                 }
 
+                Model::GamePtr game = gameFactory.createGame(gameName);
                 assert(game != NULL);
 
                 frame = m_frameManager->newFrame();
-                frame->openDocument(game, path);
+                frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const Exception& e) {
                 m_recentDocuments->removePath(IO::Path(path));

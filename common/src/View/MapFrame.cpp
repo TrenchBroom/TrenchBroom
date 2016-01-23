@@ -168,14 +168,14 @@ namespace TrenchBroom {
         bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;
-            m_document->newDocument(MapDocument::DefaultWorldBounds, game, mapFormat);
+            m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
             return true;
         }
 
-        bool MapFrame::openDocument(Model::GamePtr game, const IO::Path& path) {
+        bool MapFrame::openDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
-            m_document->loadDocument(MapDocument::DefaultWorldBounds, game, path);
+            m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
             return true;
         }
 

@@ -79,7 +79,7 @@ namespace TrenchBroom {
             void clearDropTarget();
         public: // document management
             bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
-            bool openDocument(Model::GamePtr game, const IO::Path& path);
+            bool openDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat, const IO::Path& path);
         private:
             bool saveDocument();
             bool saveDocumentAs();
