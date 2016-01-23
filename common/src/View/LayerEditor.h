@@ -57,6 +57,7 @@ namespace TrenchBroom {
             
             void OnToggleLayerLockedFromMenu(wxCommandEvent& event);
             void OnToggleLayerLockedFromList(LayerCommand& event);
+            void OnUpdateToggleLayerUI(wxUpdateUIEvent& event);
             void toggleLayerLocked(Model::Layer* layer, bool inverted);
 
             void OnSelectAllInLayer(wxCommandEvent& event);
@@ -69,6 +70,7 @@ namespace TrenchBroom {
 
             void OnShowAllLayers(wxCommandEvent& event);
         private:
+            Model::Layer* findUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
         };

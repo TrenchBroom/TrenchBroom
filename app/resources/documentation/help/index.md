@@ -807,6 +807,13 @@ If you change an entity property when multiple entities are selected, the change
 
 - The default layer
 - The current layer
+- Current layer is bold, set by double click
+
+- Cannot lock current layer
+- Cannot make locked layer current
+- Cannot remove only unlocked layer
+
+- Alt+click hides / locks all other layers
 
 ### Groups {#groups}
 

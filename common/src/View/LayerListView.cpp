@@ -198,6 +198,9 @@ namespace TrenchBroom {
 
             void OnUpdateLockButton(wxUpdateUIEvent& event) {
                 event.Check(m_layer->locked());
+
+                MapDocumentSPtr document = lock(m_document);
+                event.Enable(m_layer->locked() || m_layer != document->currentLayer());
             }
 
             void OnMouse(wxMouseEvent& event) {

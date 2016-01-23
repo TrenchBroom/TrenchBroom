@@ -459,7 +459,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
-            updateRenderers(Renderer_Default_Selection);
+            updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
         }
         
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {

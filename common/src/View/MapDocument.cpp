@@ -40,6 +40,7 @@
 #include "Model/CollectNodesByVisibilityVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
+#include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
@@ -161,6 +162,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
+            assert(currentLayer == NULL || !currentLayer->locked());
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
             currentLayerDidChangeNotifier();
         }
@@ -663,20 +665,23 @@ namespace TrenchBroom {
             Model::CollectNodesWithoutVisibilityVisitor collect(Model::Visibility_Inherited);
             m_world->acceptAndRecurse(collect);
             
-            const Transaction transaction(this, "Isolate Selected Objects");
+            const Transaction transaction(this, "Isolate Objects");
             resetVisibility(collect.nodes());
             hide(Model::NodeList(1, m_world));
             show(nodes);
         }
         
         void MapDocument::hide(const Model::NodeList& nodes) {
+            Model::CollectSelectedNodesVisitor collect;
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), collect);
+            
+            const Transaction transaction(this, "Hide Objects");
             submit(SetVisibilityCommand::hide(nodes));
+            deselect(collect.nodes());
         }
         
         void MapDocument::hideSelection() {
-            const Transaction transaction(this, "Hide Selected Objects");
             hide(m_selectedNodes.nodes());
-            deselectAll();
         }
         
         void MapDocument::show(const Model::NodeList& nodes) {
@@ -698,7 +703,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::lock(const Model::NodeList& nodes) {
+            Model::CollectSelectedNodesVisitor collect;
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), collect);
+            
+            const Transaction transaction(this, "Lock Objects");
             submit(SetLockStateCommand::lock(nodes));
+            deselect(collect.nodes());
         }
         
         void MapDocument::unlock(const Model::NodeList& nodes) {

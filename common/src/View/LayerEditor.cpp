@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/Entity.h"
+#include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -50,8 +51,11 @@ namespace TrenchBroom {
 
         void LayerEditor::OnSetCurrentLayer(LayerCommand& event) {
             if (IsBeingDeleted()) return;
-            
+
+            Model::Layer* layer = event.layer();
             MapDocumentSPtr document = lock(m_document);
+            if (layer->locked())
+                document->resetLock(Model::NodeList(1, layer));
             document->setCurrentLayer(event.layer());
         }
 
@@ -74,6 +78,7 @@ namespace TrenchBroom {
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnSelectAllInLayer, this, SelectAllInLayerCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerVisibleFromMenu, this, ToggleLayerVisibleCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerLockedFromMenu, this, ToggleLayerLockedCommandId);
+            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateToggleLayerUI, this, ToggleLayerLockedCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnRemoveLayer, this, RemoveLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this, RemoveLayerCommandId);
             
@@ -123,6 +128,22 @@ namespace TrenchBroom {
             toggleLayerLocked(event.layer(), event.inverted());
         }
 
+        void LayerEditor::OnUpdateToggleLayerUI(wxUpdateUIEvent& event) {
+            Model::Layer* layer = m_layerList->selectedLayer();
+            if (layer == NULL) {
+                event.Enable(false);
+                return;
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!layer->locked() && layer == document->currentLayer()) {
+                event.Enable(false);
+                return;
+            }
+            
+            event.Enable(true);
+        }
+
         void LayerEditor::toggleLayerLocked(Model::Layer* layer, const bool inverted) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
@@ -132,10 +153,10 @@ namespace TrenchBroom {
 
                 Transaction transaction(document, "Lock All But Current Layer");
                 document->lock(Model::NodeList(others.begin(), others.end()));
-                if (!layer->editable())
+                if (layer->locked())
                     document->resetLock(Model::NodeList(1, layer));
             } else {
-                if (layer->editable())
+                if (!layer->locked())
                     document->lock(Model::NodeList(1, layer));
                 else
                     document->resetLock(Model::NodeList(1, layer));
@@ -163,27 +184,33 @@ namespace TrenchBroom {
             
             void doVisit(Model::Group* group)   {
                 assert(group->selected());
-                m_moveNodes.insert(group);
+
+                if (group->group() == NULL) {
+                    m_moveNodes.insert(group);
+                    m_selectNodes.insert(group);
+                }
             }
             
             void doVisit(Model::Entity* entity) {
                 assert(entity->selected());
-                m_moveNodes.insert(entity);
+                
+                if (entity->group() == NULL) {
+                    m_moveNodes.insert(entity);
+                    m_selectNodes.insert(entity);
+                }
             }
             
             void doVisit(Model::Brush* brush)   {
                 assert(brush->selected());
-                Model::AttributableNode* entity = brush->entity();
-                if (entity == m_world) {
-                    m_moveNodes.insert(brush);
-                } else {
-                    if (m_moveNodes.insert(entity).second) {
-                        const Model::NodeList& siblings = entity->children();
-                        Model::NodeList::const_iterator it, end;
-                        for (it = siblings.begin(), end = siblings.end(); it != end; ++it) {
-                            Model::Node* sibling = *it;
-                            if (!sibling->selected())
-                                m_selectNodes.insert(sibling);
+                if (brush->group() == NULL) {
+                    Model::AttributableNode* entity = brush->entity();
+                    if (entity == m_world) {
+                        m_moveNodes.insert(brush);
+                        m_selectNodes.insert(brush);
+                    } else {
+                        if (m_moveNodes.insert(entity).second) {
+                            const Model::NodeList& siblings = entity->children();
+                            m_selectNodes.insert(siblings.begin(), siblings.end());
                         }
                     }
                 }
@@ -218,6 +245,15 @@ namespace TrenchBroom {
             }
 
             Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Group* nodeGroup = Model::findGroup(node);
+                if (nodeGroup != NULL) {
+                    event.Enable(false);
+                    return;
+                }
+            }
+
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 Model::Layer* nodeLayer = Model::findLayer(node);
@@ -288,6 +324,9 @@ namespace TrenchBroom {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
+            Model::Layer* newCurrentLayer = findUnlockedLayer(layer);
+            assert(newCurrentLayer != NULL);
+
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();
             
@@ -300,7 +339,7 @@ namespace TrenchBroom {
             if (layer->hasChildren())
                 document->reparentNodes(defaultLayer, layer->children());
             if (document->currentLayer() == layer)
-                document->setCurrentLayer(document->world()->defaultLayer());
+                document->setCurrentLayer(newCurrentLayer);
             document->removeNode(layer);
         }
         
@@ -309,6 +348,11 @@ namespace TrenchBroom {
 
             const Model::Layer* layer = m_layerList->selectedLayer();
             if (layer == NULL) {
+                event.Enable(false);
+                return;
+            }
+
+            if (findUnlockedLayer(layer) == NULL) {
                 event.Enable(false);
                 return;
             }
@@ -325,6 +369,22 @@ namespace TrenchBroom {
             document->resetVisibility(Model::NodeList(layers.begin(), layers.end()));
         }
 
+        Model::Layer* LayerEditor::findUnlockedLayer(const Model::Layer* except) const {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->world()->defaultLayer()->locked())
+                return document->world()->defaultLayer();
+            
+            const Model::LayerList& layers = document->world()->customLayers();
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                if (layer != except && !layer->locked())
+                    return layer;
+            }
+            
+            return NULL;
+        }
+
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
             const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
             
@@ -334,9 +394,10 @@ namespace TrenchBroom {
             const Model::NodeList moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
                 const Model::NodeList selectNodes = visitor.selectNodes();
-                // document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
-                document->select(visitor.selectNodes());
+                document->deselectAll();
+                if (!layer->hidden() && !layer->locked())
+                    document->select(visitor.selectNodes());
             }
         }
 

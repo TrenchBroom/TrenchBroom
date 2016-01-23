@@ -29,6 +29,8 @@ namespace TrenchBroom {
         private:
             wxBitmap m_upBitmap;
             wxBitmap m_downBitmap;
+            wxBitmap m_upDisabledBitmap;
+            wxBitmap m_downDisabledBitmap;
             bool m_state;
         public:
             BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);
