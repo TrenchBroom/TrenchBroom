@@ -159,6 +159,7 @@ namespace TrenchBroom {
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
             void updateFacesFromGeometry(const BBox3& worldBounds);
+            void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
             bool rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);

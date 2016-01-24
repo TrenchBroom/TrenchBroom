@@ -526,7 +526,9 @@ namespace TrenchBroom {
             }
 
             updateFacesFromGeometry(worldBounds);
+            updatePointsFromVertices(worldBounds);
             nodeBoundsDidChange();
+            
             return Vec3::List(newVertexPositions.begin(), newVertexPositions.end());
         }
 
@@ -773,6 +775,18 @@ namespace TrenchBroom {
             } while (current != first);
             
             invalidateContentType();
+        }
+
+        void Brush::updatePointsFromVertices(const BBox3& worldBounds) {
+            BrushGeometry::Face* first = m_geometry->faces().front();
+            BrushGeometry::Face* current = first;
+            do {
+                BrushFace* face = current->payload();
+                face->updatePointsFromVertices();
+                current = current->next();
+            } while (current != first);
+            
+            rebuildGeometry(worldBounds);
         }
 
         bool Brush::rebuildGeometry(const BBox3& worldBounds) {
