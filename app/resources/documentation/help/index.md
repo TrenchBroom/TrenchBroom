@@ -809,6 +809,9 @@ If you change an entity property when multiple entities are selected, the change
 - The current layer
 - Current layer is bold, set by double click
 
+- Hiding layers
+- Creating objects in hidden layers is possible, but the object are only visible as long as they are selected
+
 - Cannot lock current layer
 - Cannot make locked layer current
 - Cannot remove only unlocked layer

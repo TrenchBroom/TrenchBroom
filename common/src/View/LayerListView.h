@@ -56,13 +56,9 @@ namespace TrenchBroom {
     namespace View {
         class LayerCommand : public wxCommandEvent {
         protected:
-            bool m_inverted;
             Model::Layer* m_layer;
         public:
             LayerCommand(wxEventType commandType, int id = 0);
-
-            bool inverted() const;
-            void setInverted(bool inverted);
             
             Model::Layer* layer() const;
             void setLayer(Model::Layer* layer);

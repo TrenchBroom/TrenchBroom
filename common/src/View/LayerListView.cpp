@@ -43,16 +43,7 @@ namespace TrenchBroom {
     namespace View {
         LayerCommand::LayerCommand(const wxEventType commandType, const int id) :
         wxCommandEvent(commandType, id),
-        m_inverted(false),
         m_layer(NULL) {}
-
-        bool LayerCommand::inverted() const {
-            return m_inverted;
-        }
-        
-        void LayerCommand::setInverted(const bool inverted) {
-            m_inverted = inverted;
-        }
 
         Model::Layer* LayerCommand::layer() const {
             return m_layer;
@@ -171,27 +162,24 @@ namespace TrenchBroom {
             }
 
             void OnToggleVisible(wxCommandEvent& event) {
-                const bool altDown = wxGetKeyState(WXK_ALT);
-                
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_VISIBLE_EVENT);
                 command->SetId(GetId());
                 command->SetEventObject(this);
-                command->setInverted(altDown);
                 command->setLayer(m_layer);
                 QueueEvent(command);
             }
 
             void OnUpdateVisibleButton(wxUpdateUIEvent& event) {
                 event.Check(m_layer->hidden());
+
+                MapDocumentSPtr document = lock(m_document);
+                event.Enable(m_layer->hidden() || m_layer != document->currentLayer());
             }
 
             void OnToggleLocked(wxCommandEvent& event) {
-                const bool altDown = wxGetKeyState(WXK_ALT);
-                
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_LOCKED_EVENT);
                 command->SetId(GetId());
                 command->SetEventObject(this);
-                command->setInverted(altDown);
                 command->setLayer(m_layer);
                 QueueEvent(command);
             }

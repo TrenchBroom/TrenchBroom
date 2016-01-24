@@ -53,12 +53,13 @@ namespace TrenchBroom {
             
             void OnToggleLayerVisibleFromMenu(wxCommandEvent& event);
             void OnToggleLayerVisibleFromList(LayerCommand& event);
-            void toggleLayerVisible(Model::Layer* layer, bool inverted);
+            void OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event);
+            void toggleLayerVisible(Model::Layer* layer);
             
             void OnToggleLayerLockedFromMenu(wxCommandEvent& event);
             void OnToggleLayerLockedFromList(LayerCommand& event);
-            void OnUpdateToggleLayerUI(wxUpdateUIEvent& event);
-            void toggleLayerLocked(Model::Layer* layer, bool inverted);
+            void OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event);
+            void toggleLayerLocked(Model::Layer* layer);
 
             void OnSelectAllInLayer(wxCommandEvent& event);
             
@@ -70,7 +71,7 @@ namespace TrenchBroom {
 
             void OnShowAllLayers(wxCommandEvent& event);
         private:
-            Model::Layer* findUnlockedLayer(const Model::Layer* except) const;
+            Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
         };

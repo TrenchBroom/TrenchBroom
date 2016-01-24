@@ -162,8 +162,10 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
-            assert(currentLayer == NULL || !currentLayer->locked());
-            m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
+            assert(currentLayer != NULL);
+            assert(!currentLayer->locked());
+            assert(!currentLayer->hidden());
+            m_currentLayer = currentLayer;
             currentLayerDidChangeNotifier();
         }
         

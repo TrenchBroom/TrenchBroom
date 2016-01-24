@@ -56,6 +56,8 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (layer->locked())
                 document->resetLock(Model::NodeList(1, layer));
+            if (layer->hidden())
+                document->resetVisibility(Model::NodeList(1, layer));
             document->setCurrentLayer(event.layer());
         }
 
@@ -77,8 +79,9 @@ namespace TrenchBroom {
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateMoveSelectionToLayerUI, this, MoveSelectionToLayerCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnSelectAllInLayer, this, SelectAllInLayerCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerVisibleFromMenu, this, ToggleLayerVisibleCommandId);
+            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateToggleLayerVisibleUI, this, ToggleLayerVisibleCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerLockedFromMenu, this, ToggleLayerLockedCommandId);
-            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateToggleLayerUI, this, ToggleLayerLockedCommandId);
+            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateToggleLayerLockedUI, this, ToggleLayerLockedCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnRemoveLayer, this, RemoveLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this, RemoveLayerCommandId);
             
@@ -88,47 +91,53 @@ namespace TrenchBroom {
         void LayerEditor::OnToggleLayerVisibleFromMenu(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            toggleLayerVisible(m_layerList->selectedLayer(), false);
+            toggleLayerVisible(m_layerList->selectedLayer());
         }
         
         void LayerEditor::OnToggleLayerVisibleFromList(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
-            toggleLayerVisible(event.layer(), event.inverted());
+            toggleLayerVisible(event.layer());
         }
 
-        void LayerEditor::toggleLayerVisible(Model::Layer* layer, const bool inverted) {
+        void LayerEditor::OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event) {
+            Model::Layer* layer = m_layerList->selectedLayer();
+            if (layer == NULL) {
+                event.Enable(false);
+                return;
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!layer->hidden() && layer == document->currentLayer()) {
+                event.Enable(false);
+                return;
+            }
+            
+            event.Enable(true);
+        }
+
+        void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            if (inverted) {
-                Model::LayerList others = document->world()->allLayers();
-                VectorUtils::erase(others, layer);
-                
-                Transaction transaction(document, "Hide All But Current Layer");
-                document->hide(Model::NodeList(others.begin(), others.end()));
-                if (!layer->visible())
-                    document->resetVisibility(Model::NodeList(1, layer));
-            } else {
-                if (layer->visible())
-                    document->hide(Model::NodeList(1, layer));
-                else
-                    document->resetVisibility(Model::NodeList(1, layer));
-            }
+            if (!layer->hidden())
+                document->hide(Model::NodeList(1, layer));
+            else
+                document->resetVisibility(Model::NodeList(1, layer));
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            toggleLayerLocked(m_layerList->selectedLayer(), false);
+            toggleLayerLocked(m_layerList->selectedLayer());
         }
         
         void LayerEditor::OnToggleLayerLockedFromList(LayerCommand& event) {
             if (IsBeingDeleted()) return;
 
-            toggleLayerLocked(event.layer(), event.inverted());
+            toggleLayerLocked(event.layer());
         }
 
-        void LayerEditor::OnUpdateToggleLayerUI(wxUpdateUIEvent& event) {
+        void LayerEditor::OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
             if (layer == NULL) {
                 event.Enable(false);
@@ -144,23 +153,13 @@ namespace TrenchBroom {
             event.Enable(true);
         }
 
-        void LayerEditor::toggleLayerLocked(Model::Layer* layer, const bool inverted) {
+        void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            if (inverted) {
-                Model::LayerList others = document->world()->allLayers();
-                VectorUtils::erase(others, layer);
-
-                Transaction transaction(document, "Lock All But Current Layer");
-                document->lock(Model::NodeList(others.begin(), others.end()));
-                if (layer->locked())
-                    document->resetLock(Model::NodeList(1, layer));
-            } else {
-                if (!layer->locked())
-                    document->lock(Model::NodeList(1, layer));
-                else
-                    document->resetLock(Model::NodeList(1, layer));
-            }
+            if (!layer->locked())
+                document->lock(Model::NodeList(1, layer));
+            else
+                document->resetLock(Model::NodeList(1, layer));
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
@@ -324,7 +323,7 @@ namespace TrenchBroom {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
-            Model::Layer* newCurrentLayer = findUnlockedLayer(layer);
+            Model::Layer* newCurrentLayer = findVisibleAndUnlockedLayer(layer);
             assert(newCurrentLayer != NULL);
 
             MapDocumentSPtr document = lock(m_document);
@@ -352,7 +351,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (findUnlockedLayer(layer) == NULL) {
+            if (findVisibleAndUnlockedLayer(layer) == NULL) {
                 event.Enable(false);
                 return;
             }
@@ -369,16 +368,16 @@ namespace TrenchBroom {
             document->resetVisibility(Model::NodeList(layers.begin(), layers.end()));
         }
 
-        Model::Layer* LayerEditor::findUnlockedLayer(const Model::Layer* except) const {
+        Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
             MapDocumentSPtr document = lock(m_document);
-            if (!document->world()->defaultLayer()->locked())
+            if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden())
                 return document->world()->defaultLayer();
             
             const Model::LayerList& layers = document->world()->customLayers();
             Model::LayerList::const_iterator it, end;
             for (it = layers.begin(), end = layers.end(); it != end; ++it) {
                 Model::Layer* layer = *it;
-                if (layer != except && !layer->locked())
+                if (layer != except && !layer->locked() && !layer->hidden())
                     return layer;
             }
             
