@@ -53,7 +53,7 @@ namespace TrenchBroom {
             State m_state;
             
             TokenStack m_tokenStack;
-        protected:
+        public:
             static const String Whitespace;
         public:
             Tokenizer(const char* begin, const char* end) :
@@ -103,6 +103,14 @@ namespace TrenchBroom {
                 }
                 
                 pushToken(token);
+                return String(startPos, static_cast<size_t>(endPos - startPos));
+            }
+            
+            String readAnyString(const String& delims) {
+                while (isWhitespace(curChar()))
+                    advance();
+                const char* startPos = curPos();
+                const char* endPos = (curChar() == '"' ? readQuotedString() : readString(delims));
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
             
@@ -199,7 +207,7 @@ namespace TrenchBroom {
             bool isWhitespace(const char c) const {
                 return isAnyOf(c, Whitespace);
             }
-            
+
             const char* readInteger(const String& delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar()))
                     return NULL;

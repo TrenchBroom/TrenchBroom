@@ -356,7 +356,7 @@ namespace TrenchBroom {
             }
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-            String textureName = m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Integer | QuakeMapToken::Decimal);
+            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace);
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
