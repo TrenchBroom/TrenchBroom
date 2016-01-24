@@ -797,7 +797,24 @@ If you change an entity property when multiple entities are selected, the change
 
 ### Linking Entities
 
+Entities can be linked using special link properties. Each link has a source and a target entity. The target entity has a property called "targetname", and the value of that property is some arbitrary string. The souce entity has a "target" or a "killtarget" property, and the value of that property is the value of the target entity's "targetname" property. To create an entity link, you have to manually set these properties to the proper values. Currently, the names of the link properties are hardcoded into TrenchBroom, but in the future they will be read from the FGD file if appropriate. The following section explains how entity links are visualized in the editor.
+
 ### Entity Link Visualization
+
+Entity Links are rendered as lines in the 3D and 2D viewports. TrenchBroom provides you with for modes for entity link visualization. You can switch between these modes in the dropdown menu that is displayed when you click on the "View" button at the right of the info bar. The following table explains the four different modes.
+
+Mode                   Description
+----                   -----------
+All                    Always show all entity links.
+Transitive selected    Show all entity links connected to the selected entities, and any link that is reachable from the selected entities, too.
+Direct selected        Show all entity links connected to the selected entities.
+No                     Don't show any entity links.
+
+An entity link that is connected to a currently selected entity is rendered as a red line that connects the selected entity with the source or target of that link. Other entity links are colored green.
+
+![Entity Link Visualization](EntityLinkVisualization.png)
+
+In the screenshot above, the link between the two info_null entities is rendered in green because neither of the entities is selected.
 
 ## Undo and Redo
 
@@ -810,13 +827,13 @@ If you change an entity property when multiple entities are selected, the change
 - Current layer is bold, set by double click
 
 - Hiding layers
-- Creating objects in hidden layers is possible, but the object are only visible as long as they are selected
+- Cannot hide current layer
+- Making a hidden layer current unlocks it
+- Cannot remove only visible layer
 
 - Cannot lock current layer
-- Cannot make locked layer current
+- Making a locked layer current unlocks it
 - Cannot remove only unlocked layer
-
-- Alt+click hides / locks all other layers
 
 ### Groups {#groups}
 
