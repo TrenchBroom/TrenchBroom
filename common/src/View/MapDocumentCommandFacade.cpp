@@ -385,6 +385,9 @@ namespace TrenchBroom {
             const Model::NodeList nodesToNotify = Model::collectChildren(nodes);
             const Model::NodeList parentsToNotify = VectorUtils::eraseAll(Model::collectParents(nodes), emptyParents);
             
+            Model::NodeList nodesWithChangedLockState;
+            Model::NodeList nodesWithChangedVisibilityState;
+            
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNotify);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
 
@@ -402,11 +405,22 @@ namespace TrenchBroom {
                     Model::Node* oldParent = child->parent();
                     assert(oldParent != NULL);
                     
+                    const bool wasLocked = child->locked();
+                    const bool wasHidden = child->hidden();
+                    
                     movedNodes[oldParent].push_back(child);
                     oldParent->removeChild(child);
                     newParent->addChild(child);
+                    
+                    if (wasLocked != child->locked())
+                        nodesWithChangedLockState.push_back(child);
+                    if (wasHidden != child->hidden())
+                        nodesWithChangedVisibilityState.push_back(child);
                 }
             }
+            
+            nodeLockingDidChangeNotifier(nodesWithChangedLockState);
+            nodeVisibilityDidChangeNotifier(nodesWithChangedVisibilityState);
             
             const Model::ParentChildrenMap removedNodes = performRemoveNodes(emptyParents);
             return ReparentResult(movedNodes, removedNodes);

@@ -393,8 +393,8 @@ namespace TrenchBroom {
             const Model::NodeList moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
                 const Model::NodeList selectNodes = visitor.selectNodes();
-                document->reparentNodes(layer, visitor.moveNodes());
                 document->deselectAll();
+                document->reparentNodes(layer, visitor.moveNodes());
                 if (!layer->hidden() && !layer->locked())
                     document->select(visitor.selectNodes());
             }
