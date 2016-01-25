@@ -294,19 +294,19 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::selectable(const Model::Group* group) const {
-            return editable(group) && pickable(group);
+            return visible(group) && editable(group) && pickable(group);
         }
         
         bool EditorContext::selectable(const Model::Entity* entity) const {
-            return editable(entity) && pickable(entity);
+            return visible(entity) && editable(entity) && pickable(entity);
         }
         
         bool EditorContext::selectable(const Model::Brush* brush) const {
-            return editable(brush) && pickable(brush);
+            return visible(brush) && editable(brush) && pickable(brush);
         }
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
-            return editable(face) && pickable(face);
+            return visible(face) && editable(face) && pickable(face);
         }
 
         bool EditorContext::canChangeSelection() const {
