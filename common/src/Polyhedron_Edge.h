@@ -194,8 +194,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const Plane
             position[i] = startPos[i] + dot * (endPos[i] - startPos[i]);
     }
     
-    // cheat a little bit?, just like QBSP
-    position.correct();
     return insertVertex(position);
 }
 

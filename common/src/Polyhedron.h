@@ -102,6 +102,7 @@ public:
     private:
         HalfEdge* findConnectingEdge(const Vertex* vertex) const;
         HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
+        void correctPosition(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon());
         void setPosition(const V& position);
         void setLeaving(HalfEdge* edge);
     };
@@ -347,6 +348,8 @@ private: // General purpose methods
     bool checkEdges() const;
     
     void updateBounds();
+public: // vertex correction
+    void correctVertexPositions(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon());
 private:  // Moving vertices
     struct MoveVertexResult;
 public:

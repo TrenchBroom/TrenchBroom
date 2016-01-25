@@ -818,6 +818,8 @@ In the screenshot above, the link between the two info_null entities is rendered
 
 ## Undo and Redo
 
+- Undo collation and transactions
+
 # Keeping an Overview
 
 ### Layers {#layers}

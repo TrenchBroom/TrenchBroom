@@ -786,6 +786,16 @@ bool Polyhedron<T,FP,VP>::checkEdges() const {
 }
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T epsilon) {
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
+    do {
+        currentVertex->correctPosition(decimals, epsilon);
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
         m_bounds.min = m_bounds.max = Vec<T,3>::NaN;

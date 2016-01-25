@@ -105,6 +105,11 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinea
 }
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Vertex::correctPosition(const size_t decimals, const T epsilon) {
+    m_position.correct(decimals, epsilon);
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Vertex::setPosition(const V& position) {
     m_position = position;
 }

@@ -87,6 +87,7 @@ namespace TrenchBroom {
                     if (result.empty())
                         m_brushEmpty = true;
                 }
+                m_geometry.correctVertexPositions();
             }
             
             bool brushEmpty() const {

@@ -349,6 +349,49 @@ namespace TrenchBroom {
             assert(brush.fullySpecified());
         }
         
+        TEST(BrushTest, buildBrushFail) {
+            /*
+             See https://github.com/kduske/TrenchBroom/issues/1186
+             This crash was caused by the correction of newly created vertices in Polyhedron::Edge::split - it would nudge vertices such that their plane status changed, resulting in problems when building the seam.
+             */
+            
+            const String data("{\n"
+                              "( 656 976 672 ) ( 656 1104 672 ) ( 656 976 800 ) black -976 672 0 1 1 //TX2\n"
+                              "( 632 496.00295 640 ) ( 632 688.00137 768 ) ( 504 496.00295 640 ) doortrim2 632 331 0 -1 1.49999 //TX1\n"
+                              "( 666.74516 848 928 ) ( 666.74516 826.95693 1054.25842 ) ( 794.74516 848 928 ) woodplank1 -941 667 90 0.98639 -1 //TX2\n"
+                              "( 672 880 416 ) ( 672 880 544 ) ( 672 1008 416 ) wswamp2_1 -880 416 0 1 1 //TX1\n"
+                              "( 656 754.57864 1021.42136 ) ( -84592 754.57864 1021.42136 ) ( 656 61034.01582 -59258.01582 ) skip 1 2 0 -666 470.93310 //TX2\n"
+                              "}\n");
+
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds);
+            assert(nodes.size() == 1);
+        }
+        
+        TEST(BrushTest, buildBrushFail2) {
+            /*
+             See https://github.com/kduske/TrenchBroom/issues/1185
+             
+             The cause for the endless loop was, like above, the vertex correction in Polyhedron::Edge::split.
+             */
+            
+            const String data("{\n"
+                              "( 32 1392 960 ) ( 32 1392 1088 ) ( 32 1264 960 ) black 1392 960 0 -1 1 //TX1\n"
+                              "( 64 1137.02125 916.65252 ) ( 64 1243.52363 845.65079 ) ( -64 1137.02125 916.65252 ) woodplank1 64 1367 0 -1 0.83205 //TX1\n"
+                              "( 5.25484 1296 864 ) ( 5.25484 1317.04307 990.25842 ) ( -122.74516 1296 864 ) woodplank1 -876 -5 90 0.98639 1 //TX2\n"
+                              "( 64 1184 819.77710 ) ( 64 1184 947.77710 ) ( 64 1312 819.77710 ) woodplank1 -820 1184 90 1 -1 //TX2\n"
+                              "( 16 1389.42136 957.42136 ) ( 85264 1389.42136 957.42136 ) ( 16 -58890.01582 -59322.01582 ) skip 0 -3 0 666 -470.93310 //TX2\n"
+                              "}\n");
+
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds);
+            assert(nodes.size() == 1);
+        }
+        
         TEST(BrushTest, pick) {
             const BBox3 worldBounds(4096.0);
             
