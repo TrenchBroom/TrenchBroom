@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 PrefPane_First = 0,
                 PrefPane_Games = 0,
                 PrefPane_View = 1,
-                PrefPane_Camera = 2,
+                PrefPane_Mouse = 2,
                 PrefPane_Keyboard = 3,
                 PrefPane_Last = 3
             } PrefPane;

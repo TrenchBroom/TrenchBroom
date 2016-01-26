@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CameraPreferencePane
-#define TrenchBroom_CameraPreferencePane
+#ifndef TrenchBroom_MousePreferencePane
+#define TrenchBroom_MousePreferencePane
 
 #include "View/PreferencePane.h"
 
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class KeyboardShortcutEditor;
         class KeyboardShortcutEvent;
         
-        class CameraPreferencePane : public PreferencePane {
+        class MousePreferencePane : public PreferencePane {
         private:
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookHAxisCheckBox;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_leftKeyEditor;
             KeyboardShortcutEditor* m_rightKeyEditor;
         public:
-            CameraPreferencePane(wxWindow* parent);
+            MousePreferencePane(wxWindow* parent);
 
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
@@ -92,4 +92,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CameraPreferencePane) */
+#endif /* defined(TrenchBroom_MousePreferencePane) */

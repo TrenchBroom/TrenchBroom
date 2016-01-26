@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CameraPreferencePane.h"
+#include "MousePreferencePane.h"
 
 #include "StringUtils.h"
 #include "PreferenceManager.h"
@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        CameraPreferencePane::CameraPreferencePane(wxWindow* parent) :
+        MousePreferencePane::MousePreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
             bindEvents();
         }
         
-        void CameraPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
+        void MousePreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
             const float value = m_lookSpeedSlider->GetValue() / 100.0f;
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookSpeed, value);
         }
         
-        void CameraPreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookInvertH, value);
         }
         
-        void CameraPreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookInvertV, value);
         }
         
-        void CameraPreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
+        void MousePreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
             const float value = m_panSpeedSlider->GetValue() / 100.0f;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanSpeed, value);
         }
         
-        void CameraPreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanInvertH, value);
         }
         
-        void CameraPreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanInvertV, value);
         }
         
-        void CameraPreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
+        void MousePreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
             const float value = m_moveSpeedSlider->GetValue() / 100.0f;
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveSpeed, value);
         }
         
-        void CameraPreferencePane::OnInvertMouseWheelChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertMouseWheelChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
             const bool value = event.GetInt() != 0;
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMouseWheelInvert, value);
         }
 
-        void CameraPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraEnableAltMove, value);
         }
         
-        void CameraPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraAltMoveInvert, value);
         }
         
-        void CameraPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveInCursorDir, value);
         }
         
-        void CameraPreferencePane::OnFlySpeedChanged(wxScrollEvent& event) {
+        void MousePreferencePane::OnFlySpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
             const float value = m_flySpeedSlider->GetValue() / 100.0f;
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFlySpeed, value);
         }
         
-        void CameraPreferencePane::OnInvertFlyVAxisChanged(wxCommandEvent& event) {
+        void MousePreferencePane::OnInvertFlyVAxisChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const bool value = event.GetInt() != 0;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFlyInvertV, value);
         }
         
-        void CameraPreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
+        void MousePreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
                 prefs.set(Preferences::CameraFlyForward, shortcut);
         }
         
-        void CameraPreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
+        void MousePreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 prefs.set(Preferences::CameraFlyBackward, shortcut);
         }
         
-        void CameraPreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
+        void MousePreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                 prefs.set(Preferences::CameraFlyLeft, shortcut);
         }
         
-        void CameraPreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
+        void MousePreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -222,7 +222,7 @@ namespace TrenchBroom {
                 prefs.set(Preferences::CameraFlyRight, shortcut);
         }
         
-        void CameraPreferencePane::createGui() {
+        void MousePreferencePane::createGui() {
             wxWindow* mousePreferences = createCameraPreferences();
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             SetBackgroundColour(*wxWHITE);
         }
         
-        wxWindow* CameraPreferencePane::createCameraPreferences() {
+        wxWindow* MousePreferencePane::createCameraPreferences() {
             wxPanel* box = new wxPanel(this);
             box->SetBackgroundColour(*wxWHITE);
             
@@ -336,32 +336,32 @@ namespace TrenchBroom {
             return box;
         }
         
-        void CameraPreferencePane::bindEvents() {
-            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertLookHAxisChanged, this);
-            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertLookVAxisChanged, this);
-            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertPanHAxisChanged, this);
-            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertPanVAxisChanged, this);
-            m_invertMouseWheelCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertMouseWheelChanged, this);
-            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnEnableAltMoveChanged, this);
-            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnMoveCameraInCursorDirChanged, this);
-            m_invertFlyVAxisCheckBox->Bind(wxEVT_CHECKBOX, &CameraPreferencePane::OnInvertFlyVAxisChanged, this);
+        void MousePreferencePane::bindEvents() {
+            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertLookHAxisChanged, this);
+            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertLookVAxisChanged, this);
+            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertPanHAxisChanged, this);
+            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertPanVAxisChanged, this);
+            m_invertMouseWheelCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertMouseWheelChanged, this);
+            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnEnableAltMoveChanged, this);
+            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnMoveCameraInCursorDirChanged, this);
+            m_invertFlyVAxisCheckBox->Bind(wxEVT_CHECKBOX, &MousePreferencePane::OnInvertFlyVAxisChanged, this);
             
-            bindSliderEvents(m_lookSpeedSlider, &CameraPreferencePane::OnLookSpeedChanged, this);
-            bindSliderEvents(m_panSpeedSlider, &CameraPreferencePane::OnPanSpeedChanged, this);
-            bindSliderEvents(m_moveSpeedSlider, &CameraPreferencePane::OnMoveSpeedChanged, this);
-            bindSliderEvents(m_flySpeedSlider, &CameraPreferencePane::OnFlySpeedChanged, this);
+            bindSliderEvents(m_lookSpeedSlider, &MousePreferencePane::OnLookSpeedChanged, this);
+            bindSliderEvents(m_panSpeedSlider, &MousePreferencePane::OnPanSpeedChanged, this);
+            bindSliderEvents(m_moveSpeedSlider, &MousePreferencePane::OnMoveSpeedChanged, this);
+            bindSliderEvents(m_flySpeedSlider, &MousePreferencePane::OnFlySpeedChanged, this);
             
-            m_forwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &CameraPreferencePane::OnForwardKeyChanged, this);
-            m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &CameraPreferencePane::OnBackwardKeyChanged, this);
-            m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &CameraPreferencePane::OnLeftKeyChanged, this);
-            m_rightKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &CameraPreferencePane::OnRightKeyChanged, this);
+            m_forwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnForwardKeyChanged, this);
+            m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnBackwardKeyChanged, this);
+            m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnLeftKeyChanged, this);
+            m_rightKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnRightKeyChanged, this);
         }
         
-        bool CameraPreferencePane::doCanResetToDefaults() {
+        bool MousePreferencePane::doCanResetToDefaults() {
             return true;
         }
         
-        void CameraPreferencePane::doResetToDefaults() {
+        void MousePreferencePane::doResetToDefaults() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.resetToDefault(Preferences::CameraLookSpeed);
             prefs.resetToDefault(Preferences::CameraLookInvertH);
@@ -387,7 +387,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraFlyRight);
         }
 
-        void CameraPreferencePane::doUpdateControls() {
+        void MousePreferencePane::doUpdateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             m_rightKeyEditor->SetShortcut(prefs.get(Preferences::CameraFlyRight));
         }
         
-        bool CameraPreferencePane::doValidate() {
+        bool MousePreferencePane::doValidate() {
             return true;
         }
 	}
