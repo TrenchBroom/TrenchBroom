@@ -854,10 +854,9 @@ If you are working on a crowded area, it can be useful to hide certain objects, 
 
 ## Groups {#groups}
 
-- Creating a group
-- Opening and closing groups
+Groups allow you to treat several objects as one and to give them a name. A group can contain the following types of objects: entities, brushes, and more groups. The fact that a group can contain groups induces a hierarchy - but in practice, you will rarely create such nested groups. In the viewports, groups have their bounding box rendered in blue, and their name is displayed above them.
 
-- New objects are added to the current group, and otherwise to the current layer.
+To create a group, select some objects and choose #menu('Menu/Edit/Group'). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only editor all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu('Menu/Edit/Ungroup'). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
 
 ## Layers {#layers}
 
