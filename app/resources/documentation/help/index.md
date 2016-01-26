@@ -907,7 +907,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 ### Contact
 
-- \#trenchbroom on quakenet.org
+- IRC: \#trenchbroom on quakenet.org
 
 # References and Links {#references_and_links}
 
