@@ -878,6 +878,8 @@ When you create new objects, TrenchBroom puts them into the current layer (unles
 
 # Preferences
 
+The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu('Menu/File/Preferences...'). The dialog is split into four panes, each of which we will review in the following sections.
+
 ## Game Configuration {#game_configuration}
 
 ## View Layout and Rendering {#view_layout_and_rendering}
@@ -902,7 +904,13 @@ When you create new objects, TrenchBroom puts them into the current layer (unles
 
 # Getting Involved
 
+## Suggest a Feature
+
+If you have an idea for a nice feature that you're missing in TrenchBroom, then you can submit a request at the [TrenchBroom issue tracker]. Try to describe your feature, but don't go into too much detail. If it gets picked up, we will hash out the details together.
+
 ## Reporting Bugs {#reporting_bugs}
+
+You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the version information (see below) and try to describe the steps to reproduce.
 
 ### The Version Information
 
@@ -914,9 +922,14 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 # References and Links {#references_and_links}
 
+- [TrenchBroom website] - TrenchBroom's website
+- [TrenchBroom on github] - TrenchBroom's github page
 - [func_msgboard] - Quake Mapping Forum
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
+[TrenchBroom website]: http://kristianduske.com/trenchbroom/
+[TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
+[TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
 [func_msgboard]: http://celephais.net/board/
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
