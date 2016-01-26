@@ -130,6 +130,13 @@ public:
         }
     };
     
+    class LengthOrder {
+    public:
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+            return lhs.squaredLength() < rhs.squaredLength();
+        }
+    };
+    
     typedef std::vector<Vec<T,S> > List;
     typedef std::set<Vec<T,S>, LexicographicOrder> Set;
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;

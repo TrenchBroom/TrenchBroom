@@ -27,6 +27,8 @@
 #include "View/InputState.h"
 #include "View/MovementRestriction.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         MoveToolDelegate::~MoveToolDelegate() {}
@@ -146,11 +148,31 @@ namespace TrenchBroom {
 
         void MoveToolHelper::renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_trace.size() > 1) {
-                typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-                Vertex::List vertices = Vertex::fromLists(m_trace, m_trace.size());
-                Renderer::DirectEdgeRenderer traceRenderer(Renderer::VertexArray::swap(vertices), GL_LINE_STRIP);
-                traceRenderer.renderOnTop(renderBatch, pref(Preferences::OccludedMoveTraceColor));
-                traceRenderer.render(renderBatch, pref(Preferences::MoveTraceColor));
+                typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+                
+                const Vec3 start = m_trace.front();
+                const Vec3 end   = m_trace.back();
+                const Vec3 vec   = end - start;
+
+                Vec3::List stages(3);
+                stages[0] = vec * Vec3::PosX;
+                stages[1] = vec * Vec3::PosY;
+                stages[2] = vec * Vec3::PosZ;
+
+                Vec3 lastPos = start;
+                Vertex::List vertices(6);
+                for (size_t i = 0; i < 3; ++i) {
+                    const Vec3& stage = stages[i];
+                    const Vec3 curPos = lastPos + stage;
+                    
+                    const Color& color = (stage[0] != 0.0 ? pref(Preferences::XAxisColor) : (stage[1] != 0.0 ? pref(Preferences::YAxisColor) : pref(Preferences::ZAxisColor)));
+                    vertices[2 * i + 0] = Vertex(lastPos, color);
+                    vertices[2 * i + 1] = Vertex(curPos,  color);
+                    lastPos = curPos;
+                }
+                
+                Renderer::DirectEdgeRenderer traceRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+                traceRenderer.renderOnTop(renderBatch);
             }
         }
 
