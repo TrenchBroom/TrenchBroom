@@ -852,6 +852,14 @@ In the left of the view dropdown, there is a list of checkboxes that allows you 
 
 If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu('View/Hide'), and to isolate the selected objects, choose #menu('View/Isolate'). To show all hidden objects, choose #menu('View/Show All'). All of these actions can be undone.
 
+## Locking
+
+Locking prevents objects from being selected or edited in anyway. Locked objects are rendered with blue edges and their faces are tinted in blue, as shown in the following screenshot.
+
+![Locked Objects](Locking.png)
+
+Objects can be locked either if you are editing an open group or if you set a layer to locked (see below). You cannot lock objects individually.
+
 ## Groups {#groups}
 
 Groups allow you to treat several objects as one and to give them a name. A group can contain the following types of objects: entities, brushes, and more groups. The fact that a group can contain groups induces a hierarchy - but in practice, you will rarely create such nested groups. In the viewports, groups have their bounding box rendered in blue, and their name is displayed above them.
@@ -860,18 +868,13 @@ To create a group, select some objects and choose #menu('Menu/Edit/Group'). The 
 
 ## Layers {#layers}
 
-- The default layer
-- The current layer
-- Current layer is bold, set by double click
+Layers decompose your map into several parts. For example, you might create a layer for separate rooms or areas. Layers can contain groups, entities, or brushes, and each of these objects can belong to one layer only. Each layer has a name and can be set to hidden or locked. Every map contains a "Default Layer" that cannot be removed. This layer receives all objects that haven't been assigned to another layer.
 
-- Hiding layers
-- Cannot hide current layer
-- Making a hidden layer current unlocks it
-- Cannot remove only visible layer
+![Layer Editor](LayerEditor.png)
 
-- Cannot lock current layer
-- Making a locked layer current unlocks it
-- Cannot remove only unlocked layer
+Layers are managed in the layer editor, which is part of the map inspector. The layer editor displays a list of all layers in your map. You can hide or show a layer by clicking on the eye icon below the layer name, and you can lock or unlock a layer by clicking on the lock icon. To create a new layer, click the plus button at the bottom of the layer list, and to remove one ore more layers, select them and click on the minus button. They eye button next to the minus button shows all layers.
+
+When you create new objects, TrenchBroom puts them into the current layer (unless you are working in a group). The current layer is indicated in the layer list by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list. Note that you cannot hide or lock the current layer, and if you make a layer the current layer, that layer is shown and unlocked automatically. The fact that the current layer can neither be hidden nor locked also implies that you cannot delete the only visible or the only unlocked layer, because then TrenchBroom would have to choose a hidden or a locked layer to be the new current layer.
 
 # Preferences
 
