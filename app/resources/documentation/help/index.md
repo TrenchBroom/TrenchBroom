@@ -131,7 +131,7 @@ The sizes of the editing area, the inspector and the info bar can be changed by 
 
 ### The Editing Area
 
-The editing area is divided in two sections: The context sensitive info bar at the top and the viewports below. The info bar contains different controls depending on which tool is currently activated. You can switch between tools such as the rotate tool and the vertex tool using the toolbar buttons, the menu or with the respective keyboard shortcuts. The context sensitive controls allow you to perform certain actions that are relevant to the current tool such as setting the rotation center when in the rotate tool or moving objects by a given delta when in the default move tool. Additonally, there is a button labeled "View" on the right of the info bar. Clicking on this button unfolds a dropdown containing controls to [filter out](#filtering) certain objects in the viewports or to change how the viewport [renders its contents](#rendering_options).
+The editing area is divided in two sections: The context sensitive info bar at the top and the viewports below. The info bar contains different controls depending on which tool is currently activated. You can switch between tools such as the rotate tool and the vertex tool using the toolbar buttons, the menu or with the respective keyboard shortcuts. The context sensitive controls allow you to perform certain actions that are relevant to the current tool such as setting the rotation center when in the rotate tool or moving objects by a given delta when in the default move tool. Additonally, there is a button labeled "View" on the right of the info bar. Clicking on this button unfolds a dropdown containing controls to [filter out](#filtering_rendering_options) certain objects in the viewports or to change how the viewport [renders its contents](#filtering_rendering_options).
 
 ![The info bar with view dropdown (Windows 7)](ViewDropdown.png)
 
@@ -795,6 +795,16 @@ To remove entity properties, you should select the rows in the table that repres
 
 If you change an entity property when multiple entities are selected, the change gets applied to all of the selected entities, even if that requires adding that property. So if you were to change the value of the "light" property in the example above to 200, each of the selected entities will subsequently have a "light" property with the value 200, even if only a subset of the selected entities had that property before.
 
+### Smart Entity Property Editors
+
+TrenchBroom provides special editors for the following entity properties: spawnflags, colors, and choices. These special editors are callled _smart property editors_ and are displayed below the entity property table if you select an entity property for which such an editor exists. 
+
+Type             Editor                                                  Description
+----             ------                                                  -----------
+Spawnflags       ![Smart Spawnflags Editor](SmartSpawnflagsEditor.png)    A table of checkboxes which allow you to toggle the individual spawnflag values.
+Color            ![Smart Spawnflags Editor](SmartColorEditor.png)         A color chooser control that allows you to convert between byte and float color values, and provides a list of all colors found in the map.
+Choice           ![Smart Spawnflags Editor](SmartChoiceEditor.png)        A dropdown list of values. You can also enter any text into the text box.
+
 ### Linking Entities
 
 Entities can be linked using special link properties. Each link has a source and a target entity. The target entity has a property called "targetname", and the value of that property is some arbitrary string. The souce entity has a "target" or a "killtarget" property, and the value of that property is the value of the target entity's "targetname" property. To create an entity link, you have to manually set these properties to the proper values. Currently, the names of the link properties are hardcoded into TrenchBroom, but in the future they will be read from the FGD file if appropriate. The following section explains how entity links are visualized in the editor.
@@ -818,11 +828,38 @@ In the screenshot above, the link between the two info_null entities is rendered
 
 ## Undo and Redo
 
-- Undo collation and transactions
+Almost everything that you do in TrenchBroom can be undone by choosing #menu('Menu/Edit/Undo'). This applies to every action that somehow modifies the map file (such as moving objects), but it also applies to some actions that do not change the map file, such as selection, hiding, and locking. There is no limit to how many actions you can undo, and once an action is undone, you can redo it by choosing #menu('Menu/Edit/Redo').
+
+### Undo Collation and Transactions
+
+Note that TrenchBroom groups certain sequences of actions into transactions which can be undone and redone as one. For example, if you select a few objects and then hide them, the objects are automatically deselected. Both the action of deselecting the objects to be hidden and hiding them are grouped together into a transaction, so when you undo, the objects will be unhidden and reselected at the same time.
+
+On top of that, TrenchBroom will merge sequences of the same action if they happen within one mouse drag or within a certain time. So if you move a brush around, all steps of the move will be merged into one action, or if you move a brush around by pressing the appropriate keyboard shortcuts within a certain time, all these actions will also be merged into one. In practice, this saves memory and it allows you to undo such sequences in one fell swoop.
 
 # Keeping an Overview
 
-### Layers {#layers}
+If you are working on large maps, it can become cumbersome to manage the objects in the map and to keep an overview over them. Some areas may be crowded with a lot of brushes and entities so that it becomes difficult to edit a particular object that is occluded by other things. TrenchBroom provides you with a number of tools to easily keep an overview over your map and to remove clutter in crowded areas.
+
+## Filtering {#filtering_rendering_options}
+
+To filter out certain types of objects, you can open the view dropdown window by clicking on the "View" button at the right of the info bar above the editing area.
+
+![The info bar with view dropdown (Windows 7)](ViewDropdown.png)
+
+In the left of the view dropdown, there is a list of checkboxes that allows you to hide all entities that share the same entity definition (i.e., the same classname). Uncheck an entity definition (or a group thereof) to hide the respective entities. For quickly hiding and showing all entities, you can click on the two buttons below the list. The right half of the view dropdown contains some options for the renderer, most of which are self explanatory.
+
+## Hiding and Isolation
+
+If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu('View/Hide'), and to isolate the selected objects, choose #menu('View/Isolate'). To show all hidden objects, choose #menu('View/Show All'). All of these actions can be undone.
+
+## Groups {#groups}
+
+- Creating a group
+- Opening and closing groups
+
+- New objects are added to the current group, and otherwise to the current layer.
+
+## Layers {#layers}
 
 - The default layer
 - The current layer
@@ -836,16 +873,6 @@ In the screenshot above, the link between the two info_null entities is rendered
 - Cannot lock current layer
 - Making a locked layer current unlocks it
 - Cannot remove only unlocked layer
-
-### Groups {#groups}
-
-- New objects are added to the current group, and otherwise to the current layer.
-
-### Hiding and Isolating Objects
-
-### Filtering {#filtering}
-
-### Rendering Options {#rendering_options}
 
 # Preferences
 
