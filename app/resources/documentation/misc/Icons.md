@@ -1,3 +1,5 @@
+All icons must be vector graphics and must be optimized for the given resolutions. Every icon except the application icons should also come in a hi-res version for high resolution displays such as the Retina display on Macs.
+
 # Preference Dialog (32x32)
 The preference dialog is split into the following four preference panes, which are selectable with four large buttons in a toolbar at the top of the window:
 - Game Setup: This is where the user sets the options pertaining to particular games, such as the location of the game on the hard drive etc.
@@ -17,6 +19,28 @@ These icons are to be used in several places all over the editor and therefore s
 - Delete something (this is different from removing because it will cause something to be erased permanently).
 - Select something from disk (open a browser window / open file dialog).
 - Refresh or reload something from disk (for example reload all textures).
+- Hide / show something
+- Lock / unlock something
+
+# Texture Icons (16x16)
+- Reset texture attributes
+- Flip horizontally
+- Flip vertically
+- Rotate left
+- Rotate right
+- Fit texture to face
+- Wrap texture around brush
+
+# Toolbar Icons (24x24)
+- Default icon for when no tool is active
+- Create new brush from convex hull tool
+- Clip tool
+- Vertex tool
+- Rotate tool
+- Duplicate objects
+- Flip horizontally
+- Flip vertically
+- Texture lock on / off
 
 # Object Icons (16x16, 32x32)
 - Entity icon: Could be a humanoid figure.
@@ -24,23 +48,8 @@ These icons are to be used in several places all over the editor and therefore s
 - Face icon: Could be a rectangle or square, maybe with a missing corner (as in, a cut off corner).
 - Patch icon (as in Quake 3 patch): A 3D curve something?
 
-# Action icons (16x16, 32x32)
-- Rotate left / right (about Z axis)
-- Rotate clockwise / counterclockwise (about view axis)
-- Rotate up / down (about right axis)
-- Flip horizontally
-- Flip vertically
-- Move left / right, up / down, forward / backward (i.e., towards or away from the camera)
-- Increase / decrease grid size
-- Reset 
-
-# View switch icons (16x16)
-These icons need to come in two version: active and inactive, and they must be very distinctive.
-- Console view: window with a prompt
-- Issues view: Exclamation mark in a triangle
-
 # Application Icon
-This icon must be a vector graphic because I may need to adapt it and scale it from 16x16 up to 1014x1024. Currently, TB has a Quake crate as its icon, which I like. However, this crate is recognizable only to Quake players, and since TB is going to be available for other games as well, it is not a very good icon anymore. Maybe we can abstract from the look of the crate a bit. One element of the current icon I definitely like is that the crate has grid lines projected onto its faces. Since the grid projection is quite unique to TrenchBroom, I think it's a good idea that it shows up in the icon as well.
+Currently, TB has a Quake crate as its icon, which I like. However, this crate is recognizable only to Quake players, and since TB is going to be available for other games as well, it is not a very good icon anymore. Maybe we can abstract from the look of the crate a bit. One element of the current icon I definitely like is that the crate has grid lines projected onto its faces. Since the grid projection is quite unique to TrenchBroom, I think it's a good idea that it shows up in the icon as well.
 
 In addition to the crate, I can imagine the icon featuring some sort of instrument that is being used by architects (e.g., pair of compasses, set square, steel square, etc.).
 
