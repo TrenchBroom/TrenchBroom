@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        typedef CollectMatchingNodesVisitor<True> CollectNodesVisitor;
+        typedef CollectMatchingNodesVisitor<NodePredicates::True> CollectNodesVisitor;
     }
 }
 

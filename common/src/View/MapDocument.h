@@ -246,7 +246,7 @@ namespace TrenchBroom {
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate(const Model::NodeList& nodes);
-            void hide(const Model::NodeList& nodes);
+            void hide(const Model::NodeList nodes); // Don't take the nodes by reference!
             void hideSelection();
             void show(const Model::NodeList& nodes);
             void showAll();

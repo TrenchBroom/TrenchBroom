@@ -37,6 +37,7 @@
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
+#include "Model/CollectNodesVisitor.h"
 #include "Model/CollectNodesByVisibilityVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
@@ -664,22 +665,20 @@ namespace TrenchBroom {
         }
         
         void MapDocument::isolate(const Model::NodeList& nodes) {
-            Model::CollectNodesWithoutVisibilityVisitor collect(Model::Visibility_Inherited);
-            m_world->acceptAndRecurse(collect);
+            const Model::LayerList& layers = m_world->allLayers();
+            Model::CollectUnselectedNodesVisitor collect;
+            Model::Node::recurse(layers.begin(), layers.end(), collect);
             
-            const Transaction transaction(this, "Isolate Objects");
-            resetVisibility(collect.nodes());
-            hide(Model::NodeList(1, m_world));
-            show(nodes);
+            submit(SetVisibilityCommand::hide(collect.nodes()));
         }
         
-        void MapDocument::hide(const Model::NodeList& nodes) {
+        void MapDocument::hide(const Model::NodeList nodes) {
             Model::CollectSelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), collect);
             
             const Transaction transaction(this, "Hide Objects");
-            submit(SetVisibilityCommand::hide(nodes));
             deselect(collect.nodes());
+            submit(SetVisibilityCommand::hide(nodes));
         }
         
         void MapDocument::hideSelection() {
@@ -691,8 +690,9 @@ namespace TrenchBroom {
         }
         
         void MapDocument::showAll() {
-            Model::CollectNodesWithoutVisibilityVisitor collect(Model::Visibility_Inherited);
-            m_world->acceptAndRecurse(collect);
+            const Model::LayerList& layers = m_world->allLayers();
+            Model::CollectNodesVisitor collect;
+            Model::Node::recurse(layers.begin(), layers.end(), collect);
             resetVisibility(collect.nodes());
         }
         

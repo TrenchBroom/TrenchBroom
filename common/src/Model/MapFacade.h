@@ -75,7 +75,7 @@ namespace TrenchBroom {
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // modifying transient node attributes
-            virtual void hide(const Model::NodeList& nodes) = 0;
+            virtual void hide(const Model::NodeList nodes) = 0;
             virtual void show(const Model::NodeList& nodes) = 0;
             virtual void resetVisibility(const Model::NodeList& nodes) = 0;
             

@@ -27,14 +27,15 @@ namespace TrenchBroom {
     namespace Model {
         class EditorContext;
         
-        template <typename C>
-        class CollectSelectedNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectedNodes, C, StopRecursionIfMatched> {
+        template <typename C, bool MatchSelected>
+        class CollectSelectedNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectedNodes<MatchSelected>, C, StopRecursionIfMatched> {
         public:
             CollectSelectedNodesTemplate() :
-            CollectMatchingNodesVisitor<MatchSelectedNodes, C, StopRecursionIfMatched>(MatchSelectedNodes()) {}
+            CollectMatchingNodesVisitor<MatchSelectedNodes<MatchSelected>, C, StopRecursionIfMatched>(MatchSelectedNodes<MatchSelected>()) {}
         };
         
-        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy> CollectSelectedNodesVisitor;
+        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, true>  CollectSelectedNodesVisitor;
+        typedef CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, false> CollectUnselectedNodesVisitor;
     }
 }
 
