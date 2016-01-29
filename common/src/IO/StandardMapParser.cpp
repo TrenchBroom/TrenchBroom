@@ -387,18 +387,28 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             attribs.setYScale(token.toFloat<float>());
             
-            if (m_format == Model::MapFormat::Hexen2) {
-                // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
+            // We'll be pretty lenient when parsing additional face attributes.
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.peekToken())) {
+                // There's more stuff - let's examine it!
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            } else if (m_format == Model::MapFormat::Quake2) {
-                // if there are additional values, then these are content and surface flags and surface value
-                if (m_tokenizer.peekToken().type() == QuakeMapToken::Integer) {
-                    token = m_tokenizer.nextToken();
-                    attribs.setSurfaceContents(token.toInteger<int>());
-                    expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                    attribs.setSurfaceFlags(token.toInteger<int>());
+                // It could be a Hexen 2 face attribute or Quake 2 content and surface flags and surface values
+                
+                if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
+                    // If there's more stuff, then it's a Quake 2 surface flags!
+                    const int surfaceContents = token.toInteger<int>();
+                    token = m_tokenizer.nextToken(); // already checked it!
+                    const int surfaceFlags = token.toInteger<int>();
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                    attribs.setSurfaceValue(token.toFloat<float>());
+                    const float surfaceValue = token.toFloat<float>();
+                    
+                    if (m_format == Model::MapFormat::Quake2) {
+                        attribs.setSurfaceContents(surfaceContents);
+                        attribs.setSurfaceFlags(surfaceFlags);
+                        attribs.setSurfaceValue(surfaceValue);
+                    }
+                } else {
+                    // Noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
+                    // const int hexenValue = token.toInteger<int>();
                 }
             }
             
