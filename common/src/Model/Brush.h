@@ -51,6 +51,7 @@ namespace TrenchBroom {
             };
             
             class AddFaceToGeometryCallback;
+            class HealEdgesCallback;
             class AddFacesToGeometry;
             class CanMoveBoundaryCallback;
             class CanMoveBoundary;
@@ -70,7 +71,9 @@ namespace TrenchBroom {
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
-            
+        private:
+            void cleanup();
+        public:
             Brush* clone(const BBox3& worldBounds) const;
             
             AttributableNode* entity() const;
@@ -153,15 +156,14 @@ namespace TrenchBroom {
             
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
-            bool intersect(const BBox3& worldBounds, const Brush* brush);
-            BrushList partition(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* other) const;
+            void intersect(const BBox3& worldBounds, const Brush* brush);
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
             void updateFacesFromGeometry(const BBox3& worldBounds);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
-            bool rebuildGeometry(const BBox3& worldBounds);
+            void rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
             bool checkGeometry() const;

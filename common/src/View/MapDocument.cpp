@@ -835,11 +835,15 @@ namespace TrenchBroom {
             
             Model::Brush* result = brushes.front()->clone(m_worldBounds);
 
-            bool empty = false;
+            bool valid = true;
             Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end && !empty; ++it) {
+            for (it = brushes.begin(), end = brushes.end(); it != end && valid; ++it) {
                 Model::Brush* brush = *it;
-                empty |= !result->intersect(m_worldBounds, brush);
+                try {
+                    result->intersect(m_worldBounds, brush);
+                } catch (const GeometryException&) {
+                    valid = false;
+                }
             }
             
             const Model::NodeList toRemove(brushes.begin(), brushes.end());
@@ -848,7 +852,7 @@ namespace TrenchBroom {
             deselect(toRemove);
             removeNodes(toRemove);
             
-            if (!empty) {
+            if (valid) {
                 addNode(result, currentParent());
                 select(result);
             } else {

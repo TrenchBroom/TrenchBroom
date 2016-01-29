@@ -86,7 +86,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
-
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
-
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(7u, brushFaces.size());
         }
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
-
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(9u, brushFaces.size());
         }
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
-
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
-
+            
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(5u, brushFaces.size());
         }
-
+        
         TEST(BrushTest, constructBrushWithManySides) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1153
@@ -315,8 +315,8 @@ namespace TrenchBroom {
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(8u, brushFaces.size());
         }
-
-        TEST(BrushTest, buildBrushAfterRotateFail) {
+        
+        TEST(BrushTest, constructBrushAfterRotateFail) {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1173
              
@@ -333,7 +333,7 @@ namespace TrenchBroom {
              (-729.68857812925364 -1024 1880.2734073044885) (-729.68857812925364 -640 1880.2734073044885) (-910.70791411300991 -640 2061.2927432882443) 0 0 0 5 5 // lower face
              }
              */
-
+            
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(Vec3(-729.68857812925364, -128, 2061.2927432882448), Vec3(-910.70791411301013, 128, 2242.3120792720015), Vec3(-820.19824612113155, -128, 1970.7830752963655)));
             faces.push_back(BrushFace::createParaxial(Vec3(-639.17891013737574, -640, 1970.7830752963669), Vec3(-729.68857812925364, -128, 2061.2927432882448), Vec3(-729.68857812925364, -640, 1880.2734073044885)));
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            ASSERT_TRUE(brush.fullySpecified());
         }
         
         TEST(BrushTest, buildBrushFail) {
@@ -362,12 +362,12 @@ namespace TrenchBroom {
                               "( 672 880 416 ) ( 672 880 544 ) ( 672 1008 416 ) wswamp2_1 -880 416 0 1 1 //TX1\n"
                               "( 656 754.57864 1021.42136 ) ( -84592 754.57864 1021.42136 ) ( 656 61034.01582 -59258.01582 ) skip 1 2 0 -666 470.93310 //TX2\n"
                               "}\n");
-
+            
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
             const NodeList nodes = reader.read(worldBounds);
-            assert(nodes.size() == 1);
+            ASSERT_EQ(1u, nodes.size());
         }
         
         TEST(BrushTest, buildBrushFail2) {
@@ -384,12 +384,32 @@ namespace TrenchBroom {
                               "( 64 1184 819.77710 ) ( 64 1184 947.77710 ) ( 64 1312 819.77710 ) woodplank1 -820 1184 90 1 -1 //TX2\n"
                               "( 16 1389.42136 957.42136 ) ( 85264 1389.42136 957.42136 ) ( 16 -58890.01582 -59322.01582 ) skip 0 -3 0 666 -470.93310 //TX2\n"
                               "}\n");
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds);
+            ASSERT_EQ(1u, nodes.size());
+        }
+        
+        TEST(BrushTest, buildBrushWithShortEdges) {
+            /*
+             See https://github.com/kduske/TrenchBroom/issues/1194
+             */
+            
+            const String data("{\n"
+                              "( -1248 -2144 1168 ) ( -1120 -2144 1168 ) ( -1248 -2272 1168 ) rock_1732 1248 2144 0 1 -1 //TX2\n"
+                              "( -1248 -2224 1141.33333 ) ( -1248 -2224 1013.33333 ) ( -1120 -2224 1056 ) rock_1732 1391 -309 -33.69007 1.20185 -0.83205 //TX1\n"
+                              "( -1408 -2144 1328 ) ( -1408 -2272 1328 ) ( -1408 -2144 1456 ) rock_1732 -1328 2144 90 1 1 //TX1\n"
+                              "( -1472 -2256 1434.66667 ) ( -1472 -2256 1562.66667 ) ( -1344 -2256 1349.33334 ) skip 1681 453 -33.69007 1.20185 0.83205 //TX1\n"
+                              "( -1248.00004 -2144 1061.33328 ) ( -1248.00004 -2272 1061.33328 ) ( -1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1\n"
+                              "}\n");
 
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
             const NodeList nodes = reader.read(worldBounds);
-            assert(nodes.size() == 1);
+            ASSERT_TRUE(nodes.empty());
         }
         
         TEST(BrushTest, pick) {
@@ -869,10 +889,10 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* minuend    = builder.createCuboid(BBox3(Vec3(-32.0, -16.0, -32.0), Vec3(32.0, 16.0, 32.0)), minuendTexture);
             Brush* subtrahend = builder.createCuboid(BBox3(Vec3(-16.0, -32.0, -64.0), Vec3(16.0, 32.0,  0.0)), subtrahendTexture);
-
+            
             const BrushList result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
             ASSERT_EQ(3u, result.size());
-
+            
             const Vec3 leftTopNormal  = Vec3( 2.0, 0.0,  1.0).normalized();
             const Vec3 rightTopNormal = Vec3(-2.0, 0.0,  1.0).normalized();
             const Vec3 topLeftNormal  = Vec3(-2.0, 0.0, -1.0).normalized();

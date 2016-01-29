@@ -348,8 +348,13 @@ private: // General purpose methods
     bool checkEdges() const;
     
     void updateBounds();
-public: // vertex correction
+public: // Vertex correction and edge healing
     void correctVertexPositions(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon());
+    bool healEdges(const T minLength = Math::Constants<T>::pointStatusEpsilon());
+    bool healEdges(Callback& callback, const T minLength = Math::Constants<T>::pointStatusEpsilon());
+private:
+    Edge* removeEdge(Edge* edge, Callback& callback);
+    void removeDegenerateFace(Face* face, Callback& callback);
 private:  // Moving vertices
     struct MoveVertexResult;
 public:

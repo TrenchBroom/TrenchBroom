@@ -796,6 +796,129 @@ void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T 
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::healEdges(const T minLength) {
+    Callback callback;
+    return healEdges(callback, minLength);
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
+    const T minLength2 = minLength * minLength;
+    
+    size_t examined = 0;
+    Edge* currentEdge = m_edges.front();
+    while (examined < m_edges.size() && polyhedron()) {
+        const T length2 = currentEdge->vector().squaredLength();
+        if (length2 < minLength2)
+            currentEdge = removeEdge(currentEdge, callback);
+        ++examined;
+    }
+    
+    return polyhedron();
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, Callback& callback) {
+    // First, transfer all edges from the second to the first vertex of the given edge.
+    // This results in the edge being a loop and the second vertex to be orphaned.
+    Vertex* firstVertex = edge->firstVertex();
+    Vertex* secondVertex = edge->secondVertex();
+    while (secondVertex->leaving() != NULL) {
+        HalfEdge* leaving = secondVertex->leaving();
+        HalfEdge* newLeaving = leaving->previous()->twin();
+        leaving->setOrigin(firstVertex);
+        if (newLeaving->origin() == secondVertex)
+            secondVertex->setLeaving(newLeaving);
+        else
+            secondVertex->setLeaving(NULL);
+    }
+    
+    // Remove the edge's first edge from its first face and delete the face if it degenerates
+    {
+        Face* firstFace = edge->firstFace();
+        HalfEdge* firstEdge = edge->firstEdge();
+        HalfEdge* nextEdge = firstEdge->next();
+        
+        firstVertex->setLeaving(firstEdge->previous()->twin());
+        firstFace->removeFromBoundary(firstEdge);
+        nextEdge->setOrigin(firstVertex);
+        delete firstEdge;
+        
+        if (firstFace->vertexCount() == 2)
+            removeDegenerateFace(firstFace, callback);
+    }
+    
+    // Remove the edges's second edge from its second face and delete the face if it degenerates
+    {
+        Face* secondFace = edge->secondFace();
+        HalfEdge* secondEdge = edge->secondEdge();
+        
+        secondFace->removeFromBoundary(secondEdge);
+        delete secondEdge;
+        
+        if (secondFace->vertexCount() == 2)
+            removeDegenerateFace(secondFace, callback);
+    }
+    
+    m_vertices.remove(secondVertex);
+    delete secondVertex;
+    
+    Edge* result = edge->next();
+    m_edges.remove(edge);
+    delete edge;
+    
+    // Merge faces that may have become coplanar
+    {
+        HalfEdge* firstEdge = firstVertex->leaving();
+        HalfEdge* currentEdge = firstEdge;
+        do {
+            HalfEdge* nextEdge = currentEdge->nextIncident();
+            Face* currentFace = firstEdge->face();
+            Face* neighbour = firstEdge->twin()->face();
+            if (currentFace->coplanar(neighbour))
+                mergeNeighbours(currentEdge, callback);
+            currentEdge = nextEdge;
+        } while (currentEdge != firstEdge);
+    }
+    
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
+    assert(face->vertexCount() == 2);
+    
+    HalfEdge* halfEdge1 = face->boundary().front();
+    HalfEdge* halfEdge2 = halfEdge1->next();
+    assert(halfEdge2->next() == halfEdge1);
+    assert(halfEdge1->previous() == halfEdge2);
+    
+    Vertex* vertex1 = halfEdge1->origin();
+    Vertex* vertex2 = halfEdge2->origin();
+    
+    vertex1->setLeaving(halfEdge2->twin());
+    vertex2->setLeaving(halfEdge1->twin());
+    
+    Edge* edge1 = halfEdge1->edge();
+    Edge* edge2 = halfEdge2->edge();
+    
+    edge1->makeSecondEdge(halfEdge1);
+    edge2->makeFirstEdge(halfEdge2);
+    
+    HalfEdge* halfEdge3 = edge2->secondEdge();
+    halfEdge3->setEdge(NULL);
+    edge1->unsetSecondEdge();
+    edge1->setSecondEdge(halfEdge3);
+    
+    m_edges.remove(edge2);
+    delete edge2;
+    
+    callback.faceWillBeDeleted(face);
+    m_faces.remove(face);
+    delete face;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
         m_bounds.min = m_bounds.max = Vec<T,3>::NaN;
