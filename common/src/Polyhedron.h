@@ -325,7 +325,7 @@ public: // Accessors
     
     FaceHit pickFace(const Ray<T,3>& ray) const;
 private: // General purpose methods
-    Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    Vertex* findVertexByPosition(const V& position, const Vertex* except = NULL, T epsilon = Math::Constants<T>::almostZero()) const;
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
@@ -346,6 +346,7 @@ private: // General purpose methods
     bool checkNoDegenerateFaces() const;
     bool checkVertexLeavingEdges() const;
     bool checkEdges() const;
+    bool checkEdgeLengths(const T minLength = Math::Constants<T>::pointStatusEpsilon()) const;
     
     void updateBounds();
 public: // Vertex correction and edge healing
@@ -407,7 +408,7 @@ private:
     T computeNextMergePointForPlane(const V& origin, const V& destination, const Plane<T,3>& plane, T lastFrac) const;
     
     bool denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const;
-    
+
     void mergeVertices(HalfEdge* connectingEdge, Callback& callback);
 
     struct CleanupResult;

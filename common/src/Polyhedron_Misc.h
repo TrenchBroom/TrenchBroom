@@ -395,7 +395,7 @@ const typename Polyhedron<T,FP,VP>::VertexList& Polyhedron<T,FP,VP>::vertices() 
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasVertex(const V& position, const T epsilon) const {
-    return findVertexByPosition(position, epsilon) != NULL;
+    return findVertexByPosition(position, NULL, epsilon) != NULL;
 }
 
 template <typename T, typename FP, typename VP>
@@ -517,11 +517,11 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const V& position, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const V& position, const Vertex* except, const T epsilon) const {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
     do {
-        if (position.equals(currentVertex->position(), epsilon))
+        if (currentVertex != except && position.equals(currentVertex->position(), epsilon))
             return currentVertex;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
@@ -786,6 +786,24 @@ bool Polyhedron<T,FP,VP>::checkEdges() const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
+    if (m_edges.empty())
+        return true;
+    
+    const T minLength2 = minLength * minLength;
+
+    const Edge* firstEdge = m_edges.front();
+    const Edge* currentEdge = firstEdge;
+    do {
+        const T length2 = currentEdge->vector().squaredLength();
+        if (length2 < minLength2)
+            return false;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T epsilon) {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
@@ -805,14 +823,33 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     const T minLength2 = minLength * minLength;
     
-    size_t examined = 0;
+    /*
+     We have to iterate over all edges while the list of edges is being modified, so we cannot use the usual
+     do / while iteration. Instead, we count the number of edges we have examined - but since one or more edges
+     can be removed in every iteration, we have to correct that number for the decrease in the total number of
+     edges of the brush - this is where sizeDelta comes in. If no edges has been removed, it comes out as -1.
+     If one edge has been removed, it comes out as 0, if two edges have been removed, it comes out as +1, and so on.
+
+     Since sizeDelta is subtracted from the number of examined edges, it corrects exactly for the change in the number
+     of edges of the brush.
+     */
+    
+    long examined = 0;
     Edge* currentEdge = m_edges.front();
-    while (examined < m_edges.size() && polyhedron()) {
+    while (examined < static_cast<long>(m_edges.size()) && polyhedron()) {
+        const size_t oldSize = m_edges.size();
+        
         const T length2 = currentEdge->vector().squaredLength();
         if (length2 < minLength2)
             currentEdge = removeEdge(currentEdge, callback);
-        ++examined;
+        else
+            currentEdge = currentEdge->next();
+        
+        const long sizeDelta = static_cast<long>(oldSize - m_edges.size()) - 1;
+        examined -= sizeDelta;
     }
+    
+    assert(!polyhedron() || checkEdgeLengths(minLength));
     
     return polyhedron();
 }

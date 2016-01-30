@@ -251,7 +251,7 @@ struct Polyhedron<T,FP,VP>::MoveVertexResult {
 };
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
     assert(vertex != NULL);
     if (vertex->position() == destination)
         return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex->position());
@@ -259,11 +259,11 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveVertex(V
     if (point())
         return movePointVertex(vertex, destination);
     else if (edge())
-        return moveEdgeVertex(vertex, destination, allowMergeIncidentVertex);
+        return moveEdgeVertex(vertex, destination, allowMergeIncidentVertices);
     else if (polygon())
-        return movePolygonVertex(vertex, destination, allowMergeIncidentVertex);
+        return movePolygonVertex(vertex, destination, allowMergeIncidentVertices);
     else
-        return movePolyhedronVertex(vertex, destination, allowMergeIncidentVertex, callback);
+        return movePolyhedronVertex(vertex, destination, allowMergeIncidentVertices, callback);
 }
 
 template <typename T, typename FP, typename VP>
@@ -274,12 +274,12 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePointVer
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices) {
     const V originalPosition(vertex->position());
     Edge* edge = *m_edges.begin();
     Vertex* other = edge->otherVertex(vertex);
     if (other->position().equals(destination)) {
-        if (!allowMergeIncidentVertex)
+        if (!allowMergeIncidentVertices)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
         
         m_edges.remove(edge);
@@ -294,7 +294,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVert
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices) {
     const V originalPosition(vertex->position());
     Face* face = *m_faces.begin();
     if (face->pointStatus(destination) != Math::PointStatus::PSInside)
@@ -305,7 +305,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonV
         HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
         if (connectingEdge == NULL)
             connectingEdge = occupant->findConnectingEdge(vertex);
-        if (!allowMergeIncidentVertex || connectingEdge == NULL)
+        if (!allowMergeIncidentVertices || connectingEdge == NULL)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
 
         Vertex* origin = connectingEdge->origin();
@@ -327,7 +327,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonV
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, Callback& callback) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
     // The idea of this algorithm can be summarized as follows:
     // First, break up all faces incident to the given vertex so that they become triangles.
     // Second, examine the line along which the given vertex will travel when moved to the
@@ -349,7 +349,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
         const T curFrac = computeNextMergePoint(vertex, originalPosition, destination, lastFrac);
         if (curFrac < 0.0)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
-        
+         
         assert(curFrac > lastFrac);
         lastFrac = curFrac;
         
@@ -357,10 +357,10 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
         if (denaturedPolyhedron(vertex, newPosition))
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
         
-        Vertex* occupant = findVertexByPosition(newPosition);
-        if (occupant != NULL && occupant != vertex) {
+        Vertex* occupant = findVertexByPosition(newPosition, vertex);
+        if (occupant != NULL) {
             HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
-            if (!allowMergeIncidentVertex || connectingEdge == NULL) {
+            if (!allowMergeIncidentVertices || connectingEdge == NULL) {
                 vertex->setPosition(newPosition);
                 mergeIncidentFaces(vertex, callback);
                 const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
