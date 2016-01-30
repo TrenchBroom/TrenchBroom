@@ -349,6 +349,26 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
         const T curFrac = computeNextMergePoint(vertex, originalPosition, destination, lastFrac);
         if (curFrac < 0.0)
             return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+
+        /*
+        if (curFrac < 0.0) {
+            Vertex* occupant = findVertexByPosition(destination, vertex);
+            HalfEdge* connectingEdge = NULL;
+            if (!allowMergeIncidentVertices || occupant == NULL || (connectingEdge = vertex->findConnectingEdge(occupant)) == NULL) {
+                mergeIncidentFaces(vertex, callback);
+                const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
+                unused(result);
+                assert(result.moved());
+                return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+            }
+            
+            mergeVertices(connectingEdge, callback);
+            assert(!hasVertex(occupant));
+            assert(hasVertex(vertex));
+            vertex->setPosition(destination);
+            return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
+        }
+         */
          
         assert(curFrac > lastFrac);
         lastFrac = curFrac;

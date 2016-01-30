@@ -565,7 +565,8 @@ namespace TrenchBroom {
                 if (!origin.equals(destination)) {
                     const Vec3 delta = destination - origin;
                     const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(Vec3::List(1, origin), delta, true, callback);
-                    newVertexPositions.insert(result.newVertexPositions.front());
+                    if (!result.hasUnknownVertices())
+                        newVertexPositions.insert(result.newVertexPositions.front());
                 }
             }
 
