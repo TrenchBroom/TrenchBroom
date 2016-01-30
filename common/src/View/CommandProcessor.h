@@ -109,6 +109,8 @@ namespace TrenchBroom {
             
             bool repeatLastCommands();
             void clearRepeatableCommands();
+            
+            void clear();
         private:
             SubmitAndStoreResult submitAndStoreCommand(UndoableCommand::Ptr command, bool collate);
             bool doCommand(Command::Ptr command);

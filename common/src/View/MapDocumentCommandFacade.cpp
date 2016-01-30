@@ -83,12 +83,7 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
         m_commandProcessor(this) {
-            m_commandProcessor.commandDoNotifier.addObserver(commandDoNotifier);
-            m_commandProcessor.commandDoneNotifier.addObserver(commandDoneNotifier);
-            m_commandProcessor.commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
-            m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
-            m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
-            m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
+            bindObservers();
         }
 
         void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
@@ -1071,6 +1066,25 @@ namespace TrenchBroom {
             assert(m_modificationCount >= delta);
             m_modificationCount -= delta;
             documentModificationStateDidChangeNotifier();
+        }
+
+        void MapDocumentCommandFacade::bindObservers() {
+            m_commandProcessor.commandDoNotifier.addObserver(commandDoNotifier);
+            m_commandProcessor.commandDoneNotifier.addObserver(commandDoneNotifier);
+            m_commandProcessor.commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
+            m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
+            m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
+            m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
+            documentWasNewedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasNewed);
+            documentWasLoadedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasLoaded);
+        }
+        
+        void MapDocumentCommandFacade::documentWasNewed(MapDocument* document) {
+            m_commandProcessor.clear();
+        }
+        
+        void MapDocumentCommandFacade::documentWasLoaded(MapDocument* document) {
+            m_commandProcessor.clear();
         }
 
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {

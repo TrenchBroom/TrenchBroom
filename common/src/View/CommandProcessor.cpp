@@ -230,6 +230,15 @@ namespace TrenchBroom {
             m_clearRepeatableCommandStack = false;
         }
         
+        void CommandProcessor::clear() {
+            assert(m_groupLevel == 0);
+            
+            clearRepeatableCommands();
+            m_lastCommandStack.clear();
+            m_nextCommandStack.clear();
+            m_lastCommandTimestamp = 0;
+        }
+
         CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command, const bool collate) {
             SubmitAndStoreResult result;
             result.submitted = doCommand(command);

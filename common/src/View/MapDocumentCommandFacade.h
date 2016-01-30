@@ -136,6 +136,10 @@ namespace TrenchBroom {
         public: // modification count
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);
+        private: // notification
+            void bindObservers();
+            void documentWasNewed(MapDocument* document);
+            void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface
             bool doCanUndoLastCommand() const;
             bool doCanRedoNextCommand() const;
