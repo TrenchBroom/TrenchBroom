@@ -34,7 +34,7 @@ namespace TrenchBroom {
         DefTokenizer::DefTokenizer(const String& str) :
         Tokenizer(str) {}
         
-        const String DefTokenizer::WordDelims = " \t\n\r()[]{}?;,=";
+        const String DefTokenizer::WordDelims = " \t\n\r()[]{};,=";
         
         DefTokenizer::Token DefTokenizer::emitToken() {
             while (!eof()) {
@@ -80,9 +80,6 @@ namespace TrenchBroom {
                     case ';':
                         advance();
                         return Token(DefToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
-                    case '?':
-                        advance();
-                        return Token(DefToken::Question, c, c + 1, offset(c), startLine, startColumn);
                     case '\r':
                         advance();
                     case '\n':
@@ -93,7 +90,7 @@ namespace TrenchBroom {
                         return Token(DefToken::Comma, c, c + 1, offset(c), startLine, startColumn);
                     case ' ':
                     case '\t':
-                        discardWhile(Whitespace);
+                        discardWhile(" \t");
                         break;
                     case '"': { // quoted string
                         advance();
@@ -138,10 +135,10 @@ namespace TrenchBroom {
             names[OBrace]       = "'{'";
             names[CBrace]       = "'}'";
             names[Word]         = "word";
-            names[Question]     = "'?'";
             names[ODefinition]  = "'/*'";
             names[CDefinition]  = "'*/'";
             names[Semicolon]    = "';'";
+            names[Newline]      = "newline";
             names[Comma]        = "','";
             names[Equality]     = "'='";
             names[Eof]          = "end of file";
@@ -187,11 +184,13 @@ namespace TrenchBroom {
                 classInfo.setColor(parseColor(status));
                 
                 token = m_tokenizer.peekToken();
-                expect(status, DefToken::OParenthesis | DefToken::Question, token);
+                expect(status, DefToken::OParenthesis | DefToken::Word, token);
                 if (token.type() == DefToken::OParenthesis) {
                     classInfo.setSize(parseBounds(status));
-                } else {
+                } else if (token.data() == "?") {
                     m_tokenizer.nextToken();
+                } else {
+                    expect(status, "question mark: ?", token);
                 }
                 
                 token = m_tokenizer.peekToken();

@@ -43,7 +43,6 @@ namespace TrenchBroom {
             static const Type OBrace          = 1 <<  5; // opening brace: {
             static const Type CBrace          = 1 <<  6; // closing brace: }
             static const Type Word            = 1 <<  7; // word
-            static const Type Question        = 1 <<  8; // question mark: ?
             static const Type ODefinition     = 1 <<  9; // entity definition open
             static const Type CDefinition     = 1 << 10; // entity definition close
             static const Type Semicolon       = 1 << 11; // semicolon: ;
