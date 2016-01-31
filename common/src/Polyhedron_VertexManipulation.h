@@ -348,11 +348,11 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
         splitIncidentFaces(vertex, destination, callback);
         
         const T curFrac = computeNextMergePoint(vertex, originalPosition, destination, lastFrac);
-        if (curFrac < 0.0)
-            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+        // if (curFrac < 0.0)
+        //    return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
 
-        /*
         if (curFrac < 0.0) {
+            // If no merge point could be computed, we might still get away with merging two vertices. Let's try.
             Vertex* occupant = findVertexByPosition(destination, vertex);
             HalfEdge* connectingEdge = NULL;
             if (!allowMergeIncidentVertices || occupant == NULL || (connectingEdge = vertex->findConnectingEdge(occupant)) == NULL) {
@@ -369,8 +369,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
             vertex->setPosition(destination);
             return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
         }
-         */
-         
+        
         assert(curFrac > lastFrac);
         lastFrac = curFrac;
         
