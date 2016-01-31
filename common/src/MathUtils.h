@@ -50,6 +50,11 @@ namespace Math {
             return value;
         }
         
+        static T angleEpsilon() {
+            static const T value = static_cast<T>(0.00000001); // if abs(sin()) of the angle between two vectors is less than this, they are considered to be parallel or opposite
+            return value;
+        }
+        
         static T pi() {
             static const T value = static_cast<T>(3.141592653589793);
             return value;

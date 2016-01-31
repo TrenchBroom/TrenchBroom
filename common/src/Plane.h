@@ -233,14 +233,23 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
             
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const T epsilon2 = Math::Constants<T>::pointStatusEpsilon() * Math::Constants<T>::pointStatusEpsilon();
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
-    if (v1.squaredLength() < epsilon2 || v2.squaredLength() < epsilon2)
+    plane.normal = crossed(v1, v2);
+    
+    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
+    const T sin_theta = Math::abs(plane.normal.length() / (v1.length() * v2.length()));
+    if (sin_theta < Math::Constants<T>::angleEpsilon()
+        || Math::isnan(sin_theta)
+        || sin_theta == std::numeric_limits<T>::infinity()
+        || sin_theta == -std::numeric_limits<T>::infinity())
         return false;
-    plane.normal = crossed(v1.normalized(), v2.normalized());
+    
+    plane.normal.normalize();
     plane.distance = point0.dot(plane.normal);
-    return true;}
+    return true;
+}
 
 template <typename T>
 Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
