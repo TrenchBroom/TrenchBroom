@@ -239,6 +239,13 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& p
     if (v1.squaredLength() < epsilon2 || v2.squaredLength() < epsilon2)
         return false;
     plane.normal = crossed(v1.normalized(), v2.normalized());
+
+    const T normalEpsilon2 = Math::Constants<T>::normalEpsilon() * Math::Constants<T>::normalEpsilon();
+    const T normalLength2 = plane.normal.squaredLength();
+    if (normalLength2 < normalEpsilon2)
+        return false;
+    
+    plane.normal = plane.normal.normalized();
     plane.distance = point0.dot(plane.normal);
     return true;}
 

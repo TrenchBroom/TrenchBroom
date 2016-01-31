@@ -141,11 +141,7 @@ TEST(PlaneTest, project) {
 TEST(PlaneTest, setPlanePoints) {
     Plane3f plane;
     Vec3f points[3];
-
-    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[1] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[2] = Vec3f(0.0f, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
+    const float psEpsilon = Math::Constants<float>::pointStatusEpsilon();
     
     points[0] = Vec3f(0.0f, 0.0f, 0.0f);
     points[1] = Vec3f(0.0f, 1.0f, 0.0f);
@@ -153,6 +149,62 @@ TEST(PlaneTest, setPlanePoints) {
     ASSERT_TRUE(setPlanePoints(plane, points));
     ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
+
+    // right angle, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, psEpsilon, 0.0f);
+    points[2] = Vec3f(psEpsilon, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+
+    // plane point vectors at a 45 degree angle, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(psEpsilon, psEpsilon, 0.0f);
+    points[2] = Vec3f(psEpsilon, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+    
+    // horizontal plane at z=psEpsilon units above the origin
+    points[0] = Vec3f(0.0f, 0.0f, psEpsilon);
+    points[1] = Vec3f(0.0f, psEpsilon, psEpsilon);
+    points[2] = Vec3f(psEpsilon, 0.0f, psEpsilon);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(psEpsilon, plane.distance);
+    
+    // small angle (triangle 100 units wide, psEpsilon units tall)
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(100.0f, psEpsilon, 0.0f);
+    points[2] = Vec3f(100.0f, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+    
+    // too-small angle (triangle 100 units wide, psEpsilon/100 units tall)
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(100.0f, psEpsilon/100, 0.0f);
+    points[2] = Vec3f(100.0f, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // all zero
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[2] = Vec3f(0.0f, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // same direction, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(2*psEpsilon, 0.0f, 0.0f);
+    points[2] = Vec3f(psEpsilon, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // opposite, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(-psEpsilon, 0.0f, 0.0f);
+    points[2] = Vec3f(psEpsilon, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
 }
 
 TEST(PlaneTest, horizontalDragPlane) {
