@@ -233,13 +233,14 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
             
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> normal = crossed(point0, point1, point2);
-    if (normal.null())
+    const T epsilon2 = Math::Constants<T>::pointStatusEpsilon() * Math::Constants<T>::pointStatusEpsilon();
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
+    if (v1.squaredLength() < epsilon2 || v2.squaredLength() < epsilon2)
         return false;
-    plane.normal = normal.normalized();
+    plane.normal = crossed(v1.normalized(), v2.normalized());
     plane.distance = point0.dot(plane.normal);
-    return true;
-}
+    return true;}
 
 template <typename T>
 Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {

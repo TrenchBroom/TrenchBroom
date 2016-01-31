@@ -137,6 +137,7 @@ typename Polyhedron<T,FP,VP>::MoveVerticesResult Polyhedron<T,FP,VP>::doMoveVert
     MoveVerticesResult totalResult;
     
     for (size_t i = 0; i < positions.size(); ++i) {
+        // Possibly be more precise here?
         Vertex* vertex = findVertexByPosition(positions[i]);
         if (vertex == NULL) {
             totalResult.addUnknown(positions[i]);
