@@ -547,10 +547,35 @@ namespace TrenchBroom {
             
             return result.newVertexPositions;
         }
+        
+        bool Brush::canSnapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            
+            const FloatType snapToF = static_cast<FloatType>(snapTo);
+
+            BrushGeometry testGeometry(*m_geometry);
+            const SetTempFaceLinks setFaceLinks(this, testGeometry);
+            
+            Vec3::List::const_iterator it, end;
+            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
+                const Vec3 origin = *it;
+                const Vec3 destination = snapToF * origin.rounded() / snapToF;
+                if (!origin.equals(destination)) {
+                    const Vec3 delta = destination - origin;
+                    const BrushGeometry::MoveVerticesResult result = testGeometry.moveVertices(Vec3::List(1, origin), delta, true);
+                    if (result.hasUnchangedVertices())
+                        return false;
+                }
+            }
+            
+            return true;
+        }
 
         Vec3::List Brush::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
             assert(m_geometry != NULL);
             assert(!vertexPositions.empty());
+            assert(canSnapVertices(worldBounds, vertexPositions, snapTo));
             
             const FloatType snapToF = static_cast<FloatType>(snapTo);
             Vec3::Set newVertexPositions;

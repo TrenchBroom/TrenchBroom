@@ -140,6 +140,8 @@ namespace TrenchBroom {
             // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            
+            bool canSnapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
             Vec3::List snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
 
             // edge operations

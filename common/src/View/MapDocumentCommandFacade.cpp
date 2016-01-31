@@ -818,18 +818,37 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
+            size_t succeededBrushCount = 0;
+            size_t failedBrushCount = 0;
+            size_t failedVertexCount = 0;
+            
             Vec3::List newVertexPositions;
             Model::BrushVerticesMap::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Vec3::List& oldPositions = it->second;
-                const Vec3::List newPositions = brush->snapVertices(m_worldBounds, oldPositions, snapTo);
-                VectorUtils::append(newVertexPositions, newPositions);
+                if (brush->canSnapVertices(m_worldBounds, oldPositions, snapTo)) {
+                    const Vec3::List newPositions = brush->snapVertices(m_worldBounds, oldPositions, snapTo);
+                    VectorUtils::append(newVertexPositions, newPositions);
+                    succeededBrushCount += 1;
+                } else {
+                    failedBrushCount += 1;
+                    failedVertexCount += oldPositions.size();
+                }
             }
             
             invalidateSelectionBounds();
 
-            info("Snapped %u vertices", static_cast<unsigned int>(newVertexPositions.size()));
+            if (!newVertexPositions.empty()) {
+                StringStream msg;
+                msg << "Snapped " << newVertexPositions.size() << " " << StringUtils::safePlural(newVertexPositions.size(), "vertex", "vertices") << " of " << succeededBrushCount << " " << StringUtils::safePlural(succeededBrushCount, "brush", "brushes");
+                info(msg.str());
+            }
+            if (failedVertexCount > 0) {
+                StringStream msg;
+                msg << "Failed to snap " << failedVertexCount << " " << StringUtils::safePlural(failedVertexCount, "vertex", "vertices") << " of " << failedBrushCount << " " << StringUtils::safePlural(failedBrushCount, "brush", "brushes");
+                info(msg.str());
+            }
             
             return newVertexPositions;
         }
