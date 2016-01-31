@@ -174,18 +174,25 @@ TEST(PlaneTest, setPlanePoints) {
     ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
     ASSERT_FLOAT_EQ(length, plane.distance);
     
-    // small angle (triangle 100 units wide, length units tall)
+    // small angle (triangle 1000 units wide, length units tall)
     points[0] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[1] = Vec3f(100.0f, length, 0.0f);
-    points[2] = Vec3f(100.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(1000.0f, length, 0.0f);
+    points[2] = Vec3f(1000.0f, 0.0f, 0.0f);
     ASSERT_TRUE(setPlanePoints(plane, points));
     ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
     
-    // too-small angle (triangle 100 units wide, length/100 units tall)
+    // small angle
+    points[0] = Vec3f(224.0f, -400.0f, 1648.0f);
+    points[1] = Vec3f(304.0f, -432.0f, 1248.0f + length);
+    points[2] = Vec3f(304.0f, -432.0f, 1248.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_FLOAT_EQ(1.0, plane.normal.length());
+    
+    // too-small angle (triangle 1000 units wide, length/100 units tall)
     points[0] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[1] = Vec3f(100.0f, length/100, 0.0f);
-    points[2] = Vec3f(100.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(1000.0f, length/100.0f, 0.0f);
+    points[2] = Vec3f(1000.0f, 0.0f, 0.0f);
     ASSERT_FALSE(setPlanePoints(plane, points));
     
     // all zero

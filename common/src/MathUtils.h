@@ -50,8 +50,8 @@ namespace Math {
             return value;
         }
         
-        static T normalEpsilon() {
-            static const T value = static_cast<T>(0.000001); // if the length of the cross product of two unit vectors is less than this, they are considered to be parallel or opposite
+        static T angleEpsilon() {
+            static const T value = static_cast<T>(0.00000001); // if abs(sin()) of the angle between two vectors is less than this, they are considered to be parallel or opposite
             return value;
         }
         
