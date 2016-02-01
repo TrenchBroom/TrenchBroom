@@ -121,77 +121,68 @@ namespace TrenchBroom {
             virtual void doMouseDragCancelled();
         };
         
-        class PlaneDragPolicy : public MouseDragPolicy {
+        class DragRestricter {
+        public:
+            virtual ~DragRestricter();
+            bool hitPoint(const InputState& inputState, Vec3& point) const;
         private:
-            Plane3 m_plane;
-            Vec3 m_lastPoint;
-            Vec3 m_refPoint;
-            bool m_dragging;
-        public:
-            PlaneDragPolicy();
-            virtual ~PlaneDragPolicy();
-        public:
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            virtual bool doComputeHitPoint(const InputState& inputState, Vec3& point) const = 0;
+        };
 
-            bool dragging() const;
-            void resetPlane(const InputState& inputState);
-        private: // subclassing interface
-            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
-            virtual void doEndPlaneDrag(const InputState& inputState) = 0;
-            virtual void doCancelPlaneDrag() = 0;
-            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+        class PlaneDragRestricter : public DragRestricter {
+        private:
+            const Plane3& m_plane;
+        public:
+            PlaneDragRestricter(const Plane3& plane);
+            virtual ~PlaneDragRestricter();
+        private:
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
         
-        class PlaneDragHelper {
+        class LineDragRestricter : public DragRestricter {
         private:
-            PlaneDragPolicy* m_policy;
+            const Line3& m_line;
         public:
-            PlaneDragHelper(PlaneDragPolicy* policy);
-            virtual ~PlaneDragHelper();
-            
-            bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void endPlaneDrag(const InputState& inputState);
-            void cancelPlaneDrag();
-            void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            LineDragRestricter(const Line3& line);
+            virtual ~LineDragRestricter();
+        private:
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+        };
+        
+        class RestrictedDragPolicy : public MouseDragPolicy {
+        private:
+            DragRestricter* m_restricter;
+            Vec3 m_initialPoint;
+            Vec3 m_lastPoint;
+        public:
+            RestrictedDragPolicy();
+            virtual ~RestrictedDragPolicy();
+        private:
+            void deleteRestricter();
         protected:
             bool dragging() const;
-            void resetPlane(const InputState& inputState);
-        private:
-            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
-            virtual void doEndPlaneDrag(const InputState& inputState) = 0;
-            virtual void doCancelPlaneDrag() = 0;
-            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-        };
-
-        class LineDragPolicy : public MouseDragPolicy {
-        private:
-            Line3 m_line;
-            FloatType m_lastDist;
-            FloatType m_refDist;
-            bool m_dragging;
-        public:
-            LineDragPolicy();
-            virtual ~LineDragPolicy();
         public:
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
-            
-            bool dragging() const;
+
+            void resetRestricter(const InputState& inputState);
+        private:
+            void setRestrictedDragRestricter(const InputState& inputState, const Vec3& curPoint);
+            void setDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint);
+            bool isVerticalMove(const InputState& inputState) const;
+            bool isRestrictedMove(const InputState& inputState) const;
         private: // subclassing interface
-            virtual bool doStartLineDrag(const InputState& inputState, Line3& ray, FloatType& initialDist) = 0;
-            virtual bool doLineDrag(const InputState& inputState, FloatType lastDist, FloatType curDist, FloatType& refDist) = 0;
-            virtual void doEndLineDrag(const InputState& inputState) = 0;
-            virtual void doCancelLineDrag() = 0;
+            virtual bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) = 0;
+            virtual void doDragStarted(const InputState& inputState, const Vec3& initialPoint) = 0;
+            virtual bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual void doDragEnded(const InputState& inputState) = 0;
+            virtual void doDragCancelled() = 0;
+            virtual bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) = 0;
+            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
+            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const = 0;
         };
         
         class RenderPolicy {

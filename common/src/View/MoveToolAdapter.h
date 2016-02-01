@@ -37,10 +37,10 @@ namespace TrenchBroom {
     namespace View {
         class ToolActivationDelegate;
         
-        template <class PickingPolicyType, class MousePolicyType, class RenderPolicyType>
-        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> {
+        template <class PickingPolicyType, class MousePolicyType>
+        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
-            typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> Super;
+            typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> Super;
             MoveToolHelper* m_helper;
         protected:
             MoveToolAdapter(MoveToolHelper* helper) :
@@ -51,36 +51,14 @@ namespace TrenchBroom {
             virtual ~MoveToolAdapter() {
                 delete m_helper;
             }
-        protected:
-            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_helper->render(inputState, renderContext, renderBatch);
-            }
-        protected:
+        private:
             void doModifierKeyChange(const InputState& inputState) {
-                if (!m_helper->handleMove(inputState))
-                    return;
                 if (Super::dragging())
-                    PlaneDragPolicy::resetPlane(inputState);
+                    m_helper->resetRestricter(inputState);
             }
 
-            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                return m_helper->startPlaneDrag(inputState, plane, initialPoint);
-            }
-            
-            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-                return m_helper->planeDrag(inputState, lastPoint, curPoint, refPoint);
-            }
-            
-            virtual void doEndPlaneDrag(const InputState& inputState) {
-                m_helper->endPlaneDrag(inputState);
-            }
-            
-            virtual void doCancelPlaneDrag() {
-                m_helper->cancelPlaneDrag();
-            }
-            
-            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                m_helper->resetPlane(inputState, plane, initialPoint);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                m_helper->render(inputState, renderContext, renderBatch);
             }
         };
     }

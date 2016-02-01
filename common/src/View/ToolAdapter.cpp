@@ -100,123 +100,121 @@ namespace TrenchBroom {
         void DelegatingMouseDragPolicy::doMouseDragEnded() {}
         void DelegatingMouseDragPolicy::doMouseDragCancelled() {}
 
-        PlaneDragPolicy::PlaneDragPolicy() : m_dragging(false) {}
-        PlaneDragPolicy::~PlaneDragPolicy() {}
-        
-        bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            if (doStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
-                m_dragging = true;
-                m_refPoint = m_lastPoint;
-                return true;
-            }
-            return false;
+        DragRestricter::~DragRestricter() {}
+
+        bool DragRestricter::hitPoint(const InputState& inputState, Vec3& point) const {
+            return doComputeHitPoint(inputState, point);
         }
+
+        PlaneDragRestricter::PlaneDragRestricter(const Plane3& plane) :
+        m_plane(plane) {}
         
-        bool PlaneDragPolicy::doMouseDrag(const InputState& inputState) {
+        PlaneDragRestricter::~PlaneDragRestricter() {}
+
+        bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
             const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance))
+                return false;
+            point = inputState.pickRay().pointAtDistance(distance);
+            return true;
+        }
+
+        LineDragRestricter::LineDragRestricter(const Line3& line) :
+        m_line(line) {}
+        
+        LineDragRestricter::~LineDragRestricter() {}
+
+        bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+            const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
+            if (lineDist.parallel)
+                return false;
+            point = inputState.pickRay().pointAtDistance(lineDist.rayDistance);
+            return true;
+        }
+        
+        RestrictedDragPolicy::RestrictedDragPolicy() :
+        m_restricter(NULL) {}
+        
+        RestrictedDragPolicy::~RestrictedDragPolicy() {
+            deleteRestricter();
+        }
+
+        void RestrictedDragPolicy::deleteRestricter() {
+            delete m_restricter;
+            m_restricter = NULL;
+        }
+
+        bool RestrictedDragPolicy::dragging() const {
+            return m_restricter != NULL;
+        }
+
+        bool RestrictedDragPolicy::doStartMouseDrag(const InputState& inputState) {
+            if (!doShouldStartDrag(inputState, m_lastPoint))
+                return false;
+            
+            setDefaultDragRestricter(inputState, m_lastPoint);
+            doDragStarted(inputState, m_lastPoint);
+            return true;
+        }
+        
+        bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
+            assert(m_restricter != NULL);
+            
+            Vec3 curPoint;
+            if (!m_restricter->hitPoint(inputState, curPoint) || !doSnapPoint(inputState, m_lastPoint, curPoint) || curPoint.equals(m_lastPoint))
                 return true;
             
-            const Vec3 curPoint = inputState.pickRay().pointAtDistance(distance);
-            if (curPoint.equals(m_lastPoint))
-                return true;
-            
-            const bool result = doPlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
+            const bool result = doDragged(inputState, m_lastPoint, curPoint);
             m_lastPoint = curPoint;
             return result;
         }
         
-        void PlaneDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            doEndPlaneDrag(inputState);
-            m_dragging = false;
+        void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {
+            assert(m_restricter != NULL);
+            doDragEnded(inputState);
+            deleteRestricter();
         }
         
-        void PlaneDragPolicy::doCancelMouseDrag() {
-            doCancelPlaneDrag();
-            m_dragging = false;
+        void RestrictedDragPolicy::doCancelMouseDrag() {
+            assert(m_restricter != NULL);
+            doDragCancelled();
+            deleteRestricter();
         }
         
-        bool PlaneDragPolicy::dragging() const {
-            return m_dragging;
-        }
-        
-        void PlaneDragPolicy::resetPlane(const InputState& inputState) {
-            doResetPlane(inputState, m_plane, m_lastPoint);
-        }
-        
-        PlaneDragHelper::PlaneDragHelper(PlaneDragPolicy* policy) : m_policy(policy) { assert(m_policy != NULL); }
-        PlaneDragHelper::~PlaneDragHelper() {}
-        
-        bool PlaneDragHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            return doStartPlaneDrag(inputState, plane, initialPoint);
-        }
-        
-        bool PlaneDragHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            return doPlaneDrag(inputState, lastPoint, curPoint, refPoint);
-        }
-        
-        void PlaneDragHelper::endPlaneDrag(const InputState& inputState) {
-            doEndPlaneDrag(inputState);
-        }
-        
-        void PlaneDragHelper::cancelPlaneDrag() {
-            doCancelPlaneDrag();
-        }
-        
-        void PlaneDragHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            doResetPlane(inputState, plane, initialPoint);
-        }
-        
-        void PlaneDragHelper::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            doRender(inputState, renderContext, renderBatch);
+        void RestrictedDragPolicy::resetRestricter(const InputState& inputState) {
+            assert(m_restricter != NULL);
+            Vec3 curPoint;
+            assertResult(m_restricter->hitPoint(inputState, curPoint));
+
+            if (isRestrictedMove(inputState))
+                setRestrictedDragRestricter(inputState, curPoint);
+            else
+                setDefaultDragRestricter(inputState, curPoint);
+            doMouseDrag(inputState);
         }
 
-        bool PlaneDragHelper::dragging() const {
-            return m_policy->dragging();
-        }
-        
-        void PlaneDragHelper::resetPlane(const InputState& inputState) {
-            m_policy->resetPlane(inputState);
+        void RestrictedDragPolicy::setRestrictedDragRestricter(const InputState& inputState, const Vec3& curPoint) {
+            deleteRestricter();
+            m_restricter = doCreateRestrictedDragRestricter(inputState, m_initialPoint, curPoint);
+            assert(m_restricter != NULL);
         }
 
-        LineDragPolicy::LineDragPolicy() : m_dragging(false) {}
-        LineDragPolicy::~LineDragPolicy() {}
-
-        bool LineDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            if (doStartLineDrag(inputState, m_line, m_lastDist)) {
-                m_dragging = true;
-                m_refDist = m_lastDist;
-                return true;
-            }
-            return false;
-        }
-
-        bool LineDragPolicy::doMouseDrag(const InputState& inputState) {
-            const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
-            if (lineDist.parallel)
-                return true;
-            
-            const FloatType curDist = lineDist.lineDistance;
-            if (curDist == m_lastDist)
-                return true;
-            
-            const bool result = doLineDrag(inputState, m_lastDist, curDist, m_refDist);
-            m_lastDist = curDist;
-            return result;
+        void RestrictedDragPolicy::setDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) {
+            deleteRestricter();
+            if (isVerticalMove(inputState))
+                m_restricter = doCreateVerticalDragRestricter(inputState, curPoint);
+            else
+                m_restricter = doCreateDefaultDragRestricter(inputState, curPoint);
+            assert(m_restricter != NULL);
+            m_initialPoint = curPoint;
         }
         
-        void LineDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            doEndLineDrag(inputState);
-            m_dragging = false;
+        bool RestrictedDragPolicy::isVerticalMove(const InputState& inputState) const {
+            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
         }
         
-        void LineDragPolicy::doCancelMouseDrag() {
-            doCancelLineDrag();
-            m_dragging = false;
-        }
-        
-        bool LineDragPolicy::dragging() const {
-            return m_dragging;
+        bool RestrictedDragPolicy::isRestrictedMove(const InputState& inputState) const {
+            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
         }
 
         RenderPolicy::~RenderPolicy() {}

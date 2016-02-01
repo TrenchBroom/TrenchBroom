@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveToolHelper
-#define TrenchBroom_MoveToolHelper
+#ifndef TrenchBroom_MoveToolDelegate
+#define TrenchBroom_MoveToolDelegate
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             
             bool handleMove(const InputState& inputState) const;
             Vec3 getMoveOrigin(const InputState& inputState) const;
-            bool startMove(const InputState& inputState);
+            void startMove(const InputState& inputState);
             Vec3 snapDelta(const InputState& inputState, const Vec3& delta) const;
             MoveResult move(const InputState& inputState, const Vec3& delta);
             void endMove(const InputState& inputState);
@@ -62,49 +62,47 @@ namespace TrenchBroom {
             virtual void doCancelMove() = 0;
         };
         
-        class MoveToolHelper : public PlaneDragHelper {
+        class MoveToolDelegator : public RestrictedDragPolicy {
         private:
             MoveToolDelegate* m_delegate;
-            Vec3f::List m_trace;
+            Vec3 m_initialPoint;
+            Vec3 m_lastPoint;
+            bool m_moving;
         protected:
-            MoveToolHelper(PlaneDragPolicy* policy, MoveToolDelegate* delegate);
+            MoveToolDelegator(MoveToolDelegate* delegate);
         public:
-            virtual ~MoveToolHelper();
+            virtual ~MoveToolDelegator();
             
-            bool handleMove(const InputState& inputState) const;
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint);
+            void doDragStarted(const InputState& inputState, const Vec3& initialPoint);
+            bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            void doDragEnded(const InputState& inputState);
+            void doDragCancelled();
+            bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point);
+            
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
-            void addTracePoint(const Vec3& point);
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-        private:
-            virtual Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const = 0;
-            virtual Vec3 doGetDelta(const Vec3& delta) const = 0;
         };
         
-        class MoveToolHelper2D : public MoveToolHelper {
+        class MoveToolDelegator2D : public MoveToolDelegator {
         public:
-            MoveToolHelper2D(PlaneDragPolicy* policy, MoveToolDelegate* delegate);
+            MoveToolDelegator2D(MoveToolDelegate* delegate);
         private:
-            Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
-            Vec3 doGetDelta(const Vec3& delta) const;
+            DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
+            DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
+            DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const;
         };
 
-        class MoveToolHelper3D : public MoveToolHelper {
-        private:
-            MovementRestriction& m_movementRestriction;
+        class MoveToolDelegator3D : public MoveToolDelegator {
         public:
-            MoveToolHelper3D(PlaneDragPolicy* policy, MoveToolDelegate* delegate, MovementRestriction& movementRestriction);
+            MoveToolDelegator3D(MoveToolDelegate* delegate);
         private:
-            Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
-            Vec3 doGetDelta(const Vec3& delta) const;
+            DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const ;
+            DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
+            DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_MoveToolHelper) */
+#endif /* defined(TrenchBroom_MoveToolDelegate) */
