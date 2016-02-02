@@ -31,6 +31,7 @@ namespace TrenchBroom {
         
         ToolChain::~ToolChain() {
             delete m_suffix;
+            delete m_tool;
         }
 
         void ToolChain::append(ToolAdapter* tool) {

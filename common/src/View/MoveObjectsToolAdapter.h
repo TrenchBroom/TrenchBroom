@@ -26,17 +26,16 @@ namespace TrenchBroom {
     namespace View {
         class MoveObjectsTool;
         
-        class MoveObjectsToolAdapter : public MoveToolAdapter<NoPickingPolicy, NoMousePolicy, RenderPolicy> {
+        class MoveObjectsToolAdapter : public MoveToolAdapter<NoPickingPolicy, NoMousePolicy> {
         private:
             MoveObjectsTool* m_tool;
         public:
-            MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolHelper* helper);
+            MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolDelegator* delegator);
             virtual ~MoveObjectsToolAdapter();
         private:
             Tool* doGetTool();
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel();
         };

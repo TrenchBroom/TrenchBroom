@@ -55,6 +55,7 @@ namespace TrenchBroom {
             Vec3 rotationCenter() const;
             void setRotationCenter(const Vec3& position);
             void resetRotationCenter();
+            FloatType handleRadius() const;
             
             Vec3 snapRotationCenterMoveDelta(const Vec3& delta) const;
             

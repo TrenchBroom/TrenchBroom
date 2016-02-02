@@ -25,7 +25,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "View/MapDocument.h"
-#include "View/MoveToolHelper.h"
+#include "View/MoveToolDelegator.h"
 
 #ifdef _MSC_VER
 // We get a warning here because we pass 'this' to the member initializer, but it's okay because we don't use it in the member's initializer.
@@ -41,24 +41,24 @@ namespace TrenchBroom {
         class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> Super;
-            MoveToolHelper* m_helper;
+            MoveToolDelegator* m_delegator;
         protected:
-            MoveToolAdapter(MoveToolHelper* helper) :
-            m_helper(helper) {
-                assert(m_helper != NULL);
+            MoveToolAdapter(MoveToolDelegator* delegator) :
+            m_delegator(delegator) {
+                assert(m_delegator != NULL);
             }
         public:
             virtual ~MoveToolAdapter() {
-                delete m_helper;
+                delete m_delegator;
             }
         private:
             void doModifierKeyChange(const InputState& inputState) {
                 if (Super::dragging())
-                    m_helper->resetRestricter(inputState);
+                    m_delegator->resetRestricter(inputState);
             }
-
+            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_helper->render(inputState, renderContext, renderBatch);
+                m_delegator->render(inputState, renderContext, renderBatch);
             }
         };
     }

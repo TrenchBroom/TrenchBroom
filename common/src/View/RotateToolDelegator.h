@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RotateToolHelper
-#define TrenchBroom_RotateToolHelper
+#ifndef TrenchBroom_RotateToolDelegator
+#define TrenchBroom_RotateToolDelegator
 
 #include "StringUtils.h"
 #include "TrenchBroom.h"
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Vec3 center;
             Vec3 axis;
             Vec3 origin;
-            Plane3 plane;
+            FloatType radius;
         };
         
         class RotateToolDelegate {
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             virtual void doCancelRotate() = 0;
         };
         
-        class RotateToolHelper : public PlaneDragHelper {
+        class RotateToolDelegator : public RestrictedDragPolicy {
         private:
             static const size_t SnapAngleKey;
             static const size_t AngleKey;
@@ -70,20 +70,24 @@ namespace TrenchBroom {
             RotateToolDelegate& m_delegate;
             Vec3 m_center;
             Vec3 m_axis;
+            FloatType m_radius;
             FloatType m_lastAngle;
             Vec3 m_firstPoint;
             
             class AngleIndicatorRenderer;
         public:
-            RotateToolHelper(PlaneDragPolicy* policy, RotateToolDelegate& delegate);
+            RotateToolDelegator(RotateToolDelegate& delegate);
             
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint);
+            void doDragStarted(const InputState& inputState, const Vec3& initialPoint);
+            bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            void doDragEnded(const InputState& inputState);
+            void doDragCancelled();
+            bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point);
+            
+            DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint);
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            
         private:
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -92,4 +96,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RotateToolHelper) */
+#endif /* defined(TrenchBroom_RotateToolDelegator) */

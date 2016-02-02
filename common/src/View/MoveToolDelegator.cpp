@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveToolDelegate.h"
+#include "MoveToolDelegator.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -96,7 +96,30 @@ namespace TrenchBroom {
             m_delegate->cancelMove();
         }
         
-        bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point);
+        bool MoveToolDelegator::doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) {
+            point = lastPoint + m_delegate->snapDelta(inputState, point - lastPoint);
+            return true;
+        }
+
+        DragRestricter* MoveToolDelegator::doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint) {
+            if (isVerticalMove(inputState)) {
+                resetInitialPoint = true;
+                return doCreateVerticalDragRestricter(inputState, curPoint);
+            }
+            
+            if (isRestrictedMove(inputState))
+                return doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint);
+            
+            return doCreateDefaultDragRestricter(inputState, curPoint);
+        }
+        
+        bool MoveToolDelegator::isVerticalMove(const InputState& inputState) const {
+            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
+        }
+        
+        bool MoveToolDelegator::isRestrictedMove(const InputState& inputState) const {
+            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
+        }
 
         void MoveToolDelegator::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (dragging())

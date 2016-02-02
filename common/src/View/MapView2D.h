@@ -76,7 +76,6 @@ namespace TrenchBroom {
         private:
             void initializeCamera(ViewPlane viewPlane);
             void initializeToolChain(MapViewToolBox& toolBox);
-            void destroyToolChain();
         private: // notification
             void bindObservers();
             void unbindObservers();

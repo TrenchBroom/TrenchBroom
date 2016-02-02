@@ -76,6 +76,10 @@ namespace TrenchBroom {
             setRotationCenter(position);
         }
         
+        FloatType RotateObjectsTool::handleRadius() const {
+            return m_handle.handleRadius();
+        }
+
         Vec3 RotateObjectsTool::snapRotationCenterMoveDelta(const Vec3& delta) const {
             MapDocumentSPtr document = lock(m_document);
             return document->grid().snap(delta);

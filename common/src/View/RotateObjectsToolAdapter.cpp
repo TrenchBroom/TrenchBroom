@@ -33,7 +33,7 @@ namespace TrenchBroom {
         ToolAdapterBase(),
         m_tool(tool),
         m_moveHelper(moveHelper),
-        m_rotateHelper(new RotateToolHelper(this, *this)),
+        m_rotateHelper(new RotateToolDelegator(this, *this)),
         m_helper(NULL) {}
 
         RotateObjectsToolAdapter::~RotateObjectsToolAdapter() {
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             info.center = m_tool->rotationCenter();
             info.axis   = doGetRotationAxis(inputState, area);
             info.origin = doGetRotationAxisHandle(inputState, area);
-            info.plane  = Plane3(info.origin, info.axis);
+            info.radius = m_tool->handleRadius();
             return info;
         }
         

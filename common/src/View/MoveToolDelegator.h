@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveToolDelegate
-#define TrenchBroom_MoveToolDelegate
+#ifndef TrenchBroom_MoveToolDelegator
+#define TrenchBroom_MoveToolDelegator
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             MoveToolDelegator(MoveToolDelegate* delegate);
         public:
             virtual ~MoveToolDelegator();
-            
+        private:
             bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint);
             void doDragStarted(const InputState& inputState, const Vec3& initialPoint);
             bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
@@ -80,6 +80,15 @@ namespace TrenchBroom {
             void doDragCancelled();
             bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point);
             
+            DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint);
+            bool isVerticalMove(const InputState& inputState) const;
+            bool isRestrictedMove(const InputState& inputState) const;
+            
+            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
+            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const = 0;
+
+        public:
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -105,4 +114,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MoveToolDelegate) */
+#endif /* defined(TrenchBroom_MoveToolDelegator) */

@@ -78,7 +78,6 @@ namespace TrenchBroom {
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
-            void destroyToolChain();
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();

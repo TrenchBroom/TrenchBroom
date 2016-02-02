@@ -97,6 +97,10 @@ namespace TrenchBroom {
             }
         }
         
+        FloatType RotateObjectsHandle::handleRadius() const {
+            return pref(Preferences::RotateHandleRadius);
+        }
+
         Vec3 RotateObjectsHandle::pointHandleAxis(const HitArea area, const Vec3& cameraPos) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(cameraPos, xAxis, yAxis, zAxis);

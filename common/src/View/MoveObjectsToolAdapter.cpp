@@ -26,8 +26,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolAdapter::MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolHelper* helper) :
-        MoveToolAdapter(helper),
+        MoveObjectsToolAdapter::MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolDelegator* delegator) :
+        MoveToolAdapter(delegator),
         m_tool(tool) {
             assert(m_tool != NULL);
         }
@@ -43,19 +43,14 @@ namespace TrenchBroom {
                 renderContext.setForceShowSelectionGuide();
         }
         
-        void MoveObjectsToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging() || m_tool->handleMove(inputState))
-                renderMoveIndicator(inputState, renderContext, renderBatch);
-        }
-        
         bool MoveObjectsToolAdapter::doCancel() {
             return false;
         }
         
         MoveObjectsToolAdapter2D::MoveObjectsToolAdapter2D(MoveObjectsTool* tool) :
-        MoveObjectsToolAdapter(tool, new MoveToolHelper2D(this, tool)) {}
+        MoveObjectsToolAdapter(tool, new MoveToolDelegator2D(tool)) {}
         
         MoveObjectsToolAdapter3D::MoveObjectsToolAdapter3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction) :
-        MoveObjectsToolAdapter(tool, new MoveToolHelper3D(this, tool, movementRestriction)) {}
+        MoveObjectsToolAdapter(tool, new MoveToolDelegator3D(tool)) {}
     }
 }

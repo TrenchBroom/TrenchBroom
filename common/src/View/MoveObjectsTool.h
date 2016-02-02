@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/MoveToolDelegate.h"
+#include "View/MoveToolDelegator.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 

@@ -132,8 +132,30 @@ namespace TrenchBroom {
             return true;
         }
         
+        CircleDragRestricter::CircleDragRestricter(const Vec3& center, const Vec3& normal, const FloatType radius) :
+        m_center(center),
+        m_normal(normal),
+        m_radius(radius) {
+            assert(m_radius > 0.0);
+        }
+        
+        CircleDragRestricter::~CircleDragRestricter() {}
+        
+        bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+            const Plane3 plane(m_center, m_normal);
+            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return false;
+            
+            const Vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
+            const Vec3 direction = (hitPoint - m_center).normalized();
+            point = m_radius * direction;
+            return true;
+        }
+
         RestrictedDragPolicy::RestrictedDragPolicy() :
-        m_restricter(NULL) {}
+        m_restricter(NULL),
+        m_restrictOnNextEvent(false) {}
         
         RestrictedDragPolicy::~RestrictedDragPolicy() {
             deleteRestricter();
@@ -149,16 +171,22 @@ namespace TrenchBroom {
         }
 
         bool RestrictedDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            if (!doShouldStartDrag(inputState, m_lastPoint))
+            if (!doShouldStartDrag(inputState, m_initialPoint))
                 return false;
             
-            setDefaultDragRestricter(inputState, m_lastPoint);
+            if (!updateRestricter(inputState, m_initialPoint, m_initialPoint))
+                return false;
+
+            m_lastPoint = m_initialPoint;
             doDragStarted(inputState, m_lastPoint);
             return true;
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             assert(m_restricter != NULL);
+            
+            if (m_restrictOnNextEvent)
+                resetRestricter(inputState);
             
             Vec3 curPoint;
             if (!m_restricter->hitPoint(inputState, curPoint) || !doSnapPoint(inputState, m_lastPoint, curPoint) || curPoint.equals(m_lastPoint))
@@ -173,12 +201,14 @@ namespace TrenchBroom {
             assert(m_restricter != NULL);
             doDragEnded(inputState);
             deleteRestricter();
+            m_restrictOnNextEvent = false;
         }
         
         void RestrictedDragPolicy::doCancelMouseDrag() {
             assert(m_restricter != NULL);
             doDragCancelled();
             deleteRestricter();
+            m_restrictOnNextEvent = false;
         }
         
         void RestrictedDragPolicy::resetRestricter(const InputState& inputState) {
@@ -186,35 +216,29 @@ namespace TrenchBroom {
             Vec3 curPoint;
             assertResult(m_restricter->hitPoint(inputState, curPoint));
 
-            if (isRestrictedMove(inputState))
-                setRestrictedDragRestricter(inputState, curPoint);
-            else
-                setDefaultDragRestricter(inputState, curPoint);
-            doMouseDrag(inputState);
+            if (m_initialPoint == curPoint) {
+                m_restrictOnNextEvent = true;
+            } else if (updateRestricter(inputState, m_initialPoint, curPoint)) {
+                m_restrictOnNextEvent = false;
+                doMouseDrag(inputState);
+            }
         }
 
-        void RestrictedDragPolicy::setRestrictedDragRestricter(const InputState& inputState, const Vec3& curPoint) {
-            deleteRestricter();
-            m_restricter = doCreateRestrictedDragRestricter(inputState, m_initialPoint, curPoint);
-            assert(m_restricter != NULL);
-        }
+        bool RestrictedDragPolicy::updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) {
+            bool resetInitialPoint = false;
+            DragRestricter* restricter = doCreateDragRestricter(inputState, m_initialPoint, m_initialPoint, resetInitialPoint);
+            if (restricter == NULL)
+                return false;
+            
+            if (resetInitialPoint) {
+                if (!restricter->hitPoint(inputState, m_initialPoint))
+                    return false;
+            }
 
-        void RestrictedDragPolicy::setDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) {
             deleteRestricter();
-            if (isVerticalMove(inputState))
-                m_restricter = doCreateVerticalDragRestricter(inputState, curPoint);
-            else
-                m_restricter = doCreateDefaultDragRestricter(inputState, curPoint);
-            assert(m_restricter != NULL);
-            m_initialPoint = curPoint;
-        }
-        
-        bool RestrictedDragPolicy::isVerticalMove(const InputState& inputState) const {
-            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
-        }
-        
-        bool RestrictedDragPolicy::isRestrictedMove(const InputState& inputState) const {
-            return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
+            m_restricter = restricter;
+            
+            return true;
         }
 
         RenderPolicy::~RenderPolicy() {}
@@ -234,5 +258,103 @@ namespace TrenchBroom {
         Tool* ToolAdapter::tool() { return doGetTool(); }
         bool ToolAdapter::toolActive() { return tool()->active(); }
         void ToolAdapter::refreshViews() { tool()->refreshViews(); }
+
+        ToolAdapterGroup::ToolAdapterGroup() :
+        m_dragReceiver(NULL),
+        m_dropReceiver(NULL) {}
+        
+        ToolAdapterGroup::~ToolAdapterGroup() {}
+
+        void ToolAdapterGroup::addAdapter(ToolAdapter* adapter) {
+            assert(adapter != NULL);
+            m_chain.append(adapter);
+        }
+
+        void ToolAdapterGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            m_chain.pick(inputState, pickResult);
+        }
+        
+        void ToolAdapterGroup::doModifierKeyChange(const InputState& inputState) {
+            m_chain.modifierKeyChange(inputState);
+        }
+        
+        void ToolAdapterGroup::doMouseDown(const InputState& inputState) {
+            m_chain.mouseDown(inputState);
+        }
+        
+        void ToolAdapterGroup::doMouseUp(const InputState& inputState) {
+            m_chain.mouseUp(inputState);
+        }
+        
+        bool ToolAdapterGroup::doMouseClick(const InputState& inputState) {
+            return m_chain.mouseClick(inputState);
+        }
+        
+        bool ToolAdapterGroup::doMouseDoubleClick(const InputState& inputState) {
+            return m_chain.mouseDoubleClick(inputState);
+        }
+        
+        void ToolAdapterGroup::doMouseMove(const InputState& inputState) {
+            m_chain.mouseMove(inputState);
+        }
+        
+        void ToolAdapterGroup::doMouseScroll(const InputState& inputState) {
+            m_chain.mouseScroll(inputState);
+        }
+        
+        bool ToolAdapterGroup::doStartMouseDrag(const InputState& inputState) {
+            assert(m_dragReceiver == NULL);
+            m_dragReceiver = m_chain.startMouseDrag(inputState);
+            return m_dragReceiver != NULL;
+        }
+        
+        bool ToolAdapterGroup::doMouseDrag(const InputState& inputState) {
+            assert(m_dragReceiver != NULL);
+            return m_dragReceiver->mouseDrag(inputState);
+        }
+        
+        void ToolAdapterGroup::doEndMouseDrag(const InputState& inputState) {
+            assert(m_dragReceiver != NULL);
+            m_dragReceiver->endMouseDrag(inputState);
+            m_dragReceiver = NULL;
+        }
+        
+        void ToolAdapterGroup::doCancelMouseDrag() {
+            assert(m_dragReceiver != NULL);
+            m_dragReceiver->cancelMouseDrag();
+            m_dragReceiver = NULL;
+        }
+        
+        void ToolAdapterGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            m_chain.setRenderOptions(inputState, renderContext);
+        }
+        
+        void ToolAdapterGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_chain.render(inputState, renderContext, renderBatch);
+        }
+        
+        bool ToolAdapterGroup::doDragEnter(const InputState& inputState, const String& payload) {
+            assert(m_dropReceiver == NULL);
+            m_dropReceiver = m_chain.dragEnter(inputState, payload);
+            return m_dropReceiver != NULL;
+        }
+        
+        bool ToolAdapterGroup::doDragMove(const InputState& inputState) {
+            assert(m_dropReceiver != NULL);
+            return m_dropReceiver->dragMove(inputState);
+        }
+        
+        void ToolAdapterGroup::doDragLeave(const InputState& inputState) {
+            assert(m_dropReceiver != NULL);
+            m_dropReceiver->dragLeave(inputState);
+            m_dropReceiver = NULL;
+        }
+        
+        bool ToolAdapterGroup::doDragDrop(const InputState& inputState) {
+            assert(m_dropReceiver != NULL);
+            const bool result = m_dropReceiver->dragDrop(inputState);
+            m_dropReceiver = NULL;
+            return result;
+        }
     }
 }

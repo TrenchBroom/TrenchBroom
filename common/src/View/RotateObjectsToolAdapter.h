@@ -22,9 +22,9 @@
 
 #include "Model/Hit.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/MoveToolHelper.h"
+#include "View/MoveToolDelegator.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/RotateToolHelper.h"
+#include "View/RotateToolDelegator.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
@@ -37,15 +37,15 @@ namespace TrenchBroom {
         class MovementRestriction;
         class RotateObjectsTool;
         
-        class RotateObjectsToolAdapter : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy>, public MoveToolDelegate, public RotateToolDelegate {
+        class RotateObjectsToolAdapter : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public MoveToolDelegate, public RotateToolDelegate {
         protected:
             RotateObjectsTool* m_tool;
         private:
-            MoveToolHelper* m_moveHelper;
-            RotateToolHelper* m_rotateHelper;
-            PlaneDragHelper* m_helper;
+            MoveToolDelegator* m_moveDelegator;
+            RotateToolDelegator* m_rotateDelegator;
+            RestrictedDragPolicy* m_delegator;
         protected:
-            RotateObjectsToolAdapter(RotateObjectsTool* tool, MoveToolHelper* moveHelper);
+            RotateObjectsToolAdapter(RotateObjectsTool* tool, MoveToolDelegator* moveDelegator);
         public:
             virtual ~RotateObjectsToolAdapter();
         private:

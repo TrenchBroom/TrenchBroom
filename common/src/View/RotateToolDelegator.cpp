@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateToolHelper.h"
+#include "RotateToolDelegator.h"
 
 #include "AttrString.h"
 #include "PreferenceManager.h"
@@ -65,15 +65,14 @@ namespace TrenchBroom {
             doCancelRotate();
         }
         
-        const size_t RotateToolHelper::SnapAngleKey = 1;
-        const size_t RotateToolHelper::AngleKey = 2;
+        const size_t RotateToolDelegator::SnapAngleKey = 1;
+        const size_t RotateToolDelegator::AngleKey = 2;
 
-        RotateToolHelper::RotateToolHelper(PlaneDragPolicy* policy, RotateToolDelegate& delegate) :
-        PlaneDragHelper(policy),
+        RotateToolDelegator::RotateToolDelegator(RotateToolDelegate& delegate) :
         m_delegate(delegate),
         m_lastAngle(0.0) {}
         
-        bool RotateToolHelper::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool RotateToolDelegator::doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!m_delegate.handleRotate(inputState))
@@ -81,41 +80,55 @@ namespace TrenchBroom {
             
             const RotateInfo info = m_delegate.getRotateInfo(inputState);
             initialPoint = info.origin;
-            plane = info.plane;
-            m_center = info.center;
-            m_axis = info.axis;
-            m_firstPoint = initialPoint;
-            m_lastAngle = 0.0;
-            
-            if (!m_delegate.startRotate(inputState))
-                return false;
             return true;
         }
         
-        bool RotateToolHelper::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            const FloatType angle = m_delegate.getAngle(inputState, refPoint, curPoint, m_axis);
+        void RotateToolDelegator::doDragStarted(const InputState& inputState, const Vec3& initialPoint) {
+            const RotateInfo info = m_delegate.getRotateInfo(inputState);
+            m_center = info.center;
+            m_axis = info.axis;
+            m_radius = info.radius;
+            m_firstPoint = initialPoint;
+            m_lastAngle = 0.0;
+
+            assertResult(m_delegate.startRotate(inputState));
+        }
+        
+        bool RotateToolDelegator::doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            const FloatType angle = m_delegate.getAngle(inputState, m_firstPoint, curPoint, m_axis);
             if (angle == m_lastAngle)
                 return true;
             if (!m_delegate.rotate(m_center, m_axis, angle))
                 return false;
             m_lastAngle = angle;
-
+            
             return true;
         }
         
-        void RotateToolHelper::doEndPlaneDrag(const InputState& inputState) {
+        void RotateToolDelegator::doDragEnded(const InputState& inputState) {
             m_delegate.endRotate(inputState);
             m_lastAngle = 0.0;
         }
         
-        void RotateToolHelper::doCancelPlaneDrag() {
+        void RotateToolDelegator::doDragCancelled() {
             m_delegate.cancelRotate();
             m_lastAngle = 0.0;
         }
         
-        void RotateToolHelper::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
+        bool RotateToolDelegator::doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) {
+            const FloatType angle = m_delegate.getAngle(inputState, m_firstPoint, point, m_axis);
+            const Vec3 refVector = (m_firstPoint - m_center).normalized();
+            const Quat3 rotation(m_axis, angle);
+            const Vec3 rotVector = rotation * refVector;
+            point = m_center + rotVector * m_radius;
+            return true;
+        }
         
-        void RotateToolHelper::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        DragRestricter* RotateToolDelegator::doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint) {
+            return new CircleDragRestricter(m_center, m_axis, m_radius);
+        }
+
+        void RotateToolDelegator::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (!dragging())
                 return;
             
@@ -123,7 +136,7 @@ namespace TrenchBroom {
             renderText(renderContext, renderBatch);
         }
 
-        class RotateToolHelper::AngleIndicatorRenderer : public Renderer::DirectRenderable {
+        class RotateToolDelegator::AngleIndicatorRenderer : public Renderer::DirectRenderable {
         private:
             Vec3 m_position;
             Renderer::Circle m_circle;
@@ -152,7 +165,7 @@ namespace TrenchBroom {
             }
         };
         
-        void RotateToolHelper::renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void RotateToolDelegator::renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Vec3 startAxis = (m_firstPoint - m_center).normalized();
@@ -161,7 +174,7 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, m_axis.firstComponent(), startAxis, endAxis));
         }
         
-        void RotateToolHelper::renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void RotateToolDelegator::renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
@@ -169,7 +182,7 @@ namespace TrenchBroom {
             renderService.renderStringOnTop(angleString(Math::degrees(m_lastAngle)), m_center);
         }
 
-        String RotateToolHelper::angleString(const FloatType angle) const {
+        String RotateToolDelegator::angleString(const FloatType angle) const {
             StringStream str;
             str.precision(2);
             str.setf(std::ios::fixed);

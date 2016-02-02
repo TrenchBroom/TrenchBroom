@@ -80,7 +80,6 @@ namespace TrenchBroom {
 
         MapView2D::~MapView2D() {
             unbindObservers();
-            destroyToolChain();
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -123,17 +122,6 @@ namespace TrenchBroom {
             addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
             addTool(m_createSimpleBrushToolAdapter);
-        }
-
-        void MapView2D::destroyToolChain() {
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_rotateObjectsToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createSimpleBrushToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_clipToolAdapter;
         }
 
         void MapView2D::bindObservers() {

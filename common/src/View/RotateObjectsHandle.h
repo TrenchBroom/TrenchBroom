@@ -58,6 +58,7 @@ namespace TrenchBroom {
             Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
 
             Vec3 pointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
+            FloatType handleRadius() const;
             
             Vec3 rotationAxis(const HitArea area) const;
             Vec3 pointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
