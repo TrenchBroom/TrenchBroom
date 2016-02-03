@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushToolAdapter3D
-#define TrenchBroom_CreateBrushToolAdapter3D
+#ifndef TrenchBroom_CreateBrushToolController3D
+#define TrenchBroom_CreateBrushToolController3D
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Polyhedron.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -33,14 +33,14 @@ namespace TrenchBroom {
         class CreateSimpleBrushTool;
         class Grid;
 
-        class CreateSimpleBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateSimpleBrushToolController3D : public ToolControllerBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
             
             Vec3 m_initialPoint;
         public:
-            CreateSimpleBrushToolAdapter3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
+            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool();
 
@@ -62,4 +62,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushToolAdapter3D) */
+#endif /* defined(TrenchBroom_CreateBrushToolController3D) */

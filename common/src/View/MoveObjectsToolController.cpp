@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveObjectsToolAdapter.h"
+#include "MoveObjectsToolController.h"
 
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
@@ -26,31 +26,31 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolAdapter::MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolDelegator* delegator) :
-        MoveToolAdapter(delegator),
+        MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool, MoveToolDelegator* delegator) :
+        MoveToolController(delegator),
         m_tool(tool) {
             assert(m_tool != NULL);
         }
         
-        MoveObjectsToolAdapter::~MoveObjectsToolAdapter() {}
+        MoveObjectsToolController::~MoveObjectsToolController() {}
 
-        Tool* MoveObjectsToolAdapter::doGetTool() {
+        Tool* MoveObjectsToolController::doGetTool() {
             return m_tool;
         }
 
-        void MoveObjectsToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             if (dragging())
                 renderContext.setForceShowSelectionGuide();
         }
         
-        bool MoveObjectsToolAdapter::doCancel() {
+        bool MoveObjectsToolController::doCancel() {
             return false;
         }
         
-        MoveObjectsToolAdapter2D::MoveObjectsToolAdapter2D(MoveObjectsTool* tool) :
-        MoveObjectsToolAdapter(tool, new MoveToolDelegator2D(tool)) {}
+        MoveObjectsToolController2D::MoveObjectsToolController2D(MoveObjectsTool* tool) :
+        MoveObjectsToolController(tool, new MoveToolDelegator2D(tool)) {}
         
-        MoveObjectsToolAdapter3D::MoveObjectsToolAdapter3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction) :
-        MoveObjectsToolAdapter(tool, new MoveToolDelegator3D(tool)) {}
+        MoveObjectsToolController3D::MoveObjectsToolController3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction) :
+        MoveObjectsToolController(tool, new MoveToolDelegator3D(tool)) {}
     }
 }

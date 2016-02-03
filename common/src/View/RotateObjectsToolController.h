@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RotateObjectsToolAdapter
-#define TrenchBroom_RotateObjectsToolAdapter
+#ifndef TrenchBroom_RotateObjectsToolController
+#define TrenchBroom_RotateObjectsToolController
 
 #include "Model/Hit.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/MoveToolDelegator.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateToolDelegator.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class RotateObjectsTool;
         
-        class RotateObjectsToolAdapter : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public MoveToolDelegate, public RotateToolDelegate {
+        class RotateObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public MoveToolDelegate, public RotateToolDelegate {
         protected:
             RotateObjectsTool* m_tool;
         private:
@@ -45,9 +45,9 @@ namespace TrenchBroom {
             RotateToolDelegator* m_rotateDelegator;
             RestrictedDragPolicy* m_delegator;
         protected:
-            RotateObjectsToolAdapter(RotateObjectsTool* tool, MoveToolDelegator* moveDelegator);
+            RotateObjectsToolController(RotateObjectsTool* tool, MoveToolDelegator* moveDelegator);
         public:
-            virtual ~RotateObjectsToolAdapter();
+            virtual ~RotateObjectsToolController();
         private:
             Tool* doGetTool();
             
@@ -90,9 +90,9 @@ namespace TrenchBroom {
             virtual void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea highlight) = 0;
         };
         
-        class RotateObjectsToolAdapter2D : public RotateObjectsToolAdapter {
+        class RotateObjectsToolController2D : public RotateObjectsToolController {
         public:
-            RotateObjectsToolAdapter2D(RotateObjectsTool* tool);
+            RotateObjectsToolController2D(RotateObjectsTool* tool);
         private:
             Model::Hit doPick(const InputState& inputState);
             
@@ -101,9 +101,9 @@ namespace TrenchBroom {
             void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea highlight);
         };
         
-        class RotateObjectsToolAdapter3D : public RotateObjectsToolAdapter {
+        class RotateObjectsToolController3D : public RotateObjectsToolController {
         public:
-            RotateObjectsToolAdapter3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction);
+            RotateObjectsToolController3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction);
         private:
             Model::Hit doPick(const InputState& inputState);
             
@@ -114,4 +114,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RotateObjectsToolAdapter) */
+#endif /* defined(TrenchBroom_RotateObjectsToolController) */

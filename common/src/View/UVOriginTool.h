@@ -23,7 +23,7 @@
 #include "Model//Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVOriginTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVShearTool::YHandleHit = Model::Hit::freeHitType();
         
         UVShearTool::UVShearTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper) {}

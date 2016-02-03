@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ToolAdapter
-#define TrenchBroom_ToolAdapter
+#ifndef TrenchBroom_ToolController
+#define TrenchBroom_ToolController
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "ToolChain.h"
+#include "Model/Hit.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -135,7 +136,6 @@ namespace TrenchBroom {
             const Plane3& m_plane;
         public:
             PlaneDragRestricter(const Plane3& plane);
-            virtual ~PlaneDragRestricter();
         private:
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
@@ -147,7 +147,6 @@ namespace TrenchBroom {
             const FloatType m_radius;
         public:
             CircleDragRestricter(const Vec3& center, const Vec3& normal, FloatType radius);
-            virtual ~CircleDragRestricter();
         private:
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
@@ -157,7 +156,29 @@ namespace TrenchBroom {
             const Line3& m_line;
         public:
             LineDragRestricter(const Line3& line);
-            virtual ~LineDragRestricter();
+        private:
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+        };
+        
+        class SurfaceDragRestricter : public DragRestricter {
+        private:
+            bool m_hitTypeSet;
+            bool m_occludedTypeSet;
+            bool m_minDistanceSet;
+            
+            bool m_pickable;
+            bool m_selected;
+            Model::Hit::HitType m_hitTypeValue;
+            Model::Hit::HitType m_occludedTypeValue;
+            FloatType m_minDistanceValue;
+        public:
+            SurfaceDragRestricter();
+            
+            void setPickable(bool pickable);
+            void setSelected(bool selected);
+            void setType(Model::Hit::HitType type);
+            void setOccluded(Model::Hit::HitType type);
+            void setMinDistance(FloatType minDistance);
         private:
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
@@ -182,6 +203,7 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
 
             void resetRestricter(const InputState& inputState);
+            bool snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
         private:
             bool updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint);
         private: // subclassing interface
@@ -190,7 +212,7 @@ namespace TrenchBroom {
             virtual bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
             virtual void doDragEnded(const InputState& inputState) = 0;
             virtual void doDragCancelled() = 0;
-            virtual bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) = 0;
+            virtual bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const = 0;
             virtual DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint) = 0;
         };
         
@@ -224,9 +246,9 @@ namespace TrenchBroom {
             bool doDragDrop(const InputState& inputState);
         };
         
-        class ToolAdapter {
+        class ToolController {
         public:
-            virtual ~ToolAdapter();
+            virtual ~ToolController();
             
             Tool* tool();
             bool toolActive();
@@ -263,14 +285,14 @@ namespace TrenchBroom {
         };
         
         template <class PickingPolicyType, class KeyPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType, class DropPolicyType>
-        class ToolAdapterBase : public ToolAdapter, protected PickingPolicyType, protected KeyPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType, protected DropPolicyType {
+        class ToolControllerBase : public ToolController, protected PickingPolicyType, protected KeyPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType, protected DropPolicyType {
         private:
             bool m_dragging;
         public:
-            ToolAdapterBase() :
+            ToolControllerBase() :
             m_dragging(false) {}
             
-            virtual ~ToolAdapterBase() {}
+            virtual ~ToolControllerBase() {}
             
             void pick(const InputState& inputState, Model::PickResult& pickResult) {
                 if (toolActive())
@@ -380,16 +402,16 @@ namespace TrenchBroom {
             virtual bool doCancel() = 0;
         };
         
-        class ToolAdapterGroup : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, DropPolicy> {
+        class ToolControllerGroup : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, DropPolicy> {
         private:
             ToolChain m_chain;
-            ToolAdapter* m_dragReceiver;
-            ToolAdapter* m_dropReceiver;
+            ToolController* m_dragReceiver;
+            ToolController* m_dropReceiver;
         public:
-            ToolAdapterGroup();
-            virtual ~ToolAdapterGroup();
+            ToolControllerGroup();
+            virtual ~ToolControllerGroup();
         protected:
-            void addAdapter(ToolAdapter* adapter);
+            void addAdapter(ToolController* adapter);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
@@ -418,4 +440,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ToolAdapter) */
+#endif /* defined(TrenchBroom_ToolController) */

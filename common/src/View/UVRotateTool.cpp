@@ -47,7 +47,7 @@ namespace TrenchBroom {
         const float UVRotateTool::RotateHandleWidth  =  5.0f;
 
         UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper),

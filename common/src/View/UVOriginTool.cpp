@@ -46,7 +46,7 @@ namespace TrenchBroom {
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
         UVOriginTool::UVOriginTool(UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_helper(helper) {}
 

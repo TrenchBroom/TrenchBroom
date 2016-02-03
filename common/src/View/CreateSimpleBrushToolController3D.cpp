@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolAdapter3D.h"
+#include "CreateSimpleBrushToolController3D.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -38,22 +38,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolAdapter3D::CreateSimpleBrushToolAdapter3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
             assert(tool != NULL);
         }
 
-        Tool* CreateSimpleBrushToolAdapter3D::doGetTool() {
+        Tool* CreateSimpleBrushToolController3D::doGetTool() {
             return m_tool;
         }
 
-        void CreateSimpleBrushToolAdapter3D::doModifierKeyChange(const InputState& inputState) {
+        void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (dragging())
                 resetPlane(inputState);
         }
 
-        bool CreateSimpleBrushToolAdapter3D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool CreateSimpleBrushToolController3D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
@@ -76,20 +76,20 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool CreateSimpleBrushToolAdapter3D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool CreateSimpleBrushToolController3D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             updateBounds(curPoint);
             return true;
         }
 
-        void CreateSimpleBrushToolAdapter3D::doEndPlaneDrag(const InputState& inputState) {
+        void CreateSimpleBrushToolController3D::doEndPlaneDrag(const InputState& inputState) {
             m_tool->createBrush();
         }
 
-        void CreateSimpleBrushToolAdapter3D::doCancelPlaneDrag() {
+        void CreateSimpleBrushToolController3D::doCancelPlaneDrag() {
             m_tool->cancel();
         }
 
-        void CreateSimpleBrushToolAdapter3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        void CreateSimpleBrushToolController3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             const FloatType distance = plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance))
                 return;
@@ -105,17 +105,17 @@ namespace TrenchBroom {
             }
         }
 
-        void CreateSimpleBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void CreateSimpleBrushToolController3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
 
-        void CreateSimpleBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
-        bool CreateSimpleBrushToolAdapter3D::doCancel() {
+        bool CreateSimpleBrushToolController3D::doCancel() {
             return false;
         }
 
-        void CreateSimpleBrushToolAdapter3D::updateBounds(const Vec3& point) {
+        void CreateSimpleBrushToolController3D::updateBounds(const Vec3& point) {
             BBox3 bounds;
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);

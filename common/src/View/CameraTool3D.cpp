@@ -37,7 +37,7 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool3D::CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_camera(camera),

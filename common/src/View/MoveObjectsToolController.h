@@ -17,21 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveObjectsToolAdapter
-#define TrenchBroom_MoveObjectsToolAdapter
+#ifndef TrenchBroom_MoveObjectsToolController
+#define TrenchBroom_MoveObjectsToolController
 
-#include "View/MoveToolAdapter.h"
+#include "View/MoveToolController.h"
 
 namespace TrenchBroom {
     namespace View {
         class MoveObjectsTool;
         
-        class MoveObjectsToolAdapter : public MoveToolAdapter<NoPickingPolicy, NoMousePolicy> {
+        class MoveObjectsToolController : public MoveToolController<NoPickingPolicy, NoMousePolicy> {
         private:
             MoveObjectsTool* m_tool;
         public:
-            MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolDelegator* delegator);
-            virtual ~MoveObjectsToolAdapter();
+            MoveObjectsToolController(MoveObjectsTool* tool, MoveToolDelegator* delegator);
+            virtual ~MoveObjectsToolController();
         private:
             Tool* doGetTool();
 
@@ -40,16 +40,16 @@ namespace TrenchBroom {
             bool doCancel();
         };
         
-        class MoveObjectsToolAdapter2D : public MoveObjectsToolAdapter {
+        class MoveObjectsToolController2D : public MoveObjectsToolController {
         public:
-            MoveObjectsToolAdapter2D(MoveObjectsTool* tool);
+            MoveObjectsToolController2D(MoveObjectsTool* tool);
         };
         
-        class MoveObjectsToolAdapter3D : public MoveObjectsToolAdapter {
+        class MoveObjectsToolController3D : public MoveObjectsToolController {
         public:
-            MoveObjectsToolAdapter3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction);
+            MoveObjectsToolController3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_MoveObjectsToolAdapter) */
+#endif /* defined(TrenchBroom_MoveObjectsToolController) */

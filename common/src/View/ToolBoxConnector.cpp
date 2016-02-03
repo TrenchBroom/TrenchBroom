@@ -65,7 +65,7 @@ namespace TrenchBroom {
             m_toolBox = &toolBox;
         }
 
-        void ToolBoxConnector::addTool(ToolAdapter* tool) {
+        void ToolBoxConnector::addTool(ToolController* tool) {
             m_toolChain->append(tool);
         }
 

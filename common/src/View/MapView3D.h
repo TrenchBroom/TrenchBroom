@@ -43,32 +43,32 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool3D;
-        class ClipToolAdapter3D;
-        class CreateComplexBrushToolAdapter3D;
-        class CreateEntityToolAdapter;
-        class CreateSimpleBrushToolAdapter3D;
+        class ClipToolController3D;
+        class CreateComplexBrushToolController3D;
+        class CreateEntityToolController;
+        class CreateSimpleBrushToolController3D;
         class FlyModeHelper;
         class GLContextManager;
-        class MoveObjectsToolAdapter;
-        class ResizeBrushesToolAdapter;
-        class RotateObjectsToolAdapter;
+        class MoveObjectsToolController;
+        class ResizeBrushesToolController;
+        class RotateObjectsToolController;
         class SetBrushFaceAttributesTool;
-        class VertexToolAdapter;
+        class VertexToolController;
         
         class MapView3D : public MapViewBase {
         private:
             MovementRestriction m_movementRestriction;
             Renderer::PerspectiveCamera m_camera;
             
-            ClipToolAdapter3D* m_clipToolAdapter;
-            CreateComplexBrushToolAdapter3D* m_createComplexBrushToolAdapter;
-            CreateEntityToolAdapter* m_createEntityToolAdapter;
-            CreateSimpleBrushToolAdapter3D* m_createSimpleBrushToolAdapter;
-            MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
-            ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
-            RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
+            ClipToolController3D* m_clipToolController;
+            CreateComplexBrushToolController3D* m_createComplexBrushToolController;
+            CreateEntityToolController* m_createEntityToolController;
+            CreateSimpleBrushToolController3D* m_createSimpleBrushToolController;
+            MoveObjectsToolController* m_moveObjectsToolController;
+            ResizeBrushesToolController* m_resizeBrushesToolController;
+            RotateObjectsToolController* m_rotateObjectsToolController;
             SetBrushFaceAttributesTool* m_setBrushFaceAttributesTool;
-            VertexToolAdapter* m_vertexToolAdapter;
+            VertexToolController* m_vertexToolController;
             CameraTool3D* m_cameraTool;
             
             FlyModeHelper* m_flyModeHelper;

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateObjectsToolAdapter.h"
+#include "RotateObjectsToolController.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -29,34 +29,34 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolAdapter::RotateObjectsToolAdapter(RotateObjectsTool* tool, MoveToolHelper* moveHelper) :
-        ToolAdapterBase(),
+        RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool* tool, MoveToolHelper* moveHelper) :
+        ToolControllerBase(),
         m_tool(tool),
         m_moveHelper(moveHelper),
         m_rotateHelper(new RotateToolDelegator(this, *this)),
         m_helper(NULL) {}
 
-        RotateObjectsToolAdapter::~RotateObjectsToolAdapter() {
+        RotateObjectsToolController::~RotateObjectsToolController() {
             delete m_moveHelper;
             delete m_rotateHelper;
         }
 
-        Tool* RotateObjectsToolAdapter::doGetTool() {
+        Tool* RotateObjectsToolController::doGetTool() {
             return m_tool;
         }
 
-        void RotateObjectsToolAdapter::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void RotateObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             const Model::Hit hit = doPick(inputState);
             if (hit.isMatch())
                 pickResult.addHit(hit);
         }
 
-        void RotateObjectsToolAdapter::doModifierKeyChange(const InputState& inputState) {
+        void RotateObjectsToolController::doModifierKeyChange(const InputState& inputState) {
             if (m_helper != NULL && dragging())
                 resetPlane(inputState);
         }
         
-        bool RotateObjectsToolAdapter::doMouseClick(const InputState& inputState) {
+        bool RotateObjectsToolController::doMouseClick(const InputState& inputState) {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             if (hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool RotateObjectsToolAdapter::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool RotateObjectsToolController::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (m_moveHelper->startPlaneDrag(inputState, plane, initialPoint)) {
                 m_helper = m_moveHelper;
                 return true;
@@ -80,35 +80,35 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool RotateObjectsToolAdapter::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool RotateObjectsToolController::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             assert(m_helper != NULL);
             return m_helper->planeDrag(inputState, lastPoint, curPoint, refPoint);
         }
         
-        void RotateObjectsToolAdapter::doEndPlaneDrag(const InputState& inputState) {
+        void RotateObjectsToolController::doEndPlaneDrag(const InputState& inputState) {
             assert(m_helper != NULL);
             m_helper->endPlaneDrag(inputState);
             m_helper = NULL;
         }
         
-        void RotateObjectsToolAdapter::doCancelPlaneDrag() {
+        void RotateObjectsToolController::doCancelPlaneDrag() {
             assert(m_helper != NULL);
             m_helper->cancelPlaneDrag();
             m_helper = NULL;
         }
         
-        void RotateObjectsToolAdapter::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        void RotateObjectsToolController::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             assert(m_helper != NULL);
             m_helper->resetPlane(inputState, plane, initialPoint);
         }
 
-        void RotateObjectsToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void RotateObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             if (dragging() || hit.isMatch())
                 renderContext.setForceShowSelectionGuide();
         }
         
-        void RotateObjectsToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void RotateObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const RotateObjectsHandle::HitArea highlight = highlightHandleArea(inputState);
             doRenderHandle(renderContext, renderBatch, highlight);
             
@@ -118,7 +118,7 @@ namespace TrenchBroom {
                 m_moveHelper->render(inputState, renderContext, renderBatch);
         }
         
-        RotateObjectsHandle::HitArea RotateObjectsToolAdapter::highlightHandleArea(const InputState& inputState) const {
+        RotateObjectsHandle::HitArea RotateObjectsToolController::highlightHandleArea(const InputState& inputState) const {
             if (dragging() && m_helper == m_moveHelper)
                 return RotateObjectsHandle::HitArea_Center;
             
@@ -128,41 +128,41 @@ namespace TrenchBroom {
             return hit.target<RotateObjectsHandle::HitArea>();
         }
         
-        bool RotateObjectsToolAdapter::doCancel() {
+        bool RotateObjectsToolController::doCancel() {
             return false;
         }
 
-        bool RotateObjectsToolAdapter::doHandleMove(const InputState& inputState) const {
+        bool RotateObjectsToolController::doHandleMove(const InputState& inputState) const {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             return hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center;
         }
         
-        Vec3 RotateObjectsToolAdapter::doGetMoveOrigin(const InputState& inputState) const {
+        Vec3 RotateObjectsToolController::doGetMoveOrigin(const InputState& inputState) const {
             return m_tool->rotationCenter();
         }
         
-        bool RotateObjectsToolAdapter::doStartMove(const InputState& inputState) {
+        bool RotateObjectsToolController::doStartMove(const InputState& inputState) {
             return true;
         }
         
-        Vec3 RotateObjectsToolAdapter::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
+        Vec3 RotateObjectsToolController::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
             return m_tool->snapRotationCenterMoveDelta(delta);
         }
         
-        MoveResult RotateObjectsToolAdapter::doMove(const InputState& inputState, const Vec3& delta) {
+        MoveResult RotateObjectsToolController::doMove(const InputState& inputState, const Vec3& delta) {
             m_tool->setRotationCenter(m_tool->rotationCenter() + delta);
             return MoveResult_Continue;
         }
         
-        void RotateObjectsToolAdapter::doEndMove(const InputState& inputState) {}
-        void RotateObjectsToolAdapter::doCancelMove() {}
+        void RotateObjectsToolController::doEndMove(const InputState& inputState) {}
+        void RotateObjectsToolController::doCancelMove() {}
 
-        bool RotateObjectsToolAdapter::doHandleRotate(const InputState& inputState) const {
+        bool RotateObjectsToolController::doHandleRotate(const InputState& inputState) const {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             return hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center;
         }
         
-        RotateInfo RotateObjectsToolAdapter::doGetRotateInfo(const InputState& inputState) const {
+        RotateInfo RotateObjectsToolController::doGetRotateInfo(const InputState& inputState) const {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             assert(hit.isMatch());
             const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             return info;
         }
         
-        bool RotateObjectsToolAdapter::doStartRotate(const InputState& inputState) {
+        bool RotateObjectsToolController::doStartRotate(const InputState& inputState) {
             m_tool->beginRotation();
             
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        FloatType RotateObjectsToolAdapter::doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const {
+        FloatType RotateObjectsToolController::doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const {
             const Vec3 handlePos = m_tool->rotationCenter();
             const Vec3 refVector = (handlePoint - handlePos).normalized();
             const Vec3 curVector = (curPoint - handlePos).normalized();
@@ -197,54 +197,54 @@ namespace TrenchBroom {
             return angle - Math::roundDownToMultiple(angle, Math::C::twoPi());
         }
         
-        bool RotateObjectsToolAdapter::doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) {
+        bool RotateObjectsToolController::doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) {
             m_tool->applyRotation(center, axis, angle);
             return true;
         }
         
-        void RotateObjectsToolAdapter::doEndRotate(const InputState& inputState) {
+        void RotateObjectsToolController::doEndRotate(const InputState& inputState) {
             m_tool->commitRotation();
         }
         
-        void RotateObjectsToolAdapter::doCancelRotate() {
+        void RotateObjectsToolController::doCancelRotate() {
             m_tool->cancelRotation();
         }
 
-        RotateObjectsToolAdapter2D::RotateObjectsToolAdapter2D(RotateObjectsTool* tool) :
-        RotateObjectsToolAdapter(tool, new MoveToolHelper2D(this, this)) {}
+        RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool* tool) :
+        RotateObjectsToolController(tool, new MoveToolHelper2D(this, this)) {}
 
-        Model::Hit RotateObjectsToolAdapter2D::doPick(const InputState& inputState) {
+        Model::Hit RotateObjectsToolController2D::doPick(const InputState& inputState) {
             return m_tool->pick2D(inputState.pickRay(), inputState.camera());
         }
 
-        Vec3 RotateObjectsToolAdapter2D::doGetRotationAxis(const InputState& inputState, const RotateObjectsHandle::HitArea area) const {
+        Vec3 RotateObjectsToolController2D::doGetRotationAxis(const InputState& inputState, const RotateObjectsHandle::HitArea area) const {
             return m_tool->rotationAxis(area);
         }
 
-        Vec3 RotateObjectsToolAdapter2D::doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const {
+        Vec3 RotateObjectsToolController2D::doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const {
             return m_tool->rotationAxisHandle(area, Vec3(inputState.camera().position()));
         }
 
-        void RotateObjectsToolAdapter2D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea highlight) {
+        void RotateObjectsToolController2D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea highlight) {
             m_tool->renderHandle2D(renderContext, renderBatch, highlight);
         }
         
-        RotateObjectsToolAdapter3D::RotateObjectsToolAdapter3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction) :
-        RotateObjectsToolAdapter(tool, new MoveToolHelper3D(this, this, movementRestriction)) {}
+        RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction) :
+        RotateObjectsToolController(tool, new MoveToolHelper3D(this, this, movementRestriction)) {}
         
-        Model::Hit RotateObjectsToolAdapter3D::doPick(const InputState& inputState) {
+        Model::Hit RotateObjectsToolController3D::doPick(const InputState& inputState) {
             return m_tool->pick3D(inputState.pickRay(), inputState.camera());
         }
         
-        Vec3 RotateObjectsToolAdapter3D::doGetRotationAxis(const InputState& inputState, const RotateObjectsHandle::HitArea area) const {
+        Vec3 RotateObjectsToolController3D::doGetRotationAxis(const InputState& inputState, const RotateObjectsHandle::HitArea area) const {
             return m_tool->rotationAxis(area);
         }
         
-        Vec3 RotateObjectsToolAdapter3D::doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const {
+        Vec3 RotateObjectsToolController3D::doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const {
             return m_tool->rotationAxisHandle(area, Vec3(inputState.camera().position()));
         }
         
-        void RotateObjectsToolAdapter3D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea highlight) {
+        void RotateObjectsToolController3D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea highlight) {
             m_tool->renderHandle3D(renderContext, renderBatch, highlight);
         }
     }

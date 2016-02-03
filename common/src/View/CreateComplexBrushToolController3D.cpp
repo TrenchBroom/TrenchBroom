@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateComplexBrushToolAdapter3D.h"
+#include "CreateComplexBrushToolController3D.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class CreateComplexBrushToolAdapter3D::DragDelegate {
+        class CreateComplexBrushToolController3D::DragDelegate {
         protected:
             const Grid& m_grid;
             Polyhedron3& m_currentPolyhedron;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             virtual ~DragDelegate() {}
         };
         
-        class CreateComplexBrushToolAdapter3D::DrawFaceDelegate : public DragDelegate, public PlaneDragPolicy {
+        class CreateComplexBrushToolController3D::DrawFaceDelegate : public DragDelegate, public PlaneDragPolicy {
         private:
             Plane3 m_plane;
             Vec3 m_initialPoint;
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             }
         };
         
-        class CreateComplexBrushToolAdapter3D::DuplicateFaceDelegate : public DragDelegate, public LineDragPolicy {
+        class CreateComplexBrushToolController3D::DuplicateFaceDelegate : public DragDelegate, public LineDragPolicy {
         private:
             Vec3 m_dragDir;
         public:
@@ -163,22 +163,22 @@ namespace TrenchBroom {
             }
         };
         
-        CreateComplexBrushToolAdapter3D::CreateComplexBrushToolAdapter3D(CreateComplexBrushTool* tool, MapDocumentWPtr document) :
+        CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
             assert(m_tool != NULL);
         }
 
-        void CreateComplexBrushToolAdapter3D::performCreateBrush() {
+        void CreateComplexBrushToolController3D::performCreateBrush() {
             m_tool->createBrush();
             m_polyhedron = Polyhedron3();
         }
 
-        Tool* CreateComplexBrushToolAdapter3D::doGetTool() {
+        Tool* CreateComplexBrushToolController3D::doGetTool() {
             return m_tool;
         }
 
-        bool CreateComplexBrushToolAdapter3D::doMouseClick(const InputState& inputState) {
+        bool CreateComplexBrushToolController3D::doMouseClick(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
                 return false;
             if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool CreateComplexBrushToolAdapter3D::doMouseDoubleClick(const InputState& inputState) {
+        bool CreateComplexBrushToolController3D::doMouseDoubleClick(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
                 return false;
             if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        MouseDragPolicy* CreateComplexBrushToolAdapter3D::doCreateDelegate(const InputState& inputState) {
+        MouseDragPolicy* CreateComplexBrushToolController3D::doCreateDelegate(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
                 return NULL;
             if (!inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
@@ -235,23 +235,23 @@ namespace TrenchBroom {
             return new DrawFaceDelegate(grid, m_polyhedron);
         }
         
-        void CreateComplexBrushToolAdapter3D::doDeleteDelegate(MouseDragPolicy* delegate) {
+        void CreateComplexBrushToolController3D::doDeleteDelegate(MouseDragPolicy* delegate) {
             delete delegate;
         }
 
-        void CreateComplexBrushToolAdapter3D::doMouseDragStarted() {
+        void CreateComplexBrushToolController3D::doMouseDragStarted() {
             m_tool->update(m_polyhedron);
         }
         
-        void CreateComplexBrushToolAdapter3D::doMouseDragged() {
+        void CreateComplexBrushToolController3D::doMouseDragged() {
             m_tool->update(m_polyhedron);
         }
         
-        void CreateComplexBrushToolAdapter3D::doMouseDragCancelled() {
+        void CreateComplexBrushToolController3D::doMouseDragCancelled() {
             m_tool->update(m_polyhedron);
         }
 
-        void CreateComplexBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateComplexBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
             
             if (!m_polyhedron.empty()) {
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool CreateComplexBrushToolAdapter3D::doCancel() {
+        bool CreateComplexBrushToolController3D::doCancel() {
             if (m_polyhedron.empty())
                 return false;
             

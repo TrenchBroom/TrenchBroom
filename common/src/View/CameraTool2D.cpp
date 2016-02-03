@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_camera(camera) {}
         

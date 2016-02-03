@@ -22,7 +22,7 @@
 #include "SetAny.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ToolChain.h"
 
 #include <cassert>

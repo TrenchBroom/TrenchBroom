@@ -21,12 +21,12 @@
 #define TrenchBroom_SetBrushFaceAttributesTool
 
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
-        class SetBrushFaceAttributesTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
         public:

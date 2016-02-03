@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 
 namespace TrenchBroom {
     namespace Renderer {

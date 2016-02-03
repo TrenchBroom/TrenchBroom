@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateComplexBrushToolAdapter3D
-#define TrenchBroom_CreateComplexBrushToolAdapter3D
+#ifndef TrenchBroom_CreateComplexBrushToolController3D
+#define TrenchBroom_CreateComplexBrushToolController3D
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Polyhedron.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 #include <vector>
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class CreateComplexBrushTool;
         class Grid;
 
-        class CreateComplexBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateComplexBrushToolController3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateComplexBrushTool* m_tool;
             MapDocumentWPtr m_document;
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             Polyhedron3 m_polyhedron;
         public:
-            CreateComplexBrushToolAdapter3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
+            CreateComplexBrushToolController3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
         public:
             void performCreateBrush();
         private:
@@ -67,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateComplexBrushToolAdapter3D) */
+#endif /* defined(TrenchBroom_CreateComplexBrushToolController3D) */

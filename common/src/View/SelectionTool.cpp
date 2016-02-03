@@ -40,7 +40,7 @@
 namespace TrenchBroom {
     namespace View {
         SelectionTool::SelectionTool(MapDocumentWPtr document) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document) {}
 

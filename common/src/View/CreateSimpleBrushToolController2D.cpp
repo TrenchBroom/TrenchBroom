@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolAdapter2D.h"
+#include "CreateSimpleBrushToolController2D.h"
 
 #include "Polyhedron.h"
 #include "Renderer/Camera.h"
@@ -30,17 +30,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolAdapter2D::CreateSimpleBrushToolAdapter2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
             assert(m_tool != NULL);
         }
 
-        Tool* CreateSimpleBrushToolAdapter2D::doGetTool() {
+        Tool* CreateSimpleBrushToolController2D::doGetTool() {
             return m_tool;
         }
         
-        bool CreateSimpleBrushToolAdapter2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool CreateSimpleBrushToolController2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
@@ -64,32 +64,32 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool CreateSimpleBrushToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool CreateSimpleBrushToolController2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             if (updateBounds(inputState, curPoint))
                 m_tool->refreshViews();
             return true;
         }
         
-        void CreateSimpleBrushToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {
+        void CreateSimpleBrushToolController2D::doEndPlaneDrag(const InputState& inputState) {
             if (!m_bounds.empty())
                 m_tool->createBrush();
         }
         
-        void CreateSimpleBrushToolAdapter2D::doCancelPlaneDrag() {}
+        void CreateSimpleBrushToolController2D::doCancelPlaneDrag() {}
         
-        void CreateSimpleBrushToolAdapter2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
+        void CreateSimpleBrushToolController2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
         
-        void CreateSimpleBrushToolAdapter2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
-        void CreateSimpleBrushToolAdapter2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
-        bool CreateSimpleBrushToolAdapter2D::doCancel() {
+        bool CreateSimpleBrushToolController2D::doCancel() {
             return false;
         }
 
-        bool CreateSimpleBrushToolAdapter2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
+        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
             BBox3 bounds(m_initialPoint, m_initialPoint);
             bounds.mergeWith(currentPoint);
             snapBounds(inputState, bounds);
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateSimpleBrushToolAdapter2D::snapBounds(const InputState& inputState, BBox3& bounds) {
+        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, BBox3& bounds) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             bounds.min = grid.snapDown(bounds.min);

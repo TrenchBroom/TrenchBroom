@@ -37,7 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class ToolAdapter;
+        class ToolController;
         class ToolBox;
         class ToolChain;
 
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void updateLastActivation();
         protected:
             void setToolBox(ToolBox& toolBox);
-            void addTool(ToolAdapter* tool);
+            void addTool(ToolController* tool);
         public: // drag and drop
             bool dragEnter(wxCoord x, wxCoord y, const String& text);
             bool dragMove(wxCoord x, wxCoord y, const String& text);

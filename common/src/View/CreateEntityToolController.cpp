@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateEntityToolAdapter.h"
+#include "CreateEntityToolController.h"
 
 #include "View/CreateEntityTool.h"
 #include "View/InputState.h"
@@ -26,18 +26,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateEntityToolAdapter::CreateEntityToolAdapter(CreateEntityTool* tool) :
+        CreateEntityToolController::CreateEntityToolController(CreateEntityTool* tool) :
         m_tool(tool) {
             assert(m_tool != NULL);
         }
         
-        CreateEntityToolAdapter::~CreateEntityToolAdapter() {}
+        CreateEntityToolController::~CreateEntityToolController() {}
         
-        Tool* CreateEntityToolAdapter::doGetTool() {
+        Tool* CreateEntityToolController::doGetTool() {
             return m_tool;
         }
         
-        bool CreateEntityToolAdapter::doDragEnter(const InputState& inputState, const String& payload) {
+        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
             const StringList parts = StringUtils::split(payload, ':');
             if (parts.size() != 2)
                 return false;
@@ -51,35 +51,35 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool CreateEntityToolAdapter::doDragMove(const InputState& inputState) {
+        bool CreateEntityToolController::doDragMove(const InputState& inputState) {
             doUpdateEntityPosition(inputState);
             return true;
         }
         
-        void CreateEntityToolAdapter::doDragLeave(const InputState& inputState) {
+        void CreateEntityToolController::doDragLeave(const InputState& inputState) {
             m_tool->removeEntity();
         }
         
-        bool CreateEntityToolAdapter::doDragDrop(const InputState& inputState) {
+        bool CreateEntityToolController::doDragDrop(const InputState& inputState) {
             m_tool->commitEntity();
             return true;
         }
         
-        bool CreateEntityToolAdapter::doCancel() {
+        bool CreateEntityToolController::doCancel() {
             return false;
         }
 
-        CreateEntityToolAdapter2D::CreateEntityToolAdapter2D(CreateEntityTool* tool) :
-        CreateEntityToolAdapter(tool) {}
+        CreateEntityToolController2D::CreateEntityToolController2D(CreateEntityTool* tool) :
+        CreateEntityToolController(tool) {}
         
-        void CreateEntityToolAdapter2D::doUpdateEntityPosition(const InputState& inputState) {
+        void CreateEntityToolController2D::doUpdateEntityPosition(const InputState& inputState) {
             m_tool->updateEntityPosition2D(inputState.pickRay());
         }
         
-        CreateEntityToolAdapter3D::CreateEntityToolAdapter3D(CreateEntityTool* tool) :
-        CreateEntityToolAdapter(tool) {}
+        CreateEntityToolController3D::CreateEntityToolController3D(CreateEntityTool* tool) :
+        CreateEntityToolController(tool) {}
         
-        void CreateEntityToolAdapter3D::doUpdateEntityPosition(const InputState& inputState) {
+        void CreateEntityToolController3D::doUpdateEntityPosition(const InputState& inputState) {
             m_tool->updateEntityPosition3D(inputState.pickRay(), inputState.pickResult());
         }
     }

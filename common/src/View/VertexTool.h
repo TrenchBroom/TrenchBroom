@@ -24,7 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Hit.h"
-#include "View/MoveToolAdapter.h"
+#include "View/MoveToolController.h"
 #include "View/Tool.h"
 #include "View/UndoableCommand.h"
 #include "View/VertexHandleManager.h"

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveToolAdapter
-#define TrenchBroom_MoveToolAdapter
+#ifndef TrenchBroom_MoveToolController
+#define TrenchBroom_MoveToolController
 
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -38,17 +38,17 @@ namespace TrenchBroom {
         class ToolActivationDelegate;
         
         template <class PickingPolicyType, class MousePolicyType>
-        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        class MoveToolController : public ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
-            typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> Super;
+            typedef ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> Super;
             MoveToolDelegator* m_delegator;
         protected:
-            MoveToolAdapter(MoveToolDelegator* delegator) :
+            MoveToolController(MoveToolDelegator* delegator) :
             m_delegator(delegator) {
                 assert(m_delegator != NULL);
             }
         public:
-            virtual ~MoveToolAdapter() {
+            virtual ~MoveToolController() {
                 delete m_delegator;
             }
         private:
@@ -68,4 +68,4 @@ namespace TrenchBroom {
 #pragma warning(pop)
 #endif
 
-#endif /* defined(TrenchBroom_MoveToolAdapter) */
+#endif /* defined(TrenchBroom_MoveToolController) */

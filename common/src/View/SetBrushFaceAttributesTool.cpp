@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocumentWPtr document) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document) {}
 

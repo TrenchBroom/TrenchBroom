@@ -19,7 +19,7 @@
 
 #include "ToolChain.h"
 
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 
 #include <cassert>
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             delete m_tool;
         }
 
-        void ToolChain::append(ToolAdapter* tool) {
+        void ToolChain::append(ToolController* tool) {
             assert(checkInvariant());
             if (chainEndsHere()) {
                 assert(m_suffix == NULL);
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             }
         }
         
-        ToolAdapter* ToolChain::startMouseDrag(const InputState& inputState) {
+        ToolController* ToolChain::startMouseDrag(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())
                 return NULL;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             return m_suffix->startMouseDrag(inputState);
         }
         
-        ToolAdapter* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
+        ToolController* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
             assert(checkInvariant());
             if (chainEndsHere())
                 return NULL;

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ToolAdapter.h"
+#include "ToolController.h"
 
 #include "View/InputState.h"
 #include "View/Tool.h"
@@ -109,8 +109,6 @@ namespace TrenchBroom {
         PlaneDragRestricter::PlaneDragRestricter(const Plane3& plane) :
         m_plane(plane) {}
         
-        PlaneDragRestricter::~PlaneDragRestricter() {}
-
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
             const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance))
@@ -121,8 +119,6 @@ namespace TrenchBroom {
 
         LineDragRestricter::LineDragRestricter(const Line3& line) :
         m_line(line) {}
-        
-        LineDragRestricter::~LineDragRestricter() {}
 
         bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
             const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
@@ -139,8 +135,6 @@ namespace TrenchBroom {
             assert(m_radius > 0.0);
         }
         
-        CircleDragRestricter::~CircleDragRestricter() {}
-        
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
             const Plane3 plane(m_center, m_normal);
             const FloatType distance = plane.intersectWithRay(inputState.pickRay());
@@ -150,6 +144,70 @@ namespace TrenchBroom {
             const Vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
             const Vec3 direction = (hitPoint - m_center).normalized();
             point = m_radius * direction;
+            return true;
+        }
+
+        /*
+         bool m_pickableSet;
+         bool m_selectedSet;
+         bool m_hitTypeSet;
+         bool m_occludedTypeSet;
+         bool m_minDistanceSet;
+         
+         bool m_pickableValue;
+         bool m_selectedValue;
+         const Model::Hit::HitType m_hitTypeValue;
+         const Model::Hit::HitType m_occludedTypeValue;
+         FloatType m_minDistanceValue;
+         */
+
+        SurfaceDragRestricter::SurfaceDragRestricter() :
+        m_hitTypeSet(false),
+        m_occludedTypeSet(false),
+        m_minDistanceSet(false),
+        m_pickable(false),
+        m_selected(false) {}
+
+        void SurfaceDragRestricter::setPickable(const bool pickable) {
+            m_pickable = pickable;
+        }
+        
+        void SurfaceDragRestricter::setSelected(const bool selected) {
+            m_selected = selected;
+        }
+        
+        void SurfaceDragRestricter::setType(const Model::Hit::HitType type) {
+            m_hitTypeSet = true;
+            m_hitTypeValue = type;
+        }
+        
+        void SurfaceDragRestricter::setOccluded(const Model::Hit::HitType type) {
+            m_occludedTypeSet = true;
+            m_occludedTypeValue = type;
+        }
+        
+        void SurfaceDragRestricter::setMinDistance(const FloatType minDistance) {
+            m_minDistanceSet = true;
+            m_minDistanceValue = minDistance;
+        }
+
+        bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+            Model::HitQuery query = inputState.pickResult().query();
+            if (m_pickable)
+                query.pickable();
+            if (m_hitTypeSet)
+                query.type(m_hitTypeValue);
+            if (m_occludedTypeSet)
+                query.occluded(m_occludedTypeValue);
+            if (m_selected)
+                query.selected();
+            if (m_minDistanceSet)
+                query.minDistance(m_minDistanceValue);
+            
+            const Model::Hit& hit = query.first();
+            if (!hit.isMatch())
+                return false;
+            point = hit.hitPoint();
             return true;
         }
 
@@ -224,6 +282,10 @@ namespace TrenchBroom {
             }
         }
 
+        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
+            return doSnapPoint(inputState, lastPoint, point);
+        }
+
         bool RestrictedDragPolicy::updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) {
             bool resetInitialPoint = false;
             DragRestricter* restricter = doCreateDragRestricter(inputState, m_initialPoint, m_initialPoint, resetInitialPoint);
@@ -254,103 +316,103 @@ namespace TrenchBroom {
         void NoDropPolicy::doDragLeave(const InputState& inputState) {}
         bool NoDropPolicy::doDragDrop(const InputState& inputState) { return false; }
 
-        ToolAdapter::~ToolAdapter() {}
-        Tool* ToolAdapter::tool() { return doGetTool(); }
-        bool ToolAdapter::toolActive() { return tool()->active(); }
-        void ToolAdapter::refreshViews() { tool()->refreshViews(); }
+        ToolController::~ToolController() {}
+        Tool* ToolController::tool() { return doGetTool(); }
+        bool ToolController::toolActive() { return tool()->active(); }
+        void ToolController::refreshViews() { tool()->refreshViews(); }
 
-        ToolAdapterGroup::ToolAdapterGroup() :
+        ToolControllerGroup::ToolControllerGroup() :
         m_dragReceiver(NULL),
         m_dropReceiver(NULL) {}
         
-        ToolAdapterGroup::~ToolAdapterGroup() {}
+        ToolControllerGroup::~ToolControllerGroup() {}
 
-        void ToolAdapterGroup::addAdapter(ToolAdapter* adapter) {
+        void ToolControllerGroup::addAdapter(ToolController* adapter) {
             assert(adapter != NULL);
             m_chain.append(adapter);
         }
 
-        void ToolAdapterGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ToolControllerGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             m_chain.pick(inputState, pickResult);
         }
         
-        void ToolAdapterGroup::doModifierKeyChange(const InputState& inputState) {
+        void ToolControllerGroup::doModifierKeyChange(const InputState& inputState) {
             m_chain.modifierKeyChange(inputState);
         }
         
-        void ToolAdapterGroup::doMouseDown(const InputState& inputState) {
+        void ToolControllerGroup::doMouseDown(const InputState& inputState) {
             m_chain.mouseDown(inputState);
         }
         
-        void ToolAdapterGroup::doMouseUp(const InputState& inputState) {
+        void ToolControllerGroup::doMouseUp(const InputState& inputState) {
             m_chain.mouseUp(inputState);
         }
         
-        bool ToolAdapterGroup::doMouseClick(const InputState& inputState) {
+        bool ToolControllerGroup::doMouseClick(const InputState& inputState) {
             return m_chain.mouseClick(inputState);
         }
         
-        bool ToolAdapterGroup::doMouseDoubleClick(const InputState& inputState) {
+        bool ToolControllerGroup::doMouseDoubleClick(const InputState& inputState) {
             return m_chain.mouseDoubleClick(inputState);
         }
         
-        void ToolAdapterGroup::doMouseMove(const InputState& inputState) {
+        void ToolControllerGroup::doMouseMove(const InputState& inputState) {
             m_chain.mouseMove(inputState);
         }
         
-        void ToolAdapterGroup::doMouseScroll(const InputState& inputState) {
+        void ToolControllerGroup::doMouseScroll(const InputState& inputState) {
             m_chain.mouseScroll(inputState);
         }
         
-        bool ToolAdapterGroup::doStartMouseDrag(const InputState& inputState) {
+        bool ToolControllerGroup::doStartMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver == NULL);
             m_dragReceiver = m_chain.startMouseDrag(inputState);
             return m_dragReceiver != NULL;
         }
         
-        bool ToolAdapterGroup::doMouseDrag(const InputState& inputState) {
+        bool ToolControllerGroup::doMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver != NULL);
             return m_dragReceiver->mouseDrag(inputState);
         }
         
-        void ToolAdapterGroup::doEndMouseDrag(const InputState& inputState) {
+        void ToolControllerGroup::doEndMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver != NULL);
             m_dragReceiver->endMouseDrag(inputState);
             m_dragReceiver = NULL;
         }
         
-        void ToolAdapterGroup::doCancelMouseDrag() {
+        void ToolControllerGroup::doCancelMouseDrag() {
             assert(m_dragReceiver != NULL);
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
         }
         
-        void ToolAdapterGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
         }
         
-        void ToolAdapterGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ToolControllerGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_chain.render(inputState, renderContext, renderBatch);
         }
         
-        bool ToolAdapterGroup::doDragEnter(const InputState& inputState, const String& payload) {
+        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const String& payload) {
             assert(m_dropReceiver == NULL);
             m_dropReceiver = m_chain.dragEnter(inputState, payload);
             return m_dropReceiver != NULL;
         }
         
-        bool ToolAdapterGroup::doDragMove(const InputState& inputState) {
+        bool ToolControllerGroup::doDragMove(const InputState& inputState) {
             assert(m_dropReceiver != NULL);
             return m_dropReceiver->dragMove(inputState);
         }
         
-        void ToolAdapterGroup::doDragLeave(const InputState& inputState) {
+        void ToolControllerGroup::doDragLeave(const InputState& inputState) {
             assert(m_dropReceiver != NULL);
             m_dropReceiver->dragLeave(inputState);
             m_dropReceiver = NULL;
         }
         
-        bool ToolAdapterGroup::doDragDrop(const InputState& inputState) {
+        bool ToolControllerGroup::doDragDrop(const InputState& inputState) {
             assert(m_dropReceiver != NULL);
             const bool result = m_dropReceiver->dragDrop(inputState);
             m_dropReceiver = NULL;

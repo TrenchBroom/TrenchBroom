@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ResizeBrushesToolAdapter
-#define TrenchBroom_ResizeBrushesToolAdapter
+#ifndef TrenchBroom_ResizeBrushesToolController
+#define TrenchBroom_ResizeBrushesToolController
 
 #include "Model/Hit.h"
 #include "Renderer/EdgeRenderer.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,13 +38,13 @@ namespace TrenchBroom {
         class InputState;
         class ResizeBrushesTool;
         
-        class ResizeBrushesToolAdapter : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ResizeBrushesTool* m_tool;
         protected:
-            ResizeBrushesToolAdapter(ResizeBrushesTool* tool);
+            ResizeBrushesToolController(ResizeBrushesTool* tool);
         public:
-            virtual ~ResizeBrushesToolAdapter();
+            virtual ~ResizeBrushesToolController();
         private:
             Tool* doGetTool();
             
@@ -71,20 +71,20 @@ namespace TrenchBroom {
             virtual Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) = 0;
         };
         
-        class ResizeBrushesToolAdapter2D : public ResizeBrushesToolAdapter {
+        class ResizeBrushesToolController2D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool);
+            ResizeBrushesToolController2D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
         };
         
-        class ResizeBrushesToolAdapter3D : public ResizeBrushesToolAdapter {
+        class ResizeBrushesToolController3D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool);
+            ResizeBrushesToolController3D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_ResizeBrushesToolAdapter) */
+#endif /* defined(TrenchBroom_ResizeBrushesToolController) */

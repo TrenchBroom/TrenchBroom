@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexToolAdapter
-#define TrenchBroom_VertexToolAdapter
+#ifndef TrenchBroom_VertexToolController
+#define TrenchBroom_VertexToolController
 
 #include "Model/Hit.h"
-#include "View/MoveToolAdapter.h"
-#include "View/ToolAdapter.h"
+#include "View/MoveToolController.h"
+#include "View/ToolController.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class VertexTool;
         
-        class VertexToolAdapter : public MoveToolAdapter<PickingPolicy, MousePolicy, RenderPolicy>, public MoveToolDelegate {
+        class VertexToolController : public MoveToolController<PickingPolicy, MousePolicy, RenderPolicy>, public MoveToolDelegate {
         private:
             static const FloatType MaxVertexDistance;
         protected:
@@ -39,9 +39,9 @@ namespace TrenchBroom {
         private:
             Lasso* m_lasso;
         protected:
-            VertexToolAdapter(VertexTool* tool, MoveToolHelper* helper);
+            VertexToolController(VertexTool* tool, MoveToolHelper* helper);
         public:
-            virtual ~VertexToolAdapter();
+            virtual ~VertexToolController();
         private:
             Tool* doGetTool();
             
@@ -77,20 +77,20 @@ namespace TrenchBroom {
             Model::Hit::List firstHits(const Model::PickResult& pickResult) const;
         };
         
-        class VertexToolAdapter2D : public VertexToolAdapter {
+        class VertexToolController2D : public VertexToolController {
         public:
-            VertexToolAdapter2D(VertexTool* tool);
+            VertexToolController2D(VertexTool* tool);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
         
-        class VertexToolAdapter3D : public VertexToolAdapter {
+        class VertexToolController3D : public VertexToolController {
         public:
-            VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction);
+            VertexToolController3D(VertexTool* tool, MovementRestriction& movementRestriction);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexToolAdapter) */
+#endif /* defined(TrenchBroom_VertexToolController) */
