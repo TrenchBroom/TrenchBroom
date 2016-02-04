@@ -175,7 +175,7 @@ namespace TrenchBroom {
         
         void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
             if (m_showOccludedBounds)
-                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_boundsColor);
+                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
             m_wireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
         
