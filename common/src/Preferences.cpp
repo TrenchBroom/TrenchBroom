@@ -61,7 +61,7 @@ namespace TrenchBroom {
         Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f,  0.9f,  0.9f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
-        Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.5f));
+        Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.4f));
         Preference<Color> LockedEdgeColor(IO::Path("Renderer/Colors/Locked edges"), Color(0.13f, 0.3f,  1.0f,  1.0f));
         Preference<Color> UndefinedEntityColor(IO::Path("Renderer/Colors/Undefined entity"), Color(0.5f,  0.5f,  0.5f,  1.0f));
         
@@ -78,9 +78,9 @@ namespace TrenchBroom {
         Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
         Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);
         Preference<Color> HandleColor(IO::Path("Renderer/Colors/Handle"), Color(248, 230, 60, 1.0f));
-        Preference<Color> OccludedHandleColor(IO::Path("Renderer/Colors/Occluded handle"), Color(248, 230, 60, 0.5f));
+        Preference<Color> OccludedHandleColor(IO::Path("Renderer/Colors/Occluded handle"), Color(248, 230, 60, 0.4f));
         Preference<Color> SelectedHandleColor(IO::Path("Renderer/Colors/Selected handle"), Color(1.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> OccludedSelectedHandleColor(IO::Path("Renderer/Colors/Occluded selected handle"), Color(1.0f, 0.0f, 0.0f, 0.5f));
+        Preference<Color> OccludedSelectedHandleColor(IO::Path("Renderer/Colors/Occluded selected handle"), Color(1.0f, 0.0f, 0.0f, 0.4f));
         
         Preference<Color> ClipHandleColor(IO::Path("Renderer/Colors/Clip handle"), Color(1.0f, 0.5f, 0.0f, 1.0f));
         Preference<Color> ClipFaceColor(IO::Path("Renderer/Colors/Clip face"), Color(0.6f,  0.4f, 0.0f, 0.35f));
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(248, 230, 60, 1.0f));
         
         Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.6f));
+        Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.4f));
         
         Preference<Color> MoveIndicatorOutlineColor(IO::Path("Renderer/Colors/Move indicator outline"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> MoveIndicatorFillColor(IO::Path("Renderer/Colors/Move indicator fill"), Color(0.0f, 0.0f, 0.0f, 0.5f));
