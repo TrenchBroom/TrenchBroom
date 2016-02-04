@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         
-        class MoveObjectsTool : public Tool, public MoveToolDelegate {
+        class MoveObjectsTool : public Tool {
         private:
             MapDocumentWPtr m_document;
             bool m_duplicateObjects;

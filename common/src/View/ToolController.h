@@ -207,7 +207,7 @@ namespace TrenchBroom {
         private:
             bool updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint);
         private: // subclassing interface
-            virtual bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) = 0;
+            virtual bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const = 0;
             virtual void doDragStarted(const InputState& inputState, const Vec3& initialPoint) = 0;
             virtual bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
             virtual void doDragEnded(const InputState& inputState) = 0;
