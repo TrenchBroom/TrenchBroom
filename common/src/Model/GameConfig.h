@@ -109,6 +109,8 @@ namespace TrenchBroom {
             const FaceAttribsConfig& faceAttribsConfig() const;
             const BrushContentType::List& brushContentTypes() const;
             const IO::Path findConfigFile(const IO::Path& filePath) const;
+            
+            void addBrushContentType(const BrushContentType& contentType);
         };
     }
 }

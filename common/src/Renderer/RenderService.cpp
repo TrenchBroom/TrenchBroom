@@ -37,6 +37,24 @@ namespace TrenchBroom {
             return Renderer::FontDescriptor(pref(Preferences::RendererFontPath()), static_cast<size_t>(pref(Preferences::RendererFontSize)));
         }
         
+        class RenderService::HeadsUpTextAnchor : public TextAnchor {
+        private:
+            Vec3f offset(const Camera& camera, const Vec2f& size) const {
+                Vec3f off = getOffset(camera);
+                return Vec3f(off.x() - size.x() / 2.0f, off.y() - size.y(), off.z());
+            }
+            
+            Vec3f position(const Camera& camera) const {
+                return camera.unproject(getOffset(camera));
+            }
+            
+            Vec3f getOffset(const Camera& camera) const {
+                const float w(camera.unzoomedViewport().width);
+                const float h(camera.unzoomedViewport().height);
+                return Vec3f(w / 2.0f, h - 20.0f, 0.0f);
+            }
+        };
+        
         RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch) :
         m_renderContext(renderContext),
         m_renderBatch(renderBatch),
@@ -77,6 +95,10 @@ namespace TrenchBroom {
 
         void RenderService::renderStringOnTop(const AttrString& string, const TextAnchor& position) {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
+        }
+
+        void RenderService::renderHeadsUp(const AttrString& string) {
+            m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {

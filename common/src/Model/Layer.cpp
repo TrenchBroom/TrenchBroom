@@ -155,6 +155,15 @@ namespace TrenchBroom {
             }
         }
         
+        void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            const Model::NodeList candidates = m_octree.findObjects(point);
+            NodeList::const_iterator it, end;
+            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+                Node* node = *it;
+                node->findNodesContaining(point, result);
+            }
+        }
+
         FloatType Layer::doIntersectWithRay(const Ray3& ray) const {
             return Math::nan<FloatType>();
         }

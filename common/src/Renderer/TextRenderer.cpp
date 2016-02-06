@@ -68,7 +68,7 @@ namespace TrenchBroom {
         void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, const bool onTop) {
             
             const Camera& camera = renderContext.camera();
-            const float distance = camera.perpendicularDistanceTo(position.position());
+            const float distance = camera.perpendicularDistanceTo(position.position(camera));
             if (distance <= 0.0f)
                 return;
             

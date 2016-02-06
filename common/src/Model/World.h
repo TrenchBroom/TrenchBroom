@@ -68,6 +68,7 @@ namespace TrenchBroom {
             bool doRemoveIfEmpty() const;
             bool doSelectable() const;
             void doPick(const Ray3& ray, PickResult& pickResult) const;
+            void doFindNodesContaining(const Vec3& point, NodeList& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);

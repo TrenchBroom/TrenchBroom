@@ -198,6 +198,10 @@ namespace TrenchBroom {
             return win;
         }
 
+        Vec3f Camera::unproject(const Vec3f& point) const {
+            return unproject(point.x(), point.y(), point.z());
+        }
+
         Vec3f Camera::unproject(const float x, const float y, const float depth) const {
             if (!m_valid)
                 validateMatrices();

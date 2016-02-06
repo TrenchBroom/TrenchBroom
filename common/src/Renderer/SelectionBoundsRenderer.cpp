@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class SelectionBoundsRenderer::SizeTextAnchor2D : public TextAnchor {
+        class SelectionBoundsRenderer::SizeTextAnchor2D : public TextAnchor3D {
         private:
             const BBox3& m_bounds;
             const Math::Axis::Type m_axis;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             }
         };
         
-        class SelectionBoundsRenderer::SizeTextAnchor3D : public TextAnchor {
+        class SelectionBoundsRenderer::SizeTextAnchor3D : public TextAnchor3D {
         private:
             const BBox3& m_bounds;
             const Math::Axis::Type m_axis;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             }
         };
         
-        class SelectionBoundsRenderer::MinMaxTextAnchor3D : public TextAnchor {
+        class SelectionBoundsRenderer::MinMaxTextAnchor3D : public TextAnchor3D {
         private:
             const BBox3& m_bounds;
             const BBox3::Corner m_minMax;

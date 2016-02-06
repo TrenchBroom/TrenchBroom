@@ -180,6 +180,20 @@ namespace TrenchBroom {
             }
         }
         
+        void Entity::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            if (hasChildren()) {
+                const NodeList& children = Node::children();
+                NodeList::const_iterator it, end;
+                for (it = children.begin(), end = children.end(); it != end; ++it) {
+                    Node* child = *it;
+                    child->findNodesContaining(point, result);
+                }
+            } else {
+                if (bounds().contains(point))
+                    result.push_back(this);
+            }
+        }
+
         FloatType Entity::doIntersectWithRay(const Ray3& ray) const {
             if (hasChildren()) {
                 const BBox3& myBounds = bounds();

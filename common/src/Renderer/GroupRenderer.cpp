@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class GroupRenderer::GroupNameAnchor : public TextAnchor {
+        class GroupRenderer::GroupNameAnchor : public TextAnchor3D {
         private:
             const Model::Group* m_group;
         public:

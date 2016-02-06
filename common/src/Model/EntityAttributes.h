@@ -58,6 +58,7 @@ namespace TrenchBroom {
             extern const AttributeName GroupId;
             extern const AttributeName GroupName;
             extern const AttributeName Group;
+            extern const AttributeName Message;
         }
         
         namespace AttributeValues {

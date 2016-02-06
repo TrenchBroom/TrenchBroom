@@ -39,6 +39,8 @@ namespace TrenchBroom {
         
         class RenderService {
         private:
+            class HeadsUpTextAnchor;
+            
             RenderContext& m_renderContext;
             RenderBatch& m_renderBatch;
             TextRenderer* m_textRenderer;
@@ -60,6 +62,7 @@ namespace TrenchBroom {
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderStringOnTop(const AttrString& string, const Vec3f& position);
             void renderStringOnTop(const AttrString& string, const TextAnchor& position);
+            void renderHeadsUp(const AttrString& string);
             
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);

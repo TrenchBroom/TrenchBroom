@@ -37,9 +37,16 @@ namespace TrenchBroom {
         
         class TextAnchor {
         public:
-            virtual ~TextAnchor() {}
+            virtual ~TextAnchor();
+            virtual Vec3f offset(const Camera& camera, const Vec2f& size) const = 0;
+            virtual Vec3f position(const Camera& camera) const = 0;
+        };
+        
+        class TextAnchor3D : public TextAnchor {
+        public:
+            virtual ~TextAnchor3D();
             Vec3f offset(const Camera& camera, const Vec2f& size) const;
-            Vec3f position() const;
+            Vec3f position(const Camera& camera) const;
         private:
             Vec2f alignmentFactors(TextAlignment::Type a) const;
         private:
@@ -48,7 +55,7 @@ namespace TrenchBroom {
             virtual Vec2f extraOffsets(TextAlignment::Type a, const Vec2f& size) const;
         };
         
-        class SimpleTextAnchor : public TextAnchor {
+        class SimpleTextAnchor : public TextAnchor3D {
         private:
             Vec3f m_position;
             TextAlignment::Type m_alignment;

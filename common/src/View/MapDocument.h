@@ -331,6 +331,7 @@ namespace TrenchBroom {
             void commitPendingAssets();
         public: // picking
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
+            Model::NodeList findNodesContaining(const Vec3& point) const;
         private: // world management
             void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
             void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

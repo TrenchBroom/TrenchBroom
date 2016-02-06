@@ -42,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class EntityRenderer::EntityClassnameAnchor : public TextAnchor {
+        class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D {
         private:
             const Model::Entity* m_entity;
         public:
@@ -205,11 +205,10 @@ namespace TrenchBroom {
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
-                        const EntityClassnameAnchor anchor(entity);
                         if (m_showOccludedOverlays)
-                            renderService.renderStringOnTop(entityString(entity), anchor);
+                            renderService.renderStringOnTop(entityString(entity), EntityClassnameAnchor(entity));
                         else
-                            renderService.renderString(entityString(entity), anchor);
+                            renderService.renderString(entityString(entity), EntityClassnameAnchor(entity));
                     }
                 }
             }

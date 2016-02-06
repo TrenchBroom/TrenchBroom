@@ -1000,6 +1000,11 @@ namespace TrenchBroom {
             }
         }
         
+        void Brush::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            if (containsPoint(point))
+                result.push_back(this);
+        }
+
         FloatType Brush::doIntersectWithRay(const Ray3& ray) const {
             const BrushFaceHit hit = findFaceHit(ray);
             return hit.distance;

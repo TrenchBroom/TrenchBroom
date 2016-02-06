@@ -1059,6 +1059,13 @@ namespace TrenchBroom {
                 m_world->pick(pickRay, pickResult);
         }
         
+        Model::NodeList MapDocument::findNodesContaining(const Vec3& point) const {
+            Model::NodeList result;
+            if (m_world != NULL)
+                m_world->findNodesContaining(point, result);
+            return result;
+        }
+
         void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
             m_worldBounds = worldBounds;
             m_game = game;

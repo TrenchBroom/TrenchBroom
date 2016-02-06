@@ -180,6 +180,15 @@ namespace TrenchBroom {
             }
         }
         
+        void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            const NodeList& children = Node::children();
+            NodeList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                Node* child = *it;
+                child->findNodesContaining(point, result);
+            }
+        }
+
         FloatType World::doIntersectWithRay(const Ray3& ray) const {
             return Math::nan<FloatType>();
         }

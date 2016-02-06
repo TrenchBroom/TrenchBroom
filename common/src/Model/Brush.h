@@ -198,6 +198,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             void doPick(const Ray3& ray, PickResult& pickResult) const;
+            void doFindNodesContaining(const Vec3& point, NodeList& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
 
             struct BrushFaceHit {

@@ -509,6 +509,10 @@ namespace TrenchBroom {
             doPick(ray, pickResult);
         }
         
+        void Node::findNodesContaining(const Vec3& point, NodeList& result) {
+            doFindNodesContaining(point, result);
+        }
+
         FloatType Node::intersectWithRay(const Ray3& ray) const {
             return doIntersectWithRay(ray);
         }

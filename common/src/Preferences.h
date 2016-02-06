@@ -52,6 +52,9 @@ namespace TrenchBroom {
         
         extern Preference<Color> DefaultGroupColor;
         
+        extern Preference<Color> TutorialOverlayTextColor;
+        extern Preference<Color> TutorialOverlayBackgroundColor;
+        
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
         extern Preference<Color> LockedFaceColor;

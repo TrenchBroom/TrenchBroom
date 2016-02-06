@@ -77,6 +77,11 @@ namespace TrenchBroom {
             void renderLocked(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
             
+            class MatchTutorialEntities;
+            class FilterTutorialEntities;
+            class CollectTutorialEntitiesVisitor;
+            void renderTutorialMessages(RenderContext& renderContext, RenderBatch& renderBatch);
+            
             void setupRenderers();
             void setupDefaultRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);

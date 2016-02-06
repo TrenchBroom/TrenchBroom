@@ -23,19 +23,24 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
+#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Tutorial.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/Camera.h"
 #include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "View/Selection.h"
 #include "View/MapDocument.h"
@@ -162,6 +167,7 @@ namespace TrenchBroom {
             renderLocked(renderContext, renderBatch);
             renderSelection(renderContext, renderBatch);
             renderEntityLinks(renderContext, renderBatch);
+            renderTutorialMessages(renderContext, renderBatch);
         }
         
         void MapRenderer::commitPendingChanges() {
@@ -203,6 +209,57 @@ namespace TrenchBroom {
             m_entityLinkRenderer->render(renderContext, renderBatch);
         }
         
+        class MapRenderer::MatchTutorialEntities {
+        private:
+            const Assets::EntityDefinition* m_definition;
+        public:
+            MatchTutorialEntities(const Assets::EntityDefinition* definition) :
+            m_definition(definition) {}
+            
+            bool operator()(const Model::Brush* brush) {
+                return brush->entity() != NULL && brush->entity()->definition() == m_definition;
+            }
+            
+            bool operator()(const Model::Node* node) { return false; }
+        };
+        
+        class MapRenderer::FilterTutorialEntities : public Model::FilteringNodeCollectionStrategy<Model::UniqueNodeCollectionStrategy> {
+        private:
+            Model::Node* getNode(Model::Brush* brush) const { return brush->entity();  }
+        };
+        
+        class MapRenderer::CollectTutorialEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchTutorialEntities, FilterTutorialEntities> {
+        public:
+            CollectTutorialEntitiesVisitor(const Assets::EntityDefinition* definition) :
+            CollectMatchingNodesVisitor(MatchTutorialEntities(definition)) {}
+        };
+        
+        void MapRenderer::renderTutorialMessages(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (renderContext.render3D()) {
+                View::MapDocumentSPtr document = lock(m_document);
+                const Assets::EntityDefinition* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
+                const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
+                if (!nodes.empty()) {
+                    CollectTutorialEntitiesVisitor collect(definition);
+                    Model::Node::accept(nodes.begin(), nodes.end(), collect);
+                    
+                    const Model::NodeList entities = collect.nodes();
+                    
+                    RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
+                    renderService.setBackgroundColor(pref(Preferences::TutorialOverlayBackgroundColor));
+                    
+                    Model::NodeList::const_iterator it, end;
+                    for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                        const Model::Entity* entity = static_cast<Model::Entity*>(*it);
+                        const Model::AttributeValue& message = entity->attribute(Model::Tutorial::Message);
+                        if (!message.empty())
+                            renderService.renderHeadsUp(message);
+                    }
+                }
+            }
+        }
+
         void MapRenderer::setupRenderers() {
             setupDefaultRenderer(m_defaultRenderer);
             setupSelectionRenderer(m_selectionRenderer);

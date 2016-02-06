@@ -33,17 +33,17 @@ namespace TrenchBroom {
         class NodeCollectionStrategy {
         protected:
             NodeList m_nodes;
-        protected:
-            virtual void addNode(Node* node) = 0;
         public:
             virtual ~NodeCollectionStrategy();
+            
+            virtual void addNode(Node* node) = 0;
             const NodeList& nodes() const;
         };
         
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
         public:
             virtual ~StandardNodeCollectionStrategy();
-        protected:
+        public:
             void addNode(Node* node);
         };
         
@@ -52,11 +52,40 @@ namespace TrenchBroom {
             NodeSet m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy();
-        protected:
+        public:
             void addNode(Node* node);
         };
+
+        template <class D>
+        class FilteringNodeCollectionStrategy {
+        private:
+            D m_delegate;
+        public:
+            virtual ~FilteringNodeCollectionStrategy() {}
+            
+            const NodeList& nodes() const {
+                return m_delegate.nodes();
+            }
+            
+            template <typename T>
+            void addNode(T* node) {
+                Node* actual = getNode(node);
+                if (actual != NULL)
+                    m_delegate.addNode(actual);
+            }
+        private:
+            virtual Node* getNode(World* world) const   { return world;  }
+            virtual Node* getNode(Layer* layer) const   { return layer;  }
+            virtual Node* getNode(Group* group) const   { return group;  }
+            virtual Node* getNode(Entity* entity) const { return entity; }
+            virtual Node* getNode(Brush* brush) const   { return brush;  }
+        };
         
-        template <typename P, typename C = StandardNodeCollectionStrategy, typename S = NeverStopRecursion>
+        template <
+            typename P,
+            typename C = StandardNodeCollectionStrategy,
+            typename S = NeverStopRecursion
+        >
         class CollectMatchingNodesVisitor : public C, public MatchingNodeVisitor<P,S> {
         public:
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}

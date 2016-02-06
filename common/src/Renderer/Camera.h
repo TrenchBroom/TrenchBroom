@@ -121,6 +121,7 @@ namespace TrenchBroom {
 
             float perspectiveScalingFactor(const Vec3f& position) const;
             Vec3f project(const Vec3f& point) const;
+            Vec3f unproject(const Vec3f& point) const;
             Vec3f unproject(float x, float y, float depth) const;
             
             void setNearPlane(float nearPlane);
