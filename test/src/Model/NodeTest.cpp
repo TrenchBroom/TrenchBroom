@@ -79,6 +79,10 @@ namespace TrenchBroom {
                 mockDoPick(ray, pickResult);
             }
             
+            void doFindNodesContaining(const Vec3& point, NodeList& result) {
+                mockDoFindNodesContaining(point, result);
+            }
+
             FloatType doIntersectWithRay(const Ray3& ray) const {
                 return mockDoIntersectWithRay(ray);
             }
@@ -103,6 +107,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorDidChange, void());
             
             MOCK_CONST_METHOD2(mockDoPick, void(const Ray3&, PickResult&));
+            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const Vec3&, NodeList&));
             MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const Ray3&));
             
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
@@ -147,6 +152,7 @@ namespace TrenchBroom {
             virtual void doAncestorDidChange() {}
             
             virtual void doPick(const Ray3& ray, PickResult& pickResult) const {}
+            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) {}
             virtual FloatType doIntersectWithRay(const Ray3& ray) const { return Math::nan<FloatType>(); }
 
             virtual void doAccept(NodeVisitor& visitor) {}
