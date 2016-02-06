@@ -20,6 +20,7 @@
 #include "ToolController.h"
 
 #include "View/InputState.h"
+#include "View/Grid.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
@@ -52,54 +53,6 @@ namespace TrenchBroom {
         void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
         void NoMouseDragPolicy::doCancelMouseDrag() {}
         
-        DelegatingMouseDragPolicy::DelegatingMouseDragPolicy() :
-        m_delegate(NULL) {}
-        
-        DelegatingMouseDragPolicy::~DelegatingMouseDragPolicy() {}
-
-        bool DelegatingMouseDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            assert(m_delegate == NULL);
-            m_delegate = doCreateDelegate(inputState);
-            if (m_delegate == NULL)
-                return false;
-            
-            if (m_delegate->doStartMouseDrag(inputState)) {
-                doMouseDragStarted();
-                return true;
-            }
-            return false;
-        }
-        
-        bool DelegatingMouseDragPolicy::doMouseDrag(const InputState& inputState) {
-            assert(m_delegate != NULL);
-            if (m_delegate->doMouseDrag(inputState)) {
-                doMouseDragged();
-                return true;
-            }
-            return false;
-        }
-        
-        void DelegatingMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            assert(m_delegate != NULL);
-            m_delegate->doEndMouseDrag(inputState);
-            doMouseDragEnded();
-            doDeleteDelegate(m_delegate);
-            m_delegate = NULL;
-        }
-        
-        void DelegatingMouseDragPolicy::doCancelMouseDrag() {
-            assert(m_delegate != NULL);
-            m_delegate->doCancelMouseDrag();
-            doMouseDragCancelled();
-            doDeleteDelegate(m_delegate);
-            m_delegate = NULL;
-        }
-
-        void DelegatingMouseDragPolicy::doMouseDragStarted() {}
-        void DelegatingMouseDragPolicy::doMouseDragged() {}
-        void DelegatingMouseDragPolicy::doMouseDragEnded() {}
-        void DelegatingMouseDragPolicy::doMouseDragCancelled() {}
-
         DragRestricter::~DragRestricter() {}
 
         bool DragRestricter::hitPoint(const InputState& inputState, Vec3& point) const {
@@ -211,12 +164,56 @@ namespace TrenchBroom {
             return true;
         }
 
+        DragSnapper::~DragSnapper() {}
+        
+        bool DragSnapper::snap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            return doSnap(inputState, lastPoint, curPoint);
+        }
+        
+        bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            return true;
+        }
+
+        DeltaDragSnapper::DeltaDragSnapper(const Grid& grid) :
+        m_grid(grid) {}
+
+        bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            curPoint = lastPoint + m_grid.snap(curPoint - lastPoint);
+            return true;
+        }
+
+        RestrictedDragPolicy::DragInfo::DragInfo() :
+        restricter(NULL) {}
+        
+        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper) :
+        restricter(i_restricter),
+        snapper(i_snapper),
+        setInitialPoint(false) {
+            assert(restricter != NULL);
+            assert(snapper != NULL);
+        }
+
+        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialPoint) :
+        restricter(i_restricter),
+        snapper(i_snapper),
+        setInitialPoint(true),
+        initialPoint(i_initialPoint) {
+            assert(restricter != NULL);
+            assert(snapper != NULL);
+        }
+
+        bool RestrictedDragPolicy::DragInfo::skip() const {
+            return restricter == NULL;
+        }
+
         RestrictedDragPolicy::RestrictedDragPolicy() :
         m_restricter(NULL),
-        m_restrictOnNextEvent(false) {}
+        m_snapper(NULL) {}
         
+
         RestrictedDragPolicy::~RestrictedDragPolicy() {
             deleteRestricter();
+            deleteSnapper();
         }
 
         void RestrictedDragPolicy::deleteRestricter() {
@@ -224,83 +221,93 @@ namespace TrenchBroom {
             m_restricter = NULL;
         }
 
+        void RestrictedDragPolicy::deleteSnapper() {
+            delete m_snapper;
+            m_snapper = NULL;
+        }
+
         bool RestrictedDragPolicy::dragging() const {
             return m_restricter != NULL;
         }
 
+        const Vec3& RestrictedDragPolicy::initialPoint() const {
+            assert(dragging());
+            return m_initialPoint;
+        }
+
         bool RestrictedDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            if (!doShouldStartDrag(inputState, m_initialPoint))
+            const DragInfo info = doStartDrag(inputState);
+            if (info.skip())
                 return false;
             
-            if (!updateRestricter(inputState, m_initialPoint, m_initialPoint))
-                return false;
-
+            m_restricter = info.restricter;
+            m_snapper = info.snapper;
+            
+            if (info.setInitialPoint) {
+                m_initialPoint = info.initialPoint;
+            } else {
+                if (!m_restricter->hitPoint(inputState, m_initialPoint)) {
+                    deleteRestricter();
+                    deleteSnapper();
+                    return false;
+                }
+            }
+            
             m_lastPoint = m_initialPoint;
-            doDragStarted(inputState, m_lastPoint);
             return true;
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             assert(m_restricter != NULL);
             
-            if (m_restrictOnNextEvent)
-                resetRestricter(inputState);
-            
             Vec3 curPoint;
-            if (!m_restricter->hitPoint(inputState, curPoint) || !doSnapPoint(inputState, m_lastPoint, curPoint) || curPoint.equals(m_lastPoint))
+            if (!m_restricter->hitPoint(inputState, curPoint) ||
+                !m_snapper->snap(inputState, m_lastPoint, curPoint) ||
+                curPoint.equals(m_lastPoint))
                 return true;
             
-            const bool result = doDragged(inputState, m_lastPoint, curPoint);
+            const bool result = doDrag(inputState, m_lastPoint, curPoint);
             m_lastPoint = curPoint;
             return result;
         }
         
         void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {
             assert(m_restricter != NULL);
-            doDragEnded(inputState);
+            doEndDrag(inputState);
             deleteRestricter();
-            m_restrictOnNextEvent = false;
+            deleteSnapper();
         }
         
         void RestrictedDragPolicy::doCancelMouseDrag() {
             assert(m_restricter != NULL);
-            doDragCancelled();
+            doCancelDrag();
             deleteRestricter();
-            m_restrictOnNextEvent = false;
+            deleteSnapper();
         }
         
-        void RestrictedDragPolicy::resetRestricter(const InputState& inputState) {
-            assert(m_restricter != NULL);
-            Vec3 curPoint;
-            assertResult(m_restricter->hitPoint(inputState, curPoint));
-
-            if (m_initialPoint == curPoint) {
-                m_restrictOnNextEvent = true;
-            } else if (updateRestricter(inputState, m_initialPoint, curPoint)) {
-                m_restrictOnNextEvent = false;
+        void RestrictedDragPolicy::setRestricter(const InputState& inputState, DragRestricter* restricter, const bool resetInitialPoint) {
+            assert(dragging());
+            assert(restricter != NULL);
+            
+            deleteRestricter();
+            m_restricter = restricter;
+            if (resetInitialPoint) {
+                assertResult(m_restricter->hitPoint(inputState, m_initialPoint));
                 doMouseDrag(inputState);
             }
         }
-
-        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
-            return doSnapPoint(inputState, lastPoint, point);
+        
+        void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper) {
+            assert(dragging());
+            assert(snapper != NULL);
+            
+            deleteSnapper();
+            m_snapper = snapper;
         }
 
-        bool RestrictedDragPolicy::updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) {
-            bool resetInitialPoint = false;
-            DragRestricter* restricter = doCreateDragRestricter(inputState, m_initialPoint, m_initialPoint, resetInitialPoint);
-            if (restricter == NULL)
-                return false;
-            
-            if (resetInitialPoint) {
-                if (!restricter->hitPoint(inputState, m_initialPoint))
-                    return false;
-            }
-
-            deleteRestricter();
-            m_restricter = restricter;
-            
-            return true;
+        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
+            assert(dragging());
+            return m_snapper->snap(inputState, lastPoint, point);
         }
 
         RenderPolicy::~RenderPolicy() {}

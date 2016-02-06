@@ -40,45 +40,46 @@ namespace TrenchBroom {
             return m_tool;
         }
         
-        bool CreateSimpleBrushToolController2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return false;
+                return DragInfo();
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-                return false;
+                return DragInfo();
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection())
-                return false;
+                return DragInfo();
             
+            const BBox3& bounds = document->referenceBounds();
             const Renderer::Camera& camera = inputState.camera();
-            const Vec3 planeNorm(camera.direction().firstAxis());
-            plane = Plane3(initialPoint, planeNorm);
+            const Plane3 plane(bounds.min, camera.direction().firstAxis());
             
-            const Ray3& pickRay = inputState.pickRay();
-            initialPoint = pickRay.pointAtDistance(plane.intersectWithRay(pickRay));
+            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return DragInfo();
+            
+            m_initialPoint = inputState.pickRay().pointAtDistance(distance);
+            if (updateBounds(inputState, m_initialPoint))
+                m_tool->refreshViews();
 
-            m_initialPoint = initialPoint;
-            updateBounds(inputState, m_initialPoint);
-            m_tool->refreshViews();
-            
-            return true;
+            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        bool CreateSimpleBrushToolController2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
             if (updateBounds(inputState, curPoint))
                 m_tool->refreshViews();
             return true;
         }
         
-        void CreateSimpleBrushToolController2D::doEndPlaneDrag(const InputState& inputState) {
+        void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
             if (!m_bounds.empty())
                 m_tool->createBrush();
         }
         
-        void CreateSimpleBrushToolController2D::doCancelPlaneDrag() {}
-        
-        void CreateSimpleBrushToolController2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
-        
+        void CreateSimpleBrushToolController2D::doCancelDrag() {
+            m_tool->cancel();
+        }
+
         void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
         void CreateSimpleBrushToolController2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

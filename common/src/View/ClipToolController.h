@@ -61,7 +61,7 @@ namespace TrenchBroom {
             bool doMouseClick(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
 
-            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint);
+            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const;
             void doDragStarted(const InputState& inputState, const Vec3& initialPoint);
             void doDragEnded(const InputState& inputState);
             void doDragCancelled();

@@ -101,28 +101,6 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
         };
         
-        class DelegatingMouseDragPolicy : public MouseDragPolicy {
-        private:
-            MouseDragPolicy* m_delegate;
-        protected:
-            DelegatingMouseDragPolicy();
-        public:
-            virtual ~DelegatingMouseDragPolicy();
-        public:
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
-        private:
-            virtual MouseDragPolicy* doCreateDelegate(const InputState& inputState) = 0;
-            virtual void doDeleteDelegate(MouseDragPolicy* delegate) = 0;
-            
-            virtual void doMouseDragStarted();
-            virtual void doMouseDragged();
-            virtual void doMouseDragEnded();
-            virtual void doMouseDragCancelled();
-        };
-        
         class DragRestricter {
         public:
             virtual ~DragRestricter();
@@ -183,37 +161,74 @@ namespace TrenchBroom {
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
         
+        class DragSnapper {
+        public:
+            virtual ~DragSnapper();
+            
+            bool snap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        private:
+            virtual bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const = 0;
+        };
+        
+        class NoDragSnapper : public DragSnapper {
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        };
+        
+        class Grid;
+        class DeltaDragSnapper {
+        private:
+            const Grid& m_grid;
+        public:
+            DeltaDragSnapper(const Grid& grid);
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        };
+        
         class RestrictedDragPolicy : public MouseDragPolicy {
         private:
             DragRestricter* m_restricter;
+            DragSnapper* m_snapper;
             Vec3 m_initialPoint;
             Vec3 m_lastPoint;
-            bool m_restrictOnNextEvent;
+        protected:
+            struct DragInfo {
+                DragRestricter* restricter;
+                DragSnapper* snapper;
+                bool setInitialPoint;
+                Vec3 initialPoint;
+                
+                DragInfo();
+                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper);
+                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialPoint);
+
+                bool skip() const;
+            };
         public:
             RestrictedDragPolicy();
             virtual ~RestrictedDragPolicy();
         private:
             void deleteRestricter();
-        protected:
+            void deleteSnapper();
+        private:
             bool dragging() const;
+        protected:
+            const Vec3& initialPoint() const;
         public:
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
 
-            void resetRestricter(const InputState& inputState);
+            void setRestricter(const InputState& inputState, DragRestricter* restricter, bool resetInitialPoint);
+            void setSnapper(const InputState& inputState, DragSnapper* snapper);
+            
             bool snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
-        private:
-            bool updateRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint);
         private: // subclassing interface
-            virtual bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const = 0;
-            virtual void doDragStarted(const InputState& inputState, const Vec3& initialPoint) = 0;
-            virtual bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
-            virtual void doDragEnded(const InputState& inputState) = 0;
-            virtual void doDragCancelled() = 0;
-            virtual bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const = 0;
-            virtual DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint) = 0;
+            virtual DragInfo doStartDrag(const InputState& inputState) = 0;
+            virtual bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual void doEndDrag(const InputState& inputState) = 0;
+            virtual void doCancelDrag() = 0;
         };
         
         class RenderPolicy {

@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class CreateSimpleBrushTool;
         class Grid;
         
-        class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
@@ -39,11 +39,10 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            DragInfo doStartDrag(const InputState& inputState);
+            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            void doEndDrag(const InputState& inputState);
+            void doCancelDrag();
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

@@ -49,60 +49,58 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
-            if (dragging())
-                resetPlane(inputState);
+            if (dragging()) {
+                Plane3 plane;
+                if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                    Vec3 planeNorm = inputState.pickRay().direction;
+                    planeNorm[2] = 0.0;
+                    planeNorm.normalize();
+                    plane = Plane3(initialPoint(), planeNorm);
+                } else {
+                    plane = horizontalDragPlane(initialPoint());
+                }
+                
+                setRestricter(inputState, new PlaneDragRestricter(plane), true);
+            }
         }
 
-        bool CreateSimpleBrushToolController3D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController3D::doStartDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return false;
+                return DragInfo();
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-                return false;
+                return DragInfo();
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection())
-                return false;
-
+                return DragInfo();
+            
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch())
-                m_initialPoint = initialPoint = hit.hitPoint();
+                m_initialPoint = hit.hitPoint();
             else
-                m_initialPoint = initialPoint = inputState.defaultPointUnderMouse();
-            
-            plane = Plane3(initialPoint, Vec3::PosZ);
+                m_initialPoint = inputState.defaultPointUnderMouse();
             
             updateBounds(m_initialPoint);
-            return true;
+            refreshViews();
+                
+            
+            const Plane3 plane = Plane3(m_initialPoint, Vec3::PosZ);
+            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
-
-        bool CreateSimpleBrushToolController3D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        
+        bool CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
             updateBounds(curPoint);
+            refreshViews();
             return true;
         }
-
-        void CreateSimpleBrushToolController3D::doEndPlaneDrag(const InputState& inputState) {
+        
+        void CreateSimpleBrushToolController3D::doEndDrag(const InputState& inputState) {
             m_tool->createBrush();
         }
-
-        void CreateSimpleBrushToolController3D::doCancelPlaneDrag() {
+        
+        void CreateSimpleBrushToolController3D::doCancelDrag() {
             m_tool->cancel();
-        }
-
-        void CreateSimpleBrushToolController3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
-                return;
-            initialPoint = inputState.pickRay().pointAtDistance(distance);
-            
-            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                Vec3 planeNorm = inputState.pickRay().direction;
-                planeNorm[2] = 0.0;
-                planeNorm.normalize();
-                plane = Plane3(initialPoint, planeNorm);
-            } else {
-                plane = horizontalDragPlane(initialPoint);
-            }
         }
 
         void CreateSimpleBrushToolController3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}

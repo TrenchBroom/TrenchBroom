@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return doSetClipPlane(inputState);
         }
         
-        bool ClipToolController::doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) {
+        bool ClipToolController::doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
