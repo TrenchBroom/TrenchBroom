@@ -103,14 +103,13 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            const Grid& grid = lock(m_document)->grid();
-            m_clipToolController = new ClipToolController2D(toolBox.clipTool(), grid);
+            m_clipToolController = new ClipToolController2D(toolBox.clipTool());
             m_createEntityToolController = new CreateEntityToolController2D(toolBox.createEntityTool());
             m_createSimpleBrushToolController = new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document);
-            m_moveObjectsToolController = new MoveObjectsToolController2D(toolBox.moveObjectsTool());
+            m_moveObjectsToolController = new MoveObjectsToolController(toolBox.moveObjectsTool());
             m_resizeBrushesToolController = new ResizeBrushesToolController2D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolController = new RotateObjectsToolController2D(toolBox.rotateObjectsTool());
-            m_vertexToolController = new VertexToolController2D(toolBox.vertexTool());
+            m_vertexToolController = new VertexToolController(toolBox.vertexTool());
             m_cameraTool = new CameraTool2D(m_camera);
             
             addTool(m_cameraTool);

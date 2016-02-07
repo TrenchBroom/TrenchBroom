@@ -166,11 +166,45 @@ namespace TrenchBroom {
             return true;
         }
 
+        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid) :
+        m_grid(grid) {}
+
+        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            curPoint = m_grid.snap(curPoint);
+            return true;
+        }
+
         DeltaDragSnapper::DeltaDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
         bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
             curPoint = lastPoint + m_grid.snap(curPoint - lastPoint);
+            return true;
+        }
+
+        CircleDragSnapper::CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, const FloatType radius) :
+        m_grid(grid),
+        m_start(start),
+        m_center(center),
+        m_normal(normal),
+        m_radius(radius) {
+            assert(m_start != m_center);
+            assert(m_normal.isNormalized());
+            assert(m_radius > 0.0);
+        }
+
+        bool CircleDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            if (curPoint == m_center)
+                return false;
+            
+            const Vec3 ref = (m_start - m_center).normalized();
+            const Vec3 vec = (curPoint - m_center).normalized();
+            const FloatType angle = angleBetween(vec, ref, m_normal);
+            const FloatType snapped = m_grid.snapAngle(angle);
+            const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());
+            const Quat3 rotation(m_normal, canonical);
+            const Vec3 rot = rotation * ref;
+            curPoint = m_center + m_radius * rot;
             return true;
         }
 
@@ -182,7 +216,8 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 return false;
 
-            assert(false); // todo implement this
+            const Plane3& plane = doGetPlane(inputState, hit);
+            curPoint = m_grid.snap(hit.hitPoint(), plane);
             return true;
         }
 
@@ -287,11 +322,13 @@ namespace TrenchBroom {
                 snappedPoint.equals(m_lastPoint))
                 return true;
             
-            if (doDrag(inputState, m_lastPoint, snappedPoint)) {
+            const DragResult result = doDrag(inputState, m_lastPoint, snappedPoint);
+            if (result == DR_Cancel)
+                return false;
+            
+            if (result == DR_Continue)
                 m_lastPoint = snappedPoint;
-                return true;
-            }
-            return false;
+            return true;
         }
         
         void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {

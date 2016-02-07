@@ -52,6 +52,10 @@ namespace TrenchBroom {
         m_ignoreChangeNotifications(false),
         m_dragging(false) {}
 
+        const Grid& VertexTool::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             m_handleManager.pick(pickRay, camera, pickResult, m_mode == Mode_Split);
         }
@@ -147,7 +151,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool VertexTool::move(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
             return moveVertices(delta);
         }
 
@@ -364,7 +368,7 @@ namespace TrenchBroom {
             return "Split Face";
         }
         
-        bool VertexTool::moveVertices(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
             if (m_mode == Mode_Move) {
                 assert((m_handleManager.selectedVertexCount() > 0) ^
                        (m_handleManager.selectedEdgeCount() > 0) ^
@@ -387,50 +391,57 @@ namespace TrenchBroom {
                     return doSplitFaces(delta);
                 }
             }
-            return true;
+            return MR_Continue;
         }
         
-        bool VertexTool::doMoveVertices(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const MapDocument::MoveVerticesResult result = document->moveVertices(m_handleManager.selectedVertexHandles(), delta);
             if (result.success) {
                 if (!result.hasRemainingVertices)
-                    return false;
+                    return MR_Cancel;
                 m_dragHandlePosition += delta;
+                return MR_Continue;
             }
-            return true;
+            return MR_Deny;
         }
         
-        bool VertexTool::doMoveEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->moveEdges(m_handleManager.selectedEdgeHandles(), delta))
+            if (document->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_dragHandlePosition += delta;
-            return true;
+                return MR_Continue;
+            }
+            return MR_Deny;
         }
         
-        bool VertexTool::doMoveFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->moveFaces(m_handleManager.selectedFaceHandles(), delta))
+            if (document->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_dragHandlePosition += delta;
-            return true;
+                return MR_Continue;
+            }
+            return MR_Deny;
         }
         
-        bool VertexTool::doSplitEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
+                return MR_Continue;
             }
-            return true;
+            return MR_Deny;
         }
         
-        bool VertexTool::doSplitFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
+                return MR_Continue;
             }
-            return true;
+            return MR_Deny;
         }
 
         void VertexTool::rebuildBrushGeometry() {

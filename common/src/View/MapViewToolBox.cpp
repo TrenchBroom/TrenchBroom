@@ -23,6 +23,7 @@
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/CreateSimpleBrushTool.h"
+#include "View/MapDocument.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"

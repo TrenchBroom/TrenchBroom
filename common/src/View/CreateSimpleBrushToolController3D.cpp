@@ -89,10 +89,10 @@ namespace TrenchBroom {
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        bool CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
             updateBounds(curPoint);
             refreshViews();
-            return true;
+            return DR_Continue;
         }
         
         void CreateSimpleBrushToolController3D::doEndDrag(const InputState& inputState) {

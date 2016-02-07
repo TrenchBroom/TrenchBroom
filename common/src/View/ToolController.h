@@ -183,11 +183,34 @@ namespace TrenchBroom {
         };
         
         class Grid;
+        
+        class AbsoluteDragSnapper : public DragSnapper {
+        private:
+            const Grid& m_grid;
+        public:
+            AbsoluteDragSnapper(const Grid& grid);
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        };
+        
         class DeltaDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
         public:
             DeltaDragSnapper(const Grid& grid);
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        };
+        
+        class CircleDragSnapper : public DragSnapper {
+        private:
+            const Grid& m_grid;
+            const Vec3 m_start;
+            const Vec3 m_center;
+            const Vec3 m_normal;
+            const FloatType m_radius;
+        public:
+            CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, FloatType radius);
         private:
             bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
         };
@@ -199,6 +222,8 @@ namespace TrenchBroom {
             SurfaceDragSnapper(const Grid& grid);
         private:
             bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        private:
+            virtual Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
         };
         
         class RestrictedDragPolicy : public MouseDragPolicy {
@@ -222,6 +247,12 @@ namespace TrenchBroom {
 
                 bool skip() const;
             };
+            
+            typedef enum {
+                DR_Continue,
+                DR_Deny,
+                DR_Cancel
+            } DragResult;
         public:
             RestrictedDragPolicy();
             virtual ~RestrictedDragPolicy();
@@ -247,7 +278,7 @@ namespace TrenchBroom {
             bool snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
         private: // subclassing interface
             virtual DragInfo doStartDrag(const InputState& inputState) = 0;
-            virtual bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
             virtual void doEndDrag(const InputState& inputState) = 0;
             virtual void doCancelDrag() = 0;
         };
@@ -448,10 +479,10 @@ namespace TrenchBroom {
             virtual ~ToolControllerGroup();
         protected:
             void addController(ToolController* controller);
-        private:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+        protected:
+            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
-            void doModifierKeyChange(const InputState& inputState);
+            virtual void doModifierKeyChange(const InputState& inputState);
 
             virtual void doMouseDown(const InputState& inputState);
             virtual void doMouseUp(const InputState& inputState);

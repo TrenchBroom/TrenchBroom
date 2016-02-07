@@ -53,7 +53,10 @@ namespace TrenchBroom {
                 move(true),
                 initialPoint(i_initialPoint) {}
             };
+        protected:
+            const Grid& m_grid;
         public:
+            MoveToolController(const Grid& grid) : m_grid(grid) {}
             virtual ~MoveToolController() {}
         protected:
             void doModifierKeyChange(const InputState& inputState) {
@@ -93,7 +96,7 @@ namespace TrenchBroom {
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
-            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
                 return doMove(inputState, lastPoint, curPoint);
             }
             
@@ -141,14 +144,33 @@ namespace TrenchBroom {
             }
         protected: // subclassing interface
             virtual MoveInfo doStartMove(const InputState& inputState) = 0;
-            virtual bool doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
             virtual void doCancelMove() = 0;
             
-            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
-            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
-            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const = 0;
-            virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const = 0;
+            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
+                const Renderer::Camera& camera = inputState.camera();
+                if (camera.perspectiveProjection())
+                    return new PlaneDragRestricter(Plane3(curPoint, Vec3::PosZ));
+                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+            }
+            
+            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
+                const Renderer::Camera& camera = inputState.camera();
+                if (camera.perspectiveProjection())
+                    return new LineDragRestricter(Line3(curPoint, Vec3::PosZ));
+                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+            }
+            
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const {
+                const Vec3 delta = curPoint - initialPoint;
+                const Vec3 axis = delta.firstAxis();
+                return new LineDragRestricter(Line3(initialPoint, axis));
+            }
+            
+            virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                return new DeltaDragSnapper(m_grid);
+            }
         };
     }
 }

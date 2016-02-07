@@ -23,16 +23,8 @@
 #include "Renderer/Compass.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MovementRestriction;
-    }
-    
     namespace Renderer {
         class Compass3D : public Compass {
-        private:
-            const View::MovementRestriction& m_restriction;
-        public:
-            Compass3D(const View::MovementRestriction& restriction);
         private:
             void doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform);
         };

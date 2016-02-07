@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class RotateObjectsHandle;
         class RotateObjectsToolPage;
 
@@ -47,6 +48,8 @@ namespace TrenchBroom {
 
             bool doActivate();
 
+            const Grid& grid() const;
+            
             void updateToolPageAxis(RotateObjectsHandle::HitArea area);
             
             double angle() const;
@@ -56,8 +59,6 @@ namespace TrenchBroom {
             void setRotationCenter(const Vec3& position);
             void resetRotationCenter();
             FloatType handleRadius() const;
-            
-            Vec3 snapRotationCenterMoveDelta(const Vec3& delta) const;
             
             void beginRotation();
             void commitRotation();
@@ -72,8 +73,10 @@ namespace TrenchBroom {
             Vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
             Vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const;
 
-            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
-            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
+            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
+            void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
         private:
             wxWindow* doCreatePage(wxWindow* parent);
             String doGetIconName() const;

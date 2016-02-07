@@ -41,6 +41,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class Selection;
         
         class ClipTool : public Tool {
@@ -119,6 +120,8 @@ namespace TrenchBroom {
             ClipTool(MapDocumentWPtr document);
             ~ClipTool();
             
+            const Grid& grid() const;
+            
             void toggleSide();
             void resetSide();
             
@@ -142,8 +145,7 @@ namespace TrenchBroom {
             void addPoint(const Vec3& point, const Vec3::List& helpVectors);
             bool removeLastPoint();
             
-            bool canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const;
-            void beginDragPoint(const Model::PickResult& pickResult);
+            bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
             bool dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors);
             void endDragPoint();
             void cancelDragPoint();

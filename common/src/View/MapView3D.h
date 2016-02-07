@@ -25,7 +25,6 @@
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/MapViewBase.h"
-#include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -57,7 +56,6 @@ namespace TrenchBroom {
         
         class MapView3D : public MapViewBase {
         private:
-            MovementRestriction m_movementRestriction;
             Renderer::PerspectiveCamera m_camera;
             
             ClipToolController3D* m_clipToolController;
@@ -90,14 +88,8 @@ namespace TrenchBroom {
             
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
-            void key(wxKeyEvent& event);
 
             void OnMouseMotion(wxMouseEvent& event);
-            
-            void OnToggleMovementRestriction(wxCommandEvent& event);
-            void OnSetMovementRestrictionX(wxCommandEvent& event);
-            void OnSetMovementRestrictionY(wxCommandEvent& event);
-            void OnSetMovementRestrictionZ(wxCommandEvent& event);
             
             void OnPerformCreateBrush(wxCommandEvent& event);
 
@@ -115,11 +107,8 @@ namespace TrenchBroom {
         private: // tool mode events
             void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events
-            void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
-        private:
-            void updateVerticalMovementRestriction(const wxKeyboardState& state);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const;
             Model::PickResult doPick(const Ray3& pickRay) const;
@@ -153,8 +142,6 @@ namespace TrenchBroom {
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
-            void doAfterPopupMenu();
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper);
         };

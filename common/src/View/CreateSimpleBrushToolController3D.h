@@ -47,7 +47,7 @@ namespace TrenchBroom {
             void doModifierKeyChange(const InputState& inputState);
 
             DragInfo doStartDrag(const InputState& inputState);
-            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
             void doEndDrag(const InputState& inputState);
             void doCancelDrag();
 

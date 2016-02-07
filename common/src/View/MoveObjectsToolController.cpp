@@ -19,6 +19,12 @@
 
 #include "MoveObjectsToolController.h"
 
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
+#include "Model/Node.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
 
@@ -27,6 +33,7 @@
 namespace TrenchBroom {
     namespace View {
         MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool) :
+        MoveToolController(tool->grid()),
         m_tool(tool) {
             assert(m_tool != NULL);
         }
@@ -38,15 +45,41 @@ namespace TrenchBroom {
         }
 
         MoveObjectsToolController::MoveInfo MoveObjectsToolController::doStartMove(const InputState& inputState) {
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) &&
+                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
+                return MoveInfo();
+            
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().first();
+            if (!hit.isMatch())
+                return MoveInfo();
+            
+            if (!m_tool->startMove(inputState))
+                return MoveInfo();
+            
+            return MoveInfo(hit.hitPoint());
         }
         
-        bool MoveObjectsToolController::doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+        RestrictedDragPolicy::DragResult MoveObjectsToolController::doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            switch (m_tool->move(inputState, curPoint - lastPoint)) {
+                case MoveObjectsTool::MR_Continue:
+                    return DR_Continue;
+                case MoveObjectsTool::MR_Deny:
+                    return DR_Deny;
+                case MoveObjectsTool::MR_Cancel:
+                    return DR_Cancel;
+                switchDefault();
+            }
         }
         
         void MoveObjectsToolController::doEndMove(const InputState& inputState) {
+            m_tool->endMove(inputState);
         }
         
         void MoveObjectsToolController::doCancelMove() {
+            m_tool->cancelMove();
         }
 
         void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
@@ -57,11 +90,5 @@ namespace TrenchBroom {
         bool MoveObjectsToolController::doCancel() {
             return false;
         }
-        
-        MoveObjectsToolController2D::MoveObjectsToolController2D(MoveObjectsTool* tool) :
-        MoveObjectsToolController(tool, new MoveToolDelegator2D(tool)) {}
-        
-        MoveObjectsToolController3D::MoveObjectsToolController3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction) :
-        MoveObjectsToolController(tool, new MoveToolDelegator3D(tool)) {}
     }
 }

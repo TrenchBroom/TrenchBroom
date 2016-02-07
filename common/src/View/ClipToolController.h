@@ -44,14 +44,30 @@ namespace TrenchBroom {
         class InputState;
         class Tool;
         
-        class ClipToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
-        private:
-            typedef ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> Super;
+        class ClipToolController : public ToolControllerGroup {
+        protected:
+            class MoveClipPointBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
+            protected:
+                ClipTool* m_tool;
+                MoveClipPointBase(ClipTool* tool);
+            public:
+                virtual ~MoveClipPointBase();
+            private:
+                Tool* doGetTool();
+                DragInfo doStartDrag(const InputState& inputState);
+                DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+                void doEndDrag(const InputState& inputState);
+                void doCancelDrag();
+                bool doCancel();
+            private:
+                virtual DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint) const = 0;
+                virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const = 0;
+                virtual Vec3::List doGetHelpVectors(const InputState& inputState) const = 0;
+            };
         protected:
             ClipTool* m_tool;
-            const Grid& m_grid;
         protected:
-            ClipToolController(ClipTool* tool, const Grid& grid);
+            ClipToolController(ClipTool* tool);
             virtual ~ClipToolController();
         private:
             Tool* doGetTool();
@@ -59,54 +75,39 @@ namespace TrenchBroom {
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
             bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
 
-            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const;
-            void doDragStarted(const InputState& inputState, const Vec3& initialPoint);
-            void doDragEnded(const InputState& inputState);
-            void doDragCancelled();
-            
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             bool doCancel();
         private: // subclassing interface
             virtual bool doAddClipPoint(const InputState& inputState) = 0;
-            virtual bool doSetClipPlane(const InputState& inputState) = 0;
             virtual void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         class ClipToolController2D : public ClipToolController {
-        public:
-            ClipToolController2D(ClipTool* tool, const Grid& grid);
         private:
-            class PointSnapper;
-
-            bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
-            bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
-            DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint);
-
+            class MoveClipPointPart;
+        public:
+            ClipToolController2D(ClipTool* tool);
+        private:
             bool doAddClipPoint(const InputState& inputState);
-            bool doSetClipPlane(const InputState& inputState);
             void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
         class ClipToolController3D : public ClipToolController {
+        private:
+            static Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint);
+            static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint);
+        private:
+            class MoveClipPointPart;
         public:
-            ClipToolController3D(ClipTool* tool, const Grid& grid);
+            ClipToolController3D(ClipTool* tool);
         private:
-            class PointSnapper;
-            
-            bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
-            bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
-            DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint);
-            
+            bool doMouseDoubleClick(const InputState& inputState);
+
             bool doAddClipPoint(const InputState& inputState);
-            bool doSetClipPlane(const InputState& inputState);
             void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-        private:
-            Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) const;
-            Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) const;
         };
     }
 }

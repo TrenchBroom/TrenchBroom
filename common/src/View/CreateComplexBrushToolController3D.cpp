@@ -84,9 +84,9 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
             
-            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
                 updatePolyhedron(curPoint);
-                return true;
+                return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {}
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
             
-            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
                 assert(m_initialPolyhedron.polygon());
                 
                 const FloatType curDist         = (curPoint - lastPoint).length();
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 m_currentPolyhedron = m_initialPolyhedron;
                 m_currentPolyhedron.addPoints(points);
                 
-                return true;
+                return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {}

@@ -39,11 +39,9 @@ namespace TrenchBroom {
             class VertexPart;
         protected:
             VertexTool* m_tool;
-        private:
-        protected:
-            VertexToolController(VertexTool* tool, MapDocumentWPtr document);
         public:
-            virtual ~VertexToolController();
+            VertexToolController(VertexTool* tool);
+            ~VertexToolController();
         private:
             Tool* doGetTool();
         };

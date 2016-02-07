@@ -426,6 +426,10 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_backBrushes);
         }
         
+        const Grid& ClipTool::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void ClipTool::toggleSide() {
             switch (m_clipSide) {
                 case ClipSide_Front:
@@ -557,15 +561,13 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ClipTool::canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const {
+        bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
             if (m_strategy == NULL)
                 return false;
-            return m_strategy->canDragPoint(pickResult, initialPosition);
-        }
-        
-        void ClipTool::beginDragPoint(const Model::PickResult& pickResult) {
-            assert(m_strategy != NULL);
+            if (!m_strategy->canDragPoint(pickResult, initialPosition))
+                return false;
             m_strategy->beginDragPoint(pickResult);
+            return true;
         }
         
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {

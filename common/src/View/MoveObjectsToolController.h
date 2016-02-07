@@ -36,28 +36,13 @@ namespace TrenchBroom {
             Tool* doGetTool();
 
             MoveInfo doStartMove(const InputState& inputState);
-            bool doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
             void doEndMove(const InputState& inputState);
             void doCancelMove();
             
-            DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
-            DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
-            DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const;
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const;
-
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             
             bool doCancel();
-        };
-        
-        class MoveObjectsToolController2D : public MoveObjectsToolController {
-        public:
-            MoveObjectsToolController2D(MoveObjectsTool* tool);
-        };
-        
-        class MoveObjectsToolController3D : public MoveObjectsToolController {
-        public:
-            MoveObjectsToolController3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction);
         };
     }
 }

@@ -133,7 +133,7 @@ namespace TrenchBroom {
             }
         }
         
-        void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+        void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const Renderer::Camera& camera = renderContext.camera();
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
             Renderer::RenderService renderService(renderContext, renderBatch);
@@ -144,24 +144,9 @@ namespace TrenchBroom {
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderPointHandle(m_position);
             renderService.renderPointHandle(m_position + radius * camera.right());
-
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            switch (highlight) {
-                case RotateObjectsHandle::HitArea_Center:
-                    renderService.renderPointHandleHighlight(m_position);
-                    break;
-                case RotateObjectsHandle::HitArea_XAxis:
-                case RotateObjectsHandle::HitArea_YAxis:
-                case RotateObjectsHandle::HitArea_ZAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * camera.right());
-                    break;
-                case RotateObjectsHandle::HitArea_None:
-                    break;
-                    switchDefault()
-            };
         }
         
-        void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+        void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
 
             Vec3f xAxis, yAxis, zAxis;
@@ -202,8 +187,37 @@ namespace TrenchBroom {
             renderService.setForegroundColor(pref(Preferences::YAxisColor));
             renderService.renderPointHandle(m_position + radius * zAxis);
 
+        }
+
+        void RotateObjectsHandle::renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
+            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            const Renderer::Camera& camera = renderContext.camera();
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            switch (highlight) {
+            switch (area) {
+                case RotateObjectsHandle::HitArea_Center:
+                    renderService.renderPointHandleHighlight(m_position);
+                    break;
+                case RotateObjectsHandle::HitArea_XAxis:
+                case RotateObjectsHandle::HitArea_YAxis:
+                case RotateObjectsHandle::HitArea_ZAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * camera.right());
+                    break;
+                case RotateObjectsHandle::HitArea_None:
+                    break;
+                    switchDefault()
+            };
+        }
+
+        void RotateObjectsHandle::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
+            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            Vec3f xAxis, yAxis, zAxis;
+            computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            switch (area) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));

@@ -65,10 +65,10 @@ namespace TrenchBroom {
                 return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
             }
             
-            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
                 assert(m_lasso != NULL);
                 m_lasso->setPoint(curPoint);
-                return true;
+                return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {
@@ -97,11 +97,10 @@ namespace TrenchBroom {
         class VertexToolController::VertexPart : public MoveToolController<PickingPolicy, MousePolicy> {
         private:
             VertexTool* m_tool;
-            const Grid& m_grid;
         public:
-            VertexPart(VertexTool* tool, const Grid& grid) :
-            m_tool(tool),
-            m_grid(grid) {
+            VertexPart(VertexTool* tool) :
+            MoveToolController(tool->grid()),
+            m_tool(tool) {
                 assert(m_tool != NULL);
             }
         private:
@@ -166,8 +165,16 @@ namespace TrenchBroom {
                 return MoveInfo(hit.hitPoint());
             }
             
-            bool doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                return m_tool->move(curPoint - lastPoint);
+            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+                switch (m_tool->move(curPoint - lastPoint)) {
+                    case VertexTool::MR_Continue:
+                        return DR_Continue;
+                    case VertexTool::MR_Deny:
+                        return DR_Deny;
+                    case VertexTool::MR_Cancel:
+                        return DR_Cancel;
+                    switchDefault()
+                }
             }
             
             void doEndMove(const InputState& inputState) {
@@ -178,30 +185,6 @@ namespace TrenchBroom {
                 m_tool->cancelMove();
             }
             
-            DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
-                if (camera.perspectiveProjection())
-                    return new PlaneDragRestricter(Plane3(curPoint, Vec3::PosZ));
-                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
-            }
-            
-            DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
-                if (camera.perspectiveProjection())
-                    return new LineDragRestricter(Line3(curPoint, Vec3::PosZ));
-                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
-            }
-            
-            DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const {
-                const Vec3 delta = curPoint - initialPoint;
-                const Vec3 axis = delta.firstAxis();
-                return new LineDragRestricter(Line3(initialPoint, axis));
-            }
-                
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
-                return new DeltaDragSnapper(m_grid);
-            }
-
             const Model::Hit& firstHit(const Model::PickResult& pickResult) const {
                 static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
                 return pickResult.query().type(any).occluded().first();
@@ -267,11 +250,11 @@ namespace TrenchBroom {
             }
         };
         
-        VertexToolController::VertexToolController(VertexTool* tool, MapDocumentWPtr document) :
+        VertexToolController::VertexToolController(VertexTool* tool) :
         m_tool(tool) {
             assert(m_tool != NULL);
             addController(new LassoPart(tool));
-            addController(new VertexPart(tool, lock(document)->grid()));
+            addController(new VertexPart(tool));
         }
 
         VertexToolController::~VertexToolController() {}

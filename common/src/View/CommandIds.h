@@ -115,11 +115,6 @@ namespace TrenchBroom {
                 const int MoveVerticesUp                     = Lowest +  12;
                 const int MoveVerticesDown                   = Lowest +  13;
 
-                const int ToggleMovementRestriction          = Lowest +  16;
-                const int SetMovementRestrictionX            = Lowest +  17;
-                const int SetMovementRestrictionY            = Lowest +  18;
-                const int SetMovementRestrictionZ            = Lowest +  19;
-
                 const int MoveObjectsForward                 = Lowest +  20;
                 const int MoveObjectsRight                   = Lowest +  21;
                 const int MoveObjectsBackward                = Lowest +  22;
