@@ -33,15 +33,14 @@ namespace TrenchBroom {
         class CreateComplexBrushTool;
         class Grid;
 
-        class CreateComplexBrushToolController3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, DelegatingMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateComplexBrushToolController3D : public ToolControllerGroup {
         private:
+            class Part;
+            class DrawFacePart;
+            class DuplicateFacePart;
+            
             CreateComplexBrushTool* m_tool;
             MapDocumentWPtr m_document;
-            
-            class DragDelegate;
-            class DrawFaceDelegate;
-            class DuplicateFaceDelegate;
-            
             Polyhedron3 m_polyhedron;
         public:
             CreateComplexBrushToolController3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
@@ -53,13 +52,12 @@ namespace TrenchBroom {
             bool doMouseClick(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
             
-            MouseDragPolicy* doCreateDelegate(const InputState& inputState);
-            void doDeleteDelegate(MouseDragPolicy* delegate);
-            
-            void doMouseDragStarted();
-            void doMouseDragged();
+            bool doShouldHandleMouseDrag(const InputState& inputState) const;
+            void doMouseDragStarted(const InputState& inputState);
+            void doMouseDragged(const InputState& inputState);
+            void doMouseDragEnded(const InputState& inputState);
             void doMouseDragCancelled();
-            
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel();

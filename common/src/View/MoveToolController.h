@@ -41,56 +41,33 @@ namespace TrenchBroom {
         class MoveToolController : public ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             typedef ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> Super;
-            
-            Vec3 m_initialPoint;
-            Vec3 m_lastPoint;
+        protected:
+            struct MoveInfo {
+                bool move;
+                Vec3 initialPoint;
+                
+                MoveInfo() :
+                move(false) {}
+                
+                MoveInfo(const Vec3& i_initialPoint) :
+                move(true),
+                initialPoint(i_initialPoint) {}
+            };
         public:
             virtual ~MoveToolController() {}
-        private:
+        protected:
             void doModifierKeyChange(const InputState& inputState) {
-                if (Super::dragging())
-                    Super::resetRestricter(inputState);
-            }
-            
-            bool doShouldStartDrag(const InputState& inputState, Vec3& initialPoint) const {
-                return doShouldStartMove(inputState, initialPoint);
-            }
-            
-            void doDragStarted(const InputState& inputState, const Vec3& initialPoint) {
-                doStartMove(inputState, initialPoint);
-                m_initialPoint = m_lastPoint = initialPoint;
-            }
-            
-            bool doDragged(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                if (doMove(inputState, lastPoint, curPoint)) {
-                    m_lastPoint = curPoint;
-                    return true;
+                if (Super::dragging()) {
+                    const Vec3& initialPoint = RestrictedDragPolicy::initialPoint();
+                    const Vec3& curPoint = RestrictedDragPolicy::curPoint();
+                    if (isVerticalMove(inputState)) {
+                        RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), true);
+                    } else if (isRestrictedMove(inputState)) {
+                        RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
+                    } else {
+                        RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), false);
+                    }
                 }
-                return false;
-            }
-            
-            void doDragEnded(const InputState& inputState) {
-                doEndMove(inputState);
-            }
-            
-            void doDragCancelled() {
-                doCancelMove();
-            }
-            
-            bool doSnapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
-                return doSnapMove(inputState, lastPoint, point);
-            }
-            
-            DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint, bool& resetInitialPoint) {
-                if (isVerticalMove(inputState)) {
-                    resetInitialPoint = true;
-                    return doCreateVerticalDragRestricter(inputState, curPoint);
-                }
-                
-                if (isRestrictedMove(inputState))
-                    return doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint);
-                
-                return doCreateDefaultDragRestricter(inputState, curPoint);
             }
             
             virtual bool isVerticalMove(const InputState& inputState) const {
@@ -101,17 +78,44 @@ namespace TrenchBroom {
                 return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
             }
             
+            RestrictedDragPolicy::DragInfo doStartDrag(const InputState& inputState) {
+                const MoveInfo info = doStartMove(inputState);
+                if (!info.move)
+                    return RestrictedDragPolicy::DragInfo();
+                
+                DragRestricter* restricter = NULL;
+                if (isVerticalMove(inputState))
+                    restricter = doCreateVerticalDragRestricter(inputState, info.initialPoint);
+                else
+                    restricter = doCreateDefaultDragRestricter(inputState, info.initialPoint);
+                
+                DragSnapper* snapper = doCreateDragSnapper(inputState);
+                return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
+            }
+            
+            bool doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+                return doMove(inputState, lastPoint, curPoint);
+            }
+            
+            void doEndDrag(const InputState& inputState) {
+                return doEndMove(inputState);
+            }
+            
+            void doCancelDrag() {
+                return doCancelMove();
+            }
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (Super::dragging())
                     renderMoveTrace(renderContext, renderBatch);
             }
             
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (m_lastPoint != m_initialPoint) {
+                const Vec3 start = RestrictedDragPolicy::dragOrigin();
+                const Vec3 end   = RestrictedDragPolicy::lastPoint();
+                if (end != start) {
                     typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
                     
-                    const Vec3 start = m_initialPoint;
-                    const Vec3 end   = m_lastPoint;
                     const Vec3 vec   = end - start;
                     
                     Vec3::List stages(3);
@@ -135,17 +139,16 @@ namespace TrenchBroom {
                     traceRenderer.renderOnTop(renderBatch);
                 }
             }
-        private: // subclassing interface
-            virtual bool doShouldStartMove(const InputState& inputState, Vec3& initialPoint) const = 0;
-            virtual void doStartMove(const InputState& inputState, const Vec3& initialPoint) = 0;
+        protected: // subclassing interface
+            virtual MoveInfo doStartMove(const InputState& inputState) = 0;
             virtual bool doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
-            virtual void doCancelMove(const InputState& inputState) = 0;
-            virtual bool doSnapMove(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const = 0;
+            virtual void doCancelMove() = 0;
             
             virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
             virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const = 0;
             virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const = 0;
+            virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const = 0;
         };
     }
 }

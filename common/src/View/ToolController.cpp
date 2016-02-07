@@ -19,6 +19,7 @@
 
 #include "ToolController.h"
 
+#include "Model/Brush.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
@@ -100,51 +101,39 @@ namespace TrenchBroom {
             return true;
         }
 
-        /*
-         bool m_pickableSet;
-         bool m_selectedSet;
-         bool m_hitTypeSet;
-         bool m_occludedTypeSet;
-         bool m_minDistanceSet;
-         
-         bool m_pickableValue;
-         bool m_selectedValue;
-         const Model::Hit::HitType m_hitTypeValue;
-         const Model::Hit::HitType m_occludedTypeValue;
-         FloatType m_minDistanceValue;
-         */
-
-        SurfaceDragRestricter::SurfaceDragRestricter() :
+        SurfaceDragHelper::SurfaceDragHelper() :
         m_hitTypeSet(false),
         m_occludedTypeSet(false),
         m_minDistanceSet(false),
         m_pickable(false),
         m_selected(false) {}
+        
+        SurfaceDragHelper::~SurfaceDragHelper() {}
 
-        void SurfaceDragRestricter::setPickable(const bool pickable) {
+        void SurfaceDragHelper::setPickable(const bool pickable) {
             m_pickable = pickable;
         }
         
-        void SurfaceDragRestricter::setSelected(const bool selected) {
+        void SurfaceDragHelper::setSelected(const bool selected) {
             m_selected = selected;
         }
         
-        void SurfaceDragRestricter::setType(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setType(const Model::Hit::HitType type) {
             m_hitTypeSet = true;
             m_hitTypeValue = type;
         }
         
-        void SurfaceDragRestricter::setOccluded(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setOccluded(const Model::Hit::HitType type) {
             m_occludedTypeSet = true;
             m_occludedTypeValue = type;
         }
         
-        void SurfaceDragRestricter::setMinDistance(const FloatType minDistance) {
+        void SurfaceDragHelper::setMinDistance(const FloatType minDistance) {
             m_minDistanceSet = true;
             m_minDistanceValue = minDistance;
         }
 
-        bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+        Model::HitQuery SurfaceDragHelper::query(const InputState& inputState) const {
             Model::HitQuery query = inputState.pickResult().query();
             if (m_pickable)
                 query.pickable();
@@ -156,8 +145,11 @@ namespace TrenchBroom {
                 query.selected();
             if (m_minDistanceSet)
                 query.minDistance(m_minDistanceValue);
-            
-            const Model::Hit& hit = query.first();
+            return query;
+        }
+
+        bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+            const Model::Hit& hit = query(inputState).first();
             if (!hit.isMatch())
                 return false;
             point = hit.hitPoint();
@@ -179,6 +171,18 @@ namespace TrenchBroom {
 
         bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
             curPoint = lastPoint + m_grid.snap(curPoint - lastPoint);
+            return true;
+        }
+
+        SurfaceDragSnapper::SurfaceDragSnapper(const Grid& grid) :
+        m_grid(grid) {}
+
+        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+            const Model::Hit& hit = query(inputState).first();
+            if (!hit.isMatch())
+                return false;
+
+            assert(false); // todo implement this
             return true;
         }
 
@@ -230,9 +234,24 @@ namespace TrenchBroom {
             return m_restricter != NULL;
         }
 
+        const Vec3& RestrictedDragPolicy::dragOrigin() const {
+            assert(dragging());
+            return m_dragOrigin;
+        }
+
         const Vec3& RestrictedDragPolicy::initialPoint() const {
             assert(dragging());
             return m_initialPoint;
+        }
+
+        const Vec3& RestrictedDragPolicy::lastPoint() const {
+            assert(dragging());
+            return m_lastPoint;
+        }
+
+        const Vec3& RestrictedDragPolicy::curPoint() const {
+            assert(dragging());
+            return m_curPoint;
         }
 
         bool RestrictedDragPolicy::doStartMouseDrag(const InputState& inputState) {
@@ -244,31 +263,35 @@ namespace TrenchBroom {
             m_snapper = info.snapper;
             
             if (info.setInitialPoint) {
-                m_initialPoint = info.initialPoint;
+                m_dragOrigin = info.initialPoint;
             } else {
-                if (!m_restricter->hitPoint(inputState, m_initialPoint)) {
+                if (!m_restricter->hitPoint(inputState, m_dragOrigin)) {
                     deleteRestricter();
                     deleteSnapper();
                     return false;
                 }
             }
             
-            m_lastPoint = m_initialPoint;
+            m_initialPoint = m_lastPoint = m_curPoint = m_dragOrigin;
             return true;
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             assert(m_restricter != NULL);
             
-            Vec3 curPoint;
-            if (!m_restricter->hitPoint(inputState, curPoint) ||
-                !m_snapper->snap(inputState, m_lastPoint, curPoint) ||
-                curPoint.equals(m_lastPoint))
+            if (!m_restricter->hitPoint(inputState, m_curPoint))
                 return true;
             
-            const bool result = doDrag(inputState, m_lastPoint, curPoint);
-            m_lastPoint = curPoint;
-            return result;
+            Vec3 snappedPoint = m_curPoint;
+            if (!m_snapper->snap(inputState, m_lastPoint, snappedPoint) ||
+                snappedPoint.equals(m_lastPoint))
+                return true;
+            
+            if (doDrag(inputState, m_lastPoint, snappedPoint)) {
+                m_lastPoint = snappedPoint;
+                return true;
+            }
+            return false;
         }
         
         void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {
@@ -334,9 +357,9 @@ namespace TrenchBroom {
         
         ToolControllerGroup::~ToolControllerGroup() {}
 
-        void ToolControllerGroup::addAdapter(ToolController* adapter) {
-            assert(adapter != NULL);
-            m_chain.append(adapter);
+        void ToolControllerGroup::addController(ToolController* controller) {
+            assert(controller != NULL);
+            m_chain.append(controller);
         }
 
         void ToolControllerGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {
@@ -373,25 +396,35 @@ namespace TrenchBroom {
         
         bool ToolControllerGroup::doStartMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver == NULL);
+            if (!doShouldHandleMouseDrag(inputState))
+                return false;
             m_dragReceiver = m_chain.startMouseDrag(inputState);
+            if (m_dragReceiver != NULL)
+                doMouseDragStarted(inputState);
             return m_dragReceiver != NULL;
         }
         
         bool ToolControllerGroup::doMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver != NULL);
-            return m_dragReceiver->mouseDrag(inputState);
+            if (m_dragReceiver->mouseDrag(inputState)) {
+                doMouseDragged(inputState);
+                return true;
+            }
+            return false;
         }
         
         void ToolControllerGroup::doEndMouseDrag(const InputState& inputState) {
             assert(m_dragReceiver != NULL);
             m_dragReceiver->endMouseDrag(inputState);
             m_dragReceiver = NULL;
+            doMouseDragEnded(inputState);
         }
         
         void ToolControllerGroup::doCancelMouseDrag() {
             assert(m_dragReceiver != NULL);
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
+            doMouseDragCancelled();
         }
         
         void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
@@ -404,6 +437,8 @@ namespace TrenchBroom {
         
         bool ToolControllerGroup::doDragEnter(const InputState& inputState, const String& payload) {
             assert(m_dropReceiver == NULL);
+            if (!doShouldHandleDrop(inputState, payload))
+                return false;
             m_dropReceiver = m_chain.dragEnter(inputState, payload);
             return m_dropReceiver != NULL;
         }
@@ -424,6 +459,23 @@ namespace TrenchBroom {
             const bool result = m_dropReceiver->dragDrop(inputState);
             m_dropReceiver = NULL;
             return result;
+        }
+
+        bool ToolControllerGroup::doCancel() {
+            return m_chain.cancel();
+        }
+
+        bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState& inputState) const {
+            return false;
+        }
+        
+        void ToolControllerGroup::doMouseDragStarted(const InputState& inputState) {}
+        void ToolControllerGroup::doMouseDragged(const InputState& inputState) {}
+        void ToolControllerGroup::doMouseDragEnded(const InputState& inputState) {}
+        void ToolControllerGroup::doMouseDragCancelled() {}
+
+        bool ToolControllerGroup::doShouldHandleDrop(const InputState& inputState, const String& payload) const {
+            return false;
         }
     }
 }

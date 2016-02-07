@@ -23,6 +23,7 @@
 #include "Model/Hit.h"
 #include "View/MoveToolController.h"
 #include "View/ToolController.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -31,64 +32,20 @@ namespace TrenchBroom {
         class MovementRestriction;
         class VertexTool;
         
-        class VertexToolController : public MoveToolController<PickingPolicy, MousePolicy, RenderPolicy>, public MoveToolDelegate {
+        class VertexToolController : public ToolControllerGroup {
         private:
             static const FloatType MaxVertexDistance;
+            class LassoPart;
+            class VertexPart;
         protected:
             VertexTool* m_tool;
         private:
-            Lasso* m_lasso;
         protected:
-            VertexToolController(VertexTool* tool, MoveToolHelper* helper);
+            VertexToolController(VertexTool* tool, MapDocumentWPtr document);
         public:
             virtual ~VertexToolController();
         private:
             Tool* doGetTool();
-            
-            bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            bool dismissClick(const InputState& inputState) const;
-
-            // For the lasso selection, we intercept the plane drag events here
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            
-            bool startLasso(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool updateLasso(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void endLasso(const InputState& inputState);
-            void cancelLasso();
-            
-            bool doHandleMove(const InputState& inputState) const;
-            Vec3 doGetMoveOrigin(const InputState& inputState) const;
-            bool doStartMove(const InputState& inputState);
-            Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult doMove(const InputState& inputState, const Vec3& delta);
-            void doEndMove(const InputState& inputState);
-            void doCancelMove();
-
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
-            bool doCancel();
-            
-            const Model::Hit& firstHit(const Model::PickResult& pickResult) const;
-            Model::Hit::List firstHits(const Model::PickResult& pickResult) const;
-        };
-        
-        class VertexToolController2D : public VertexToolController {
-        public:
-            VertexToolController2D(VertexTool* tool);
-        private:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
-        };
-        
-        class VertexToolController3D : public VertexToolController {
-        public:
-            VertexToolController3D(VertexTool* tool, MovementRestriction& movementRestriction);
-        private:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
     }
 }

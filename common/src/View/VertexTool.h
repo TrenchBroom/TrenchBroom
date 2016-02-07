@@ -51,8 +51,7 @@ namespace TrenchBroom {
         private:
             typedef enum {
                 Mode_Move,
-                Mode_Split,
-                Mode_Snap
+                Mode_Split
             } Mode;
 
             MapDocumentWPtr m_document;
@@ -74,8 +73,7 @@ namespace TrenchBroom {
             void select(const Lasso& lasso, bool modifySelection);
 
             bool beginMove(const Model::Hit& hit);
-            Vec3 snapMoveDelta(const Vec3& delta, const Model::Hit& hit, bool relative);
-            MoveResult move(const Vec3& delta);
+            bool move(const Vec3& delta);
             void endMove();
             void cancelMove();
             
@@ -102,12 +100,12 @@ namespace TrenchBroom {
             
             String actionName() const;
             
-            MoveResult moveVertices(const Vec3& delta);
-            MoveResult doMoveVertices(const Vec3& delta);
-            MoveResult doMoveEdges(const Vec3& delta);
-            MoveResult doMoveFaces(const Vec3& delta);
-            MoveResult doSplitEdges(const Vec3& delta);
-            MoveResult doSplitFaces(const Vec3& delta);
+            bool moveVertices(const Vec3& delta);
+            bool doMoveVertices(const Vec3& delta);
+            bool doMoveEdges(const Vec3& delta);
+            bool doMoveFaces(const Vec3& delta);
+            bool doSplitEdges(const Vec3& delta);
+            bool doSplitFaces(const Vec3& delta);
 
             void rebuildBrushGeometry();
 

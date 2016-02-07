@@ -35,19 +35,18 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-
-            bool doShouldStartMove(const InputState& inputState, Vec3& initialPoint) const;
-            void doStartMove(const InputState& inputState, const Vec3& initialPoint);
+            MoveInfo doStartMove(const InputState& inputState);
             bool doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
             void doEndMove(const InputState& inputState);
-            void doCancelMove(const InputState& inputState);
-            bool doSnapMove(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
+            void doCancelMove();
             
             DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
             DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const;
             DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const;
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const;
 
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            
             bool doCancel();
         };
         

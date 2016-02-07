@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "ToolChain.h"
 #include "Model/Hit.h"
+#include "Model/HitQuery.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -138,7 +139,7 @@ namespace TrenchBroom {
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
         
-        class SurfaceDragRestricter : public DragRestricter {
+        class SurfaceDragHelper {
         private:
             bool m_hitTypeSet;
             bool m_occludedTypeSet;
@@ -150,13 +151,19 @@ namespace TrenchBroom {
             Model::Hit::HitType m_occludedTypeValue;
             FloatType m_minDistanceValue;
         public:
-            SurfaceDragRestricter();
+            SurfaceDragHelper();
+            virtual ~SurfaceDragHelper();
             
             void setPickable(bool pickable);
             void setSelected(bool selected);
             void setType(Model::Hit::HitType type);
             void setOccluded(Model::Hit::HitType type);
             void setMinDistance(FloatType minDistance);
+        protected:
+            Model::HitQuery query(const InputState& inputState) const;
+        };
+        
+        class SurfaceDragRestricter : public SurfaceDragHelper, public DragRestricter {
         private:
             bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
         };
@@ -176,7 +183,7 @@ namespace TrenchBroom {
         };
         
         class Grid;
-        class DeltaDragSnapper {
+        class DeltaDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
         public:
@@ -185,11 +192,22 @@ namespace TrenchBroom {
             bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
         };
         
+        class SurfaceDragSnapper : public SurfaceDragHelper, public DragSnapper {
+        private:
+            const Grid& m_grid;
+        public:
+            SurfaceDragSnapper(const Grid& grid);
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+        };
+        
         class RestrictedDragPolicy : public MouseDragPolicy {
         private:
             DragRestricter* m_restricter;
             DragSnapper* m_snapper;
+            Vec3 m_dragOrigin;
             Vec3 m_initialPoint;
+            Vec3 m_curPoint;
             Vec3 m_lastPoint;
         protected:
             struct DragInfo {
@@ -213,7 +231,10 @@ namespace TrenchBroom {
         private:
             bool dragging() const;
         protected:
+            const Vec3& dragOrigin() const;
             const Vec3& initialPoint() const;
+            const Vec3& lastPoint() const;
+            const Vec3& curPoint() const;
         public:
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -426,31 +447,41 @@ namespace TrenchBroom {
             ToolControllerGroup();
             virtual ~ToolControllerGroup();
         protected:
-            void addAdapter(ToolController* adapter);
+            void addController(ToolController* controller);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
             void doModifierKeyChange(const InputState& inputState);
 
-            void doMouseDown(const InputState& inputState);
-            void doMouseUp(const InputState& inputState);
-            bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            void doMouseMove(const InputState& inputState);
-            void doMouseScroll(const InputState& inputState);
+            virtual void doMouseDown(const InputState& inputState);
+            virtual void doMouseUp(const InputState& inputState);
+            virtual bool doMouseClick(const InputState& inputState);
+            virtual bool doMouseDoubleClick(const InputState& inputState);
+            virtual void doMouseMove(const InputState& inputState);
+            virtual void doMouseScroll(const InputState& inputState);
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doDragEnter(const InputState& inputState, const String& payload);
             bool doDragMove(const InputState& inputState);
             void doDragLeave(const InputState& inputState);
             bool doDragDrop(const InputState& inputState);
+            
+            virtual bool doCancel();
+        private: // subclassing interface
+            virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
+            virtual void doMouseDragStarted(const InputState& inputState);
+            virtual void doMouseDragged(const InputState& inputState);
+            virtual void doMouseDragEnded(const InputState& inputState);
+            virtual void doMouseDragCancelled();
+            
+            virtual bool doShouldHandleDrop(const InputState& inputState, const String& payload) const;
         };
     }
 }

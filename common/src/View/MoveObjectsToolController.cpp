@@ -26,8 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool, MoveToolDelegator* delegator) :
-        MoveToolController(delegator),
+        MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool) :
         m_tool(tool) {
             assert(m_tool != NULL);
         }
@@ -36,6 +35,18 @@ namespace TrenchBroom {
 
         Tool* MoveObjectsToolController::doGetTool() {
             return m_tool;
+        }
+
+        MoveObjectsToolController::MoveInfo MoveObjectsToolController::doStartMove(const InputState& inputState) {
+        }
+        
+        bool MoveObjectsToolController::doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+        }
+        
+        void MoveObjectsToolController::doEndMove(const InputState& inputState) {
+        }
+        
+        void MoveObjectsToolController::doCancelMove() {
         }
 
         void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {

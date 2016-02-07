@@ -38,7 +38,6 @@ namespace TrenchBroom {
     namespace View {
         MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document) :
         Tool(true),
-        MoveToolDelegate(),
         m_document(document),
         m_duplicateObjects(false) {}
 
