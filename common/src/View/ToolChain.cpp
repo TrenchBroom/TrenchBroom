@@ -122,6 +122,15 @@ namespace TrenchBroom {
             return m_suffix->startMouseDrag(inputState);
         }
         
+        bool ToolChain::dragging(const InputState& inputState) const {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return false;
+            if (m_tool->dragging(inputState))
+                return true;
+            return m_suffix->dragging(inputState);
+        }
+
         ToolController* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
             assert(checkInvariant());
             if (chainEndsHere())

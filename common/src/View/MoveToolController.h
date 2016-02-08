@@ -26,6 +26,7 @@
 #include "Preferences.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Macros.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -41,6 +42,13 @@ namespace TrenchBroom {
         class MoveToolController : public ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             typedef ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> Super;
+            typedef enum {
+                MT_Default,
+                MT_Vertical,
+                MT_Restricted
+            } MoveType;
+            
+            MoveType m_lastMoveType;
         protected:
             struct MoveInfo {
                 bool move;
@@ -60,17 +68,34 @@ namespace TrenchBroom {
             virtual ~MoveToolController() {}
         protected:
             void doModifierKeyChange(const InputState& inputState) {
-                if (Super::dragging()) {
+                if (Super::dragging(inputState)) {
                     const Vec3& initialPoint = RestrictedDragPolicy::initialPoint();
                     const Vec3& curPoint = RestrictedDragPolicy::curPoint();
-                    if (isVerticalMove(inputState)) {
-                        RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), true);
-                    } else if (isRestrictedMove(inputState)) {
-                        RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
-                    } else {
-                        RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), false);
+                    
+                    const MoveType newMoveType = moveType(inputState);
+                    switch (newMoveType) {
+                        case MT_Default:
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), m_lastMoveType == MT_Vertical);
+                            break;
+                        case MT_Vertical:
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), true);
+                            break;
+                        case MT_Restricted:
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
+                            break;
+                        switchDefault()
                     }
+                    m_lastMoveType = newMoveType;
                 }
+            }
+            
+        private:
+            MoveType moveType(const InputState& inputState) const {
+                if (isVerticalMove(inputState))
+                    return MT_Vertical;
+                if (isRestrictedMove(inputState))
+                    return MT_Restricted;
+                return MT_Default;
             }
             
             virtual bool isVerticalMove(const InputState& inputState) const {
@@ -80,17 +105,20 @@ namespace TrenchBroom {
             virtual bool isRestrictedMove(const InputState& inputState) const {
                 return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
             }
-            
+        protected:
             RestrictedDragPolicy::DragInfo doStartDrag(const InputState& inputState) {
                 const MoveInfo info = doStartMove(inputState);
                 if (!info.move)
                     return RestrictedDragPolicy::DragInfo();
                 
                 DragRestricter* restricter = NULL;
-                if (isVerticalMove(inputState))
+                if (isVerticalMove(inputState)) {
                     restricter = doCreateVerticalDragRestricter(inputState, info.initialPoint);
-                else
+                    m_lastMoveType = MT_Vertical;
+                } else {
                     restricter = doCreateDefaultDragRestricter(inputState, info.initialPoint);
+                    m_lastMoveType = MT_Default;
+                }
                 
                 DragSnapper* snapper = doCreateDragSnapper(inputState);
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
@@ -109,7 +137,7 @@ namespace TrenchBroom {
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (Super::dragging())
+                if (Super::dragging(inputState))
                     renderMoveTrace(renderContext, renderBatch);
             }
             

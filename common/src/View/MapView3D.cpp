@@ -64,16 +64,6 @@ namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_clipToolController(NULL),
-        m_createComplexBrushToolController(NULL),
-        m_createEntityToolController(NULL),
-        m_createSimpleBrushToolController(NULL),
-        m_moveObjectsToolController(NULL),
-        m_resizeBrushesToolController(NULL),
-        m_rotateObjectsToolController(NULL),
-        m_setBrushFaceAttributesTool(NULL),
-        m_vertexToolController(NULL),
-        m_cameraTool(NULL),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
             bindEvents();
             bindObservers();
@@ -93,28 +83,17 @@ namespace TrenchBroom {
         }
 
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
-            m_clipToolController = new ClipToolController3D(toolBox.clipTool());
-            m_createComplexBrushToolController = new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool(), m_document);
-            m_createEntityToolController = new CreateEntityToolController3D(toolBox.createEntityTool());
-            m_createSimpleBrushToolController = new CreateSimpleBrushToolController3D(toolBox.createSimpleBrushTool(), m_document);
-            m_moveObjectsToolController = new MoveObjectsToolController(toolBox.moveObjectsTool());
-            m_resizeBrushesToolController = new ResizeBrushesToolController3D(toolBox.resizeBrushesTool());
-            m_rotateObjectsToolController = new RotateObjectsToolController3D(toolBox.rotateObjectsTool());
-            m_setBrushFaceAttributesTool = new SetBrushFaceAttributesTool(m_document);
-            m_vertexToolController = new VertexToolController(toolBox.vertexTool());
-            m_cameraTool = new CameraTool3D(m_document, m_camera);
-            
-            addTool(m_cameraTool);
-            addTool(m_moveObjectsToolController);
-            addTool(m_rotateObjectsToolController);
-            addTool(m_resizeBrushesToolController);
-            addTool(m_createComplexBrushToolController);
-            addTool(m_clipToolController);
-            addTool(m_vertexToolController);
-            addTool(m_createEntityToolController);
-            addTool(m_setBrushFaceAttributesTool);
-            addTool(toolBox.selectionTool());
-            addTool(m_createSimpleBrushToolController);
+            addTool(new CameraTool3D(m_document, m_camera));
+            addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
+            addTool(new RotateObjectsToolController3D(toolBox.rotateObjectsTool()));
+            addTool(new ResizeBrushesToolController3D(toolBox.resizeBrushesTool()));
+            addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
+            addTool(new ClipToolController3D(toolBox.clipTool()));
+            addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new CreateEntityToolController3D(toolBox.createEntityTool()));
+            addTool(new SetBrushFaceAttributesTool(m_document));
+            addTool(new SelectionTool(m_document));
+            addTool(new CreateSimpleBrushToolController3D(toolBox.createSimpleBrushTool(), m_document));
         }
 
         bool MapView3D::cameraFlyModeActive() const {
@@ -193,7 +172,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_toolBox.createComplexBrushToolActive())
-                m_createComplexBrushToolController->performCreateBrush();
+                m_toolBox.performCreateComplexBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {

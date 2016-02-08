@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
         void ClipToolController2D::doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging())
+            if (dragging(inputState))
                 return;
             
             const Renderer::Camera& camera = inputState.camera();
@@ -297,7 +297,7 @@ namespace TrenchBroom {
         }
 
         void ClipToolController3D::doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging())
+            if (anyToolDragging(inputState))
                 return;
             const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (!hit.isMatch())

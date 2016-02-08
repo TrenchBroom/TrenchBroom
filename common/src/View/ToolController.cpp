@@ -20,7 +20,6 @@
 #include "ToolController.h"
 
 #include "Model/Brush.h"
-#include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
@@ -78,7 +77,7 @@ namespace TrenchBroom {
             const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
             if (lineDist.parallel)
                 return false;
-            point = inputState.pickRay().pointAtDistance(lineDist.rayDistance);
+            point = m_line.point + m_line.direction * lineDist.lineDistance;
             return true;
         }
         
@@ -255,6 +254,10 @@ namespace TrenchBroom {
             deleteSnapper();
         }
 
+        bool RestrictedDragPolicy::dragging() const {
+            return m_restricter != NULL;
+        }
+
         void RestrictedDragPolicy::deleteRestricter() {
             delete m_restricter;
             m_restricter = NULL;
@@ -263,10 +266,6 @@ namespace TrenchBroom {
         void RestrictedDragPolicy::deleteSnapper() {
             delete m_snapper;
             m_snapper = NULL;
-        }
-
-        bool RestrictedDragPolicy::dragging() const {
-            return m_restricter != NULL;
         }
 
         const Vec3& RestrictedDragPolicy::dragOrigin() const {
@@ -353,6 +352,7 @@ namespace TrenchBroom {
             m_restricter = restricter;
             if (resetInitialPoint) {
                 assertResult(m_restricter->hitPoint(inputState, m_initialPoint));
+            } else {
                 doMouseDrag(inputState);
             }
         }
@@ -464,6 +464,12 @@ namespace TrenchBroom {
             doMouseDragCancelled();
         }
         
+        bool ToolControllerGroup::dragging(const InputState& inputState) const {
+            if (inputState.dragging(this))
+                return true;
+            return m_chain.dragging(inputState);
+        }
+
         void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
         }

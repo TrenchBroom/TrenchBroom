@@ -69,13 +69,6 @@ namespace TrenchBroom {
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
-            
-            UVRotateTool* m_rotateTool;
-            UVOriginTool* m_originTool;
-            UVScaleTool* m_scaleTool;
-            UVShearTool* m_shearTool;
-            UVOffsetTool* m_offsetTool;
-            UVCameraTool* m_cameraTool;
         public:
             UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView();
@@ -83,7 +76,6 @@ namespace TrenchBroom {
             void setSubDivisions(const Vec2i& subDivisions);
         private:
             void createTools();
-            void destroyTools();
             
             void bindObservers();
             void unbindObservers();

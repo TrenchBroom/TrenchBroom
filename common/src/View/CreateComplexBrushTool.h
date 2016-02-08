@@ -36,9 +36,15 @@ namespace TrenchBroom {
     
     namespace View {
         class CreateComplexBrushTool : public CreateBrushToolBase {
+        private:
+            Polyhedron3 m_polyhedron;
         public:
             CreateComplexBrushTool(MapDocumentWPtr document);
+            
+            const Polyhedron3& polyhedron() const;
             void update(const Polyhedron3& polyhedron);
+        private:
+            void doBrushWasCreated();
         };
     }
 }

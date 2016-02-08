@@ -104,7 +104,7 @@ namespace TrenchBroom {
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (dragging()) {
+                if (dragging(inputState)) {
                     doRenderHighlight(inputState, renderContext, renderBatch, m_area);
                 } else {
                     const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (dragging()) {
+                if (dragging(inputState)) {
                     doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea_Center);
                 } else {
                     const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
@@ -197,7 +197,7 @@ namespace TrenchBroom {
         
         void RotateObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
-            if (dragging() || hit.isMatch())
+            if (dragging(inputState) || hit.isMatch())
                 renderContext.setForceShowSelectionGuide();
         }
         

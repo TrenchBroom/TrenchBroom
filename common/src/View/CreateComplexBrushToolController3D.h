@@ -40,12 +40,8 @@ namespace TrenchBroom {
             class DuplicateFacePart;
             
             CreateComplexBrushTool* m_tool;
-            MapDocumentWPtr m_document;
-            Polyhedron3 m_polyhedron;
         public:
-            CreateComplexBrushToolController3D(CreateComplexBrushTool* tool, MapDocumentWPtr document);
-        public:
-            void performCreateBrush();
+            CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);
         private:
             Tool* doGetTool();
 
@@ -53,10 +49,6 @@ namespace TrenchBroom {
             bool doMouseDoubleClick(const InputState& inputState);
             
             bool doShouldHandleMouseDrag(const InputState& inputState) const;
-            void doMouseDragStarted(const InputState& inputState);
-            void doMouseDragged(const InputState& inputState);
-            void doMouseDragEnded(const InputState& inputState);
-            void doMouseDragCancelled();
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 

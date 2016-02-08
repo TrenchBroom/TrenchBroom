@@ -41,34 +41,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool3D;
-        class ClipToolController3D;
-        class CreateComplexBrushToolController3D;
-        class CreateEntityToolController;
-        class CreateSimpleBrushToolController3D;
-        class FlyModeHelper;
-        class GLContextManager;
-        class MoveObjectsToolController;
-        class ResizeBrushesToolController;
-        class RotateObjectsToolController;
-        class SetBrushFaceAttributesTool;
-        class VertexToolController;
-        
         class MapView3D : public MapViewBase {
         private:
             Renderer::PerspectiveCamera m_camera;
-            
-            ClipToolController3D* m_clipToolController;
-            CreateComplexBrushToolController3D* m_createComplexBrushToolController;
-            CreateEntityToolController* m_createEntityToolController;
-            CreateSimpleBrushToolController3D* m_createSimpleBrushToolController;
-            MoveObjectsToolController* m_moveObjectsToolController;
-            ResizeBrushesToolController* m_resizeBrushesToolController;
-            RotateObjectsToolController* m_rotateObjectsToolController;
-            SetBrushFaceAttributesTool* m_setBrushFaceAttributesTool;
-            VertexToolController* m_vertexToolController;
-            CameraTool3D* m_cameraTool;
-            
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);

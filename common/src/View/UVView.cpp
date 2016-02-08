@@ -54,13 +54,7 @@ namespace TrenchBroom {
         RenderView(parent, contextManager, buildAttribs()),
         ToolBoxConnector(this),
         m_document(document),
-        m_helper(m_camera),
-        m_rotateTool(NULL),
-        m_originTool(NULL),
-        m_scaleTool(NULL),
-        m_shearTool(NULL),
-        m_offsetTool(NULL),
-        m_cameraTool(NULL) {
+        m_helper(m_camera) {
             setToolBox(m_toolBox);
             m_toolBox.setClickToActivate(false);
             createTools();
@@ -70,7 +64,6 @@ namespace TrenchBroom {
         
         UVView::~UVView() {
             unbindObservers();
-            destroyTools();
         }
 
         void UVView::setSubDivisions(const Vec2i& subDivisions) {
@@ -79,34 +72,12 @@ namespace TrenchBroom {
         }
 
         void UVView::createTools() {
-            m_rotateTool = new UVRotateTool(m_document, m_helper);
-            m_originTool = new UVOriginTool(m_helper);
-            m_scaleTool = new UVScaleTool(m_document, m_helper);
-            m_shearTool = new UVShearTool(m_document, m_helper);
-            m_offsetTool = new UVOffsetTool(m_document, m_helper);
-            m_cameraTool = new UVCameraTool(m_camera);
-
-            addTool(m_rotateTool);
-            addTool(m_originTool);
-            addTool(m_scaleTool);
-            addTool(m_shearTool);
-            addTool(m_offsetTool);
-            addTool(m_cameraTool);
-        }
-        
-        void UVView::destroyTools() {
-            delete m_cameraTool;
-            m_cameraTool = NULL;
-            delete m_offsetTool;
-            m_offsetTool = NULL;
-            delete m_originTool;
-            m_originTool = NULL;
-            delete m_scaleTool;
-            m_scaleTool = NULL;
-            delete m_shearTool;
-            m_shearTool = NULL;
-            delete m_rotateTool;
-            m_rotateTool = NULL;
+            addTool(new UVRotateTool(m_document, m_helper));
+            addTool(new UVOriginTool(m_helper));
+            addTool(new UVScaleTool(m_document, m_helper));
+            addTool(new UVShearTool(m_document, m_helper));
+            addTool(new UVOffsetTool(m_document, m_helper));
+            addTool(new UVCameraTool(m_camera));
         }
 
         void UVView::bindObservers() {

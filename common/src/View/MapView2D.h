@@ -42,16 +42,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool2D;
-        class ClipToolController2D;
-        class CreateEntityToolController;
-        class CreateSimpleBrushToolController2D;
-        class GLContextManager;
-        class MoveObjectsToolController;
-        class ResizeBrushesToolController;
-        class RotateObjectsToolController;
-        class VertexToolController;
-        
         class MapView2D : public MapViewBase {
         public:
             typedef enum {
@@ -61,15 +51,6 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
-            
-            ClipToolController2D* m_clipToolController;
-            CreateEntityToolController* m_createEntityToolController;
-            CreateSimpleBrushToolController2D* m_createSimpleBrushToolController;
-            MoveObjectsToolController* m_moveObjectsToolController;
-            ResizeBrushesToolController* m_resizeBrushesToolController;
-            RotateObjectsToolController* m_rotateObjectsToolController;
-            VertexToolController* m_vertexToolController;
-            CameraTool2D* m_cameraTool;
         public:
             MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, ViewPlane viewPlane);
             ~MapView2D();

@@ -225,7 +225,7 @@ namespace TrenchBroom {
                 
                 m_tool->renderHandles(renderContext, renderBatch);
                 
-                if (dragging()) {
+                if (dragging(inputState)) {
                     m_tool->renderHighlight(renderContext, renderBatch);
                     m_tool->renderGuide(renderContext, renderBatch);
                 } else {

@@ -214,18 +214,19 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            EdgeVertex::List vertices = getHandleVertices(inputState.pickResult());
+            EdgeVertex::List vertices = getHandleVertices(inputState);
             
             Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
-        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const Model::PickResult& pickResult) const {
+        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const InputState& inputState) const {
+            const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             
-            const bool highlightXHandle = (dragging() && m_selector.x() > 0.0) || (!dragging() && xHandleHit.isMatch());
-            const bool highlightYHandle = (dragging() && m_selector.y() > 0.0) || (!dragging() && yHandleHit.isMatch());
+            const bool highlightXHandle = (dragging(inputState) && m_selector.x() > 0.0) || (!dragging(inputState) && xHandleHit.isMatch());
+            const bool highlightYHandle = (dragging(inputState) && m_selector.y() > 0.0) || (!dragging(inputState) && yHandleHit.isMatch());
             
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);

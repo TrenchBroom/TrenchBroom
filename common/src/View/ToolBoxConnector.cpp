@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
         bool ToolBoxConnector::cancel() {
             assert(m_toolBox != NULL);
-            return m_toolBox->cancel(m_toolChain);
+            return m_toolBox->cancel(m_toolChain, m_inputState);
         }
 
         void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext) {
@@ -372,7 +372,7 @@ namespace TrenchBroom {
 
         void ToolBoxConnector::cancelDrag() {
             if (m_toolBox->dragging()) {
-                m_toolBox->cancelDrag();
+                m_toolBox->cancelDrag(m_inputState);
                 m_inputState.clearMouseButtons();
             }
         }
