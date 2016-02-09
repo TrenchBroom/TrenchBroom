@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (dragging(inputState))
+            if (thisToolDragging())
                 renderContext.setForceShowSelectionGuide();
         }
         

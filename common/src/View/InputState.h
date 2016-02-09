@@ -55,7 +55,6 @@ namespace TrenchBroom {
         }
         
         class Grid;
-        class ToolController;
         
         class InputState {
         private:
@@ -67,8 +66,8 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
-            
-            ToolController* m_dragReceiver;
+
+            bool m_anyToolDragging;
             PickRequest m_pickRequest;
             Model::PickResult m_pickResult;
         public:
@@ -102,8 +101,8 @@ namespace TrenchBroom {
             void mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY);
             void scroll(const float scrollX, const float scrollY);
 
-            void setDragReceiver(ToolController* dragReceiver);
-            bool dragging(const ToolController* dragReceiver = NULL) const;
+            bool anyToolDragging() const;
+            void setAnyToolDragging(bool anyToolDragging);
             
             const Ray3& pickRay() const;
             const Vec3 defaultPoint() const;

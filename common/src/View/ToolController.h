@@ -334,7 +334,7 @@ namespace TrenchBroom {
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag() = 0;
-            virtual bool dragging(const InputState& inputState) const = 0;
+            virtual bool thisToolDragging() const = 0;
             virtual bool anyToolDragging(const InputState& inputState) const = 0;
 
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
@@ -354,7 +354,12 @@ namespace TrenchBroom {
         
         template <class PickingPolicyType, class KeyPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType, class DropPolicyType>
         class ToolControllerBase : public ToolController, protected PickingPolicyType, protected KeyPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType, protected DropPolicyType {
+        private:
+            bool m_dragging;
         public:
+            ToolControllerBase() :
+            m_dragging(false) {}
+            
             virtual ~ToolControllerBase() {}
             
             void pick(const InputState& inputState, Model::PickResult& pickResult) {
@@ -400,30 +405,33 @@ namespace TrenchBroom {
             }
             
             bool startMouseDrag(const InputState& inputState) {
-                return toolActive() && static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState);
+                m_dragging = (toolActive() && static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState));
+                return m_dragging;
             }
             
             bool mouseDrag(const InputState& inputState) {
-                assert(dragging(inputState) && toolActive());
+                assert(thisToolDragging() && toolActive());
                 return static_cast<MouseDragPolicyType*>(this)->doMouseDrag(inputState);
             }
             
             void endMouseDrag(const InputState& inputState) {
-                assert(dragging(inputState) && toolActive());
+                assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doEndMouseDrag(inputState);
+                m_dragging = false;
             }
             
             void cancelMouseDrag() {
-                assert(toolActive());
+                assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doCancelMouseDrag();
+                m_dragging = false;
             }
             
-            virtual bool dragging(const InputState& inputState) const {
-                return inputState.dragging(static_cast<const ToolController*>(this));
+            bool thisToolDragging() const {
+                return m_dragging;
             }
 
-            virtual bool anyToolDragging(const InputState& inputState) const {
-                return inputState.dragging();
+            bool anyToolDragging(const InputState& inputState) const {
+                return inputState.anyToolDragging();
             }
 
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) {
@@ -492,8 +500,6 @@ namespace TrenchBroom {
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
-            
-            bool dragging(const InputState& inputState) const;
             
             virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

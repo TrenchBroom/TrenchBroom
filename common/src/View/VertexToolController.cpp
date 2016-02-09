@@ -57,8 +57,8 @@ namespace TrenchBroom {
                     return DragInfo();
                 
                 const Renderer::Camera& camera = inputState.camera();
-                const FloatType distance = 64.0f;
-                const Vec3 initialPoint = camera.defaultPoint(distance);
+                const FloatType distance = camera.DefaultPointDistance;
+                const Vec3 initialPoint = camera.defaultPoint(inputState.pickRay(), distance);
                 const Plane3 plane = orthogonalDragPlane(Vec3f(initialPoint), camera.direction());
                 
                 m_lasso = new Lasso(camera, distance, initialPoint);
@@ -225,7 +225,7 @@ namespace TrenchBroom {
                 
                 m_tool->renderHandles(renderContext, renderBatch);
                 
-                if (dragging(inputState)) {
+                if (thisToolDragging()) {
                     m_tool->renderHighlight(renderContext, renderBatch);
                     m_tool->renderGuide(renderContext, renderBatch);
                 } else {
@@ -253,8 +253,8 @@ namespace TrenchBroom {
         VertexToolController::VertexToolController(VertexTool* tool) :
         m_tool(tool) {
             assert(m_tool != NULL);
-            addController(new LassoPart(tool));
             addController(new VertexPart(tool));
+            addController(new LassoPart(tool));
         }
 
         VertexToolController::~VertexToolController() {}

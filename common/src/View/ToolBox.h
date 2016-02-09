@@ -106,14 +106,14 @@ namespace TrenchBroom {
             void mouseMove(ToolChain* chain, const InputState& inputState);
             
             bool dragging() const;
-            bool startMouseDrag(ToolChain* chain, InputState& inputState);
+            bool startMouseDrag(ToolChain* chain, const InputState& inputState);
             bool mouseDrag(const InputState& inputState);
-            void endMouseDrag(InputState& inputState);
-            void cancelDrag(InputState& inputState);
+            void endMouseDrag(const InputState& inputState);
+            void cancelDrag();
             
             void mouseScroll(ToolChain* chain, const InputState& inputState);
 
-            bool cancel(ToolChain* chain, InputState& inputState);
+            bool cancel(ToolChain* chain);
         public: // tool management
             void deactivateWhen(Tool* master, Tool* slave);
             

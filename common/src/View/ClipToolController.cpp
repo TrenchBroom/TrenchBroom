@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
         void ClipToolController2D::doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging(inputState))
+            if (thisToolDragging())
                 return;
             
             const Renderer::Camera& camera = inputState.camera();

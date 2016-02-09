@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_mouseDY(0),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
-        m_dragReceiver(NULL) {
+        m_anyToolDragging(false) {
             const wxMouseState mouseState = wxGetMouseState();
             m_mouseX = mouseState.GetX();
             m_mouseY = mouseState.GetY();
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         m_mouseDY(0),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
-        m_dragReceiver(NULL) {}
+        m_anyToolDragging(false) {}
         
         InputState::~InputState() {}
 
@@ -165,14 +165,12 @@ namespace TrenchBroom {
             m_scrollY = scrollY;
         }
         
-        void InputState::setDragReceiver(ToolController* dragReceiver) {
-            m_dragReceiver = dragReceiver;
+        bool InputState::anyToolDragging() const {
+            return m_anyToolDragging;
         }
         
-        bool InputState::dragging(const ToolController* dragReceiver) const {
-            if (dragReceiver == NULL)
-                return m_dragReceiver != NULL;
-            return dragReceiver == m_dragReceiver;
+        void InputState::setAnyToolDragging(const bool anyToolDragging) {
+            m_anyToolDragging = anyToolDragging;
         }
 
         const Ray3& InputState::pickRay() const {

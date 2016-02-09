@@ -226,11 +226,10 @@ namespace TrenchBroom {
             return m_dragReceiver != NULL;
         }
 
-        bool ToolBox::startMouseDrag(ToolChain* chain, InputState& inputState) {
+        bool ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState) {
             if (!m_enabled)
                 return false;
             m_dragReceiver = chain->startMouseDrag(inputState);
-            inputState.setDragReceiver(m_dragReceiver);
             return m_dragReceiver != NULL;
         }
 
@@ -239,18 +238,16 @@ namespace TrenchBroom {
             return m_dragReceiver->mouseDrag(inputState);
         }
 
-        void ToolBox::endMouseDrag(InputState& inputState) {
+        void ToolBox::endMouseDrag(const InputState& inputState) {
             assert(enabled() && dragging());
             m_dragReceiver->endMouseDrag(inputState);
             m_dragReceiver = NULL;
-            inputState.setDragReceiver(m_dragReceiver);
         }
 
-        void ToolBox::cancelDrag(InputState& inputState) {
+        void ToolBox::cancelDrag() {
             assert(dragging());
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
-            inputState.setDragReceiver(m_dragReceiver);
         }
 
         void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState) {
@@ -258,9 +255,9 @@ namespace TrenchBroom {
                 chain->mouseScroll(inputState);
         }
 
-        bool ToolBox::cancel(ToolChain* chain, InputState& inputState) {
+        bool ToolBox::cancel(ToolChain* chain) {
             if (dragging()) {
-                cancelDrag(inputState);
+                cancelDrag();
                 return true;
             }
 

@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
-            if (dragging(inputState)) {
+            if (thisToolDragging()) {
                 Plane3 plane;
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     Vec3 planeNorm = inputState.pickRay().direction;

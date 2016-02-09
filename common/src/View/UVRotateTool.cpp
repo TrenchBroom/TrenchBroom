@@ -260,7 +260,7 @@ namespace TrenchBroom {
             
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
-            const bool highlight = angleHandleHit.isMatch() || dragging(inputState);
+            const bool highlight = angleHandleHit.isMatch() || thisToolDragging();
             
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
         }

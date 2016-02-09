@@ -464,12 +464,6 @@ namespace TrenchBroom {
             doMouseDragCancelled();
         }
         
-        bool ToolControllerGroup::dragging(const InputState& inputState) const {
-            if (inputState.dragging(this))
-                return true;
-            return m_chain.dragging(inputState);
-        }
-
         void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
         }
@@ -509,7 +503,7 @@ namespace TrenchBroom {
         }
 
         bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState& inputState) const {
-            return false;
+            return true;
         }
         
         void ToolControllerGroup::doMouseDragStarted(const InputState& inputState) {}
@@ -518,7 +512,7 @@ namespace TrenchBroom {
         void ToolControllerGroup::doMouseDragCancelled() {}
 
         bool ToolControllerGroup::doShouldHandleDrop(const InputState& inputState, const String& payload) const {
-            return false;
+            return true;
         }
     }
 }

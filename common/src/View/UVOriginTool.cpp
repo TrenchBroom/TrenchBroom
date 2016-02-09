@@ -225,8 +225,8 @@ namespace TrenchBroom {
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             
-            const bool highlightXHandle = (dragging(inputState) && m_selector.x() > 0.0) || (!dragging(inputState) && xHandleHit.isMatch());
-            const bool highlightYHandle = (dragging(inputState) && m_selector.y() > 0.0) || (!dragging(inputState) && yHandleHit.isMatch());
+            const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0) || (!thisToolDragging() && xHandleHit.isMatch());
+            const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0) || (!thisToolDragging() && yHandleHit.isMatch());
             
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);

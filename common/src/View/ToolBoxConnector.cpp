@@ -112,7 +112,9 @@ namespace TrenchBroom {
 
         bool ToolBoxConnector::cancel() {
             assert(m_toolBox != NULL);
-            return m_toolBox->cancel(m_toolChain, m_inputState);
+            const bool result = m_toolBox->cancel(m_toolChain);
+            m_inputState.setAnyToolDragging(false);
+            return result;
         }
 
         void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext) {
@@ -203,7 +205,7 @@ namespace TrenchBroom {
             if (event.ButtonUp())
                 m_toolBox->clearIgnoreNextClick();
 
-            setModifierKeys();
+            updateModifierKeys();
             if (event.ButtonDown()) {
                 captureMouse();
                 m_clickPos = event.GetPosition();
@@ -214,6 +216,7 @@ namespace TrenchBroom {
                     m_toolBox->endMouseDrag(m_inputState);
                     m_toolBox->mouseUp(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
+                    m_inputState.setAnyToolDragging(false);
                     releaseMouse();
                 } else if (!m_ignoreNextDrag) {
                     m_toolBox->mouseUp(m_toolChain, m_inputState);
@@ -249,7 +252,7 @@ namespace TrenchBroom {
             event.Skip();
 
             const MouseButtonState button = mouseButton(event);
-            setModifierKeys();
+            updateModifierKeys();
 
             m_clickPos = event.GetPosition();
             m_inputState.mouseDown(button);
@@ -268,12 +271,13 @@ namespace TrenchBroom {
 
             event.Skip();
 
-            setModifierKeys();
+            updateModifierKeys();
             if (m_toolBox->dragging()) {
                 mouseMoved(event.GetPosition());
                 updatePickResult();
                 if (!m_toolBox->mouseDrag(m_inputState)) {
                     m_toolBox->endMouseDrag(m_inputState);
+                    m_inputState.setAnyToolDragging(false);
                     m_ignoreNextDrag = true;
                 }
             } else if (!m_ignoreNextDrag) {
@@ -284,8 +288,10 @@ namespace TrenchBroom {
                             m_ignoreNextDrag = true;
                         mouseMoved(event.GetPosition());
                         updatePickResult();
-                        if (dragStarted)
+                        if (dragStarted) {
+                            m_inputState.setAnyToolDragging(true);
                             m_toolBox->mouseDrag(m_inputState);
+                        }
                     }
                 } else {
                     mouseMoved(event.GetPosition());
@@ -305,7 +311,7 @@ namespace TrenchBroom {
 
             event.Skip();
 
-            setModifierKeys();
+            updateModifierKeys();
             const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
                 m_inputState.scroll(delta, 0.0f);
@@ -372,7 +378,8 @@ namespace TrenchBroom {
 
         void ToolBoxConnector::cancelDrag() {
             if (m_toolBox->dragging()) {
-                m_toolBox->cancelDrag(m_inputState);
+                m_toolBox->cancelDrag();
+                m_inputState.setAnyToolDragging(false);
                 m_inputState.clearMouseButtons();
             }
         }

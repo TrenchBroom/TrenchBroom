@@ -68,24 +68,20 @@ namespace TrenchBroom {
             virtual ~MoveToolController() {}
         protected:
             void doModifierKeyChange(const InputState& inputState) {
-                if (Super::dragging(inputState)) {
+                if (Super::thisToolDragging()) {
                     const Vec3& initialPoint = RestrictedDragPolicy::initialPoint();
                     const Vec3& curPoint = RestrictedDragPolicy::curPoint();
                     
-                    const MoveType newMoveType = moveType(inputState);
-                    switch (newMoveType) {
-                        case MT_Default:
+                    const MoveType nextMoveType = moveType(inputState);
+                    if (nextMoveType != m_lastMoveType) {
+                        if (m_lastMoveType != MT_Default)
                             RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), m_lastMoveType == MT_Vertical);
-                            break;
-                        case MT_Vertical:
-                            RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), true);
-                            break;
-                        case MT_Restricted:
+                        if (nextMoveType == MT_Vertical)
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), false);
+                        else if (nextMoveType == MT_Restricted)
                             RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
-                            break;
-                        switchDefault()
+                        m_lastMoveType = nextMoveType;
                     }
-                    m_lastMoveType = newMoveType;
                 }
             }
             
@@ -99,7 +95,8 @@ namespace TrenchBroom {
             }
             
             virtual bool isVerticalMove(const InputState& inputState) const {
-                return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
+                const Renderer::Camera& camera = inputState.camera();
+                return camera.perspectiveProjection() && inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
             }
             
             virtual bool isRestrictedMove(const InputState& inputState) const {
@@ -137,7 +134,7 @@ namespace TrenchBroom {
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (Super::dragging(inputState))
+                if (Super::thisToolDragging())
                     renderMoveTrace(renderContext, renderBatch);
             }
             

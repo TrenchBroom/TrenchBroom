@@ -58,7 +58,6 @@ namespace TrenchBroom {
             void mouseMove(const InputState& inputState);
             
             ToolController* startMouseDrag(const InputState& inputState);
-            bool dragging(const InputState& inputState) const;
             ToolController* dragEnter(const InputState& inputState, const String& payload);
             
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;

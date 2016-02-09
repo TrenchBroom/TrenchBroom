@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (dragging(inputState))
+            if (thisToolDragging())
                 renderContext.setForceShowSelectionGuide();
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
