@@ -57,9 +57,9 @@ namespace TrenchBroom {
                     return DragInfo();
                 
                 const Renderer::Camera& camera = inputState.camera();
-                const FloatType distance = camera.DefaultPointDistance;
-                const Vec3 initialPoint = camera.defaultPoint(inputState.pickRay(), distance);
-                const Plane3 plane = orthogonalDragPlane(Vec3f(initialPoint), camera.direction());
+                const FloatType distance = 64.0f;
+                const Plane3 plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
+                const Vec3 initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
                 
                 m_lasso = new Lasso(camera, distance, initialPoint);
                 return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 if (thisToolDragging()) {
                     m_tool->renderHighlight(renderContext, renderBatch);
                     m_tool->renderGuide(renderContext, renderBatch);
-                } else {
+                } else if (!anyToolDragging(inputState)) {
                     const Model::Hit& hit = firstHit(inputState.pickResult());
                     if (hit.isMatch()) {
                         const Vec3 position = hit.target<Vec3>();

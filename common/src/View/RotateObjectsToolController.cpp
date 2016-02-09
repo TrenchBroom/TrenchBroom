@@ -164,9 +164,10 @@ namespace TrenchBroom {
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                MoveToolController::doRender(inputState, renderContext, renderBatch);
                 if (thisToolDragging()) {
                     doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea_Center);
-                } else {
+                } else if (!anyToolDragging(inputState)) {
                     const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
                     if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center)
                         doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea_Center);
