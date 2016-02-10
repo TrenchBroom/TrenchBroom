@@ -50,17 +50,11 @@ namespace TrenchBroom {
 
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
-                Plane3 plane;
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                    Vec3 planeNorm = inputState.pickRay().direction;
-                    planeNorm[2] = 0.0;
-                    planeNorm.normalize();
-                    plane = Plane3(initialPoint(), planeNorm);
+                    setRestricter(inputState, new LineDragRestricter(Line3(curPoint(), Vec3::PosZ)), true);
                 } else {
-                    plane = horizontalDragPlane(initialPoint());
+                    setRestricter(inputState, new PlaneDragRestricter(horizontalDragPlane(curPoint())), true);
                 }
-                
-                setRestricter(inputState, new PlaneDragRestricter(plane), true);
             }
         }
 
