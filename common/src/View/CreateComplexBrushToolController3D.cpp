@@ -42,11 +42,11 @@ namespace TrenchBroom {
         class CreateComplexBrushToolController3D::Part {
         protected:
             CreateComplexBrushTool* m_tool;
-            Polyhedron3 m_currentPolyhedron;
+            Polyhedron3 m_oldPolyhedron;
         protected:
             Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
-            m_currentPolyhedron() {
+            m_oldPolyhedron() {
                 assert(m_tool != NULL);
             }
         public:
@@ -72,6 +72,8 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return DragInfo();
 
+                m_oldPolyhedron = m_tool->polyhedron();
+                
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 m_plane = face->boundary();
                 m_initialPoint = hit.hitPoint();
@@ -90,11 +92,10 @@ namespace TrenchBroom {
             }
             
             void doEndDrag(const InputState& inputState) {
-                m_tool->update(m_currentPolyhedron);
             }
             
             void doCancelDrag() {
-                m_currentPolyhedron.clear();
+                m_tool->update(m_oldPolyhedron);
             }
             
             bool doCancel() { return false; }
@@ -117,11 +118,12 @@ namespace TrenchBroom {
                 const Vec3  bottomLeft3 = unswizzle(Vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
                 const Vec3 bottomRight3 = unswizzle(Vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
                 
-                m_currentPolyhedron = m_tool->polyhedron();
-                m_currentPolyhedron.addPoint(topLeft3);
-                m_currentPolyhedron.addPoint(bottomLeft3);
-                m_currentPolyhedron.addPoint(bottomRight3);
-                m_currentPolyhedron.addPoint(topRight3);
+                Polyhedron3 polyhedron = m_oldPolyhedron;
+                polyhedron.addPoint(topLeft3);
+                polyhedron.addPoint(bottomLeft3);
+                polyhedron.addPoint(bottomRight3);
+                polyhedron.addPoint(topRight3);
+                m_tool->update(polyhedron);
             }
         };
         
@@ -141,7 +143,9 @@ namespace TrenchBroom {
                 if (!m_tool->polyhedron().polygon())
                     return DragInfo();
                 
-                const Polyhedron3::FaceHit hit = m_currentPolyhedron.pickFace(inputState.pickRay());
+                m_oldPolyhedron = m_tool->polyhedron();
+
+                const Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
                 const Vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
                 const Vec3 direction = hit.face->normal();
                 
@@ -152,34 +156,32 @@ namespace TrenchBroom {
             }
             
             DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                const Polyhedron3& polyhedron = m_tool->polyhedron();
+                Polyhedron3 polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
                 const Grid& grid = m_tool->grid();
                 
-                const FloatType curDist         = (curPoint - lastPoint).length();
-                const Vec3 rayDelta             = curDist * m_dragDir;
+                const Vec3 rayDelta             = curPoint - dragOrigin();
                 const Vec3 rayAxis              = m_dragDir.firstAxis();
                 const FloatType axisDistance    = rayDelta.dot(rayAxis);
                 const FloatType snappedDistance = grid.snap(axisDistance);
                 const FloatType snappedRayDist  = rayAxis.inverseDot(snappedDistance, m_dragDir);
                 const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
                 
-                const Polyhedron3::Face* face = polyhedron.faces().front();
+                const Polyhedron3::Face* face = m_oldPolyhedron.faces().front();
                 const Vec3::List points = face->vertexPositions() + snappedRayDelta;
                 
-                m_currentPolyhedron = polyhedron;
-                m_currentPolyhedron.addPoints(points);
+                polyhedron.addPoints(points);
+                m_tool->update(polyhedron);
                 
                 return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {
-                m_tool->update(m_currentPolyhedron);
             }
             
             void doCancelDrag() {
-                m_currentPolyhedron.clear();
+                m_tool->update(m_oldPolyhedron);
             }
             
             bool doCancel() { return false; }
