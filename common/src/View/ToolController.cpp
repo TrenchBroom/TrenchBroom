@@ -96,7 +96,7 @@ namespace TrenchBroom {
             
             const Vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
             const Vec3 direction = (hitPoint - m_center).normalized();
-            point = m_radius * direction;
+            point = m_center + m_radius * direction;
             return true;
         }
 
