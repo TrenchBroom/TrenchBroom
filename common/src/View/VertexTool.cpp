@@ -52,6 +52,10 @@ namespace TrenchBroom {
         m_ignoreChangeNotifications(false),
         m_dragging(false) {}
 
+        const Grid& VertexTool::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             m_handleManager.pick(pickRay, camera, pickResult, m_mode == Mode_Split);
         }
@@ -81,11 +85,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleDoubleClicked(const Model::Hit& hit) {
-            if (hit.type() == VertexHandleManager::VertexHandleHit) {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectVertexHandle(hit.target<Vec3>());
-                m_mode = Mode_Snap;
-            } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
+            if (hit.type() == VertexHandleManager::EdgeHandleHit) {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectEdgeHandle(hit.target<Vec3>());
                 m_mode = Mode_Split;
@@ -151,21 +151,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vec3 VertexTool::snapMoveDelta(const Vec3& delta, const Model::Hit& hit, const bool relative) {
-            if (m_mode == Mode_Snap) {
-                if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
-                    return hit.target<Vec3>() - m_dragHandlePosition;
-                return Vec3::Null;
-            }
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            if (relative)
-                return grid.snap(delta);
-            return grid.snap(m_dragHandlePosition + delta) - m_dragHandlePosition;
-        }
-
-        MoveResult VertexTool::move(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
             return moveVertices(delta);
         }
 
@@ -360,7 +346,7 @@ namespace TrenchBroom {
         }
         
         String VertexTool::actionName() const {
-            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
+            if (m_mode == Mode_Move) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
@@ -382,8 +368,8 @@ namespace TrenchBroom {
             return "Split Face";
         }
         
-        MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
+        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
+            if (m_mode == Mode_Move) {
                 assert((m_handleManager.selectedVertexCount() > 0) ^
                        (m_handleManager.selectedEdgeCount() > 0) ^
                        (m_handleManager.selectedFaceCount() > 0));
@@ -405,57 +391,57 @@ namespace TrenchBroom {
                     return doSplitFaces(delta);
                 }
             }
-            return MoveResult_Continue;
+            return MR_Continue;
         }
         
-        MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const MapDocument::MoveVerticesResult result = document->moveVertices(m_handleManager.selectedVertexHandles(), delta);
             if (result.success) {
                 if (!result.hasRemainingVertices)
-                    return MoveResult_Conclude;
+                    return MR_Cancel;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
 
         void VertexTool::rebuildBrushGeometry() {

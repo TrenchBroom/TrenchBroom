@@ -35,15 +35,24 @@ namespace TrenchBroom {
         CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
         CreateBrushToolBase(false, document) {}
 
+        const Polyhedron3& CreateComplexBrushTool::polyhedron() const {
+            return m_polyhedron;
+        }
+        
         void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
-            if (polyhedron.closed()) {
+            m_polyhedron = polyhedron;
+            if (m_polyhedron.closed()) {
                 MapDocumentSPtr document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                Model::Brush* brush = builder.createBrush(polyhedron, document->currentTextureName());
+                Model::Brush* brush = builder.createBrush(m_polyhedron, document->currentTextureName());
                 updateBrush(brush);
             } else {
                 updateBrush(NULL);
             }
+        }
+
+        void CreateComplexBrushTool::doBrushWasCreated() {
+            update(Polyhedron3());
         }
     }
 }

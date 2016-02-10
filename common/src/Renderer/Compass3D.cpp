@@ -21,36 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/MovementRestriction.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        Compass3D::Compass3D(const View::MovementRestriction& restriction) :
-        m_restriction(restriction) {}
-
         void Compass3D::doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform) {
             PreferenceManager& prefs = PreferenceManager::instance();
-
-            if (m_restriction.isRestricted(Math::Axis::AX)) {
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
-                renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
-                renderAxisOutline(renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-            } else if (m_restriction.isRestricted(Math::Axis::AY)) {
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
-                renderAxisOutline(renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
-            } else if (m_restriction.isRestricted(Math::Axis::AZ)) {
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderSolidAxis(  renderContext, transform * Mat4x4f::Rot90XCW,  prefs.get(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, transform,                      prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, transform,                      prefs.get(Preferences::ZAxisColor));
-            } else {
-                renderSolidAxis(renderContext, transform,                        prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(renderContext, transform * Mat4x4f::Rot90YCCW,   prefs.get(Preferences::XAxisColor));
-                renderSolidAxis(renderContext, transform * Mat4x4f::Rot90XCW,    prefs.get(Preferences::YAxisColor));
-            }
+            renderSolidAxis(renderContext, transform,                        prefs.get(Preferences::ZAxisColor));
+            renderSolidAxis(renderContext, transform * Mat4x4f::Rot90YCCW,   prefs.get(Preferences::XAxisColor));
+            renderSolidAxis(renderContext, transform * Mat4x4f::Rot90XCW,    prefs.get(Preferences::YAxisColor));
         }
     }
 }

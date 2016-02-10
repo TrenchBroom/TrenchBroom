@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         UVOffsetTool::UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper) {}

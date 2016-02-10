@@ -43,6 +43,10 @@ namespace TrenchBroom {
             delete m_brush;
         }
 
+        const Grid& CreateBrushToolBase::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void CreateBrushToolBase::createBrush() {
             if (m_brush != NULL) {
                 MapDocumentSPtr document = lock(m_document);
@@ -51,6 +55,7 @@ namespace TrenchBroom {
                 document->addNode(m_brush, document->currentParent());
                 document->select(m_brush);
                 m_brush = NULL;
+                doBrushWasCreated();
             }
         }
 
@@ -88,5 +93,7 @@ namespace TrenchBroom {
             delete m_brush;
             m_brush = brush;
         }
+
+        void CreateBrushToolBase::doBrushWasCreated() {}
     }
 }

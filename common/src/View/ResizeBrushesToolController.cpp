@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ResizeBrushesToolAdapter.h"
+#include "ResizeBrushesToolController.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -36,18 +36,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        ResizeBrushesToolAdapter::ResizeBrushesToolAdapter(ResizeBrushesTool* tool) :
+        ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool* tool) :
         m_tool(tool) {
             assert(m_tool != NULL);
         }
 
-        ResizeBrushesToolAdapter::~ResizeBrushesToolAdapter() {}
+        ResizeBrushesToolController::~ResizeBrushesToolController() {}
 
-        Tool* ResizeBrushesToolAdapter::doGetTool() {
+        Tool* ResizeBrushesToolController::doGetTool() {
             return m_tool;
         }
         
-        void ResizeBrushesToolAdapter::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ResizeBrushesToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
                 const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
                 if (hit.isMatch())
@@ -55,16 +55,16 @@ namespace TrenchBroom {
             }
         }
         
-        void ResizeBrushesToolAdapter::doModifierKeyChange(const InputState& inputState) {
+        void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
             updateDragFaces(inputState);
         }
         
-        void ResizeBrushesToolAdapter::doMouseMove(const InputState& inputState) {
+        void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState))
                 updateDragFaces(inputState);
         }
         
-        bool ResizeBrushesToolAdapter::doStartMouseDrag(const InputState& inputState) {
+        bool ResizeBrushesToolController::doStartMouseDrag(const InputState& inputState) {
             if (!handleInput(inputState))
                 return false;
             const bool split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
@@ -75,32 +75,32 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ResizeBrushesToolAdapter::doMouseDrag(const InputState& inputState) {
+        bool ResizeBrushesToolController::doMouseDrag(const InputState& inputState) {
             return m_tool->resize(inputState.pickRay(), inputState.camera());
         }
         
-        void ResizeBrushesToolAdapter::doEndMouseDrag(const InputState& inputState) {
+        void ResizeBrushesToolController::doEndMouseDrag(const InputState& inputState) {
             m_tool->commitResize();
         }
         
-        void ResizeBrushesToolAdapter::doCancelMouseDrag() {
+        void ResizeBrushesToolController::doCancelMouseDrag() {
             m_tool->cancelResize();
         }
         
-        void ResizeBrushesToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (dragging())
+        void ResizeBrushesToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+            if (thisToolDragging())
                 renderContext.setForceShowSelectionGuide();
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
         
-        void ResizeBrushesToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ResizeBrushesToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_tool->hasDragFaces()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
         }
 
-        Renderer::DirectEdgeRenderer ResizeBrushesToolAdapter::buildEdgeRenderer() {
+        Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             
@@ -120,32 +120,32 @@ namespace TrenchBroom {
             return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
         }
         
-        bool ResizeBrushesToolAdapter::doCancel() {
+        bool ResizeBrushesToolController::doCancel() {
             return false;
         }
 
-        void ResizeBrushesToolAdapter::updateDragFaces(const InputState& inputState) {
-            if (!dragging())
+        void ResizeBrushesToolController::updateDragFaces(const InputState& inputState) {
+            if (!anyToolDragging(inputState))
                 m_tool->updateDragFaces(inputState.pickResult());
         }
 
-        bool ResizeBrushesToolAdapter::handleInput(const InputState& inputState) const {
+        bool ResizeBrushesToolController::handleInput(const InputState& inputState) const {
             return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
                      inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
                     m_tool->applies());
         }
 
-        ResizeBrushesToolAdapter2D::ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool) :
-        ResizeBrushesToolAdapter(tool) {}
+        ResizeBrushesToolController2D::ResizeBrushesToolController2D(ResizeBrushesTool* tool) :
+        ResizeBrushesToolController(tool) {}
 
-        Model::Hit ResizeBrushesToolAdapter2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick2D(pickRay, pickResult);
         }
         
-        ResizeBrushesToolAdapter3D::ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool) :
-        ResizeBrushesToolAdapter(tool) {}
+        ResizeBrushesToolController3D::ResizeBrushesToolController3D(ResizeBrushesTool* tool) :
+        ResizeBrushesToolController(tool) {}
         
-        Model::Hit ResizeBrushesToolAdapter3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick3D(pickRay, pickResult);
         }
     }

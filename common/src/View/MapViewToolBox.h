@@ -38,7 +38,6 @@ namespace TrenchBroom {
         class MoveObjectsTool;
         class ResizeBrushesTool;
         class RotateObjectsTool;
-        class SelectionTool;
         class VertexTool;
         class Selection;
 
@@ -53,7 +52,6 @@ namespace TrenchBroom {
             MoveObjectsTool* m_moveObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
-            SelectionTool* m_selectionTool;
             VertexTool* m_vertexTool;
         public:
             MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
@@ -66,11 +64,11 @@ namespace TrenchBroom {
             MoveObjectsTool* moveObjectsTool();
             ResizeBrushesTool* resizeBrushesTool();
             RotateObjectsTool* rotateObjectsTool();
-            SelectionTool* selectionTool();
             VertexTool* vertexTool();
             
             void toggleCreateComplexBrushTool();
             bool createComplexBrushToolActive() const;
+            void performCreateComplexBrush();
             
             void toggleClipTool();
             bool clipToolActive() const;

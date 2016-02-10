@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushToolAdapter2D
-#define TrenchBroom_CreateBrushToolAdapter2D
+#ifndef TrenchBroom_CreateBrushToolController2D
+#define TrenchBroom_CreateBrushToolController2D
 
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -28,22 +28,21 @@ namespace TrenchBroom {
         class CreateSimpleBrushTool;
         class Grid;
         
-        class CreateSimpleBrushToolAdapter2D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
             Vec3 m_initialPoint;
             BBox3 m_bounds;
         public:
-            CreateSimpleBrushToolAdapter2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
+            CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool();
             
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            DragInfo doStartDrag(const InputState& inputState);
+            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            void doEndDrag(const InputState& inputState);
+            void doCancelDrag();
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -56,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushToolAdapter2D) */
+#endif /* defined(TrenchBroom_CreateBrushToolController2D) */

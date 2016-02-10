@@ -38,80 +38,44 @@ namespace TrenchBroom {
     namespace View {
         MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document) :
         Tool(true),
-        MoveToolDelegate(),
         m_document(document),
         m_duplicateObjects(false) {}
 
-        bool MoveObjectsTool::doHandleMove(const InputState& inputState) const {
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
-                !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
-                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) &&
-                !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedNodes())
-                return false;
-
-            const Model::Hit& hit = findHit(inputState);
-            if (!hit.isMatch())
-                return false;
-            const Model::Node* node = Model::hitToNode(hit);
-            return node->selected();
-        }
-        
-        Vec3 MoveObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Model::Hit& hit = findHit(inputState);
-            assert(hit.isMatch());
-            return hit.hitPoint();
+        const Grid& MoveObjectsTool::grid() const {
+            return lock(m_document)->grid();
         }
 
-        const Model::Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
-            const Model::PickResult& pickResult = inputState.pickResult();
-            return pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().first();
-        }
-
-        String MoveObjectsTool::doGetActionName(const InputState& inputState) const {
-            return duplicateObjects(inputState) ? "Duplicate" : "Move";
-        }
-        
-        bool MoveObjectsTool::doStartMove(const InputState& inputState) {
+        bool MoveObjectsTool::startMove(const InputState& inputState) {
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }
         
-        Vec3 MoveObjectsTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            return grid.snap(delta);
-        }
-        
-        MoveResult MoveObjectsTool::doMove(const InputState& inputState, const Vec3& delta) {
+        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             const BBox3 bounds = document->selectionBounds();
             if (!worldBounds.contains(bounds.translated(delta)))
-                return MoveResult_Deny;
+                return MR_Deny;
             
             if (m_duplicateObjects) {
                 m_duplicateObjects = false;
                 if (!document->duplicateObjects())
-                    return MoveResult_Conclude;
+                    return MR_Cancel;
             }
             
             if (!document->translateObjects(delta))
-                return MoveResult_Deny;
-            return MoveResult_Continue;
+                return MR_Deny;
+            return MR_Continue;
         }
         
-        void MoveObjectsTool::doEndMove(const InputState& inputState) {
+        void MoveObjectsTool::endMove(const InputState& inputState) {
             MapDocumentSPtr document = lock(m_document);
             document->commitTransaction();
         }
         
-        void MoveObjectsTool::doCancelMove() {
+        void MoveObjectsTool::cancelMove() {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
         }

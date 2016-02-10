@@ -22,7 +22,7 @@
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         
-        class SelectionTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
         public:

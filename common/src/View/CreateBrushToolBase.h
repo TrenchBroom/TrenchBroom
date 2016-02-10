@@ -35,6 +35,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
+        
         class CreateBrushToolBase : public Tool {
         protected:
             MapDocumentWPtr m_document;
@@ -45,6 +47,8 @@ namespace TrenchBroom {
             CreateBrushToolBase(bool initiallyActive, MapDocumentWPtr document);
             virtual ~CreateBrushToolBase();
         public:
+            const Grid& grid() const;
+            
             void createBrush();
             void cancel();
             
@@ -53,6 +57,8 @@ namespace TrenchBroom {
             void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         protected:
             void updateBrush(Model::Brush* brush);
+        private:
+            virtual void doBrushWasCreated();
         };
     }
 }

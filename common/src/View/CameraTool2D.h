@@ -22,7 +22,7 @@
 
 #include "VecMath.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool2D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
             Vec2f m_lastMousePos;

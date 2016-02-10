@@ -41,36 +41,28 @@
 #include "View/CameraAnimation.h"
 #include "View/CameraLinkHelper.h"
 #include "View/CameraTool2D.h"
-#include "View/ClipToolAdapter.h"
+#include "View/ClipToolController.h"
 #include "View/CommandIds.h"
-#include "View/CreateEntityToolAdapter.h"
-#include "View/CreateSimpleBrushToolAdapter2D.h"
+#include "View/CreateEntityToolController.h"
+#include "View/CreateSimpleBrushToolController2D.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
-#include "View/MoveObjectsToolAdapter.h"
-#include "View/ResizeBrushesToolAdapter.h"
-#include "View/RotateObjectsToolAdapter.h"
+#include "View/MoveObjectsToolController.h"
+#include "View/ResizeBrushesToolController.h"
+#include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
-#include "View/VertexToolAdapter.h"
+#include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_camera(),
-        m_clipToolAdapter(NULL),
-        m_createEntityToolAdapter(NULL),
-        m_createSimpleBrushToolAdapter(NULL),
-        m_moveObjectsToolAdapter(NULL),
-        m_resizeBrushesToolAdapter(NULL),
-        m_rotateObjectsToolAdapter(NULL),
-        m_vertexToolAdapter(NULL),
-        m_cameraTool(NULL) {
+        m_camera(){
             bindEvents();
             bindObservers();
             initializeCamera(viewPlane);
@@ -80,7 +72,6 @@ namespace TrenchBroom {
 
         MapView2D::~MapView2D() {
             unbindObservers();
-            destroyToolChain();
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -104,36 +95,15 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            const Grid& grid = lock(m_document)->grid();
-            m_clipToolAdapter = new ClipToolAdapter2D(toolBox.clipTool(), grid);
-            m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
-            m_createSimpleBrushToolAdapter = new CreateSimpleBrushToolAdapter2D(toolBox.createSimpleBrushTool(), m_document);
-            m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
-            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
-            m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter2D(toolBox.rotateObjectsTool());
-            m_vertexToolAdapter = new VertexToolAdapter2D(toolBox.vertexTool());
-            m_cameraTool = new CameraTool2D(m_camera);
-            
-            addTool(m_cameraTool);
-            addTool(m_moveObjectsToolAdapter);
-            addTool(m_rotateObjectsToolAdapter);
-            addTool(m_resizeBrushesToolAdapter);
-            addTool(m_clipToolAdapter);
-            addTool(m_vertexToolAdapter);
-            addTool(m_createEntityToolAdapter);
-            addTool(toolBox.selectionTool());
-            addTool(m_createSimpleBrushToolAdapter);
-        }
-
-        void MapView2D::destroyToolChain() {
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_rotateObjectsToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createSimpleBrushToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_clipToolAdapter;
+            addTool(new CameraTool2D(m_camera));
+            addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
+            addTool(new RotateObjectsToolController2D(toolBox.rotateObjectsTool()));
+            addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
+            addTool(new ClipToolController2D(toolBox.clipTool()));
+            addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));
+            addTool(new SelectionTool(m_document));
+            addTool(new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document));
         }
 
         void MapView2D::bindObservers() {

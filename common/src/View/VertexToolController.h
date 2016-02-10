@@ -17,33 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SetBrushFaceAttributesTool
-#define TrenchBroom_SetBrushFaceAttributesTool
+#ifndef TrenchBroom_VertexToolController
+#define TrenchBroom_VertexToolController
 
-#include "View/Tool.h"
+#include "Model/Hit.h"
+#include "View/MoveToolController.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
-        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class Lasso;
+        class InputState;
+        class MovementRestriction;
+        class VertexTool;
+        
+        class VertexToolController : public ToolControllerGroup {
         private:
-            MapDocumentWPtr m_document;
+            static const FloatType MaxVertexDistance;
+            class LassoPart;
+            class VertexPart;
+        protected:
+            VertexTool* m_tool;
         public:
-            SetBrushFaceAttributesTool(MapDocumentWPtr document);
+            VertexToolController(VertexTool* tool);
+            ~VertexToolController();
         private:
             Tool* doGetTool();
-            
-            bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            
-            bool performCopy(const InputState& inputState, bool applyToBrush);
-            bool applies(const InputState& inputState) const;
-            bool copyAttributes(const InputState& inputState) const;
-
-            bool doCancel();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_SetBrushFaceAttributesTool) */
+#endif /* defined(TrenchBroom_VertexToolController) */

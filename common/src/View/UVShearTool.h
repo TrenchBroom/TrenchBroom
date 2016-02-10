@@ -22,14 +22,14 @@
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVShearTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;

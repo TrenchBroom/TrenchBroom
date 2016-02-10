@@ -47,7 +47,7 @@ namespace TrenchBroom {
         const float UVRotateTool::RotateHandleWidth  =  5.0f;
 
         UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper),
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
-            const bool highlight = angleHandleHit.isMatch() || dragging();
+            const bool highlight = angleHandleHit.isMatch() || thisToolDragging();
             
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
         }

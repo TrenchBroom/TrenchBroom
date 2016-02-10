@@ -17,40 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveObjectsToolAdapter
-#define TrenchBroom_MoveObjectsToolAdapter
+#ifndef TrenchBroom_MoveObjectsToolController
+#define TrenchBroom_MoveObjectsToolController
 
-#include "View/MoveToolAdapter.h"
+#include "View/MoveToolController.h"
 
 namespace TrenchBroom {
     namespace View {
         class MoveObjectsTool;
         
-        class MoveObjectsToolAdapter : public MoveToolAdapter<NoPickingPolicy, NoMousePolicy, RenderPolicy> {
+        class MoveObjectsToolController : public MoveToolController<NoPickingPolicy, NoMousePolicy> {
         private:
             MoveObjectsTool* m_tool;
         public:
-            MoveObjectsToolAdapter(MoveObjectsTool* tool, MoveToolHelper* helper);
-            virtual ~MoveObjectsToolAdapter();
+            MoveObjectsToolController(MoveObjectsTool* tool);
+            virtual ~MoveObjectsToolController();
         private:
             Tool* doGetTool();
 
+            MoveInfo doStartMove(const InputState& inputState);
+            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            void doEndMove(const InputState& inputState);
+            void doCancelMove();
+            
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
+            
             bool doCancel();
-        };
-        
-        class MoveObjectsToolAdapter2D : public MoveObjectsToolAdapter {
-        public:
-            MoveObjectsToolAdapter2D(MoveObjectsTool* tool);
-        };
-        
-        class MoveObjectsToolAdapter3D : public MoveObjectsToolAdapter {
-        public:
-            MoveObjectsToolAdapter3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_MoveObjectsToolAdapter) */
+#endif /* defined(TrenchBroom_MoveObjectsToolController) */

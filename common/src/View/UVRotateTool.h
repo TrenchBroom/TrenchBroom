@@ -22,7 +22,7 @@
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
 
-        class UVRotateTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::Hit::HitType AngleHandleHit;
         private:

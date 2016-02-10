@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateEntityToolAdapter
-#define TrenchBroom_CreateEntityToolAdapter
+#ifndef TrenchBroom_CreateEntityToolController
+#define TrenchBroom_CreateEntityToolController
 
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
@@ -28,13 +28,13 @@ namespace TrenchBroom {
         class CreateEntityTool;
         class InputState;
         
-        class CreateEntityToolAdapter : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy> {
+        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy> {
         protected:
             CreateEntityTool* m_tool;
         protected:
-            CreateEntityToolAdapter(CreateEntityTool* tool);
+            CreateEntityToolController(CreateEntityTool* tool);
         public:
-            virtual ~CreateEntityToolAdapter();
+            virtual ~CreateEntityToolController();
         private:
             Tool* doGetTool();
             
@@ -49,20 +49,20 @@ namespace TrenchBroom {
             virtual void doUpdateEntityPosition(const InputState& inputState) = 0;
         };
         
-        class CreateEntityToolAdapter2D : public CreateEntityToolAdapter {
+        class CreateEntityToolController2D : public CreateEntityToolController {
         public:
-            CreateEntityToolAdapter2D(CreateEntityTool* tool);
+            CreateEntityToolController2D(CreateEntityTool* tool);
         private:
             void doUpdateEntityPosition(const InputState& inputState);
         };
         
-        class CreateEntityToolAdapter3D : public CreateEntityToolAdapter {
+        class CreateEntityToolController3D : public CreateEntityToolController {
         public:
-            CreateEntityToolAdapter3D(CreateEntityTool* tool);
+            CreateEntityToolController3D(CreateEntityTool* tool);
         private:
             void doUpdateEntityPosition(const InputState& inputState);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_CreateEntityToolAdapter) */
+#endif /* defined(TrenchBroom_CreateEntityToolController) */

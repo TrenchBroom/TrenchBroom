@@ -43,14 +43,14 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         class Tool;
-        class ToolAdapter;
+        class ToolController;
         class ToolChain;
         
         class ToolBox {
         private:
-            ToolAdapter* m_dragReceiver;
-            ToolAdapter* m_dropReceiver;
-            ToolAdapter* m_savedDropReceiver;
+            ToolController* m_dragReceiver;
+            ToolController* m_dropReceiver;
+            ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
             
             typedef std::vector<Tool*> ToolList;

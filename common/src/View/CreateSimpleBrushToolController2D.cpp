@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolAdapter2D.h"
+#include "CreateSimpleBrushToolController2D.h"
 
 #include "Polyhedron.h"
 #include "Renderer/Camera.h"
@@ -30,66 +30,69 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolAdapter2D::CreateSimpleBrushToolAdapter2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
             assert(m_tool != NULL);
         }
 
-        Tool* CreateSimpleBrushToolAdapter2D::doGetTool() {
+        Tool* CreateSimpleBrushToolController2D::doGetTool() {
             return m_tool;
         }
         
-        bool CreateSimpleBrushToolAdapter2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return false;
+                return DragInfo();
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-                return false;
+                return DragInfo();
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection())
-                return false;
+                return DragInfo();
             
+            const BBox3& bounds = document->referenceBounds();
             const Renderer::Camera& camera = inputState.camera();
-            const Vec3 planeNorm(camera.direction().firstAxis());
-            plane = Plane3(initialPoint, planeNorm);
+            const Plane3 plane(bounds.min, camera.direction().firstAxis());
             
-            const Ray3& pickRay = inputState.pickRay();
-            initialPoint = pickRay.pointAtDistance(plane.intersectWithRay(pickRay));
-
-            m_initialPoint = initialPoint;
-            updateBounds(inputState, m_initialPoint);
-            m_tool->refreshViews();
+            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return DragInfo();
             
-            return true;
-        }
-        
-        bool CreateSimpleBrushToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            if (updateBounds(inputState, curPoint))
+            m_initialPoint = inputState.pickRay().pointAtDistance(distance);
+            if (updateBounds(inputState, m_initialPoint))
                 m_tool->refreshViews();
-            return true;
+
+            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        void CreateSimpleBrushToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            if (updateBounds(inputState, curPoint)) {
+                m_tool->refreshViews();
+                return DR_Continue;
+            }
+            return DR_Deny;
+        }
+        
+        void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
             if (!m_bounds.empty())
                 m_tool->createBrush();
         }
         
-        void CreateSimpleBrushToolAdapter2D::doCancelPlaneDrag() {}
+        void CreateSimpleBrushToolController2D::doCancelDrag() {
+            m_tool->cancel();
+        }
+
+        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
-        void CreateSimpleBrushToolAdapter2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
-        
-        void CreateSimpleBrushToolAdapter2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
-        
-        void CreateSimpleBrushToolAdapter2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
-        bool CreateSimpleBrushToolAdapter2D::doCancel() {
+        bool CreateSimpleBrushToolController2D::doCancel() {
             return false;
         }
 
-        bool CreateSimpleBrushToolAdapter2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
+        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
             BBox3 bounds(m_initialPoint, m_initialPoint);
             bounds.mergeWith(currentPoint);
             snapBounds(inputState, bounds);
@@ -104,7 +107,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateSimpleBrushToolAdapter2D::snapBounds(const InputState& inputState, BBox3& bounds) {
+        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, BBox3& bounds) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             bounds.min = grid.snapDown(bounds.min);

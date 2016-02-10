@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolAdapter3D.h"
+#include "CreateSimpleBrushToolController3D.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -38,84 +38,76 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolAdapter3D::CreateSimpleBrushToolAdapter3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
             assert(tool != NULL);
         }
 
-        Tool* CreateSimpleBrushToolAdapter3D::doGetTool() {
+        Tool* CreateSimpleBrushToolController3D::doGetTool() {
             return m_tool;
         }
 
-        void CreateSimpleBrushToolAdapter3D::doModifierKeyChange(const InputState& inputState) {
-            if (dragging())
-                resetPlane(inputState);
-        }
-
-        bool CreateSimpleBrushToolAdapter3D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return false;
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection())
-                return false;
-
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch())
-                m_initialPoint = initialPoint = hit.hitPoint();
-            else
-                m_initialPoint = initialPoint = inputState.defaultPointUnderMouse();
-            
-            plane = Plane3(initialPoint, Vec3::PosZ);
-            
-            updateBounds(m_initialPoint);
-            return true;
-        }
-
-        bool CreateSimpleBrushToolAdapter3D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            updateBounds(curPoint);
-            return true;
-        }
-
-        void CreateSimpleBrushToolAdapter3D::doEndPlaneDrag(const InputState& inputState) {
-            m_tool->createBrush();
-        }
-
-        void CreateSimpleBrushToolAdapter3D::doCancelPlaneDrag() {
-            m_tool->cancel();
-        }
-
-        void CreateSimpleBrushToolAdapter3D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
-                return;
-            initialPoint = inputState.pickRay().pointAtDistance(distance);
-            
-            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                Vec3 planeNorm = inputState.pickRay().direction;
-                planeNorm[2] = 0.0;
-                planeNorm.normalize();
-                plane = Plane3(initialPoint, planeNorm);
-            } else {
-                plane = horizontalDragPlane(initialPoint);
+        void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
+            if (thisToolDragging()) {
+                if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                    setRestricter(inputState, new LineDragRestricter(Line3(curPoint(), Vec3::PosZ)), true);
+                } else {
+                    setRestricter(inputState, new PlaneDragRestricter(horizontalDragPlane(curPoint())), true);
+                }
             }
         }
 
-        void CreateSimpleBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController3D::doStartDrag(const InputState& inputState) {
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                return DragInfo();
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+                return DragInfo();
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelection())
+                return DragInfo();
+            
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            if (hit.isMatch())
+                m_initialPoint = hit.hitPoint();
+            else
+                m_initialPoint = inputState.defaultPointUnderMouse();
+            
+            updateBounds(m_initialPoint);
+            refreshViews();
+                
+            
+            const Plane3 plane = Plane3(m_initialPoint, Vec3::PosZ);
+            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
+        }
+        
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            updateBounds(curPoint);
+            refreshViews();
+            return DR_Continue;
+        }
+        
+        void CreateSimpleBrushToolController3D::doEndDrag(const InputState& inputState) {
+            m_tool->createBrush();
+        }
+        
+        void CreateSimpleBrushToolController3D::doCancelDrag() {
+            m_tool->cancel();
+        }
 
-        void CreateSimpleBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+
+        void CreateSimpleBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
-        bool CreateSimpleBrushToolAdapter3D::doCancel() {
+        bool CreateSimpleBrushToolController3D::doCancel() {
             return false;
         }
 
-        void CreateSimpleBrushToolAdapter3D::updateBounds(const Vec3& point) {
+        void CreateSimpleBrushToolController3D::updateBounds(const Vec3& point) {
             BBox3 bounds;
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);

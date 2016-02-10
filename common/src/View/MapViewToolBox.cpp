@@ -23,6 +23,7 @@
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/CreateSimpleBrushTool.h"
+#include "View/MapDocument.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
@@ -40,7 +41,6 @@ namespace TrenchBroom {
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
-        m_selectionTool(NULL),
         m_vertexTool(NULL) {
             createTools(document, bookCtrl);
             bindObservers();
@@ -79,10 +79,6 @@ namespace TrenchBroom {
             return m_rotateObjectsTool;
         }
         
-        SelectionTool* MapViewToolBox::selectionTool() {
-            return m_selectionTool;
-        }
-        
         VertexTool* MapViewToolBox::vertexTool() {
             return m_vertexTool;
         }
@@ -93,6 +89,10 @@ namespace TrenchBroom {
         
         bool MapViewToolBox::createComplexBrushToolActive() const {
             return toolActive(m_createComplexBrushTool);
+        }
+
+        void MapViewToolBox::performCreateComplexBrush() {
+            m_createComplexBrushTool->createBrush();
         }
 
         void MapViewToolBox::toggleClipTool() {
@@ -163,7 +163,6 @@ namespace TrenchBroom {
             m_moveObjectsTool = new MoveObjectsTool(document);
             m_resizeBrushesTool = new ResizeBrushesTool(document);
             m_rotateObjectsTool = new RotateObjectsTool(document);
-            m_selectionTool = new SelectionTool(document);
             m_vertexTool = new VertexTool(document);
             
             deactivateWhen(m_createComplexBrushTool, m_moveObjectsTool);
@@ -186,13 +185,11 @@ namespace TrenchBroom {
             registerTool(m_clipTool, bookCtrl);
             registerTool(m_vertexTool, bookCtrl);
             registerTool(m_createEntityTool, bookCtrl);
-            registerTool(m_selectionTool, bookCtrl);
             registerTool(m_createSimpleBrushTool, bookCtrl);
         }
         
         void MapViewToolBox::destroyTools() {
             delete m_vertexTool;
-            delete m_selectionTool;
             delete m_rotateObjectsTool;
             delete m_resizeBrushesTool;
             delete m_moveObjectsTool;

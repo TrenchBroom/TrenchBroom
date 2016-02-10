@@ -24,7 +24,6 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Hit.h"
-#include "View/MoveToolAdapter.h"
 #include "View/Tool.h"
 #include "View/UndoableCommand.h"
 #include "View/VertexHandleManager.h"
@@ -42,17 +41,23 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class InputState;
         class Lasso;
         class MovementRestriction;
         class Selection;
         
         class VertexTool : public Tool {
+        public:
+            typedef enum {
+                MR_Continue,
+                MR_Deny,
+                MR_Cancel
+            } MoveResult;
         private:
             typedef enum {
                 Mode_Move,
-                Mode_Split,
-                Mode_Snap
+                Mode_Split
             } Mode;
 
             MapDocumentWPtr m_document;
@@ -65,6 +70,8 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
             
+            const Grid& grid() const;
+            
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
             bool deselectAll();
@@ -74,7 +81,6 @@ namespace TrenchBroom {
             void select(const Lasso& lasso, bool modifySelection);
 
             bool beginMove(const Model::Hit& hit);
-            Vec3 snapMoveDelta(const Vec3& delta, const Model::Hit& hit, bool relative);
             MoveResult move(const Vec3& delta);
             void endMove();
             void cancelMove();
