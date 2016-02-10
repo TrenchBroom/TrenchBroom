@@ -24,6 +24,9 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/Shaders.h"
 #include "View/RotateObjectsTool.h"
 #include "View/InputState.h"
 #include "View/MoveToolController.h"
@@ -38,6 +41,7 @@ namespace TrenchBroom {
             Vec3 m_center;
             Vec3 m_start;
             Vec3 m_axis;
+            FloatType m_angle;
         protected:
             RotateObjectsBase(RotateObjectsTool* tool) :
             m_tool(tool) {
@@ -83,6 +87,7 @@ namespace TrenchBroom {
                 m_center = m_tool->rotationCenter();
                 m_start = m_tool->rotationAxisHandle(m_area, inputState.camera().position());
                 m_axis = m_tool->rotationAxis(m_area);
+                m_angle = 0.0;
                 const FloatType radius = m_tool->handleRadius();
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_start, m_center, m_axis, radius));
             }
@@ -90,8 +95,8 @@ namespace TrenchBroom {
             DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
                 const Vec3 ref = (m_start - m_center).normalized();
                 const Vec3 vec = (curPoint - m_center).normalized();
-                const FloatType angle = angleBetween(vec, ref, m_axis);
-                m_tool->applyRotation(m_center, m_axis, angle);
+                m_angle = angleBetween(vec, ref, m_axis);
+                m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
             }
             
@@ -106,6 +111,8 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (thisToolDragging()) {
                     doRenderHighlight(inputState, renderContext, renderBatch, m_area);
+                    renderAngleIndicator(renderContext, renderBatch);
+                    renderAngleText(renderContext, renderBatch);
                 } else {
                     const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
                     if (hit.isMatch()) {
@@ -114,6 +121,60 @@ namespace TrenchBroom {
                             doRenderHighlight(inputState, renderContext, renderBatch, hit.target<RotateObjectsHandle::HitArea>());
                     }
                 }
+            }
+            
+            class AngleIndicatorRenderer : public Renderer::DirectRenderable {
+            private:
+                Vec3 m_position;
+                Renderer::Circle m_circle;
+            public:
+                AngleIndicatorRenderer(const Vec3& position, const float radius, const Math::Axis::Type axis, const Vec3& startAxis, const Vec3& endAxis) :
+                m_position(position),
+                m_circle(radius, 24, true, axis, startAxis, endAxis) {}
+            private:
+                void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                    m_circle.prepare(vertexVbo);
+                }
+                
+                void doRender(Renderer::RenderContext& renderContext) {
+                    glAssert(glDisable(GL_DEPTH_TEST));
+                    glAssert(glDisable(GL_CULL_FACE));
+                    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+                    
+                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
+                    Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+                    shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
+                    m_circle.render();
+                    
+                    glAssert(glPolygonMode(GL_FRONT, GL_FILL));
+                    glAssert(glEnable(GL_CULL_FACE));
+                    glAssert(glEnable(GL_DEPTH_TEST));
+                }
+            };
+            
+            void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+                const Vec3 startAxis = (m_start - m_center).normalized();
+                const Vec3 endAxis = Quat3(m_axis, m_angle) * startAxis;
+                
+                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, m_axis.firstComponent(), startAxis, endAxis));
+            }
+            
+            void renderAngleText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                
+                renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
+                renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+                renderService.renderStringOnTop(angleString(Math::degrees(m_angle)), m_center);
+            }
+
+            String angleString(const FloatType angle) const {
+                StringStream str;
+                str.precision(2);
+                str.setf(std::ios::fixed);
+                str << angle;
+                return str.str();
             }
             
             bool doCancel() {
