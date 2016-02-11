@@ -46,12 +46,54 @@ namespace TrenchBroom {
         
         class ClipToolController : public ToolControllerGroup {
         protected:
-            class MoveClipPointBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
+            class Callback {
             protected:
                 ClipTool* m_tool;
-                MoveClipPointBase(ClipTool* tool);
             public:
-                virtual ~MoveClipPointBase();
+                Callback(ClipTool* tool);
+                virtual ~Callback();
+                ClipTool* tool() const;
+                
+                bool addClipPoint(const InputState& inputState, Vec3& position);
+                bool setClipFace(const InputState& inputState);
+                
+                virtual DragRestricter* createDragRestricter(const InputState& inputState, const Vec3& initialPoint) const = 0;
+                virtual DragSnapper* createDragSnapper(const InputState& inputState) const = 0;
+                virtual Vec3::List getHelpVectors(const InputState& inputState) const = 0;
+                
+                void renderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            private:
+                virtual bool doGetNewClipPointPosition(const InputState& inputState, Vec3& position) const = 0;
+            };
+            
+            class PartBase {
+            protected:
+                Callback* m_callback;
+                PartBase(Callback* callback);
+            public:
+                virtual ~PartBase();
+            };
+            
+            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, protected PartBase {
+            private:
+                bool m_secondPointSet;
+            public:
+                AddClipPointPart(Callback* callback);
+            private:
+                Tool* doGetTool();
+                bool doMouseClick(const InputState& inputState);
+                bool doMouseDoubleClick(const InputState& inputState);
+                DragInfo doStartDrag(const InputState& inputState);
+                DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+                void doEndDrag(const InputState& inputState);
+                void doCancelDrag();
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+                bool doCancel();
+            };
+            
+            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
+            public:
+                MoveClipPointPart(Callback* callback);
             private:
                 Tool* doGetTool();
                 DragInfo doStartDrag(const InputState& inputState);
@@ -59,10 +101,6 @@ namespace TrenchBroom {
                 void doEndDrag(const InputState& inputState);
                 void doCancelDrag();
                 bool doCancel();
-            private:
-                virtual DragRestricter* doCreateDragRestricter(const InputState& inputState, const Vec3& initialPoint) const = 0;
-                virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const = 0;
-                virtual Vec3::List doGetHelpVectors(const InputState& inputState) const = 0;
             };
         protected:
             ClipTool* m_tool;
@@ -74,25 +112,17 @@ namespace TrenchBroom {
             
             void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
-            bool doMouseClick(const InputState& inputState);
-
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             bool doCancel();
-        private: // subclassing interface
-            virtual bool doAddClipPoint(const InputState& inputState) = 0;
-            virtual void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         class ClipToolController2D : public ClipToolController {
         private:
-            class MoveClipPointPart;
+            class Callback2D;
         public:
             ClipToolController2D(ClipTool* tool);
-        private:
-            bool doAddClipPoint(const InputState& inputState);
-            void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
         class ClipToolController3D : public ClipToolController {
@@ -100,14 +130,9 @@ namespace TrenchBroom {
             static Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint);
             static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint);
         private:
-            class MoveClipPointPart;
+            class Callback3D;
         public:
             ClipToolController3D(ClipTool* tool);
-        private:
-            bool doMouseDoubleClick(const InputState& inputState);
-
-            bool doAddClipPoint(const InputState& inputState);
-            void doRenderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
     }
 }

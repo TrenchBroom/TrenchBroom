@@ -82,6 +82,10 @@ namespace TrenchBroom {
             doBeginDragPoint(pickResult);
         }
         
+        void ClipTool::ClipStrategy::beginDragLastPoint() {
+            doBeginDragLastPoint();
+        }
+
         bool ClipTool::ClipStrategy::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
             return doDragPoint(newPosition, helpVectors);
         }
@@ -240,6 +244,12 @@ namespace TrenchBroom {
                 m_originalPoint = m_points[m_dragIndex];
             }
             
+            void doBeginDragLastPoint() {
+                assert(m_numPoints > 0);
+                m_dragIndex = m_numPoints - 1;
+                m_originalPoint = m_points[m_dragIndex];
+            }
+
             bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
                 assert(m_dragIndex < m_numPoints);
                 
@@ -384,6 +394,7 @@ namespace TrenchBroom {
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) {}
+            void doBeginDragLastPoint() {}
             bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) { return false; }
             void doEndDragPoint() {}
             void doCancelDragPoint() {}
@@ -570,6 +581,11 @@ namespace TrenchBroom {
             return true;
         }
         
+        void ClipTool::beginDragLastPoint() {
+            assert(m_strategy != NULL);
+            m_strategy->beginDragLastPoint();
+        }
+
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
             assert(m_strategy != NULL);
             if (!m_strategy->dragPoint(newPosition, helpVectors))

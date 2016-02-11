@@ -70,6 +70,7 @@ namespace TrenchBroom {
                 
                 bool canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const;
                 void beginDragPoint(const Model::PickResult& pickResult);
+                void beginDragLastPoint();
                 bool dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors);
                 void endDragPoint();
                 void cancelDragPoint();
@@ -92,6 +93,7 @@ namespace TrenchBroom {
                 
                 virtual bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const = 0;
                 virtual void doBeginDragPoint(const Model::PickResult& pickResult) = 0;
+                virtual void doBeginDragLastPoint() = 0;
                 virtual bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) = 0;
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
@@ -146,6 +148,7 @@ namespace TrenchBroom {
             bool removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
+            void beginDragLastPoint();
             bool dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors);
             void endDragPoint();
             void cancelDragPoint();
