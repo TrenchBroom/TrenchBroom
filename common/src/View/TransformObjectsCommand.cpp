@@ -29,17 +29,13 @@ namespace TrenchBroom {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const Vec3& delta, const bool lockTextures) {
-            StringStream name;
-            name << "Move Objects by (" << delta.asString() << ")";
             const Mat4x4 transform = translationMatrix(delta);
-            return Ptr(new TransformObjectsCommand(Action_Translate, name.str(), transform, lockTextures));
+            return Ptr(new TransformObjectsCommand(Action_Translate, "Move Objects", transform, lockTextures));
         }
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
-            StringStream name;
-            name << "Rotate Objects by " << angle << "Degs";
             const Mat4x4 transform = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
-            return Ptr(new TransformObjectsCommand(Action_Rotate, name.str(), transform, lockTextures));
+            return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
         }
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
