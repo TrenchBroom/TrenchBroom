@@ -50,7 +50,7 @@ namespace TrenchBroom {
         void CreateBrushToolBase::createBrush() {
             if (m_brush != NULL) {
                 MapDocumentSPtr document = lock(m_document);
-                const Transaction transaction(document, "Create brush");
+                const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
                 document->addNode(m_brush, document->currentParent());
                 document->select(m_brush);

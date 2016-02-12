@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
 
         MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
-        VertexCommand(Type, "Move faces", brushes),
+        VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
         m_delta(delta) {

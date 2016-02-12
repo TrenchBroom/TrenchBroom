@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
 
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const size_t snapTo) :
-        VertexCommand(Type, "Snap vertices", brushes),
+        VertexCommand(Type, "Snap Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
         m_snapTo(snapTo) {}

@@ -64,7 +64,7 @@ namespace TrenchBroom {
                             if (brush->selected()) {
                                 document->deselect(face);
                             } else {
-                                Transaction transaction(document, "Select face");
+                                Transaction transaction(document, "Select Brush Face");
                                 document->convertToFaceSelection();
                                 document->select(face);
                             }
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                                 document->select(face);
                         }
                     } else {
-                        Transaction transaction(document, "Select face");
+                        Transaction transaction(document, "Select Brush Face");
                         document->deselectAll();
                         document->select(face);
                     }
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                         else
                             document->select(node);
                     } else {
-                        Transaction transaction(document, "Select object");
+                        Transaction transaction(document, "Select Object");
                         document->deselectAll();
                         document->select(node);
                     }
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document->select(brush->faces());
                     } else {
-                        Transaction transaction(document, "Select faces");
+                        Transaction transaction(document, "Select Brush Faces");
                         document->deselectAll();
                         document->select(brush->faces());
                     }
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document->select(siblings);
                     } else {
-                        Transaction transaction(document, "Select brushes");
+                        Transaction transaction(document, "Select Brushes");
                         document->deselectAll();
                         document->select(siblings);
                     }
@@ -234,7 +234,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return false;
                 
-                document->beginTransaction("Drag select faces");
+                document->beginTransaction("Drag Select Brush Faces");
                 if (document->hasSelection() && !document->hasSelectedBrushFaces())
                     document->deselectAll();
                 
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return false;
                 
-                document->beginTransaction("Drag select objects");
+                document->beginTransaction("Drag Select Objects");
                 if (document->hasSelection() && !document->hasSelectedNodes())
                     document->deselectAll();
                 

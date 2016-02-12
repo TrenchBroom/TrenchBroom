@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
         
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
-        VertexCommand(Type, "Move edges", brushes),
+        VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
         m_delta(delta) {

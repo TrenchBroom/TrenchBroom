@@ -67,9 +67,9 @@ namespace TrenchBroom {
         String AddRemoveNodesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Add:
-                    return "Add objects";
+                    return "Add Objects";
                 case Action_Remove:
-                    return "Remove objects";
+                    return "Remove Objects";
 				switchDefault()
             }
         }

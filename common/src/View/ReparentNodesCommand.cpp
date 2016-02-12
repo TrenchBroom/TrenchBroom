@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const Model::ParentChildrenMap& nodes) :
-        DocumentCommand(Type, "Reparent Nodes"),
+        DocumentCommand(Type, "Reparent Objects"),
         m_nodes(nodes) {}
         
         ReparentNodesCommand::~ReparentNodesCommand() {

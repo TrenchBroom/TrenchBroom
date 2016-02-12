@@ -68,11 +68,11 @@ namespace TrenchBroom {
         String ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Set:
-                    return "Set Attribute";
+                    return "Set Property";
                 case Action_Remove:
-                    return "Remove Attribute";
+                    return "Remove Property";
                 case Action_Rename:
-                    return "Rename Attribute";
+                    return "Rename Property";
 				switchDefault()
             }
         }

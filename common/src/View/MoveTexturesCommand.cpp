@@ -31,7 +31,7 @@ namespace TrenchBroom {
         }
 
         MoveTexturesCommand::MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) :
-        DocumentCommand(Type, "Move textures"),
+        DocumentCommand(Type, "Move Textures"),
         m_cameraUp(cameraUp),
         m_cameraRight(cameraRight),
         m_delta(delta) {}

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
-        DocumentCommand(Type, "Duplicate objects") {}
+        DocumentCommand(Type, "Duplicate Objects") {}
         
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;

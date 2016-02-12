@@ -236,7 +236,7 @@ namespace TrenchBroom {
         }
         
         const String ChangeBrushFaceAttributesRequest::name() const {
-            return "Change face attributes";
+            return "Change Face Attributes";
         }
 
         void ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceList& faces) const {

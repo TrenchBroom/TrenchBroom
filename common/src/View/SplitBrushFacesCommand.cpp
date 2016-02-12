@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
         
         SplitBrushFacesCommand::SplitBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
-        VertexCommand(Type, "Split faces", brushes),
+        VertexCommand(Type, "Split Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
         m_delta(delta) {

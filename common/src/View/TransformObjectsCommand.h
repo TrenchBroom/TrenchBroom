@@ -56,8 +56,7 @@ namespace TrenchBroom {
             static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
             ~TransformObjectsCommand();
         private:
-            TransformObjectsCommand(Action action, const Mat4x4& transform, bool lockTextures);
-            static String makeName(Action action);
+            TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
 
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

@@ -438,7 +438,7 @@ namespace TrenchBroom {
                 parent->iterate(visitor);
             }
             
-            Transaction transaction(this, "Select siblings");
+            Transaction transaction(this, "Select Siblings");
             deselectAll();
             select(visitor.nodes());
         }
@@ -447,7 +447,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
             
-            Transaction transaction(this, "Select touching");
+            Transaction transaction(this, "Select Touching");
             if (del)
                 deleteObjects();
             else
@@ -459,7 +459,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
             
-            Transaction transaction(this, "Select inside");
+            Transaction transaction(this, "Select Inside");
             if (del)
                 deleteObjects();
             else
@@ -471,7 +471,7 @@ namespace TrenchBroom {
             Model::CollectSelectableNodesWithFilePositionVisitor visitor(*m_editorContext, positions);
             m_world->acceptAndRecurse(visitor);
             
-            Transaction transaction(this, "Select by line number");
+            Transaction transaction(this, "Select by Line Number");
             deselectAll();
             select(visitor.nodes());
         }
@@ -498,7 +498,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::deselectAll() {
-            submit(UndoableCommand::Ptr(SelectionCommand::deselectAll()));
+            if (hasSelection())
+                submit(UndoableCommand::Ptr(SelectionCommand::deselectAll()));
         }
         
         void MapDocument::deselect(Model::Node* node) {
@@ -549,7 +550,7 @@ namespace TrenchBroom {
         }
         
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
-            Transaction transaction(this, "Add objects");
+            Transaction transaction(this, "Add Objects");
             AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
@@ -582,7 +583,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::deleteObjects() {
-            Transaction transaction(this, "Delete objects");
+            Transaction transaction(this, "Delete Objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();
             deselectAll();
             return submit(AddRemoveNodesCommand::remove(nodes));
@@ -1481,6 +1482,8 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
+            commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
+            commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
         }
         
         void MapDocument::unbindObservers() {
@@ -1488,6 +1491,8 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
+            commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
+            commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {
@@ -1509,6 +1514,14 @@ namespace TrenchBroom {
                 m_entityModelManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
                 m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
+        }
+
+        void MapDocument::commandDone(Command::Ptr command) {
+            debug("Command '%s' executed", command->name().c_str());
+        }
+        
+        void MapDocument::commandUndone(UndoableCommand::Ptr command) {
+            debug("Command '%s' undone", command->name().c_str());
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :

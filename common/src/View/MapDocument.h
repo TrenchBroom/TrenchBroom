@@ -408,6 +408,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
+            void commandDone(Command::Ptr command);
+            void commandUndone(UndoableCommand::Ptr command);
         };
 
         class Transaction {
