@@ -55,7 +55,7 @@ namespace TrenchBroom {
             IssueQuickFix("Convert vertices to integer") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
-                facade->snapVertices();
+                facade->snapVertices(1);
             }
         };
 

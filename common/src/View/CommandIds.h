@@ -31,7 +31,8 @@ namespace TrenchBroom {
                 const int EditSelectSiblings                 = Lowest +   3;
                 const int EditSelectTouching                 = Lowest +   4;
                 const int EditSelectNone                     = Lowest +   5;
-                const int EditSnapVertices                   = Lowest +  12;
+                const int EditSnapVerticesToInteger          = Lowest +  12;
+                const int EditSnapVerticesToGrid             = Lowest +  13;
                 const int EditToggleTextureLock              = Lowest +  42;
                 const int ViewToggleShowGrid                 = Lowest +  43;
                 const int ViewToggleSnapToGrid               = Lowest +  44;
@@ -64,8 +65,8 @@ namespace TrenchBroom {
                 const int ViewSwitchToEntityInspector        = Lowest +  87;
                 const int ViewSwitchToFaceInspector          = Lowest +  88;
                 const int ViewToggleMaximizeCurrentView      = Lowest +  89;
-                const int ViewToggleInfoPanel            = Lowest +  90;
-                const int ViewToggleInspector       = Lowest +  91;
+                const int ViewToggleInfoPanel                = Lowest +  90;
+                const int ViewToggleInspector                = Lowest +  91;
                 
                 const int FileOpenRecent                     = Lowest +  96;
                 const int EditPrintFilePositions             = Lowest + 101;

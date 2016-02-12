@@ -446,7 +446,8 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
-            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
+            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToInteger, this, CommandIds::Menu::EditSnapVerticesToInteger);
+            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVerticesToGrid, this, CommandIds::Menu::EditSnapVerticesToGrid);
 
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
@@ -802,11 +803,18 @@ namespace TrenchBroom {
             return IO::loadImageResource("TextureLockOff.png");
         }
 
-        void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
+        void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canSnapVertices())
+                m_document->snapVertices(1u);
+        }
+        
+        void MapFrame::OnEditSnapVerticesToGrid(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (canSnapVertices())
-                m_document->snapVertices();
+                m_document->snapVertices(m_document->grid().actualSize());
         }
 
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
@@ -1091,7 +1099,8 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCsgIntersect:
                     event.Enable(canDoCsgIntersect());
                     break;
-                case CommandIds::Menu::EditSnapVertices:
+                case CommandIds::Menu::EditSnapVerticesToInteger:
+                case CommandIds::Menu::EditSnapVerticesToGrid:
                     event.Enable(canSnapVertices());
                     break;
                 case CommandIds::Menu::EditReplaceTexture:

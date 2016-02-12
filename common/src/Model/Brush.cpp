@@ -586,7 +586,7 @@ namespace TrenchBroom {
             Vec3::List::const_iterator it, end;
             for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
                 const Vec3 origin = *it;
-                const Vec3 destination = snapToF * origin.rounded() / snapToF;
+                const Vec3 destination = snapToF * (origin / snapToF).rounded();
                 if (!origin.equals(destination)) {
                     const Vec3 delta = destination - origin;
                     const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(Vec3::List(1, origin), delta, true, callback);
