@@ -38,22 +38,9 @@ namespace TrenchBroom {
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
 
-        class BuildCoordinateSystem {
-        private:
-            Color m_colors[3];
-            bool m_axes[3];
-        public:
-            static BuildCoordinateSystem xy(const Color& x, const Color& y);
-            static BuildCoordinateSystem xz(const Color& x, const Color& z);
-            static BuildCoordinateSystem yz(const Color& y, const Color& z);
-            static BuildCoordinateSystem xyz(const Color& x, const Color& y, const Color& z);
-        private:
-            BuildCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor, bool xAxis, bool yAxis, bool zAxis);
-        public:
-            VertexSpecs::P3C4::Vertex::List vertices(const BBox3f& bounds) const;
-        private:
-            size_t countVertices() const;
-        };
+        void coordinateSystemVerticesX(const BBox3f& bounds, Vec3f& start, Vec3f& end);
+        void coordinateSystemVerticesY(const BBox3f& bounds, Vec3f& start, Vec3f& end);
+        void coordinateSystemVerticesZ(const BBox3f& bounds, Vec3f& start, Vec3f& end);
         
         class TextureRenderFunc {
         public:

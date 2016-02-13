@@ -38,6 +38,12 @@ namespace TrenchBroom {
         class Vbo;
         
         class RenderService {
+        public:
+            typedef enum {
+                CP_Cull  = 1,
+                CP_OnTop = 2,
+                CP_Mixed = 4
+            } CullingPolicy;
         private:
             class HeadsUpTextAnchor;
             
@@ -70,6 +76,7 @@ namespace TrenchBroom {
             
             void renderLine(const Vec3f& start, const Vec3f& end);
             void renderLines(const Vec3f::List& positions);
+            void renderLineStrip(const Vec3f::List& positions);
             void renderCoordinateSystem(const BBox3f& bounds);
             
             void renderPolygonOutline(const Vec3f::List& positions);

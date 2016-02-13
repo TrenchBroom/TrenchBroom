@@ -123,6 +123,10 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderLines(m_foregroundColor, m_lineWidth, positions);
         }
 
+        void RenderService::renderLineStrip(const Vec3f::List& positions) {
+            m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, positions);
+        }
+
         void RenderService::renderCoordinateSystem(const BBox3f& bounds) {
             const Color& x = pref(Preferences::XAxisColor);
             const Color& y = pref(Preferences::YAxisColor);
