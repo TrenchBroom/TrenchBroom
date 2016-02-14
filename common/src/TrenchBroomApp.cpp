@@ -195,14 +195,13 @@ namespace TrenchBroom {
                 frame = m_frameManager->newFrame();
                 frame->openDocument(game, mapFormat, path);
                 return true;
-            } catch (const Exception& e) {
+            } catch (const FileNotFoundException& e) {
                 m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
                 return false;
             } catch (...) {
-                m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
                 ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, NULL);

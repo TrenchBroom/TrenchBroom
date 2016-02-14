@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "SetAny.h"
+#include "View/MapDocumentCommandFacade.h"
 
 #include <wx/time.h>
 
@@ -252,28 +253,36 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::doCommand(Command::Ptr command) {
-            if (command->type() != CommandGroup::Type)
-                commandDoNotifier(command);
-            if (command->performDo(m_document)) {
+            try {
                 if (command->type() != CommandGroup::Type)
-                    commandDoneNotifier(command);
-                return true;
+                    commandDoNotifier(command);
+                if (command->performDo(m_document)) {
+                    if (command->type() != CommandGroup::Type)
+                        commandDoneNotifier(command);
+                    return true;
+                }
+                if (command->type() != CommandGroup::Type)
+                    commandDoFailedNotifier(command);
+            } catch (const Exception& e) {
+                m_document->error(e.what());
             }
-            if (command->type() != CommandGroup::Type)
-                commandDoFailedNotifier(command);
             return false;
         }
         
         bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
-            if (command->type() != CommandGroup::Type)
-                commandUndoNotifier(command);
-            if (command->performUndo(m_document)) {
+            try {
                 if (command->type() != CommandGroup::Type)
-                    commandUndoneNotifier(command);
-                return true;
+                    commandUndoNotifier(command);
+                if (command->performUndo(m_document)) {
+                    if (command->type() != CommandGroup::Type)
+                        commandUndoneNotifier(command);
+                    return true;
+                }
+                if (command->type() != CommandGroup::Type)
+                    commandUndoFailedNotifier(command);
+            } catch (const Exception& e) {
+                m_document->error(e.what());
             }
-            if (command->type() != CommandGroup::Type)
-                commandUndoFailedNotifier(command);
             return false;
         }
         

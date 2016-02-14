@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 if (!path.isAbsolute())
                     throw FileSystemException("Cannot open file at relative path: '" + path.asString() + "'");
                 if (!fileExists(path))
-                    throw FileSystemException("File not found: '" + path.asString() + "'");
+                    throw FileNotFoundException("File not found: '" + path.asString() + "'");
 #ifdef _WIN32
                 return MappedFile::Ptr(new WinMappedFile(path, std::ios::in));
 #else

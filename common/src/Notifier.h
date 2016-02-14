@@ -202,6 +202,8 @@ namespace TrenchBroom {
     
     class Notifier0 {
     private:
+        typedef Notifier0 N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -263,6 +265,22 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+        public:
+            NotifyAfter(N& after) : m_after(after) {}
+            virtual ~NotifyAfter() { m_after.notify(); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after) :
+            NotifyAfter(after) {
+                before();
+            }
+        };
+        
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)()) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
@@ -293,6 +311,8 @@ namespace TrenchBroom {
     template <typename A1>
     class Notifier1 {
     private:
+        typedef Notifier1<A1> N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -354,6 +374,25 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+            A1& m_a1;
+        public:
+            NotifyAfter(N& after, A1& a1) :
+            m_after(after),
+            m_a1(a1) {}
+            virtual ~NotifyAfter() { m_after.notify(m_a1); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after, A1& a1) :
+            NotifyAfter(after, a1) {
+                before(a1);
+            }
+        };
+
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
@@ -400,6 +439,8 @@ namespace TrenchBroom {
     template <typename A1, typename A2>
     class Notifier2 {
     private:
+        typedef Notifier2<A1, A2> N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -461,6 +502,27 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+            A1& m_a1;
+            A2& m_a2;
+        public:
+            NotifyAfter(N& after, A1& a1, A2& a2) :
+            m_after(after),
+            m_a1(a1),
+            m_a2(a2) {}
+            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2) :
+            NotifyAfter(after, a1, a2) {
+                before(a1, a2);
+            }
+        };
+        
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1, A2)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
@@ -507,6 +569,8 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3>
     class Notifier3 {
     private:
+        typedef Notifier3<A1, A2, A3> N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -568,6 +632,29 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+            A1& m_a1;
+            A2& m_a2;
+            A3& m_a3;
+        public:
+            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3) :
+            m_after(after),
+            m_a1(a1),
+            m_a2(a2),
+            m_a3(a3) {}
+            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3) :
+            NotifyAfter(after, a1, a2, a3) {
+                before(a1, a2, a3);
+            }
+        };
+
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1, A2, A3)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
@@ -614,6 +701,8 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3, typename A4>
     class Notifier4 {
     private:
+        typedef Notifier4<A1, A2, A3, A4> N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -675,6 +764,31 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+            A1& m_a1;
+            A2& m_a2;
+            A3& m_a3;
+            A4& m_a4;
+        public:
+            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3, A4& a4) :
+            m_after(after),
+            m_a1(a1),
+            m_a2(a2),
+            m_a3(a3),
+            m_a4(a4) {}
+            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3, m_a4); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3, A4& a4) :
+            NotifyAfter(after, a1, a2, a3, a4) {
+                before(a1, a2, a3, a4);
+            }
+        };
+
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1, A2, A3, A4)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
@@ -721,6 +835,8 @@ namespace TrenchBroom {
     template <typename A1, typename A2, typename A3, typename A4, typename A5>
     class Notifier5 {
     private:
+        typedef Notifier5<A1, A2, A3, A4, A5> N;
+        
         class Observer {
         private:
             bool m_skip;
@@ -782,6 +898,33 @@ namespace TrenchBroom {
     private:
         NotifierState<Observer> m_state;
     public:
+        class NotifyAfter {
+        private:
+            N& m_after;
+            A1& m_a1;
+            A2& m_a2;
+            A3& m_a3;
+            A4& m_a4;
+            A5& m_a5;
+        public:
+            NotifyAfter(N& after, A1& a1, A2& a2, A3& a3, A4& a4, A5& a5) :
+            m_after(after),
+            m_a1(a1),
+            m_a2(a2),
+            m_a3(a3),
+            m_a4(a4),
+            m_a5(a5) {}
+            virtual ~NotifyAfter() { m_after.notify(m_a1, m_a2, m_a3, m_a4, m_a5); }
+        };
+        
+        class NotifyBeforeAndAfter : public NotifyAfter {
+        public:
+            NotifyBeforeAndAfter(N& before, N& after, A1& a1, A2& a2, A3& a3, A4& a4, A5& a5) :
+            NotifyAfter(after, a1, a2, a3, a4, a5) {
+                before(a1, a2, a3, a4, a5);
+            }
+        };
+        
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1, A2, A3, A4, A5)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));
