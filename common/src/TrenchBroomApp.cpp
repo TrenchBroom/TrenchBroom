@@ -201,6 +201,11 @@ namespace TrenchBroom {
                     frame->Close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
                 return false;
+            } catch (const Exception& e) {
+                if (frame != NULL)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+                return false;
             } catch (...) {
                 if (frame != NULL)
                     frame->Close();
