@@ -149,9 +149,9 @@ namespace TrenchBroom {
             TestEnvironment env;
             
             ASSERT_THROW(Disk::openFile(Path("asdf/bleh")), FileSystemException);
-            ASSERT_THROW(Disk::openFile(env.dir() + Path("does/not/exist")), FileSystemException);
+            ASSERT_THROW(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
             
-            ASSERT_THROW(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileSystemException);
+            ASSERT_THROW(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
             ASSERT_TRUE(Disk::openFile(env.dir() + Path("test.txt")) != NULL);
             ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != NULL);
         }
