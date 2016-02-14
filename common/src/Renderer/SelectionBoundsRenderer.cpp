@@ -254,6 +254,7 @@ namespace TrenchBroom {
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setShowOccludedObjects();
             
             const Camera& camera = renderContext.camera();
             const Vec3f& direction = camera.direction();
@@ -262,7 +263,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
                     buffer << labels[i] << ": " << size[i];
-                    renderService.renderStringOnTop(buffer.str(), SizeTextAnchor2D(m_bounds, i, camera));
+                    renderService.renderString(buffer.str(), SizeTextAnchor2D(m_bounds, i, camera));
                     buffer.str("");
                 }
             }
@@ -275,12 +276,13 @@ namespace TrenchBroom {
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setShowOccludedObjects();
             
             const Vec3 size = m_bounds.size().corrected();
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << size[i];
                 
-                renderService.renderStringOnTop(buffer.str(), SizeTextAnchor3D(m_bounds, i, renderContext.camera()));
+                renderService.renderString(buffer.str(), SizeTextAnchor3D(m_bounds, i, renderContext.camera()));
                 
                 buffer.str("");
             }
@@ -292,13 +294,14 @@ namespace TrenchBroom {
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setShowOccludedObjects();
 
             buffer << "Min: " << m_bounds.min.corrected().asString();
-            renderService.renderStringOnTop(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Min, renderContext.camera()));
+            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Min, renderContext.camera()));
             buffer.str("");
             
             buffer << "Max: " << m_bounds.max.corrected().asString();
-            renderService.renderStringOnTop(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Max, renderContext.camera()));
+            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Max, renderContext.camera()));
         }
     }
 }

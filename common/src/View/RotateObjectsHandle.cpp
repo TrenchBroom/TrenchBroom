@@ -136,7 +136,9 @@ namespace TrenchBroom {
         void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const Renderer::Camera& camera = renderContext.camera();
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
             
             renderService.setForegroundColor(pref(Preferences::axisColor(camera.direction().firstComponent())));
             renderService.renderCircle(m_position, camera.direction().firstComponent(), 64, radius);
@@ -153,6 +155,7 @@ namespace TrenchBroom {
             computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
 
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
             
             renderService.renderCoordinateSystem(BBox3f(radius).translated(m_position));
             
@@ -195,6 +198,8 @@ namespace TrenchBroom {
 
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            renderService.setShowOccludedObjects();
+
             switch (area) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);
@@ -217,12 +222,14 @@ namespace TrenchBroom {
 
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            renderService.setShowOccludedObjects();
+
             switch (area) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                    renderService.renderStringOnTop(m_position.asString(), m_position);
+                    renderService.renderString(m_position.asString(), m_position);
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                     renderService.renderPointHandleHighlight(m_position + radius * xAxis);

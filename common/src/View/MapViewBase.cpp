@@ -849,6 +849,7 @@ namespace TrenchBroom {
             doRenderTools(m_toolBox, renderContext, renderBatch);
             doRenderExtras(renderContext, renderBatch);
             renderCoordinateSystem(renderContext, renderBatch);
+            renderPointFile(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -894,11 +895,21 @@ namespace TrenchBroom {
             }
         }
 
+        void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::PointFile* pointFile = document->pointFile();
+            if (pointFile != NULL) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(pref(Preferences::PointFileColor));
+                renderService.renderLineStrip(pointFile->points());
+            }
+        }
+
         void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {
             if (m_compass != NULL)
                 m_compass->render(renderBatch);
         }
-
+        
         void MapViewBase::doShowPopupMenu() {
             wxMenu menu;
             menu.SetEventHandler(this);

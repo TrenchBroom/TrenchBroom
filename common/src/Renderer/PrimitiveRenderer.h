@@ -33,38 +33,72 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ActiveShader;
         class RenderContext;
         class Vbo;
         
         class PrimitiveRenderer : public DirectRenderable {
+        public:
+            typedef enum {
+                OP_Hide,
+                OP_Show,
+                OP_Transparent
+            } OcclusionPolicy;
         private:
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            typedef std::map<float, IndexRangeMapBuilder<Vertex::Spec> > LineMeshMap;
-            LineMeshMap m_lineMeshes;
-            IndexRangeMapBuilder<Vertex::Spec> m_triangleMesh;
+            typedef VertexSpecs::P3::Vertex Vertex;
+
+            class LineRenderAttributes {
+            private:
+                Color m_color;
+                float m_lineWidth;
+                OcclusionPolicy m_occlusionPolicy;
+            public:
+                LineRenderAttributes(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy);
+                bool operator<(const LineRenderAttributes& other) const;
+                
+                void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
+            };
             
-            typedef std::map<float, IndexRangeRenderer> LineMeshRendererMap;
+            typedef std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> > LineMeshMap;
+            LineMeshMap m_lineMeshes;
+            
+            typedef std::map<LineRenderAttributes, IndexRangeRenderer> LineMeshRendererMap;
             LineMeshRendererMap m_lineMeshRenderers;
             
-            IndexRangeRenderer m_triangleMeshRenderer;
+            class TriangleRenderAttributes {
+            private:
+                Color m_color;
+                OcclusionPolicy m_occlusionPolicy;
+            public:
+                TriangleRenderAttributes(const Color& color, OcclusionPolicy occlusionPolicy);
+                bool operator<(const TriangleRenderAttributes& other) const;
+                
+                void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
+            };
+            
+            
+            typedef std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> > TriangleMeshMap;
+            TriangleMeshMap m_triangleMeshes;
+            
+            typedef std::map<TriangleRenderAttributes, IndexRangeRenderer> TriangleMeshRendererMap;
+            TriangleMeshRendererMap m_triangleMeshRenderers;
         public:
-            void renderLine(const Color& color, float lineWidth, const Vec3f& start, const Vec3f& end);
-            void renderLines(const Color& color, float lineWidth, const Vec3f::List& positions);
-            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const BBox3f& bounds);
-            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const BBox3f& bounds);
-            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
-            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
+            void renderLine(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end);
+            void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
             
-            void renderPolygon(const Color& color, float lineWidth, const Vec3f::List& positions);
-            void renderFilledPolygon(const Color& color, const Vec3f::List& positions);
+            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
+            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
+            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
+            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             
-            void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
-            
-            void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
         private:
             void doPrepareVertices(Vbo& vertexVbo);
+            void prepareLines(Vbo& vertexVbo);
+            void prepareTriangles(Vbo& vertexVbo);
+
             void doRender(RenderContext& renderContext);
             void renderLines(RenderContext& renderContext);
             void renderTriangles(RenderContext& renderContext);
