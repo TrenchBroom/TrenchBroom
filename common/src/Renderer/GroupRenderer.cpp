@@ -131,9 +131,10 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(group)) {
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays)
-                            renderService.renderStringOnTop(groupString(group), anchor);
+                            renderService.setShowOccludedObjects();
                         else
-                            renderService.renderString(groupString(group), anchor);
+                            renderService.setHideOccludedObjects();
+                        renderService.renderString(groupString(group), anchor);
                     }
                 }
             }

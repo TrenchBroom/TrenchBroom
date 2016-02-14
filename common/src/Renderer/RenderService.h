@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Renderer/PrimitiveRenderer.h"
 
 namespace TrenchBroom {
     
@@ -38,13 +39,8 @@ namespace TrenchBroom {
         class Vbo;
         
         class RenderService {
-        public:
-            typedef enum {
-                CP_Cull  = 1,
-                CP_OnTop = 2,
-                CP_Mixed = 4
-            } CullingPolicy;
         private:
+            typedef PrimitiveRenderer::OcclusionPolicy OcclusionPolicy;
             class HeadsUpTextAnchor;
             
             RenderContext& m_renderContext;
@@ -56,6 +52,7 @@ namespace TrenchBroom {
             Color m_foregroundColor;
             Color m_backgroundColor;
             float m_lineWidth;
+            OcclusionPolicy m_occlusionPolicy;
         public:
             RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
@@ -64,10 +61,12 @@ namespace TrenchBroom {
             void setBackgroundColor(const Color& backgroundColor);
             void setLineWidth(float lineWidth);
             
+            void setShowOccludedObjects();
+            void setShowOccludedObjectsTransparent();
+            void setHideOccludedObjects();
+            
             void renderString(const AttrString& string, const Vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);
-            void renderStringOnTop(const AttrString& string, const Vec3f& position);
-            void renderStringOnTop(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
             
             void renderPointHandles(const Vec3f::List& positions);

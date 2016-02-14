@@ -206,9 +206,10 @@ namespace TrenchBroom {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         if (m_showOccludedOverlays)
-                            renderService.renderStringOnTop(entityString(entity), EntityClassnameAnchor(entity));
+                            renderService.setShowOccludedObjects();
                         else
-                            renderService.renderString(entityString(entity), EntityClassnameAnchor(entity));
+                            renderService.setHideOccludedObjects();
+                        renderService.renderString(entityString(entity), EntityClassnameAnchor(entity));
                     }
                 }
             }

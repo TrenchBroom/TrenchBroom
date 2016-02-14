@@ -307,6 +307,7 @@ namespace TrenchBroom {
             void renderPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
+                renderService.setShowOccludedObjects();
                 
                 if (m_numPoints > 1) {
                     renderService.renderLine(m_points[0].point, m_points[1].point);
@@ -326,7 +327,7 @@ namespace TrenchBroom {
                     StringStream str;
                     str << (i+1) << ": " << point.asString();
                     
-                    renderService.renderStringOnTop(str.str(), point);
+                    renderService.renderString(str.str(), point);
                 }
             }
             

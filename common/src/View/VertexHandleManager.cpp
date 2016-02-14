@@ -649,7 +649,7 @@ namespace TrenchBroom {
             
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderService.renderStringOnTop(position.asString(), position);
+            renderService.renderString(position.asString(), position);
         }
 
         void VertexHandleManager::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
