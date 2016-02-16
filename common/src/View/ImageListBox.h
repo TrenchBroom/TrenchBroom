@@ -29,11 +29,13 @@ namespace TrenchBroom {
             wxSize m_imageSize;
             bool m_empty;
             wxString m_emptyText;
+			wxSize m_border;
         public:
             ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, long style = wxBORDER_NONE);
             
             size_t selection() const;
             bool hasSelection() const;
+			wxCoord itemWidth(const wxString& subtitle) const;
             wxCoord itemHeight() const;
             
             void SetItemCount(size_t itemCount);

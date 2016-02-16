@@ -385,8 +385,9 @@ namespace TrenchBroom {
             outerSizer->Add(createEntityDefinitionsPanel(), 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(rightSizer);
-            
+
             SetSizerAndFit(outerSizer);
+			Layout();
             
             GetParent()->Fit();
             GetParent()->GetParent()->Fit();

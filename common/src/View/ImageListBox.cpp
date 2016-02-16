@@ -23,6 +23,7 @@
 
 #include <wx/control.h>
 #include <wx/dc.h>
+#include <wx/dcmemory.h>
 #include <wx/settings.h>
 
 #include <cassert>
@@ -33,10 +34,27 @@ namespace TrenchBroom {
         wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | style),
         m_imageSize(imageSize),
         m_empty(true),
-        m_emptyText(emptyText) {}
+        m_emptyText(emptyText),
+		m_border(2, 4) {}
 
-        wxCoord ImageListBox::itemHeight() const {
-            return m_imageSize.y + 1 + 8;
+		wxCoord ImageListBox::itemWidth(const wxString& subtitle) const {
+			wxMemoryDC dc;
+			dc.SetFont(*wxNORMAL_FONT);
+			return dc.GetTextExtent(subtitle).x + 2 * m_border.x + m_imageSize.x + 8;
+		}
+
+		wxCoord ImageListBox::itemHeight() const {
+			const int imageHeight = m_imageSize.y + 2 * m_border.y;
+			int textHeight = 2 * m_border.y + 4;
+
+			wxMemoryDC dc;
+			dc.SetFont(wxNORMAL_FONT->Bold());
+			textHeight += dc.GetTextExtent("Wgy").y;
+			
+			dc.SetFont(*wxNORMAL_FONT);
+			textHeight += dc.GetTextExtent("Wgy").y;
+
+            return std::max(imageHeight, textHeight);
         }
 
         void ImageListBox::SetItemCount(size_t itemCount) {
@@ -61,20 +79,24 @@ namespace TrenchBroom {
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
             
-            dc.DrawBitmap(img, rect.GetLeft() + 2, rect.GetTop() + 4, true);
+            dc.DrawBitmap(img, rect.GetLeft() + m_border.x, rect.GetTop() + m_border.y, true);
             
-            if (IsSelected(n))
+			int yOff = rect.GetTop() + m_border.y;
+
+			if (IsSelected(n))
                 dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT));
             else
                 dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             
             dc.SetFont(wxNORMAL_FONT->Bold());
             const wxString shortTtl = wxControl::Ellipsize(ttl, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
-            dc.DrawText(shortTtl, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 2);
+            dc.DrawText(shortTtl, rect.GetLeft() + m_imageSize.x + 8, yOff);
+
+			yOff += dc.GetTextExtent("Wgy").y + 4;
 
             dc.SetFont(*wxSMALL_FONT);
             const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
-            dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, rect.GetTop() + 20);
+            dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, yOff);
         }
         
         void ImageListBox::drawEmptyItem(wxDC& dc, const wxRect& rect) const {

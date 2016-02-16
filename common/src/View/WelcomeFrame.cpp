@@ -46,13 +46,13 @@ namespace TrenchBroom {
             
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
-            m_recentDocumentListBox->SetToolTip("Double click on a map to open it");
+            m_recentDocumentListBox->SetToolTip("Double click on a file to open it");
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, 0, wxALIGN_CENTRE_VERTICAL);
             innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), 0, wxEXPAND);
             innerSizer->Add(m_recentDocumentListBox, 1, wxEXPAND);
-            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(300, 10 * m_recentDocumentListBox->itemHeight()));
+            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(m_recentDocumentListBox->itemWidth("This is a long example string that should be readable"), 10 * m_recentDocumentListBox->itemHeight()));
             container->SetSizer(innerSizer);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
