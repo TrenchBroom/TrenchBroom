@@ -287,7 +287,7 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             
             const Model::NodeList allChildren = collectChildren(removedNodes);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyChildren(nodesWillChangeNotifier, nodesDidChangeNotifier, allChildren);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
             
             Model::ParentChildrenMap::const_iterator it, end;
             for (it = removedNodes.begin(), end = removedNodes.end(); it != end; ++it) {
