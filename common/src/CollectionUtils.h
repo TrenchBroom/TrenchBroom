@@ -948,7 +948,13 @@ namespace MapUtils {
 
     template <typename K, typename V>
     typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
-        return findOrInsert(map, key, V());
+        typedef std::map<K, V> Map;
+        typedef std::pair<bool, typename Map::iterator> InsertPos;
+        
+        const InsertPos insertPos = findInsertPos(map, key);
+        if (!insertPos.first)
+            return map.insert(insertPos.second, std::make_pair(key, V()));
+        return insertPos.second;
     }
     
     template <typename K, typename V>

@@ -21,12 +21,14 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "StringMultiMap.h"
+#include "StringMap.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
+    typedef StringMap<String, StringMultiMapValueContainer<String> > TestMultiMap;
+    
     TEST(StringMultiMapTest, insert) {
-        StringMultiMap<String> index;
+        TestMultiMap index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -72,7 +74,7 @@ namespace TrenchBroom {
     }
     
     TEST(StringMultiMapTest, remove) {
-        StringMultiMap<String> index;
+        TestMultiMap index;
         index.insert("andrew", "value");
         index.insert("andreas", "value");
         index.insert("andrar", "value2");
@@ -126,7 +128,7 @@ namespace TrenchBroom {
     }
 
     TEST(StringMultiMapTest, queryExactMatches) {
-        StringMultiMap<String> index;
+        TestMultiMap index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -156,7 +158,7 @@ namespace TrenchBroom {
     }
     
     TEST(StringMultiMapTest, queryNumberedMatches) {
-        StringMultiMap<String> index;
+        TestMultiMap index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -187,7 +189,7 @@ namespace TrenchBroom {
     }
     
     TEST(StringMultiMapTest, splitMergeWithNumbers) {
-        StringMultiMap<String> index;
+        TestMultiMap index;
         index.insert("3.67", "value3");
         index.insert("3.6", "value2");
         index.insert("3.5", "value1");

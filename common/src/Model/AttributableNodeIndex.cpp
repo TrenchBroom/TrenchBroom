@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return AttributableNodeIndexQuery(Type_Any);
         }
         
-        AttributableNodeSet AttributableNodeIndexQuery::execute(const StringMultiMap<AttributableNode*>& index) const {
+        AttributableNodeSet AttributableNodeIndexQuery::execute(const AttributableNodeStringIndex& index) const {
             switch (m_type) {
                 case Type_Exact:
                     return index.queryExactMatches(m_pattern);

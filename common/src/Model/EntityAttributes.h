@@ -105,7 +105,9 @@ namespace TrenchBroom {
         private:
             EntityAttribute::List m_attributes;
             
-            typedef StringMap<EntityAttribute::List::iterator> AttributeIndex;
+            typedef EntityAttribute::List::iterator IndexValue;
+            typedef StringMapValueContainer<IndexValue> IndexValueContainer;
+            typedef StringMap<IndexValue, IndexValueContainer> AttributeIndex;
             AttributeIndex m_index;
         public:
             const EntityAttribute::List& attributes() const;
@@ -123,7 +125,7 @@ namespace TrenchBroom {
             
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
-            bool containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const;
+            bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
         public:
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
