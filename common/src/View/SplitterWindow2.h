@@ -47,9 +47,9 @@ namespace TrenchBroom {
             wxWindow* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
-            float m_sashGravity;
-            int m_initialSashPosition;
-            int m_sashPosition;
+            double m_sashGravity;
+            double m_initialSplitRatio;
+            double m_currentSplitRatio;
             
             bool m_sashCursorSet;
             
@@ -62,16 +62,21 @@ namespace TrenchBroom {
             void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
             void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
             
+            void setMinSize(wxWindow* window, const wxSize& minSize);
+            void setSashGravity(double sashGravity);
+            
             bool isMaximized(wxWindow* window) const;
             void maximize(wxWindow* window);
             void restore();
         private:
+            int currentSashPosition() const;
+            int sashPosition(double ratio) const;
+            int sashPosition(double ratio, wxCoord size) const;
+            double splitRatio(int position) const;
+            
             void split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
             void bindMouseEvents(wxWindow* window);
         public:
-            void setMinSize(wxWindow* window, const wxSize& minSize);
-            void setSashGravity(float sashGravity);
-            
             void OnMouseEnter(wxMouseEvent& event);
             void OnMouseLeave(wxMouseEvent& event);
             void OnMouseButton(wxMouseEvent& event);
@@ -87,7 +92,7 @@ namespace TrenchBroom {
         private:
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
             void initSashPosition();
-            bool setSashPosition(int position);
+            bool setSashPosition(int newSashPosition);
             void sizeWindows();
             int sashSize() const;
             

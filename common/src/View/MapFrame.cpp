@@ -297,11 +297,11 @@ namespace TrenchBroom {
 
         void MapFrame::createGui() {
             m_hSplitter = new SplitterWindow2(this);
-            m_hSplitter->setSashGravity(1.0f);
+            m_hSplitter->setSashGravity(1.0);
             m_hSplitter->SetName("MapFrameHSplitter");
 
             m_vSplitter = new SplitterWindow2(m_hSplitter);
-            m_vSplitter->setSashGravity(1.0f);
+            m_vSplitter->setSashGravity(1.0);
             m_vSplitter->SetName("MapFrameVSplitter");
 
             InfoPanel* infoPanel = new InfoPanel(m_vSplitter, m_document);

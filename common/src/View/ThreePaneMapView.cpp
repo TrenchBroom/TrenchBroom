@@ -49,11 +49,11 @@ namespace TrenchBroom {
         void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             m_hSplitter = new SplitterWindow2(this);
-            m_hSplitter->setSashGravity(0.5f);
+            m_hSplitter->setSashGravity(0.5);
             m_hSplitter->SetName("3PaneMapViewHSplitter");
             
             m_vSplitter = new SplitterWindow2(m_hSplitter);
-            m_vSplitter->setSashGravity(0.5f);
+            m_vSplitter->setSashGravity(0.5);
             m_vSplitter->SetName("3PaneMapViewVSplitter");
 
             m_mapView3D = new MapView3D(m_hSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager);

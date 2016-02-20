@@ -51,8 +51,9 @@ namespace TrenchBroom {
             wxWindow* m_maximizedWindow;
             wxSize m_minSizes[NumWindows];
             
-            wxPoint m_initialSashPosition;
-            wxPoint m_sashPosition;
+            wxRealPoint m_gravity;
+            wxRealPoint m_initialSplitRatios;
+            wxRealPoint m_currentSplitRatios;
             bool m_dragging[2];
             
             wxSize m_oldSize;
@@ -68,10 +69,16 @@ namespace TrenchBroom {
                        const wxSize& bottomLeftMin  = wxSize(0,0));
 
             void setMinSize(wxWindow* window, const wxSize& minSize);
+            void setSashGravity(double x, double y);
 
             void maximize(wxWindow* window);
             void restore();
         private:
+            wxPoint currentSashPosition() const;
+            wxPoint sashPosition(const wxRealPoint& ratios) const;
+            wxPoint sashPosition(const wxRealPoint& ratios, const wxSize& size) const;
+            wxRealPoint splitRatios(const wxPoint& positions) const;
+            
             int leftColMinSize() const;
             int rightColMinSize() const;
             int topRowMinSize() const;
@@ -97,7 +104,7 @@ namespace TrenchBroom {
 
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
             bool initSashPosition();
-            bool setSashPosition(wxPoint sashPosition);
+            bool setSashPosition(wxPoint newSashPosition);
             void sizeWindows();
             int sashSize() const;
             

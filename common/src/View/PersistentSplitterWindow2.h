@@ -27,6 +27,8 @@ namespace TrenchBroom {
         class SplitterWindow2;
         
         class PersistentSplitterWindow2 : public wxPersistentWindow<SplitterWindow2> {
+        private:
+            static const double Scaling;
         public:
             PersistentSplitterWindow2(SplitterWindow2* obj);
             

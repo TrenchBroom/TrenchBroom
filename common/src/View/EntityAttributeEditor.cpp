@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
             SplitterWindow2* splitter = new SplitterWindow2(parent);
-            splitter->setSashGravity(1.0);
+            splitter->setSashGravity(0.0);
             splitter->SetName("EntityAttributeEditorSplitter");
             
             m_attributeGrid = new EntityAttributeGrid(splitter, document);

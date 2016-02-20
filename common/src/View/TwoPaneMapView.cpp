@@ -46,7 +46,7 @@ namespace TrenchBroom {
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             m_splitter = new SplitterWindow2(this);
-            m_splitter->setSashGravity(0.5f);
+            m_splitter->setSashGravity(0.5);
             m_splitter->SetName("2PaneMapViewHSplitter");
 
             m_mapView3D = new MapView3D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
