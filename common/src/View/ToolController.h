@@ -265,6 +265,8 @@ namespace TrenchBroom {
             const Vec3& initialPoint() const;
             const Vec3& lastPoint() const;
             const Vec3& curPoint() const;
+            
+            bool hitPoint(const InputState& inputState, Vec3& result) const;
         public:
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);

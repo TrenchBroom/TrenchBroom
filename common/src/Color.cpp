@@ -28,6 +28,9 @@ Color Color::parse(const std::string& str) {
 Color::Color() :
 Vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
 
+Color::Color(const Vec<float,4>& vec) :
+Vec<float, 4>(vec) {}
+
 Color::Color(const float r, const float g, const float b, const float a) :
 Vec<float, 4>(r, g, b, a) {}
 

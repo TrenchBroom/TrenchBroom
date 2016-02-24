@@ -85,7 +85,7 @@ namespace TrenchBroom {
                         }
                         if (nextMoveType == MT_Vertical) {
                             RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), false);
-                            m_moveTraceOrigin = curPoint;
+                            m_moveTraceOrigin = m_moveTraceCurPoint = curPoint;
                             m_restricted = true;
                         } else if (nextMoveType == MT_Restricted) {
                             RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
@@ -162,15 +162,32 @@ namespace TrenchBroom {
                     typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
                     
                     const Vec3 vec = end - start;
-                    const Vec3 mix = vec.normalized().absolute();
-                    const Color color = Color().mix(pref(Preferences::XAxisColor), mix.x()).mix(pref(Preferences::YAxisColor), mix.y()).mix(pref(Preferences::ZAxisColor), mix.z());
                     
                     Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(color);
                     renderService.setShowOccludedObjects();
                     if (m_restricted)
                         renderService.setLineWidth(2.0f);
-                    renderService.renderLine(start, end);
+                    
+                    Vec3::List stages(3);
+                    stages[0] = vec * Vec3::PosX;
+                    stages[1] = vec * Vec3::PosY;
+                    stages[2] = vec * Vec3::PosZ;
+
+                    Color::List colors(3);
+                    colors[0] = pref(Preferences::XAxisColor);
+                    colors[1] = pref(Preferences::YAxisColor);
+                    colors[2] = pref(Preferences::ZAxisColor);
+                    
+                    Vec3 lastPos = start;
+                    for (size_t i = 0; i < 3; ++i) {
+                        const Vec3& stage = stages[i];
+                        const Vec3 curPos = lastPos + stage;
+                        
+                        renderService.setForegroundColor(colors[i]);
+                        renderService.renderLine(lastPos, curPos);
+                        lastPos = curPos;
+                    }
+                    
                 }
             }
         protected: // subclassing interface

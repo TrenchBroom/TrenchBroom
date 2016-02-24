@@ -288,6 +288,11 @@ namespace TrenchBroom {
             return m_curPoint;
         }
 
+        bool RestrictedDragPolicy::hitPoint(const InputState& inputState, Vec3& result) const {
+            assert(dragging());
+            return m_restricter->hitPoint(inputState, result);
+        }
+
         bool RestrictedDragPolicy::doStartMouseDrag(const InputState& inputState) {
             const DragInfo info = doStartDrag(inputState);
             if (info.skip())
@@ -299,7 +304,7 @@ namespace TrenchBroom {
             if (info.setInitialPoint) {
                 m_dragOrigin = info.initialPoint;
             } else {
-                if (!m_restricter->hitPoint(inputState, m_dragOrigin)) {
+                if (!hitPoint(inputState, m_dragOrigin)) {
                     deleteRestricter();
                     deleteSnapper();
                     return false;
@@ -313,11 +318,11 @@ namespace TrenchBroom {
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             assert(m_restricter != NULL);
             
-            if (!m_restricter->hitPoint(inputState, m_curPoint))
+            if (!hitPoint(inputState, m_curPoint))
                 return true;
             
             Vec3 snappedPoint = m_curPoint;
-            if (!m_snapper->snap(inputState, m_lastPoint, snappedPoint) ||
+            if (!snapPoint(inputState, m_lastPoint, snappedPoint) ||
                 snappedPoint.equals(m_lastPoint))
                 return true;
             
