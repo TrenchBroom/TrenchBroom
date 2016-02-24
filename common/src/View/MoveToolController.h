@@ -30,6 +30,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
@@ -49,6 +50,9 @@ namespace TrenchBroom {
             } MoveType;
             
             MoveType m_lastMoveType;
+            Vec3 m_moveTraceOrigin;
+            Vec3 m_moveTraceCurPoint;
+            bool m_restricted;
         protected:
             struct MoveInfo {
                 bool move;
@@ -74,12 +78,19 @@ namespace TrenchBroom {
                     
                     const MoveType nextMoveType = moveType(inputState);
                     if (nextMoveType != m_lastMoveType) {
-                        if (m_lastMoveType != MT_Default)
+                        if (m_lastMoveType != MT_Default) {
                             RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), m_lastMoveType == MT_Vertical);
-                        if (nextMoveType == MT_Vertical)
+                            if (m_lastMoveType == MT_Vertical)
+                                m_moveTraceOrigin = m_moveTraceCurPoint = curPoint;
+                        }
+                        if (nextMoveType == MT_Vertical) {
                             RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), false);
-                        else if (nextMoveType == MT_Restricted)
+                            m_moveTraceOrigin = curPoint;
+                            m_restricted = true;
+                        } else if (nextMoveType == MT_Restricted) {
                             RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
+                            m_restricted = true;
+                        }
                         m_lastMoveType = nextMoveType;
                     }
                 }
@@ -112,25 +123,31 @@ namespace TrenchBroom {
                 if (isVerticalMove(inputState)) {
                     restricter = doCreateVerticalDragRestricter(inputState, info.initialPoint);
                     m_lastMoveType = MT_Vertical;
+                    m_restricted = true;
                 } else {
                     restricter = doCreateDefaultDragRestricter(inputState, info.initialPoint);
                     m_lastMoveType = MT_Default;
+                    m_restricted = false;
                 }
                 
+                m_moveTraceOrigin = m_moveTraceCurPoint = info.initialPoint;
                 DragSnapper* snapper = doCreateDragSnapper(inputState);
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
             RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                return doMove(inputState, lastPoint, curPoint);
+                const RestrictedDragPolicy::DragResult result = doMove(inputState, lastPoint, curPoint);
+                if (result == RestrictedDragPolicy::DR_Continue)
+                    m_moveTraceCurPoint += (curPoint - lastPoint);
+                return result;
             }
             
             void doEndDrag(const InputState& inputState) {
-                return doEndMove(inputState);
+                doEndMove(inputState);
             }
             
             void doCancelDrag() {
-                return doCancelMove();
+                doCancelMove();
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -139,32 +156,21 @@ namespace TrenchBroom {
             }
             
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                const Vec3 start = RestrictedDragPolicy::dragOrigin();
-                const Vec3 end   = RestrictedDragPolicy::lastPoint();
+                const Vec3& start = m_moveTraceOrigin;
+                const Vec3& end = m_moveTraceCurPoint;
                 if (end != start) {
                     typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
                     
-                    const Vec3 vec   = end - start;
+                    const Vec3 vec = end - start;
+                    const Vec3 mix = vec.normalized().absolute();
+                    const Color color = Color().mix(pref(Preferences::XAxisColor), mix.x()).mix(pref(Preferences::YAxisColor), mix.y()).mix(pref(Preferences::ZAxisColor), mix.z());
                     
-                    Vec3::List stages(3);
-                    stages[0] = vec * Vec3::PosX;
-                    stages[1] = vec * Vec3::PosY;
-                    stages[2] = vec * Vec3::PosZ;
-                    
-                    Vec3 lastPos = start;
-                    Vertex::List vertices(6);
-                    for (size_t i = 0; i < 3; ++i) {
-                        const Vec3& stage = stages[i];
-                        const Vec3 curPos = lastPos + stage;
-                        
-                        const Color& color = (stage[0] != 0.0 ? pref(Preferences::XAxisColor) : (stage[1] != 0.0 ? pref(Preferences::YAxisColor) : pref(Preferences::ZAxisColor)));
-                        vertices[2 * i + 0] = Vertex(lastPos, color);
-                        vertices[2 * i + 1] = Vertex(curPos,  color);
-                        lastPos = curPos;
-                    }
-                    
-                    Renderer::DirectEdgeRenderer traceRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-                    traceRenderer.renderOnTop(renderBatch);
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(color);
+                    renderService.setShowOccludedObjects();
+                    if (m_restricted)
+                        renderService.setLineWidth(2.0f);
+                    renderService.renderLine(start, end);
                 }
             }
         protected: // subclassing interface

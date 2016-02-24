@@ -38,8 +38,9 @@ public:
     float b() const;
     float a() const;
     
-    Color& mix(const Color& other, const float f) {
-        const float c = std::max(0.0f, std::min(1.0f, f));
+    template <typename T>
+    Color& mix(const Color& other, const T f) {
+        const float c = static_cast<float>(std::max(static_cast<T>(0.0), std::min(static_cast<T>(1.0), f)));
         const float d = 1.0f - c;
         for (size_t i = 0; i < 4; i++)
             v[i] = d*v[i] + c*other[i];
