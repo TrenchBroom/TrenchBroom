@@ -159,8 +159,6 @@ namespace TrenchBroom {
                 const Vec3& start = m_moveTraceOrigin;
                 const Vec3& end = m_moveTraceCurPoint;
                 if (end != start) {
-                    typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-                    
                     const Vec3 vec = end - start;
                     
                     Renderer::RenderService renderService(renderContext, renderBatch);
