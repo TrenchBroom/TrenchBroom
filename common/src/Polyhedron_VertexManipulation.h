@@ -357,9 +357,11 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
             HalfEdge* connectingEdge = NULL;
             if (!allowMergeIncidentVertices || occupant == NULL || (connectingEdge = vertex->findConnectingEdge(occupant)) == NULL) {
                 mergeIncidentFaces(vertex, callback);
-                const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
-                unused(result);
-                assert(result.moved());
+                if (!vertex->position().equals(originalPosition, 0.0)) {
+                    const MoveVertexResult result = moveVertex(vertex, originalPosition, false, callback);
+                    unused(result);
+                    assert(result.moved());
+                }
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
             }
             
