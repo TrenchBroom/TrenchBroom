@@ -264,8 +264,12 @@ namespace TrenchBroom {
             if (direction == m_direction && up == m_up)
                 return;
             m_direction = direction;
-            m_right = crossed(m_direction, up).normalized();
-            m_up = crossed(m_right, m_direction);
+            if (m_direction.absolute().equals(up.absolute())) {
+                m_up = crossed(m_right, m_direction);
+            } else {
+                m_right = crossed(m_direction, up).normalized();
+                m_up = crossed(m_right, m_direction);
+            }
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
