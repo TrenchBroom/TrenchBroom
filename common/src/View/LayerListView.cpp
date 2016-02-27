@@ -78,8 +78,8 @@ namespace TrenchBroom {
                 hiddenText->SetFont(GetFont().Bold());
                 hiddenText->Hide();
                 
-                wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "Show or hide this layer");
-                wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "Lock or unlock this layer");
+                wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
+                wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
 
                 bindMouseEvents(this);
                 bindMouseEvents(m_nameText);

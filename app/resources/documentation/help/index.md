@@ -154,7 +154,7 @@ YZ          +Y            +Z         +X             Side
 
 The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane. 
 
-![The compass](Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ). Sometimes the axes are rendered with a white outline to indicate an [axis restriction](#axis_restriction).
+![The compass](Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ).
 
 At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu('Menu/View/Maximize Current View') from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
 
@@ -336,16 +336,11 @@ Mapping mouse input to 3D coordinates is much simpler in the 2D viewports, becau
 
 ### Axis Restriction {#axis_restriction}
 
-To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis. The following table lists the respective shortcuts and their effects:
+To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis when using the mouse. By default, objects are moved on the XY plane in the 3D viewport or on the view plane in the 2D viewports. To move objects vertically in the 3D viewport, you have to hold #key(307). This works either when you start moving the objects and also during a drag. Furthermore, when moving objects on the XY plane in the 3D viewport or on the view plane in the 2D viewports, you can restrict the movement to one axis by holding #key(306). TrenchBroom will then restrict movement to the axis on which the objects have moved the farthest. So if you are moving objects in the 3D viewport and you want to restrict movement to the X axis, move the objects some distance along the X axis and press #key(306) to lock all movement to that axis. When you release #key(306), the restriction is lifted again and the objects will move to the position under the mouse. This applies not only to moving objects, but also moving vertices in the vertex tool and moving clip points in the clip tool. In the clip tool, the axis restriction only works in the 2D viewports however.
 
-Shortcut                                             Effect
---------                                             ------
-#action('Controls/Map view/Set movement axis X')     Restrict movement to X axis
-#action('Controls/Map view/Set movement axis Y')     Restrict movement to Y axis
-#action('Controls/Map view/Set movement axis Z')     Restrict movement to Z axis
-#action('Controls/Map view/Toggle movement axis')    Cycle through movement axis: X, Y, Z, none
+![Moving a brush in the 3D viewport with trace line](MoveTrace.png)
 
-![Axis restriction](AxisRestriction.png) Note that these restrictions apply to all viewports. So it might happen that you restrict movement to the Z axis in the XZ view and then try to move an object in the 3D viewport, only to find that your mouse dragging has no effect on the object because by default, movements are restricted to the XY plane in the 3D viewport. The compass at the bottom left of each view indicates the current axis restriction by drawing a white outline around the restricted axis. In the image to the left, movement is restricted to the X axis, so the red axis is drawn with a white outline.
+Note that TrenchBroom draws a trace line for you when you move objects with the mouse. The trace line helps to move objects in straight lines and as a visual feedback for your move. When an axis restriction is active, the trace line is rendered thicker.
 
 ### The Grid
 
@@ -441,10 +436,6 @@ The following section is divided into several sub sections: First, we introduce 
 ### Moving Objects {#moving_objects}
 
 You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. If grid snapping is enabled, the distances by which you move them are snapped to the grid component-wise, that is, if the grid is set to 16 units, you can move objects by 16 units in either direction.
-
-![Moving a brush in the 3D viewport with trace line](MoveTrace.png)
-
-Note that TrenchBroom draws a light blue trace line for you when you move objects with the mouse. The trace line helps to move objects in straight lines and as a visual feedback for your move. Remember that you can [cancel moving objects](#cancelling) by hitting #action('Controls/Map view/Cancel'), and that you can [restrict the movement axis](#axis_restriction) when moving objects with the mouse.
 
 You can also use the keyboard to move objects. Every time you hit one of the shortcuts in the following table, the object will move in the appropriate direction by the current grid size. Also remember that you can [duplicate objects and move them](#duplicating_objects) in the given direction in one operation by holding #key(308) and hitting one of the keyboard shortcuts listed below.
 
@@ -597,7 +588,7 @@ Manipulating edges and faces with the vertex tool is just a shorthand to selecti
 
 ![Chopping faces](VertexToolFaceChopping.gif) TrenchBroom ensures that you do not create invalid brushes with the vertex tool. For example, it is impossible to make a brush concave by pushing a vertex into the brush. To achieve this, TrenchBroom will chop up the faces incident to that vertex into triangles depending on the direction in which that vertex is moved. In the animation on the left, you can see that the top face of the cube has one triangle chopped off in the first move where the vertex is moved downward, while in the second move, the front face is chopped into a triangle fan when the vertex is moved outward. Sometimes, TrenchBroom will even delete a vertex if a move would push it inside the brush, which would make it concave. In such a case, the vertex move is concluded.
 
-The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once. If you want to restrict a vertex move operation to end up only on another vertex, you can double click the vertex to select it, and then drag it onto the target vertex. The vertex which you selected will not be moved until your drag lands it on another vertex.
+The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once. 
 
 ![Splitting](VertexToolSplitting.gif) Besides moving and fusing vertices, you can also add new vertices to a brush with the vertex tool. By double clicking on an edge or face handle, you can split the edge or face that the handle represented. After the double click, all other handles are hidden, and you have to move the single remaining handle away from the brush to actually create the new vertex. As a shortcut, you can also start your mouse drag with the second press of the left mouse button when you double click on the edge or face handle that you wish to use for splitting.
 
