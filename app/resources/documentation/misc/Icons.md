@@ -4,7 +4,7 @@ All icons must be vector graphics and must be optimized for the given resolution
 The preference dialog is split into the following four preference panes, which are selectable with four large buttons in a toolbar at the top of the window:
 - Game Setup: This is where the user sets the options pertaining to particular games, such as the location of the game on the hard drive etc.
 - View Setup: Here, the user can set some options related to how objects are displayed in the main 3D view.
-- Camera Setup: In this preference pane, the user can tune how the camera reacts to mouse input (e.g. sensitivity etc.)
+- Mouse Setup: In this preference pane, the user can tune how the camera reacts to mouse input (e.g. sensitivity etc.)
 - Keyboard Setup: This is where the user can change the keyboard bindings of the various menu commands.
 
 # Welcome Dialog (32x32)
