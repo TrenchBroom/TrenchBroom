@@ -27,6 +27,7 @@
 #include "View/SmartAttributeEditorManager.h"
 #include "View/SplitterWindow2.h"
 
+#include <wx/persist.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -49,7 +50,7 @@ namespace TrenchBroom {
 
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
             SplitterWindow2* splitter = new SplitterWindow2(parent);
-            splitter->setSashGravity(0.0);
+            splitter->setSashGravity(1.0);
             splitter->SetName("EntityAttributeEditorSplitter");
             
             m_attributeGrid = new EntityAttributeGrid(splitter, document);
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             sizer->SetItemMinSize(m_smartEditorManager, 500, 100);
             SetSizer(sizer);
             
+            wxPersistenceManager::Get().RegisterAndRestore(splitter);
             m_attributeGrid->Bind(ENTITY_ATTRIBUTE_SELECTED_EVENT, &EntityAttributeEditor::OnEntityAttributeSelected, this);
         }
     }
