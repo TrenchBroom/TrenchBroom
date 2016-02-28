@@ -144,8 +144,9 @@ namespace TrenchBroom {
 
         wxRealPoint SplitterWindow4::splitRatios(const wxPoint& positions) const {
             const wxSize size = GetSize();
-            return wxRealPoint(static_cast<double>(positions.x) / static_cast<double>(size.x),
-                               static_cast<double>(positions.y) / static_cast<double>(size.y));
+            const double x = size.x >= 0 ? static_cast<double>(positions.x) / static_cast<double>(size.x) : -1.0;
+            const double y = size.y >= 0 ? static_cast<double>(positions.y) / static_cast<double>(size.y) : -1.0;
+            return wxRealPoint(x, y);
         }
 
         int SplitterWindow4::leftColMinSize() const {

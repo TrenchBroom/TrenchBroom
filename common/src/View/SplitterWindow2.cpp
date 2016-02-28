@@ -116,7 +116,10 @@ namespace TrenchBroom {
         }
         
         double SplitterWindow2::splitRatio(const int position) const {
-            return static_cast<double>(position) / static_cast<double>(h(GetSize()));
+            const double l = static_cast<double>(h(GetSize()));
+            if (l <= 0.0)
+                return -1.0;
+            return static_cast<double>(position) / l;
         }
 
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
