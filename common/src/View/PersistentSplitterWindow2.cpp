@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 return false;
             
             SplitterWindow2* window = Get();
-            window->m_initialSplitRatio = static_cast<double>(scaledRatio) / Scaling;
+            window->m_initialSplitRatio = std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatio) / Scaling));
             return true;
         }
     }

@@ -48,8 +48,8 @@ namespace TrenchBroom {
                 return false;
             
             SplitterWindow4* window = Get();
-            window->m_initialSplitRatios = wxRealPoint(static_cast<double>(scaledRatios.x) / Scaling,
-                                                       static_cast<double>(scaledRatios.y) / Scaling);
+            window->m_initialSplitRatios = wxRealPoint(std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.x) / Scaling)),
+                                                       std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.y) / Scaling)));
             return true;
         }
     }
