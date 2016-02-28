@@ -87,10 +87,14 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
-                        if (node->selected())
+                        if (node->selected()) {
                             document->deselect(node);
-                        else
+                        } else {
+                            Transaction transaction(document, "Select Object");
+                            if (document->hasSelectedBrushFaces())
+                                document->deselectAll();
                             document->select(node);
+                        }
                     } else {
                         Transaction transaction(document, "Select Object");
                         document->deselectAll();
