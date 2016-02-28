@@ -187,9 +187,9 @@ namespace TrenchBroom {
         }
         
         double SpinControl::AdjustToRange(double value) {
-            if (m_value < m_minValue)
+            if (value < m_minValue)
                 return m_minValue;
-            else if (m_value > m_maxValue)
+            else if (value > m_maxValue)
                 return m_maxValue;
             return value;
         }
@@ -199,9 +199,6 @@ namespace TrenchBroom {
                 return false;
             
             const wxString str = DoFormat(value);
-            if (value == m_value && str == m_text->GetValue())
-                return false;
-            
             str.ToDouble(&m_value);
             m_text->SetValue(str);
             m_text->SetInsertionPointEnd();
