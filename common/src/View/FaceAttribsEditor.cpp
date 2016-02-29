@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 request.setXOffset(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 request.setYOffset(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 request.setRotation(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 request.setXScale(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
 
@@ -136,7 +136,7 @@ namespace TrenchBroom {
                 request.setYScale(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 request.setSurfaceValue(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
 
