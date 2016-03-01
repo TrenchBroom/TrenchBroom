@@ -60,7 +60,7 @@ namespace TrenchBroom {
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            hSizer->Add(m_toolBook, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            hSizer->Add(m_toolBook, 1, wxEXPAND);
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);

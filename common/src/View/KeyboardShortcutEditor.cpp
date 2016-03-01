@@ -50,7 +50,7 @@ namespace TrenchBroom {
             resetModifiers();
             
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-            panelSizer->Add(m_label, 0, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            panelSizer->Add(m_label, 0, wxEXPAND);
             m_panel->SetSizer(panelSizer);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

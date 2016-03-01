@@ -83,7 +83,7 @@ namespace TrenchBroom {
             SetDigits(0, 0);
             
             wxSizer* textSizer = new wxBoxSizer(wxVERTICAL);
-            textSizer->Add(m_text, 0, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            textSizer->Add(m_text, 0, wxEXPAND);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(textSizer, 1, wxEXPAND
