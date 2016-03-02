@@ -220,7 +220,6 @@ namespace TrenchBroom {
                 return;
             
             static const float maxDistance2 = 500.0f * 500.0f;
-            typedef VertexSpecs::P3::Vertex Vertex;
             const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
             RenderService renderService(renderContext, renderBatch);
