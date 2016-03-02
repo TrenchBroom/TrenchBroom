@@ -64,12 +64,22 @@ namespace TrenchBroom {
             void cloneAttributes(Node* node) const;
             
             static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
+            static NodeList cloneRecursively(const BBox3& worldBounds, const NodeList& nodes);
             
             template <typename I, typename O>
             static void clone(const BBox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
                     result = node->clone(worldBounds);
+                    ++cur;
+                }
+            }
+            
+            template <typename I, typename O>
+            static void cloneRecursively(const BBox3& worldBounds, I cur, I end, O result) {
+                while (cur != end) {
+                    const Node* node = *cur;
+                    result = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
             }

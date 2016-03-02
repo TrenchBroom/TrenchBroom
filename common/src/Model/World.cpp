@@ -116,12 +116,12 @@ namespace TrenchBroom {
             World* world = m_factory.createWorld(worldBounds);
             cloneAttributes(world);
 
-            world->defaultLayer()->addChildren(clone(worldBounds, m_defaultLayer->children()));
+            world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
             
             if (myChildren.size() > 1) {
                 NodeList childClones;
                 childClones.reserve(myChildren.size() - 1);
-                clone(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
+                cloneRecursively(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
                 world->addChildren(childClones);
             }
             

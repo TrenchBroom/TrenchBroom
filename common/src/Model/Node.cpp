@@ -78,6 +78,13 @@ namespace TrenchBroom {
             return clones;
         }
 
+        NodeList Node::cloneRecursively(const BBox3& worldBounds, const NodeList& nodes) {
+            NodeList clones;
+            clones.reserve(nodes.size());
+            cloneRecursively(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
+            return clones;
+        }
+
         size_t Node::depth() const {
             if (m_parent == NULL)
                 return 0;
@@ -584,7 +591,7 @@ namespace TrenchBroom {
 
         Node* Node::doCloneRecursively(const BBox3& worldBounds) const {
             Node* clone = Node::clone(worldBounds);
-            clone->addChildren(Node::clone(worldBounds, children()));
+            clone->addChildren(Node::cloneRecursively(worldBounds, children()));
             return clone;
         }
 
