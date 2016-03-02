@@ -223,7 +223,11 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3::Vertex Vertex;
             const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
-            Vertex::List vertices;
+            RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjectsTransparent();
+            renderService.setForegroundColor(m_angleColor);
+            
+            Vec3f::List vertices(3);
             Model::EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
@@ -249,30 +253,9 @@ namespace TrenchBroom {
                 const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
                 
                 for (size_t i = 0; i < 3; ++i)
-                    vertices.push_back(Vertex(matrix * arrow[i]));
+                    vertices[i] = matrix * arrow[i];
+                renderService.renderPolygonOutline(vertices);
             }
-            
-            const size_t vertexCount = vertices.size();
-            if (vertexCount == 0)
-                return;
-            
-            VertexArray array = VertexArray::swap(vertices);
-            
-            ActivateVbo activate(m_vbo);
-            array.prepare(m_vbo);
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-
-            glAssert(glDepthMask(GL_FALSE));
-
-            glAssert(glDisable(GL_DEPTH_TEST));
-            glAssert(glPolygonMode(GL_FRONT, GL_LINE));
-            shader.set("Color", m_angleColor);
-            array.render(GL_TRIANGLES);
-
-            glAssert(glPolygonMode(GL_FRONT, GL_FILL));
-            glAssert(glDepthMask(GL_TRUE));
-            glAssert(glEnable(GL_DEPTH_TEST));
         }
 
         Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
