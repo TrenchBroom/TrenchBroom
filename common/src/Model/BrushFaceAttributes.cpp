@@ -143,7 +143,6 @@ namespace TrenchBroom {
             if (m_texture != NULL)
                 m_texture->decUsageCount();
             m_texture = texture;
-            m_textureName = "";
             if (m_texture != NULL) {
                 m_texture->incUsageCount();
                 m_textureName = m_texture->name();

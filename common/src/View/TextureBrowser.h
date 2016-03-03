@@ -80,6 +80,10 @@ namespace TrenchBroom {
             
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
+            void nodesWereAdded(const Model::NodeList& nodes);
+            void nodesWereRemoved(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeList& nodes);
+            void brushFacesDidChange(const Model::BrushFaceList& faces);
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
