@@ -369,6 +369,7 @@ namespace TrenchBroom {
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
+            void unsetEntityDefinitions(const Model::NodeList& nodes);
             void reloadEntityDefinitions();
             
             void setEntityModels();
@@ -381,6 +382,7 @@ namespace TrenchBroom {
             void setTextures(const Model::BrushFaceList& faces);
             
             void unsetTextures();
+            void unsetTextures(const Model::NodeList& nodes);
         protected: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();

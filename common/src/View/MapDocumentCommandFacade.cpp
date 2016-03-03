@@ -293,6 +293,8 @@ namespace TrenchBroom {
             for (it = removedNodes.begin(), end = removedNodes.end(); it != end; ++it) {
                 Model::Node* parent = it->first;
                 const Model::NodeList& children = it->second;
+                unsetEntityDefinitions(children);
+                unsetTextures(children);
                 parent->removeChildren(children.begin(), children.end());
             }
             

@@ -1268,6 +1268,11 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
+        void MapDocument::unsetEntityDefinitions(const Model::NodeList& nodes) {
+            UnsetEntityDefinition visitor;
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
         void MapDocument::reloadEntityDefinitions() {
             unloadEntityDefinitions();
             clearEntityModels();
@@ -1394,6 +1399,11 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
+        void MapDocument::unsetTextures(const Model::NodeList& nodes) {
+            UnsetTextures visitor;
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
         IO::Path::List MapDocument::externalSearchPaths() const {
             IO::Path::List searchPaths;
             if (!m_path.isEmpty() && m_path.isAbsolute())

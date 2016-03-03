@@ -44,6 +44,12 @@ namespace TrenchBroom {
             float m_surfaceValue;
         public:
             BrushFaceAttributes(const String& textureName);
+            BrushFaceAttributes(const BrushFaceAttributes& other);
+            ~BrushFaceAttributes();
+            BrushFaceAttributes& operator=(BrushFaceAttributes other);
+            friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
+            
+            BrushFaceAttributes takeSnapshot() const;
             
             const String& textureName() const;
             Assets::Texture* texture() const;

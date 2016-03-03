@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace Model {
         BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem) :
         m_face(face),
-        m_attribs(face->attribs()),
+        m_attribs(face->attribs().takeSnapshot()),
         m_coordSystem(coordSystem->takeSnapshot()) {}
         
         BrushFaceSnapshot::~BrushFaceSnapshot() {

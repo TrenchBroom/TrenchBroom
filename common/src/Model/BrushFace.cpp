@@ -56,9 +56,6 @@ namespace TrenchBroom {
         m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
-            if (m_attribs.texture() != NULL) {
-                m_attribs.texture()->incUsageCount();
-            }
         }
 
         class PlaneWeightOrder {
@@ -105,9 +102,6 @@ namespace TrenchBroom {
         }
 
         BrushFace::~BrushFace() {
-            if (m_attribs.texture() != NULL) {
-                m_attribs.texture()->decUsageCount();
-            }
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = Vec3::Null;
             m_brush = NULL;
@@ -122,9 +116,6 @@ namespace TrenchBroom {
         BrushFace* BrushFace::clone() const {
             BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
             result->m_attribs = m_attribs;
-            if (m_attribs.texture() != NULL) {
-                m_attribs.texture()->incUsageCount();
-            }
             result->setFilePosition(m_lineNumber, m_lineCount);
             if (m_selected)
                 result->select();
@@ -222,15 +213,8 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
-            if (m_attribs.texture() != NULL)
-                m_attribs.texture()->decUsageCount();
-
             const float oldRotation = m_attribs.rotation();
             m_attribs = attribs;
-
-            if (m_attribs.texture() != NULL)
-                m_attribs.texture()->incUsageCount();
-
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
 
             if (m_brush != NULL)
@@ -309,11 +293,7 @@ namespace TrenchBroom {
         void BrushFace::setTexture(Assets::Texture* texture) {
             if (texture == m_attribs.texture())
                 return;
-            if (m_attribs.texture() != NULL)
-                m_attribs.texture()->decUsageCount();
             m_attribs.setTexture(texture);
-            if (m_attribs.texture() != NULL)
-                m_attribs.texture()->incUsageCount();
             if (m_brush != NULL)
                 m_brush->faceDidChange();
             invalidateVertexCache();

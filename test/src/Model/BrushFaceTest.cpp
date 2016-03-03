@@ -66,25 +66,25 @@ namespace TrenchBroom {
             // BrushFaceAttributes doesn't increase usage count
             BrushFaceAttributes attribs("");
             attribs.setTexture(&texture);
-            EXPECT_EQ(0, texture.usageCount());
+            EXPECT_EQ(1, texture.usageCount());
             
             {
                 // test constructor
                 BrushFace face(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs));
-                EXPECT_EQ(1, texture.usageCount());
+                EXPECT_EQ(2, texture.usageCount());
                 
                 // test clone()
                 BrushFace *clone = face.clone();
-                EXPECT_EQ(2, texture.usageCount());
+                EXPECT_EQ(3, texture.usageCount());
 
                 // test destructor
                 delete clone;
                 clone = NULL;
-                EXPECT_EQ(1, texture.usageCount());
+                EXPECT_EQ(2, texture.usageCount());
                 
                 // test setTexture
                 face.setTexture(&texture2);
-                EXPECT_EQ(0, texture.usageCount());
+                EXPECT_EQ(1, texture.usageCount());
                 EXPECT_EQ(1, texture2.usageCount());
                 
                 // test setTexture with the same texture
@@ -94,16 +94,16 @@ namespace TrenchBroom {
                 // test setFaceAttributes
                 EXPECT_EQ(&texture, attribs.texture());
                 face.setAttribs(attribs);
-                EXPECT_EQ(1, texture.usageCount());
+                EXPECT_EQ(2, texture.usageCount());
                 EXPECT_EQ(0, texture2.usageCount());
                 
                 // test setFaceAttributes with the same attributes
                 face.setAttribs(attribs);
-                EXPECT_EQ(1, texture.usageCount());
+                EXPECT_EQ(2, texture.usageCount());
                 EXPECT_EQ(0, texture2.usageCount());
             }
             
-            EXPECT_EQ(0, texture.usageCount());
+            EXPECT_EQ(1, texture.usageCount());
             EXPECT_EQ(0, texture2.usageCount());
         }
     }
