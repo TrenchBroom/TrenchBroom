@@ -41,6 +41,16 @@ namespace TrenchBroom {
             bool operator()(const Model::Entity* entity) const { return MatchSelected == entity->selected(); }
             bool operator()(const Model::Brush* brush) const   { return MatchSelected == brush->selected(); }
         };
+        
+        template <bool MatchSelected>
+        class MatchTransitivelySelectedNodes {
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return MatchSelected == group->transitivelySelected(); }
+            bool operator()(const Model::Entity* entity) const { return MatchSelected == entity->transitivelySelected(); }
+            bool operator()(const Model::Brush* brush) const   { return MatchSelected == brush->transitivelySelected(); }
+        };
     }
 }
 

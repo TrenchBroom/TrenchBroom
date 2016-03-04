@@ -179,6 +179,7 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
+            bool transitivelySelected() const;
             bool parentSelected() const;
             
             bool childSelected() const;

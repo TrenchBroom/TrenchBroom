@@ -376,6 +376,10 @@ namespace TrenchBroom {
                 m_parent->childWasDeselected();
         }
 
+        bool Node::transitivelySelected() const {
+            return selected() || parentSelected();
+        }
+
         bool Node::parentSelected() const {
             if (m_parent == NULL)
                 return false;

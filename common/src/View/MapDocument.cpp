@@ -667,10 +667,16 @@ namespace TrenchBroom {
         
         void MapDocument::isolate(const Model::NodeList& nodes) {
             const Model::LayerList& layers = m_world->allLayers();
-            Model::CollectUnselectedNodesVisitor collect;
-            Model::Node::recurse(layers.begin(), layers.end(), collect);
+
+            Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
+            Model::Node::recurse(layers.begin(), layers.end(), collectUnselected);
             
-            submit(SetVisibilityCommand::hide(collect.nodes()));
+            Model::CollectTransitivelySelectedNodesVisitor collectSelected;
+            Model::Node::recurse(layers.begin(), layers.end(), collectSelected);
+
+            Transaction transaction(this, "Isolate Objects");
+            submit(SetVisibilityCommand::hide(collectUnselected.nodes()));
+            submit(SetVisibilityCommand::show(collectSelected.nodes()));
         }
         
         void MapDocument::hide(const Model::NodeList nodes) {
