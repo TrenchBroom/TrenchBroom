@@ -252,12 +252,12 @@ namespace TrenchBroom {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
         
-        void SwitchableMapViewContainer::doFocusCameraOnSelection() {
-            m_mapView->focusCameraOnSelection();
+        void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate) {
+            m_mapView->focusCameraOnSelection(animate);
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToPosition(const Vec3& position) {
-            m_mapView->moveCameraToPosition(position);
+        void SwitchableMapViewContainer::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            m_mapView->moveCameraToPosition(position, animate);
         }
         
         void SwitchableMapViewContainer::doMoveCameraToCurrentTracePoint() {

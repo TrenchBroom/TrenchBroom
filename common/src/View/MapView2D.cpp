@@ -225,16 +225,19 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(tallBrushes);
         }
 
-        void MapView2D::doFocusCameraOnSelection() {
+        void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const MapDocumentSPtr document = lock(m_document);
             assert(!document->selectedNodes().empty());
             
             const BBox3& bounds = document->selectionBounds();
-            moveCameraToPosition(bounds.center());
+            moveCameraToPosition(bounds.center(), animate);
         }
         
-        void MapView2D::doMoveCameraToPosition(const Vec3& position) {
-            animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+        void MapView2D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            if (animate)
+                animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+            else
+                m_camera.moveTo(position);
         }
         
         void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
@@ -251,7 +254,7 @@ namespace TrenchBroom {
             assert(pointFile->hasNextPoint());
             
             const Vec3f position = pointFile->currentPoint();
-            moveCameraToPosition(position);
+            moveCameraToPosition(position, true);
         }
 
         Vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {

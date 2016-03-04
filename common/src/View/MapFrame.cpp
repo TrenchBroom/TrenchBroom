@@ -869,7 +869,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canFocusCamera())
-                m_mapView->focusCameraOnSelection();
+                m_mapView->focusCameraOnSelection(true);
         }
 
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
@@ -879,7 +879,7 @@ namespace TrenchBroom {
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
                 const Vec3 position = Vec3::parse(str.ToStdString());
-                m_mapView->moveCameraToPosition(position);
+                m_mapView->moveCameraToPosition(position, true);
             }
         }
         

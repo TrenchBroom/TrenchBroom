@@ -81,19 +81,19 @@ namespace TrenchBroom {
                 currentMapView()->selectTall();
         }
 
-        void MultiMapView::doFocusCameraOnSelection() {
+        void MultiMapView::doFocusCameraOnSelection(const bool animate) {
             MapViewList::const_iterator it, end;
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
                 MapView* mapView = *it;
-                mapView->focusCameraOnSelection();
+                mapView->focusCameraOnSelection(animate);
             }
         }
         
-        void MultiMapView::doMoveCameraToPosition(const Vec3& position) {
+        void MultiMapView::doMoveCameraToPosition(const Vec3& position, const bool animate) {
             MapViewList::const_iterator it, end;
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
                 MapView* mapView = *it;
-                mapView->moveCameraToPosition(position);
+                mapView->moveCameraToPosition(position, animate);
             }
         }
         

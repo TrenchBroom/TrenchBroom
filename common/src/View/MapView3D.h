@@ -95,13 +95,13 @@ namespace TrenchBroom {
             bool doCanSelectTall();
             void doSelectTall();
 
-            void doFocusCameraOnSelection();
+            void doFocusCameraOnSelection(bool animate);
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
             Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
-            void doMoveCameraToPosition(const Vec3& position);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint();

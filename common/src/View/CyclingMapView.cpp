@@ -67,9 +67,11 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);
+                    focusCameraOnSelection(false);
                     break;
                 }
             }
+            
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
@@ -113,12 +115,12 @@ namespace TrenchBroom {
             m_currentMapView->selectTall();
         }
 
-        void CyclingMapView::doFocusCameraOnSelection() {
-            m_currentMapView->focusCameraOnSelection();
+        void CyclingMapView::doFocusCameraOnSelection(const bool animate) {
+            m_currentMapView->focusCameraOnSelection(animate);
         }
         
-        void CyclingMapView::doMoveCameraToPosition(const Vec3& position) {
-            m_currentMapView->moveCameraToPosition(position);
+        void CyclingMapView::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            m_currentMapView->moveCameraToPosition(position, animate);
         }
         
         void CyclingMapView::doMoveCameraToCurrentTracePoint() {

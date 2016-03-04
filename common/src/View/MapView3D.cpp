@@ -338,13 +338,13 @@ namespace TrenchBroom {
         
         void MapView3D::doSelectTall() {}
 
-        void MapView3D::doFocusCameraOnSelection() {
+        void MapView3D::doFocusCameraOnSelection(const bool animate) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             assert(!nodes.empty());
             
             const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
-            moveCameraToPosition(newPosition);
+            moveCameraToPosition(newPosition, animate);
         }
         
         class MapView3D::ComputeCameraCenterPositionVisitor : public Model::ConstNodeVisitor {
@@ -465,8 +465,11 @@ namespace TrenchBroom {
             return newPosition - m_camera.direction() * offset.offset();
         }
         
-        void MapView3D::doMoveCameraToPosition(const Vec3& position) {
-            animateCamera(position, m_camera.direction(), m_camera.up());
+        void MapView3D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            if (animate)
+                animateCamera(position, m_camera.direction(), m_camera.up());
+            else
+                m_camera.moveTo(position);
         }
         
         void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {

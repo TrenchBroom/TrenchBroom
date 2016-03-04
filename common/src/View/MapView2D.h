@@ -72,9 +72,9 @@ namespace TrenchBroom {
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
             bool doCanSelectTall();
             void doSelectTall();
-            void doFocusCameraOnSelection();
+            void doFocusCameraOnSelection(bool animate);
             
-            void doMoveCameraToPosition(const Vec3& position);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint();
