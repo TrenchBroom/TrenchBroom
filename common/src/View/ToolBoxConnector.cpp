@@ -208,13 +208,21 @@ namespace TrenchBroom {
             updateModifierKeys();
             if (event.ButtonDown()) {
                 captureMouse();
+                m_clickTime = wxGetLocalTimeMillis();
                 m_clickPos = event.GetPosition();
                 m_inputState.mouseDown(button);
                 m_toolBox->mouseDown(m_toolChain, m_inputState);
             } else {
                 if (m_toolBox->dragging()) {
-                    m_toolBox->endMouseDrag(m_inputState);
-                    m_toolBox->mouseUp(m_toolChain, m_inputState);
+                    const wxLongLong clickInterval = wxGetLocalTimeMillis() - m_clickTime;
+                    if (clickInterval <= 100) {
+                        m_toolBox->cancelMouseDrag();
+                        m_toolBox->mouseUp(m_toolChain, m_inputState);
+                        m_toolBox->mouseClick(m_toolChain, m_inputState);
+                    } else {
+                        m_toolBox->endMouseDrag(m_inputState);
+                        m_toolBox->mouseUp(m_toolChain, m_inputState);
+                    }
                     m_inputState.mouseUp(button);
                     m_inputState.setAnyToolDragging(false);
                     releaseMouse();
@@ -378,7 +386,7 @@ namespace TrenchBroom {
 
         void ToolBoxConnector::cancelDrag() {
             if (m_toolBox->dragging()) {
-                m_toolBox->cancelDrag();
+                m_toolBox->cancelMouseDrag();
                 m_inputState.setAnyToolDragging(false);
                 m_inputState.clearMouseButtons();
             }

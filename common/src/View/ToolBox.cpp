@@ -244,7 +244,7 @@ namespace TrenchBroom {
             m_dragReceiver = NULL;
         }
 
-        void ToolBox::cancelDrag() {
+        void ToolBox::cancelMouseDrag() {
             assert(dragging());
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
@@ -257,7 +257,7 @@ namespace TrenchBroom {
 
         bool ToolBox::cancel(ToolChain* chain) {
             if (dragging()) {
-                cancelDrag();
+                cancelMouseDrag();
                 return true;
             }
 

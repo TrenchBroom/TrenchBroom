@@ -109,7 +109,7 @@ namespace TrenchBroom {
             bool startMouseDrag(ToolChain* chain, const InputState& inputState);
             bool mouseDrag(const InputState& inputState);
             void endMouseDrag(const InputState& inputState);
-            void cancelDrag();
+            void cancelMouseDrag();
             
             void mouseScroll(ToolChain* chain, const InputState& inputState);
 

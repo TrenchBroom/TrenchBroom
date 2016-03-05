@@ -49,6 +49,7 @@ namespace TrenchBroom {
             
             InputState m_inputState;
             
+            wxLongLong m_clickTime;
             wxPoint m_clickPos;
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
