@@ -960,6 +960,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList brushFaces = allSelectedBrushFaces();
             if (!brushFaces.empty()) {
                 snapshot->restoreBrushFaces();
+                setTextures(brushFaces);
                 brushFacesDidChangeNotifier(brushFaces);
             }
         }
