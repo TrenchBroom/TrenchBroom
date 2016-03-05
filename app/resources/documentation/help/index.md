@@ -875,11 +875,19 @@ The preferences dialog allows you to set the game configurations, to change the 
 
 ## Game Configuration {#game_configuration}
 
+![Layer Configuration Dialog (Linux XFCE)](GamePreferences.png)
+
 ## View Layout and Rendering {#view_layout_and_rendering}
+
+![View Configuration Dialog (Linux XFCE)](ViewPreferences.png)
 
 ## Mouse Input {#mouse_input}
 
+![Mouse Configuration Dialog (Linux XFCE)](MousePreferences.png)
+
 ## Keyboard Shortcuts
+
+![Keyboard Configuration Dialog (Linux XFCE)](KeyboardPreferences.png)
 
 # Advanced Topics
 
