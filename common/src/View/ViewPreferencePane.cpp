@@ -182,7 +182,8 @@ namespace TrenchBroom {
             wxPanel* viewBox = new wxPanel(this);
             viewBox->SetBackgroundColour(*wxWHITE);
             
-            TitleBar* viewPrefsTitle = new TitleBar(viewBox, "Map Views");
+            wxStaticText* viewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map Views");
+            viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());
             
             wxString layoutNames[NumFrameLayouts];
             layoutNames[0] = "One Pane";
@@ -210,7 +211,8 @@ namespace TrenchBroom {
             wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
-            TitleBar* textureBrowserPrefsTitle = new TitleBar(viewBox, "Texture Browser");
+            wxStaticText* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
+            textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
 
             wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
@@ -231,7 +233,7 @@ namespace TrenchBroom {
             int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(viewPrefsTitle,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(viewPrefsHeader,                     wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
             sizer->Add(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
@@ -264,7 +266,7 @@ namespace TrenchBroom {
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
-            sizer->Add(textureBrowserPrefsTitle,            wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
 
             sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
