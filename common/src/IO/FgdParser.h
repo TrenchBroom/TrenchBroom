@@ -92,6 +92,7 @@ namespace TrenchBroom {
             Assets::ModelDefinitionList parseModels(ParserStatus& status);
             Assets::ModelDefinitionPtr parseStaticModel(ParserStatus& status);
             Assets::ModelDefinitionPtr parseDynamicModel(ParserStatus& status);
+            String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
             
             Assets::AttributeDefinitionMap parseProperties(ParserStatus& status);

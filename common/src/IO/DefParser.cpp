@@ -402,37 +402,33 @@ namespace TrenchBroom {
             pathKey = token.data();
             
             expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            if (token.type() == DefToken::Word) {
-                if (!StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                    const String msg("Expected 'skinKey', but found '" + token.data() + "'");
+            while (token.type() == DefToken::Word) {
+                if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                    m_tokenizer.pushToken(token);
+                    skinKey = parseNamedValue(status, "skinKey");
+                } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                    m_tokenizer.pushToken(token);
+                    frameKey = parseNamedValue(status, "frameKey");
+                } else {
+                    const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
                     status.error(token.line(), token.column(), msg);
                     throw ParserException(token.line(), token.column(), msg);
                 }
-                
-                expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                skinKey = token.data();
-                
                 expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                if (token.type() == DefToken::Word) {
-                    if (!StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                        const String msg("Expected 'frameKey', but found '" + token.data() + "'");
-                        status.error(token.line(), token.column(), msg);
-                        throw ParserException(token.line(), token.column(), msg);
-                    }
-                    
-                    expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                    expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                    frameKey = token.data();
-                } else {
-                    m_tokenizer.pushToken(token);
-                }
-            } else {
-                m_tokenizer.pushToken(token);
             }
+            m_tokenizer.pushToken(token);
             
             expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
             modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
+        }
+
+        String DefParser::parseNamedValue(ParserStatus& status, const String& name) {
+            Token token;
+            expect(status, DefToken::Word, token = m_tokenizer.nextToken());
+            assert(StringUtils::caseInsensitiveEqual(name, token.data()));
+            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
+            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
+            return token.data();
         }
 
         String DefParser::parseDescription() {

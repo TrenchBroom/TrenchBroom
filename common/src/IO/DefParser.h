@@ -86,6 +86,7 @@ namespace TrenchBroom {
             void parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
             void parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
             void parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
+            String parseNamedValue(ParserStatus& status, const String& name);
             String parseDescription();
 
             Vec3 parseVector(ParserStatus& status);
