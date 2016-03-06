@@ -819,7 +819,7 @@ An entity link that is connected to a currently selected entity is rendered as a
 
 In the screenshot above, the link between the two info_null entities is rendered in green because neither of the entities is selected.
 
-## Undo and Redo
+## Undo and Redo {#undo_redo}
 
 Almost everything that you do in TrenchBroom can be undone by choosing #menu('Menu/Edit/Undo'). This applies to every action that somehow modifies the map file (such as moving objects), but it also applies to some actions that do not change the map file, such as selection, hiding, and locking. There is no limit to how many actions you can undo, and once an action is undone, you can redo it by choosing #menu('Menu/Edit/Redo').
 
@@ -930,7 +930,25 @@ Note that if you assign a keyboard shortcut to different actions in the same con
 
 ## Command Repetition
 
+Editing brushwork often consists of repeating the same steps over and over. As an example, consider building a spiral stair case. You start by cutting out a brush that represents one step of the stair case. Then you duplicate that brush, move it upward and rotate it about the center axis of the stair case. And the you repeat these actions for every step of the stairset. TrenchBroom has a feature called *command repetition* that is designed to automate some part of this process for you.
+
+Repeating commands is similar to having an automatic Macro recorder. Remember that TrenchBroom already records everything you do to provide [undo and redo](#undo_redo). In addition to undoing your actions, TrenchBroom also uses the recorded information to allow you to repeat some of your most recently performed actions. In the example of the stairwell, you would want to repeat the duplication, the translation, and the rotation actions over and over with a single key stroke. The only problem is that you need to determine which of the most recently performed actions should be repeated. This is done in two ways. First, TrenchBroom automatically forgets all repeatable actions when the selection changes. So if you select some objects and choose #menu('Menu/Edit/Repeat') directly after selecting some objects, nothing will happen because all repeatable actions have been discarded. Second, you can tell TrenchBroom to discard all repeatable actions by choosing #menu('Menu/Edit/Clear Repeatable Commands'). Think of this as telling TrenchBroom to start a new macro.
+
+So in the case of the spiral stairwell, you would first create the brush that represents one stair. Since you don't want to repeat whatever actions you performed to create this brush, you'll have tell TrenchBroom to discard all repeatable commands, either by deselecting and then reselecting the brush, or by choosing the appropriate command from the menu. After that, you duplicate the brush, move it upwards, and rotate it. Then, you can repeat these steps by choosing #menu('Menu/Edit/Repeat') as often as you want.
+
+In summary, you can think of command repetition as a very simple macro system that allows you to have one macro that consists only of the most recently performed actions. Even though it is quite limited, it can make your life a lot easier if you get used to it.
+
 ## Issue Browser {#issue_browser}
+
+The issue browser is located at the bottom of the window. It contains a live list of issues that TrenchBroom has detected in your map. The list is live in the sense that the editor updates it automatically whenever the map changes. Be aware that TrenchBroom cannot detect all issues that may lead to compilation errors or warnings, or strange behavior in game. But it can detect some of these issues, and keeping the map free of such issues can protect you from having to spend a lot of time fixing bugs later on when your map becomes more complex. To see which types of issues TrenchBroom can detect and fix for you, click on the "Filter" button at the top right of the issue browser. This opens a dropdown list where you can toggle which types of issues TrenchBroom should check in your map. By default, all issues are enabled.
+
+![Issue Browser with Filter Dropdown](IssueBrowserFilter.png)
+
+Every entry in the issue list provides you with to pieces of information: the line number, if applicable, where the problematic object is located in the current map file, and a description. If you wish to find an object that caused an issue, you can select that issue in the browser to have the object(s) selected in the editor. Next you can choose #menu('Menu/View/Camera/Focus on Selection') to make them visible in the 3D and 2D viewports.
+
+![Issue Browser with Context Menu](IssueBrowserContextMenu.png)
+
+In addition to making you aware of issues, TrenchBroom can also fix them for you. To fix an issue, right click it and choose the appropriate fix from the "Fix" context menu. If you wish to ignore a particular issue, you can also tell TrenchBroom to hide it by choosing "Hide" in the context menu. If you wish to see all hidden issues, you can check the respective checkbox above the issue list. To make a hidden issue visible again, first show all hidden issues, then right click the issue and choose "Show" from the context menu.
 
 ## Solving Problems
 

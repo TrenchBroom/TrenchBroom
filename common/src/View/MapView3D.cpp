@@ -341,10 +341,10 @@ namespace TrenchBroom {
         void MapView3D::doFocusCameraOnSelection(const bool animate) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            assert(!nodes.empty());
-            
-            const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
-            moveCameraToPosition(newPosition, animate);
+            if (!nodes.empty()) {
+                const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
+                moveCameraToPosition(newPosition, animate);
+            }
         }
         
         class MapView3D::ComputeCameraCenterPositionVisitor : public Model::ConstNodeVisitor {
