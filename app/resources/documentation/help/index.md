@@ -960,7 +960,7 @@ In addition to making you aware of issues, TrenchBroom can also fix them for you
 
 # Getting Involved
 
-## Suggest a Feature
+## Suggesting a Feature
 
 If you have an idea for a nice feature that you're missing in TrenchBroom, then you can submit a request at the [TrenchBroom issue tracker]. Try to describe your feature, but don't go into too much detail. If it gets picked up, we will hash out the details together.
 
@@ -972,7 +972,15 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
 
-### Contact
+## Building TrenchBroom from Source
+
+## Development Process
+
+- Repository structure
+- Release plans
+- Alpha, beta, and final releases
+
+## Contact
 
 - IRC: \#trenchbroom on quakenet.org
 
