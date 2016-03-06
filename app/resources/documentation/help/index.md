@@ -871,23 +871,60 @@ When you create new objects, TrenchBroom puts them into the current layer (unles
 
 # Preferences
 
-The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu('Menu/File/Preferences...'). The dialog is split into four panes, each of which we will review in the following sections.
+The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu('Menu/File/Preferences...'). The dialog is split into four panes, each of which we will review in the following sections. Note that on Windows and Linux, the changes are only applied if you click the "OK" or "Apply" button at the bottom of the dialog, whereas on Mac OS X, the changes are applied immediately.
 
 ## Game Configuration {#game_configuration}
 
 ![Layer Configuration Dialog (Linux XFCE)](GamePreferences.png)
 
+The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "Choose..." button and selecting the folder in which the game is stored on your hard drive.
+
 ## View Layout and Rendering {#view_layout_and_rendering}
 
 ![View Configuration Dialog (Linux XFCE)](ViewPreferences.png)
+
+In this preference pane, you can choose the layout of the editing area. There are four layouts available:
+
+Layout      Description
+------      -----------
+One Pane 	One cycleable 3D / XY / XZ / XY viewport
+Two Panes 	One 3D and one cycleable XY / XZ / XY viewport
+Three Panes One 3D, one XY viewport and one cycleable XZ / YZ 2D viewport
+Four Panes 	One 3D, one XY viewport, one XZ viewport, and one YZ viewport
+
+Cycleable 2D viewports can be cycled by pressing #action('Controls/Map view/Cycle map view').
+
+The remaining settings affect how the viewports are rendered.
+
+Setting 					Description
+------- 					-----------
+Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the texture browser)
+Grid 						Opacity of the grid in the 3D and 2D viewports
+Coordinate System Axes 		Show the coordinate system axes in the 3D and 2D viewports
+Background Color 			The background color of the 3D and 2D viewports
+Texture Mode 				Texture filtering mode in the 3D viewport
+Texture Browser Icon Size 	The size of the texture icons in the texture browser
 
 ## Mouse Input {#mouse_input}
 
 ![Mouse Configuration Dialog (Linux XFCE)](MousePreferences.png)
 
+The mouse input preference pane allows you to change how TrenchBroom interprets mouse movements.
+
+Setting 	Description
+------- 	-----------
+Mouse Look 	Sensitivity and axis inversion for mouse look and orbiting (right click and drag)
+Mouse Pan 	Sensitivity and axis inversion for mouse panning (middle click and drag)
+Mouse Move 	Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
+Fly Mode 	Sensitivity, axis inversion and keyboard shortcuts when in [fly mode](#fly_mode).
+
 ## Keyboard Shortcuts
 
 ![Keyboard Configuration Dialog (Linux XFCE)](KeyboardPreferences.png)
+
+In this preference pane, you can change the keybaord shortcuts used in TrenchBroom. The table lists all available shortcuts, their context, and the description. To change a keyboard shortcut, click twice (do not double click) on the shortcut in the first column of the table and enter the new shortcut. The context determines when this shortcut is available, for example, the PgDn key triggers different actions depending on whether the rotate tool is active or not. Finally, the desription column explains what a shortcut does in a particular context. Sometimes a shortcut triggers different actions depending on whether the viewport in which it was used is a 3D or a 2D viewport. For example, the PgDn key can move objects backward (away from the camera) in a 2D viewport or down along the Z axis in the 3D viewport. These different actions are listed together in the description column, but they are separated with a semicolon.
+
+Note that if you assign a keyboard shortcut to different actions in the same context, the shortcut creates a conflict and you cannot exit the preference pane or close the dialog until you resolve the conflict. Conflicting shortcuts are highlighted in red.
 
 # Advanced Topics
 
