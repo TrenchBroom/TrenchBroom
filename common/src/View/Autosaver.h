@@ -48,7 +48,7 @@ namespace TrenchBroom {
             time_t m_lastModificationTime;
             size_t m_lastModificationCount;
         public:
-            Autosaver(View::MapDocumentWPtr document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, size_t maxBackups = 30);
+            Autosaver(View::MapDocumentWPtr document, time_t saveInterval = 10 * 60, time_t idleInterval = 3, size_t maxBackups = 50);
             ~Autosaver();
             
             void triggerAutosave(Logger* logger);
