@@ -632,8 +632,7 @@ Keys:
 */
 /*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_batt0.bsp");
-model(":maps/b_batt1.bsp" 0 0 spawnflags = 1);
+model(":maps/b_batt0.bsp", ":maps/b_batt1.bsp" 0 0 spawnflags = 1);
 }
 6 ammo points (cells) for the
 Thunderbolt (Lightning).
@@ -644,8 +643,7 @@ Flags:
 */
 /*QUAKED item_rockets (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_rock0.bsp");
-model(":maps/b_rock1.bsp" 0 0 spawnflags = 1);
+model(":maps/b_rock0.bsp", ":maps/b_rock1.bsp" 0 0 spawnflags = 1);
 }
 5 ammo points (rockets) for the
 Rocket/Grenade Launcher.
@@ -656,8 +654,7 @@ Flags:
 */
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_shell0.bsp");
-model(":maps/b_shell1.bsp" 0 0 spawnflags = 1);
+model(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" 0 0 spawnflags = 1);
 }
 20 shells for both Shotgun and
 SuperShotgun.
@@ -668,8 +665,7 @@ Flags:
 */
 /*QUAKED item_spikes (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_nail0.bsp");
-model(":maps/b_nail1.bsp" 0 0 spawnflags = 1);
+model(":maps/b_nail0.bsp", ":maps/b_nail1.bsp" 0 0 spawnflags = 1);
 }
 25 ammo points (spikes) for
 Perforator and Super Perforator.
@@ -680,9 +676,7 @@ Flags:
 */
 /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
 {
-    model(":maps/b_bh25.bsp");
-    model(":maps/b_bh10.bsp" 0 0 spawnflags = 1);
-    model(":maps/b_bh100.bsp" 0 0 spawnflags = 2);
+    model(":maps/b_bh25.bsp", ":maps/b_bh10.bsp" 0 0 spawnflags = 1, ":maps/b_bh100.bsp" 0 0 spawnflags = 2);
 }
 Health box. Normally gives 25 points.
 

@@ -109,3 +109,10 @@ span.shortcut {
 	background-color: rgb(220, 220, 220);
 	font-size: 80%;
 }
+
+pre {
+	padding: 20px;
+	background-color: rgb(200, 200, 200);
+	border-radius: 5px;
+	border: 1px solid gray;
+}
