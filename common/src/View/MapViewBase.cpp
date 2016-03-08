@@ -26,9 +26,11 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/FindLayerVisitor.h"
+#include "Model/Group.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -257,16 +259,16 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnReparentBrushes,              this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesToWorld,           this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
             
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
 
@@ -619,14 +621,6 @@ namespace TrenchBroom {
             if (!name.empty())
                 document->renameGroups(name);
         }
-
-        void MapViewBase::OnMoveBrushesToWorld(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            reparentNodes(nodes, document->currentParent());
-        }
         
         void MapViewBase::OnCreatePointEntity(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
@@ -911,17 +905,33 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doShowPopupMenu() {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
+            Model::Node* currentGroup = document->editorContext().currentGroup();
+            Model::Node* newGroup = findNewGroupForObjects(nodes);
+            
             wxMenu menu;
             menu.SetEventHandler(this);
             menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
             menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
             menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
+            
+            if (newGroup != NULL && newGroup != currentGroup) {
+                menu.Append(CommandIds::MapViewPopupMenu::AddObjectsToGroup, "Add Objects to Group " + newGroup->name());
+            } else if (currentGroup != NULL) {
+                menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
+            }
             menu.AppendSeparator();
-            menu.Append(CommandIds::MapViewPopupMenu::ReparentBrushes, "Move Brushes to...");
-            menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
-            menu.AppendSeparator();
+            
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
+            
+            if (newBrushParent == document->currentLayer()) {
+                menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
+            } else {
+                menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
+            }
             
             menu.UpdateUI(this);
             PopupMenu(&menu);
@@ -966,43 +976,73 @@ namespace TrenchBroom {
             return menu;
         }
 
-        void MapViewBase::OnReparentBrushes(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void MapViewBase::OnAddObjectsToGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node* newParent = findNewNodeParent(nodes);
-            assert(newParent != NULL);
+            Model::Node* newGroup = findNewGroupForObjects(nodes);
+            assert(newGroup != NULL);
             
+            Transaction transaction(document, "Add Objects to Group");
+            reparentNodes(nodes, newGroup);
+            document->deselectAll();
+            document->select(newGroup);
+        }
+        
+        void MapViewBase::OnRemoveObjectsFromGroup(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            Model::Node* currentGroup = document->editorContext().currentGroup();
+            assert(currentGroup != NULL);
+            
+            Transaction transaction(document, "Remove Objects from Group");
+            reparentNodes(nodes, document->currentLayer());
+            document->deselectAll();
+            document->select(nodes);
+        }
+
+        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
+            Model::Node* newGroup = NULL;
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).occluded().first();
+            if (hit.isMatch())
+                newGroup = Model::hitToNode(hit);
+            
+            if (newGroup != NULL && canReparentNodes(nodes, newGroup))
+                return newGroup;
+            return NULL;
+        }
+        
+        void MapViewBase::OnMoveBrushesTo(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            Model::Node* newParent = findNewParentEntityForBrushes(nodes);
+            assert(newParent != NULL);
             reparentNodes(nodes, newParent);
         }
         
-        Model::Node* MapViewBase::findNewNodeParent(const Model::NodeList& nodes) const {
+        Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
             Model::Node* newParent = NULL;
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                if (hit.type() == Model::Entity::EntityHit) {
-                    newParent = Model::hitToEntity(hit);
-                } else if (hit.type() == Model::Brush::BrushHit) {
-                    const Model::Brush* brush = Model::hitToBrush(hit);
-                    newParent = brush->parent();
-                }
+                const Model::Brush* brush = Model::hitToBrush(hit);
+                newParent = brush->entity();
             }
             
-            if (newParent != NULL && canReparentNodes(nodes, newParent))
+            if (newParent != NULL && newParent != document->world() && canReparentNodes(nodes, newParent))
                 return newParent;
-            return NULL;
+            return document->currentLayer();
         }
 
-        
-        
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 const Model::Node* node = *it;
-                if (node->parent() != newParent)
+                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
                     return true;
             }
             return false;
@@ -1030,7 +1070,7 @@ namespace TrenchBroom {
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
-                if (node->parent() != newParent)
+                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
                     result.push_back(node);
             }
             return result;
@@ -1048,12 +1088,6 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::MapViewPopupMenu::RenameGroups:
                     updateRenameGroupsMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::ReparentBrushes:
-                    updateReparentBrushesMenuItem(event);
-                    break;
-                case CommandIds::MapViewPopupMenu::MoveBrushesToWorld:
-                    updateMoveBrushesToWorldMenuItem(event);
                     break;
                 default:
                     if (event.GetId() >= CommandIds::MapViewPopupMenu::LowestBrushEntityItem &&
@@ -1079,40 +1113,6 @@ namespace TrenchBroom {
         void MapViewBase::updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->selectedNodes().hasOnlyGroups());
-        }
-
-        void MapViewBase::updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            StringStream name;
-            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to ";
-            
-            if (!document->selectedNodes().hasOnlyBrushes()) {
-                event.Enable(false);
-                name << "Entity";
-            } else {
-                Model::Node* newParent = findNewNodeParent(nodes);
-                if (newParent != NULL) {
-                    event.Enable(true);
-                    name << newParent->name();
-                } else {
-                    event.Enable(false);
-                    name << "Entity";
-                }
-            }
-            event.SetText(name.str());
-        }
-        
-        void MapViewBase::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
-            MapDocumentSPtr document = lock(m_document);
-            Model::World* world = document->world();
-            Model::Layer* layer = document->currentLayer();
-            
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            StringStream name;
-            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to " << world->name();
-            event.Enable(canReparentNodes(nodes, layer));
-            event.SetText(name.str());
         }
 
         void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}

@@ -156,14 +156,17 @@ namespace TrenchBroom {
             void OnUngroupSelectedObjects(wxCommandEvent& event);
             void OnRenameGroups(wxCommandEvent& event);
         private: // reparenting objects
-            void OnReparentBrushes(wxCommandEvent& event);
-            Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;
+            void OnAddObjectsToGroup(wxCommandEvent& event);
+            void OnRemoveObjectsFromGroup(wxCommandEvent& event);
+            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
+
+            void OnMoveBrushesTo(wxCommandEvent& event);
+            Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             
-            void OnMoveBrushesToWorld(wxCommandEvent& event);
             void OnCreatePointEntity(wxCommandEvent& event);
             void OnCreateBrushEntity(wxCommandEvent& event);
             

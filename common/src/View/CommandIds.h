@@ -173,11 +173,13 @@ namespace TrenchBroom {
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
                 static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
                 static const int Lowest                             = HighestBrushEntityItem + 1;
-                static const int ReparentBrushes                    = Lowest + 0;
-                static const int MoveBrushesToWorld                 = Lowest + 1;
-                static const int GroupObjects                       = Lowest + 2;
-                static const int UngroupObjects                     = Lowest + 3;
-                static const int RenameGroups                       = Lowest + 4;
+                static const int AddObjectsToGroup                  = Lowest + 0;
+                static const int RemoveObjectsFromGroup             = Lowest + 1;
+                static const int MoveBrushesToEntity                = Lowest + 2;
+                static const int MoveBrushesToWorld                 = Lowest + 3;
+                static const int GroupObjects                       = Lowest + 4;
+                static const int UngroupObjects                     = Lowest + 5;
+                static const int RenameGroups                       = Lowest + 6;
             }
         }
     }
