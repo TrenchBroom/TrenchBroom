@@ -1,0 +1,3 @@
+@ECHO OFF
+
+git log --pretty=oneline --abbrev-commit %1..HEAD > "@APP_PACKAGE_DIR_NAME@@APP_PACKAGE_FILE_NAME@-Changelog.txt"

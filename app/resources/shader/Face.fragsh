@@ -1,0 +1,92 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform float Brightness;
+uniform float Alpha;
+uniform bool ApplyTexture;
+uniform sampler2D Texture;
+uniform bool ApplyTinting;
+uniform vec4 TintColor;
+uniform bool GrayScale;
+uniform bool RenderGrid;
+uniform float GridSize;
+uniform float GridAlpha;
+uniform bool ShadeFaces;
+uniform bool ShowFog;
+
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+varying vec4 faceColor;
+varying vec3 viewVector;
+
+float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
+
+void main() {
+	if (ApplyTexture)
+		gl_FragColor = texture2D(Texture, gl_TexCoord[0].st);
+	else
+		gl_FragColor = faceColor;
+
+    gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
+    gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+    gl_FragColor.a = Alpha;
+
+    if (GrayScale) {
+        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
+    }
+
+    if (ApplyTinting) {
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+    }
+
+	if (ShadeFaces) {
+		// angular dimming ( can be controlled with dimStrength )
+		// TODO: make view option
+		float dimStrength = 0.25;
+		float angleDim = dot(normalize(viewVector), normalize(modelNormal)) * dimStrength + (1.0 - dimStrength);
+
+		gl_FragColor.rgb *= angleDim;
+	}
+
+	if (ShowFog) {
+        float distance = length(viewVector);
+
+		// TODO: make view options
+		vec3 fogColor = vec3(0.5, 0.5, 0.5);
+		float maxFogAmount = 0.15;
+		float fogBias = 0.0;
+        float fogScale = 0.00075;
+        float fogMinDistance = 512.0;
+        
+        float fogFactor = max(distance - fogMinDistance, 0.0) * fogScale;
+
+		//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
+		gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, clamp(fogFactor + fogBias, 0.0, maxFogAmount));
+	}
+
+	if (RenderGrid && GridAlpha > 0.0) {
+        float blendFactor = clamp((length(viewVector) - 128.0) / 1024.0, 0.0, 1.0);
+        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, GridSize, blendFactor, 1.0);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
+	}
+}

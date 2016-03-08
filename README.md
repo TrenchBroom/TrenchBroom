@@ -35,71 +35,16 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
 - All help is appreciated!
 
+# Credits
+- wxWidgets www.wxwidgets.org
+- FreeType library www.freetype.org
+- FreeImage library www.freeimage.org
+- GoogleTest library code.google.com/p/googletest/
+- GoogleMock library code.google.com/p/googlemock/
+- Quake icons by Th3 ProphetMan th3-prophetman.deviantart.com
+- Hexen 2 icon by thedoctor45 thedoctor45.deviantart.com
+
 ## Changes
-### TrenchBroom 1.1.6
-- Fix crash when dragging entities on some OpenGL drivers (ericw)
-- Fix some crashes when loading mdl and def files (ericw)
-- Fix for editor view getting out of sync when exiting vertex mode (ericw)
-- Improve floating-point precision for map loading, raise threshold for rounding coords (ericw)
-- Workaround "force integer plane points" mode sometimes choosing wrong coordinates (ericw)
-
-### TrenchBroom 1.1.5
-- Fix crash during vertex manipulation (ericw)
-- Fix vertex drift issue when copy/pasting (ericw)
-- Fix for entity key/value corruption when renaming a key (ericw)
-- Add checkbox to filter detail brushes (ericw)
-- Work around modifier keys getting stuck (ericw)
-- Fix for some valid wad files being rejected (ericw)
-
-### TrenchBroom 1.1.4
-- Fix crash when updating graphics resources (ericw)
-- Fix vertex drift issue leading to grid snapping problems (ericw)
-
-### TrenchBroom 1.1.3
-- Fix vertex precision problems when copy/pasting brushes (ericw)
-
-### TrenchBroom 1.1.2
-- Enable texture names starting with '{' (ericw)
-- Fix hang when adding multiple updating entity targets (ericw, necros)
-- Simplify build instructions (ericw)
-- Fix vertex drift on map load (ericw)
-- Fix crash with colors in byte format (ericw)
-- Add option to invert zoom direction when using Alt+MMB (kduske)
-
-### TrenchBroom 1.1.1
-- More natural snapping when resizing brushes
-- Remove limit on maximum mip texture dimensions
-- Don't fall back to software renderer on OS X
-
-### TrenchBroom 1.1.0
-- Keyboard customization
-- Restrict to X or Y axis when moving objects
-- Limit face points to integer coordinates
-- New duplication options (drag to duplicate and duplicate in specific direction)
-- New information bar at top of 3D view
-- Moved search field to information bar
-- Improved precision and stability of vertex tool
-- Select objects by line number
-- Brush resizing feels more natural and snaps more accurately
-- Autosave when the applicaton exits
-- More brush filtering options
-- Better performance for view filters
-- Clip tool remembers last clip side
-- Clip tool adds new brushes to parent entities of clipped brushes
-- Clipped brushes remain selected after deactivating the clip tool
-- Double click on brush selects all brushes belonging to the containing entity
-- Shift + double click on brush to select all of its faces
-- Paint selection
-- Show entity angle in 3D view
-- Camera tracks for point file navigation and center on selection
-- Show compass in 3D view
-- Buttons for texture flipping in face inspector
-- Hotkeys to activate inspector tabs
-- Smooth camera navigation with WASD keys
-- Customizable texture browser icon size
-- Render skip / clip / hint / trigger and liquid brushes semi-transparently
-- Numerous bug fixes
-
 ### TrenchBroom 1.0.9
 - Fix the rotation tool handle position
 

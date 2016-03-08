@@ -1,0 +1,41 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform bool RenderGrid;
+uniform vec4 GridColor;
+uniform float GridSize;
+uniform float GridAlpha;
+uniform float CameraZoom;
+
+uniform vec3 Normal;
+
+varying vec4 modelCoordinates;
+
+float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
+
+void main() {
+	if (RenderGrid && GridAlpha > 0.0) {
+        float blendFactor = 1.0 - clamp((CameraZoom - 0.1) / 4.0, 0.0, 1.0);
+        float lineWidthFactor = 1.0 / CameraZoom / 2.0;
+        float gridValue = grid(modelCoordinates.xyz, Normal.xyz, GridSize, blendFactor, lineWidthFactor);
+        gl_FragColor = vec4(GridColor.xyz, gridValue * GridAlpha);
+	}
+}
