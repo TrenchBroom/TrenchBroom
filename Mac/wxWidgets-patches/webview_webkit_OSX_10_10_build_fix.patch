@@ -1,0 +1,11 @@
+--- src/osx/webview_webkit.mm	2014-12-26 17:02:37.000000000 -0700
++++ src/osx/webview_webkit_patched.mm	2015-06-25 12:44:33.000000000 -0600
+@@ -29,7 +29,7 @@
+ #include "wx/hashmap.h"
+ #include "wx/filesys.h"
+ 
+-#include <WebKit/WebKit.h>
++#include <WebKit/WebKitLegacy.h>
+ #include <WebKit/HIWebView.h>
+ #include <WebKit/CarbonUtils.h>
+ 
