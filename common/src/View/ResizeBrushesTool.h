@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ResizeBrushesTool__
-#define __TrenchBroom__ResizeBrushesTool__
+#ifndef TrenchBroom_ResizeBrushesTool
+#define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -80,4 +80,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ResizeBrushesTool__) */
+#endif /* defined(TrenchBroom_ResizeBrushesTool) */

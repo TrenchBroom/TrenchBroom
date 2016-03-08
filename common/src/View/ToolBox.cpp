@@ -19,10 +19,10 @@
 
 #include "CollectionUtils.h"
 #include "ToolBox.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ToolChain.h"
 
 #include <cassert>
@@ -44,27 +44,46 @@ namespace TrenchBroom {
 
             window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
             window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
+            window->Bind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
+            window->Bind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
             m_focusGroup.push_back(window);
+        }
+
+        void ToolBox::removeWindow(wxWindow* window) {
+            window->Unbind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
+            window->Unbind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
+            window->Unbind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
+            window->Unbind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
+            VectorUtils::erase(m_focusGroup, window);
         }
 
         void ToolBox::OnSetFocus(wxFocusEvent& event) {
             if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
                 m_ignoreNextClick = false;
-            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
-            newFocus->SetCursor(wxCursor(wxCURSOR_ARROW));
-            // clearFocusCursor();
+            clearFocusCursor();
+            event.Skip();
         }
 
         void ToolBox::OnKillFocus(wxFocusEvent& event) {
             if (m_clickToActivate) {
-                // const wxWindow* focusedWindow = event.GetWindow();
-                // if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
+                const wxWindow* focusedWindow = event.GetWindow();
+                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
                     m_ignoreNextClick = true;
-                    wxWindow* oldFocus = static_cast<wxWindow*>(event.GetEventObject());
-                    oldFocus->SetCursor(wxCursor(wxCURSOR_HAND));
-                    // setFocusCursor();
-                // }
+                    setFocusCursor();
+                }
             }
+            event.Skip();
+        }
+
+        void ToolBox::OnEnterWindow(wxMouseEvent& event) {
+            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
+            wxWindow* currentFocus = newFocus->FindFocus();
+            if (VectorUtils::contains(m_focusGroup, currentFocus) && !currentFocus->HasCapture())
+                newFocus->SetFocus();
+            event.Skip();
+        }
+
+        void ToolBox::OnLeaveWindow(wxMouseEvent& event) {
             event.Skip();
         }
 
@@ -110,11 +129,16 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
-            assert(m_dropReceiver == NULL);
+            // On XFCE, this crashes when dragging an entity across a 2D view into the 3D view
+            // I assume that the drag leave event is swallowed somehow.
+            // assert(m_dropReceiver == NULL);
 
             if (!m_enabled)
                 return false;
 
+            if (m_dropReceiver != NULL)
+                dragLeave(chain, inputState);
+            
             deactivateAllTools();
             m_dropReceiver = chain->dragEnter(inputState, text);
             return m_dropReceiver != NULL;
@@ -220,7 +244,7 @@ namespace TrenchBroom {
             m_dragReceiver = NULL;
         }
 
-        void ToolBox::cancelDrag() {
+        void ToolBox::cancelMouseDrag() {
             assert(dragging());
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
@@ -233,7 +257,7 @@ namespace TrenchBroom {
 
         bool ToolBox::cancel(ToolChain* chain) {
             if (dragging()) {
-                cancelDrag();
+                cancelMouseDrag();
                 return true;
             }
 
@@ -297,8 +321,7 @@ namespace TrenchBroom {
         }
 
         void ToolBox::disable() {
-            if (dragging())
-                cancelDrag();
+            assert(!dragging());
             m_enabled = false;
         }
 

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectMatchingIssuesVisitor__
-#define __TrenchBroom__CollectMatchingIssuesVisitor__
+#ifndef TrenchBroom_CollectMatchingIssuesVisitor
+#define TrenchBroom_CollectMatchingIssuesVisitor
 
 #include "Model/NodeVisitor.h"
 #include "Model/Brush.h"
@@ -64,4 +64,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectMatchingIssuesVisitor__) */
+#endif /* defined(TrenchBroom_CollectMatchingIssuesVisitor) */

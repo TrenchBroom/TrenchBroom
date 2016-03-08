@@ -20,6 +20,7 @@
 #include "Autosaver.h"
 
 #include "StringUtils.h"
+#include "SetAny.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
@@ -35,9 +36,12 @@ namespace TrenchBroom {
         m_maxBackups(maxBackups),
         m_lastSaveTime(time(NULL)),
         m_lastModificationTime(0),
-        m_dirty(false) {}
+        m_lastModificationCount(lock(m_document)->modificationCount()) {
+            bindObservers();
+        }
         
         Autosaver::~Autosaver() {
+            unbindObservers();
             triggerAutosave(NULL);
         }
         
@@ -45,29 +49,23 @@ namespace TrenchBroom {
             const time_t currentTime = time(NULL);
             
             MapDocumentSPtr document = lock(m_document);
+            if (!document->modified())
+                return;
+            if (document->modificationCount() == m_lastModificationCount)
+                return;
+            if (currentTime - m_lastModificationTime < m_idleInterval)
+                return;
+            if (currentTime - m_lastSaveTime < m_saveInterval)
+                return;
+
             const IO::Path documentPath = document->path();
-            if (document->modified() &&
-                m_dirty &&
-                m_lastModificationTime > 0 &&
-                currentTime - m_lastModificationTime >= m_idleInterval &&
-                currentTime - m_lastSaveTime >= m_saveInterval &&
-                documentPath.isAbsolute() &&
-                IO::Disk::fileExists(IO::Disk::fixPath(document->path()))) {
-                
-                m_logger = logger;
-                try {
-                    autosave(document);
-                    m_logger = NULL;
-                } catch (...) {
-                    m_logger = NULL;
-                    throw;
-                }
-            }
-        }
-        
-        void Autosaver::updateLastModificationTime() {
-            m_lastModificationTime = time(NULL);
-            m_dirty = true;
+            if (!documentPath.isAbsolute())
+                return;
+            if (!IO::Disk::fileExists(IO::Disk::fixPath(document->path())))
+                return;
+            
+            SetAny<Logger*> setLogger(m_logger, logger);
+            autosave(document);
         }
         
         void Autosaver::autosave(MapDocumentSPtr document) {
@@ -88,13 +86,14 @@ namespace TrenchBroom {
                 const size_t backupNo = backups.size() + 1;
                 
                 const IO::Path backupFilePath = fs.getPath() + makeBackupName(mapBasename, backupNo);
+
+                m_lastSaveTime = time(NULL);
+                m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
                 
                 if (m_logger != NULL)
                     m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
                 
-                m_lastSaveTime = time(NULL);
-                m_dirty = false;
             } catch (FileSystemException e) {
                 if (m_logger != NULL)
                     m_logger->error("Aborting autosave");
@@ -185,6 +184,22 @@ namespace TrenchBroom {
             const size_t no = StringUtils::stringToSize(path.deleteExtension().extension());
             assert(no > 0);
             return no;
+        }
+
+        void Autosaver::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->documentModificationStateDidChangeNotifier.addObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
+        }
+        
+        void Autosaver::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentModificationStateDidChangeNotifier.removeObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
+            }
+        }
+        
+        void Autosaver::documentModificationCountDidChangeNotifier() {
+            m_lastModificationTime = time(NULL);
         }
     }
 }

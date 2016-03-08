@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Renderer/Camera.h"
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
@@ -94,6 +94,8 @@ namespace TrenchBroom {
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
 
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
+            m_currentMouseDelta = wxPoint(0,0);
+            m_lastMousePos = m_originalMousePos;
             resetMouse();
         }
 
@@ -103,36 +105,56 @@ namespace TrenchBroom {
         }
 
         bool FlyModeHelper::keyDown(wxKeyEvent& event) {
-            return key(event, true);
-        }
-
-        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
-            return key(event, false);
-        }
-
-        bool FlyModeHelper::key(wxKeyEvent& event, const bool down) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
             const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-
+            
             wxCriticalSectionLocker lock(m_critical);
-
+            
             if (forward.matches(event)) {
-                m_forward = down;
+                m_forward = true;
                 return true;
             }
             if (backward.matches(event)) {
-                m_backward = down;
+                m_backward = true;
                 return true;
             }
             if (left.matches(event)) {
-                m_left = down;
+                m_left = true;
                 return true;
             }
             if (right.matches(event)) {
-                m_right = down;
+                m_right = true;
+                return true;
+            }
+            return false;
+        }
+
+        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
+            
+            wxCriticalSectionLocker lock(m_critical);
+            
+            if (forward.matchesKey(event)) {
+                m_forward = false;
+                return true;
+            }
+            if (backward.matchesKey(event)) {
+                m_backward = false;
+                return true;
+            }
+            if (left.matchesKey(event)) {
+                m_left = false;
+                return true;
+            }
+            if (right.matchesKey(event)) {
+                m_right = false;
                 return true;
             }
             return false;

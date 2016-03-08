@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SelectionBoundsRenderer__
-#define __TrenchBroom__SelectionBoundsRenderer__
+#ifndef TrenchBroom_SelectionBoundsRenderer
+#define TrenchBroom_SelectionBoundsRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SelectionBoundsRenderer__) */
+#endif /* defined(TrenchBroom_SelectionBoundsRenderer) */

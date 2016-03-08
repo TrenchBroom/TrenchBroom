@@ -25,37 +25,57 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand* SetVisibilityCommand::show(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Shown);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Show));
         }
         
-        SetVisibilityCommand* SetVisibilityCommand::hide(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Hidden);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
         }
         
-        SetVisibilityCommand* SetVisibilityCommand::reset(const Model::NodeList& nodes) {
-            return new SetVisibilityCommand(nodes, Model::Visibility_Inherited);
+        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
         }
 
-        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Model::VisibilityState state) :
-        UndoableCommand(Type, makeName(state)),
+        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const Model::NodeList& nodes) {
+            return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
+        }
+
+        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
+        UndoableCommand(Type, makeName(action)),
         m_nodes(nodes),
-        m_state(state) {}
+        m_action(action) {}
 
-        String SetVisibilityCommand::makeName(const Model::VisibilityState state) {
-            switch (state) {
-                case Model::Visibility_Inherited:
+        String SetVisibilityCommand::makeName(const Action action) {
+            switch (action) {
+                case Action_Reset:
                     return "Reset Visibility";
-                case Model::Visibility_Hidden:
+                case Action_Hide:
                     return "Hide Objects";
-                case Model::Visibility_Shown:
+                case Action_Show:
                     return "Show Objects";
-		DEFAULT_SWITCH()
+                case Action_Ensure:
+                    return "Ensure Objects Visible";
+                switchDefault()
             }
         }
         
         bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldState = document->setVisibilityState(m_nodes, m_state);
+            switch (m_action) {
+                case Action_Reset:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Inherited);
+                    break;
+                case Action_Hide:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Hidden);
+                    break;
+                case Action_Show:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Shown);
+                    break;
+                case Action_Ensure:
+                    m_oldState = document->setVisibilityEnsured(m_nodes);
+                    break;
+                switchDefault()
+            }
             return true;
         }
 
@@ -64,7 +84,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand* command) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
 

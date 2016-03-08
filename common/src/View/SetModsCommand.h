@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetModsCommand__
-#define __TrenchBroom__SetModsCommand__
+#ifndef TrenchBroom_SetModsCommand
+#define TrenchBroom_SetModsCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "StringUtils.h"
 
@@ -28,11 +29,12 @@ namespace TrenchBroom {
         class SetModsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<SetModsCommand> Ptr;
         private:
             StringList m_oldMods;
             StringList m_newMods;
         public:
-            static SetModsCommand* set(const StringList& mods);
+            static Ptr set(const StringList& mods);
         private:
             SetModsCommand(const String& name, const StringList& mods);
             
@@ -40,9 +42,9 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SetModsCommand__) */
+#endif /* defined(TrenchBroom_SetModsCommand) */

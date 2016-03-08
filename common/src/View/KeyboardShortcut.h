@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcut__
-#define __TrenchBroom__KeyboardShortcut__
+#ifndef TrenchBroom_KeyboardShortcut
+#define TrenchBroom_KeyboardShortcut
 
 #include <wx/accel.h>
 #include <wx/defs.h>
@@ -84,11 +84,15 @@ namespace TrenchBroom {
             int modifier3() const;
             bool hasModifier() const;
             
+            bool hasModifier(size_t index) const;
+            int modifier(size_t index) const;
+            
             wxAcceleratorEntry acceleratorEntry(int id) const;
             int acceleratorFlags() const;
             
             bool matches(const wxKeyEvent& event) const;
             bool matches(const int key, const int modifier1 = WXK_NONE, const int modifier2 = WXK_NONE, const int modifier3 = WXK_NONE) const;
+            bool matchesKey(const wxKeyEvent& event) const;
             bool alwaysShowModifier() const;
             
             wxString shortcutMenuString() const;
@@ -100,9 +104,10 @@ namespace TrenchBroom {
             
             wxString modifierMenuString() const;
             
+            wxString asJsonString() const;
             wxString asString() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardShortcut__) */
+#endif /* defined(TrenchBroom_KeyboardShortcut) */

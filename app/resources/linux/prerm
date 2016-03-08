@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+# remove target symlink
+rm -f /usr/bin/trenchbroom
+
+# Remove icons from the system icons
+XDG_ICON_RESOURCE="`which xdg-icon-resource 2> /dev/null || true`"
+if [ ! -x "$XDG_ICON_RESOURCE" ]; then
+  echo "Error: Could not find xdg-icon-resource" >&2
+  exit 1
+fi
+for icon in "@LINUX_TARGET_DIRECTORY@/icons/icon_"*.png; do
+  size="${icon##*/icon_}"
+  "$XDG_ICON_RESOURCE" uninstall --size "${size%.png}" "trenchbroom"
+done
+
+# Remove desktop entry
+XDG_DESKTOP_MENU="`which xdg-desktop-menu 2> /dev/null || true`"
+if [ ! -x "$XDG_DESKTOP_MENU"  ]; then
+    echo "Error: Could not find xdg-desktop-menu" >&2
+    exit 1
+fi
+"$XDG_DESKTOP_MENU" uninstall "@LINUX_TARGET_DIRECTORY@/trenchbroom.desktop"
+
+# Update menu cache
+UPDATE_MENUS="`which update-menus 2> /dev/null || true`"
+if [ -x "$UPDATE_MENUS" ]; then
+  update-menus
+fi
+
+# Update desktop file cache
+update-desktop-database > /dev/null 2>&1 || true

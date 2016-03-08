@@ -29,6 +29,18 @@ namespace TrenchBroom {
         
         MapViewContainer::~MapViewContainer() {}
 
+        bool MapViewContainer::canMaximizeCurrentView() const {
+            return doCanMaximizeCurrentView();
+        }
+        
+        bool MapViewContainer::currentViewMaximized() const {
+            return doCurrentViewMaximized();
+        }
+        
+        void MapViewContainer::toggleMaximizeCurrentView() {
+            doToggleMaximizeCurrentView();
+        }
+
         bool MapViewContainer::doCanFlipObjects() const {
             MapView* current = currentMapView();
             if (current == NULL)
@@ -42,10 +54,10 @@ namespace TrenchBroom {
             current->flipObjects(direction);
         }
 
-        Vec3 MapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds) const {
+        Vec3 MapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
             MapView* current = currentMapView();
             assert(current != NULL);
-            return current->pasteObjectsDelta(bounds);
+            return current->pasteObjectsDelta(bounds, referenceBounds);
         }
 
         MapView* MapViewContainer::currentMapView() const {

@@ -1,0 +1,10 @@
+--- src/osx/webview_webkit.mm
++++ ww_we.mm
+@@ -28,7 +28,7 @@
+ #include "wx/hashmap.h"
+ #include "wx/filesys.h"
+
+-#include <WebKit/WebKit.h>
++#include <WebKit/WebKitLegacy.h>
+ #include <WebKit/HIWebView.h>
+ #include <WebKit/CarbonUtils.h>

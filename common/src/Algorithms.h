@@ -138,6 +138,11 @@ private:
             // the points are colinear, the one that is further from the anchor is considered less
             const T dxl = Math::abs(lhs.x() - m_anchor.x());
             const T dxr = Math::abs(rhs.x() - m_anchor.x());
+            if (dxl == dxr) {
+                const T dyl = Math::abs(lhs.y() - m_anchor.y());
+                const T dyr = Math::abs(rhs.y() - m_anchor.y());
+                return dyl > dyr;
+            }
             return dxl > dxr;
         }
     };

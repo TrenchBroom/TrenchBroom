@@ -24,9 +24,9 @@
 #include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/PointHandleRenderer.h"
-#include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
@@ -37,6 +37,24 @@ namespace TrenchBroom {
             return Renderer::FontDescriptor(pref(Preferences::RendererFontPath()), static_cast<size_t>(pref(Preferences::RendererFontSize)));
         }
         
+        class RenderService::HeadsUpTextAnchor : public TextAnchor {
+        private:
+            Vec3f offset(const Camera& camera, const Vec2f& size) const {
+                Vec3f off = getOffset(camera);
+                return Vec3f(off.x() - size.x() / 2.0f, off.y() - size.y(), off.z());
+            }
+            
+            Vec3f position(const Camera& camera) const {
+                return camera.unproject(getOffset(camera));
+            }
+            
+            Vec3f getOffset(const Camera& camera) const {
+                const float w(camera.unzoomedViewport().width);
+                const float h(camera.unzoomedViewport().height);
+                return Vec3f(w / 2.0f, h - 20.0f, 0.0f);
+            }
+        };
+        
         RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch) :
         m_renderContext(renderContext),
         m_renderBatch(renderBatch),
@@ -45,7 +63,8 @@ namespace TrenchBroom {
         m_primitiveRenderer(new PrimitiveRenderer()),
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
-        m_lineWidth(1.0f) {}
+        m_lineWidth(1.0f),
+        m_occlusionPolicy(PrimitiveRenderer::OP_Transparent) {}
         
         RenderService::~RenderService() {
             flush();
@@ -63,20 +82,31 @@ namespace TrenchBroom {
             m_lineWidth = lineWidth;
         }
 
+        void RenderService::setShowOccludedObjects() {
+            m_occlusionPolicy = PrimitiveRenderer::OP_Show;
+        }
+        
+        void RenderService::setShowOccludedObjectsTransparent() {
+            m_occlusionPolicy = PrimitiveRenderer::OP_Transparent;
+        }
+        
+        void RenderService::setHideOccludedObjects() {
+            m_occlusionPolicy = PrimitiveRenderer::OP_Hide;
+        }
+
         void RenderService::renderString(const AttrString& string, const Vec3f& position) {
             renderString(string, SimpleTextAnchor(position, TextAlignment::Bottom, Vec2f(0.0f, 16.0f)));
         }
 
         void RenderService::renderString(const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
-        }
-        
-        void RenderService::renderStringOnTop(const AttrString& string, const Vec3f& position) {
-            renderStringOnTop(string, SimpleTextAnchor(position, TextAlignment::Bottom, Vec2f(0.0f, 16.0f)));
+            if (m_occlusionPolicy != PrimitiveRenderer::OP_Hide)
+                m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
+            else
+                m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
         }
 
-        void RenderService::renderStringOnTop(const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
+        void RenderService::renderHeadsUp(const AttrString& string) {
+            m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {
@@ -94,11 +124,15 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderLine(const Vec3f& start, const Vec3f& end) {
-            m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, start, end);
+            m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, start, end);
         }
         
         void RenderService::renderLines(const Vec3f::List& positions) {
-            m_primitiveRenderer->renderLines(m_foregroundColor, m_lineWidth, positions);
+            m_primitiveRenderer->renderLines(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
+        }
+
+        void RenderService::renderLineStrip(const Vec3f::List& positions) {
+            m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
         void RenderService::renderCoordinateSystem(const BBox3f& bounds) {
@@ -111,26 +145,26 @@ namespace TrenchBroom {
                 const Math::Axis::Type axis = camera.direction().firstComponent();
                 switch (axis) {
                     case Math::Axis::AX:
-                        m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, bounds);
+                        m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;
                     case Math::Axis::AY:
-                        m_primitiveRenderer->renderCoordinateSystemXZ(x, z, m_lineWidth, bounds);
+                        m_primitiveRenderer->renderCoordinateSystemXZ(x, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;
                     default:
-                        m_primitiveRenderer->renderCoordinateSystemXY(x, y, m_lineWidth, bounds);
+                        m_primitiveRenderer->renderCoordinateSystemXY(x, y, m_lineWidth, m_occlusionPolicy, bounds);
                         break;
                 }
             } else {
-                m_primitiveRenderer->renderCoordinateSystem3D(x, y, z, m_lineWidth, bounds);
+                m_primitiveRenderer->renderCoordinateSystem3D(x, y, z, m_lineWidth, m_occlusionPolicy, bounds);
             }
         }
         
         void RenderService::renderPolygonOutline(const Vec3f::List& positions) {
-            m_primitiveRenderer->renderPolygon(m_foregroundColor, m_lineWidth, positions);
+            m_primitiveRenderer->renderPolygon(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
         void RenderService::renderFilledPolygon(const Vec3f::List& positions) {
-            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, positions);
+            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
         }
 
         void RenderService::renderBounds(const BBox3f& bounds) {
@@ -162,19 +196,23 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
-            m_primitiveRenderer->renderCircle(m_foregroundColor, m_lineWidth, position, normal, segments, radius, startAxis, endAxis);
+            const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
+            renderCircle(position, normal, segments, radius, angles.first, angles.second);
         }
         
         void RenderService::renderCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            m_primitiveRenderer->renderCircle(m_foregroundColor, m_lineWidth, position, normal, segments, radius, startAngle, angleLength);
+            const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
+            m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
         
         void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
-            m_primitiveRenderer->renderFilledCircle(m_foregroundColor, position, normal, segments, radius, startAxis, endAxis);
+            const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
+            renderFilledCircle(position, normal, segments, radius, angles.first, angles.second);
         }
         
         void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            m_primitiveRenderer->renderFilledCircle(m_foregroundColor, position, normal, segments, radius, startAngle, angleLength);
+            const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
+            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
         }
         
         void RenderService::flush() {

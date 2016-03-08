@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityBrowser__
-#define __TrenchBroom__EntityBrowser__
+#ifndef TrenchBroom_EntityBrowser
+#define TrenchBroom_EntityBrowser
 
 #include "StringUtils.h"
 #include "View/GLAttribs.h"
@@ -76,4 +76,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityBrowser__) */
+#endif /* defined(TrenchBroom_EntityBrowser) */

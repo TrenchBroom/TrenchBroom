@@ -23,6 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const double PersistentSplitterWindow4::Scaling = 10000.0;
+        
         PersistentSplitterWindow4::PersistentSplitterWindow4(SplitterWindow4* obj) :
         wxPersistentWindow(obj) {}
         
@@ -32,19 +34,22 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow4::Save() const {
             const SplitterWindow4* window = Get();
-            SaveValue("SashPositionX", window->m_sashPosition.x);
-            SaveValue("SashPositionY", window->m_sashPosition.y);
+            const wxPoint scaledRatios(static_cast<int>(Scaling * window->m_currentSplitRatios.x),
+                                       static_cast<int>(Scaling * window->m_currentSplitRatios.y));
+            SaveValue("SplitRatioX", scaledRatios.x);
+            SaveValue("SplitRatioY", scaledRatios.y);
         }
         
         bool PersistentSplitterWindow4::Restore() {
-            wxPoint sashPosition(-1, -1);
-            if (!RestoreValue("SashPositionX", &sashPosition.x))
+            wxPoint scaledRatios(static_cast<int>(-Scaling), static_cast<int>(-Scaling));
+            if (!RestoreValue("SplitRatioX", &scaledRatios.x))
                 return false;
-            if (!RestoreValue("SashPositionY", &sashPosition.y))
+            if (!RestoreValue("SplitRatioY", &scaledRatios.y))
                 return false;
             
             SplitterWindow4* window = Get();
-            window->m_initialSashPosition = sashPosition;
+            window->m_initialSplitRatios = wxRealPoint(std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.x) / Scaling)),
+                                                       std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.y) / Scaling)));
             return true;
         }
     }

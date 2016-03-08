@@ -42,14 +42,22 @@ namespace TrenchBroom {
             wxStaticText* appName = new wxStaticText(this, wxID_ANY, "TrenchBroom");
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
             wxStaticLine* appLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "A Modern Level Editor");
+            wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "Level Editor");
+            
             wxString versionStr("Version ");
-            versionStr << getVersion();
+            versionStr << getBuildVersion() << " " << getBuildChannel();
+            
+            wxString buildStr("Build ");
+            buildStr << getBuildId() << " " << getBuildType();
+            
             wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);
+            wxStaticText* build = new wxStaticText(this, wxID_ANY, buildStr);
 #if !defined(_WIN32)
             version->SetFont(version->GetFont().Smaller());
+            build->SetFont(build->GetFont().Smaller());
 #endif
             version->SetForegroundColour(wxColor(128, 128, 128));
+            build->SetForegroundColour(wxColor(128, 128, 128));
             
             SetBackgroundColour(*wxWHITE);
             
@@ -59,8 +67,9 @@ namespace TrenchBroom {
             sizer->Add(appLine, 0, wxEXPAND);
             sizer->Add(appClaim, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
+            sizer->Add(build, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->AddStretchSpacer();
-            SetSizer(sizer);
+            SetSizerAndFit(sizer);
         }
     }
 }

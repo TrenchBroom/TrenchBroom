@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityDefinitionFileChooser__
-#define __TrenchBroom__EntityDefinitionFileChooser__
+#ifndef TrenchBroom_EntityDefinitionFileChooser
+#define TrenchBroom_EntityDefinitionFileChooser
 
 #include "View/ViewTypes.h"
 
@@ -62,4 +62,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityDefinitionFileChooser__) */
+#endif /* defined(TrenchBroom_EntityDefinitionFileChooser) */

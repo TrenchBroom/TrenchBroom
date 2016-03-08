@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView__
-#define __TrenchBroom__MapView__
+#ifndef TrenchBroom_MapView
+#define TrenchBroom_MapView
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -36,13 +36,16 @@ namespace TrenchBroom {
             void setToolBoxDropTarget();
             void clearDropTarget();
 
+            bool canSelectTall();
+            void selectTall();
+
             bool canFlipObjects() const;
             void flipObjects(Math::Direction direction);
             
-            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 pasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
             
-            void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& position);
+            void focusCameraOnSelection(bool animate);
+            void moveCameraToPosition(const Vec3& position, bool animate);
             
             void moveCameraToCurrentTracePoint();
         private:
@@ -51,17 +54,20 @@ namespace TrenchBroom {
             virtual void doSetToolBoxDropTarget() = 0;
             virtual void doClearDropTarget() = 0;
 
+            virtual bool doCanSelectTall() = 0;
+            virtual void doSelectTall() = 0;
+
             virtual bool doCanFlipObjects() const = 0;
             virtual void doFlipObjects(Math::Direction direction) = 0;
             
-            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
+            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const = 0;
 
-            virtual void doCenterCameraOnSelection() = 0;
-            virtual void doMoveCameraToPosition(const Vec3& position) = 0;
+            virtual void doFocusCameraOnSelection(bool animate) = 0;
+            virtual void doMoveCameraToPosition(const Vec3& position, bool animate) = 0;
             
             virtual void doMoveCameraToCurrentTracePoint() = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView__) */
+#endif /* defined(TrenchBroom_MapView) */

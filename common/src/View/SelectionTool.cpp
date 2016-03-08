@@ -20,6 +20,8 @@
 #include "SelectionTool.h"
 
 #include "CollectionUtils.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
@@ -32,12 +34,13 @@
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
+#include "View/Grid.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
         SelectionTool::SelectionTool(MapDocumentWPtr document) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document) {}
 
@@ -61,7 +64,7 @@ namespace TrenchBroom {
                             if (brush->selected()) {
                                 document->deselect(face);
                             } else {
-                                Transaction transaction(document, "Select face");
+                                Transaction transaction(document, "Select Brush Face");
                                 document->convertToFaceSelection();
                                 document->select(face);
                             }
@@ -72,7 +75,7 @@ namespace TrenchBroom {
                                 document->select(face);
                         }
                     } else {
-                        Transaction transaction(document, "Select face");
+                        Transaction transaction(document, "Select Brush Face");
                         document->deselectAll();
                         document->select(face);
                     }
@@ -84,12 +87,16 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
-                        if (node->selected())
+                        if (node->selected()) {
                             document->deselect(node);
-                        else
+                        } else {
+                            Transaction transaction(document, "Select Object");
+                            if (document->hasSelectedBrushFaces())
+                                document->deselectAll();
                             document->select(node);
+                        }
                     } else {
-                        Transaction transaction(document, "Select object");
+                        Transaction transaction(document, "Select Object");
                         document->deselectAll();
                         document->select(node);
                     }
@@ -114,7 +121,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document->select(brush->faces());
                     } else {
-                        Transaction transaction(document, "Select faces");
+                        Transaction transaction(document, "Select Brush Faces");
                         document->deselectAll();
                         document->select(brush->faces());
                     }
@@ -131,7 +138,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document->select(siblings);
                     } else {
-                        Transaction transaction(document, "Select brushes");
+                        Transaction transaction(document, "Select Brushes");
                         document->deselectAll();
                         document->select(siblings);
                     }
@@ -165,6 +172,62 @@ namespace TrenchBroom {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 
+        void SelectionTool::doMouseScroll(const InputState& inputState) {
+            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
+                adjustGrid(inputState);
+            else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No))
+                drillSelection(inputState);
+        }
+        
+        void SelectionTool::adjustGrid(const InputState& inputState) {
+            const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            MapDocumentSPtr document = lock(m_document);
+            Grid& grid = document->grid();
+            if (factor * inputState.scrollY() < 0.0f)
+                grid.incSize();
+            else if (factor * inputState.scrollY() > 0.0f)
+                grid.decSize();
+        }
+        
+        template <typename I>
+        I findFirstSelected(I it, I end) {
+            while (it != end) {
+                Model::Node* node = Model::hitToNode(*it);
+                if (node->selected())
+                    break;
+                ++it;
+            }
+            return it;
+        }
+        
+        template <typename I>
+        std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end) {
+            static Model::Node* const NullNode = NULL;
+            
+            const I first = findFirstSelected(it, end);
+            if (first == end)
+                return std::make_pair(NullNode, NullNode);
+            I next = first; ++next;
+            if (next == end)
+                return std::make_pair(Model::hitToNode(*first), NullNode);
+            return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
+        }
+        
+        void SelectionTool::drillSelection(const InputState& inputState) {
+            const Model::Hit::List hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
+
+            const bool forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
+            const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(hits.begin(), hits.end()) : findSelectionPair(hits.rbegin(), hits.rend());
+            
+            Model::Node* selectedNode = nodePair.first;
+            Model::Node* nextNode = nodePair.second;
+            if (nextNode != NULL) {
+                MapDocumentSPtr document = lock(m_document);
+                document->deselect(selectedNode);
+                document->select(nextNode);
+            }
+        }
+
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             if (!handleClick(inputState) || !isMultiClick(inputState))
                 return false;
@@ -175,7 +238,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return false;
                 
-                document->beginTransaction("Drag select faces");
+                document->beginTransaction("Drag Select Brush Faces");
                 if (document->hasSelection() && !document->hasSelectedBrushFaces())
                     document->deselectAll();
                 
@@ -189,7 +252,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return false;
                 
-                document->beginTransaction("Drag select objects");
+                document->beginTransaction("Drag Select Objects");
                 if (document->hasSelection() && !document->hasSelectedNodes())
                     document->deselectAll();
                 
@@ -240,14 +303,7 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doCancel() {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection()) {
-                document->deselectAll();
-                return true;
-            } else if (document->currentGroup() != NULL) {
-                document->closeGroup();
-                return true;
-            }
+            // closing the current group is handled in MapViewBase
             return false;
         }
     }

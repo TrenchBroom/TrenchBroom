@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Menu__
-#define __TrenchBroom__Menu__
+#ifndef TrenchBroom_Menu
+#define TrenchBroom_Menu
 
 #include "Preference.h"
 #include "SharedPointer.h"
@@ -101,7 +101,6 @@ namespace TrenchBroom {
 
             wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
-            const KeyboardShortcut& shortcut() const;
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
@@ -115,6 +114,8 @@ namespace TrenchBroom {
             int doGetActionContext() const;
             bool doGetModifiable() const;
             wxString doGetActionDescription() const;
+            wxString doGetJsonString() const;
+            const Preference<KeyboardShortcut>& doGetPreference() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
             wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
@@ -187,4 +188,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Menu__) */
+#endif /* defined(TrenchBroom_Menu) */

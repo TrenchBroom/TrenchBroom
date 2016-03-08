@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MappedFile__
-#define __TrenchBroom__MappedFile__
+#ifndef TrenchBroom_MappedFile
+#define TrenchBroom_MappedFile
 
 #include "SharedPointer.h"
 
@@ -83,4 +83,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MappedFile__) */
+#endif /* defined(TrenchBroom_MappedFile) */

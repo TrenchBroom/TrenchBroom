@@ -22,7 +22,9 @@
 #include <clocale>
 
 #include "GLInit.h"
+#include "Macros.h"
 #include "IO/Path.h"
+#include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "View/AboutFrame.h"
@@ -37,6 +39,7 @@
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
+#include <wx/generic/helpext.h>
 #include <wx/platinfo.h>
 #include <wx/utils.h>
 
@@ -97,10 +100,12 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_HELP);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 #endif
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
+            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowHelp, this, wxID_HELP);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
 
@@ -111,7 +116,7 @@ namespace TrenchBroom {
 
         TrenchBroomApp::~TrenchBroomApp() {
             wxImage::CleanUpHandlers();
-
+            
             delete m_frameManager;
             m_frameManager = NULL;
 
@@ -154,8 +159,8 @@ namespace TrenchBroom {
 
         bool TrenchBroomApp::newDocument() {
             String gameName;
-            Model::MapFormat::Type mapFormat;
-            if (!NewDocumentGameDialog::showDialog(NULL, gameName, mapFormat))
+            Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+            if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                 return false;
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
@@ -171,28 +176,37 @@ namespace TrenchBroom {
             MapFrame* frame = NULL;
             const IO::Path path(pathStr);
             try {
+                String gameName = "";
+                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+                
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                Model::GamePtr game = gameFactory.detectGame(path);
-                if (game == NULL) {
-                    String gameName;
-                    if (!OpenDocumentGameDialog::showDialog(NULL, gameName))
+                const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
+                gameName = detected.first;
+                mapFormat = detected.second;
+                
+                if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
+                    if (!GameDialog::showOpenDocumentDialog(NULL, gameName, mapFormat))
                         return false;
-                    game = gameFactory.createGame(gameName);
                 }
 
+                Model::GamePtr game = gameFactory.createGame(gameName);
                 assert(game != NULL);
 
                 frame = m_frameManager->newFrame();
-                frame->openDocument(game, path);
+                frame->openDocument(game, mapFormat, path);
                 return true;
-            } catch (const Exception& e) {
+            } catch (const FileNotFoundException& e) {
                 m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
                 return false;
+            } catch (const Exception& e) {
+                if (frame != NULL)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+                return false;
             } catch (...) {
-                m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
                 ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, NULL);
@@ -230,6 +244,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        void TrenchBroomApp::OnFatalException() {
+            handleException();
+        }
+
         void TrenchBroomApp::handleException() {
             try {
                 throw;
@@ -265,6 +283,11 @@ namespace TrenchBroom {
             const wxString data = object->GetString();
 
             openDocument(data.ToStdString());
+        }
+
+        void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
+            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help/index.html");
+            wxLaunchDefaultApplication(helpPath.asString());
         }
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
@@ -309,6 +332,7 @@ namespace TrenchBroom {
                 case wxID_NEW:
                 case wxID_OPEN:
                 case wxID_EXIT:
+                case wxID_HELP:
                 case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;

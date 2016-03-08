@@ -20,7 +20,7 @@
 #include "UVScaleTool.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/ModelTypes.h"
 #include "Model/PickResult.h"
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVScaleTool::YHandleHit = Model::Hit::freeHitType();
         
         UVScaleTool::UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper) {}
@@ -160,9 +160,10 @@ namespace TrenchBroom {
             
             Vec2f distance = Vec2f::Max;
             
-            const Model::BrushVertexList& vertices = face->vertices();
-            for (size_t i = 0; i < vertices.size(); ++i) {
-                const Vec2f vertex(toTex * vertices[i]->position);
+            const Model::BrushFace::VertexList vertices = face->vertices();
+            Model::BrushFace::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const Vec2f vertex(toTex * (*it)->position());
                 distance = absMin(distance, position - vertex);
             }
             
@@ -183,13 +184,10 @@ namespace TrenchBroom {
                 return;
                 
             EdgeVertex::List vertices = getHandleVertices(pickResult);
-            const Color color(1.0f, 1.0f, 0.0f);
+            const Color color(1.0f, 0.0f, 0.0f, 1.0f);
             
-            Renderer::EdgeRenderer handleRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(handleRenderer));
-            renderEdges->setColor(color);
-            renderEdges->setWidth(2.0f);
-            renderBatch.addOneShot(renderEdges);
+            Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+            handleRenderer.render(renderBatch, color, 0.5f);
         }
 
         UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {

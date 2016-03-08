@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointHandleRenderer__
-#define __TrenchBroom__PointHandleRenderer__
+#ifndef TrenchBroom_PointHandleRenderer
+#define TrenchBroom_PointHandleRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class PointHandleRenderer : public Renderable {
+        class PointHandleRenderer : public DirectRenderable {
         private:
             typedef std::map<Color, Vec3f::List> HandleMap;
             
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void addPoint(const Color& color, const Vec3f& position);
             void addHighlight(const Color& color, const Vec3f& position);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
             void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle);
             
@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PointHandleRenderer__) */
+#endif /* defined(TrenchBroom_PointHandleRenderer) */

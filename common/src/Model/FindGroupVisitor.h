@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindGroupVisitor__
-#define __TrenchBroom__FindGroupVisitor__
+#ifndef TrenchBroom_FindGroupVisitor
+#define TrenchBroom_FindGroupVisitor
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FindGroupVisitor__) */
+#endif /* defined(TrenchBroom_FindGroupVisitor) */

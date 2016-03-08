@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 }
                 case RotationType_None:
                     return Mat4x4::Identity;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 }
                 case RotationType_None:
                     break;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         

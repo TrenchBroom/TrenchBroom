@@ -36,8 +36,10 @@ namespace TrenchBroom {
     namespace View {
         SplitterWindow4::SplitterWindow4(wxWindow* parent) :
         wxPanel(parent),
-        m_initialSashPosition(-1, -1),
-        m_sashPosition(-1, -1),
+        m_maximizedWindow(NULL),
+        m_gravity(0.5, 0.5),
+        m_initialSplitRatios(-1.0, -1.0),
+        m_currentSplitRatios(m_initialSplitRatios),
         m_oldSize(GetSize()) {
             for (size_t i = 0; i < NumWindows; ++i) {
                 m_windows[i] = NULL;
@@ -99,6 +101,52 @@ namespace TrenchBroom {
             const wxSize minClientSize(leftColMinSize() + rightColMinSize() + sashSize(),
                                        topRowMinSize() + bottomRowMinSize() + sashSize());
             SetMinClientSize(minClientSize);
+        }
+
+        void SplitterWindow4::setSashGravity(double x, double y) {
+            x = std::max(std::min(x, 1.0), 0.0);
+            y = std::max(std::min(y, 1.0), 0.0);
+            m_gravity = wxRealPoint(x, y);
+        }
+
+        void SplitterWindow4::maximize(wxWindow* window) {
+            m_maximizedWindow = window;
+            for (size_t i = 0; i < NumWindows; ++i) {
+                if (m_windows[i] != window)
+                    m_windows[i]->Hide();
+            }
+            m_maximizedWindow = window;
+            m_maximizedWindow->Show();
+            sizeWindows();
+        }
+        
+        void SplitterWindow4::restore() {
+            if (m_maximizedWindow != NULL) {
+                m_maximizedWindow = NULL;
+                for (size_t i = 0; i < NumWindows; ++i)
+                    m_windows[i]->Show();
+                sizeWindows();
+            }
+        }
+
+        wxPoint SplitterWindow4::currentSashPosition() const {
+            return sashPosition(m_currentSplitRatios);
+        }
+
+        wxPoint SplitterWindow4::sashPosition(const wxRealPoint& ratios) const {
+            return sashPosition(ratios, GetSize());
+        }
+
+        wxPoint SplitterWindow4::sashPosition(const wxRealPoint& ratios, const wxSize& size) const {
+            return wxPoint(static_cast<int>(ratios.x * size.x),
+                           static_cast<int>(ratios.y * size.y));
+        }
+
+        wxRealPoint SplitterWindow4::splitRatios(const wxPoint& positions) const {
+            const wxSize size = GetSize();
+            const double x = size.x >= 0 ? static_cast<double>(positions.x) / static_cast<double>(size.x) : -1.0;
+            const double y = size.y >= 0 ? static_cast<double>(positions.y) / static_cast<double>(size.y) : -1.0;
+            return wxRealPoint(x, y);
         }
 
         int SplitterWindow4::leftColMinSize() const {
@@ -171,7 +219,7 @@ namespace TrenchBroom {
             if (GetCapture() == this) {
                 assert(hasWindows());
                 
-                wxPoint newPosition = m_sashPosition;
+                wxPoint newPosition = currentSashPosition();
                 if (m_dragging[Dim_X])
                     newPosition.x = event.GetPosition().x;
                 if (m_dragging[Dim_Y])
@@ -202,8 +250,8 @@ namespace TrenchBroom {
             const wxPoint origin = GetClientAreaOrigin();
             const wxSize size = GetClientSize();
             
-            dc.DrawRectangle(m_sashPosition.x, origin.y, sashSize(), size.y);
-            dc.DrawRectangle(origin.x, m_sashPosition.y, size.x, sashSize());
+            dc.DrawRectangle(currentSashPosition().x, origin.y, sashSize(), size.y);
+            dc.DrawRectangle(origin.x, currentSashPosition().y, size.x, sashSize());
             event.Skip();
         }
 
@@ -214,7 +262,7 @@ namespace TrenchBroom {
                 Unbind(wxEVT_IDLE, &SplitterWindow4::OnIdle, this);
                 
                 // if the initial sash position could not be set until now, then it probably cannot be set at all
-                m_initialSashPosition.x = m_initialSashPosition.y = -1;
+                m_initialSplitRatios = wxRealPoint(-1.0, -1.0);
             }
         }
         
@@ -246,21 +294,22 @@ namespace TrenchBroom {
         
         bool SplitterWindow4::sashHitTest(const wxPoint& point, const Dim dim) const {
             const int v = get(point, dim);
-            const int s = get(m_sashPosition, dim);
+            const int s = get(currentSashPosition(), dim);
             return v >= s && v <= s + sashSize();
         }
 
         void SplitterWindow4::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
             if (!initSashPosition() && hasWindows()) {
-                const wxSize diff = (newSize - oldSize) / 2;
-                if (diff.x != 0 || diff.y != 0)
-                    setSashPosition(m_sashPosition + diff);
+                const wxSize diff = newSize - oldSize;
+                const wxSize actualDiff(wxRound(m_gravity.x * diff.x),
+                                        wxRound(m_gravity.y * diff.y));
+                setSashPosition(sashPosition(m_currentSplitRatios, oldSize) + actualDiff);
             }
         }
         
         bool SplitterWindow4::initSashPosition() {
             const wxSize clientSize = GetClientSize();
-            if (hasWindows() && (m_sashPosition.x == -1 || m_sashPosition.y == -1) &&
+            if (hasWindows() && (m_currentSplitRatios.x == -1.0 || m_currentSplitRatios.y == -1.0) &&
                 clientSize.x > 0 && clientSize.y > 0) {
                 setSashPosition(wxPoint(clientSize.x / 2, clientSize.y / 2));
                 return true;
@@ -268,51 +317,54 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool SplitterWindow4::setSashPosition(wxPoint sashPosition) {
-            if (m_initialSashPosition.x != -1)
-                sashPosition.x = m_initialSashPosition.x;
-            if (m_initialSashPosition.y != -1)
-                sashPosition.y = m_initialSashPosition.y;
-            if (sashPosition == m_sashPosition)
+        bool SplitterWindow4::setSashPosition(wxPoint newSashPosition) {
+            if (m_initialSplitRatios.x != -1.0)
+                newSashPosition.x = sashPosition(m_initialSplitRatios).x;
+            if (m_initialSplitRatios.y != -1.0)
+                newSashPosition.y = sashPosition(m_initialSplitRatios).y;
+            if (newSashPosition == currentSashPosition())
                 return true;
-            m_sashPosition = sashPosition;
-            m_sashPosition.x = std::max(m_sashPosition.x, leftColMinSize());
-            m_sashPosition.x = std::min(m_sashPosition.x, GetClientSize().x - sashSize() - rightColMinSize());
-            m_sashPosition.y = std::max(m_sashPosition.y, topRowMinSize());
-            m_sashPosition.y = std::min(m_sashPosition.y, GetClientSize().x - sashSize() - bottomRowMinSize());
             
-            m_sashPosition.x = std::max(m_sashPosition.x, -1);
-            m_sashPosition.y = std::max(m_sashPosition.y, -1);
+            newSashPosition.x = std::max(newSashPosition.x, leftColMinSize());
+            newSashPosition.x = std::min(newSashPosition.x, GetClientSize().x - sashSize() - rightColMinSize());
+            newSashPosition.y = std::max(newSashPosition.y, topRowMinSize());
+            newSashPosition.y = std::min(newSashPosition.y, GetClientSize().x - sashSize() - bottomRowMinSize());
             
-            return m_sashPosition.x != -1 && m_sashPosition.y != -1;
+            m_currentSplitRatios = splitRatios(newSashPosition);
+            
+            return m_currentSplitRatios.x >= 0.0 && m_currentSplitRatios.y >= 0.0;
         }
         
         void SplitterWindow4::sizeWindows() {
             initSashPosition();
             
             if (hasWindows()) {
-                const wxWindowUpdateLocker lockUpdates(this);
-                
-                const wxPoint origin = GetClientAreaOrigin();
-                const wxSize size = GetClientSize();
-                const wxPoint& sash = m_sashPosition;
-                const int leftColX = origin.x;
-                const int leftColW = sash.x;
-                const int rightColX = leftColX + leftColW + sashSize();
-                const int rightColW = size.x - rightColX;
-                const int topRowY = origin.y;
-                const int topRowH = sash.y;
-                const int bottomRowY = topRowY + topRowH + sashSize();
-                const int bottomRowH = size.y - bottomRowY;
-                
-                m_windows[Window_TopLeft]->SetPosition(wxPoint(leftColX, topRowY));
-                m_windows[Window_TopLeft]->SetSize(wxSize(leftColW, topRowH));
-                m_windows[Window_TopRight]->SetPosition(wxPoint(rightColX, topRowY));
-                m_windows[Window_TopRight]->SetSize(wxSize(rightColW, topRowH));
-                m_windows[Window_BottomRight]->SetPosition(wxPoint(rightColX, bottomRowY));
-                m_windows[Window_BottomRight]->SetSize(wxSize(rightColW, bottomRowH));
-                m_windows[Window_BottomLeft]->SetPosition(wxPoint(leftColX, bottomRowY));
-                m_windows[Window_BottomLeft]->SetSize(wxSize(leftColW, bottomRowH));
+                if (m_maximizedWindow != NULL) {
+                    m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
+                } else {
+                    const wxWindowUpdateLocker lockUpdates(this);
+                    
+                    const wxPoint origin = GetClientAreaOrigin();
+                    const wxSize size = GetClientSize();
+                    const wxPoint sash = currentSashPosition();
+                    const int leftColX = origin.x;
+                    const int leftColW = sash.x;
+                    const int rightColX = leftColX + leftColW + sashSize();
+                    const int rightColW = size.x - rightColX;
+                    const int topRowY = origin.y;
+                    const int topRowH = sash.y;
+                    const int bottomRowY = topRowY + topRowH + sashSize();
+                    const int bottomRowH = size.y - bottomRowY;
+                    
+                    m_windows[Window_TopLeft]->SetPosition(wxPoint(leftColX, topRowY));
+                    m_windows[Window_TopLeft]->SetSize(wxSize(leftColW, topRowH));
+                    m_windows[Window_TopRight]->SetPosition(wxPoint(rightColX, topRowY));
+                    m_windows[Window_TopRight]->SetSize(wxSize(rightColW, topRowH));
+                    m_windows[Window_BottomRight]->SetPosition(wxPoint(rightColX, bottomRowY));
+                    m_windows[Window_BottomRight]->SetSize(wxSize(rightColW, bottomRowH));
+                    m_windows[Window_BottomLeft]->SetPosition(wxPoint(leftColX, bottomRowY));
+                    m_windows[Window_BottomLeft]->SetSize(wxSize(leftColW, bottomRowH));
+                }
             }
         }
         

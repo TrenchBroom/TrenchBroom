@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFileSystem__
-#define __TrenchBroom__GameFileSystem__
+#ifndef TrenchBroom_GameFileSystem
+#define TrenchBroom_GameFileSystem
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameFileSystem__) */
+#endif /* defined(TrenchBroom_GameFileSystem) */

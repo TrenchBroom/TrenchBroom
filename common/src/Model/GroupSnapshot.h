@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GroupSnapshot__
-#define __TrenchBroom__GroupSnapshot__
+#ifndef TrenchBroom_GroupSnapshot
+#define TrenchBroom_GroupSnapshot
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeSnapshot.h"
@@ -42,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GroupSnapshot__) */
+#endif /* defined(TrenchBroom_GroupSnapshot) */

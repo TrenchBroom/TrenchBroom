@@ -23,6 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const double PersistentSplitterWindow2::Scaling = 10000.0;
+        
         PersistentSplitterWindow2::PersistentSplitterWindow2(SplitterWindow2* obj) :
         wxPersistentWindow(obj) {}
         
@@ -32,16 +34,17 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow2::Save() const {
             const SplitterWindow2* window = Get();
-            SaveValue("SashPosition", window->m_sashPosition);
+            const wxCoord scaledRatio = static_cast<int>(Scaling * window->m_currentSplitRatio);
+            SaveValue("SplitRatio", scaledRatio);
         }
         
         bool PersistentSplitterWindow2::Restore() {
-            int sashPosition = -1;
-            if (!RestoreValue("SashPosition", &sashPosition))
+            int scaledRatio = -1;
+            if (!RestoreValue("SplitRatio", &scaledRatio))
                 return false;
             
             SplitterWindow2* window = Get();
-            window->m_initialSashPosition = sashPosition;
+            window->m_initialSplitRatio = std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatio) / Scaling));
             return true;
         }
     }

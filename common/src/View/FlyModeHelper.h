@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FlyModeHelper__
-#define __TrenchBroom__FlyModeHelper__
+#ifndef TrenchBroom_FlyModeHelper
+#define TrenchBroom_FlyModeHelper
 
 #include "VecMath.h"
 
@@ -68,8 +68,6 @@ namespace TrenchBroom {
         public:
             bool keyDown(wxKeyEvent& event);
             bool keyUp(wxKeyEvent& event);
-        private:
-            bool key(wxKeyEvent& event, bool down);
         public:
             void motion(wxMouseEvent& event);
         private:
@@ -85,4 +83,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FlyModeHelper__) */
+#endif /* defined(TrenchBroom_FlyModeHelper) */

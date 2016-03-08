@@ -159,5 +159,9 @@ namespace TrenchBroom {
                 return relPath;
 //            return IO::SystemPaths::resourceDirectory() + filePath;
         }
+
+        void GameConfig::addBrushContentType(const BrushContentType& contentType) {
+            m_brushContentTypes.push_back(contentType);
+        }
     }
 }

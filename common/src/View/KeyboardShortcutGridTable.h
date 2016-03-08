@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcutGridTable__
-#define __TrenchBroom__KeyboardShortcutGridTable__
+#ifndef TrenchBroom_KeyboardShortcutGridTable
+#define TrenchBroom_KeyboardShortcutGridTable
 
 #include "StringUtils.h"
 
@@ -69,4 +69,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardShortcutGridTable__) */
+#endif /* defined(TrenchBroom_KeyboardShortcutGridTable) */

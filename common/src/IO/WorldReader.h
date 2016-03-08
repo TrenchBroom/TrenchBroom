@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WorldReader__
-#define __TrenchBroom__WorldReader__
+#ifndef TrenchBroom_WorldReader
+#define TrenchBroom_WorldReader
 
 #include "IO/MapReader.h"
 
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
             WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
 
-            Model::World* read(const BBox3& worldBounds);
+            Model::World* read(Model::MapFormat::Type format, const BBox3& worldBounds);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds);
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WorldReader__) */
+#endif /* defined(TrenchBroom_WorldReader) */

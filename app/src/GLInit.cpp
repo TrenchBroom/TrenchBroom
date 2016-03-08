@@ -70,6 +70,7 @@ namespace TrenchBroom {
     static Func2<void, GLsizei, const GLuint*>& _glDeleteBuffers = glDeleteBuffers;
     static Func2<void, GLenum, GLuint>& _glBindBuffer = glBindBuffer;
     static Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum>& _glBufferData = glBufferData;
+    static Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*>& _glBufferSubData = glBufferSubData;
     static Func2<GLvoid*, GLenum, GLenum>& _glMapBuffer = glMapBuffer;
     static Func1<GLboolean, GLenum>& _glUnmapBuffer = glUnmapBuffer;
     
@@ -87,7 +88,10 @@ namespace TrenchBroom {
     
     static Func3<void, GLenum, GLint, GLsizei>& _glDrawArrays = glDrawArrays;
     static Func4<void, GLenum, const GLint*, const GLsizei*, GLsizei>& _glMultiDrawArrays = glMultiDrawArrays;
-    
+    static Func4<void, GLenum, GLsizei, GLenum, const GLvoid*>& _glDrawElements = glDrawElements;
+    static Func6<void, GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid*>& _glDrawRangeElements = glDrawRangeElements;
+    static Func5<void, GLenum, const GLsizei*, GLenum, const GLvoid**, GLsizei>& _glMultiDrawElements = glMultiDrawElements;
+
     static Func1<GLuint, GLenum>& _glCreateShader = glCreateShader;
     static Func1<void, GLuint>& _glDeleteShader = glDeleteShader;
     static Func4<void, GLuint, GLsizei, const GLchar**, const GLint*>& _glShaderSource = glShaderSource;
@@ -195,6 +199,7 @@ namespace TrenchBroom {
         _glDeleteBuffers.bindFunc(glDeleteBuffers);
         _glBindBuffer.bindFunc(glBindBuffer);
         _glBufferData.bindFunc(glBufferData);
+        _glBufferSubData.bindFunc(glBufferSubData);
         _glMapBuffer.bindFunc(glMapBuffer);
         _glUnmapBuffer.bindFunc(glUnmapBuffer);
         
@@ -212,6 +217,9 @@ namespace TrenchBroom {
         
         _glDrawArrays.bindFunc(&::glDrawArrays);
         _glMultiDrawArrays.bindFunc(glMultiDrawArrays);
+        _glDrawElements.bindFunc(&::glDrawElements);
+        _glDrawRangeElements.bindFunc(glDrawRangeElements);
+        _glMultiDrawElements.bindFunc(glMultiDrawElements);
         
         _glCreateShader.bindFunc(glCreateShader);
         _glDeleteShader.bindFunc(glDeleteShader);

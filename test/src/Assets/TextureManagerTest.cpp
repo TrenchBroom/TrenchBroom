@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const TextureCollectionSpec spec("somename.wad", IO::Path("./_does_not_exist.wad"));
             EXPECT_CALL(loader, mockLoadTextureCollection(spec)).WillOnce(Throw(FileSystemException("")));
             
-            ASSERT_FALSE(textureManager.addExternalTextureCollection(spec));
+            ASSERT_THROW(textureManager.addExternalTextureCollection(spec), FileSystemException);
             const TextureCollectionList& collections = textureManager.collections();
             ASSERT_EQ(1u, collections.size());
             ASSERT_FALSE(collections.front()->loaded());
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             const TextureCollectionSpec spec("somename.wad", IO::Path("./does_exist.wad"));
             EXPECT_CALL(loader, mockLoadTextureCollection(spec)).WillOnce(Return(collection));
             
-            ASSERT_TRUE(textureManager.addExternalTextureCollection(spec));
+            textureManager.addExternalTextureCollection(spec);
             const TextureCollectionList& collections = textureManager.collections();
             ASSERT_EQ(1u, collections.size());
             ASSERT_EQ(collection, collections.front());

@@ -67,22 +67,26 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);
+                    focusCameraOnSelection(false);
                     break;
                 }
             }
+            
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
+            mapView->Show();
+            mapView->SetFocus();
+
             if (m_currentMapView != NULL)
                 m_currentMapView->Hide();
-            m_currentMapView = mapView;
-            m_currentMapView->Show();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_currentMapView, 1, wxEXPAND);
+            sizer->Add(mapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
-            m_currentMapView->SetFocus();
+
+            m_currentMapView = mapView;
         }
 
         void CyclingMapView::doFlashSelection() {
@@ -103,18 +107,36 @@ namespace TrenchBroom {
                 m_mapViews[i]->clearDropTarget();
         }
 
-        void CyclingMapView::doCenterCameraOnSelection() {
-            m_currentMapView->centerCameraOnSelection();
+        bool CyclingMapView::doCanSelectTall() {
+            return m_currentMapView->canSelectTall();
         }
         
-        void CyclingMapView::doMoveCameraToPosition(const Vec3& position) {
-            m_currentMapView->moveCameraToPosition(position);
+        void CyclingMapView::doSelectTall() {
+            m_currentMapView->selectTall();
+        }
+
+        void CyclingMapView::doFocusCameraOnSelection(const bool animate) {
+            m_currentMapView->focusCameraOnSelection(animate);
+        }
+        
+        void CyclingMapView::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            m_currentMapView->moveCameraToPosition(position, animate);
         }
         
         void CyclingMapView::doMoveCameraToCurrentTracePoint() {
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->moveCameraToCurrentTracePoint();
         }
+
+        bool CyclingMapView::doCanMaximizeCurrentView() const {
+            return false;
+        }
+        
+        bool CyclingMapView::doCurrentViewMaximized() const {
+            return true;
+        }
+        
+        void CyclingMapView::doToggleMaximizeCurrentView() {}
 
         MapView* CyclingMapView::doGetCurrentMapView() const {
             return m_currentMapView;

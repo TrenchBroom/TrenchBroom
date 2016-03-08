@@ -28,29 +28,33 @@
 #include <utility>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace Renderer {
         class Vbo;
         
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
 
-        class BuildCoordinateSystem {
-        private:
-            Color m_colors[3];
-            bool m_axes[3];
+        void coordinateSystemVerticesX(const BBox3f& bounds, Vec3f& start, Vec3f& end);
+        void coordinateSystemVerticesY(const BBox3f& bounds, Vec3f& start, Vec3f& end);
+        void coordinateSystemVerticesZ(const BBox3f& bounds, Vec3f& start, Vec3f& end);
+        
+        class TextureRenderFunc {
         public:
-            static BuildCoordinateSystem xy(const Color& x, const Color& y);
-            static BuildCoordinateSystem xz(const Color& x, const Color& z);
-            static BuildCoordinateSystem yz(const Color& y, const Color& z);
-            static BuildCoordinateSystem xyz(const Color& x, const Color& y, const Color& z);
-        private:
-            BuildCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor, bool xAxis, bool yAxis, bool zAxis);
-        public:
-            VertexSpecs::P3C4::Vertex::List vertices(const BBox3f& bounds) const;
-        private:
-            size_t countVertices() const;
+            virtual ~TextureRenderFunc();
+            virtual void before(const Assets::Texture* texture);
+            virtual void after(const Assets::Texture* texture);
         };
         
+        class DefaultTextureRenderFunc : public TextureRenderFunc {
+        public:
+            void before(const Assets::Texture* texture);
+            void after(const Assets::Texture* texture);
+        };
+
         Vec2f::List circle2D(float radius, size_t segments);
         Vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
         Vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);

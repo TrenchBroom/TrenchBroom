@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetVisibilityCommand__
-#define __TrenchBroom__SetVisibilityCommand__
+#ifndef TrenchBroom_SetVisibilityCommand
+#define TrenchBroom_SetVisibilityCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 
@@ -30,25 +31,34 @@ namespace TrenchBroom {
         class SetVisibilityCommand : public UndoableCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<SetVisibilityCommand> Ptr;
         private:
+            typedef enum {
+                Action_Reset,
+                Action_Hide,
+                Action_Show,
+                Action_Ensure
+            } Action;
+            
             Model::NodeList m_nodes;
-            Model::VisibilityState m_state;
+            CommandType m_action;
             Model::VisibilityMap m_oldState;
         public:
-            static SetVisibilityCommand* show(const Model::NodeList& nodes);
-            static SetVisibilityCommand* hide(const Model::NodeList& nodes);
-            static SetVisibilityCommand* reset(const Model::NodeList& nodes);
+            static Ptr show(const Model::NodeList& nodes);
+            static Ptr hide(const Model::NodeList& nodes);
+            static Ptr ensureVisible(const Model::NodeList& nodes);
+            static Ptr reset(const Model::NodeList& nodes);
         private:
-            SetVisibilityCommand(const Model::NodeList& nodes, Model::VisibilityState state);
-            static String makeName(Model::VisibilityState state);
+            SetVisibilityCommand(const Model::NodeList& nodes, Action action);
+            static String makeName(Action action);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SetVisibilityCommand__) */
+#endif /* defined(TrenchBroom_SetVisibilityCommand) */

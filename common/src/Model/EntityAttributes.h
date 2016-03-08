@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityProperties__
-#define __TrenchBroom__EntityProperties__
+#ifndef TrenchBroom_EntityProperties
+#define TrenchBroom_EntityProperties
 
 #include "StringUtils.h"
 #include "StringMap.h"
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             extern const AttributeName Classname;
             extern const AttributeName Origin;
             extern const AttributeName Wad;
-            extern const AttributeName Wal;
+            extern const AttributeName Textures;
             extern const AttributeName Mods;
             extern const AttributeName Spawnflags;
             extern const AttributeName EntityDefinitions;
@@ -58,6 +58,7 @@ namespace TrenchBroom {
             extern const AttributeName GroupId;
             extern const AttributeName GroupName;
             extern const AttributeName Group;
+            extern const AttributeName Message;
         }
         
         namespace AttributeValues {
@@ -104,7 +105,9 @@ namespace TrenchBroom {
         private:
             EntityAttribute::List m_attributes;
             
-            typedef StringMap<EntityAttribute::List::iterator> AttributeIndex;
+            typedef EntityAttribute::List::iterator IndexValue;
+            typedef StringMapValueContainer<IndexValue> IndexValueContainer;
+            typedef StringMap<IndexValue, IndexValueContainer> AttributeIndex;
             AttributeIndex m_index;
         public:
             const EntityAttribute::List& attributes() const;
@@ -122,7 +125,7 @@ namespace TrenchBroom {
             
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
-            bool containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const;
+            bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
         public:
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
@@ -137,4 +140,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityProperties__) */
+#endif /* defined(TrenchBroom_EntityProperties) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapRenderer__
-#define __TrenchBroom__MapRenderer__
+#ifndef TrenchBroom_MapRenderer
+#define TrenchBroom_MapRenderer
 
 #include "Color.h"
 #include "Model/ModelTypes.h"
@@ -77,6 +77,11 @@ namespace TrenchBroom {
             void renderLocked(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
             
+            class MatchTutorialEntities;
+            class FilterTutorialEntities;
+            class CollectTutorialEntitiesVisitor;
+            void renderTutorialMessages(RenderContext& renderContext, RenderBatch& renderBatch);
+            
             void setupRenderers();
             void setupDefaultRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
@@ -132,4 +137,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapRenderer__) */
+#endif /* defined(TrenchBroom_MapRenderer) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceAttribsEditor__
-#define __TrenchBroom__FaceAttribsEditor__
+#ifndef TrenchBroom_FaceAttribsEditor
+#define TrenchBroom_FaceAttribsEditor
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -50,6 +50,7 @@ namespace TrenchBroom {
 
             UVEditor* m_uvEditor;
             wxStaticText* m_textureName;
+            wxStaticText* m_textureSize;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
@@ -101,4 +102,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceAttribsEditor__) */
+#endif /* defined(TrenchBroom_FaceAttribsEditor) */

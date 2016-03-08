@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewBase__
-#define __TrenchBroom__MapViewBase__
+#ifndef TrenchBroom_MapViewBase
+#define TrenchBroom_MapViewBase
 
 #include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
@@ -29,6 +29,7 @@
 #include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
+#include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -80,7 +81,8 @@ namespace TrenchBroom {
             
             void nodesDidChange(const Model::NodeList& nodes);
             void toolChanged(Tool* tool);
-            void commandProcessed(Command* command);
+            void commandDone(Command::Ptr command);
+            void commandUndone(UndoableCommand::Ptr command);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             void entityDefinitionsDidChange();
@@ -89,6 +91,7 @@ namespace TrenchBroom {
             void mapViewConfigDidChange();
             void gridDidChange();
             void preferenceDidChange(const IO::Path& path);
+			void documentDidChange(MapDocument* document);
         private: // interaction events
             void bindEvents();
             
@@ -146,25 +149,31 @@ namespace TrenchBroom {
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
+            
+            void OnDeactivateTool(wxCommandEvent& event);
         private: // group management
             void OnGroupSelectedObjects(wxCommandEvent& event);
             void OnUngroupSelectedObjects(wxCommandEvent& event);
             void OnRenameGroups(wxCommandEvent& event);
         private: // reparenting objects
-            void OnReparentBrushes(wxCommandEvent& event);
-            Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;
+            void OnAddObjectsToGroup(wxCommandEvent& event);
+            void OnRemoveObjectsFromGroup(wxCommandEvent& event);
+            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
+
+            void OnMoveBrushesTo(wxCommandEvent& event);
+            Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             
-            void OnMoveBrushesToWorld(wxCommandEvent& event);
             void OnCreatePointEntity(wxCommandEvent& event);
             void OnCreateBrushEntity(wxCommandEvent& event);
             
             Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
+            bool canCreateBrushEntity();
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
@@ -189,6 +198,7 @@ namespace TrenchBroom {
             Renderer::RenderContext createRenderContext();
             void setupGL(Renderer::RenderContext& renderContext);
             void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu();
@@ -219,4 +229,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewBase__) */
+#endif /* defined(TrenchBroom_MapViewBase) */

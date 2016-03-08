@@ -71,25 +71,34 @@ namespace TrenchBroom {
         m_faces(faces) {}
 
         String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
+            StringStream result;
             switch (action) {
                 case Action_SelectNodes:
-                    return  StringUtils::safePlural(nodes.size(), "Select object", "Select objects");
+                    result << "Select " << nodes.size() << " " << StringUtils::safePlural(nodes.size(), "Object", "Objects");
+                    break;
                 case Action_SelectFaces:
-                    return  StringUtils::safePlural(faces.size(), "Select face", "Select faces");
+                    result << "Select " << faces.size() << " " << StringUtils::safePlural(nodes.size(), "Brush Face", "Brush Faces");
+                    break;
                 case Action_SelectAllNodes:
-                    return "Select all objects";
+                    result << "Select All Objects";
+                    break;
                 case Action_SelectAllFaces:
-                    return "Select all faces";
+                    result << "Select All Brush Faces";
+                    break;
                 case Action_ConvertToFaces:
-                    return "Convert to face selection";
+                    result << "Convert to Brush Face Selection";
+                    break;
                 case Action_DeselectNodes:
-                    return  StringUtils::safePlural(nodes.size(), "Deselect object", "Select objects");
+                    result << "Deselect " << nodes.size() << " " << StringUtils::safePlural(nodes.size(), "Object", "Objects");
+                    break;
                 case Action_DeselectFaces:
-                    return  StringUtils::safePlural(faces.size(), "Deselect face", "Select faces");
+                    result << "Deselect " << faces.size() << " " << StringUtils::safePlural(nodes.size(), "Brush Face", "Brush Faces");
+                    break;
                 case Action_DeselectAll:
-                    return "Deselect all";
-                DEFAULT_SWITCH()
+                    return "Select None";
+                switchDefault()
             }
+            return result.str();
         }
 
         bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
@@ -142,7 +151,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool SelectionCommand::doCollateWith(UndoableCommand* command) {
+        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

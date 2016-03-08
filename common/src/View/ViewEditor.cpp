@@ -171,8 +171,7 @@ namespace TrenchBroom {
             scrollWindow->SetScrollRate(1, checkBoxHeight);
             
             wxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
-            borderSizer->Add(scrollWindow, 1, wxEXPAND
-                             | wxALL, 1
+            borderSizer->Add(scrollWindow, 1, wxEXPAND | wxALL, 1
                              );
             border->SetSizer(borderSizer);
             
@@ -340,6 +339,7 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->editorContextDidChangeNotifier.addObserver(this, &ViewEditor::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &ViewEditor::mapViewConfigDidChange);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &ViewEditor::entityDefinitionsDidChange);
         }
         
         void ViewEditor::unbindObservers() {
@@ -349,6 +349,7 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->editorContextDidChangeNotifier.removeObserver(this, &ViewEditor::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &ViewEditor::mapViewConfigDidChange);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &ViewEditor::entityDefinitionsDidChange);
             }
         }
         
@@ -365,6 +366,11 @@ namespace TrenchBroom {
             refreshGui();
         }
         
+        void ViewEditor::entityDefinitionsDidChange() {
+            createGui();
+            refreshGui();
+        }
+
         void ViewEditor::createGui() {
             DestroyChildren();
             
@@ -379,8 +385,9 @@ namespace TrenchBroom {
             outerSizer->Add(createEntityDefinitionsPanel(), 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(rightSizer);
-            
+
             SetSizerAndFit(outerSizer);
+			Layout();
             
             GetParent()->Fit();
             GetParent()->GetParent()->Fit();

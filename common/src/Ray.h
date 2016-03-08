@@ -44,7 +44,7 @@ public:
     origin(other.origin),
     direction(other.direction) {}
 
-    bool operator== (const Ray<T,S>& other) const {
+    bool operator==(const Ray<T,S>& other) const {
         return compare(origin, other.origin) == 0 && compare(direction, other.direction) == 0;
     }
     
@@ -133,24 +133,24 @@ public:
         T rayDistance;
         // the smallest distance between the ray and the line
         T distance;
-        // the point on the line which has the smallest distance to the closest point on the ray
-        Vec<T,S> point;
+        // the smallest distance between the closest point on the line and the line anchor
+        T lineDistance;
         
         static const LineDistance Parallel(const T distance) {
             LineDistance result;
             result.parallel = true;
             result.rayDistance = Math::nan<T>();
             result.distance = distance;
-            result.point = Vec<T,S>::Null;
+            result.lineDistance = Math::nan<T>();
             return result;
         }
 
-        static const LineDistance NonParallel(const T rayDistance, const T distance, const Vec<T,S>& point) {
+        static const LineDistance NonParallel(const T rayDistance, const T distance, const T lineDistance) {
             LineDistance result;
             result.parallel = false;
             result.rayDistance = rayDistance;
             result.distance = distance;
-            result.point = point;
+            result.lineDistance = lineDistance;
             return result;
         }
     };
@@ -199,10 +199,53 @@ public:
         w = w + u;
         const Vec<T,S> dP = w - v;
         
-        return LineDistance::NonParallel(tc, dP.squaredLength(), start + u);
+        return LineDistance::NonParallel(tc, dP.squaredLength(), sc);
     }
     
-    const LineDistance distanceToLineSquared(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
+    const LineDistance distanceToRay(const Ray<T,3>& ray) const {
+        LineDistance distance2 = squaredDistanceToRay(ray);
+        distance2.distance = std::sqrt(distance2.distance);
+        return distance2;
+    }
+    
+    const LineDistance squaredDistanceToRay(const Ray<T,3>& ray) const {
+        Vec<T,S> u, v, w;
+        u = ray.direction;
+        v = direction;
+        w = ray.origin - origin;
+        
+        const T a = u.dot(u); // other.direction.dot(other.direction) (squared length)
+        const T b = u.dot(v); // other.direction.dot(this.direction)
+        const T c = v.dot(v); // this.direction.dot(this.direction) (squared length)
+        const T d = u.dot(w); // other.direction.dot(origin delta)
+        const T e = v.dot(w); // this.direction.dot(origin delta)
+        const T D = a * c - b * b;
+        T sN, sD = D;
+        T tN, tD = D;
+        
+        if (Math::zero(D))
+            return LineDistance::Parallel(w.squaredLength());
+        
+        sN = (b * e - c * d);
+        tN = (a * e - b * d);
+        if (sN < static_cast<T>(0.0)) {
+            sN = static_cast<T>(0.0);
+            tN = e;
+            tD = c;
+        }
+        
+        const T sc = Math::zero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const T tc = std::max(Math::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        
+        u = u * sc; // vector from the given ray's origin to the closest point on given ray
+        v = v * tc; // vector from this ray's origin to closest point on this ray
+        w = w + u;
+        const Vec<T,S> dP = w - v;
+        
+        return LineDistance::NonParallel(tc, dP.squaredLength(), sc);
+    }
+    
+    const LineDistance squaredDistanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
         const Vec<T,S> w0 = origin - lineAnchor;
         const T a = direction.dot(direction);
         const T b = direction.dot(lineDir);
@@ -217,13 +260,13 @@ public:
         const T sc = std::max((b * e - c * d) / f, static_cast<T>(0.0));
         const T tc = (a * e - b * d) / f;
         
-        const Vec<T,S> rp = origin + sc * direction;
-        const Vec<T,S> lp = lineAnchor + tc * lineDir;
-        return LineDistance::NonParallel(sc, (rp - lp).squaredLength(), lp);
+        const Vec<T,S> rp = origin + sc * direction; // point on ray
+        const Vec<T,S> lp = lineAnchor + tc * lineDir; // point on line
+        return LineDistance::NonParallel(sc, (rp - lp).squaredLength(), tc);
     }
     
     const LineDistance distanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
-        LineDistance distance2 = distanceToLineSquared(lineAnchor, lineDir);
+        LineDistance distance2 = squaredDistanceToLine(lineAnchor, lineDir);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
     }

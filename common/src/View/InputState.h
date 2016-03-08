@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__InputState__
-#define __TrenchBroom__InputState__
+#ifndef TrenchBroom_InputState
+#define TrenchBroom_InputState
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -66,7 +66,8 @@ namespace TrenchBroom {
             int m_mouseDY;
             float m_scrollX;
             float m_scrollY;
-            
+
+            bool m_anyToolDragging;
             PickRequest m_pickRequest;
             Model::PickResult m_pickResult;
         public:
@@ -100,6 +101,9 @@ namespace TrenchBroom {
             void mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY);
             void scroll(const float scrollX, const float scrollY);
 
+            bool anyToolDragging() const;
+            void setAnyToolDragging(bool anyToolDragging);
+            
             const Ray3& pickRay() const;
             const Vec3 defaultPoint() const;
             const Vec3 defaultPointUnderMouse() const;
@@ -112,4 +116,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__InputState__) */
+#endif /* defined(TrenchBroom_InputState) */

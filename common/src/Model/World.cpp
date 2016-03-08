@@ -116,12 +116,12 @@ namespace TrenchBroom {
             World* world = m_factory.createWorld(worldBounds);
             cloneAttributes(world);
 
-            world->defaultLayer()->addChildren(clone(worldBounds, m_defaultLayer->children()));
+            world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
             
             if (myChildren.size() > 1) {
                 NodeList childClones;
                 childClones.reserve(myChildren.size() - 1);
-                clone(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
+                cloneRecursively(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
                 world->addChildren(childClones);
             }
             
@@ -180,6 +180,15 @@ namespace TrenchBroom {
             }
         }
         
+        void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            const NodeList& children = Node::children();
+            NodeList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                Node* child = *it;
+                child->findNodesContaining(point, result);
+            }
+        }
+
         FloatType World::doIntersectWithRay(const Ray3& ray) const {
             return Math::nan<FloatType>();
         }
@@ -223,7 +232,7 @@ namespace TrenchBroom {
                 return false;
             if (name == AttributeNames::Wad)
                 return false;
-            if (name == AttributeNames::Wal)
+            if (name == AttributeNames::Textures)
                 return false;
             return true;
         }
@@ -235,7 +244,7 @@ namespace TrenchBroom {
                 return false;
             if (name == AttributeNames::Wad)
                 return false;
-            if (name == AttributeNames::Wal)
+            if (name == AttributeNames::Textures)
                 return false;
             return true;
         }

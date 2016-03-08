@@ -21,7 +21,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
@@ -33,7 +32,7 @@ namespace TrenchBroom {
             
             const Vec3f::List positions = sphere3D(radius, iterations);
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
-            m_array = VertexArray::swap(GL_TRIANGLES, vertices);
+            m_array = VertexArray::swap(vertices);
         }
         
         bool Sphere::prepared() const {
@@ -45,7 +44,7 @@ namespace TrenchBroom {
         }
         
         void Sphere::render() {
-            m_array.render();
+            m_array.render(GL_TRIANGLES);
         }
     }
 }

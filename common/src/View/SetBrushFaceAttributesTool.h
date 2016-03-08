@@ -17,16 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetBrushFaceAttributesTool__
-#define __TrenchBroom__SetBrushFaceAttributesTool__
+#ifndef TrenchBroom_SetBrushFaceAttributesTool
+#define TrenchBroom_SetBrushFaceAttributesTool
 
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
-        class SetBrushFaceAttributesTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
         public:
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetBrushFaceAttributesTool__) */
+#endif /* defined(TrenchBroom_SetBrushFaceAttributesTool) */

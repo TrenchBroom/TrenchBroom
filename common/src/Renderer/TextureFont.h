@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Font__
-#define __TrenchBroom__Font__
+#ifndef TrenchBroom_Font
+#define TrenchBroom_Font
 
 #include "VecMath.h"
 #include "AttrString.h"
@@ -58,4 +58,4 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(__TrenchBroom__Font__) */
+#endif /* defined(TrenchBroom_Font) */

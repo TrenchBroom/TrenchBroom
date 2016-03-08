@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NodeCollection__
-#define __TrenchBroom__NodeCollection__
+#ifndef TrenchBroom_NodeCollection
+#define TrenchBroom_NodeCollection
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -37,6 +37,12 @@ namespace TrenchBroom {
             BrushList m_brushes;
         public:
             bool empty() const;
+            size_t nodeCount() const;
+            size_t layerCount() const;
+            size_t groupCount() const;
+            size_t entityCount() const;
+            size_t brushCount() const;
+            
             bool hasLayers() const;
             bool hasOnlyLayers() const;
             bool hasGroups() const;
@@ -68,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NodeCollection__) */
+#endif /* defined(TrenchBroom_NodeCollection) */

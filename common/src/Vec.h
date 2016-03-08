@@ -76,12 +76,17 @@ public:
     static const Vec<T,S> Max;
     
     class LexicographicOrder {
+    private:
+        T m_epsilon;
     public:
+        LexicographicOrder(const T epsilon = Math::Constants<T>::almostZero()) :
+        m_epsilon(epsilon) {}
+        
         bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
             for (size_t i = 0; i < S; ++i) {
-                if (Math::lt(lhs[i], rhs[i]))
+                if (Math::lt(lhs[i], rhs[i], m_epsilon))
                     return true;
-                if (Math::gt(lhs[i], rhs[i]))
+                if (Math::gt(lhs[i], rhs[i], m_epsilon))
                     return false;
             }
             return false;
@@ -125,6 +130,13 @@ public:
         }
     };
     
+    class LengthOrder {
+    public:
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+            return lhs.squaredLength() < rhs.squaredLength();
+        }
+    };
+    
     typedef std::vector<Vec<T,S> > List;
     typedef std::set<Vec<T,S>, LexicographicOrder> Set;
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
@@ -132,6 +144,39 @@ public:
     static const List EmptyList;
     static const Set EmptySet;
     static const Map EmptyMap;
+    
+    template <typename O>
+    class SetOrder {
+    private:
+        O m_order;
+    public:
+        SetOrder(const O& order = O()) :
+        m_order(order) {}
+
+        bool operator()(const Set& lhs, const Set& rhs) const {
+            return compare(lhs, rhs) < 0;
+        }
+    private:
+        int compare(const Set& lhs, const Set& rhs) const {
+            if (lhs.size() < rhs.size())
+                return -1;
+            if (lhs.size() > rhs.size())
+                return 1;
+            
+            typename Set::const_iterator lIt = lhs.begin();
+            typename Set::const_iterator rIt = rhs.begin();
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                const Vec& lPos = *lIt++;
+                const Vec& rPos = *rIt++;
+                
+                if (m_order(lPos, rPos))
+                    return -1;
+                if (m_order(rPos, lPos))
+                    return 1;
+            }
+            return 0;
+        }
+    };
     
 public:
     static const Vec<T,S> axis(const size_t index) {
@@ -218,13 +263,30 @@ public:
     }
     
     static Vec<T,S> parse(const std::string& str) {
-        static const std::string blank(" \t\n\r");
+        size_t pos = 0;
+        return doParse(str, pos);
+    }
+    
+    static List parseList(const std::string& str) {
+        static const std::string blank(" \t\n\r,;");
+        
+        size_t pos = 0;
+        List result;
+
+        while (pos != std::string::npos) {
+            result.push_back(doParse(str, pos));
+            pos = str.find_first_of(blank, pos);
+        }
+        
+        return result;
+    }
+
+private:
+    static Vec<T,S> doParse(const std::string& str, size_t& pos) {
+        static const std::string blank(" \t\n\r()");
 
         Vec<T,S> result;
-
         const char* cstr = str.c_str();
-        size_t pos = 0;
-        
         for (size_t i = 0; i < S; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
                 break;
@@ -232,10 +294,9 @@ public:
             if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
                 break;
         }
-
         return result;
     }
-    
+public:
     T v[S];
     
     Vec() {
@@ -321,7 +382,7 @@ public:
         return 0;
     }
     
-    bool operator== (const Vec<T,S>& right) const {
+    bool operator==(const Vec<T,S>& right) const {
         return compare(right) == 0;
     }
     
@@ -329,7 +390,7 @@ public:
         return compare(right) != 0;
     }
     
-    bool operator< (const Vec<T,S>& right) const {
+    bool operator<(const Vec<T,S>& right) const {
         return compare(right) < 0;
     }
     
@@ -337,7 +398,7 @@ public:
         return compare(right) <= 0;
     }
 
-    bool operator> (const Vec<T,S>& right) const {
+    bool operator>(const Vec<T,S>& right) const {
         return compare(right) > 0;
     }
     
@@ -346,7 +407,7 @@ public:
     }
 
     template <size_t O>
-    Vec<T,S>& operator= (const Vec<T,O>& right) {
+    Vec<T,S>& operator=(const Vec<T,O>& right) {
         for (size_t i = 0; i < std::min(S,O); ++i)
             v[i] = right[i];
         for (size_t i = std::min(S,O); i < S; ++i)
@@ -354,14 +415,14 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator- () const {
+    const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
         return result;
     }
 
-    const Vec<T,S> operator+ (const Vec<T,S>& right) const {
+    const Vec<T,S> operator+(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] + right[i];
@@ -374,7 +435,7 @@ public:
         return *this;
     }
 
-    const Vec<T,S> operator- (const Vec<T,S>& right) const {
+    const Vec<T,S> operator-(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] - right[i];
@@ -387,7 +448,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator* (const T right) const {
+    const Vec<T,S> operator*(const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right;
@@ -400,7 +461,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator* (const Vec<T,S>& right) const {
+    const Vec<T,S> operator*(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] * right[i];
@@ -413,7 +474,7 @@ public:
         return *this;
     }
 
-    const Vec<T,S> operator/ (const T right) const {
+    const Vec<T,S> operator/(const T right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right;
@@ -426,7 +487,7 @@ public:
         return *this;
     }
     
-    const Vec<T,S> operator/ (const Vec<T,S>& right) const {
+    const Vec<T,S> operator/(const Vec<T,S>& right) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = v[i] / right[i];
@@ -495,11 +556,25 @@ public:
             result[i] = v[i] / v[S-1];
         return result;
     }
-    
-    Vec<T,S> remainder(const Vec<T,S>& d) const {
+
+    Vec<T,S> roundDownToMultiple(const Vec<T,S>& m) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
-            result[i] = Math::remainder(v[i], d[i]);
+            result[i] = Math::roundDownToMultiple(v[i], m[i]);
+        return result;
+    }
+    
+    Vec<T,S> roundUpToMultiple(const Vec<T,S>& m) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::roundUpToMultiple(v[i], m[i]);
+        return result;
+    }
+    
+    Vec<T,S> roundToMultiple(const Vec<T,S>& m) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::roundToMultiple(v[i], m[i]);
         return result;
     }
 
@@ -508,6 +583,13 @@ public:
         for (size_t i = 0; i < S; ++i)
             result += (v[i] * right[i]);
         return result;
+    }
+
+    // projects the given distance along this (normalized) vector onto the given vector along the orthogonal of this vector
+    // unlike the dot product which projects orthogonally to the other vector
+    T inverseDot(const T l, const Vec<T,S>& cd) const {
+        const T cos = dot(cd);
+        return l / cos;
     }
     
     T length() const {
@@ -586,20 +668,32 @@ public:
         return colinear(points[0], points[1], points[2]);
     }
     
-    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         return colinear(*this, p2, p3, epsilon);
     }
 
-    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) {
+    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+        const Vec<T,S> p1p2 = p2 - p1;
+        const Vec<T,S> p2p3 = p3 - p2;
+        const Vec<T,S> p1p3 = p3 - p1;
+        
+        return p1p3.equals(p1p2 + p2p3, epsilon);
+        
+        /*
         const Vec<T,S> v1 = p2 - p1;
         const Vec<T,S> v2 = p3 - p2;
         const Vec<T,S> v3 = p1 - p3;
         return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
+        */
     }
     
-    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         const T d = normalized().dot(other.normalized());
         return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
+    }
+    
+    bool colinearTo(const Vec<T,3>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
+        return 1.0 - dot(other) < epsilon;
     }
     
     Vec<T,S> makePerpendicular() const {
@@ -828,6 +922,38 @@ public:
         const Vec<T,S> dir = end - start;
         const T d = (*this - start).dot(dir);
         return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
+    }
+
+    template <typename I, typename G>
+    static Vec<T,S> center(I cur, I end, const G& get) {
+        assert(cur != end);
+        Vec<T,S> result = get(*cur++);
+        T count = 1.0;
+        while (cur != end) {
+            result += get(*cur++);
+            count += 1.0;
+        }
+        return result / count;
+    }
+    
+    template <typename I, typename G>
+    static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
+        typename Vec<T,S>::List result;
+        toList(cur, end, get, result);
+        return result;
+    }
+    
+    template <typename I, typename G>
+    static void toList(I cur, I end, const G& get, typename Vec<T,S>::List& result) {
+        addAll(cur, end, get, std::back_inserter(result));
+    }
+    
+    template <typename I, typename G, typename O>
+    static void addAll(I cur, I end, const G& get, O outp) {
+        while (cur != end) {
+            outp = get(*cur);
+            ++cur;
+        }
     }
 };
 

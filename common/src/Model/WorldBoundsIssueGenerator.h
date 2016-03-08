@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WorldBoundsIssueGenerator__
-#define __TrenchBroom__WorldBoundsIssueGenerator__
+#ifndef TrenchBroom_WorldBoundsIssueGenerator
+#define TrenchBroom_WorldBoundsIssueGenerator
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -42,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WorldBoundsIssueGenerator__) */
+#endif /* defined(TrenchBroom_WorldBoundsIssueGenerator) */

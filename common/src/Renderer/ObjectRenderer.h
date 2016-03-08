@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ObjectRenderer__
-#define __TrenchBroom__ObjectRenderer__
+#ifndef TrenchBroom_ObjectRenderer
+#define TrenchBroom_ObjectRenderer
 
 #include "Color.h"
 #include "Model/ModelTypes.h"
@@ -86,4 +86,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ObjectRenderer__) */
+#endif /* defined(TrenchBroom_ObjectRenderer) */

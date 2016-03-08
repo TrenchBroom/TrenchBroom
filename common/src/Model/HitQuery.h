@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitQuery__
-#define __TrenchBroom__HitQuery__
+#ifndef TrenchBroom_HitQuery
+#define TrenchBroom_HitQuery
 
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
@@ -46,8 +46,10 @@ namespace TrenchBroom {
             
             const Hit& first() const;
             Hit::List all() const;
+        private:
+            bool visible(const Hit& hit) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__HitQuery__) */
+#endif /* defined(TrenchBroom_HitQuery) */

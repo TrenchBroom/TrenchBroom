@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Logger__
-#define __TrenchBroom__Logger__
+#ifndef TrenchBroom_Logger
+#define TrenchBroom_Logger
 
 #include "StringUtils.h"
 
@@ -60,4 +60,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__Logger__) */
+#endif /* defined(TrenchBroom_Logger) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameConfig__
-#define __TrenchBroom__GameConfig__
+#ifndef TrenchBroom_GameConfig
+#define TrenchBroom_GameConfig
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -109,8 +109,10 @@ namespace TrenchBroom {
             const FaceAttribsConfig& faceAttribsConfig() const;
             const BrushContentType::List& brushContentTypes() const;
             const IO::Path findConfigFile(const IO::Path& filePath) const;
+            
+            void addBrushContentType(const BrushContentType& contentType);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__GameConfig__) */
+#endif /* defined(TrenchBroom_GameConfig) */

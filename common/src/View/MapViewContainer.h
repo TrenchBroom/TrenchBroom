@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewContainer__
-#define __TrenchBroom__MapViewContainer__
+#ifndef TrenchBroom_MapViewContainer
+#define TrenchBroom_MapViewContainer
 
 #include "View/MapView.h"
 
@@ -32,17 +32,24 @@ namespace TrenchBroom {
         public:
             MapViewContainer(wxWindow* parent);
             virtual ~MapViewContainer();
-        private:
+        public:
+            bool canMaximizeCurrentView() const;
+            bool currentViewMaximized() const;
+            void toggleMaximizeCurrentView();
+        protected:
             MapView* currentMapView() const;
         private: // implement MapView interface
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
 
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
         private: // subclassing interface
+            virtual bool doCanMaximizeCurrentView() const = 0;
+            virtual bool doCurrentViewMaximized() const = 0;
+            virtual void doToggleMaximizeCurrentView() = 0;
             virtual MapView* doGetCurrentMapView() const = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapViewContainer__) */
+#endif /* defined(TrenchBroom_MapViewContainer) */

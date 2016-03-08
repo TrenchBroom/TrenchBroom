@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(ray, pickResult);
             
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().minDistance(1.0).first();
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
                     addPoint(ray.pointAtDistance(hit.distance() - 0.01));
@@ -61,18 +61,20 @@ namespace TrenchBroom {
             m_valid = true;
         }
         
-        void SpikeGuideRenderer::doPrepare(Vbo& vbo) {
-            m_pointArray.prepare(vbo);
-            m_spikeArray.prepare(vbo);
+        void SpikeGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            if (!m_valid)
+                validate();
+            m_pointArray.prepare(vertexVbo);
+            m_spikeArray.prepare(vertexVbo);
         }
         
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render();
+            m_spikeArray.render(GL_LINES);
             
-            glPointSize(3.0f);
-            m_pointArray.render();
-            glPointSize(1.0f);
+            glAssert(glPointSize(3.0f));
+            m_pointArray.render(GL_POINTS);
+            glAssert(glPointSize(1.0f));
         }
 
         void SpikeGuideRenderer::addPoint(const Vec3& position) {
@@ -88,8 +90,8 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::validate() {
-            m_pointArray = VertexArray::swap(GL_POINTS, m_pointVertices);
-            m_spikeArray = VertexArray::swap(GL_LINES, m_spikeVertices);
+            m_pointArray = VertexArray::swap(m_pointVertices);
+            m_spikeArray = VertexArray::swap(m_spikeVertices);
             m_valid = true;
         }
     }

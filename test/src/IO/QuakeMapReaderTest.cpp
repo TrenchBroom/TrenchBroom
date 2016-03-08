@@ -44,7 +44,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
 
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Valve, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -324,8 +324,8 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
                               "( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
-                              "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1 0 0 0\n"
-                              "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                              "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1\n"
+                              "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3c 16 96 0 1 1\n" // The flags are optional.
                               "( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
                               "( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
                               "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
@@ -334,7 +334,29 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
+            
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+        }
+        
+        TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) c_mf_v3c 56 -32 0 1 1\n"
+                              "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) b_rc_v16w 32 32 0 1 1\n"
+                              "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) 666 16 96 0 1 1\n"
+                              "( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) c_mf_v3c 56 96 0 1 1\n"
+                              "( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) c_mf_v3c 56 96 0 1 1\n"
+                              "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(8192);
+            
+            WorldReader reader(data, NULL);
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -367,19 +389,19 @@ namespace TrenchBroom {
                               "\"_tb_name\" \"My Layer\"\n"
                               "\"_tb_id\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               );
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount());
@@ -412,31 +434,31 @@ namespace TrenchBroom {
                               "\"_tb_name\" \"My Layer\"\n"
                               "\"_tb_id\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               "{\n"
                               "\"classname\" \"func_door\"\n"
                               "\"_tb_layer\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               );
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount()); // default layer
@@ -470,24 +492,24 @@ namespace TrenchBroom {
                               "\"_tb_name\" \"My Group\"\n"
                               "\"_tb_id\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               "{\n"
                               "\"classname\" \"func_door\"\n"
                               "\"_tb_group\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               "{\n"
@@ -497,19 +519,19 @@ namespace TrenchBroom {
                               "\"_tb_id\" \"2\"\n"
                               "\"_tb_group\" \"1\"\n"
                               "{\n"
-                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
-                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1\n"
                               "}\n"
                               "}\n"
                               );
             BBox3 worldBounds(8192);
             
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ResourceUtils__
-#define __TrenchBroom__ResourceUtils__
+#ifndef TrenchBroom_ResourceUtils
+#define TrenchBroom_ResourceUtils
 
 #include "StringUtils.h"
 #include <wx/bitmap.h>
@@ -31,4 +31,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ResourceUtils__) */
+#endif /* defined(TrenchBroom_ResourceUtils) */

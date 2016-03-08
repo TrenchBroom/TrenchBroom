@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SpikeGuideRenderer__
-#define __TrenchBroom__SpikeGuideRenderer__
+#ifndef TrenchBroom_SpikeGuideRenderer
+#define TrenchBroom_SpikeGuideRenderer
 
 #include "Color.h"
 #include "TrenchBroom.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class SpikeGuideRenderer : public Renderable {
+        class SpikeGuideRenderer : public DirectRenderable {
         private:
             Color m_color;
             
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void add(const Ray3& ray, FloatType length, View::MapDocumentSPtr document);
             void clear();
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         private:
             void addPoint(const Vec3& position);
@@ -69,4 +69,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SpikeGuideRenderer__) */
+#endif /* defined(TrenchBroom_SpikeGuideRenderer) */

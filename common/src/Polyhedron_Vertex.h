@@ -20,83 +20,104 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
-template <typename T>
-typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(Vertex* vertex) const {
+template <typename T, typename FP, typename VP>
+typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Vertex, typename Polyhedron<T,FP,VP>::GetVertexLink>::Link& Polyhedron<T,FP,VP>::GetVertexLink::operator()(Vertex* vertex) const {
     return vertex->m_link;
 }
 
-template <typename T>
-const typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(const Vertex* vertex) const {
+template <typename T, typename FP, typename VP>
+const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Vertex, typename Polyhedron<T,FP,VP>::GetVertexLink>::Link& Polyhedron<T,FP,VP>::GetVertexLink::operator()(const Vertex* vertex) const {
     return vertex->m_link;
 }
 
-template <typename T>
-class Polyhedron<T>::Vertex {
-private:
-    friend class HalfEdge;
-    friend class VertexList;
-    friend class Polyhedron<T>;
-private:
-    V m_position;
-    VertexLink m_link;
-    HalfEdge* m_leaving;
-public:
-    Vertex(const V& position) :
-    m_position(position),
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Vertex::Vertex(const V& position) :
+m_position(position),
 #ifdef _MSC_VER
-		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
-		m_link(this),
+m_link(this),
 #pragma warning(pop)
 #else
-		m_link(this),
+m_link(this),
 #endif
-    m_leaving(NULL) {}
+m_leaving(NULL),
+m_payload(VP::defaultValue()) {}
+
+template <typename T, typename FP, typename VP>
+typename VP::Type Polyhedron<T,FP,VP>::Vertex::payload() const {
+    return m_payload;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Vertex::setPayload(typename VP::Type payload) {
+    m_payload = payload;
+}
+
+template <typename T, typename FP, typename VP>
+const typename Polyhedron<T,FP,VP>::V& Polyhedron<T,FP,VP>::Vertex::position() const {
+    return m_position;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Vertex::next() const {
+    return m_link.next();
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Vertex::previous() const {
+    return m_link.previous();
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::leaving() const {
+    return m_leaving;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnectingEdge(const Vertex* vertex) const {
+    assert(vertex != NULL);
+    assert(m_leaving != NULL);
     
-    const V& position() const {
-        return m_position;
-    }
-private:
-    HalfEdge* leaving() const {
-        return m_leaving;
-    }
+    HalfEdge* curEdge = m_leaving;
+    do {
+        if (vertex == curEdge->destination())
+            return curEdge;
+        curEdge = curEdge->nextIncident();
+    } while (curEdge != NULL && curEdge != m_leaving);
+    return NULL;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinearEdge(const HalfEdge* arriving) const {
+    assert(arriving != NULL);
+    assert(m_leaving != NULL);
+    assert(arriving->destination() == this);
     
-    HalfEdge* findConnectingEdge(const Vertex* vertex) const {
-        assert(vertex != NULL);
-        assert(m_leaving != NULL);
-        
-        HalfEdge* curEdge = m_leaving;
-        do {
-            if (vertex == curEdge->destination())
-                return curEdge;
-            curEdge = curEdge->nextIncident();
-        } while (curEdge != NULL && curEdge != m_leaving);
-        return NULL;
-    }
-    
-    HalfEdge* findColinearEdge(const HalfEdge* arriving) const {
-        assert(arriving != NULL);
-        assert(m_leaving != NULL);
-        assert(arriving->destination() == this);
-        
-        HalfEdge* curEdge = m_leaving;
-        do {
-            if (arriving->colinear(curEdge))
-                return curEdge;
-            curEdge = curEdge->nextIncident();
-        } while (curEdge != m_leaving);
-        return NULL;
-    }
-    
-    void setPosition(const V& position) {
-        m_position = position;
-    }
-    
-    void setLeaving(HalfEdge* edge) {
-        assert(edge == NULL || edge->origin() == this);
-        m_leaving = edge;
-    }
-};
+    HalfEdge* curEdge = m_leaving;
+    do {
+        if (arriving->colinear(curEdge))
+            return curEdge;
+        curEdge = curEdge->nextIncident();
+    } while (curEdge != m_leaving);
+    return NULL;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Vertex::correctPosition(const size_t decimals, const T epsilon) {
+    m_position.correct(decimals, epsilon);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Vertex::setPosition(const V& position) {
+    m_position = position;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Vertex::setLeaving(HalfEdge* edge) {
+    assert(edge == NULL || edge->origin() == this);
+    m_leaving = edge;
+}
 
 #endif

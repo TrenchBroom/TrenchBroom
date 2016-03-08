@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         GridRenderer::GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds) :
-        m_vertexArray(VertexArray::copy(GL_QUADS, vertices(camera, worldBounds))) {}
+        m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
 
         GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const BBox3& worldBounds) {
             Vertex::List result(4);
@@ -63,13 +63,15 @@ namespace TrenchBroom {
             return result;
         }
 
-        void GridRenderer::doPrepare(Vbo& vbo) {
-            m_vertexArray.prepare(vbo);
+        void GridRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_vertexArray.prepare(vertexVbo);
         }
         
         void GridRenderer::doRender(RenderContext& renderContext) {
             if (renderContext.showGrid()) {
                 const Camera& camera = renderContext.camera();
+                const Camera::Viewport& viewport = camera.unzoomedViewport();
+                const float minDimension = static_cast<float>(viewport.minDimension());
                 
                 ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
                 shader.set("Normal", -camera.direction());
@@ -77,9 +79,10 @@ namespace TrenchBroom {
                 shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
                 shader.set("GridAlpha", pref(Preferences::GridAlpha));
                 shader.set("GridColor", pref(Preferences::GridColor2D));
-                shader.set("CameraZoom", renderContext.camera().zoom());
+                shader.set("CameraZoom", camera.zoom());
+                shader.set("ViewportMinDimension", minDimension);
                 
-                m_vertexArray.render();
+                m_vertexArray.render(GL_QUADS);
             }
         }
     }

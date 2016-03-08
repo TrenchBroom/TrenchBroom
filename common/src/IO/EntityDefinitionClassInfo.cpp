@@ -189,7 +189,7 @@ namespace TrenchBroom {
                     const Assets::FlagsAttributeOption* classFlag = classFlags->option(static_cast<int>(1 << i));
                     
                     if (baseclassFlag != NULL && classFlag == NULL)
-                        classFlags->addOption(baseclassFlag->value(), baseclassFlag->description(), baseclassFlag->isDefault());
+                        classFlags->addOption(baseclassFlag->value(), baseclassFlag->shortDescription(), baseclassFlag->longDescription(), baseclassFlag->isDefault());
                 }
             }
         }

@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AddRemoveNodesCommand__
-#define __TrenchBroom__AddRemoveNodesCommand__
+#ifndef TrenchBroom_AddRemoveNodesCommand
+#define TrenchBroom_AddRemoveNodesCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -28,6 +29,7 @@ namespace TrenchBroom {
         class AddRemoveNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<AddRemoveNodesCommand> Ptr;
         private:
             typedef enum {
                 Action_Add,
@@ -38,9 +40,9 @@ namespace TrenchBroom {
             Model::ParentChildrenMap m_nodesToAdd;
             Model::NodeList m_nodesToRemove;
         public:
-            static AddRemoveNodesCommand* add(Model::Node* parent, const Model::NodeList& children);
-            static AddRemoveNodesCommand* add(const Model::ParentChildrenMap& nodes);
-            static AddRemoveNodesCommand* remove(const Model::NodeList& nodes);
+            static Ptr add(Model::Node* parent, const Model::NodeList& children);
+            static Ptr add(const Model::ParentChildrenMap& nodes);
+            static Ptr remove(const Model::NodeList& nodes);
             ~AddRemoveNodesCommand();
             
             const Model::NodeList& addedNodes() const;
@@ -54,9 +56,9 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__AddRemoveNodesCommand__) */
+#endif /* defined(TrenchBroom_AddRemoveNodesCommand) */

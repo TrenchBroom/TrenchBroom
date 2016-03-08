@@ -22,9 +22,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
@@ -138,7 +137,8 @@ namespace TrenchBroom {
                 const Vec2 stripeSize = UVViewHelper::stripeSize();
                 
                 for (size_t i = 0; i < 2; ++i) {
-                    const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
+                    const FloatType closestStrip = Math::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
+                    const FloatType error = Math::abs(hitPointInTexCoords[i] - closestStrip);
                     if (error <= maxDistance) {
                         const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
                         pickResult.addHit(Model::Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
@@ -164,10 +164,8 @@ namespace TrenchBroom {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
-            const FloatType x = Math::remainder(position.x(), stripe.x());
-            const FloatType y = Math::remainder(position.y(), stripe.y());
-            
-            return Vec2f(x, y);
+            const Vec2 closest = position.xy().roundToMultiple(stripe);
+            return Vec2f(closest - position.xy());
         }
         
         void UVViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
@@ -202,7 +200,7 @@ namespace TrenchBroom {
             assert(valid());
             
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const BBox3 bounds(toTex * vertexPositions(m_face->vertices()));
+            const BBox3 bounds(toTex * Vec3::asList(m_face->vertices().begin(), m_face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
             
             const Vec3 vertices[] = {
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
@@ -247,11 +245,20 @@ namespace TrenchBroom {
         void UVViewHelper::resetZoom() {
             assert(valid());
             
+            float w = static_cast<float>(m_camera.unzoomedViewport().width);
+            float h = static_cast<float>(m_camera.unzoomedViewport().height);
+            
+            if (w <= 1.0f || h <= 1.0f)
+                return;
+            
+            if (w > 80.0f)
+                w -= 80.0f;
+            if (h > 80.0f)
+                h -= 80.0f;
+            
             const BBox3 bounds = computeFaceBoundsInCameraCoords();
             const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.unzoomedViewport().width - 80);
-            const float h = static_cast<float>(m_camera.unzoomedViewport().height - 80);
-            
+
             float zoom = 3.0f;
             zoom = Math::min(zoom, w / size.x());
             zoom = Math::min(zoom, h / size.y());
@@ -267,10 +274,13 @@ namespace TrenchBroom {
             const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            result.min = result.max = transform * vertices[0]->position;
-            for (size_t i = 1; i < vertices.size(); ++i)
-                result.mergeWith(transform * vertices[i]->position);
+            const Model::BrushFace::VertexList vertices = m_face->vertices();
+            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
+            Model::BrushFace::VertexList::const_iterator end = vertices.end();
+            
+            result.min = result.max = transform * (*it++)->position();
+            while (it != end)
+                result.mergeWith(transform * (*it++)->position());
             return result;
         }
     }

@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModel__
-#define __TrenchBroom__EntityModel__
+#ifndef TrenchBroom_EntityModel
+#define TrenchBroom_EntityModel
 
 #include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class TexturedTriangleMeshRenderer;
+        class TexturedIndexRangeRenderer;
     }
     
     namespace Assets {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             EntityModel();
             virtual ~EntityModel();
             
-            Renderer::TexturedTriangleMeshRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexRangeRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
         private:
-            virtual Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
             virtual void doPrepare(int minFilter, int magFilter) = 0;
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityModel__) */
+#endif /* defined(TrenchBroom_EntityModel) */

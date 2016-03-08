@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjectsToolPage__
-#define __TrenchBroom__RotateObjectsToolPage__
+#ifndef TrenchBroom_RotateObjectsToolPage
+#define TrenchBroom_RotateObjectsToolPage
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -28,6 +28,7 @@
 
 class wxButton;
 class wxChoice;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -40,24 +41,28 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             RotateObjectsTool* m_tool;
 
+            wxTextCtrl* m_centerTxt;
+            wxButton* m_resetCenterButton;
+            
             SpinControl* m_angle;
             wxChoice* m_axis;
             wxButton* m_rotateButton;
-            wxButton* m_resetButton;
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(Math::Axis::Type axis);
+            void setCenter(const Vec3& center);
         private:
             void createGui();
             
             void OnIdle(wxIdleEvent& event);
+            void OnCenterChanged(wxCommandEvent& event);
+            void OnResetCenter(wxCommandEvent& event);
             void OnAngleChanged(SpinControlEvent& event);
             void OnUpdateRotateButton(wxUpdateUIEvent& event);
             void OnRotate(wxCommandEvent& event);
-            void OnReset(wxCommandEvent& event);
             Vec3 getAxis() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateObjectsToolPage__) */
+#endif /* defined(TrenchBroom_RotateObjectsToolPage) */

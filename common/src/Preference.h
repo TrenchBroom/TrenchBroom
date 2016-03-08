@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Preference__
-#define __TrenchBroom__Preference__
+#ifndef TrenchBroom_Preference
+#define TrenchBroom_Preference
 
 #include "Color.h"
 #include "ConfigTypes.h"
@@ -341,7 +341,7 @@ namespace TrenchBroom {
         virtual void save(wxConfigBase* config) = 0;
         virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
-        bool operator== (const PreferenceBase& other) const {
+        bool operator==(const PreferenceBase& other) const {
             return this == &other;
         }
 
@@ -386,7 +386,7 @@ namespace TrenchBroom {
         
         void save(wxConfigBase* config) {
             if (m_modified) {
-                CHECK_BOOL(m_serializer.write(config, m_path, m_value));
+                assertResult(m_serializer.write(config, m_path, m_value));
                 m_modified = false;
             }
         }
@@ -414,4 +414,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__Preference__) */
+#endif /* defined(TrenchBroom_Preference) */

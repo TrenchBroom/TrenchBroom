@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVScaleTool__
-#define __TrenchBroom__UVScaleTool__
+#ifndef TrenchBroom_UVScaleTool
+#define TrenchBroom_UVScaleTool
 
 #include "Model/Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVScaleTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;
@@ -83,4 +83,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVScaleTool__) */
+#endif /* defined(TrenchBroom_UVScaleTool) */

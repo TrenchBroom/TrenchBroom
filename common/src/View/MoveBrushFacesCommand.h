@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveBrushFacesCommand__
-#define __TrenchBroom__MoveBrushFacesCommand__
+#ifndef TrenchBroom_MoveBrushFacesCommand
+#define TrenchBroom_MoveBrushFacesCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
@@ -34,13 +35,14 @@ namespace TrenchBroom {
         class MoveBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<MoveBrushFacesCommand> Ptr;
         private:
             Model::BrushFacesMap m_faces;
             Polygon3::List m_oldFacePositions;
             Polygon3::List m_newFacePositions;
             Vec3 m_delta;
         public:
-            static MoveBrushFacesCommand* move(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            static Ptr move(const Model::VertexToFacesMap& faces, const Vec3& delta);
         private:
             MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
             
@@ -50,9 +52,9 @@ namespace TrenchBroom {
             void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveBrushFacesCommand__) */
+#endif /* defined(TrenchBroom_MoveBrushFacesCommand) */

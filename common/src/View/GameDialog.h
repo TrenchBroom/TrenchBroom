@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameDialog__
-#define __TrenchBroom__GameDialog__
+#ifndef TrenchBroom_GameDialog
+#define TrenchBroom_GameDialog
 
 #include "StringUtils.h"
 #include "Model/MapFormat.h"
@@ -41,14 +41,20 @@ namespace TrenchBroom {
         class GameDialog : public wxDialog {
         protected:
             GameListBox* m_gameListBox;
+            wxChoice* m_mapFormatChoice;
             wxButton* m_openPreferencesButton;
         public:
             virtual ~GameDialog();
             
+            static bool showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
+            static bool showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
+            
             String selectedGameName() const;
+            Model::MapFormat::Type selectedMapFormat() const;
 
             void OnGameSelectionChanged(GameSelectionCommand& command);
             void OnGameSelected(GameSelectionCommand& command);
+            void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
             
             void OnOpenPreferencesClicked(wxCommandEvent& event);
             void OnUpdateOkButton(wxUpdateUIEvent& event);
@@ -60,45 +66,16 @@ namespace TrenchBroom {
             virtual wxWindow* createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText);
             virtual wxWindow* createSelectionPanel(wxWindow* parent);
         private:
-            virtual bool isOkEnabled() const = 0;
-            virtual void gameSelectionChanged(const String& gameName) = 0;
-            virtual void gameSelected(const String& gameName) = 0;
+            bool isOkEnabled() const;
+            void gameSelectionChanged(const String& gameName);
+            void updateMapFormats(const String& gameName);
+            void gameSelected(const String& gameName);
             
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
         };
-        
-        class NewDocumentGameDialog : public GameDialog {
-        private:
-            wxChoice* m_mapFormatChoice;
-        public:
-            static bool showDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
-            
-            Model::MapFormat::Type selectedMapFormat() const;
-            
-            void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
-        private:
-            NewDocumentGameDialog();
-
-            wxWindow* createSelectionPanel(wxWindow* parent);
-
-            bool isOkEnabled() const;
-            void gameSelectionChanged(const String& gameName);
-            void updateMapFormats(const String& gameName);
-            void gameSelected(const String& gameName);
-        };
-        
-        class OpenDocumentGameDialog : public GameDialog {
-        public:
-            static bool showDialog(wxWindow* parent, String& gameName);
-        private:
-            OpenDocumentGameDialog();
-            bool isOkEnabled() const;
-            void gameSelectionChanged(const String& gameName);
-            void gameSelected(const String& gameName);
-        };
     }
 }
 
-#endif /* defined(__TrenchBroom__GameDialog__) */
+#endif /* defined(TrenchBroom_GameDialog) */

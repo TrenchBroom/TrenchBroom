@@ -70,11 +70,11 @@ public:
     r(static_cast<T>(other.r)),
     v(other.v) {}
 
-    const Quat<T> operator- () const {
+    const Quat<T> operator-() const {
         return Quat(-r, v);
     }
     
-    const Quat<T> operator* (const T right) const {
+    const Quat<T> operator*(const T right) const {
         return Quat(r * right, v);
     }
     
@@ -83,7 +83,7 @@ public:
         return *this;
     }
     
-    const Quat<T> operator* (const Quat<T>& right) const {
+    const Quat<T> operator*(const Quat<T>& right) const {
         Quat<T> result = *this;
         return result *= right;
     }
@@ -103,7 +103,7 @@ public:
         return *this;
     }
     
-    const Vec<T,3> operator* (const Vec<T,3>& right) const {
+    const Vec<T,3> operator*(const Vec<T,3>& right) const {
         Quat<T> p;
         p.r = 0.0;
         p.v = right;

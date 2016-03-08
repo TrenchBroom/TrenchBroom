@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Node__
-#define __TrenchBroom__Node__
+#ifndef TrenchBroom_Node
+#define TrenchBroom_Node
 
 #include "Model/ModelTypes.h"
 
@@ -64,12 +64,22 @@ namespace TrenchBroom {
             void cloneAttributes(Node* node) const;
             
             static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
+            static NodeList cloneRecursively(const BBox3& worldBounds, const NodeList& nodes);
             
             template <typename I, typename O>
             static void clone(const BBox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
                     result = node->clone(worldBounds);
+                    ++cur;
+                }
+            }
+            
+            template <typename I, typename O>
+            static void cloneRecursively(const BBox3& worldBounds, I cur, I end, O result) {
+                while (cur != end) {
+                    const Node* node = *cur;
+                    result = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
             }
@@ -169,6 +179,7 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
+            bool transitivelySelected() const;
             bool parentSelected() const;
             
             bool childSelected() const;
@@ -189,9 +200,11 @@ namespace TrenchBroom {
             bool selectable() const;
         public: // visibility, locking
             bool visible() const;
+            bool shown() const;
             bool hidden() const;
             VisibilityState visibilityState() const;
             bool setVisiblityState(VisibilityState visibility);
+            bool ensureVisible();
             
             bool editable() const;
             bool locked() const;
@@ -199,6 +212,7 @@ namespace TrenchBroom {
             bool setLockState(LockState lockState);
         public: // picking
             void pick(const Ray3& ray, PickResult& result) const;
+            void findNodesContaining(const Vec3& point, NodeList& result);
             FloatType intersectWithRay(const Ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
@@ -391,6 +405,7 @@ namespace TrenchBroom {
             virtual bool doSelectable() const = 0;
             
             virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
+            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) = 0;
             virtual FloatType doIntersectWithRay(const Ray3& ray) const = 0;
             
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
@@ -407,4 +422,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Node__) */
+#endif /* defined(TrenchBroom_Node) */

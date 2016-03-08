@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolBoxConnector__
-#define __TrenchBroom__ToolBoxConnector__
+#ifndef TrenchBroom_ToolBoxConnector
+#define TrenchBroom_ToolBoxConnector
 
 #include "View/InputState.h"
 #include "View/PickRequest.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class ToolAdapter;
+        class ToolController;
         class ToolBox;
         class ToolChain;
 
@@ -49,6 +49,7 @@ namespace TrenchBroom {
             
             InputState m_inputState;
             
+            wxLongLong m_clickTime;
             wxPoint m_clickPos;
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             void updateLastActivation();
         protected:
             void setToolBox(ToolBox& toolBox);
-            void addTool(ToolAdapter* tool);
+            void addTool(ToolController* tool);
         public: // drag and drop
             bool dragEnter(wxCoord x, wxCoord y, const String& text);
             bool dragMove(wxCoord x, wxCoord y, const String& text);
@@ -110,4 +111,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolBoxConnector__) */
+#endif /* defined(TrenchBroom_ToolBoxConnector) */

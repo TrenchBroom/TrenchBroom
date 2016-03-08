@@ -28,14 +28,14 @@ namespace TrenchBroom {
         m_name(name),
         m_programId(0),
         m_needsLinking(true) {
-            m_programId = glCreateProgram();
+            glAssert(m_programId = glCreateProgram());
             if (m_programId == 0)
                 throw RenderException("Cannot create shader program " + m_name);
         }
         
         ShaderProgram::~ShaderProgram() {
             if (m_programId != 0) {
-                glDeleteProgram(m_programId);
+                glAssert(glDeleteProgram(m_programId));
                 m_programId = 0;
             }
         }
@@ -58,12 +58,12 @@ namespace TrenchBroom {
             if (m_needsLinking)
                 link();
             
-            glUseProgram(m_programId);
+            glAssert(glUseProgram(m_programId));
             assert(checkActive());
         }
 
         void ShaderProgram::deactivate() {
-            glUseProgram(0);
+            glAssert(glUseProgram(0));
         }
 
         void ShaderProgram::set(const String& name, const bool value) {
@@ -72,20 +72,17 @@ namespace TrenchBroom {
 
         void ShaderProgram::set(const String& name, const int value) {
             assert(checkActive());
-            glUniform1i(findUniformLocation(name), value);
-            GL_CHECK_ERROR()
+            glAssert(glUniform1i(findUniformLocation(name), value));
         }
 
         void ShaderProgram::set(const String& name, const size_t value) {
             assert(checkActive());
-            glUniform1i(findUniformLocation(name), static_cast<int>(value));
-            GL_CHECK_ERROR();
+            glAssert(glUniform1i(findUniformLocation(name), static_cast<int>(value)));
         }
 
         void ShaderProgram::set(const String& name, const float value) {
             assert(checkActive());
-            glUniform1f(findUniformLocation(name), value);
-            GL_CHECK_ERROR()
+            glAssert(glUniform1f(findUniformLocation(name), value));
         }
 
         void ShaderProgram::set(const String& name, const double value) {
@@ -100,55 +97,49 @@ namespace TrenchBroom {
         
         void ShaderProgram::set(const String& name, const Vec2f& value) {
             assert(checkActive());
-            glUniform2f(findUniformLocation(name), value.x(), value.y());
-            GL_CHECK_ERROR()
+            glAssert(glUniform2f(findUniformLocation(name), value.x(), value.y()));
         }
 
         void ShaderProgram::set(const String& name, const Vec3f& value) {
             assert(checkActive());
-            glUniform3f(findUniformLocation(name), value.x(), value.y(), value.z());
-            GL_CHECK_ERROR()
+            glAssert(glUniform3f(findUniformLocation(name), value.x(), value.y(), value.z()));
         }
 
         void ShaderProgram::set(const String& name, const Vec4f& value) {
             assert(checkActive());
-            glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w());
-            GL_CHECK_ERROR()
+            glAssert(glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w()));
         }
 
         void ShaderProgram::set(const String& name, const Mat2x2f& value) {
             assert(checkActive());
-            glUniformMatrix2fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v));
-            GL_CHECK_ERROR()
+            glAssert(glUniformMatrix2fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
         void ShaderProgram::set(const String& name, const Mat3x3f& value) {
             assert(checkActive());
-            glUniformMatrix3fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v));
-            GL_CHECK_ERROR()
+            glAssert(glUniformMatrix3fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
         void ShaderProgram::set(const String& name, const Mat4x4f& value) {
             assert(checkActive());
-            glUniformMatrix4fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v));
-            GL_CHECK_ERROR()
+            glAssert(glUniformMatrix4fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
         void ShaderProgram::link() {
-            glLinkProgram(m_programId);
+            glAssert(glLinkProgram(m_programId));
             
             GLint linkStatus = 0;
-            glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus);
+            glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
             
             if (linkStatus == 0) {
                 RenderException ex;
                 ex << "Cannot link shader program " << m_name << ": ";
 
                 GLint infoLogLength = 0;
-                glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength);
+                glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
                 if (infoLogLength > 0) {
                     char* infoLog = new char[infoLogLength];
-                    glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog);
+                    glAssert(glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog));
                     infoLog[infoLogLength-1] = 0;
 
                     ex << infoLog;
@@ -159,7 +150,6 @@ namespace TrenchBroom {
                 
                 throw ex;
             }
-            GL_CHECK_ERROR()
 
             m_variableCache.clear();
             m_needsLinking = false;
@@ -180,7 +170,7 @@ namespace TrenchBroom {
 
         bool ShaderProgram::checkActive() const {
             GLint currentProgramId = -1;
-            glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId);
+            glAssert(glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId));
             return static_cast<GLuint>(currentProgramId) == m_programId;
         }
     }

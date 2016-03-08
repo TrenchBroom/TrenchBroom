@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Game__
-#define __TrenchBroom__Game__
+#ifndef TrenchBroom_Game
+#define TrenchBroom_Game
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
         public: // loading and writing map files
             World* newMap(MapFormat::Type format, const BBox3& worldBounds) const;
-            World* loadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
+            World* loadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
         public: // parsing and serializing objects
             NodeList parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             
             virtual World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const = 0;
-            virtual World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
+            virtual World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             
             virtual NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
@@ -122,4 +122,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Game__) */
+#endif /* defined(TrenchBroom_Game) */

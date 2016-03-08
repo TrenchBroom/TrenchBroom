@@ -91,7 +91,7 @@ namespace TrenchBroom {
         String entityColorAsString(const wxColor& color, const Assets::ColorRange::Type colorRange) {
             StringStream result;
             if (colorRange == Assets::ColorRange::Byte) {
-                result << color.Red() << " " << color.Green() << " " << color.Blue();
+                result << int(color.Red()) << " " << int(color.Green()) << " " << int(color.Blue());
             } else if (colorRange == Assets::ColorRange::Float) {
                 result << float(color.Red()) / 255.0f << " " << float(color.Green()) / 255.0f << " "<< float(color.Blue()) / 255.0f;
             }

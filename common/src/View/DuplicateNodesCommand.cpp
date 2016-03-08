@@ -27,12 +27,12 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType DuplicateNodesCommand::Type = Command::freeType();
 
-        DuplicateNodesCommand* DuplicateNodesCommand::duplicate() {
-            return new DuplicateNodesCommand();
+        DuplicateNodesCommand::Ptr DuplicateNodesCommand::duplicate() {
+            return Ptr(new DuplicateNodesCommand());
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
-        DocumentCommand(Type, "Duplicate objects") {}
+        DocumentCommand(Type, "Duplicate Objects") {}
         
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
@@ -104,11 +104,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
         
-        UndoableCommand* DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new DuplicateNodesCommand();
+        UndoableCommand::Ptr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return UndoableCommand::Ptr(new DuplicateNodesCommand());
         }
         
-        bool DuplicateNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool DuplicateNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

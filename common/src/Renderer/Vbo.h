@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Vbo__
-#define __TrenchBroom__Vbo__
+#ifndef TrenchBroom_Vbo
+#define TrenchBroom_Vbo
 
 #include "SharedPointer.h"
 #include "Renderer/GL.h"
@@ -36,31 +36,26 @@ namespace TrenchBroom {
             bool operator() (const VboBlock* lhs, const VboBlock* rhs) const;
         };
         
-        namespace VboState {
-            typedef unsigned int Type;
-            static const Type Inactive  = 0;
-            static const Type Active    = 1;
-            static const Type Mapped    = 2;
-        }
-        
         class Vbo;
-        class SetVboState {
+        class ActivateVbo {
         private:
             Vbo& m_vbo;
-            VboState::Type m_previousState;
+            bool m_wasActive;
         public:
-            SetVboState(Vbo& vbo);
-            ~SetVboState();
-            
-            void active();
-            void mapped();
-        private:
-            void setState(const VboState::Type newState);
+            ActivateVbo(Vbo& vbo);
+            ~ActivateVbo();
         };
         
         class Vbo {
         public:
             typedef std::tr1::shared_ptr<Vbo> Ptr;
+        private:
+            typedef enum {
+                State_Inactive = 0,
+                State_Active = 1,
+                State_PartiallyMapped = 2,
+                State_FullyMapped = 3
+            } State;
         private:
             typedef std::vector<VboBlock*> VboBlockList;
             static const float GrowthFactor;
@@ -71,33 +66,30 @@ namespace TrenchBroom {
             VboBlockList m_usedBlocks;
             VboBlock* m_firstBlock;
             VboBlock* m_lastBlock;
-            VboState::Type m_state;
+            State m_state;
 
             GLenum m_type;
             GLenum m_usage;
             GLuint m_vboId;
-            unsigned char* m_buffer;
         public:
             Vbo(const size_t initialCapacity, const GLenum type = GL_ARRAY_BUFFER, const GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
-            VboState::Type state() const;
             VboBlock* allocateBlock(const size_t capacity);
 
-            bool isActive() const;
+            bool active() const;
             void activate();
             void deactivate();
         private:
-            friend class SetVboState;
+            friend class ActivateVbo;
             friend class VboBlock;
             
-            bool isMapped() const;
-            void map();
-            void unmap();
+            GLenum type() const;
+            
             void free();
-            
             void freeBlock(VboBlock* block);
-            
+
+            /*
             template <typename T>
             size_t writeElement(const size_t address, const T& element) {
                 assert(isMapped());
@@ -129,17 +121,25 @@ namespace TrenchBroom {
                 memcpy(m_buffer + address, ptr, size);
                 return size;
             }
-
+             */
             void increaseCapacityToAccomodate(const size_t capacity);
-            void increaseCapacity(const size_t delta);
-            VboBlockList::iterator findFreeBlock(const size_t minCapacity);
+            void increaseCapacity(size_t delta);
+            VboBlockList::iterator findFreeBlock(size_t minCapacity);
             void insertFreeBlock(VboBlock* block);
             void removeFreeBlock(VboBlock* block);
-            void removeFreeBlock(const VboBlockList::iterator it);
+            void removeFreeBlock(VboBlockList::iterator it);
+
+            bool partiallyMapped() const;
+            void mapPartially();
+            void unmapPartially();
+            
+            bool fullyMapped() const;
+            unsigned char* map();
+            void unmap();
 
             bool checkBlockChain() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Vbo__) */
+#endif /* defined(TrenchBroom_Vbo) */

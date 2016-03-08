@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ViewTypes__
-#define __TrenchBroom__ViewTypes__
+#ifndef TrenchBroom_ViewTypes
+#define TrenchBroom_ViewTypes
 
 #include "SharedPointer.h"
 
@@ -27,7 +27,13 @@ namespace TrenchBroom {
         class MapDocument;
         typedef std::tr1::shared_ptr<MapDocument> MapDocumentSPtr;
         typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;
+        
+        typedef enum {
+            PT_Node,
+            PT_BrushFace,
+            PT_Failed
+        } PasteType;
     }
 }
 
-#endif /* defined(__TrenchBroom__ViewTypes__) */
+#endif /* defined(TrenchBroom_ViewTypes) */

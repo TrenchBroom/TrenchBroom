@@ -530,6 +530,33 @@
 		avelocity(string) : "Angular Velocity(for rotation)"
 	]
 	
+	@PointClass size(-8 -8 -8, 8 8 8) base(Static, Targetname, Appearflags) = mapobject_waterfall: "Waterfall mapobject"
+	[
+		skin(choices) : "Skin": 0 =
+		[
+			0 : "Clean water"
+			1 : "Dirty water"
+			2 : "Blood"
+			3 : "Slime"
+			4 : "Lava"
+		]
+		frame(integer) : "Initial frame"
+		mangle(string) : "Angles(overrides angle above)"
+		sounds(choices) : "Sound effects": 0 =
+		[
+			0 : "Sounds Off"
+			1 : "Sounds On"
+		]
+		noise(string) : "Custom active sound"
+		noise1(string) : "Custom stop sound"
+		speed(integer) : "Attenuation of sound" : 0
+		volume(integer) : "Volume (0 - 1)"
+		spawnflags(flags) = 
+		[
+			1 : "Initially dry" : 0
+		]
+	]
+	
 //  model(":progs/grill128.spr")
 @PointClass size(-8 -8 -8, 8 8 8) base(Grill, Appearflags) = mapobject_grill: "Custom grill mapobject"
 	[
@@ -772,15 +799,15 @@
 		
 @PointClass base (Appearflags, Targetname) = info_bomb : "Triggered explosion"[]
 
-// @PointClass base (Appearflags, Targetname) = info_effect_pulse : "Pulses of lights"
-//	[
-//		mangle(string) : "Angles (override)"
-//		speed(integer) : "Speed"
-//		wait(choices) : "Wait between pulses" =
-//		[
-//			-1 : "Does not refire"
-//		]
-//	]
+ @PointClass base (Appearflags, Targetname) = info_effect_pulse : "Pulses of lights"
+	[
+		mangle(string) : "Angles (override)"
+		speed(integer) : "Speed"
+		wait(choices) : "Wait between pulses" =
+		[
+			-1 : "Does not refire"
+		]
+	]
 	
 @baseclass = Spawner 
 [
@@ -1111,6 +1138,19 @@
 	event(target_source) : "Event to fire on arrival"
 	duration(integer) : "Movetime for next motion(if set)"
 	speed(integer) : "Speed for next motion(if set)"
+]
+
+@PointClass base(Targetname) size(16 16 16) = 
+	path_corner_precise : "Advanced monster waypoint"
+[
+	target(target_source) : "Next waypoint"
+	wait(integer) : "Wait" : 0
+]
+
+@PointClass base(Targetname) size(16 16 16) = 
+	path_corner_contact : "Monster waypoint"
+[
+	target(target_source) : "Next waypoint"
 ]
 
 @SolidClass base(Targetname, Deathtype) = func_togglewall : "Toggleable wall" 

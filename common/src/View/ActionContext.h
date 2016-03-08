@@ -27,13 +27,13 @@ namespace TrenchBroom {
         typedef enum {
             ActionContext_Default         = 1 << 1,
             ActionContext_VertexTool      = 1 << 2,
-            ActionContext_CreateBrushTool = 1 << 3,
+            ActionContext_CreateComplexBrushTool = 1 << 3,
             ActionContext_ClipTool        = 1 << 4,
             ActionContext_RotateTool      = 1 << 5,
             ActionContext_FlyMode         = 1 << 6,
             ActionContext_NodeSelection   = 1 << 7,
             ActionContext_FaceSelection   = 1 << 8,
-            ActionContext_AnyTool         = ActionContext_VertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_CreateBrushTool,
+            ActionContext_AnyTool         = ActionContext_VertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_CreateComplexBrushTool,
             ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_FlyMode | ActionContext_NodeSelection | ActionContext_FaceSelection
         } ActionContext;
 

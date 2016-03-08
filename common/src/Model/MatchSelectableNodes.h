@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MatchSelectableNodes__
-#define __TrenchBroom__MatchSelectableNodes__
+#ifndef TrenchBroom_MatchSelectableNodes
+#define TrenchBroom_MatchSelectableNodes
 
 #include <stdio.h>
 
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MatchSelectableNodes__) */
+#endif /* defined(TrenchBroom_MatchSelectableNodes) */

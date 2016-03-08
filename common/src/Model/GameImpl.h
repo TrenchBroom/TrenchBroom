@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameImpl__
-#define __TrenchBroom__GameImpl__
+#ifndef TrenchBroom_GameImpl
+#define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
             World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
-            World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
+            World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
 
             NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
@@ -97,4 +97,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameImpl__) */
+#endif /* defined(TrenchBroom_GameImpl) */

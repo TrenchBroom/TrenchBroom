@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GLContext__
-#define __TrenchBroom__GLContext__
+#ifndef TrenchBroom_GLContext
+#define TrenchBroom_GLContext
 
 #include "SharedPointer.h"
 
@@ -42,7 +42,8 @@ namespace TrenchBroom {
         public:
             GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
 
-            Renderer::Vbo& vbo();
+            Renderer::Vbo& vertexVbo();
+            Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
             
@@ -53,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GLContext__) */
+#endif /* defined(TrenchBroom_GLContext) */

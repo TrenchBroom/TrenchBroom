@@ -30,6 +30,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
+#include "Renderer/IndexRangeMap.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -41,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class EntityRenderer::EntityClassnameAnchor : public TextAnchor {
+        class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D {
         private:
             const Model::Entity* m_entity;
         public:
@@ -92,7 +93,7 @@ namespace TrenchBroom {
 
         void EntityRenderer::clear() {
             m_entities.clear();
-            m_wireframeBoundsRenderer = EdgeRenderer();
+            m_wireframeBoundsRenderer = DirectEdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
             m_modelRenderer.clear();
         }
@@ -173,18 +174,9 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
-            if (m_showOccludedBounds) {
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-                if (m_overrideBoundsColor)
-                    renderOccludedEdges->setColor(m_boundsColor);
-                renderOccludedEdges->setRenderOccluded();
-                renderBatch.addOneShot(renderOccludedEdges);
-            }
-            
-            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
-            if (m_overrideBoundsColor)
-                renderUnoccludedEdges->setColor(m_boundsColor);
-            renderBatch.addOneShot(renderUnoccludedEdges);
+            if (m_showOccludedBounds)
+                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+            m_wireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
         
         void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
@@ -213,11 +205,11 @@ namespace TrenchBroom {
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
-                        const EntityClassnameAnchor anchor(entity);
                         if (m_showOccludedOverlays)
-                            renderService.renderStringOnTop(entityString(entity), anchor);
+                            renderService.setShowOccludedObjects();
                         else
-                            renderService.renderString(entityString(entity), anchor);
+                            renderService.setHideOccludedObjects();
+                        renderService.renderString(entityString(entity), EntityClassnameAnchor(entity));
                     }
                 }
             }
@@ -228,10 +220,13 @@ namespace TrenchBroom {
                 return;
             
             static const float maxDistance2 = 500.0f * 500.0f;
-            typedef VertexSpecs::P3::Vertex Vertex;
             const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
-            Vertex::List vertices;
+            RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjectsTransparent();
+            renderService.setForegroundColor(m_angleColor);
+            
+            Vec3f::List vertices(3);
             Model::EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
@@ -257,30 +252,9 @@ namespace TrenchBroom {
                 const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
                 
                 for (size_t i = 0; i < 3; ++i)
-                    vertices.push_back(Vertex(matrix * arrow[i]));
+                    vertices[i] = matrix * arrow[i];
+                renderService.renderPolygonOutline(vertices);
             }
-            
-            const size_t vertexCount = vertices.size();
-            if (vertexCount == 0)
-                return;
-            
-            VertexArray array = VertexArray::swap(GL_TRIANGLES, vertices);
-            SetVboState vboState(m_vbo);
-            vboState.mapped();
-            array.prepare(m_vbo);
-            vboState.active();
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-
-            glDepthMask(GL_FALSE);
-
-            glDisable(GL_DEPTH_TEST);
-            glPolygonMode(GL_FRONT, GL_LINE);
-            shader.set("Color", m_angleColor);
-            array.render();
-
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glDepthMask(GL_TRUE);
         }
 
         Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
@@ -304,9 +278,7 @@ namespace TrenchBroom {
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
             }
         };
 
@@ -361,7 +333,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
@@ -380,10 +352,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_wireframeBoundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, wireframeVertices));
+                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             }
             
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(GL_TRIANGLES, solidVertices));
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);
             m_boundsValid = true;
         }
 

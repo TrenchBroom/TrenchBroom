@@ -17,20 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__VboBlock__
-#define __TrenchBroom__VboBlock__
+#ifndef TrenchBroom_VboBlock
+#define TrenchBroom_VboBlock
 
 #include "Renderer/Vbo.h"
 
+#include <cstring>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
         
+        class VboBlock;
+        class MapVboBlock {
+        private:
+            VboBlock* m_block;
+        public:
+            MapVboBlock(VboBlock* block);
+            ~MapVboBlock();
+        };
+        
         class VboBlock {
         private:
             friend class Vbo;
+            friend class MapVboBlock;
             
             Vbo& m_vbo;
             bool m_free;
@@ -38,6 +49,8 @@ namespace TrenchBroom {
             size_t m_capacity;
             VboBlock* m_previous;
             VboBlock* m_next;
+            
+            bool m_mapped;
         public:
             VboBlock(Vbo& vbo, const size_t offset, const size_t capacity, VboBlock* previous, VboBlock* next);
             
@@ -46,24 +59,31 @@ namespace TrenchBroom {
             size_t capacity() const;
             
             template <typename T>
-            size_t writeElement(const size_t address, const T& element) {
-                assert(address + sizeof(T) <= m_capacity);
-                return m_vbo.writeElement(m_offset + address, element);
-            }
-            
-            template <typename T>
             size_t writeElements(const size_t address, const std::vector<T>& elements) {
-                assert(address + elements.size() * sizeof(T) <= m_capacity);
-                return m_vbo.writeElements(m_offset + address, elements);
+                assert(mapped());
+                return writeBuffer(address, elements);
             }
             
             template <typename T>
             size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
-                assert(address + buffer.size() * sizeof(T) <= m_capacity);
-                return m_vbo.writeBuffer(m_offset + address, buffer);
+                assert(mapped());
+                
+                const size_t size = buffer.size() * sizeof(T);
+                assert(address + size <= m_capacity);
+                
+                const GLvoid* ptr = static_cast<const GLvoid*>(&(buffer[0]));
+                const GLintptr offset = static_cast<GLintptr>(m_offset + address);
+                const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
+                glAssert(glBufferSubData(m_vbo.type(), offset, sizei, ptr));
+                
+                return size;
             }
-            
+
             void free();
+        private:
+            bool mapped() const;
+            void map();
+            void unmap();
         private:
             VboBlock* previous() const;
             void setPrevious(VboBlock* previous);
@@ -81,4 +101,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__VboBlock__) */
+#endif /* defined(TrenchBroom_VboBlock) */

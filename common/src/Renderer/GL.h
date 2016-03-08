@@ -24,6 +24,7 @@
 #include "Functor.h"
 
 #include <cstddef>
+#include <vector>
 
 namespace TrenchBroom {
 #define GL_FALSE 0
@@ -39,6 +40,7 @@ namespace TrenchBroom {
 #define GL_TRIANGLE_FAN 0x0006
 #define GL_QUADS 0x0007
 #define GL_QUAD_STRIP 0x0008
+#define GL_POLYGON 0x0009
 
 #define GL_DEPTH_BUFFER_BIT 0x00000100
 
@@ -56,7 +58,15 @@ namespace TrenchBroom {
 #define GL_RIGHT 0x0407
 #define GL_FRONT_AND_BACK 0x0408
 
-#define GL_INVALID_ENUM 0x0500
+#define GL_INVALID_ENUM                     0x0500
+#define GL_INVALID_VALUE                    0x0501
+#define GL_INVALID_OPERATION                0x0502
+#define GL_STACK_OVERFLOW                   0x0503
+#define GL_STACK_UNDERFLOW                  0x0504
+#define GL_OUT_OF_MEMORY                    0x0505
+#define GL_INVALID_FRAMEBUFFER_OPERATION    0x0506
+#define GL_CONTEXT_LOST                     0x0507
+#define GL_TABLE_TOO_LARGE1                 0x8031
 
 #define GL_CW 0x0900
 #define GL_CCW 0x0901
@@ -138,6 +148,7 @@ namespace TrenchBroom {
 #define GL_BUFFER_OBJECT_APPLE 0x85B3
 
 #define GL_ARRAY_BUFFER 0x8892
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
 
 #define GL_READ_ONLY 0x88B8
 #define GL_WRITE_ONLY 0x88B9
@@ -159,29 +170,73 @@ namespace TrenchBroom {
 #define GL_INFO_LOG_LENGTH 0x8B84
 #define GL_CURRENT_PROGRAM 0x8B8D
 
-#define GL_CHECK_ERROR() if (glGetError() != GL_NO_ERROR) { RenderException e; e << "OpenGL Error: " << glGetError(); throw e; }
-    
     typedef unsigned int GLenum;
     typedef unsigned int GLbitfield;
-    typedef unsigned int GLuint;
-    typedef int GLint;
     typedef int GLsizei;
     typedef unsigned char GLboolean;
+    typedef void GLvoid;
+    
     typedef signed char GLbyte;
-    typedef short GLshort;
+    typedef signed short GLshort;
+    typedef signed int GLint;
+    typedef signed long GLlong;
     typedef unsigned char GLubyte;
     typedef unsigned short GLushort;
+    typedef unsigned int GLuint;
     typedef unsigned long GLulong;
+    
     typedef float GLfloat;
-    typedef float GLclampf;
     typedef double GLdouble;
+    
+    typedef float GLclampf;
     typedef double GLclampd;
-    typedef void GLvoid;
     
     typedef ptrdiff_t GLintptr;
     typedef ptrdiff_t GLsizeiptr;
     
     typedef char GLchar;
+    typedef GLenum PrimType;
+    
+    typedef std::vector<GLint>   GLIndices;
+    typedef std::vector<GLsizei> GLCounts;
+
+    void glCheckError(const String& msg);
+    String glGetErrorMessage(GLenum code);
+
+// #define GL_DEBUG 1
+// #define GL_LOG 1
+    
+#if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
+    #if defined(GL_LOG)
+        #define glAssert(C) { std::cout << #C << std::endl; glCheckError("before " #C); (C); glCheckError("after " #C); }
+    #else
+        #define glAssert(C) { glCheckError("before " #C); (C); glCheckError("after " #C); }
+    #endif
+#else
+    #define glAssert(C) { (C); }
+#endif
+
+    template <GLenum T> struct GLType               { typedef GLvoid    Type; };
+    template <> struct GLType<GL_BYTE>              { typedef GLbyte    Type; };
+    template <> struct GLType<GL_UNSIGNED_BYTE>     { typedef GLubyte   Type; };
+    template <> struct GLType<GL_SHORT>             { typedef GLshort   Type; };
+    template <> struct GLType<GL_UNSIGNED_SHORT>    { typedef GLushort  Type; };
+    template <> struct GLType<GL_INT>               { typedef GLint     Type; };
+    template <> struct GLType<GL_UNSIGNED_INT>      { typedef GLuint    Type; };
+    template <> struct GLType<GL_FLOAT>             { typedef GLfloat   Type; };
+    template <> struct GLType<GL_DOUBLE>            { typedef GLdouble  Type; };
+    
+    template <typename T> struct GLEnum { static const GLenum Value = GL_INVALID_ENUM; };
+    template <> struct GLEnum<GLbyte>   { static const GLenum Value = GL_BYTE; };
+    template <> struct GLEnum<GLubyte>  { static const GLenum Value = GL_UNSIGNED_BYTE; };
+    template <> struct GLEnum<GLshort>  { static const GLenum Value = GL_SHORT; };
+    template <> struct GLEnum<GLushort> { static const GLenum Value = GL_UNSIGNED_SHORT; };
+    template <> struct GLEnum<GLint>    { static const GLenum Value = GL_INT; };
+    template <> struct GLEnum<GLuint>   { static const GLenum Value = GL_UNSIGNED_INT; };
+    template <> struct GLEnum<GLfloat>  { static const GLenum Value = GL_FLOAT; };
+    template <> struct GLEnum<GLdouble> { static const GLenum Value = GL_DOUBLE; };
+    
+    template <typename T> GLenum glType() { return GLEnum<T>::Value; }
     
     extern Func0<void> glewInitialize;
     
@@ -229,6 +284,7 @@ namespace TrenchBroom {
     extern Func2<void, GLsizei, const GLuint*> glDeleteBuffers;
     extern Func2<void, GLenum, GLuint> glBindBuffer;
     extern Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum> glBufferData;
+    extern Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*> glBufferSubData;
     extern Func2<GLvoid*, GLenum, GLenum> glMapBuffer;
     extern Func1<GLboolean, GLenum> glUnmapBuffer;
     
@@ -246,7 +302,10 @@ namespace TrenchBroom {
     
     extern Func3<void, GLenum, GLint, GLsizei> glDrawArrays;
     extern Func4<void, GLenum, const GLint*, const GLsizei*, GLsizei> glMultiDrawArrays;
-    
+    extern Func4<void, GLenum, GLsizei, GLenum, const GLvoid*> glDrawElements;
+    extern Func6<void, GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid*> glDrawRangeElements;
+    extern Func5<void, GLenum, const GLsizei*, GLenum, const GLvoid**, GLsizei> glMultiDrawElements;
+
     extern Func1<GLuint, GLenum> glCreateShader;
     extern Func1<void, GLuint> glDeleteShader;
     extern Func4<void, GLuint, GLsizei, const GLchar**, const GLint*> glShaderSource;

@@ -19,6 +19,7 @@
 
 #include "RenderUtils.h"
 
+#include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
 namespace TrenchBroom {
@@ -26,67 +27,43 @@ namespace TrenchBroom {
         static const float EdgeOffset = 0.0001f;
 
         void glSetEdgeOffset(const float f) {
-            glDepthRange(0.0f, 1.0f - EdgeOffset * f);
+            glAssert(glDepthRange(0.0f, 1.0f - EdgeOffset * f));
         }
         
         void glResetEdgeOffset() {
-            glDepthRange(EdgeOffset, 1.0f);
+            glAssert(glDepthRange(EdgeOffset, 1.0f));
         }
         
-        BuildCoordinateSystem BuildCoordinateSystem::xy(const Color& x, const Color& y) {
-            return BuildCoordinateSystem(x, y, Color(), true, true, false);
-        }
-        
-        BuildCoordinateSystem BuildCoordinateSystem::xz(const Color& x, const Color& z) {
-            return BuildCoordinateSystem(x, Color(), z, true, false, true);
-        }
-        
-        BuildCoordinateSystem BuildCoordinateSystem::yz(const Color& y, const Color& z) {
-            return BuildCoordinateSystem(Color(), y, z, false, true, true);
-        }
-        
-        BuildCoordinateSystem BuildCoordinateSystem::xyz(const Color& x, const Color& y, const Color& z) {
-            return BuildCoordinateSystem(x, y, z, true, true, true);
-        }
-        
-        BuildCoordinateSystem::BuildCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor, const bool xAxis, const bool yAxis, const bool zAxis) {
-            m_colors[0] = xColor;
-            m_colors[1] = yColor;
-            m_colors[2] = zColor;
-            m_axes[0] = xAxis;
-            m_axes[1] = yAxis;
-            m_axes[2] = zAxis;
-        }
-
-        VertexSpecs::P3C4::Vertex::List BuildCoordinateSystem::vertices(const BBox3f& bounds) const {
+        void coordinateSystemVerticesX(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
             const Vec3f center = bounds.center();
-            
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(countVertices());
-
-            size_t i = 0;
-            if (m_axes[0]) {
-                vertices[i++] = Vertex(Vec3f(bounds.min.x(),     center.y(),     center.z()), m_colors[0]);
-                vertices[i++] = Vertex(Vec3f(bounds.max.x(),     center.y(),     center.z()), m_colors[0]);
-            }
-            if (m_axes[1]) {
-                vertices[i++] = Vertex(Vec3f(    center.x(), bounds.min.y(),     center.z()), m_colors[1]);
-                vertices[i++] = Vertex(Vec3f(    center.x(), bounds.max.y(),     center.z()), m_colors[1]);
-            }
-            if (m_axes[2]) {
-                vertices[i++] = Vertex(Vec3f(    center.x(),     center.y(), bounds.min.z()), m_colors[2]);
-                vertices[i++] = Vertex(Vec3f(    center.x(),     center.y(), bounds.max.z()), m_colors[2]);
-            }
-
-            return vertices;
+            start = Vec3f(bounds.min.x(), center.y(),     center.z());
+            end   = Vec3f(bounds.max.x(), center.y(),     center.z());
+        }
+        
+        void coordinateSystemVerticesY(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
+            const Vec3f center = bounds.center();
+            start = Vec3f(center.x(),     bounds.min.y(), center.z());
+            end   = Vec3f(center.x(),     bounds.max.y(), center.z());
+        }
+        
+        void coordinateSystemVerticesZ(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
+            const Vec3f center = bounds.center();
+            start = Vec3f(center.x(),     center.y(),     bounds.min.z());
+            end   = Vec3f(center.x(),     center.y(),     bounds.max.z());
         }
 
-        size_t BuildCoordinateSystem::countVertices() const {
-            size_t result = 0;
-            for (size_t i = 0; i < 3; ++i)
-                if (m_axes[i])
-                    result += 2;
-            return result;
+        TextureRenderFunc::~TextureRenderFunc() {}
+        void TextureRenderFunc::before(const Assets::Texture* texture) {}
+        void TextureRenderFunc::after(const Assets::Texture* texture) {}
+        
+        void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->activate();
+        }
+        
+        void DefaultTextureRenderFunc::after(const Assets::Texture* texture) {
+            if (texture != NULL)
+                texture->deactivate();
         }
 
         Vec2f::List circle2D(const float radius, const size_t segments) {
@@ -298,7 +275,7 @@ namespace TrenchBroom {
                 m_index1(index1),
                 m_index2(index2) {}
                 
-                bool operator< (const MidPointIndex& other) const {
+                bool operator<(const MidPointIndex& other) const {
                     if (m_index1 < other.m_index1)
                         return true;
                     if (m_index1 > other.m_index1)

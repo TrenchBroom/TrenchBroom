@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Octree__
-#define __TrenchBroom__Octree__
+#ifndef TrenchBroom_Octree
+#define TrenchBroom_Octree
 
 #include "CollectionUtils.h"
 #include "Macros.h"
@@ -131,6 +131,16 @@ namespace TrenchBroom {
                         m_children[i]->findObjects(ray, result);
                 result.insert(result.end(), m_objects.begin(), m_objects.end());
             }
+            
+            void findObjects(const Vec<F,3>& point, List& result) const {
+                if (!m_bounds.contains(point))
+                    return;
+                
+                for (size_t i = 0; i < 8; ++i)
+                    if (m_children[i] != NULL)
+                        m_children[i]->findObjects(point, result);
+                result.insert(result.end(), m_objects.begin(), m_objects.end());
+            }
         private:
             BBox<F,3> octant(const size_t index) const {
                 const Vec3f& min = m_bounds.min;
@@ -196,7 +206,7 @@ namespace TrenchBroom {
                 OctreeNode<F,T>* node = m_root->addObject(bounds, object);
                 if (node == NULL)
                     throw OctreeException("Unknown error when inserting into octree");
-                CHECK_BOOL(MapUtils::insertOrFail(m_objectMap, object, node));
+                assertResult(MapUtils::insertOrFail(m_objectMap, object, node));
             }
             
             void removeObject(T object) {
@@ -239,8 +249,14 @@ namespace TrenchBroom {
                 m_root->findObjects(ray, result);
                 return result;
             }
+            
+            List findObjects(const Vec<F,3>& point) const {
+                List result;
+                m_root->findObjects(point, result);
+                return result;
+            }
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Octree__) */
+#endif /* defined(TrenchBroom_Octree) */

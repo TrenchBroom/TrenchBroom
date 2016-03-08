@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Path__
-#define __TrenchBroom__Path__
+#ifndef TrenchBroom_Path
+#define TrenchBroom_Path
 
 #include "StringUtils.h"
 
@@ -50,12 +50,12 @@ namespace TrenchBroom {
         public:
             Path(const String& path = "");
             
-            Path operator+ (const Path& rhs) const;
+            Path operator+(const Path& rhs) const;
             int compare(const Path& rhs) const;
-            bool operator== (const Path& rhs) const;
+            bool operator==(const Path& rhs) const;
             bool operator!= (const Path& rhs) const;
-            bool operator< (const Path& rhs) const;
-            bool operator> (const Path& rhs) const;
+            bool operator<(const Path& rhs) const;
+            bool operator>(const Path& rhs) const;
             
             String asString(const char sep = separator()) const;
             String asString(const String& sep) const;
@@ -90,4 +90,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Path__) */
+#endif /* defined(TrenchBroom_Path) */

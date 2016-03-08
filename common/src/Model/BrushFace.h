@@ -17,20 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Face__
-#define __TrenchBroom__Face__
+#ifndef TrenchBroom_Face
+#define TrenchBroom_Face
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Allocator.h"
+#include "ProjectingSequence.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
-#include "Renderer/TriangleMesh.h"
+#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/VertexListBuilder.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -40,9 +42,13 @@ namespace TrenchBroom {
         class TextureManager;
     }
     
+    namespace Renderer {
+        class IndexRangeMap;
+        class TexturedIndexArrayBuilder;
+    }
+    
     namespace Model {
         class Brush;
-        class BrushFaceGeometry;
         class BrushFaceSnapshot;
         
         class BrushFace {
@@ -58,11 +64,22 @@ namespace TrenchBroom {
              * 0-----------2
              */
             typedef Vec3 Points[3];
-            
+        public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
+        public:
             static const String NoTextureName;
+        private:
+            struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
+                static Type project(BrushHalfEdge* halfEdge);
+            };
+            
+            struct ProjectToEdge : public ProjectingSequenceProjector<BrushHalfEdge*, BrushEdge*> {
+                static Type project(BrushHalfEdge* halfEdge);
+            };
+        public:
+            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex> VertexList;
+            typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToEdge> EdgeList;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
@@ -72,9 +89,11 @@ namespace TrenchBroom {
             bool m_selected;
             
             TexCoordSystem* m_texCoordSystem;
-            BrushFaceGeometry* m_side;
+            BrushFaceGeometry* m_geometry;
+            
+            mutable size_t m_vertexIndex;
             mutable Vertex::List m_cachedVertices;
-            mutable bool m_vertexCacheValid;
+            mutable bool m_verticesValid;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -158,11 +177,12 @@ namespace TrenchBroom {
             float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
             
             size_t vertexCount() const;
-            const BrushEdgeList& edges() const;
-            const BrushVertexList& vertices() const;
+            EdgeList edges() const;
+            VertexList vertices() const;
             
-            BrushFaceGeometry* side() const;
-            void setSide(BrushFaceGeometry* side);
+            BrushFaceGeometry* geometry() const;
+            void setGeometry(BrushFaceGeometry* geometry);
+            void invalidate();
             
             void setFilePosition(const size_t lineNumber, const size_t lineCount);
             
@@ -170,23 +190,27 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            void addToMesh(Mesh& mesh) const;
-            Vec2f textureCoords(const Vec3& point) const;
+            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
             
+            void countIndices(Renderer::TexturedIndexArrayMap::Size& size) const;
+            void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
+            
+            Vec2f textureCoords(const Vec3& point) const;
+
             bool containsPoint(const Vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
-            
-            void invalidate();
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
-            void validateVertexCache() const;
-            void invalidateVertexCache();
             
+            bool vertexCacheValid() const;
+            void invalidateVertexCache();
+            void validateVertexCache() const;
+
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Face__) */
+#endif /* defined(TrenchBroom_Face) */

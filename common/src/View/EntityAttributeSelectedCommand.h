@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeSelectedCommand__
-#define __TrenchBroom__EntityAttributeSelectedCommand__
+#ifndef TrenchBroom_EntityAttributeSelectedCommand
+#define TrenchBroom_EntityAttributeSelectedCommand
 
 #include "Model/ModelTypes.h"
 
@@ -47,4 +47,4 @@ typedef void (wxEvtHandler::*EntityAttributeSelectedCommandFunction)(TrenchBroom
 wxDECLARE_EVENT(ENTITY_ATTRIBUTE_SELECTED_EVENT, TrenchBroom::View::EntityAttributeSelectedCommand);
 #define EntityAttributeSelectedHandler(func) wxEVENT_HANDLER_CAST(EntityAttributeSelectedCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__EntityAttributeSelectedCommand__) */
+#endif /* defined(TrenchBroom_EntityAttributeSelectedCommand) */

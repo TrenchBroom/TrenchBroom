@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameSelectionCommand__
-#define __TrenchBroom__GameSelectionCommand__
+#ifndef TrenchBroom_GameSelectionCommand
+#define TrenchBroom_GameSelectionCommand
 
 #include "StringUtils.h"
 
@@ -51,4 +51,4 @@ wxDECLARE_EVENT(GAME_SELECTION_CHANGE_EVENT, TrenchBroom::View::GameSelectionCom
 wxDECLARE_EVENT(GAME_SELECTION_DBLCLICK_EVENT, TrenchBroom::View::GameSelectionCommand);
 #define GameSelectionDblClickHandler(func) wxEVENT_HANDLER_CAST(GameSelectionCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__GameSelectionCommand__) */
+#endif /* defined(TrenchBroom_GameSelectionCommand) */

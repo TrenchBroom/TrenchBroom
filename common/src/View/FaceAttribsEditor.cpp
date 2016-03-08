@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 request.setXOffset(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 request.setYOffset(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 request.setRotation(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 request.setXScale(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
 
@@ -136,7 +136,7 @@ namespace TrenchBroom {
                 request.setYScale(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
         
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 request.setSurfaceValue(static_cast<float>(event.GetValue()));
             
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setFaceAttributes(request))
+            if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
 
@@ -200,6 +200,10 @@ namespace TrenchBroom {
             textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
             m_textureName = new wxStaticText(this, wxID_ANY, "none");
             
+            wxStaticText* textureSizeLabel = new wxStaticText(this, wxID_ANY, "Size");
+            textureSizeLabel->SetFont(textureSizeLabel->GetFont().Bold());
+            m_textureSize = new wxStaticText(this, wxID_ANY, "");
+            
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
@@ -207,34 +211,40 @@ namespace TrenchBroom {
             xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
+            m_xOffsetEditor->SetDigits(0, 6);
             
             wxStaticText* yOffsetLabel = new wxStaticText(this, wxID_ANY, "Y Offset");
             yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
+            m_yOffsetEditor->SetDigits(0, 6);
             
             wxStaticText* xScaleLabel = new wxStaticText(this, wxID_ANY, "X Scale");
             xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
+            m_xScaleEditor->SetDigits(0, 6);
             
             wxStaticText* yScaleLabel = new wxStaticText(this, wxID_ANY, "Y Scale");
             yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
+            m_yScaleEditor->SetDigits(0, 6);
             
             wxStaticText* rotationLabel = new wxStaticText(this, wxID_ANY, "Angle");
             rotationLabel->SetFont(rotationLabel->GetFont().Bold());
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
+            m_rotationEditor->SetDigits(0, 6);
             
             m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
+            m_surfaceValueEditor->SetDigits(0, 6);
             
             m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
             m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
@@ -249,6 +259,7 @@ namespace TrenchBroom {
             const int RowMargin    = LayoutConstants::NarrowVMargin;
             
             const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
+            const int ValueFlags   = wxALIGN_CENTER_VERTICAL | wxRIGHT;
             const int Editor1Flags = wxEXPAND | wxRIGHT;
             const int Editor2Flags = wxEXPAND;
             
@@ -257,7 +268,9 @@ namespace TrenchBroom {
             
             m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
             m_faceAttribsSizer->Add(textureNameLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
-            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
+            m_faceAttribsSizer->Add(textureSizeLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_textureSize,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
             ++r, c = 0;
 
             m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
@@ -349,6 +362,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList& faces) {
+            MapDocumentSPtr document = lock(m_document);
+            m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
         
@@ -421,17 +436,29 @@ namespace TrenchBroom {
                 if (textureMulti) {
                     m_textureName->SetLabel("multi");
                     m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                    m_textureSize->SetLabel("multi");
+                    m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                 } else {
                     const String& textureName = m_faces[0]->textureName();
                     if (textureName == Model::BrushFace::NoTextureName) {
                         m_textureName->SetLabel("none");
                         m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                        m_textureSize->SetLabel("");
+                        m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                     } else {
-                        if (texture != NULL)
+                        if (texture != NULL) {
+                            wxString sizeLabel;
+                            sizeLabel << texture->width() << "*" << texture->height();
+
                             m_textureName->SetLabel(textureName);
-                        else
+                            m_textureSize->SetLabel(sizeLabel);
+                            m_textureName->SetForegroundColour(GetForegroundColour());
+                            m_textureSize->SetForegroundColour(GetForegroundColour());
+                        } else {
                             m_textureName->SetLabel(textureName + " (not found)");
-                        m_textureName->SetForegroundColour(GetForegroundColour());
+                            m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                            m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
+                        }
                     }
                 }
                 if (xOffsetMulti) {

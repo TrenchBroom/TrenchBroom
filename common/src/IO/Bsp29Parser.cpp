@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const char* cursor = m_begin;
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
-            _UNUSED(version);
+            unused(version);
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();
@@ -234,9 +234,9 @@ namespace TrenchBroom {
                         const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
                         const TextureInfo& textureInfo = textureInfos[faceInfo.textureInfoIndex];
                         Assets::Texture* texture = textureCollection->textures()[textureInfo.textureIndex];
-                        Assets::Bsp29Model::Face face(texture);
-                        
                         const size_t faceVertexCount = faceInfo.edgeCount;
+
+                        Assets::Bsp29Model::Face face(texture, faceVertexCount);
                         for (size_t k = 0; k < faceVertexCount; ++k) {
                             const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                             size_t vertexIndex;

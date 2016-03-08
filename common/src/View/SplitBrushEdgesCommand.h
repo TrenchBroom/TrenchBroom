@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SplitBrushEdgesCommand__
-#define __TrenchBroom__SplitBrushEdgesCommand__
+#ifndef TrenchBroom_SplitBrushEdgesCommand
+#define TrenchBroom_SplitBrushEdgesCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
@@ -34,13 +35,14 @@ namespace TrenchBroom {
         class SplitBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<SplitBrushEdgesCommand> Ptr;
         private:
             Model::BrushEdgesMap m_edges;
             Edge3::List m_oldEdgePositions;
             Vec3::List m_newVertexPositions;
             Vec3 m_delta;
         public:
-            static SplitBrushEdgesCommand* split(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            static Ptr split(const Model::VertexToEdgesMap& edges, const Vec3& delta);
         private:
             SplitBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta);
             
@@ -50,9 +52,9 @@ namespace TrenchBroom {
             void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SplitBrushEdgesCommand__) */
+#endif /* defined(TrenchBroom_SplitBrushEdgesCommand) */

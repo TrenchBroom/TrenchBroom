@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class GroupRenderer::GroupNameAnchor : public TextAnchor {
+        class GroupRenderer::GroupNameAnchor : public TextAnchor3D {
         private:
             const Model::Group* m_group;
         public:
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         void GroupRenderer::clear() {
             m_groups.clear();
-            m_boundsRenderer = EdgeRenderer();
+            m_boundsRenderer = DirectEdgeRenderer();
         }
         
         void GroupRenderer::setShowOverlays(const bool showOverlays) {
@@ -114,18 +114,9 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
             
-            if (m_showOccludedBounds) {
-                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_boundsRenderer));
-                if (m_overrideBoundsColor)
-                    renderOccludedEdges->setColor(m_occludedBoundsColor);
-                renderOccludedEdges->setRenderOccluded();
-                renderBatch.addOneShot(renderOccludedEdges);
-            }
-            
-            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_boundsRenderer));
-            if (m_overrideBoundsColor)
-                renderUnoccludedEdges->setColor(m_boundsColor);
-            renderBatch.addOneShot(renderUnoccludedEdges);
+            if (m_showOccludedBounds)
+                m_boundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+            m_boundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
         
         void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -140,9 +131,10 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(group)) {
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays)
-                            renderService.renderStringOnTop(groupString(group), anchor);
+                            renderService.setShowOccludedObjects();
                         else
-                            renderService.renderString(groupString(group), anchor);
+                            renderService.setHideOccludedObjects();
+                        renderService.renderString(groupString(group), anchor);
                     }
                 }
             }
@@ -192,7 +184,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, vertices));
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::swap(vertices), GL_LINES);
             } else {
                 VertexSpecs::P3C4::Vertex::List vertices;
                 vertices.reserve(24 * m_groups.size());
@@ -206,7 +198,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_boundsRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, vertices));
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::swap(vertices), GL_LINES);
             }
             
             m_boundsValid = true;

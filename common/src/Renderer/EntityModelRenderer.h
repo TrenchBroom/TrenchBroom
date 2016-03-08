@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModelRenderer__
-#define __TrenchBroom__EntityModelRenderer__
+#ifndef TrenchBroom_EntityModelRenderer
+#define TrenchBroom_EntityModelRenderer
 
 #include "Color.h"
 #include "Assets/ModelDefinition.h"
@@ -40,13 +40,13 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class TexturedTriangleMeshRenderer;
         class RenderBatch;
         class RenderContext;
+        class TexturedIndexRangeRenderer;
         
-        class EntityModelRenderer : public Renderable {
+        class EntityModelRenderer : public DirectRenderable {
         private:
-            typedef std::map<Model::Entity*, TexturedTriangleMeshRenderer*> EntityMap;
+            typedef std::map<Model::Entity*, TexturedIndexRangeRenderer*> EntityMap;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
@@ -88,12 +88,10 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepare(Vbo& vbo);
-            
-            class MeshFunc;
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityModelRenderer__) */
+#endif /* defined(TrenchBroom_EntityModelRenderer) */

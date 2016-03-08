@@ -38,6 +38,7 @@
 #include "IO/WadTextureLoader.h"
 #include "IO/WalTextureLoader.h"
 #include "Model/EntityAttributes.h"
+#include "Model/Tutorial.h"
 #include "Model/World.h"
 
 #include "Exceptions.h"
@@ -53,7 +54,11 @@ namespace TrenchBroom {
              m_gamePath,
              m_config.fileSystemConfig().searchPath,
              m_additionalSearchPaths),
-        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {}
+        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
+            // sneak in the brush content type for tutorial brushes
+            const BrushContentType::FlagType flag = 1 << brushContentTypes().size();
+            m_config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
+        }
         
         GameImpl::~GameImpl() {
             delete m_palette;
@@ -88,16 +93,18 @@ namespace TrenchBroom {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        World* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* GameImpl::doLoadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
-            return reader.read(worldBounds);
+            return reader.read(format, worldBounds);
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
+            const String mapFormatName = formatName(world->format());
+            
             IO::OpenFile openFile(path, true);
             FILE* stream = openFile.file();
-            IO::writeGameComment(stream, gameName());
+            IO::writeGameComment(stream, gameName(), mapFormatName);
             
             IO::NodeWriter writer(world, stream);
             writer.writeMap();
@@ -190,17 +197,21 @@ namespace TrenchBroom {
             const String extension = path.extension();
             const Color& defaultColor = m_config.entityConfig().defaultColor;
             
+            Assets::EntityDefinitionList definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor);
-                return parser.parseDefinitions(status);
-            }
-            if (StringUtils::caseInsensitiveEqual("def", extension)) {
+                definitions = parser.parseDefinitions(status);
+            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
-                return parser.parseDefinitions(status);
+                definitions = parser.parseDefinitions(status);
+            } else {
+                throw GameException("Unknown entity definition format: '" + path.asString() + "'");
             }
-            throw GameException("Unknown entity definition format: '" + path.asString() + "'");
+            
+            definitions.push_back(Tutorial::createTutorialEntityDefinition());
+            return definitions;
         }
         
         Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {

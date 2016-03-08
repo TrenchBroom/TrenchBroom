@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        SetModsCommand* SetModsCommand::set(const StringList& mods) {
-            return new SetModsCommand("Set Mods", mods);
+        SetModsCommand::Ptr SetModsCommand::set(const StringList& mods) {
+            return Ptr(new SetModsCommand("Set Mods", mods));
         }
 
         SetModsCommand::SetModsCommand(const String& name, const StringList& mods) :
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool SetModsCommand::doCollateWith(UndoableCommand* command) {
+        bool SetModsCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

@@ -17,13 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Compass__
-#define __TrenchBroom__Compass__
-
-#include "Renderer/VertexArray.h"
+#ifndef TrenchBroom_Compass
+#define TrenchBroom_Compass
 
 #include "Color.h"
 #include "VecMath.h"
+#include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
 namespace TrenchBroom {
@@ -33,7 +32,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class Compass : public Renderable {
+        class Compass : public DirectRenderable {
         private:
             static const size_t m_segments;
             static const float m_shaftLength;
@@ -41,13 +40,9 @@ namespace TrenchBroom {
             static const float m_headLength;
             static const float m_headRadius;
 
-            VertexArray m_strip;
-            VertexArray m_set;
-            VertexArray m_fans;
-            
-            VertexArray m_backgroundOutline;
-            VertexArray m_background;
-            
+            IndexRangeRenderer m_arrowRenderer;
+            IndexRangeRenderer m_backgroundRenderer;
+            IndexRangeRenderer m_backgroundOutlineRenderer;
             bool m_prepared;
         public:
             Compass();
@@ -55,7 +50,7 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         private:
             void makeArrows();
@@ -73,4 +68,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Compass__) */
+#endif /* defined(TrenchBroom_Compass) */

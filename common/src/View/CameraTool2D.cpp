@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_camera(camera) {}
         
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
-                const float speed = 1.0f;
+                const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                 if (inputState.scrollY() != 0.0f) {
                     const Vec2f mousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
                     const Vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
@@ -45,11 +45,9 @@ namespace TrenchBroom {
                     const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
                     m_camera.zoom(factor);
                     
-//                    if (inputState.scrollY() > 0.0f) {
-                        const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-                        const Vec3f delta = newWorldPos - oldWorldPos;
-                        m_camera.moveBy(-delta);
-//                    }
+                    const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+                    const Vec3f delta = newWorldPos - oldWorldPos;
+                    m_camera.moveBy(-delta);
                 }
             }
         }
@@ -94,7 +92,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool2D::pan(const InputState& inputState) const {
-            return inputState.mouseButtonsPressed(MouseButtons::MBRight);
+            return inputState.mouseButtonsPressed(MouseButtons::MBRight) || inputState.mouseButtonsPressed(MouseButtons::MBMiddle);
         }
     }
 }

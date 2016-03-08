@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand* ResizeBrushesCommand::resize(const Model::BrushFaceList& faces, const Vec3& delta) {
-            return new ResizeBrushesCommand(faces, delta);
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Model::BrushFaceList& faces, const Vec3& delta) {
+            return Ptr(new ResizeBrushesCommand(faces, delta));
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta) :
@@ -50,8 +50,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ResizeBrushesCommand::doCollateWith(UndoableCommand* command) {
-            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command);
+        bool ResizeBrushesCommand::doCollateWith(UndoableCommand::Ptr command) {
+            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
             if (m_faces != other->m_faces)
                 return false;
             

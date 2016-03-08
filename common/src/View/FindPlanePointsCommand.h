@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindPlanePointsCommand__
-#define __TrenchBroom__FindPlanePointsCommand__
+#ifndef TrenchBroom_FindPlanePointsCommand
+#define TrenchBroom_FindPlanePointsCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
@@ -31,10 +32,11 @@ namespace TrenchBroom {
         class FindPlanePointsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<FindPlanePointsCommand> Ptr;
         private:
             Model::Snapshot* m_snapshot;
         public:
-            static FindPlanePointsCommand* findPlanePoints();
+            static Ptr findPlanePoints();
         private:
             FindPlanePointsCommand();
 
@@ -45,9 +47,9 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FindPlanePointsCommand__) */
+#endif /* defined(TrenchBroom_FindPlanePointsCommand) */

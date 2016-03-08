@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DefaultAttributeEditor__
-#define __TrenchBroom__DefaultAttributeEditor__
+#ifndef TrenchBroom_DefaultAttributeEditor
+#define TrenchBroom_DefaultAttributeEditor
 
 #include "View/SmartAttributeEditor.h"
 
@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__DefaultAttributeEditor__) */
+#endif /* defined(TrenchBroom_DefaultAttributeEditor) */

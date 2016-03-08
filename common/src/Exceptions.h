@@ -101,6 +101,14 @@ namespace TrenchBroom {
         ~FileSystemException() throw() {}
     };
             
+    class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
+    public:
+        FileNotFoundException() throw() {}
+        FileNotFoundException(const String& str) throw() : ExceptionStream(str) {}
+        FileNotFoundException(const String& str, const PathException& e) throw() : ExceptionStream(str + " (" + e.what() + ")") {}
+        ~FileNotFoundException() throw() {}
+    };
+    
     class AssetException : public ExceptionStream<AssetException> {
     public:
         AssetException() throw() {}

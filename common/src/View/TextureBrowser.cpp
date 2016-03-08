@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 case Assets::TextureManager::SortOrder_Usage:
                     m_sortOrderChoice->SetSelection(1);
                     break;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
             
         }
@@ -180,6 +180,10 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
+            document->nodesWereAddedNotifier.addObserver(this, &TextureBrowser::nodesWereAdded);
+            document->nodesWereRemovedNotifier.addObserver(this, &TextureBrowser::nodesWereRemoved);
+            document->nodesDidChangeNotifier.addObserver(this, &TextureBrowser::nodesDidChange);
+            document->brushFacesDidChangeNotifier.addObserver(this, &TextureBrowser::brushFacesDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -192,6 +196,10 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
+                document->nodesWereAddedNotifier.removeObserver(this, &TextureBrowser::nodesWereAdded);
+                document->nodesWereRemovedNotifier.removeObserver(this, &TextureBrowser::nodesWereRemoved);
+                document->nodesDidChangeNotifier.removeObserver(this, &TextureBrowser::nodesDidChange);
+                document->brushFacesDidChangeNotifier.removeObserver(this, &TextureBrowser::brushFacesDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -203,6 +211,22 @@ namespace TrenchBroom {
         }
         
         void TextureBrowser::documentWasLoaded(MapDocument* document) {
+            reload();
+        }
+
+        void TextureBrowser::nodesWereAdded(const Model::NodeList& nodes) {
+            reload();
+        }
+        
+        void TextureBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
+            reload();
+        }
+        
+        void TextureBrowser::nodesDidChange(const Model::NodeList& nodes) {
+            reload();
+        }
+        
+        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
             reload();
         }
 

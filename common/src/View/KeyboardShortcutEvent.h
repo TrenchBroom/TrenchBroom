@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcutEvent__
-#define __TrenchBroom__KeyboardShortcutEvent__
+#ifndef TrenchBroom_KeyboardShortcutEvent
+#define TrenchBroom_KeyboardShortcutEvent
 
 #include <wx/event.h>
 
@@ -51,4 +51,4 @@ typedef void (wxEvtHandler::*KeyboardShortcutEventFunction)(TrenchBroom::View::K
 wxDECLARE_EVENT(KEYBOARD_SHORTCUT_EVENT, TrenchBroom::View::KeyboardShortcutEvent);
 #define KeyboardShortcutHandler(func) wxEVENT_HANDLER_CAST(KeyboardShortcutEventFunction, func)
 
-#endif /* defined(__TrenchBroom__KeyboardShortcutEvent__) */
+#endif /* defined(TrenchBroom_KeyboardShortcutEvent) */

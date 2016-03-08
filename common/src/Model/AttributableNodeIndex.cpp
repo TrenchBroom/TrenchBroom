@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return AttributableNodeIndexQuery(Type_Any);
         }
         
-        AttributableNodeSet AttributableNodeIndexQuery::execute(const StringMultiMap<AttributableNode*>& index) const {
+        AttributableNodeSet AttributableNodeIndexQuery::execute(const AttributableNodeStringIndex& index) const {
             switch (m_type) {
                 case Type_Exact:
                     return index.queryExactMatches(m_pattern);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     return index.queryNumberedMatches(m_pattern);
                 case Type_Any:
                     return EmptyAttributableNodeSet;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                     return node->hasNumberedAttribute(m_pattern, value);
                 case Type_Any:
                     return true;
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 

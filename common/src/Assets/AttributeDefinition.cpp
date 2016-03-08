@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 case Type_TargetSourceAttribute:
                 case Type_TargetDestinationAttribute:
                     return "";
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 
@@ -174,23 +174,31 @@ namespace TrenchBroom {
             return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
         }
 
-        FlagsAttributeOption::FlagsAttributeOption(const int value, const String& description, const bool isDefault) :
+        FlagsAttributeOption::FlagsAttributeOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) :
         m_value(value),
-        m_description(description),
+        m_shortDescription(shortDescription),
+        m_longDescription(longDescription),
         m_isDefault(isDefault) {}
         
         bool FlagsAttributeOption::operator==(const FlagsAttributeOption& other) const {
-            return m_value == other.m_value && m_description == other.m_description && m_isDefault == other.m_isDefault;
+            return (m_value == other.m_value &&
+                    m_shortDescription == other.m_shortDescription &&
+                    m_longDescription == other.m_longDescription &&
+                    m_isDefault == other.m_isDefault);
         }
         
         int FlagsAttributeOption::value() const {
             return m_value;
         }
         
-        const String& FlagsAttributeOption::description() const {
-            return m_description;
+        const String& FlagsAttributeOption::shortDescription() const {
+            return m_shortDescription;
         }
 
+        const String& FlagsAttributeOption::longDescription() const {
+            return m_longDescription;
+        }
+        
         bool FlagsAttributeOption::isDefault() const {
             return m_isDefault;
         }
@@ -228,8 +236,8 @@ namespace TrenchBroom {
             return VectorUtils::findIf(m_options, FindFlagByValue(value));
         }
 
-        void FlagsAttributeDefinition::addOption(const int value, const String& description, const bool isDefault) {
-            m_options.push_back(FlagsAttributeOption(value, description, isDefault));
+        void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {
+            m_options.push_back(FlagsAttributeOption(value, shortDescription, longDescription, isDefault));
         }
 
         bool FlagsAttributeDefinition::doEquals(const AttributeDefinition* other) const {

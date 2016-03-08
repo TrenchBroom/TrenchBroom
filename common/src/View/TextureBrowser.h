@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureBrowser__
-#define __TrenchBroom__TextureBrowser__
+#ifndef TrenchBroom_TextureBrowser
+#define TrenchBroom_TextureBrowser
 
 #include "StringUtils.h"
 #include "Assets/TextureManager.h"
@@ -80,6 +80,10 @@ namespace TrenchBroom {
             
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
+            void nodesWereAdded(const Model::NodeList& nodes);
+            void nodesWereRemoved(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeList& nodes);
+            void brushFacesDidChange(const Model::BrushFaceList& faces);
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
@@ -88,4 +92,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureBrowser__) */
+#endif /* defined(TrenchBroom_TextureBrowser) */

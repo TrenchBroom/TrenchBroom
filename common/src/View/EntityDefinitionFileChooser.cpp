@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            externalSizer->Add(m_external, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->Add(m_external, 1, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);

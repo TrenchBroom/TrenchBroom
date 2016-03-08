@@ -17,17 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeIndex__
-#define __TrenchBroom__EntityAttributeIndex__
+#ifndef TrenchBroom_EntityAttributeIndex
+#define TrenchBroom_EntityAttributeIndex
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
-#include "StringMultiMap.h"
+#include "StringMap.h"
 
 #include <map>
 
 namespace TrenchBroom {
     namespace Model {
+        typedef StringMultiMapValueContainer<AttributableNode*> AttributableNodeIndexValueContainer;
+        typedef StringMap<AttributableNode*, AttributableNodeIndexValueContainer> AttributableNodeStringIndex;
+        
         class AttributableNodeIndexQuery {
         public:
             typedef enum {
@@ -45,7 +48,7 @@ namespace TrenchBroom {
             static AttributableNodeIndexQuery numbered(const String& pattern);
             static AttributableNodeIndexQuery any();
 
-            AttributableNodeSet execute(const StringMultiMap<AttributableNode*>& index) const;
+            AttributableNodeSet execute(const AttributableNodeStringIndex& index) const;
             bool execute(const AttributableNode* node, const String& value) const;
         private:
             AttributableNodeIndexQuery(Type type, const String& pattern = "");
@@ -53,8 +56,8 @@ namespace TrenchBroom {
         
         class AttributableNodeIndex {
         private:
-            StringMultiMap<AttributableNode*> m_nameIndex;
-            StringMultiMap<AttributableNode*> m_valueIndex;
+            AttributableNodeStringIndex m_nameIndex;
+            AttributableNodeStringIndex m_valueIndex;
         public:
             void addAttributableNode(AttributableNode* attributable);
             void removeAttributableNode(AttributableNode* attributable);
@@ -67,4 +70,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityAttributeIndex__) */
+#endif /* defined(TrenchBroom_EntityAttributeIndex) */

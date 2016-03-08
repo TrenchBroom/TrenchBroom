@@ -25,14 +25,14 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ShearTexturesCommand::Type = Command::freeType();
         
-        ShearTexturesCommand* ShearTexturesCommand::shear(const Vec2f& factors) {
-            return new ShearTexturesCommand(factors);
+        ShearTexturesCommand::Ptr ShearTexturesCommand::shear(const Vec2f& factors) {
+            return Ptr(new ShearTexturesCommand(factors));
         }
 
         ShearTexturesCommand::ShearTexturesCommand(const Vec2f& factors) :
         DocumentCommand(Type, "Shear Textures"),
         m_factors(factors) {
-            assert(factors.x() != 0.0f && factors.y() != 0.0f);
+            assert(factors.x() != 0.0f || factors.y() != 0.0f);
         }
         
         bool ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
@@ -52,12 +52,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new ShearTexturesCommand(*this);
+        UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return UndoableCommand::Ptr(new ShearTexturesCommand(*this));
         }
         
-        bool ShearTexturesCommand::doCollateWith(UndoableCommand* command) {
-            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command);
+        bool ShearTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
+            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command.get());
             m_factors += other->m_factors;
             return true;
         }

@@ -17,26 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Compass3D__
-#define __TrenchBroom__Compass3D__
+#ifndef TrenchBroom_Compass3D
+#define TrenchBroom_Compass3D
 
 #include "Renderer/Compass.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MovementRestriction;
-    }
-    
     namespace Renderer {
         class Compass3D : public Compass {
-        private:
-            const View::MovementRestriction& m_restriction;
-        public:
-            Compass3D(const View::MovementRestriction& restriction);
         private:
             void doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Compass3D__) */
+#endif /* defined(TrenchBroom_Compass3D) */

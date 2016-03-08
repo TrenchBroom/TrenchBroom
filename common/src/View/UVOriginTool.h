@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVOriginTool__
-#define __TrenchBroom__UVOriginTool__
+#ifndef TrenchBroom_UVOriginTool
+#define TrenchBroom_UVOriginTool
 
 #include "Model//Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVOriginTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
+            EdgeVertex::List getHandleVertices(const InputState& inputState) const;
             
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -84,4 +84,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVOriginTool__) */
+#endif /* defined(TrenchBroom_UVOriginTool) */

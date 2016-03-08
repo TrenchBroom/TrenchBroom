@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVView__
-#define __TrenchBroom__UVView__
+#ifndef TrenchBroom_UVView
+#define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -69,13 +69,6 @@ namespace TrenchBroom {
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
-            
-            UVRotateTool* m_rotateTool;
-            UVOriginTool* m_originTool;
-            UVScaleTool* m_scaleTool;
-            UVShearTool* m_shearTool;
-            UVOffsetTool* m_offsetTool;
-            UVCameraTool* m_cameraTool;
         public:
             UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView();
@@ -83,7 +76,6 @@ namespace TrenchBroom {
             void setSubDivisions(const Vec2i& subDivisions);
         private:
             void createTools();
-            void destroyTools();
             
             void bindObservers();
             void unbindObservers();
@@ -114,4 +106,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVView__) */
+#endif /* defined(TrenchBroom_UVView) */

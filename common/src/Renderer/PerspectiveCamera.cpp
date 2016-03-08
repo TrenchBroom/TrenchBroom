@@ -107,18 +107,16 @@ namespace TrenchBroom {
                 lineVertices[8 + 2 * i + 1] = Vertex(verts[Math::succ(i, 4)], color);
             }
             
-            VertexArray triangleArray = VertexArray::ref(GL_TRIANGLE_FAN, triangleVertices);
-            VertexArray lineArray = VertexArray::ref(GL_LINES, lineVertices);
+            VertexArray triangleArray = VertexArray::ref(triangleVertices);
+            VertexArray lineArray = VertexArray::ref(lineVertices);
             
-            SetVboState setVboState(vbo);
-            setVboState.mapped();
+            ActivateVbo activate(vbo);
             triangleArray.prepare(vbo);
             lineArray.prepare(vbo);
-            setVboState.active();
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render();
-            lineArray.render();
+            triangleArray.render(GL_TRIANGLE_FAN);
+            lineArray.render(GL_LINES);
         }
         
         float PerspectiveCamera::doPickFrustum(const float size, const Ray3f& ray) const {

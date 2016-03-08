@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PopupButton__
-#define __TrenchBroom__PopupButton__
+#ifndef TrenchBroom_PopupButton
+#define TrenchBroom_PopupButton
 
 #include <wx/panel.h>
 
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PopupButton__) */
+#endif /* defined(TrenchBroom_PopupButton) */

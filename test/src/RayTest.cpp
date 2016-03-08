@@ -87,38 +87,38 @@ TEST(RayTest, distanceToSegment) {
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+    ASSERT_FLOAT_EQ(0.5f, segDist.lineDistance);
     
     segDist = ray.squaredDistanceToSegment(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(2.0f, -1.0f, 0.0f));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(1.0f, segDist.distance);
-    ASSERT_VEC_EQ(Vec3f(1.0f, 0.0f, 0.0f), segDist.point);
+    ASSERT_FLOAT_EQ(0.0f, segDist.lineDistance);
 }
 
 TEST(RayTest, distanceToLine) {
     const Ray3f ray(Vec3f::Null, Vec3f::PosZ);
     Ray3f::LineDistance segDist;
     
-    segDist = ray.distanceToLineSquared(Vec3f(0.0f, 0.0f, 0.0f), Vec3f::PosZ);
+    segDist = ray.squaredDistanceToLine(Vec3f(0.0f, 0.0f, 0.0f), Vec3f::PosZ);
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.distance);
     
-    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 1.0f, 0.0f), Vec3f::PosZ);
+    segDist = ray.squaredDistanceToLine(Vec3f(1.0f, 1.0f, 0.0f), Vec3f::PosZ);
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(2.0f, segDist.distance);
     
-    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(-1.0f, 1.0f, 0.0f).normalized());
+    segDist = ray.squaredDistanceToLine(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(-1.0f, 1.0f, 0.0f).normalized());
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+    ASSERT_FLOAT_EQ(std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
     
-    segDist = ray.distanceToLineSquared(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(1.0f, -1.0f, 0.0f));
+    segDist = ray.squaredDistanceToLine(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(1.0f, -1.0f, 0.0f).normalized());
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_VEC_EQ(Vec3f(0.5f, 0.5f, 0.0f), segDist.point);
+    ASSERT_FLOAT_EQ(-std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
 }
 
 TEST(RayTest, intersectRayWithTriangle) {

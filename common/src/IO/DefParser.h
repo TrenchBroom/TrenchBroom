@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DefParser__
-#define __TrenchBroom__DefParser__
+#ifndef TrenchBroom_DefParser
+#define TrenchBroom_DefParser
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,7 +43,6 @@ namespace TrenchBroom {
             static const Type OBrace          = 1 <<  5; // opening brace: {
             static const Type CBrace          = 1 <<  6; // closing brace: }
             static const Type Word            = 1 <<  7; // word
-            static const Type Question        = 1 <<  8; // question mark: ?
             static const Type ODefinition     = 1 <<  9; // entity definition open
             static const Type CDefinition     = 1 << 10; // entity definition close
             static const Type Semicolon       = 1 << 11; // semicolon: ;
@@ -87,6 +86,7 @@ namespace TrenchBroom {
             void parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
             void parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
             void parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
+            String parseNamedValue(ParserStatus& status, const String& name);
             String parseDescription();
 
             Vec3 parseVector(ParserStatus& status);
@@ -98,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__DefParser__) */
+#endif /* defined(TrenchBroom_DefParser) */

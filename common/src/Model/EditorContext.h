@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EditorContext__
-#define __TrenchBroom__EditorContext__
+#ifndef TrenchBroom_EditorContext
+#define TrenchBroom_EditorContext
 
 #include "Notifier.h"
 #include "Model/BrushContentType.h"
@@ -63,6 +63,7 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType hiddenBrushContentTypes() const;
             void setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes);
             
+            bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
             
@@ -112,4 +113,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EditorContext__) */
+#endif /* defined(TrenchBroom_EditorContext) */

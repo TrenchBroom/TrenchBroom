@@ -17,107 +17,41 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushGeometry__
-#define __TrenchBroom__BrushGeometry__
+#ifndef TrenchBroom_BrushGeometry_h
+#define TrenchBroom_BrushGeometry_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
-#include "CollectionUtils.h"
-#include "Model/BrushFaceGeometry.h"
-#include "Model/BrushEdge.h"
-#include "Model/ModelTypes.h"
+#include "Polyhedron.h"
+#include "Polyhedron_BrushGeometryPayload.h"
+#include "Polyhedron_DefaultPayload.h"
 
 namespace TrenchBroom {
     namespace Model {
-        struct BrushAlgorithmResult {
-            BrushFaceList addedFaces;
-            BrushFaceList droppedFaces;
-            void append(const BrushAlgorithmResult& other);
-        protected:
-            BrushAlgorithmResult(const BrushFaceList& i_addedFaces, const BrushFaceList& i_droppedFaces);
-        };
+        class Brush;
+        class BrushFace;
         
-        struct AddFaceResult : public BrushAlgorithmResult {
-            typedef enum {
-                Code_BrushSplit,
-                Code_BrushNull,
-                Code_FaceRedundant
-            } Code;
-
-            Code resultCode;
-            AddFaceResult(Code i_resultCode, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
+        typedef Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload> BrushGeometry;
         
-        struct MoveVerticesResult : public BrushAlgorithmResult {
-            Vec3::List newVertexPositions;
-            MoveVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            MoveVerticesResult(Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
+        void restoreFaceLinks(BrushGeometry* geometry);
+        void restoreFaceLinks(BrushGeometry& geometry);
         
-        struct MoveEdgesResult : public BrushAlgorithmResult {
-            Edge3::List newEdgePositions;
-            MoveEdgesResult(const Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            MoveEdgesResult(Edge3::List& i_newEdgePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
-        
-        struct MoveFacesResult : public BrushAlgorithmResult {
-            Polygon3::List newFacePositions;
-            MoveFacesResult(const Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-            MoveFacesResult(Polygon3::List& i_newFacePositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
-        
-        struct SplitResult : public BrushAlgorithmResult {
-            Vec3 newVertexPosition;
-            SplitResult(const Vec3& i_newVertexPosition, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
-        
-        struct SnapVerticesResult : public BrushAlgorithmResult {
-            Vec3::List newVertexPositions;
-            SnapVerticesResult(const Vec3::List& i_newVertexPositions, const BrushFaceList& i_addedFaces = EmptyBrushFaceList, const BrushFaceList& i_droppedFaces = EmptyBrushFaceList);
-        };
-
-        class BrushGeometry {
-        public:
-            BrushVertexList vertices;
-            BrushEdgeList edges;
-            BrushFaceGeometryList sides;
-            BBox3 bounds;
-        public:
-            BrushGeometry(const BrushGeometry& original);
-            BrushGeometry(const BBox3& worldBounds);
-            ~BrushGeometry();
-            
-            BrushFaceGeometryList incidentSides(const BrushVertex* vertex) const;
-            AddFaceResult addFaces(const BrushFaceList& faces);
-            
-            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
-            MoveVerticesResult moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
-            
-            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
-            MoveEdgesResult moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
-            
-            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
-            MoveFacesResult moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
-            
-            bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
-            SplitResult splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
-            
-            bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
-            SplitResult splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
-            
-            SnapVerticesResult snapVertices(const Vec3::List& vertexPositions, size_t snapTo);
-            
-            void restoreFaceGeometries();
-            void updateBounds();
-
-            bool isClosed() const;
-            bool sanityCheck() const;
+        class SetTempFaceLinks {
         private:
-            void copy(const BrushGeometry& original);
-            AddFaceResult addFace(BrushFace* face);
-            void initializeWithBounds(const BBox3& bounds);
+            Brush* m_brush;
+        public:
+            SetTempFaceLinks(Brush* brush, BrushGeometry& tempGeometry);
+            ~SetTempFaceLinks();
         };
+        
+        typedef BrushGeometry::Vertex BrushVertex;
+        typedef BrushGeometry::Edge BrushEdge;
+        typedef BrushGeometry::HalfEdge BrushHalfEdge;
+        typedef BrushGeometry::Face BrushFaceGeometry;
+
+        typedef BrushGeometry::VertexList BrushVertexList;
+        typedef BrushGeometry::EdgeList BrushEdgeList;
+        typedef BrushGeometry::HalfEdgeList BrushHalfEdgeList;
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushGeometry__) */
+#endif

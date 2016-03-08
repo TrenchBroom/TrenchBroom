@@ -35,7 +35,8 @@ namespace Math {
         }
         
         static T pointStatusEpsilon() {
-            static const T value = static_cast<T>(0.01);
+            // static const T value = static_cast<T>(0.01);
+            static const T value = static_cast<T>(0.0001); // this is what tyrbsp uses
             return value;
         }
         
@@ -45,7 +46,12 @@ namespace Math {
         }
         
         static T colinearEpsilon() {
-            static const T value = static_cast<T>(0.01);
+            static const T value = static_cast<T>(0.00001); // this value seems to hit a sweet spot in relation to the point status epsilon
+            return value;
+        }
+        
+        static T angleEpsilon() {
+            static const T value = static_cast<T>(0.00000001); // if abs(sin()) of the angle between two vectors is less than this, they are considered to be parallel or opposite
             return value;
         }
         
@@ -184,11 +190,24 @@ namespace Math {
             return r / m;
         return v;
     }
+
+    template <typename T>
+    T roundDownToMultiple(const T v, const T m) {
+        return down(v / m) * m;
+    }
     
     template <typename T>
-    T remainder(const T v1, const T v2) {
-        const T n = down(v1 / v2);
-        return v1 - n * v2;
+    T roundUpToMultiple(const T v, const T m) {
+        return up(v / m) * m;
+    }
+    
+    template <typename T>
+    T roundToMultiple(const T v, const T m) {
+        const T d = roundDownToMultiple(v, m);
+        const T u = roundUpToMultiple(v, m);
+        if (Math::abs(d - v) < Math::abs(u - v))
+            return d;
+        return u;
     }
 
     template <typename T>

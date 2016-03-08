@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AssortNodesVisitor__
-#define __TrenchBroom__AssortNodesVisitor__
+#ifndef TrenchBroom_AssortNodesVisitor
+#define TrenchBroom_AssortNodesVisitor
 
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
@@ -107,4 +107,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__AssortNodesVisitor__) */
+#endif /* defined(TrenchBroom_AssortNodesVisitor) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeBrushFaceAttributesRequest__
-#define __TrenchBroom__ChangeBrushFaceAttributesRequest__
+#ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
+#define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -136,4 +136,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeBrushFaceAttributesRequest__) */
+#endif /* defined(TrenchBroom_ChangeBrushFaceAttributesRequest) */

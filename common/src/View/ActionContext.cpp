@@ -34,7 +34,7 @@ namespace TrenchBroom {
             if ((actionContext & ActionContext_AnyTool) == ActionContext_AnyTool) {
                 actionContexts.push_back("Any Tool");
             } else {
-                if (actionContext & ActionContext_CreateBrushTool)
+                if (actionContext & ActionContext_CreateComplexBrushTool)
                     actionContexts.push_back("Create Brush Tool");
                 if (actionContext & ActionContext_VertexTool)
                     actionContexts.push_back("Vertex Tool");

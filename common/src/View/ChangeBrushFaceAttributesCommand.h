@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeBrushFaceAttributesCommand__
-#define __TrenchBroom__ChangeBrushFaceAttributesCommand__
+#ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
+#define TrenchBroom_ChangeBrushFaceAttributesCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 
@@ -32,12 +33,13 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ChangeBrushFaceAttributesCommand> Ptr;
         private:
             
             Model::ChangeBrushFaceAttributesRequest m_request;
             Model::Snapshot* m_snapshot;
         public:
-            static ChangeBrushFaceAttributesCommand* command(const Model::ChangeBrushFaceAttributesRequest& request);
+            static Ptr command(const Model::ChangeBrushFaceAttributesRequest& request);
         private:
             ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
         public:
@@ -47,11 +49,11 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeBrushFaceAttributesCommand__) */
+#endif /* defined(TrenchBroom_ChangeBrushFaceAttributesCommand) */

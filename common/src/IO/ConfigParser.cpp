@@ -105,7 +105,7 @@ namespace TrenchBroom {
                     return parseList();
                 case ConfigEntry::Type_Table:
                     return parseTable();
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         

@@ -36,6 +36,7 @@ namespace TrenchBroom {
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
+        m_splitter(NULL),
         m_mapView3D(NULL),
         m_mapViewXY(NULL),
         m_mapViewXZ(NULL),
@@ -45,13 +46,13 @@ namespace TrenchBroom {
         
         void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
             
-            SplitterWindow4* splitter = new SplitterWindow4(this);
-            splitter->SetName("4PaneMapViewSplitter");
+            m_splitter = new SplitterWindow4(this);
+            m_splitter->SetName("4PaneMapViewSplitter");
             
-            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
-            m_mapViewXY = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
-            m_mapViewYZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
+            m_mapView3D = new MapView3D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewXZ = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViewYZ = new MapView2D(m_splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
             
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);
@@ -63,14 +64,30 @@ namespace TrenchBroom {
             addMapView(m_mapViewXZ);
             addMapView(m_mapViewYZ);
             
-            splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
+            m_splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(splitter, 1, wxEXPAND);
+            sizer->Add(m_splitter, 1, wxEXPAND);
             
             SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
+            wxPersistenceManager::Get().RegisterAndRestore(m_splitter);
+        }
+
+        void FourPaneMapView::doMaximizeView(MapView* view) {
+            assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewXZ || view == m_mapViewYZ);
+            if (view == m_mapView3D)
+                m_splitter->maximize(m_mapView3D);
+            else if (view == m_mapViewXY)
+                m_splitter->maximize(m_mapViewXY);
+            else if (view == m_mapViewXZ)
+                m_splitter->maximize(m_mapViewXZ);
+            else if (view == m_mapViewYZ)
+                m_splitter->maximize(m_mapViewYZ);
+        }
+        
+        void FourPaneMapView::doRestoreViews() {
+            m_splitter->restore();
         }
     }
 }

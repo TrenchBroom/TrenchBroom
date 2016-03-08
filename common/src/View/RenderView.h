@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderView__
-#define __TrenchBroom__RenderView__
+#ifndef TrenchBroom_RenderView
+#define TrenchBroom_RenderView
 
 #include "Color.h"
 #include "Renderer/Vbo.h"
@@ -43,7 +43,6 @@ namespace TrenchBroom {
             GLAttribs m_attribs;
             bool m_initialized;
             Color m_focusColor;
-            Renderer::Vbo m_vbo;
         protected:
             RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs);
         public:
@@ -52,7 +51,8 @@ namespace TrenchBroom {
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
         protected:
-            Renderer::Vbo& sharedVbo();
+            Renderer::Vbo& vertexVbo();
+            Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
             
@@ -75,4 +75,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderView__) */
+#endif /* defined(TrenchBroom_RenderView) */

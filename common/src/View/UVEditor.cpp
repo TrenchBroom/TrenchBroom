@@ -146,7 +146,7 @@ namespace TrenchBroom {
             bottomSizer->Add(rotateTextureCCWButton,               0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(rotateTextureCWButton,                0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->AddStretchSpacer();
-            bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
+            bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->Add(m_xSubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::MediumHMargin);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);

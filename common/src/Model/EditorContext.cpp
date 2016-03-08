@@ -74,6 +74,12 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
         
+        bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
+            if (entity == NULL)
+                return false;
+            return entityDefinitionHidden(entity->definition());
+        }
+
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
             if (definition == NULL)
                 return false;
@@ -178,7 +184,7 @@ namespace TrenchBroom {
                 return false;
             if (entity->pointEntity() && !m_showPointEntities)
                 return false;
-            if (entityDefinitionHidden(entity->definition()))
+            if (entityDefinitionHidden(entity))
                 return false;
             return true;
         }
@@ -189,6 +195,8 @@ namespace TrenchBroom {
             if (!m_showBrushes)
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
+                return false;
+            if (entityDefinitionHidden(brush->entity()))
                 return false;
             return brush->visible();
         }
@@ -229,8 +237,10 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Group* group) const {
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+            
             Model::Group* containingGroup = group->group();
-            return (containingGroup == NULL || containingGroup->opened()) && visible(group);
+            return (containingGroup == NULL || containingGroup->opened()) /* && visible(group) */;
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
@@ -238,8 +248,10 @@ namespace TrenchBroom {
             // This is necessary so that it is possible to draw new brushes onto grouped brushes.
             // Might break other things though.
             
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+
             // Model::Group* containingGroup = entity->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() && visible(entity);
+            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
@@ -247,12 +259,15 @@ namespace TrenchBroom {
             // This is necessary so that it is possible to draw new brushes onto grouped brushes.
             // Might break other things though.
             
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+
             // Model::Group* containingGroup = brush->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ visible(brush);
+            return /*(containingGroup == NULL || containingGroup->opened()) && visible(brush) */ true;
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            return visible(face);
+            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
+            return /* visible(face) */ true;
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -279,19 +294,19 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::selectable(const Model::Group* group) const {
-            return editable(group) && pickable(group);
+            return visible(group) && editable(group) && pickable(group);
         }
         
         bool EditorContext::selectable(const Model::Entity* entity) const {
-            return editable(entity) && pickable(entity);
+            return visible(entity) && editable(entity) && pickable(entity);
         }
         
         bool EditorContext::selectable(const Model::Brush* brush) const {
-            return editable(brush) && pickable(brush);
+            return visible(brush) && editable(brush) && pickable(brush);
         }
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
-            return editable(face) && pickable(face);
+            return visible(face) && editable(face) && pickable(face);
         }
 
         bool EditorContext::canChangeSelection() const {

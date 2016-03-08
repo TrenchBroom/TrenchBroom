@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityDefinitionFileCommand__
-#define __TrenchBroom__EntityDefinitionFileCommand__
+#ifndef TrenchBroom_EntityDefinitionFileCommand
+#define TrenchBroom_EntityDefinitionFileCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 
@@ -28,11 +29,12 @@ namespace TrenchBroom {
         class EntityDefinitionFileCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<EntityDefinitionFileCommand> Ptr;
         private:
             Assets::EntityDefinitionFileSpec m_oldSpec;
             Assets::EntityDefinitionFileSpec m_newSpec;
         public:
-            static EntityDefinitionFileCommand* set(const Assets::EntityDefinitionFileSpec& spec);
+            static Ptr set(const Assets::EntityDefinitionFileSpec& spec);
         private:
             EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec);
             
@@ -40,9 +42,9 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityDefinitionFileCommand__) */
+#endif /* defined(TrenchBroom_EntityDefinitionFileCommand) */

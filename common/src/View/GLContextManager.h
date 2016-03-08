@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GLContextManager__
-#define __TrenchBroom__GLContextManager__
+#ifndef TrenchBroom_GLContextManager
+#define TrenchBroom_GLContextManager
 
 #include "View/GLContext.h"
 
@@ -37,7 +37,8 @@ namespace TrenchBroom {
             GLContext::Ptr m_mainContext;
             bool m_initialized;
             
-            Renderer::Vbo* m_vbo;
+            Renderer::Vbo* m_vertexVbo;
+            Renderer::Vbo* m_indexVbo;
             Renderer::FontManager* m_fontManager;
             Renderer::ShaderManager* m_shaderManager;
         public:
@@ -50,7 +51,8 @@ namespace TrenchBroom {
             bool initialized() const;
             bool initialize();
             
-            Renderer::Vbo& vbo();
+            Renderer::Vbo& vertexVbo();
+            Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
         private:
@@ -60,4 +62,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GLContextManager__) */
+#endif /* defined(TrenchBroom_GLContextManager) */

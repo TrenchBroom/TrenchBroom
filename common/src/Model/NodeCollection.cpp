@@ -85,12 +85,32 @@ namespace TrenchBroom {
             return m_nodes.empty();
         }
         
+        size_t NodeCollection::nodeCount() const {
+            return m_nodes.size();
+        }
+        
+        size_t NodeCollection::layerCount() const {
+            return m_layers.size();
+        }
+        
+        size_t NodeCollection::groupCount() const {
+            return m_groups.size();
+        }
+        
+        size_t NodeCollection::entityCount() const {
+            return m_entities.size();
+        }
+        
+        size_t NodeCollection::brushCount() const {
+            return m_brushes.size();
+        }
+
         bool NodeCollection::hasLayers() const {
             return !m_layers.empty();
         }
         
         bool NodeCollection::hasOnlyLayers() const {
-            return !empty() && m_layers.size() == m_nodes.size();
+            return !empty() && nodeCount() == layerCount();
         }
         
         bool NodeCollection::hasGroups() const {
@@ -98,7 +118,7 @@ namespace TrenchBroom {
         }
         
         bool NodeCollection::hasOnlyGroups() const {
-            return !empty() && m_groups.size() == m_nodes.size();
+            return !empty() && nodeCount() == groupCount();
         }
         
         bool NodeCollection::hasEntities() const {
@@ -106,7 +126,7 @@ namespace TrenchBroom {
         }
         
         bool NodeCollection::hasOnlyEntities() const {
-            return !empty() && m_entities.size() == m_nodes.size();
+            return !empty() && nodeCount() == entityCount();
         }
         
         bool NodeCollection::hasBrushes() const {
@@ -114,7 +134,7 @@ namespace TrenchBroom {
         }
         
         bool NodeCollection::hasOnlyBrushes() const {
-            return !empty() && m_brushes.size() == m_nodes.size();
+            return !empty() && nodeCount() == brushCount();
         }
 
         NodeList::iterator NodeCollection::begin() {

@@ -20,11 +20,13 @@
 #include "StandardMapParser.h"
 
 #include "Logger.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace IO {
+        const String QuakeMapTokenizer::NumberDelim = Whitespace + ")";
+
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end),
         m_skipEol(true) {}
@@ -79,21 +81,21 @@ namespace TrenchBroom {
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                     case '\n':
-                    case '\r':
                         if (!m_skipEol) {
                             advance();
                             return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
                         }
+                    case '\r':
                     case ' ':
                     case '\t':
                         discardWhile(Whitespace);
                         break;
                     default: { // whitespace, integer, decimal or word
-                        const char* e = readInteger(Whitespace);
+                        const char* e = readInteger(NumberDelim);
                         if (e != NULL)
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
                         
-                        e = readDecimal(Whitespace);
+                        e = readDecimal(NumberDelim);
                         if (e != NULL)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
@@ -354,7 +356,7 @@ namespace TrenchBroom {
             }
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-            String textureName = m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Integer | QuakeMapToken::Decimal);
+            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace);
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
@@ -385,18 +387,28 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             attribs.setYScale(token.toFloat<float>());
             
-            if (m_format == Model::MapFormat::Hexen2) {
-                // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
+            // We'll be pretty lenient when parsing additional face attributes.
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.peekToken())) {
+                // There's more stuff - let's examine it!
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-            } else if (m_format == Model::MapFormat::Quake2) {
-                // if there are additional values, then these are content and surface flags and surface value
-                if (m_tokenizer.peekToken().type() == QuakeMapToken::Integer) {
-                    token = m_tokenizer.nextToken();
-                    attribs.setSurfaceContents(token.toInteger<int>());
-                    expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                    attribs.setSurfaceFlags(token.toInteger<int>());
+                // It could be a Hexen 2 face attribute or Quake 2 content and surface flags and surface values
+                
+                if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
+                    // If there's more stuff, then it's a Quake 2 surface flags!
+                    const int surfaceContents = token.toInteger<int>();
+                    token = m_tokenizer.nextToken(); // already checked it!
+                    const int surfaceFlags = token.toInteger<int>();
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                    attribs.setSurfaceValue(token.toFloat<float>());
+                    const float surfaceValue = token.toFloat<float>();
+                    
+                    if (m_format == Model::MapFormat::Quake2) {
+                        attribs.setSurfaceContents(surfaceContents);
+                        attribs.setSurfaceFlags(surfaceFlags);
+                        attribs.setSurfaceValue(surfaceValue);
+                    }
+                } else {
+                    // Noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
+                    // const int hexenValue = token.toInteger<int>();
                 }
             }
             

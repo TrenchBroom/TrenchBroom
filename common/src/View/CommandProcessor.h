@@ -17,11 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CommandProcessor__
-#define __TrenchBroom__CommandProcessor__
+#ifndef TrenchBroom_CommandProcessor
+#define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
@@ -36,8 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        typedef std::tr1::shared_ptr<UndoableCommand> CommandPtr;
-        typedef std::vector<CommandPtr> CommandList;
+        typedef std::vector<UndoableCommand::Ptr> CommandList;
         
         class CommandGroup : public UndoableCommand {
         public:
@@ -45,25 +43,25 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier1<Command*>& m_commandDoNotifier;
-            Notifier1<Command*>& m_commandDoneNotifier;
-            Notifier1<Command*>& m_commandUndoNotifier;
-            Notifier1<Command*>& m_commandUndoneNotifier;
+            Notifier1<Command::Ptr>& m_commandDoNotifier;
+            Notifier1<Command::Ptr>& m_commandDoneNotifier;
+            Notifier1<UndoableCommand::Ptr>& m_commandUndoNotifier;
+            Notifier1<UndoableCommand::Ptr>& m_commandUndoneNotifier;
         public:
             CommandGroup(const String& name, const CommandList& commands,
-                         Notifier1<Command*>& commandDoNotifier,
-                         Notifier1<Command*>& commandDoneNotifier,
-                         Notifier1<Command*>& commandUndoNotifier,
-                         Notifier1<Command*>& commandUndoneNotifier);
+                         Notifier1<Command::Ptr>& commandDoNotifier,
+                         Notifier1<Command::Ptr>& commandDoneNotifier,
+                         Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
+                         Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
 
             bool doIsRepeatDelimiter() const;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
 
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
         
         class CommandProcessor {
@@ -82,15 +80,17 @@ namespace TrenchBroom {
             String m_groupName;
             CommandStack m_groupedCommands;
             size_t m_groupLevel;
+
+            struct SubmitAndStoreResult;
         public:
             CommandProcessor(MapDocumentCommandFacade* document);
             
-            Notifier1<Command*> commandDoNotifier;
-            Notifier1<Command*> commandDoneNotifier;
-            Notifier1<Command*> commandDoFailedNotifier;
-            Notifier1<Command*> commandUndoNotifier;
-            Notifier1<Command*> commandUndoneNotifier;
-            Notifier1<Command*> commandUndoFailedNotifier;
+            Notifier1<Command::Ptr> commandDoNotifier;
+            Notifier1<Command::Ptr> commandDoneNotifier;
+            Notifier1<Command::Ptr> commandDoFailedNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoneNotifier;
+            Notifier1<UndoableCommand::Ptr> commandUndoFailedNotifier;
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
@@ -102,34 +102,39 @@ namespace TrenchBroom {
             void endGroup();
             void rollbackGroup();
             
-            bool submitCommand(Command* command);
-            bool submitAndStoreCommand(UndoableCommand* command);
+            bool submitCommand(Command::Ptr command);
+            bool submitAndStoreCommand(UndoableCommand::Ptr command);
             bool undoLastCommand();
             bool redoNextCommand();
             
             bool repeatLastCommands();
             void clearRepeatableCommands();
+            
+            void clear();
         private:
-            bool submitAndStoreCommand(CommandPtr command, bool collate);
-            bool doCommand(Command* command);
-            bool undoCommand(CommandPtr command);
-            void storeCommand(CommandPtr command, bool collate);
+            SubmitAndStoreResult submitAndStoreCommand(UndoableCommand::Ptr command, bool collate);
+            bool doCommand(Command::Ptr command);
+            bool undoCommand(UndoableCommand::Ptr command);
+            bool storeCommand(UndoableCommand::Ptr command, bool collate);
             
-            void beginGroup(const String& name, const bool undoable);
-            void pushGroupedCommand(CommandPtr command);
-            CommandPtr popGroupedCommand();
+            void beginGroup(const String& name, bool undoable);
+            bool pushGroupedCommand(UndoableCommand::Ptr command, bool collate);
+            UndoableCommand::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
-            UndoableCommand* createCommandGroup(const String& name, const CommandList& commands);
+            UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
 
-            void pushLastCommand(CommandPtr command, bool collate);
-            void pushNextCommand(CommandPtr command);
-            void pushRepeatableCommand(CommandPtr command);
+            bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
+            bool collatable(bool collate, wxLongLong timestamp) const;
             
-            CommandPtr popLastCommand();
-            CommandPtr popNextCommand();
-            void popLastRepeatableCommand(CommandPtr command);
+            void pushNextCommand(UndoableCommand::Ptr command);
+            void pushRepeatableCommand(UndoableCommand::Ptr command);
+            
+            
+            UndoableCommand::Ptr popLastCommand();
+            UndoableCommand::Ptr popNextCommand();
+            void popLastRepeatableCommand(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CommandProcessor__) */
+#endif /* defined(TrenchBroom_CommandProcessor) */

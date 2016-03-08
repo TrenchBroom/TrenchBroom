@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityDefinitionFileSpec__
-#define __TrenchBroom__EntityDefinitionFileSpec__
+#ifndef TrenchBroom_EntityDefinitionFileSpec
+#define TrenchBroom_EntityDefinitionFileSpec
 
 #include "IO/Path.h"
 
@@ -46,8 +46,8 @@ namespace TrenchBroom {
             static EntityDefinitionFileSpec external(const IO::Path& path);
             static EntityDefinitionFileSpec unset();
             
-            bool operator< (const EntityDefinitionFileSpec& rhs) const;
-            bool operator== (const EntityDefinitionFileSpec& rhs) const;
+            bool operator<(const EntityDefinitionFileSpec& rhs) const;
+            bool operator==(const EntityDefinitionFileSpec& rhs) const;
 
             bool valid() const;
             bool builtin() const;
@@ -62,4 +62,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityDefinitionFileSpec__) */
+#endif /* defined(TrenchBroom_EntityDefinitionFileSpec) */

@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureCollectionCommand__
-#define __TrenchBroom__TextureCollectionCommand__
+#ifndef TrenchBroom_TextureCollectionCommand
+#define TrenchBroom_TextureCollectionCommand
 
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "StringUtils.h"
 
@@ -28,6 +29,7 @@ namespace TrenchBroom {
         class TextureCollectionCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;
         private:
             typedef enum {
                 Action_Add,
@@ -39,10 +41,10 @@ namespace TrenchBroom {
             Action m_action;
             StringList m_collectionNames;
         public:
-            static TextureCollectionCommand* add(const String& collectionName);
-            static TextureCollectionCommand* remove(const StringList& collectionNames);
-            static TextureCollectionCommand* moveUp(const String& collectionName);
-            static TextureCollectionCommand* moveDown(const String& collectionName);
+            static Ptr add(const String& collectionName);
+            static Ptr remove(const StringList& collectionNames);
+            static Ptr moveUp(const String& collectionName);
+            static Ptr moveDown(const String& collectionName);
         private:
             TextureCollectionCommand(const String& name, Action action, const StringList& collectionNames);
 
@@ -50,9 +52,9 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureCollectionCommand__) */
+#endif /* defined(TrenchBroom_TextureCollectionCommand) */

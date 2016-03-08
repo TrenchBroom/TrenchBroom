@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityRotationPolicy__
-#define __TrenchBroom__EntityRotationPolicy__
+#ifndef TrenchBroom_EntityRotationPolicy
+#define TrenchBroom_EntityRotationPolicy
 
 #include "Model/ModelTypes.h"
 
@@ -51,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityRotationPolicy__) */
+#endif /* defined(TrenchBroom_EntityRotationPolicy) */

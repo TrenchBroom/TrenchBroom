@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Issue__
-#define __TrenchBroom__Issue__
+#ifndef TrenchBroom_Issue
+#define TrenchBroom_Issue
 
 #include "Model/ModelTypes.h"
 
@@ -64,4 +64,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Issue__) */
+#endif /* defined(TrenchBroom_Issue) */

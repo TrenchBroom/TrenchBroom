@@ -20,7 +20,7 @@
 #include "UVOffsetTool.h"
 
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         UVOffsetTool::UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper) {}
@@ -107,13 +107,16 @@ namespace TrenchBroom {
             
             const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
-            const Model::BrushVertexList& vertices = face->vertices();
-            Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * vertices[0]->position);
+            Vec2f distance = Vec2f::Max;
+            const Model::BrushFace::VertexList vertices = face->vertices();
+            Model::BrushFace::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const Model::BrushVertex* vertex = *it;
+                const Vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
+                distance = absMin(distance, temp);
+            }
             
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distance = absMin(distance, m_helper.computeDistanceFromTextureGrid(transform * vertices[i]->position));
-            
-            return m_helper.snapDelta(delta, distance);
+            return m_helper.snapDelta(delta, -distance);
         }
         
         bool UVOffsetTool::doCancel() {

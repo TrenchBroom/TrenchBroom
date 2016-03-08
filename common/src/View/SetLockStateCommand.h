@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetLockStateCommand__
-#define __TrenchBroom__SetLockStateCommand__
+#ifndef TrenchBroom_SetLockStateCommand
+#define TrenchBroom_SetLockStateCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 
@@ -30,14 +31,15 @@ namespace TrenchBroom {
         class SetLockStateCommand : public UndoableCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<SetLockStateCommand> Ptr;
         private:
             Model::NodeList m_nodes;
             Model::LockState m_state;
             Model::LockStateMap m_oldState;
         public:
-            static SetLockStateCommand* lock(const Model::NodeList& nodes);
-            static SetLockStateCommand* unlock(const Model::NodeList& nodes);
-            static SetLockStateCommand* reset(const Model::NodeList& nodes);
+            static Ptr lock(const Model::NodeList& nodes);
+            static Ptr unlock(const Model::NodeList& nodes);
+            static Ptr reset(const Model::NodeList& nodes);
         private:
             SetLockStateCommand(const Model::NodeList& nodes, Model::LockState state);
             static String makeName(Model::LockState state);
@@ -45,10 +47,10 @@ namespace TrenchBroom {
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SetLockStateCommand__) */
+#endif /* defined(TrenchBroom_SetLockStateCommand) */

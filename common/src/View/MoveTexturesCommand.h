@@ -17,11 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveTexturesCommand__
-#define __TrenchBroom__MoveTexturesCommand__
+#ifndef TrenchBroom_MoveTexturesCommand
+#define TrenchBroom_MoveTexturesCommand
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
@@ -29,12 +30,13 @@ namespace TrenchBroom {
         class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<MoveTexturesCommand> Ptr;
         private:
             Vec3f m_cameraUp;
             Vec3f m_cameraRight;
             Vec2f m_delta;
         public:
-            static MoveTexturesCommand* move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            static Ptr move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
         private:
             MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
 
@@ -44,11 +46,11 @@ namespace TrenchBroom {
             void moveTextures(MapDocumentCommandFacade* document, const Vec2f& delta) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveTexturesCommand__) */
+#endif /* defined(TrenchBroom_MoveTexturesCommand) */

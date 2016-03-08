@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SmartSpawnflagsEditor__
-#define __TrenchBroom__SmartSpawnflagsEditor__
+#ifndef TrenchBroom_SmartSpawnflagsEditor
+#define TrenchBroom_SmartSpawnflagsEditor
 
 #include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
@@ -60,11 +60,11 @@ namespace TrenchBroom {
             void doUpdateVisual(const Model::AttributableNodeList& attributables);
             void resetScrollPos();
             
-            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels) const;
+            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
             void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SmartSpawnflagsEditor__) */
+#endif /* defined(TrenchBroom_SmartSpawnflagsEditor) */

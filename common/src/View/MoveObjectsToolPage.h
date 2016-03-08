@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsToolPage__
-#define __TrenchBroom__MoveObjectsToolPage__
+#ifndef TrenchBroom_MoveObjectsToolPage
+#define TrenchBroom_MoveObjectsToolPage
 
 #include "View/ViewTypes.h"
 
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsToolPage__) */
+#endif /* defined(TrenchBroom_MoveObjectsToolPage) */

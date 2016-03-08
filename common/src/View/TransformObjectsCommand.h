@@ -17,11 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TransformObjectsCommand__
-#define __TrenchBroom__TransformObjectsCommand__
+#ifndef TrenchBroom_TransformObjectsCommand
+#define TrenchBroom_TransformObjectsCommand
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -36,6 +37,7 @@ namespace TrenchBroom {
         class TransformObjectsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
         private:
             typedef enum {
                 Action_Translate,
@@ -49,13 +51,12 @@ namespace TrenchBroom {
             
             Model::Snapshot* m_snapshot;
         public:
-            static TransformObjectsCommand* translate(const Vec3& delta, bool lockTextures);
-            static TransformObjectsCommand* rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
-            static TransformObjectsCommand* flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
+            static Ptr translate(const Vec3& delta, bool lockTextures);
+            static Ptr rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
+            static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
             ~TransformObjectsCommand();
         private:
-            TransformObjectsCommand(Action action, const Mat4x4& transform, bool lockTextures);
-            static String makeName(Action action);
+            TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
 
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
@@ -64,11 +65,11 @@ namespace TrenchBroom {
             void deleteSnapshot();
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TransformObjectsCommand__) */
+#endif /* defined(TrenchBroom_TransformObjectsCommand) */

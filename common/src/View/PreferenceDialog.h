@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferenceDialog__
-#define __TrenchBroom__PreferenceDialog__
+#ifndef TrenchBroom_PreferenceDialog
+#define TrenchBroom_PreferenceDialog
 
 #include <wx/dialog.h>
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 PrefPane_First = 0,
                 PrefPane_Games = 0,
                 PrefPane_View = 1,
-                PrefPane_Camera = 2,
+                PrefPane_Mouse = 2,
                 PrefPane_Keyboard = 3,
                 PrefPane_Last = 3
             } PrefPane;
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PreferenceDialog__) */
+#endif /* defined(TrenchBroom_PreferenceDialog) */

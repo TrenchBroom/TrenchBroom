@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddRemoveNodesCommand::Type = Command::freeType();
         
-        AddRemoveNodesCommand* AddRemoveNodesCommand::add(Model::Node* parent, const Model::NodeList& children) {
+        AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::add(Model::Node* parent, const Model::NodeList& children) {
             assert(parent != NULL);
             Model::ParentChildrenMap nodes;
             nodes[parent] = children;
@@ -38,12 +38,12 @@ namespace TrenchBroom {
             return add(nodes);
         }
         
-        AddRemoveNodesCommand* AddRemoveNodesCommand::add(const Model::ParentChildrenMap& nodes) {
-            return new AddRemoveNodesCommand(nodes);
+        AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::add(const Model::ParentChildrenMap& nodes) {
+            return Ptr(new AddRemoveNodesCommand(nodes));
         }
         
-        AddRemoveNodesCommand* AddRemoveNodesCommand::remove(const Model::NodeList& nodes) {
-            return new AddRemoveNodesCommand(nodes);
+        AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::remove(const Model::NodeList& nodes) {
+            return Ptr(new AddRemoveNodesCommand(nodes));
         }
         
         AddRemoveNodesCommand::~AddRemoveNodesCommand() {
@@ -67,10 +67,10 @@ namespace TrenchBroom {
         String AddRemoveNodesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Add:
-                    return "Add objects";
+                    return "Add Objects";
                 case Action_Remove:
-                    return "Remove objects";
-				DEFAULT_SWITCH()
+                    return "Remove Objects";
+				switchDefault()
             }
         }
         
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand* command) {
+        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

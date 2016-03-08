@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushFaceSnapshot__
-#define __TrenchBroom__BrushFaceSnapshot__
+#ifndef TrenchBroom_BrushFaceSnapshot
+#define TrenchBroom_BrushFaceSnapshot
 
 #include "Model/BrushFace.h"
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushFaceSnapshot__) */
+#endif /* defined(TrenchBroom_BrushFaceSnapshot) */

@@ -17,13 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GameFactory__
-#define __TrenchBroom__GameFactory__
+#ifndef TrenchBroom_GameFactory
+#define TrenchBroom_GameFactory
 
 #include "StringUtils.h"
 #include "Preference.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
+#include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             void setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
-            GamePtr detectGame(const IO::Path& path) const;
+            std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void loadGameConfigs();
@@ -65,4 +66,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GameFactory__) */
+#endif /* defined(TrenchBroom_GameFactory) */

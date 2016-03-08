@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjectsHandle__
-#define __TrenchBroom__RotateObjectsHandle__
+#ifndef TrenchBroom_RotateObjectsHandle
+#define TrenchBroom_RotateObjectsHandle
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -42,11 +42,11 @@ namespace TrenchBroom {
             static const Model::Hit::HitType HandleHit;
 
             typedef enum {
-                HitArea_None,
-                HitArea_Center,
-                HitArea_XAxis,
-                HitArea_YAxis,
-                HitArea_ZAxis
+                HitArea_None    = 0,
+                HitArea_Center  = 1,
+                HitArea_XAxis   = 2,
+                HitArea_YAxis   = 4,
+                HitArea_ZAxis   = 8
             } HitArea;
         private:
             Vec3 m_position;
@@ -58,13 +58,16 @@ namespace TrenchBroom {
             Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
 
             Vec3 pointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
+            FloatType handleRadius() const;
             
             Vec3 rotationAxis(const HitArea area) const;
             Vec3 pointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
         public:
 //            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
-            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
-            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
+            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
+            void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
         private:
             template <typename T>
             void computeAxes(const Vec<T,3>& cameraPos, Vec<T,3>& xAxis, Vec<T,3>& yAxis, Vec<T,3>& zAxis) const {
@@ -88,4 +91,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateObjectsHandle__) */
+#endif /* defined(TrenchBroom_RotateObjectsHandle) */

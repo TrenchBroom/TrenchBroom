@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureSelectedCommand__
-#define __TrenchBroom__TextureSelectedCommand__
+#ifndef TrenchBroom_TextureSelectedCommand
+#define TrenchBroom_TextureSelectedCommand
 
 #include <wx/event.h>
 
@@ -49,4 +49,4 @@ typedef void (wxEvtHandler::*TextureSelectedCommandFunction)(TrenchBroom::View::
 wxDECLARE_EVENT(TEXTURE_SELECTED_EVENT, TrenchBroom::View::TextureSelectedCommand);
 #define TextureSelectedHandler(func) wxEVENT_HANDLER_CAST(TextureSelectedCommandFunction, func)
 
-#endif /* defined(__TrenchBroom__TextureSelectedCommand__) */
+#endif /* defined(TrenchBroom_TextureSelectedCommand) */

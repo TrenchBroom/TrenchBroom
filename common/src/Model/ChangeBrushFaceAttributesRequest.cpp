@@ -36,7 +36,7 @@ namespace TrenchBroom {
                     return oldValue * newValue;
                 case ChangeBrushFaceAttributesRequest::ValueOp_None:
                     return oldValue;
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
         }
         
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                     return oldValue & ~newValue;
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     return oldValue;
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
         }
         
@@ -88,9 +88,9 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::AxisOp_ToParaxial:
                             myOp = theirOp;
                             return true;
-                        DEFAULT_SWITCH()
+                        switchDefault()
                     }
-                DEFAULT_SWITCH()
+                switchDefault()
             };
         }
         
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                             return false;
-                        DEFAULT_SWITCH()
+                        switchDefault()
                     }
                 case ChangeBrushFaceAttributesRequest::ValueOp_Add:
                     switch (theirOp) {
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                             return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                             return false;
-                            DEFAULT_SWITCH()
+                            switchDefault()
                     }
                 case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                     switch (theirOp) {
@@ -140,9 +140,9 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
                             myValue *= theirValue;
                             return true;
-                            DEFAULT_SWITCH()
+                            switchDefault()
                     }
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
         }
         
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::FlagOp_Set:
                         case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
                             return false;
-                            DEFAULT_SWITCH()
+                            switchDefault()
                     }
                 case ChangeBrushFaceAttributesRequest::FlagOp_Set:
                     switch (theirOp) {
@@ -177,7 +177,7 @@ namespace TrenchBroom {
                             return true;
                         case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
                             return false;
-                            DEFAULT_SWITCH()
+                            switchDefault()
                     }
                 case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
                     switch (theirOp) {
@@ -192,9 +192,9 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
                             myValue |= theirValue;
                             return true;
-                            DEFAULT_SWITCH()
+                            switchDefault()
                     }
-                    DEFAULT_SWITCH()
+                    switchDefault()
             }
         }
 
@@ -236,7 +236,7 @@ namespace TrenchBroom {
         }
         
         const String ChangeBrushFaceAttributesRequest::name() const {
-            return "Change face attributes";
+            return "Change Face Attributes";
         }
 
         void ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceList& faces) const {
@@ -254,7 +254,7 @@ namespace TrenchBroom {
                     case AxisOp_ToParaxial:
                     case AxisOp_ToParallel:
                         break;
-                    DEFAULT_SWITCH()
+                    switchDefault()
                 }
                 
                 face->setXOffset(evaluateValueOp(face->xOffset(), m_xOffset, m_xOffsetOp));

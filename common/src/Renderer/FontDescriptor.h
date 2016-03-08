@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontDescriptor__
-#define __TrenchBroom__FontDescriptor__
+#ifndef TrenchBroom_FontDescriptor
+#define TrenchBroom_FontDescriptor
 
 #include "IO/Path.h"
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             FontDescriptor(const IO::Path& path, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
             
             int compare(const FontDescriptor& other) const;
-            bool operator< (const FontDescriptor& other) const;
+            bool operator<(const FontDescriptor& other) const;
             
             const IO::Path& path() const;
             String name() const;
@@ -46,4 +46,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FontDescriptor__) */
+#endif /* defined(TrenchBroom_FontDescriptor) */

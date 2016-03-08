@@ -57,7 +57,7 @@ namespace TrenchBroom {
         FontTexture::~FontTexture() {
             m_size = 0;
             if (m_textureId != 0) {
-                glDeleteTextures(1, &m_textureId);
+                glAssert(glDeleteTextures(1, &m_textureId));
                 m_textureId = 0;
             }
             delete [] m_buffer;
@@ -71,23 +71,23 @@ namespace TrenchBroom {
         void FontTexture::activate() {
             if (m_textureId == 0) {
                 assert(m_buffer != NULL);
-                glGenTextures(1, &m_textureId);
-                glBindTexture(GL_TEXTURE_2D, m_textureId);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, static_cast<GLsizei>(m_size), static_cast<GLsizei>(m_size), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_buffer);
+                glAssert(glGenTextures(1, &m_textureId));
+                glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
+                glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                glAssert(glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, static_cast<GLsizei>(m_size), static_cast<GLsizei>(m_size), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_buffer));
                 delete [] m_buffer;
                 m_buffer = NULL;
             }
             
             assert(m_textureId > 0);
-            glBindTexture(GL_TEXTURE_2D, m_textureId);
+            glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
         }
         
         void FontTexture::deactivate() {
-            glBindTexture(GL_TEXTURE_2D, 0);
+            glAssert(glBindTexture(GL_TEXTURE_2D, 0));
         }
 
         size_t FontTexture::computeTextureSize(const size_t cellCount, const size_t cellSize, const size_t margin) const {

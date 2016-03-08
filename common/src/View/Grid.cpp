@@ -21,9 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -113,7 +112,7 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
-            const Vec3 halfSize = bounds.size() * 0.5;
+            const Vec3 halfSize = bounds.size() / 2.0;
             FloatType offsetLength = halfSize.dot(dragPlane.normal);
             if (offsetLength < 0.0)
                 offsetLength = -offsetLength;
@@ -124,8 +123,10 @@ namespace TrenchBroom {
             Vec3 delta = moveDeltaForPoint(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
             
             const Math::Axis::Type a = dragPlane.normal.firstComponent();
-            if (dragPlane.normal[a] > 0.0) delta[a] = position[a] - bounds.min[a];
-            else delta[a] = position[a] - bounds.max[a];
+            if (dragPlane.normal[a] > 0.0)
+                delta[a] = position[a] - bounds.min[a];
+            else
+                delta[a] = position[a] - bounds.max[a];
             
             return delta;
         }
@@ -183,22 +184,26 @@ namespace TrenchBroom {
                 return Vec3::Null;
             
             const Model::Brush* brush = face->brush();
-            const Model::BrushEdgeList& brushEdges = brush->edges();
-            const Model::BrushVertexList& faceVertices = face->vertices();
+            const Model::Brush::EdgeList brushEdges = brush->edges();
+            const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<Ray3> edgeRays;
-            for (size_t i = 0; i < brushEdges.size(); ++i) {
-                const Model::BrushEdge* edge = brushEdges[i];
+            
+            Model::Brush::EdgeList::const_iterator eIt, eEnd;
+            for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
+                const Model::BrushEdge* edge = *eIt;
                 size_t c = 0;
                 bool originAtStart = true;
 
                 bool startFound = false;
                 bool endFound = false;
-                for (size_t j = 0; j < faceVertices.size(); j++) {
-                    const Model::BrushVertex* vertex = faceVertices[j];
-                    startFound |= (vertex->position == edge->start->position);
-                    endFound |= (vertex->position == edge->end->position);
+                
+                Model::BrushFace::VertexList::const_iterator fIt, fEnd;
+                for (fIt = faceVertices.begin(), fEnd = faceVertices.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushVertex* vertex = *fIt;
+                    startFound |= (vertex->position() == edge->firstVertex()->position());
+                    endFound |= (vertex->position() == edge->secondVertex()->position());
                     if (startFound && endFound)
                         break;
                 }
@@ -213,10 +218,10 @@ namespace TrenchBroom {
                 if (c == 1) {
                     Ray3 ray;
                     if (originAtStart) {
-                        ray.origin = edge->start->position;
+                        ray.origin = edge->firstVertex()->position();
                         ray.direction = edge->vector().normalized();
                     } else {
-                        ray.origin = edge->end->position;
+                        ray.origin = edge->secondVertex()->position();
                         ray.direction = -edge->vector().normalized();
                     }
                     

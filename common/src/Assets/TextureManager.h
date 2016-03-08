@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextureManager__
-#define __TrenchBroom__TextureManager__
+#ifndef TrenchBroom_TextureManager
+#define TrenchBroom_TextureManager
 
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
             void setBuiltinTextureCollections(const IO::Path::List& paths);
             
-            bool addExternalTextureCollection(const TextureCollectionSpec& spec);
+            void addExternalTextureCollection(const TextureCollectionSpec& spec);
             void removeExternalTextureCollection(const String& name);
             void moveExternalTextureCollectionUp(const String& name);
             void moveExternalTextureCollectionDown(const String& name);
@@ -110,4 +110,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextureManager__) */
+#endif /* defined(TrenchBroom_TextureManager) */

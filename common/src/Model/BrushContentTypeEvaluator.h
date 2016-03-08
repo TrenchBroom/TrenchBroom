@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushContentTypeEvaluator__
-#define __TrenchBroom__BrushContentTypeEvaluator__
+#ifndef TrenchBroom_BrushContentTypeEvaluator
+#define TrenchBroom_BrushContentTypeEvaluator
 
 #include "Model/ModelTypes.h"
 
@@ -41,4 +41,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushContentTypeEvaluator__) */
+#endif /* defined(TrenchBroom_BrushContentTypeEvaluator) */

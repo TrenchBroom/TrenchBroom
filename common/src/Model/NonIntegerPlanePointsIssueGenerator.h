@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NonIntegerPlanePointsIssueGenerator__
-#define __TrenchBroom__NonIntegerPlanePointsIssueGenerator__
+#ifndef TrenchBroom_NonIntegerPlanePointsIssueGenerator
+#define TrenchBroom_NonIntegerPlanePointsIssueGenerator
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NonIntegerPlanePointsIssueGenerator__) */
+#endif /* defined(TrenchBroom_NonIntegerPlanePointsIssueGenerator) */

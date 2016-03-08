@@ -25,10 +25,14 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Mat.h"
 #include "Ray.h"
 #include "Vec.h"
+#include <vector>
 
 template <typename T, size_t S>
 class Plane {
 public:
+    typedef std::vector<Plane> List;
+    typedef std::set<Plane> Set;
+    
     class WeightOrder {
     private:
         bool m_deterministic;
@@ -79,7 +83,7 @@ public:
         return normal.compare(other.normal);
     }
     
-    bool operator== (const Plane<T,S>& other) const {
+    bool operator==(const Plane<T,S>& other) const {
         return compare(other) == 0;
     }
     
@@ -87,7 +91,7 @@ public:
         return compare(other) != 0;
     }
     
-    bool operator< (const Plane<T,S>& other) const {
+    bool operator<(const Plane<T,S>& other) const {
         return compare(other) < 0;
     }
     
@@ -95,7 +99,7 @@ public:
         return compare(other) <= 0;
     }
     
-    bool operator> (const Plane<T,S>& other) const {
+    bool operator>(const Plane<T,S>& other) const {
         return compare(other) > 0;
     }
     
@@ -165,7 +169,7 @@ public:
         return *this;
     }
     
-    Plane<T,S> flipped() {
+    Plane<T,S> flipped() const {
         return Plane<T,S>(*this).flip();
     }
     
@@ -229,10 +233,20 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
             
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> normal = crossed(point0, point1, point2);
-    if (normal.null())
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
+    plane.normal = crossed(v1, v2);
+    
+    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
+    const T sin_theta = Math::abs(plane.normal.length() / (v1.length() * v2.length()));
+    if (sin_theta < Math::Constants<T>::angleEpsilon()
+        || Math::isnan(sin_theta)
+        || sin_theta == std::numeric_limits<T>::infinity()
+        || sin_theta == -std::numeric_limits<T>::infinity())
         return false;
-    plane.normal = normal.normalized();
+    
+    plane.normal.normalize();
     plane.distance = point0.dot(plane.normal);
     return true;
 }
@@ -267,5 +281,6 @@ Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal,
 }
 
 typedef Plane<float,3> Plane3f;
+typedef Plane<double,3> Plane3d;
 
 #endif

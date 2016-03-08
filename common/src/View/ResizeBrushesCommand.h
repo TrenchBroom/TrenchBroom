@@ -17,11 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ResizeBrushesCommand__
-#define __TrenchBroom__ResizeBrushesCommand__
+#ifndef TrenchBroom_ResizeBrushesCommand
+#define TrenchBroom_ResizeBrushesCommand
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -30,11 +31,12 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
             Model::BrushFaceList m_faces;
             Vec3 m_delta;
         public:
-            static ResizeBrushesCommand* resize(const Model::BrushFaceList& faces, const Vec3& delta);
+            static Ptr resize(const Model::BrushFaceList& faces, const Vec3& delta);
         private:
             ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta);
             
@@ -43,9 +45,9 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ResizeBrushesCommand__) */
+#endif /* defined(TrenchBroom_ResizeBrushesCommand) */

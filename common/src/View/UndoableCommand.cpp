@@ -47,12 +47,12 @@ namespace TrenchBroom {
             return doIsRepeatable(document);
         }
         
-        UndoableCommand* UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
             return doRepeat(document);
         }
         
-        bool UndoableCommand::collateWith(UndoableCommand* command) {
-            assert(command != this);
+        bool UndoableCommand::collateWith(UndoableCommand::Ptr command) {
+            assert(command.get() != this);
             if (command->type() != m_type)
                 return false;
             return doCollateWith(command);
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        UndoableCommand* UndoableCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr UndoableCommand::doRepeat(MapDocumentCommandFacade* document) const {
             throw CommandProcessorException("Command is not repeatable");
         }
 

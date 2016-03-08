@@ -29,13 +29,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveBrushVerticesCommand* MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
+        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushVerticesMap brushVertices;
             Vec3::List vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
-            return new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta);
+            return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
         }
 
         bool MoveBrushVerticesCommand::hasRemainingVertices() const {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta) :
-        VertexCommand(Type, "Move vertices", brushes),
+        VertexCommand(Type, "Move Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
         m_delta(delta) {
@@ -75,8 +75,8 @@ namespace TrenchBroom {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
+        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
             
             if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
                 return false;

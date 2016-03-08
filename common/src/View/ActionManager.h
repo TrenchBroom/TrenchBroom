@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ActionManager__
-#define __TrenchBroom__ActionManager__
+#ifndef TrenchBroom_ActionManager
+#define TrenchBroom_ActionManager
 
 #include "View/ActionContext.h"
 #include "View/ViewShortcut.h"
@@ -54,7 +54,12 @@ namespace TrenchBroom {
             const ActionMenuItem* findMenuItem(int id) const;
             
             void getShortcutEntries(ShortcutEntryList& entries);
-
+            String getJSTable();
+        private:
+            void getKeysJSTable(StringStream& str);
+            void getMenuJSTable(StringStream& str);
+            void getActionJSTable(StringStream& str);
+        public:
             wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
@@ -77,4 +82,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ActionManager__) */
+#endif /* defined(TrenchBroom_ActionManager) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushFaceReader__
-#define __TrenchBroom__BrushFaceReader__
+#ifndef TrenchBroom_BrushFaceReader
+#define TrenchBroom_BrushFaceReader
 
 #include "IO/MapReader.h"
 #include "Model/ModelTypes.h"
@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushFaceReader__) */
+#endif /* defined(TrenchBroom_BrushFaceReader) */

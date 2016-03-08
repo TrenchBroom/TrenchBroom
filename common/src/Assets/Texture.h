@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Texture__
-#define __TrenchBroom__Texture__
+#ifndef TrenchBroom_Texture
+#define TrenchBroom_Texture
 
 #include "ByteBuffer.h"
 #include "Color.h"
@@ -80,4 +80,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Texture__) */
+#endif /* defined(TrenchBroom_Texture) */

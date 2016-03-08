@@ -19,9 +19,9 @@
 
 #include "VertexTool.h"
 
-#include "SetBool.h"
+#include "SetAny.h"
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Object.h"
@@ -52,6 +52,10 @@ namespace TrenchBroom {
         m_ignoreChangeNotifications(false),
         m_dragging(false) {}
 
+        const Grid& VertexTool::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             m_handleManager.pick(pickRay, camera, pickResult, m_mode == Mode_Split);
         }
@@ -64,6 +68,7 @@ namespace TrenchBroom {
             
             m_handleManager.deselectAllHandles();
             m_mode = Mode_Move;
+            refreshViews();
             return true;
         }
         
@@ -80,11 +85,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleDoubleClicked(const Model::Hit& hit) {
-            if (hit.type() == VertexHandleManager::VertexHandleHit) {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectVertexHandle(hit.target<Vec3>());
-                m_mode = Mode_Snap;
-            } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
+            if (hit.type() == VertexHandleManager::EdgeHandleHit) {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectEdgeHandle(hit.target<Vec3>());
                 m_mode = Mode_Split;
@@ -93,6 +94,7 @@ namespace TrenchBroom {
                 m_handleManager.selectFaceHandle(hit.target<Vec3>());
                 m_mode = Mode_Split;
             }
+            refreshViews();
             return true;
         }
         
@@ -105,6 +107,7 @@ namespace TrenchBroom {
                 selectEdge(hits, addToSelection);
             else
                 selectFace(hits, addToSelection);
+            refreshViews();
             return true;
         }
         
@@ -122,6 +125,7 @@ namespace TrenchBroom {
                 if (!modifySelection) m_handleManager.deselectAllVertexHandles();
                 m_handleManager.toggleVertexHandles(contained);
             }
+            refreshViews();
         }
 
         bool VertexTool::beginMove(const Model::Hit& hit) {
@@ -136,6 +140,7 @@ namespace TrenchBroom {
                     m_handleManager.selectEdgeHandle(handlePosition);
                 else
                     m_handleManager.selectFaceHandle(handlePosition);
+                refreshViews();
             }
             
             MapDocumentSPtr document = lock(m_document);
@@ -146,21 +151,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vec3 VertexTool::snapMoveDelta(const Vec3& delta, const Model::Hit& hit, const bool relative) {
-            if (m_mode == Mode_Snap) {
-                if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
-                    return hit.target<Vec3>() - m_dragHandlePosition;
-                return Vec3::Null;
-            }
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            if (relative)
-                return grid.snap(delta);
-            return grid.snap(m_dragHandlePosition + delta) - m_dragHandlePosition;
-        }
-
-        MoveResult VertexTool::move(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
             return moveVertices(delta);
         }
 
@@ -191,6 +182,22 @@ namespace TrenchBroom {
             m_handleManager.renderHighlight(renderContext, renderBatch, position);
         }
 
+        void VertexTool::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            m_handleManager.renderEdgeHighlight(renderContext, renderBatch, handlePosition);
+        }
+        
+        void VertexTool::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+            m_handleManager.renderFaceHighlight(renderContext, renderBatch, handlePosition);
+        }
+
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderGuide(renderContext, renderBatch, m_dragHandlePosition);
+        }
+        
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+            m_handleManager.renderGuide(renderContext, renderBatch, position);
+        }
+
         bool VertexTool::cancel() {
             if (m_handleManager.hasSelectedHandles()) {
                 m_handleManager.deselectAllHandles();
@@ -201,8 +208,8 @@ namespace TrenchBroom {
 
         bool VertexTool::handleBrushes(const Vec3& position, Model::BrushSet& brushes) const {
             bool newBrush = true;
-            const Model::BrushList& handleBrushes = m_handleManager.brushes(position);
-            Model::BrushList::const_iterator bIt, bEnd;
+            const Model::BrushSet& handleBrushes = m_handleManager.brushes(position);
+            Model::BrushSet::const_iterator bIt, bEnd;
             for (bIt = handleBrushes.begin(), bEnd = handleBrushes.end(); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
                 newBrush &= brushes.insert(brush).second;
@@ -339,7 +346,7 @@ namespace TrenchBroom {
         }
         
         String VertexTool::actionName() const {
-            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
+            if (m_mode == Mode_Move) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
@@ -361,8 +368,8 @@ namespace TrenchBroom {
             return "Split Face";
         }
         
-        MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
+        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
+            if (m_mode == Mode_Move) {
                 assert((m_handleManager.selectedVertexCount() > 0) ^
                        (m_handleManager.selectedEdgeCount() > 0) ^
                        (m_handleManager.selectedFaceCount() > 0));
@@ -384,57 +391,57 @@ namespace TrenchBroom {
                     return doSplitFaces(delta);
                 }
             }
-            return MoveResult_Continue;
+            return MR_Continue;
         }
         
-        MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const MapDocument::MoveVerticesResult result = document->moveVertices(m_handleManager.selectedVertexHandles(), delta);
             if (result.success) {
                 if (!result.hasRemainingVertices)
-                    return MoveResult_Conclude;
+                    return MR_Cancel;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
         
-        MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             if (document->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return MoveResult_Continue;
+                return MR_Continue;
             }
-            return MoveResult_Deny;
+            return MR_Deny;
         }
 
         void VertexTool::rebuildBrushGeometry() {
@@ -446,10 +453,11 @@ namespace TrenchBroom {
             const Vec3::List selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
             const Vec3::List selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
             
-            const Model::BrushList brushes = m_handleManager.selectedBrushes();
-            m_handleManager.removeBrushes(brushes);
-            document->rebuildBrushGeometry(brushes);
-            m_handleManager.addBrushes(brushes);
+            const Model::BrushSet brushes = m_handleManager.selectedBrushes();
+            
+            m_handleManager.removeBrushes(brushes.begin(), brushes.end());
+            document->rebuildBrushGeometry(Model::BrushList(brushes.begin(), brushes.end()));
+            m_handleManager.addBrushes(brushes.begin(), brushes.end());
 
             m_handleManager.reselectVertexHandles(brushes, selectedVertexHandles, 0.01);
             m_handleManager.reselectEdgeHandles(brushes, selectedEdgeHandles, 0.01);
@@ -460,7 +468,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             m_mode = Mode_Move;
             m_handleManager.clear();
-            m_handleManager.addBrushes(document->selectedNodes().brushes());
+            
+            const Model::BrushList& selectedBrushes = document->selectedNodes().brushes();
+            m_handleManager.addBrushes(selectedBrushes.begin(), selectedBrushes.end());
             m_changeCount = 0;
             
             bindObservers();
@@ -485,12 +495,12 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &VertexTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &VertexTool::nodesDidChange);
-            document->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            document->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
-            document->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            document->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            document->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            document->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            document->commandDoNotifier.addObserver(this, &VertexTool::commandDo);
+            document->commandDoneNotifier.addObserver(this, &VertexTool::commandDone);
+            document->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailed);
+            document->commandUndoNotifier.addObserver(this, &VertexTool::commandUndo);
+            document->commandUndoneNotifier.addObserver(this, &VertexTool::commandUndone);
+            document->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandUndoFailed);
         }
         
         void VertexTool::unbindObservers() {
@@ -499,26 +509,50 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &VertexTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &VertexTool::nodesDidChange);
-                document->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                document->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
-                document->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
-                document->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                document->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-                document->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+                document->commandDoNotifier.removeObserver(this, &VertexTool::commandDo);
+                document->commandDoneNotifier.removeObserver(this, &VertexTool::commandDone);
+                document->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailed);
+                document->commandUndoNotifier.removeObserver(this, &VertexTool::commandUndo);
+                document->commandUndoneNotifier.removeObserver(this, &VertexTool::commandUndone);
+                document->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandUndoFailed);
             }
         }
         
-        void VertexTool::commandDoOrUndo(Command* command) {
+        void VertexTool::commandDo(Command::Ptr command) {
+            commandDoOrUndo(command);
+        }
+        
+        void VertexTool::commandDone(Command::Ptr command) {
+            commandDoneOrUndoFailed(command);
+        }
+        
+        void VertexTool::commandDoFailed(Command::Ptr command) {
+            commandDoFailedOrUndone(command);
+        }
+        
+        void VertexTool::commandUndo(UndoableCommand::Ptr command) {
+            commandDoOrUndo(command);
+        }
+        
+        void VertexTool::commandUndone(UndoableCommand::Ptr command) {
+            commandDoFailedOrUndone(command);
+        }
+        
+        void VertexTool::commandUndoFailed(UndoableCommand::Ptr command) {
+            commandDoneOrUndoFailed(command);
+        }
+
+        void VertexTool::commandDoOrUndo(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->removeBrushes(m_handleManager);
                 m_ignoreChangeNotifications = true;
             }
         }
         
-        void VertexTool::commandDoneOrUndoFailed(Command* command) {
+        void VertexTool::commandDoneOrUndoFailed(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectNewHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
@@ -528,9 +562,9 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::commandDoFailedOrUndone(Command* command) {
+        void VertexTool::commandDoFailedOrUndone(Command::Ptr command) {
             if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
+                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectOldHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
@@ -540,7 +574,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool VertexTool::isVertexCommand(const Command* command) const {
+        bool VertexTool::isVertexCommand(const Command::Ptr command) const {
             return (command->type() == SnapBrushVerticesCommand::Type ||
                     command->type() == MoveBrushVerticesCommand::Type ||
                     command->type() == MoveBrushEdgesCommand::Type ||

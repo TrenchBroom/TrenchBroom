@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointGuideRenderer__
-#define __TrenchBroom__PointGuideRenderer__
+#ifndef TrenchBroom_PointGuideRenderer
+#define TrenchBroom_PointGuideRenderer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class PointGuideRenderer : public Renderable {
+        class PointGuideRenderer : public DirectRenderable {
         private:
             static const FloatType SpikeLength;
 
@@ -47,10 +47,10 @@ namespace TrenchBroom {
             void setColor(const Color& color);
             void setPosition(const Vec3& position);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PointGuideRenderer__) */
+#endif /* defined(TrenchBroom_PointGuideRenderer) */

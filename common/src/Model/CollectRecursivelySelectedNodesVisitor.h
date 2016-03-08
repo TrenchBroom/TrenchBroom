@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectRecursivelySelectedNodesVisitor__
-#define __TrenchBroom__CollectRecursivelySelectedNodesVisitor__
+#ifndef TrenchBroom_CollectRecursivelySelectedNodesVisitor
+#define TrenchBroom_CollectRecursivelySelectedNodesVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/NodePredicates.h"
@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectRecursivelySelectedNodesVisitor__) */
+#endif /* defined(TrenchBroom_CollectRecursivelySelectedNodesVisitor) */

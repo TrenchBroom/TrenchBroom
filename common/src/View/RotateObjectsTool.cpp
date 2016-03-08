@@ -42,6 +42,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        const Grid& RotateObjectsTool::grid() const {
+            return lock(m_document)->grid();
+        }
+
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
             if (area == RotateObjectsHandle::HitArea_XAxis)
                 m_toolPage->setAxis(Math::Axis::AX);
@@ -65,6 +69,7 @@ namespace TrenchBroom {
         
         void RotateObjectsTool::setRotationCenter(const Vec3& position) {
             m_handle.setPosition(position);
+            m_toolPage->setCenter(position);
             refreshViews();
         }
         
@@ -75,11 +80,10 @@ namespace TrenchBroom {
             setRotationCenter(position);
         }
         
-        Vec3 RotateObjectsTool::snapRotationCenterMoveDelta(const Vec3& delta) const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->grid().snap(delta);
+        FloatType RotateObjectsTool::handleRadius() const {
+            return m_handle.handleRadius();
         }
-        
+
         void RotateObjectsTool::beginRotation() {
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Rotate Objects");
@@ -122,12 +126,19 @@ namespace TrenchBroom {
             return m_handle.pointHandlePosition(area, cameraPos);
         }
         
-        void RotateObjectsTool::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
-            m_handle.renderHandle2D(renderContext, renderBatch, area);
+        void RotateObjectsTool::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_handle.renderHandle2D(renderContext, renderBatch);
         }
         
-        void RotateObjectsTool::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
-            m_handle.renderHandle3D(renderContext, renderBatch, area);
+        void RotateObjectsTool::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_handle.renderHandle3D(renderContext, renderBatch);
+        }
+
+        void RotateObjectsTool::renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
+            m_handle.renderHighlight2D(renderContext, renderBatch, area);
+        }
+        void RotateObjectsTool::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
+            m_handle.renderHighlight3D(renderContext, renderBatch, area);
         }
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {

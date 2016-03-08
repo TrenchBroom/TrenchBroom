@@ -17,15 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView3D__
-#define __TrenchBroom__MapView3D__
+#ifndef TrenchBroom_MapView3D
+#define TrenchBroom_MapView3D
 
 #include "MathUtils.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/MapViewBase.h"
-#include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -42,40 +41,16 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool3D;
-        class ClipToolAdapter3D;
-        class CreateBrushToolAdapter3D;
-        class CreateEntityToolAdapter;
-        class FlyModeHelper;
-        class GLContextManager;
-        class MoveObjectsToolAdapter;
-        class ResizeBrushesToolAdapter;
-        class RotateObjectsToolAdapter;
-        class SetBrushFaceAttributesTool;
-        class VertexToolAdapter;
-        
         class MapView3D : public MapViewBase {
         private:
-            MovementRestriction m_movementRestriction;
             Renderer::PerspectiveCamera m_camera;
-            
-            ClipToolAdapter3D* m_clipToolAdapter;
-            CreateBrushToolAdapter3D* m_createBrushToolAdapter;
-            CreateEntityToolAdapter* m_createEntityToolAdapter;
-            MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
-            ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
-            RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
-            SetBrushFaceAttributesTool* m_setBrushFaceAttributesTool;
-            VertexToolAdapter* m_vertexToolAdapter;
-            CameraTool3D* m_cameraTool;
-            
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             ~MapView3D();
         private:
+            void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
-            void destroyToolChain();
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();
@@ -88,11 +63,8 @@ namespace TrenchBroom {
             
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
-            void key(wxKeyEvent& event);
 
             void OnMouseMotion(wxMouseEvent& event);
-            
-            void OnToggleMovementRestriction(wxCommandEvent& event);
             
             void OnPerformCreateBrush(wxCommandEvent& event);
 
@@ -110,26 +82,26 @@ namespace TrenchBroom {
         private: // tool mode events
             void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events
-            void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
-        private:
-            void updateVerticalMovementRestriction(const wxKeyboardState& state);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const;
             Model::PickResult doPick(const Ray3& pickRay) const;
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height);
         private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
 
-            void doCenterCameraOnSelection();
+            bool doCanSelectTall();
+            void doSelectTall();
+
+            void doFocusCameraOnSelection(bool animate);
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            Vec3f centerCameraOnObjectsPosition(const Model::NodeList& nodes);
+            Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
-            void doMoveCameraToPosition(const Vec3& position);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint();
@@ -145,12 +117,10 @@ namespace TrenchBroom {
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
-            void doAfterPopupMenu();
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView3D__) */
+#endif /* defined(TrenchBroom_MapView3D) */

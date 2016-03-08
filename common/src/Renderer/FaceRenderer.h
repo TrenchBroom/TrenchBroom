@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceRenderer__
-#define __TrenchBroom__FaceRenderer__
+#ifndef TrenchBroom_FaceRenderer
+#define TrenchBroom_FaceRenderer
 
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
-#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/VertexArray.h"
 
 #include <map>
@@ -34,23 +34,26 @@ namespace TrenchBroom {
         class ActiveShader;
         class RenderBatch;
         class RenderContext;
+        class TexturedIndexArrayMap;
         class Vbo;
         
-        class FaceRenderer : public Renderable {
+        class FaceRenderer : public IndexedRenderable {
         private:
-            TexturedTriangleMeshRenderer m_meshRenderer;
+            struct RenderFunc;
+            
+            VertexArray m_vertexArray;
+            TexturedIndexArrayRenderer m_meshRenderer;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
             Color m_tintColor;
             float m_alpha;
-            bool m_prepared;
         public:
             FaceRenderer();
-            FaceRenderer(Model::BrushFace::Mesh& mesh, const Color& faceColor);
-            FaceRenderer(const FaceRenderer& other);
-            FaceRenderer& operator= (FaceRenderer other);
+            FaceRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
             
+            FaceRenderer(const FaceRenderer& other);
+            FaceRenderer& operator=(FaceRenderer other);
             friend void swap(FaceRenderer& left, FaceRenderer& right);
 
             void setGrayscale(bool grayscale);
@@ -60,7 +63,8 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
+            void doPrepareIndices(Vbo& indexVbo);
             void doRender(RenderContext& context);
         };
 
@@ -68,4 +72,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceRenderer__) */
+#endif /* defined(TrenchBroom_FaceRenderer) */

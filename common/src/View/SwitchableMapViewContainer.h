@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SwitchableMapViewContainer__
-#define __TrenchBroom__SwitchableMapViewContainer__
+#ifndef TrenchBroom_SwitchableMapViewContainer
+#define TrenchBroom_SwitchableMapViewContainer
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -72,9 +72,9 @@ namespace TrenchBroom {
             
             bool anyToolActive() const;
             void deactivateTool();
-            bool createBrushToolActive() const;
-            bool canToggleCreateBrushTool() const;
-            void toggleCreateBrushTool();
+            bool createComplexBrushToolActive() const;
+            bool canToggleCreateComplexBrushTool() const;
+            void toggleCreateComplexBrushTool();
             bool clipToolActive() const;
             bool canToggleClipTool() const;
             void toggleClipTool();
@@ -89,20 +89,25 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
             void moveCameraToPreviousTracePoint();
+
+            bool canMaximizeCurrentView() const;
+            bool currentViewMaximized() const;
+            void toggleMaximizeCurrentView();
         private:
             void bindObservers();
             void unbindObservers();
-            void preferenceDidChange(const IO::Path& path);
             void refreshViews(Tool* tool);
         private: // implement MapView interface
             bool doGetIsCurrent() const;
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
+            bool doCanSelectTall();
+            void doSelectTall();
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
-            void doCenterCameraOnSelection();
-            void doMoveCameraToPosition(const Vec3& position);
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
+            void doFocusCameraOnSelection(bool animate);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void doMoveCameraToCurrentTracePoint();
         private: // implement ViewEffectsService interface
             void doFlashSelection();
@@ -110,4 +115,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SwitchableMapViewContainer__) */
+#endif /* defined(TrenchBroom_SwitchableMapViewContainer) */

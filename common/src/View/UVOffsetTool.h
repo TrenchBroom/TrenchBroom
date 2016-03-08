@@ -17,19 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVOffsetTool__
-#define __TrenchBroom__UVOffsetTool__
+#ifndef TrenchBroom_UVOffsetTool
+#define TrenchBroom_UVOffsetTool
 
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVOffsetTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
             const UVViewHelper& m_helper;
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVOffsetTool__) */
+#endif /* defined(TrenchBroom_UVOffsetTool) */

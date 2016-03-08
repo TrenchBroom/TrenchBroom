@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SelectionCommand__
-#define __TrenchBroom__SelectionCommand__
+#ifndef TrenchBroom_SelectionCommand
+#define TrenchBroom_SelectionCommand
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -70,9 +70,9 @@ namespace TrenchBroom {
             bool doIsRepeatDelimiter() const;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SelectionCommand__) */
+#endif /* defined(TrenchBroom_SelectionCommand) */

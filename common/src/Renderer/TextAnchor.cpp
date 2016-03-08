@@ -23,7 +23,11 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Vec3f TextAnchor::offset(const Camera& camera, const Vec2f& size) const {
+        TextAnchor::~TextAnchor() {}
+        
+        TextAnchor3D::~TextAnchor3D() {}
+        
+        Vec3f TextAnchor3D::offset(const Camera& camera, const Vec2f& size) const {
             const Vec2f halfSize = size / 2.0f;
             const TextAlignment::Type a = alignment();
             const Vec2f factors = alignmentFactors(a);
@@ -34,11 +38,11 @@ namespace TrenchBroom {
             return offset;
         }
         
-        Vec3f TextAnchor::position() const {
+        Vec3f TextAnchor3D::position(const Camera& camera) const {
             return basePosition();
         }
         
-        Vec2f TextAnchor::alignmentFactors(const TextAlignment::Type a) const {
+        Vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const {
             Vec2f factors;
             if ((a & TextAlignment::Left))
                 factors[0] = +0.5f;
@@ -51,7 +55,7 @@ namespace TrenchBroom {
             return factors;
         }
         
-        Vec2f TextAnchor::extraOffsets(const TextAlignment::Type a, const Vec2f& size) const {
+        Vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type a, const Vec2f& size) const {
             return Vec2f::Null;
         }
         

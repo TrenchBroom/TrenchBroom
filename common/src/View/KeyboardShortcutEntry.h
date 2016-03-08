@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__KeyboardShortcutEntry__
-#define __TrenchBroom__KeyboardShortcutEntry__
+#ifndef TrenchBroom_KeyboardShortcutEntry
+#define TrenchBroom_KeyboardShortcutEntry
 
+#include "Preference.h"
 #include "View/ActionContext.h"
 
 #include <wx/wx.h>
@@ -27,6 +28,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class KeyboardShortcut;
         class KeyboardShortcutEntry {
@@ -53,6 +58,10 @@ namespace TrenchBroom {
             
             wxString actionDescription() const;
             wxString shortcutDescription() const;
+            wxString asJsonString() const;
+            
+            const IO::Path& preferencePath() const;
+            const KeyboardShortcut& shortcut() const;
             
             bool equals(const KeyboardShortcut& shortcut) const;
             void updateShortcut(const KeyboardShortcut& shortcut);
@@ -62,6 +71,8 @@ namespace TrenchBroom {
             virtual int doGetActionContext() const = 0;
             virtual bool doGetModifiable() const = 0;
             virtual wxString doGetActionDescription() const = 0;
+            virtual wxString doGetJsonString() const = 0;
+            virtual const Preference<KeyboardShortcut>& doGetPreference() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
             virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;
             virtual wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const = 0;
@@ -69,4 +80,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__KeyboardShortcutEntry__) */
+#endif /* defined(TrenchBroom_KeyboardShortcutEntry) */

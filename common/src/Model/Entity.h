@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Entity__
-#define __TrenchBroom__Entity__
+#ifndef TrenchBroom_Entity
+#define TrenchBroom_Entity
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -73,6 +73,7 @@ namespace TrenchBroom {
             bool doSelectable() const;
             
             void doPick(const Ray3& ray, PickResult& pickResult) const;
+            void doFindNodesContaining(const Vec3& point, NodeList& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
@@ -102,4 +103,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Entity__) */
+#endif /* defined(TrenchBroom_Entity) */

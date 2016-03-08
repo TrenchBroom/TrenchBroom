@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__wxUtils__
-#define __TrenchBroom__wxUtils__
+#ifndef TrenchBroom_wxUtils
+#define TrenchBroom_wxUtils
 
 #include "Color.h"
 
@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__wxUtils__) */
+#endif /* defined(TrenchBroom_wxUtils) */

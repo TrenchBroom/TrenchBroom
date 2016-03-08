@@ -26,12 +26,12 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
 
-        MoveTexturesCommand* MoveTexturesCommand::move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
-            return new MoveTexturesCommand(cameraUp, cameraRight, delta);
+        MoveTexturesCommand::Ptr MoveTexturesCommand::move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
+            return Ptr(new MoveTexturesCommand(cameraUp, cameraRight, delta));
         }
 
         MoveTexturesCommand::MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) :
-        DocumentCommand(Type, "Move textures"),
+        DocumentCommand(Type, "Move Textures"),
         m_cameraUp(cameraUp),
         m_cameraRight(cameraRight),
         m_delta(delta) {}
@@ -54,12 +54,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return new MoveTexturesCommand(*this);
+        UndoableCommand::Ptr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return UndoableCommand::Ptr(new MoveTexturesCommand(*this));
         }
         
-        bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
-            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command);
+        bool MoveTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
+            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command.get());
             
             if (other->m_cameraUp != m_cameraUp ||
                 other->m_cameraRight != m_cameraRight)

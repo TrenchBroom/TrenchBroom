@@ -179,6 +179,18 @@ namespace TrenchBroom {
             }
         }
         
+        void Group::doFindNodesContaining(const Vec3& point, NodeList& result) {
+            if (bounds().contains(point))
+                result.push_back(this);
+            
+            const NodeList& children = Node::children();
+            NodeList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                Node* child = *it;
+                child->findNodesContaining(point, result);
+            }
+        }
+
         FloatType Group::doIntersectWithRay(const Ray3& ray) const {
             const BBox3& myBounds = bounds();
             if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))

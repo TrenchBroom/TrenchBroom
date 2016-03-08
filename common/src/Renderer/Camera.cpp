@@ -35,7 +35,7 @@ namespace TrenchBroom {
         width(i_width),
         height(i_height) {}
 
-        bool Camera::Viewport::operator== (const Viewport& other) const {
+        bool Camera::Viewport::operator==(const Viewport& other) const {
             return x == other.x && y == other.y && width == other.width && height == other.height;
         }
 
@@ -198,6 +198,10 @@ namespace TrenchBroom {
             return win;
         }
 
+        Vec3f Camera::unproject(const Vec3f& point) const {
+            return unproject(point.x(), point.y(), point.z());
+        }
+
         Vec3f Camera::unproject(const float x, const float y, const float depth) const {
             if (!m_valid)
                 validateMatrices();
@@ -260,8 +264,12 @@ namespace TrenchBroom {
             if (direction == m_direction && up == m_up)
                 return;
             m_direction = direction;
-            m_right = crossed(m_direction, up).normalized();
-            m_up = crossed(m_right, m_direction);
+            if (m_direction.absolute().equals(up.absolute())) {
+                m_up = crossed(m_right, m_direction);
+            } else {
+                m_right = crossed(m_direction, up).normalized();
+                m_up = crossed(m_right, m_direction);
+            }
             m_valid = false;
             cameraDidChangeNotifier(this);
         }

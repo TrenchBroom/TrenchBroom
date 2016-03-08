@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DocumentCommand__
-#define __TrenchBroom__DocumentCommand__
+#ifndef TrenchBroom_DocumentCommand
+#define TrenchBroom_DocumentCommand
 
 #include "View/UndoableCommand.h"
 
@@ -33,11 +33,11 @@ namespace TrenchBroom {
         public:
             bool performDo(MapDocumentCommandFacade* document);
             bool performUndo(MapDocumentCommandFacade* document);
-            bool collateWith(UndoableCommand* command);
+            bool collateWith(UndoableCommand::Ptr command);
         private:
             size_t documentModificationCount() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__DocumentCommand__) */
+#endif /* defined(TrenchBroom_DocumentCommand) */

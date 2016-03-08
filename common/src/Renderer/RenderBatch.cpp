@@ -25,41 +25,117 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderBatch::RenderBatch(Vbo& vbo) :
-        m_vbo(vbo) {}
+        class RenderBatch::IndexedRenderableWrapper : public IndexedRenderable {
+        private:
+            Vbo& m_indexBuffer;
+            IndexedRenderable* m_wrappee;
+        public:
+            IndexedRenderableWrapper(Vbo& indexBuffer, IndexedRenderable* wrappee) :
+            m_indexBuffer(indexBuffer),
+            m_wrappee(wrappee) {
+                assert(m_wrappee != NULL);
+            }
+        private:
+            void doPrepareVertices(Vbo& vertexVbo) {
+                m_wrappee->prepareVertices(vertexVbo);
+            }
+            
+            void doPrepareIndices(Vbo& indexVbo) {
+                m_wrappee->prepareIndices(indexVbo);
+            }
+            
+            void doRender(RenderContext& renderContext) {
+                ActivateVbo activate(m_indexBuffer);
+                m_wrappee->render(renderContext);
+            }
+        };
+        
+        RenderBatch::RenderBatch(Vbo& vertexVbo, Vbo& indexVbo) :
+        m_vertexVbo(vertexVbo),
+        m_indexVbo(indexVbo) {}
         
         RenderBatch::~RenderBatch() {
-            VectorUtils::clearAndDelete(m_oneshots);
+            ListUtils::clearAndDelete(m_oneshots);
+            ListUtils::clearAndDelete(m_indexedRenderables);
         }
         
         void RenderBatch::add(Renderable* renderable) {
-            assert(renderable != NULL);
-            m_batch.push_back(renderable);
+            doAdd(renderable);
+        }
+        
+        void RenderBatch::add(DirectRenderable* renderable) {
+            doAdd(renderable);
+            m_directRenderables.push_back(renderable);
+        }
+        
+        void RenderBatch::add(IndexedRenderable* renderable) {
+            IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_indexVbo, renderable);
+            doAdd(wrapper);
+            m_indexedRenderables.push_back(wrapper);
         }
         
         void RenderBatch::addOneShot(Renderable* renderable) {
-            assert(renderable != NULL);
-            add(renderable);
+            doAdd(renderable);
+            m_oneshots.push_back(renderable);
+        }
+
+        void RenderBatch::addOneShot(DirectRenderable* renderable) {
+            doAdd(renderable);
+            m_directRenderables.push_back(renderable);
+            m_oneshots.push_back(renderable);
+        }
+        
+        void RenderBatch::addOneShot(IndexedRenderable* renderable) {
+            IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_indexVbo, renderable);
+
+            doAdd(wrapper);
+            m_indexedRenderables.push_back(wrapper);
             m_oneshots.push_back(renderable);
         }
         
         void RenderBatch::render(RenderContext& renderContext) {
-            SetVboState setVboState(m_vbo);
-            setVboState.mapped();
+            ActivateVbo activate(m_vertexVbo);
+
             prepareRenderables();
-            setVboState.active();
             renderRenderables(renderContext);
-            
+        }
+
+        void RenderBatch::doAdd(Renderable* renderable) {
+            assert(renderable != NULL);
+            m_batch.push_back(renderable);
         }
 
         void RenderBatch::prepareRenderables() {
-            RenderableList::const_iterator it, end;
-            for (it = m_batch.begin(), end = m_batch.end(); it != end; ++it) {
-                Renderable* renderable = *it;
-                renderable->prepare(m_vbo);
+            prepareVertices();
+            prepareIndices();
+        }
+        
+        void RenderBatch::prepareVertices() {
+            ActivateVbo activate(m_vertexVbo);
+            
+            DirectRenderableList::const_iterator dIt, dEnd;
+            for (dIt = m_directRenderables.begin(), dEnd = m_directRenderables.end(); dIt != dEnd; ++dIt) {
+                DirectRenderable* renderable = *dIt;
+                renderable->prepareVertices(m_vertexVbo);
+            }
+            
+            IndexedRenderableList::const_iterator iIt, iEnd;
+            for (iIt = m_indexedRenderables.begin(), iEnd = m_indexedRenderables.end(); iIt != iEnd; ++iIt) {
+                IndexedRenderable* renderable = *iIt;
+                renderable->prepareVertices(m_vertexVbo);
             }
         }
         
+        void RenderBatch::prepareIndices() {
+            ActivateVbo activate(m_indexVbo);
+            
+            IndexedRenderableList::const_iterator it, end;
+            for (it = m_indexedRenderables.begin(), end = m_indexedRenderables.end(); it != end; ++it) {
+                IndexedRenderable* renderable = *it;
+                renderable->prepareIndices(m_indexVbo);
+            }
+        }
+
         void RenderBatch::renderRenderables(RenderContext& renderContext) {
             RenderableList::const_iterator it, end;
             for (it = m_batch.begin(), end = m_batch.end(); it != end; ++it) {

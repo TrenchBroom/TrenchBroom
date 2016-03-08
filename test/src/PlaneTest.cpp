@@ -23,7 +23,6 @@
 #include "Plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
-#include "Model/PlanePointFinder.h"
 
 TEST(PlaneTest, constructDefault) {
     const Plane3f p;
@@ -142,11 +141,7 @@ TEST(PlaneTest, project) {
 TEST(PlaneTest, setPlanePoints) {
     Plane3f plane;
     Vec3f points[3];
-
-    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[1] = Vec3f(0.0f, 0.0f, 0.0f);
-    points[2] = Vec3f(0.0f, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
+    const float length = Math::Constants<float>::pointStatusEpsilon();
     
     points[0] = Vec3f(0.0f, 0.0f, 0.0f);
     points[1] = Vec3f(0.0f, 1.0f, 0.0f);
@@ -154,6 +149,69 @@ TEST(PlaneTest, setPlanePoints) {
     ASSERT_TRUE(setPlanePoints(plane, points));
     ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
+
+    // right angle, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, length, 0.0f);
+    points[2] = Vec3f(length, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+
+    // plane point vectors at a 45 degree angle, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(length, length, 0.0f);
+    points[2] = Vec3f(length, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+    
+    // horizontal plane at z=length units above the origin
+    points[0] = Vec3f(0.0f, 0.0f, length);
+    points[1] = Vec3f(0.0f, length, length);
+    points[2] = Vec3f(length, 0.0f, length);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(length, plane.distance);
+    
+    // small angle (triangle 1000 units wide, length units tall)
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(1000.0f, length, 0.0f);
+    points[2] = Vec3f(1000.0f, 0.0f, 0.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_VEC_EQ(Vec3f::PosZ, plane.normal);
+    ASSERT_FLOAT_EQ(0.0f, plane.distance);
+    
+    // small angle
+    points[0] = Vec3f(224.0f, -400.0f, 1648.0f);
+    points[1] = Vec3f(304.0f, -432.0f, 1248.0f + length);
+    points[2] = Vec3f(304.0f, -432.0f, 1248.0f);
+    ASSERT_TRUE(setPlanePoints(plane, points));
+    ASSERT_FLOAT_EQ(1.0, plane.normal.length());
+    
+    // too-small angle (triangle 1000 units wide, length/100 units tall)
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(1000.0f, length/100.0f, 0.0f);
+    points[2] = Vec3f(1000.0f, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // all zero
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[2] = Vec3f(0.0f, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // same direction, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(2*length, 0.0f, 0.0f);
+    points[2] = Vec3f(length, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
+    
+    // opposite, short vectors
+    points[0] = Vec3f(0.0f, 0.0f, 0.0f);
+    points[1] = Vec3f(-length, 0.0f, 0.0f);
+    points[2] = Vec3f(length, 0.0f, 0.0f);
+    ASSERT_FALSE(setPlanePoints(plane, points));
 }
 
 TEST(PlaneTest, horizontalDragPlane) {
@@ -194,48 +252,3 @@ TEST(PlaneTest, alignedOrthogonalDragPlane) {
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(direction.firstAxis(), p.normal);
 }
-
-/* see https://github.com/kduske/TrenchBroom/issues/1033
- commented out because it breaks the release build process
-TEST(PlaneTest, planePointFinder) {
-	Plane3 plane;
-	const Vec3 points[3] = {Vec3(48, 16, 28), Vec3(16.0, 16.0, 27.9980487823486328125), Vec3(48, 18, 22)};
-	ASSERT_FALSE(points[1].isInteger());
-	ASSERT_TRUE(setPlanePoints(plane, points[0], points[1], points[2]));
-	
-	// Some verts that should lie (very close to) on the plane
-	std::vector<Vec3> verts;
-	verts.push_back(Vec3(48, 18, 22));
-	verts.push_back(Vec3(48, 16, 28));
-	verts.push_back(Vec3(16, 16, 28));
-	verts.push_back(Vec3(16, 18, 22));
-	
-	for (size_t i=0; i<verts.size(); i++) {
-		FloatType dist = Math::abs(plane.pointDistance(verts[i]));
-		ASSERT_LT(dist, 0.01);
-	}
-	
-	// Now find a similar plane with integer points
-	
-	Vec3 intpoints[3];
-	for (size_t i=0; i<3; i++)
-		intpoints[i] = points[i];
-	
-	TrenchBroom::Model::PlanePointFinder::findPoints(plane, intpoints, 3);
-
-	ASSERT_TRUE(intpoints[0].isInteger());
-	ASSERT_TRUE(intpoints[1].isInteger());
-	ASSERT_TRUE(intpoints[2].isInteger());
-	
-	Plane3 intplane;
-	ASSERT_TRUE(setPlanePoints(intplane, intpoints[0], intpoints[1], intpoints[2]));
-	ASSERT_FALSE(intplane.equals(plane));
-	
-	// Check that the verts are still close to the new integer plane
-	
-	for (size_t i=0; i<verts.size(); i++) {
-		FloatType dist = Math::abs(intplane.pointDistance(verts[i]));
-		ASSERT_LT(dist, 0.01);
-	}
-}
-*/

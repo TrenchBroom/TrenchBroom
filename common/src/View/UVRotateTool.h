@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVRotateTool__
-#define __TrenchBroom__UVRotateTool__
+#ifndef TrenchBroom_UVRotateTool
+#define TrenchBroom_UVRotateTool
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
 
-        class UVRotateTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::Hit::HitType AngleHandleHit;
         private:
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVRotateTool__) */
+#endif /* defined(TrenchBroom_UVRotateTool) */

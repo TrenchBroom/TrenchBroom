@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PickRequest__
-#define __TrenchBroom__PickRequest__
+#ifndef TrenchBroom_PickRequest
+#define TrenchBroom_PickRequest
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PickRequest__) */
+#endif /* defined(TrenchBroom_PickRequest) */

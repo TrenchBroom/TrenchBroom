@@ -26,21 +26,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType TextureCollectionCommand::Type = Command::freeType();
         
-        TextureCollectionCommand* TextureCollectionCommand::add(const String& collectionName) {
-            return new TextureCollectionCommand("Add Texture Collection", Action_Add, StringList(1, collectionName));
+        TextureCollectionCommand::Ptr TextureCollectionCommand::add(const String& collectionName) {
+            return Ptr(new TextureCollectionCommand("Add Texture Collection", Action_Add, StringList(1, collectionName)));
         }
         
-        TextureCollectionCommand* TextureCollectionCommand::remove(const StringList& collectionNames) {
+        TextureCollectionCommand::Ptr TextureCollectionCommand::remove(const StringList& collectionNames) {
             const String name = StringUtils::safePlural(collectionNames.size(), "Remove Texture Collection", "Remove Texture Collections");
-            return new TextureCollectionCommand(name, Action_Remove, collectionNames);
+            return Ptr(new TextureCollectionCommand(name, Action_Remove, collectionNames));
         }
         
-        TextureCollectionCommand* TextureCollectionCommand::moveUp(const String& collectionName) {
-            return new TextureCollectionCommand("Move Texture Collection Up", Action_MoveUp, StringList(1, collectionName));
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(const String& collectionName) {
+            return Ptr(new TextureCollectionCommand("Move Texture Collection Up", Action_MoveUp, StringList(1, collectionName)));
         }
         
-        TextureCollectionCommand* TextureCollectionCommand::moveDown(const String& collectionName) {
-            return new TextureCollectionCommand("Move Texture Collection Down", Action_MoveDown, StringList(1, collectionName));
+        TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(const String& collectionName) {
+            return Ptr(new TextureCollectionCommand("Move Texture Collection Down", Action_MoveDown, StringList(1, collectionName)));
         }
 
         TextureCollectionCommand::TextureCollectionCommand(const String& name, const Action action, const StringList& collectionNames) :
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool TextureCollectionCommand::doCollateWith(UndoableCommand* command) {
+        bool TextureCollectionCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

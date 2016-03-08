@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityModelParser__
-#define __TrenchBroom__EntityModelParser__
+#ifndef TrenchBroom_EntityModelParser
+#define TrenchBroom_EntityModelParser
 
 #include <iostream>
 
@@ -38,4 +38,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityModelParser__) */
+#endif /* defined(TrenchBroom_EntityModelParser) */

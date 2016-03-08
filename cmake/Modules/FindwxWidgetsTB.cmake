@@ -274,6 +274,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     # Find wxWidgets multilib base libraries.
     find_library(WX_base${_DBG}
       NAMES
+#      wxbase31${_UCD}${_DBG}
       wxbase30${_UCD}${_DBG}
       wxbase29${_UCD}${_DBG}
       wxbase28${_UCD}${_DBG}
@@ -287,6 +288,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     foreach(LIB net odbc xml)
       find_library(WX_${LIB}${_DBG}
         NAMES
+#        wxbase31${_UCD}${_DBG}_${LIB}
         wxbase30${_UCD}${_DBG}_${LIB}
         wxbase29${_UCD}${_DBG}_${LIB}
         wxbase28${_UCD}${_DBG}_${LIB}
@@ -302,6 +304,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     # Find wxWidgets monolithic library.
     find_library(WX_mono${_DBG}
       NAMES
+#      wxmsw${_UNV}31${_UCD}${_DBG}
       wxmsw${_UNV}30${_UCD}${_DBG}
       wxmsw${_UNV}29${_UCD}${_DBG}
       wxmsw${_UNV}28${_UCD}${_DBG}
@@ -318,6 +321,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
                 stc ribbon propgrid webview)
       find_library(WX_${LIB}${_DBG}
         NAMES
+#        wxmsw${_UNV}31${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}30${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}29${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}28${_UCD}${_DBG}_${LIB}
@@ -432,6 +436,11 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
       D:/
       ENV ProgramFiles
     PATH_SUFFIXES
+#      wxWidgets-3.1.4
+#      wxWidgets-3.1.3
+#      wxWidgets-3.1.2
+#      wxWidgets-3.1.1
+#      wxWidgets-3.1.0
       wxWidgets-3.0.6
       wxWidgets-3.0.5
       wxWidgets-3.0.4

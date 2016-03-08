@@ -22,8 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushEdge.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -48,7 +47,7 @@ namespace TrenchBroom {
         const float UVRotateTool::RotateHandleWidth  =  5.0f;
 
         UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document),
         m_helper(helper),
@@ -167,13 +166,13 @@ namespace TrenchBroom {
             float minDelta = std::numeric_limits<float>::max();
             
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Model::BrushEdgeList& edges = face->edges();
-            Model::BrushEdgeList::const_iterator it, end;
+            const Model::BrushFace::EdgeList edges = face->edges();
+            Model::BrushFace::EdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
                 
-                const Vec3 startInFaceCoords = toFace * edge->start->position;
-                const Vec3 endInFaceCoords   = toFace * edge->end->position;
+                const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
+                const Vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
                 const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {
@@ -197,7 +196,7 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        class UVRotateTool::Render : public Renderer::Renderable {
+        class UVRotateTool::Render : public Renderer::DirectRenderable {
         private:
             const UVViewHelper& m_helper;
             bool m_highlight;
@@ -215,9 +214,9 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_center.prepare(vbo);
-                m_outer.prepare(vbo);
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                m_center.prepare(vertexVbo);
+                m_outer.prepare(vertexVbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {
@@ -261,7 +260,7 @@ namespace TrenchBroom {
             
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
-            const bool highlight = angleHandleHit.isMatch() || dragging();
+            const bool highlight = angleHandleHit.isMatch() || thisToolDragging();
             
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
         }

@@ -58,12 +58,12 @@ namespace TrenchBroom {
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             SplitterWindow2* splitter = new SplitterWindow2(this);
-            splitter->setSashGravity(1.0f);
+            splitter->setSashGravity(0.0);
             splitter->SetName("FaceInspectorSplitter");
-
+            
             splitter->splitHorizontally(createFaceAttribsEditor(splitter, document, contextManager),
                                         createTextureBrowser(splitter, document, contextManager),
-                                        wxSize(100, 250), wxSize(100, 250));
+                                        wxSize(100, 200), wxSize(100, 200));
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(splitter, 1, wxEXPAND);

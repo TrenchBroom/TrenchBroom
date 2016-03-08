@@ -55,8 +55,18 @@ namespace TrenchBroom {
             return buildDescription(m_actions[ActionView_Map2D], m_actions[ActionView_Map3D]);
         }
         
+        wxString ViewShortcut::doGetJsonString() const {
+            return shortcut().asJsonString();
+        }
+
+        const Preference<KeyboardShortcut>& ViewShortcut::doGetPreference() const {
+            return m_preference;
+        }
+        
+
         const KeyboardShortcut& ViewShortcut::doGetShortcut() const {
-            return shortcut();
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.get(m_preference);
         }
         
         void ViewShortcut::doUpdateShortcut(const KeyboardShortcut& shortcut) {
@@ -69,11 +79,6 @@ namespace TrenchBroom {
             return shortcut().acceleratorEntry(action.id());
         }
         
-        const KeyboardShortcut& ViewShortcut::shortcut() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(m_preference);
-        }
-
         IO::Path ViewShortcut::path(const Action& action2D, const Action& action3D) const {
             return IO::Path("Controls/Map view") + IO::Path(buildDescription(action2D, action3D));
         }

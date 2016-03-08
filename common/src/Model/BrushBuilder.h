@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushBuilder__
-#define __TrenchBroom__BrushBuilder__
+#ifndef TrenchBroom_BrushBuilder
+#define TrenchBroom_BrushBuilder
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -38,9 +38,10 @@ namespace TrenchBroom {
             Brush* createCube(FloatType size, const String& textureName) const;
             Brush* createCuboid(const Vec3& size, const String& textureName) const;
             Brush* createCuboid(const BBox3& bounds, const String& textureName) const;
+            Brush* createBrush(const Vec3::List& points, const String& textureName) const;
             Brush* createBrush(const Polyhedron3& polyhedron, const String& textureName) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushBuilder__) */
+#endif /* defined(TrenchBroom_BrushBuilder) */

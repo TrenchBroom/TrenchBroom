@@ -20,6 +20,38 @@
 #include "GL.h"
 
 namespace TrenchBroom {
+    void glCheckError(const String& msg) {
+        const GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            RenderException e;
+            e << "OpenGL error: " << error << " (" << glGetErrorMessage(error) << ") " << msg;
+            throw e;
+        }
+    }
+
+    String glGetErrorMessage(const GLenum code) {
+        switch (code) {
+            case GL_INVALID_ENUM:
+                return "GL_INVALID_ENUM";
+            case GL_INVALID_VALUE:
+                return "GL_INVALID_VALUE";
+            case GL_INVALID_OPERATION:
+                return "GL_INVALID_OPERATION";
+            case GL_STACK_OVERFLOW:
+                return "GL_STACK_OVERFLOW";
+            case GL_STACK_UNDERFLOW:
+                return "GL_STACK_UNDERFLOW";
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                return "GL_INVALID_FRAMEBUFFER_OPERATION";
+            case GL_CONTEXT_LOST:
+                return "GL_CONTEXT_LOST";
+            case GL_TABLE_TOO_LARGE1:
+                return "GL_TABLE_TOO_LARGE1";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     Func0<void> glewInitialize;
     
     Func0<GLenum> glGetError;
@@ -66,6 +98,7 @@ namespace TrenchBroom {
     Func2<void, GLsizei, const GLuint*> glDeleteBuffers;
     Func2<void, GLenum, GLuint> glBindBuffer;
     Func4<void, GLenum, GLsizeiptr, const GLvoid*, GLenum> glBufferData;
+    Func4<void, GLenum, GLintptr, GLsizeiptr, const GLvoid*> glBufferSubData;
     Func2<GLvoid*, GLenum, GLenum> glMapBuffer;
     Func1<GLboolean, GLenum> glUnmapBuffer;
     
@@ -83,6 +116,9 @@ namespace TrenchBroom {
     
     Func3<void, GLenum, GLint, GLsizei> glDrawArrays;
     Func4<void, GLenum, const GLint*, const GLsizei*, GLsizei> glMultiDrawArrays;
+    Func4<void, GLenum, GLsizei, GLenum, const GLvoid*> glDrawElements;
+    Func6<void, GLenum, GLuint, GLuint, GLsizei, GLenum, const GLvoid*> glDrawRangeElements;
+    Func5<void, GLenum, const GLsizei*, GLenum, const GLvoid**, GLsizei> glMultiDrawElements;
     
     Func1<GLuint, GLenum> glCreateShader;
     Func1<void, GLuint> glDeleteShader;

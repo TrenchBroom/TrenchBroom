@@ -7,3 +7,8 @@ Thumbs.db
 /codeblocks
 /Xcode
 /vs2010
+/vs2012
+/vs2013
+/.idea
+
+app/resources/documentation/help/index.html

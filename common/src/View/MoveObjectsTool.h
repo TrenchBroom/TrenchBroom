@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsTool__
-#define __TrenchBroom__MoveObjectsTool__
+#ifndef TrenchBroom_MoveObjectsTool
+#define TrenchBroom_MoveObjectsTool
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/MoveToolHelper.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
@@ -32,26 +31,29 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class InputState;
         
-        class MoveObjectsTool : public Tool, public MoveToolDelegate {
+        class MoveObjectsTool : public Tool {
+        public:
+            typedef enum {
+                MR_Continue,
+                MR_Deny,
+                MR_Cancel
+            } MoveResult;
         private:
             MapDocumentWPtr m_document;
             bool m_duplicateObjects;
         public:
             MoveObjectsTool(MapDocumentWPtr document);
+        public:
+            const Grid& grid() const;
+            
+            bool startMove(const InputState& inputState);
+            MoveResult move(const InputState& inputState, const Vec3& delta);
+            void endMove(const InputState& inputState);
+            void cancelMove();
         private:
-            bool doHandleMove(const InputState& inputState) const;
-            Vec3 doGetMoveOrigin(const InputState& inputState) const;
-            const Model::Hit& findHit(const InputState& inputState) const;
-            
-            String doGetActionName(const InputState& inputState) const;
-            bool doStartMove(const InputState& inputState);
-            Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult doMove(const InputState& inputState, const Vec3& delta);
-            void doEndMove(const InputState& inputState);
-            void doCancelMove();
-            
             bool duplicateObjects(const InputState& inputState) const;
             
             wxWindow* doCreatePage(wxWindow* parent);
@@ -59,4 +61,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsTool__) */
+#endif /* defined(TrenchBroom_MoveObjectsTool) */

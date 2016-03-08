@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolChain__
-#define __TrenchBroom__ToolChain__
+#ifndef TrenchBroom_ToolChain
+#define TrenchBroom_ToolChain
 
 #include "StringUtils.h"
 
@@ -34,17 +34,17 @@ namespace TrenchBroom {
     
     namespace View {
         class InputState;
-        class ToolAdapter;
+        class ToolController;
         
         class ToolChain {
         private:
-            ToolAdapter* m_tool;
+            ToolController* m_tool;
             ToolChain* m_suffix;
         public:
             ToolChain();
             ~ToolChain();
             
-            void append(ToolAdapter* adapter);
+            void append(ToolController* adapter);
             
             void pick(const InputState& inputState, Model::PickResult& pickResult);
             
@@ -57,8 +57,8 @@ namespace TrenchBroom {
             void mouseScroll(const InputState& inputState);
             void mouseMove(const InputState& inputState);
             
-            ToolAdapter* startMouseDrag(const InputState& inputState);
-            ToolAdapter* dragEnter(const InputState& inputState, const String& payload);
+            ToolController* startMouseDrag(const InputState& inputState);
+            ToolController* dragEnter(const InputState& inputState, const String& payload);
             
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolChain__) */
+#endif /* defined(TrenchBroom_ToolChain) */

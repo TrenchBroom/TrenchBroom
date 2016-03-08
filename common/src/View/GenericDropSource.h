@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GenericDropSource__
-#define __TrenchBroom__GenericDropSource__
+#ifndef TrenchBroom_GenericDropSource
+#define TrenchBroom_GenericDropSource
 
 #include <wx/dnd.h>
 
@@ -38,4 +38,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GenericDropSource__) */
+#endif /* defined(TrenchBroom_GenericDropSource) */

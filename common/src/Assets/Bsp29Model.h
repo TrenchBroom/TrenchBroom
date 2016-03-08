@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Bsp29Model__
-#define __TrenchBroom__Bsp29Model__
+#ifndef TrenchBroom_Bsp29Model
+#define TrenchBroom_Bsp29Model
 
 #include "VecMath.h"
 #include "StringUtils.h"
@@ -29,26 +29,22 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class TexturedTriangleMeshRenderer;
-        class Vbo;
-    }
-    
     namespace Assets {
         class Bsp29Model : public EntityModel {
         public:
             class Face {
-            private:
-                Vec3f::List m_vertices;
-                Vec2f::List m_texCoords;
-                Texture* m_texture;
             public:
-                Face(Texture* texture);
+                typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
+                typedef Vertex::List VertexList;
+            private:
+                Texture* m_texture;
+                VertexList m_vertices;
+            public:
+                Face(Texture* texture, size_t vertexCount);
                 void addVertex(const Vec3f& vertex, const Vec2f& texCoord);
                 
                 Texture* texture() const;
-                Renderer::VertexSpecs::P3T2::Vertex::List vertices() const;
-                const Vec3f::List& vertexPositions() const;
+                const VertexList& vertices() const;
             };
             typedef std::vector<Face> FaceList;
         private:
@@ -70,7 +66,7 @@ namespace TrenchBroom {
             
             void addModel(const FaceList& faces, const BBox3f& bounds);
         private:
-            Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare(int minFilter, int magFilter);
@@ -79,4 +75,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Bsp29Model__) */
+#endif /* defined(TrenchBroom_Bsp29Model) */

@@ -1,0 +1,118 @@
+body {
+	margin: 20px;
+	padding: 0;
+	font-family: Helvetica, "Sans-serif";
+	background-color: rgb(227, 231, 235);
+}
+
+a {
+	text-decoration: none;
+	color: rgb(14, 117, 236);
+}
+
+div#TOC {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 310px;
+	padding: 0px;
+	float: left;
+	overflow: hidden;
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+div#TOC_INNER {
+	margin: 10px;
+}
+
+div#TOC_HEADER {
+	text-align: center;
+}
+
+div#TOC ul {
+	margin: 0px;
+	padding-left: 20px;
+	font-weight: bold;
+}
+
+div#TOC ul ul {
+	font-weight: normal;
+}
+
+div#CONTENT {
+	top: 0px;
+	left: 320px;
+	padding-left: 20px;
+	padding-right: 20px;
+	float: left;
+	overflow: hidden;
+	position: absolute;
+	background-color: white;
+}
+
+div#CONTENT p {
+	text-indent: 0px;
+}
+
+div.figure {
+	display: inline-block;
+	padding: 5px;
+	margin-left: 40px;
+	margin-right: 40px;
+	border-radius: 5px;
+	background-color: gray;
+}
+
+div.figure img {
+	max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+
+div.figure p {
+	text-align: center;
+	color: white;
+	margin: 0px;
+	padding-top: 8px;
+}
+
+div#CONTENT table {
+	border-collapse: collapse;
+}
+
+div#CONTENT td, th {
+	border: 1px solid gray;
+	padding: 2px 4px 2px 4px;
+}
+
+div#CONTENT p img {
+	float: left;
+	margin: 0px 15px 5px 0px;
+	padding: 5px;
+	border-radius: 5px;
+	background-color: gray;
+}
+
+div#CONTENT h1, h2, h3, h4, h5 {
+	clear: both;
+	color: black;
+	padding-top: 10px;
+	margin-top: 0px;
+}
+
+span.shortcut {
+	border: 1px solid black;
+	margin: 0px 1px 0px 1px;
+	padding: 0px 4px 0px 4px;
+	border-radius: 3px;
+	background-color: rgb(220, 220, 220);
+	font-size: 80%;
+}
+
+pre {
+	padding: 20px;
+	background-color: rgb(200, 200, 200);
+	border-radius: 5px;
+	border: 1px solid gray;
+}

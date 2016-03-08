@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapReader__
-#define __TrenchBroom__MapReader__
+#ifndef TrenchBroom_MapReader
+#define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -123,4 +123,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapReader__) */
+#endif /* defined(TrenchBroom_MapReader) */

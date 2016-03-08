@@ -236,6 +236,7 @@ namespace TrenchBroom {
             } catch (GeometryException& e) {
                 if (logger() != NULL)
                     logger()->error("Error parsing brush at line %u: %s", startLine, e.what());
+                m_faces.clear(); // the faces will have been deleted by the brush's constructor
             }
 
         }
@@ -289,7 +290,7 @@ namespace TrenchBroom {
                     break;
                 case ParentInfo::Type_None:
                     break;
-                DEFAULT_SWITCH();
+                switchDefault();
             }
         }
 

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CyclingMapView__
-#define __TrenchBroom__CyclingMapView__
+#ifndef TrenchBroom_CyclingMapView
+#define TrenchBroom_CyclingMapView
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -73,14 +73,16 @@ namespace TrenchBroom {
             void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
-            
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
-            
-            void doCenterCameraOnSelection();
-            void doMoveCameraToPosition(const Vec3& position);
-            
+            bool doCanSelectTall();
+            void doSelectTall();
+            void doFocusCameraOnSelection(bool animate);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void doMoveCameraToCurrentTracePoint();
+            bool doCanMaximizeCurrentView() const;
+            bool doCurrentViewMaximized() const;
+            void doToggleMaximizeCurrentView();
         private: // implement MapViewContainer interface
             MapView* doGetCurrentMapView() const;
         private: // implement CameraLinkableView interface
@@ -89,4 +91,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CyclingMapView__) */
+#endif /* defined(TrenchBroom_CyclingMapView) */

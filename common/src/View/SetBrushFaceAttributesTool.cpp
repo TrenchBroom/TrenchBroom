@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocumentWPtr document) :
-        ToolAdapterBase(),
+        ToolControllerBase(),
         Tool(true),
         m_document(document) {}
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::copyAttributes(const InputState& inputState) const {
-            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+            return !inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
         
         bool SetBrushFaceAttributesTool::doCancel() {

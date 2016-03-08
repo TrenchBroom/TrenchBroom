@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DiskFileSystem__
-#define __TrenchBroom__DiskFileSystem__
+#ifndef TrenchBroom_DiskFileSystem
+#define TrenchBroom_DiskFileSystem
 
 #include "IO/MappedFile.h"
 #include "IO/FileSystem.h"
@@ -71,4 +71,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__DiskFileSystem__) */
+#endif /* defined(TrenchBroom_DiskFileSystem) */

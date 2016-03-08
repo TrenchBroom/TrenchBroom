@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferenceManager__
-#define __TrenchBroom__PreferenceManager__
+#ifndef TrenchBroom_PreferenceManager
+#define TrenchBroom_PreferenceManager
 
 #include "Color.h"
 #include "Notifier.h"
@@ -57,6 +57,11 @@ namespace TrenchBroom {
                 preference.load(wxConfig::Get());
             
             return preference.value();
+        }
+        
+        template <typename T>
+        const T& getDefault(const Preference<T>& preference) const {
+            return preference.defaultValue();
         }
         
         template <typename T>
@@ -105,4 +110,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(__TrenchBroom__PreferenceManager__) */
+#endif /* defined(TrenchBroom_PreferenceManager) */

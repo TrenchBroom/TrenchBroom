@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TrenchBroom__SpinControl__
-#define __TrenchBroom__SpinControl__
+#ifndef TrenchBroom_SpinControl
+#define TrenchBroom_SpinControl
 
 #include <wx/control.h>
 #include <wx/event.h>
@@ -57,7 +57,8 @@ namespace TrenchBroom {
             double m_shiftIncrement;
             double m_ctrlIncrement;
             double m_value;
-            unsigned int m_digits;
+            unsigned int m_minDigits;
+            unsigned int m_maxDigits;
             wxString m_format;
         public:
             SpinControl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
@@ -67,16 +68,17 @@ namespace TrenchBroom {
             void SetValue(const wxString& textValue);
             void SetRange(double min, double max);
             void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
-            void SetDigits(unsigned int digits);
+            void SetDigits(unsigned int minDigits, unsigned int maxDigits);
             void SetHint(const wxString& hint);
             bool Enable(bool enable = true);
             void SetFocus();
         private:
             wxSize DoGetBestSize() const;
             
-            bool InRange(double value);
+            bool InRange(double value) const;
             double AdjustToRange(double value);
             bool DoSetValue(double value);
+            wxString DoFormat(double value) const;
             bool DoSendEvent(bool spin, double value);
             bool SyncFromText();
             
@@ -100,4 +102,4 @@ typedef void (wxEvtHandler::*SpinControlEventFunction)(TrenchBroom::View::SpinCo
 wxDECLARE_EVENT(SPIN_CONTROL_EVENT, TrenchBroom::View::SpinControlEvent);
 #define SpinControlEventHandler(func) wxEVENT_HANDLER_CAST(SpinControlEventFunction, func)
 
-#endif /* defined(__TrenchBroom__SpinControl__) */
+#endif /* defined(TrenchBroom_SpinControl) */

@@ -212,7 +212,7 @@ namespace TrenchBroom {
         m_end(end),
         m_palette(palette) {
             assert(begin < end);
-            _UNUSED(m_end);
+            unused(m_end);
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {
@@ -352,7 +352,7 @@ namespace TrenchBroom {
                 bounds.mergeWith(positions[i]);
             }
             
-            Assets::MdlFrameVertexList frameTriangles;
+            Assets::MdlFrame::VertexList frameTriangles;
             frameTriangles.reserve(skinTriangles.size());
             for (size_t i = 0; i < skinTriangles.size(); ++i) {
                 const MdlSkinTriangle& triangle = skinTriangles[i];
@@ -366,8 +366,7 @@ namespace TrenchBroom {
                     if (skinVertex.onseam && !triangle.front)
                         texCoords[0] += 0.5f;
                     
-                    frameTriangles.push_back(Assets::MdlFrameVertex(positions[vertexIndex],
-                                                                    texCoords));
+                    frameTriangles.push_back(Assets::MdlFrame::Vertex(positions[vertexIndex], texCoords));
                 }
             }
             

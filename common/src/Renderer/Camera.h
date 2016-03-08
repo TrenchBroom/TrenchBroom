@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Camera__
-#define __TrenchBroom__Camera__
+#ifndef TrenchBroom_Camera
+#define TrenchBroom_Camera
 
 #include "Color.h"
 #include "TrenchBroom.h"
@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 Viewport();
                 Viewport(int i_x, int i_y, int i_width, int i_height);
                 
-                bool operator== (const Viewport& other) const;
+                bool operator==(const Viewport& other) const;
 
                 template <typename T>
                 bool contains(const T i_x, const T i_y, const T i_w, const T i_h) const {
@@ -51,6 +51,10 @@ namespace TrenchBroom {
                 bool contains(const T i_x, const T i_y) const {
                     return (i_x >= static_cast<T>(0) && i_x <= static_cast<T>(width) &&
                             i_y >= static_cast<T>(0) && i_y <= static_cast<T>(height));
+                }
+                
+                int minDimension() const {
+                    return width < height ? width : height;
                 }
             };
         public:
@@ -111,12 +115,13 @@ namespace TrenchBroom {
             Vec3f defaultPoint(int x, int y) const;
             
             template <typename T>
-            static Vec<T,3> defaultPoint(const Ray<T,3>& ray) {
-                return ray.pointAtDistance(DefaultPointDistance);
+            static Vec<T,3> defaultPoint(const Ray<T,3>& ray, const T distance = T(DefaultPointDistance)) {
+                return ray.pointAtDistance(float(distance));
             }
 
             float perspectiveScalingFactor(const Vec3f& position) const;
             Vec3f project(const Vec3f& point) const;
+            Vec3f unproject(const Vec3f& point) const;
             Vec3f unproject(float x, float y, float depth) const;
             
             void setNearPlane(float nearPlane);
@@ -155,4 +160,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Camera__) */
+#endif /* defined(TrenchBroom_Camera) */

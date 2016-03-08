@@ -21,6 +21,8 @@
 
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/CollectMatchingBrushFacesVisitor.h"
+#include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             assert(replacement != NULL);
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList faces = getApplicableFaces(document->allSelectedBrushFaces());
+            const Model::BrushFaceList faces = getApplicableFaces();
             
             if (faces.empty()) {
                 wxMessageBox("None of the selected faces has the selected texture", "Replace Failed");
@@ -68,7 +70,15 @@ namespace TrenchBroom {
             wxMessageBox(msg.str(), "Replace succeeded");
         }
         
-        Model::BrushFaceList ReplaceTextureFrame::getApplicableFaces(const Model::BrushFaceList& faces) const {
+        Model::BrushFaceList ReplaceTextureFrame::getApplicableFaces() const {
+            MapDocumentSPtr document = lock(m_document);
+            Model::BrushFaceList faces = document->allSelectedBrushFaces();
+            if (faces.empty()) {
+                Model::CollectBrushFacesVisitor collect;
+                document->world()->acceptAndRecurse(collect);
+                faces = collect.faces();
+            }
+            
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             assert(subject != NULL);
             
@@ -92,11 +102,9 @@ namespace TrenchBroom {
         void ReplaceTextureFrame::OnUpdateReplaceButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            MapDocumentSPtr document = lock(m_document);
-            const bool hasSelectedFaces = !document->allSelectedBrushFaces().empty();
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            event.Enable(hasSelectedFaces && subject != NULL && subject->usageCount() > 0 && replacement != NULL);
+            event.Enable(subject != NULL && replacement != NULL);
         }
 
         void ReplaceTextureFrame::createGui(GLContextManager& contextManager) {

@@ -42,10 +42,39 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
+        bool GameDialog::showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
+            GameDialog dialog;
+            dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
+            if (dialog.ShowModal() != wxID_OK)
+                return false;
+            gameName = dialog.selectedGameName();
+            mapFormat = dialog.selectedMapFormat();
+            return true;
+        }
+        
+        bool GameDialog::showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
+            GameDialog dialog;
+            dialog.createDialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
+            if (dialog.ShowModal() != wxID_OK)
+                return false;
+            gameName = dialog.selectedGameName();
+            mapFormat = dialog.selectedMapFormat();
+            return true;        }
+
         String GameDialog::selectedGameName() const {
             return m_gameListBox->selectedGameName();
         }
         
+        Model::MapFormat::Type GameDialog::selectedMapFormat() const {
+            assert(!m_mapFormatChoice->IsEmpty());
+            
+            const int index = m_mapFormatChoice->GetSelection();
+            assert(index >= 0);
+            
+            const String formatName = m_mapFormatChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
+            return Model::mapFormat(formatName);
+        }
+
         void GameDialog::OnGameSelectionChanged(GameSelectionCommand& command) {
             if (IsBeingDeleted()) return;
 
@@ -58,6 +87,12 @@ namespace TrenchBroom {
             gameSelected(command.gameName());
         }
         
+        void GameDialog::OnUpdateMapFormatChoice(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            event.Enable(m_mapFormatChoice->GetCount() > 1);
+        }
+
         void GameDialog::OnOpenPreferencesClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -74,6 +109,7 @@ namespace TrenchBroom {
         GameDialog::GameDialog() :
         wxDialog(),
         m_gameListBox(NULL),
+        m_mapFormatChoice(NULL),
         m_openPreferencesButton(NULL) {}
 
         void GameDialog::createDialog(wxWindow* parent, const wxString& title, const wxString& infoText) {
@@ -116,7 +152,7 @@ namespace TrenchBroom {
             wxStaticText* setupMsg = new wxStaticText(infoPanel, wxID_ANY, "To set up the game paths, click on the button below to open the preferences dialog.");
             setupMsg->Wrap(250);
             
-            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open Preferences...");
+            m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
             m_openPreferencesButton->SetToolTip("Open the preferences dialog to edit game paths");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -137,13 +173,62 @@ namespace TrenchBroom {
         }
         
         wxWindow* GameDialog::createSelectionPanel(wxWindow* parent) {
-            m_gameListBox = new GameListBox(parent);
+            wxPanel* panel = new wxPanel(parent);
+
+            m_gameListBox = new GameListBox(panel);
             m_gameListBox->SetToolTip("Double click on a game to select it");
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GameDialog::OnGameSelectionChanged, this);
             m_gameListBox->Bind(GAME_SELECTION_DBLCLICK_EVENT, &GameDialog::OnGameSelected, this);
-            return m_gameListBox;
+
+            wxStaticText* header = new wxStaticText(panel, wxID_ANY, "Map Format");
+            header->SetFont(header->GetFont().Bold());
+            
+            m_mapFormatChoice = new wxChoice(panel, wxID_ANY);
+            m_mapFormatChoice->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateMapFormatChoice, this);
+            
+            wxBoxSizer* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
+            mapFormatSizer->Add(header, 0, wxALIGN_CENTRE_VERTICAL);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
+            mapFormatSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            mapFormatSizer->Add(m_mapFormatChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
+            
+            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(m_gameListBox, 1, wxEXPAND);
+            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->Add(mapFormatSizer);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            panel->SetSizer(outerSizer);
+            
+            return panel;
         }
         
+        bool GameDialog::isOkEnabled() const {
+            return m_gameListBox->GetSelectedCount() > 0;
+        }
+        
+        void GameDialog::gameSelectionChanged(const String& gameName) {
+            updateMapFormats(gameName);
+        }
+        
+        void GameDialog::updateMapFormats(const String& gameName) {
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const StringList& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
+            
+            m_mapFormatChoice->Clear();
+            for (size_t i = 0; i < fileFormats.size(); ++i)
+                m_mapFormatChoice->Append(fileFormats[i]);
+            
+            if (!m_mapFormatChoice->IsEmpty())
+                m_mapFormatChoice->SetSelection(0);
+        }
+        
+        void GameDialog::gameSelected(const String& gameName) {
+            EndModal(wxID_OK);
+        }
+
         void GameDialog::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &GameDialog::preferenceDidChange);
@@ -156,112 +241,6 @@ namespace TrenchBroom {
         
         void GameDialog::preferenceDidChange(const IO::Path& path) {
             m_gameListBox->reloadGameInfos();
-        }
-        
-        bool NewDocumentGameDialog::showDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
-            NewDocumentGameDialog dialog;
-            dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
-            if (dialog.ShowModal() != wxID_OK)
-                return false;
-            gameName = dialog.selectedGameName();
-            mapFormat = dialog.selectedMapFormat();
-            return true;
-        }
-
-        Model::MapFormat::Type NewDocumentGameDialog::selectedMapFormat() const {
-            assert(!m_mapFormatChoice->IsEmpty());
-
-            const int index = m_mapFormatChoice->GetSelection();
-            assert(index >= 0);
-            
-            const String formatName = m_mapFormatChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
-            return Model::mapFormat(formatName);
-        }
-        
-        void NewDocumentGameDialog::OnUpdateMapFormatChoice(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(m_mapFormatChoice->GetCount() > 1);
-        }
-
-        NewDocumentGameDialog::NewDocumentGameDialog() :
-        GameDialog(),
-        m_mapFormatChoice(NULL) {}
-        
-        wxWindow* NewDocumentGameDialog::createSelectionPanel(wxWindow* parent) {
-            wxPanel* panel = new wxPanel(parent);
-            panel->SetBackgroundColour(*wxWHITE);
-            wxWindow* gameSelection = GameDialog::createSelectionPanel(panel);
-            
-            wxStaticText* header = new wxStaticText(panel, wxID_ANY, "Map Format");
-            header->SetFont(header->GetFont().Bold());
-
-            m_mapFormatChoice = new wxChoice(panel, wxID_ANY);
-            m_mapFormatChoice->Bind(wxEVT_UPDATE_UI, &NewDocumentGameDialog::OnUpdateMapFormatChoice, this);
-            
-            wxBoxSizer* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->Add(header, 0, wxALIGN_CENTRE_VERTICAL);
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            mapFormatSizer->Add(m_mapFormatChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            
-            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(gameSelection, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            outerSizer->Add(mapFormatSizer);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            panel->SetSizer(outerSizer);
-            
-            return panel;
-        }
-
-        bool NewDocumentGameDialog::isOkEnabled() const {
-            return m_gameListBox->GetSelectedCount() > 0;
-        }
-        
-        void NewDocumentGameDialog::gameSelectionChanged(const String& gameName) {
-            updateMapFormats(gameName);
-        }
-        
-        void NewDocumentGameDialog::updateMapFormats(const String& gameName) {
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
-            
-            m_mapFormatChoice->Clear();
-            for (size_t i = 0; i < fileFormats.size(); ++i)
-                m_mapFormatChoice->Append(fileFormats[i]);
-            
-            if (!m_mapFormatChoice->IsEmpty())
-                m_mapFormatChoice->SetSelection(0);
-        }
-        
-        void NewDocumentGameDialog::gameSelected(const String& gameName) {
-            EndModal(wxID_OK);
-        }
-
-        bool OpenDocumentGameDialog::showDialog(wxWindow* parent, String& gameName) {
-            OpenDocumentGameDialog dialog;
-            dialog.createDialog(parent, "Select Game", "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.");
-            if (dialog.ShowModal() != wxID_OK)
-                return false;
-            gameName = dialog.selectedGameName();
-            return true;
-        }
-
-        OpenDocumentGameDialog::OpenDocumentGameDialog() :
-        GameDialog() {}
-
-        bool OpenDocumentGameDialog::isOkEnabled() const {
-            return m_gameListBox->GetSelectedCount() > 0;
-        }
-        
-        void OpenDocumentGameDialog::gameSelectionChanged(const String& gameName) {}
-        
-        void OpenDocumentGameDialog::gameSelected(const String& gameName) {
-            EndModal(wxID_OK);
         }
     }
 }

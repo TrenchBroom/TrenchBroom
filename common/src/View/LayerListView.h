@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__LayerListView__
-#define __TrenchBroom__LayerListView__
+#ifndef TrenchBroom_LayerListView
+#define TrenchBroom_LayerListView
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -40,6 +40,9 @@ typedef void (wxEvtHandler::*LayerCommandFunction)(TrenchBroom::View::LayerComma
 wxDECLARE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
 #define LayerSelectedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
 
+wxDECLARE_EVENT(LAYER_SET_CURRENT_EVENT, TrenchBroom::View::LayerCommand);
+#define LayerSetCurrentHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
+
 wxDECLARE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
 #define LayerRightClickHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
 
@@ -53,13 +56,9 @@ namespace TrenchBroom {
     namespace View {
         class LayerCommand : public wxCommandEvent {
         protected:
-            bool m_inverted;
             Model::Layer* m_layer;
         public:
             LayerCommand(wxEventType commandType, int id = 0);
-
-            bool inverted() const;
-            void setInverted(bool inverted);
             
             Model::Layer* layer() const;
             void setLayer(Model::Layer* layer);
@@ -87,6 +86,7 @@ namespace TrenchBroom {
             void setSelectedLayer(Model::Layer* layer);
 
             void OnMouseEntryDown(wxMouseEvent& event);
+            void OnMouseEntryDClick(wxMouseEvent& event);
             void OnMouseEntryRightUp(wxMouseEvent& event);
             void OnMouseVoidDown(wxMouseEvent& event);
         private:
@@ -95,6 +95,7 @@ namespace TrenchBroom {
 
             void documentDidChange(MapDocument* document);
             void nodesDidChange(const Model::NodeList& nodes);
+            void currentLayerDidChange();
 
             void createGui();
 
@@ -104,4 +105,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__LayerListView__) */
+#endif /* defined(TrenchBroom_LayerListView) */

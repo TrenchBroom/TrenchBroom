@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TextRenderer__
-#define __TrenchBroom__TextRenderer__
+#ifndef TrenchBroom_TextRenderer
+#define TrenchBroom_TextRenderer
 
 #include "VecMath.h"
 #include "Color.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class RenderContext;
         class TextAnchor;
         
-        class TextRenderer : public Renderable {
+        class TextRenderer : public DirectRenderable {
         private:
             static const float DefaultMaxViewDistance;
             static const float DefaultMinZoomFactor;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             
             Vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
-            void doPrepare(Vbo& vbo);
+            void doPrepareVertices(Vbo& vertexVbo);
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
             
             void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);
@@ -105,4 +105,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TextRenderer__) */
+#endif /* defined(TrenchBroom_TextRenderer) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NodeWriter__
-#define __TrenchBroom__NodeWriter__
+#ifndef TrenchBroom_NodeWriter
+#define TrenchBroom_NodeWriter
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
@@ -59,4 +59,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__NodeWriter__) */
+#endif /* defined(TrenchBroom_NodeWriter) */

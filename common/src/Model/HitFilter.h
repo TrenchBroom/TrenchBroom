@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitFilter__
-#define __TrenchBroom__HitFilter__
+#ifndef TrenchBroom_HitFilter
+#define TrenchBroom_HitFilter
 
 #include "Hit.h"
 #include "SharedPointer.h"
@@ -86,4 +86,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__HitFilter__) */
+#endif /* defined(TrenchBroom_HitFilter) */

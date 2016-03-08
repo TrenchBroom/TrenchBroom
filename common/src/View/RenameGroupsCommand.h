@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenameGroupsCommand__
-#define __TrenchBroom__RenameGroupsCommand__
+#ifndef TrenchBroom_RenameGroupsCommand
+#define TrenchBroom_RenameGroupsCommand
 
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -30,11 +31,12 @@ namespace TrenchBroom {
         class RenameGroupsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<RenameGroupsCommand> Ptr;
         private:
             const String m_newName;
             Model::GroupNameMap m_oldNames;
         public:
-            static RenameGroupsCommand* rename(const String& newName);
+            static Ptr rename(const String& newName);
         private:
             RenameGroupsCommand(const String& newName);
             
@@ -43,9 +45,9 @@ namespace TrenchBroom {
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RenameGroupsCommand__) */
+#endif /* defined(TrenchBroom_RenameGroupsCommand) */

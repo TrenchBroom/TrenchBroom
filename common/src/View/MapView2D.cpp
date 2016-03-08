@@ -18,9 +18,19 @@
  */
 
 #include "MapView2D.h"
+#include "Algorithms.h"
 #include "Logger.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
+#include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CompareHits.h"
+#include "Model/Entity.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Model/PointFile.h"
+#include "Model/World.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -31,36 +41,28 @@
 #include "View/CameraAnimation.h"
 #include "View/CameraLinkHelper.h"
 #include "View/CameraTool2D.h"
-#include "View/ClipToolAdapter.h"
+#include "View/ClipToolController.h"
 #include "View/CommandIds.h"
-#include "View/CreateBrushToolAdapter2D.h"
-#include "View/CreateEntityToolAdapter.h"
+#include "View/CreateEntityToolController.h"
+#include "View/CreateSimpleBrushToolController2D.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
-#include "View/MoveObjectsToolAdapter.h"
-#include "View/ResizeBrushesToolAdapter.h"
-#include "View/RotateObjectsToolAdapter.h"
+#include "View/MoveObjectsToolController.h"
+#include "View/ResizeBrushesToolController.h"
+#include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
-#include "View/VertexToolAdapter.h"
+#include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_camera(),
-        m_clipToolAdapter(NULL),
-        m_createBrushToolAdapter(NULL),
-        m_createEntityToolAdapter(NULL),
-        m_moveObjectsToolAdapter(NULL),
-        m_resizeBrushesToolAdapter(NULL),
-        m_rotateObjectsToolAdapter(NULL),
-        m_vertexToolAdapter(NULL),
-        m_cameraTool(NULL) {
+        m_camera(){
             bindEvents();
             bindObservers();
             initializeCamera(viewPlane);
@@ -70,7 +72,6 @@ namespace TrenchBroom {
 
         MapView2D::~MapView2D() {
             unbindObservers();
-            destroyToolChain();
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -94,36 +95,15 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            const Grid& grid = lock(m_document)->grid();
-            m_clipToolAdapter = new ClipToolAdapter2D(toolBox.clipTool(), grid);
-            m_createBrushToolAdapter = new CreateBrushToolAdapter2D(toolBox.createBrushTool(), m_document);
-            m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
-            m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
-            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
-            m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter2D(toolBox.rotateObjectsTool());
-            m_vertexToolAdapter = new VertexToolAdapter2D(toolBox.vertexTool());
-            m_cameraTool = new CameraTool2D(m_camera);
-            
-            addTool(m_cameraTool);
-            addTool(m_moveObjectsToolAdapter);
-            addTool(m_rotateObjectsToolAdapter);
-            addTool(m_resizeBrushesToolAdapter);
-            addTool(m_createBrushToolAdapter);
-            addTool(m_clipToolAdapter);
-            addTool(m_vertexToolAdapter);
-            addTool(m_createEntityToolAdapter);
-            addTool(toolBox.selectionTool());
-        }
-
-        void MapView2D::destroyToolChain() {
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_rotateObjectsToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_createBrushToolAdapter;
-            delete m_clipToolAdapter;
+            addTool(new CameraTool2D(m_camera));
+            addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
+            addTool(new RotateObjectsToolController2D(toolBox.rotateObjectsTool()));
+            addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
+            addTool(new ClipToolController2D(toolBox.clipTool()));
+            addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));
+            addTool(new SelectionTool(m_document));
+            addTool(new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document));
         }
 
         void MapView2D::bindObservers() {
@@ -176,21 +156,88 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            // TODO: implement this
-            return Vec3::Null;
-        }
-        
-        void MapView2D::doCenterCameraOnSelection() {
-            const MapDocumentSPtr document = lock(m_document);
-            assert(!document->selectedNodes().empty());
+        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            View::Grid& grid = document->grid();
+            const BBox3& worldBounds = document->worldBounds();
+
+            const Ray3& pickRay = MapView2D::pickRay();
             
-            const BBox3& bounds = document->selectionBounds();
-            moveCameraToPosition(bounds.center());
+            const Vec3 toMin = referenceBounds.min - pickRay.origin;
+            const Vec3 toMax = referenceBounds.max - pickRay.origin;
+            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const Plane3 dragPlane(anchor, -pickRay.direction);
+            
+            const FloatType distance = dragPlane.intersectWithRay(pickRay);
+            if (Math::isnan(distance))
+                return Vec3::Null;
+            
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
         }
         
-        void MapView2D::doMoveCameraToPosition(const Vec3& position) {
-            animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+        bool MapView2D::doCanSelectTall() {
+            return true;
+        }
+        
+        void MapView2D::doSelectTall() {
+            const MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+            
+            const FloatType min = worldBounds.min.dot(m_camera.direction());
+            const FloatType max = worldBounds.max.dot(m_camera.direction());
+            
+            const Plane3 minPlane(min, Vec3(m_camera.direction()));
+            const Plane3 maxPlane(max, Vec3(m_camera.direction()));
+            
+            const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
+            assert(!selectionBrushes.empty());
+            
+            const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
+            Model::BrushList tallBrushes(0);
+            tallBrushes.reserve(selectionBrushes.size());
+            
+            Model::BrushList::const_iterator sIt, sEnd;
+            for (sIt = selectionBrushes.begin(), sEnd = selectionBrushes.end(); sIt != sEnd; ++sIt) {
+                const Model::Brush* selectionBrush = *sIt;
+                const Model::Brush::VertexList& vertices = selectionBrush->vertices();
+
+                Vec3::List tallVertices(0);
+                tallVertices.reserve(2 * vertices.size());
+                
+                Model::Brush::VertexList::const_iterator vIt, vEnd;
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::BrushVertex* vertex = *vIt;
+                    tallVertices.push_back(minPlane.project(vertex->position()));
+                    tallVertices.push_back(maxPlane.project(vertex->position()));
+                }
+
+                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFace::NoTextureName);
+                tallBrushes.push_back(tallBrush);
+            }
+
+            Transaction transaction(document, "Select Tall");
+            document->deleteObjects();
+
+            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(tallBrushes.begin(), tallBrushes.end(), document->world());
+            document->select(nodes);
+
+            VectorUtils::clearAndDelete(tallBrushes);
+        }
+
+        void MapView2D::doFocusCameraOnSelection(const bool animate) {
+            const MapDocumentSPtr document = lock(m_document);
+            if (document->selectedNodes().empty()) {
+                const BBox3& bounds = document->selectionBounds();
+                moveCameraToPosition(bounds.center(), animate);
+            }
+        }
+        
+        void MapView2D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+            if (animate)
+                animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+            else
+                m_camera.moveTo(position);
         }
         
         void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
@@ -207,7 +254,7 @@ namespace TrenchBroom {
             assert(pointFile->hasNextPoint());
             
             const Vec3f position = pointFile->currentPoint();
-            moveCameraToPosition(position);
+            moveCameraToPosition(position, true);
         }
 
         Vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
@@ -224,29 +271,38 @@ namespace TrenchBroom {
                     return m_camera.up().firstAxis();
                 case Math::Direction_Down:
                     return -m_camera.up().firstAxis();
-                DEFAULT_SWITCH()
+                switchDefault()
             }
         }
 
         Vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
-            const BBox3 referenceBounds = document->referenceBounds();
-            const Ray3& pickRay = MapView2D::pickRay();
-            
-            const Vec3 toMin = referenceBounds.min - pickRay.origin;
-            const Vec3 toMax = referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-            const Plane3 dragPlane(anchor, -pickRay.direction);
-            
-            const FloatType distance = dragPlane.intersectWithRay(pickRay);
-            if (Math::isnan(distance))
-                return Vec3::Null;
+
+            Vec3 delta;
+            View::Grid& grid = document->grid();
             
             const BBox3& worldBounds = document->worldBounds();
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
             
-            const Grid& grid = document->grid();
-            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
+            if (hit.isMatch()) {
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
+            } else {
+                const BBox3 referenceBounds = document->referenceBounds();
+                const Ray3& pickRay = MapView2D::pickRay();
+                
+                const Vec3 toMin = referenceBounds.min - pickRay.origin;
+                const Vec3 toMax = referenceBounds.max - pickRay.origin;
+                const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+                const Plane3 dragPlane(anchor, -pickRay.direction);
+                
+                const FloatType distance = dragPlane.intersectWithRay(pickRay);
+                if (Math::isnan(distance))
+                    return Vec3::Null;
+                
+                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            }
         }
 
         ActionContext MapView2D::doGetActionContext() const {
@@ -275,7 +331,7 @@ namespace TrenchBroom {
             renderer.render(renderContext, renderBatch);
 
             MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes()) {
+            if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const BBox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);

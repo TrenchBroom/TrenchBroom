@@ -17,14 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#ifndef TrenchBroom_TrenchBroomApp
+#define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
 #include <wx/wx.h>
+
+class wxExtHelpController;
 
 namespace TrenchBroom {
     class Logger;
@@ -36,7 +38,6 @@ namespace TrenchBroom {
         private:
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-
             wxLongLong m_lastActivation;
         public:
             Notifier0 recentDocumentsDidChangeNotifier;
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             
             bool OnExceptionInMainLoop();
             void OnUnhandledException();
+            void OnFatalException();
         private:
             void handleException();
         public:
@@ -73,6 +75,7 @@ namespace TrenchBroom {
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
+            void OnHelpShowHelp(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
             void OnOpenAbout(wxCommandEvent& event);
             void OnExecutableEvent(ExecutableEvent& event);
@@ -95,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif /* defined(TrenchBroom_TrenchBroomApp) */

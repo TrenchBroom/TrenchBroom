@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__LayerEditor__
-#define __TrenchBroom__LayerEditor__
+#ifndef TrenchBroom_LayerEditor
+#define TrenchBroom_LayerEditor
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document);
         private:
-            void OnCurrentLayerSelected(LayerCommand& event);
+            void OnSetCurrentLayer(LayerCommand& event);
             void OnLayerRightClick(LayerCommand& event);
 
             class CollectMoveableNodes;
@@ -53,11 +53,13 @@ namespace TrenchBroom {
             
             void OnToggleLayerVisibleFromMenu(wxCommandEvent& event);
             void OnToggleLayerVisibleFromList(LayerCommand& event);
-            void toggleLayerVisible(Model::Layer* layer, bool inverted);
+            void OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event);
+            void toggleLayerVisible(Model::Layer* layer);
             
             void OnToggleLayerLockedFromMenu(wxCommandEvent& event);
             void OnToggleLayerLockedFromList(LayerCommand& event);
-            void toggleLayerLocked(Model::Layer* layer, bool inverted);
+            void OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event);
+            void toggleLayerLocked(Model::Layer* layer);
 
             void OnSelectAllInLayer(wxCommandEvent& event);
             
@@ -69,10 +71,11 @@ namespace TrenchBroom {
 
             void OnShowAllLayers(wxCommandEvent& event);
         private:
+            Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
             void createGui();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__LayerEditor__) */
+#endif /* defined(TrenchBroom_LayerEditor) */

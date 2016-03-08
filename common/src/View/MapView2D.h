@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView2D__
-#define __TrenchBroom__MapView2D__
+#ifndef TrenchBroom_MapView2D
+#define TrenchBroom_MapView2D
 
 #include "MathUtils.h"
 #include "Model/ModelTypes.h"
@@ -42,16 +42,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool2D;
-        class ClipToolAdapter2D;
-        class CreateBrushToolAdapter2D;
-        class CreateEntityToolAdapter;
-        class GLContextManager;
-        class MoveObjectsToolAdapter;
-        class ResizeBrushesToolAdapter;
-        class RotateObjectsToolAdapter;
-        class VertexToolAdapter;
-        
         class MapView2D : public MapViewBase {
         public:
             typedef enum {
@@ -61,22 +51,12 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
-            
-            ClipToolAdapter2D* m_clipToolAdapter;
-            CreateBrushToolAdapter2D* m_createBrushToolAdapter;
-            CreateEntityToolAdapter* m_createEntityToolAdapter;
-            MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
-            ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
-            RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
-            VertexToolAdapter* m_vertexToolAdapter;
-            CameraTool2D* m_cameraTool;
         public:
             MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, ViewPlane viewPlane);
             ~MapView2D();
         private:
             void initializeCamera(ViewPlane viewPlane);
             void initializeToolChain(MapViewToolBox& toolBox);
-            void destroyToolChain();
         private: // notification
             void bindObservers();
             void unbindObservers();
@@ -89,10 +69,12 @@ namespace TrenchBroom {
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height);
         private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
-            void doCenterCameraOnSelection();
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
+            bool doCanSelectTall();
+            void doSelectTall();
+            void doFocusCameraOnSelection(bool animate);
             
-            void doMoveCameraToPosition(const Vec3& position);
+            void doMoveCameraToPosition(const Vec3& position, bool animate);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint();
@@ -115,4 +97,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView2D__) */
+#endif /* defined(TrenchBroom_MapView2D) */

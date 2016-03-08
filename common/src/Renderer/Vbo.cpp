@@ -33,35 +33,16 @@ namespace TrenchBroom {
             return lhs->capacity() < rhs->capacity();
         }
 
-        SetVboState::SetVboState(Vbo& vbo) :
+        ActivateVbo::ActivateVbo(Vbo& vbo) :
         m_vbo(vbo),
-        m_previousState(m_vbo.state()) {}
-        
-        SetVboState::~SetVboState() {
-            setState(m_previousState);
-        }
-
-        void SetVboState::active() {
-            setState(VboState::Active);
+        m_wasActive(m_vbo.active()) {
+            if (!m_wasActive)
+                m_vbo.activate();
         }
         
-        void SetVboState::mapped() {
-            setState(VboState::Mapped);
-        }
-
-        void SetVboState::setState(const VboState::Type newState) {
-            const VboState::Type currentState = m_vbo.state();
-            if (newState > currentState) {
-                if (newState == VboState::Active)
-                    m_vbo.activate();
-                else if (newState == VboState::Mapped)
-                    m_vbo.map();
-            } else if (newState < currentState) {
-                if (newState == VboState::Inactive)
-                    m_vbo.deactivate();
-                else if (newState == VboState::Active)
-                    m_vbo.unmap();
-            }
+        ActivateVbo::~ActivateVbo() {
+            if (!m_wasActive)
+                m_vbo.deactivate();
         }
 
         const float Vbo::GrowthFactor = 1.5f;
@@ -71,18 +52,17 @@ namespace TrenchBroom {
         m_freeCapacity(m_totalCapacity),
         m_firstBlock(NULL),
         m_lastBlock(NULL),
-        m_state(VboState::Inactive),
+        m_state(State_Inactive),
         m_type(type),
         m_usage(usage),
-        m_vboId(0),
-        m_buffer(NULL) {
+        m_vboId(0) {
             m_lastBlock = m_firstBlock = new VboBlock(*this, 0, m_totalCapacity, NULL, NULL);
             m_freeBlocks.push_back(m_firstBlock);
             assert(checkBlockChain());
         }
         
         Vbo::~Vbo() {
-            if (isActive())
+            if (active())
                 deactivate();
             free();
             
@@ -96,16 +76,12 @@ namespace TrenchBroom {
             m_lastBlock = m_firstBlock = NULL;
         }
         
-        VboState::Type Vbo::state() const {
-            return m_state;
-        }
-
         VboBlock* Vbo::allocateBlock(const size_t capacity) {
             assert(checkBlockChain());
 
-            if (m_state != VboState::Mapped) {
+            if (!active()) {
                 VboException e;
-                e << "Vbo is not mapped";
+                e << "Vbo is inactive";
                 throw e;
             }
 
@@ -131,62 +107,38 @@ namespace TrenchBroom {
             return block;
         }
 
-        bool Vbo::isActive() const {
-            return m_state > VboState::Inactive;
+        bool Vbo::active() const {
+            return m_state > State_Inactive;
         }
         
         void Vbo::activate() {
-            assert(!isActive());
+            assert(!active());
             
             if (m_vboId == 0) {
-                glGenBuffers(1, &m_vboId);
-                glBindBuffer(m_type, m_vboId);
-                glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, m_usage);
+                glAssert(glGenBuffers(1, &m_vboId));
+                glAssert(glBindBuffer(m_type, m_vboId));
+                glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, m_usage));
             } else {
-                glBindBuffer(m_type, m_vboId);
+                glAssert(glBindBuffer(m_type, m_vboId));
             }
-            GL_CHECK_ERROR()
-            m_state = VboState::Active;
+            m_state = State_Active;
         }
         
         void Vbo::deactivate() {
-            assert(isActive());
-            if (isMapped())
-                unmap();
-            glBindBuffer(m_type, 0);
-            GL_CHECK_ERROR()
-            m_state = VboState::Inactive;
+            assert(active());
+            assert(!fullyMapped());
+            assert(!partiallyMapped());
+            glAssert(glBindBuffer(m_type, 0));
+            m_state = State_Inactive;
         }
         
-        bool Vbo::isMapped() const {
-            return m_state == VboState::Mapped;
-        }
-        
-        void Vbo::map() {
-            assert(!isMapped());
-            if (!isActive())
-                activate();
-#ifdef __APPLE__
-            // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
-            glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId));
-#endif
-            m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
-            GL_CHECK_ERROR()
-            assert(m_buffer != NULL);
-            m_state = VboState::Mapped;
-        }
-        
-        void Vbo::unmap() {
-            assert(isMapped());
-            glUnmapBuffer(m_type);
-			m_buffer = NULL;
-            GL_CHECK_ERROR()
-            m_state = VboState::Active;
+        GLenum Vbo::type() const {
+            return m_type;
         }
 
         void Vbo::free() {
             if (m_vboId > 0) {
-                glDeleteBuffers(1, &m_vboId);
+                glAssert(glDeleteBuffers(1, &m_vboId));
                 m_vboId = 0;
             }
         }
@@ -231,8 +183,6 @@ namespace TrenchBroom {
         }
 
         void Vbo::increaseCapacityToAccomodate(const size_t capacity) {
-            assert(m_state == VboState::Mapped);
-            
             size_t newMinCapacity = m_totalCapacity + capacity;
             if (m_lastBlock->isFree())
                 newMinCapacity -= m_lastBlock->capacity();
@@ -245,10 +195,12 @@ namespace TrenchBroom {
         }
 
         void Vbo::increaseCapacity(const size_t delta) {
-            assert(m_state == VboState::Mapped);
+            assert(active());
+            assert(!partiallyMapped());
+            assert(!fullyMapped());
             assert(delta > 0);
             assert(checkBlockChain());
-            
+
             const size_t begin = (m_firstBlock->isFree() ?  m_firstBlock->capacity() : 0);
             const size_t end = m_totalCapacity - (m_lastBlock->isFree() ? m_lastBlock->capacity() : 0);
             
@@ -267,21 +219,25 @@ namespace TrenchBroom {
             assert(checkBlockChain());
             
             if (begin < end) {
-                unsigned char* temp = new unsigned char[end - begin];
-                memcpy(temp, m_buffer + begin, end - begin);
+                unsigned char* buffer = map();
                 
+                unsigned char* temp = new unsigned char[end - begin];
+                memcpy(temp, buffer + begin, end - begin);
+                
+                unmap();
                 deactivate();
                 free();
-                map();
-                assert(isMapped());
+                activate();
+                buffer = map();
                 
-                memcpy(m_buffer + begin, temp, end - begin);
+                memcpy(buffer + begin, temp, end - begin);
                 delete [] temp;
+                
+                unmap();
             } else {
                 deactivate();
                 free();
-                map();
-                assert(isMapped());
+                activate();
             }
         }
 
@@ -318,6 +274,49 @@ namespace TrenchBroom {
             m_freeBlocks.erase(it);
             block->setFree(false);
             m_freeCapacity -= block->capacity();
+        }
+
+        bool Vbo::partiallyMapped() const {
+            return m_state == State_PartiallyMapped;
+        }
+        
+        void Vbo::mapPartially() {
+            assert(active());
+            assert(!partiallyMapped());
+            assert(!fullyMapped());
+            m_state = State_PartiallyMapped;
+        }
+        
+        void Vbo::unmapPartially() {
+            assert(active());
+            assert(partiallyMapped());
+            m_state = State_Active;
+        }
+
+        bool Vbo::fullyMapped() const {
+            return m_state == State_FullyMapped;
+        }
+        
+        unsigned char* Vbo::map() {
+            assert(active());
+            assert(!fullyMapped());
+            assert(!partiallyMapped());
+
+#ifdef __APPLE__
+            // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
+            glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
+#endif
+            unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+            assert(buffer != NULL);
+            m_state = State_FullyMapped;
+            
+            return buffer;
+        }
+        
+        void Vbo::unmap() {
+            assert(fullyMapped());
+            glAssert(glUnmapBuffer(m_type));
+            m_state = State_Active;
         }
 
         bool Vbo::checkBlockChain() const {

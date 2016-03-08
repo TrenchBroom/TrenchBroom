@@ -40,7 +40,7 @@ namespace TrenchBroom {
             // static const size_t PalLength             = 256;
             static const size_t TexWidthOffset        = 16;
             // static const size_t TexDataOffset         = 24;
-            static const size_t MaxTextureSize        = 1024;
+            // static const size_t MaxTextureSize        = 1024;
         }
 
         WadEntry::WadEntry(const String& name, const char type, const size_t address, const size_t size) :
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         width(i_width),
         height(i_height) {}
         
-        bool MipSize::operator== (const MipSize& rhs) const {
+        bool MipSize::operator==(const MipSize& rhs) const {
             return width == rhs.width && height == rhs.height;
         }
 
@@ -160,8 +160,9 @@ namespace TrenchBroom {
             const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
             const size_t width = readSize<int32_t>(cursor);
             const size_t height = readSize<int32_t>(cursor);
-            if (width == 0 || height == 0 ||
-                width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
+            if (width == 0 || height == 0
+//                || width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize
+                )
                 throw AssetException(entry.name() + " has invalid dimensions");
 
             advance<int32_t>(cursor, mipLevel);

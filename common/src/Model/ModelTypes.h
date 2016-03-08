@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 
 #include <map>
 #include <set>
@@ -87,6 +87,7 @@ namespace TrenchBroom {
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList(0);
         typedef std::set<Brush*> BrushSet;
+        static const BrushSet EmptyBrushSet;
         
         class Object;
         
@@ -102,9 +103,12 @@ namespace TrenchBroom {
         typedef String AttributeValue;
         typedef std::vector<AttributeValue> AttributeValueList;
         
-        typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
-        typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;
-        typedef std::map<Vec3, BrushFaceList, Vec3::LexicographicOrder> VertexToFacesMap;
+        typedef std::set<BrushEdge*> BrushEdgeSet;
+        static const BrushEdgeSet EmptyBrushEdgeSet;
+        
+        typedef std::map<Vec3, BrushSet, Vec3::LexicographicOrder> VertexToBrushesMap;
+        typedef std::map<Vec3, BrushEdgeSet, Vec3::LexicographicOrder> VertexToEdgesMap;
+        typedef std::map<Vec3, BrushFaceSet, Vec3::LexicographicOrder> VertexToFacesMap;
         typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
         typedef std::map<Model::Brush*, Edge3::List> BrushEdgesMap;
         typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;

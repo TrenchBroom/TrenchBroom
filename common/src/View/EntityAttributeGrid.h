@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityAttributeGrid__
-#define __TrenchBroom__EntityAttributeGrid__
+#ifndef TrenchBroom_EntityAttributeGrid
+#define TrenchBroom_EntityAttributeGrid
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -49,14 +49,15 @@ namespace TrenchBroom {
         public:
             EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
             ~EntityAttributeGrid();
-            
+        private:
             void OnAttributeGridSize(wxSizeEvent& event);
             void OnAttributeGridSelectCell(wxGridEvent& event);
             void OnAttributeGridTab(wxGridEvent& event);
-            
+            void moveCursorTo(int row, int col);
+            void fireSelectionEvent(int row, int col);
+        private:
             void OnAttributeGridKeyDown(wxKeyEvent& event);
             void OnAttributeGridKeyUp(wxKeyEvent& event);
-        private:
             bool isInsertRowShortcut(const wxKeyEvent& event) const;
             bool isRemoveRowShortcut(const wxKeyEvent& event) const;
         private:
@@ -94,4 +95,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityAttributeGrid__) */
+#endif /* defined(TrenchBroom_EntityAttributeGrid) */

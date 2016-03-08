@@ -78,6 +78,13 @@ namespace TrenchBroom {
             return clones;
         }
 
+        NodeList Node::cloneRecursively(const BBox3& worldBounds, const NodeList& nodes) {
+            NodeList clones;
+            clones.reserve(nodes.size());
+            cloneRecursively(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
+            return clones;
+        }
+
         size_t Node::depth() const {
             if (m_parent == NULL)
                 return 0;
@@ -369,6 +376,10 @@ namespace TrenchBroom {
                 m_parent->childWasDeselected();
         }
 
+        bool Node::transitivelySelected() const {
+            return selected() || parentSelected();
+        }
+
         bool Node::parentSelected() const {
             if (m_parent == NULL)
                 return false;
@@ -446,12 +457,16 @@ namespace TrenchBroom {
                     return false;
                 case Visibility_Shown:
                     return true;
-		DEFAULT_SWITCH()
+                switchDefault()
             }
         }
         
+        bool Node::shown() const {
+            return m_visibilityState == Visibility_Shown;
+        }
+
         bool Node::hidden() const {
-            return !visible();
+            return m_visibilityState == Visibility_Hidden;
         }
         
         VisibilityState Node::visibilityState() const {
@@ -466,6 +481,12 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Node::ensureVisible() {
+            if (!visible())
+                return setVisiblityState(Visibility_Shown);
+            return false;
+        }
+
         bool Node::editable() const {
             switch (m_lockState) {
                 case Lock_Inherited:
@@ -474,7 +495,7 @@ namespace TrenchBroom {
                     return false;
                 case Lock_Unlocked:
                     return true;
-		DEFAULT_SWITCH()
+		switchDefault()
             }
         }
         
@@ -499,6 +520,10 @@ namespace TrenchBroom {
             doPick(ray, pickResult);
         }
         
+        void Node::findNodesContaining(const Vec3& point, NodeList& result) {
+            doFindNodesContaining(point, result);
+        }
+
         FloatType Node::intersectWithRay(const Ray3& ray) const {
             return doIntersectWithRay(ray);
         }
@@ -570,7 +595,7 @@ namespace TrenchBroom {
 
         Node* Node::doCloneRecursively(const BBox3& worldBounds) const {
             Node* clone = Node::clone(worldBounds);
-            clone->addChildren(Node::clone(worldBounds, children()));
+            clone->addChildren(Node::cloneRecursively(worldBounds, children()));
             return clone;
         }
 

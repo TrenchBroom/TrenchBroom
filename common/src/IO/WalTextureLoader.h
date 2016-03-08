@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__WalTextureLoader__
-#define __TrenchBroom__WalTextureLoader__
+#ifndef TrenchBroom_WalTextureLoader
+#define TrenchBroom_WalTextureLoader
 
 #include "IO/TextureLoader.h"
 #include "Assets/AssetTypes.h"
@@ -41,4 +41,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__WalTextureLoader__) */
+#endif /* defined(TrenchBroom_WalTextureLoader) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef TrenchBroom_Layer
+#define TrenchBroom_Layer
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
@@ -61,6 +61,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
 
             void doPick(const Ray3& ray, PickResult& pickResult) const;
+            void doFindNodesContaining(const Vec3& point, NodeList& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
         private:
             Layer(const Layer&);
@@ -69,4 +70,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(TrenchBroom_Layer) */

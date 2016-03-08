@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SelectionTool__
-#define __TrenchBroom__SelectionTool__
+#ifndef TrenchBroom_SelectionTool
+#define TrenchBroom_SelectionTool
 
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         
-        class SelectionTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             MapDocumentWPtr m_document;
         public:
@@ -50,6 +50,10 @@ namespace TrenchBroom {
             
             const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
             
+            void doMouseScroll(const InputState& inputState);
+            void adjustGrid(const InputState& inputState);
+            void drillSelection(const InputState& inputState);
+
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
@@ -62,4 +66,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SelectionTool__) */
+#endif /* defined(TrenchBroom_SelectionTool) */

@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool2D__
-#define __TrenchBroom__CameraTool2D__
+#ifndef TrenchBroom_CameraTool2D
+#define TrenchBroom_CameraTool2D
 
 #include "VecMath.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
+#include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool2D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
             Vec2f m_lastMousePos;
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool2D__) */
+#endif /* defined(TrenchBroom_CameraTool2D) */

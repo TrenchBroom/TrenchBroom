@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ModelDefinition__
-#define __TrenchBroom__ModelDefinition__
+#ifndef TrenchBroom_ModelDefinition
+#define TrenchBroom_ModelDefinition
 
 #include "IO/Path.h"
 #include "Model/EntityAttributes.h"
@@ -32,7 +32,7 @@ namespace TrenchBroom {
             
             ModelSpecification();
             ModelSpecification(const IO::Path& i_path, const size_t i_skinIndex = 0, const size_t i_frameIndex = 0);
-            bool operator< (const ModelSpecification& rhs) const;
+            bool operator<(const ModelSpecification& rhs) const;
             
             const String asString() const;
         };
@@ -115,4 +115,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ModelDefinition__) */
+#endif /* defined(TrenchBroom_ModelDefinition) */

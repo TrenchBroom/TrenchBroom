@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FgdParser__
-#define __TrenchBroom__FgdParser__
+#ifndef TrenchBroom_FgdParser
+#define TrenchBroom_FgdParser
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -86,11 +86,13 @@ namespace TrenchBroom {
             Assets::EntityDefinition* parsePointClass(ParserStatus& status);
             EntityDefinitionClassInfo parseBaseClass(ParserStatus& status);
             EntityDefinitionClassInfo parseClass(ParserStatus& status);
+            void skipMainClass(ParserStatus& status);
             
             StringList parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinitionList parseModels(ParserStatus& status);
             Assets::ModelDefinitionPtr parseStaticModel(ParserStatus& status);
             Assets::ModelDefinitionPtr parseDynamicModel(ParserStatus& status);
+            String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
             
             Assets::AttributeDefinitionMap parseProperties(ParserStatus& status);
@@ -115,4 +117,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FgdParser__) */
+#endif /* defined(TrenchBroom_FgdParser) */

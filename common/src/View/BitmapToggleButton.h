@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BitmapToggleButton__
-#define __TrenchBroom__BitmapToggleButton__
+#ifndef TrenchBroom_BitmapToggleButton
+#define TrenchBroom_BitmapToggleButton
 
 #include <wx/bitmap.h>
 #include <wx/panel.h>
@@ -29,6 +29,8 @@ namespace TrenchBroom {
         private:
             wxBitmap m_upBitmap;
             wxBitmap m_downBitmap;
+            wxBitmap m_upDisabledBitmap;
+            wxBitmap m_downDisabledBitmap;
             bool m_state;
         public:
             BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);
@@ -43,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__BitmapToggleButton__) */
+#endif /* defined(TrenchBroom_BitmapToggleButton) */

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ReplaceTextureFrame__
-#define __TrenchBroom__ReplaceTextureFrame__
+#ifndef TrenchBroom_ReplaceTextureFrame
+#define TrenchBroom_ReplaceTextureFrame
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             
             void OnReplace(wxCommandEvent& event);
         private:
-            Model::BrushFaceList getApplicableFaces(const Model::BrushFaceList& faces) const;
+            Model::BrushFaceList getApplicableFaces() const;
         public:
             void OnClose(wxCommandEvent& event);
             
@@ -52,4 +52,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ReplaceTextureFrame__) */
+#endif /* defined(TrenchBroom_ReplaceTextureFrame) */

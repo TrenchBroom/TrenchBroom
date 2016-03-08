@@ -51,8 +51,8 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        void PointGuideRenderer::doPrepare(Vbo& vbo) {
-            m_spikeRenderer.prepare(vbo);
+        void PointGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+            m_spikeRenderer.prepareVertices(vertexVbo);
         }
         
         void PointGuideRenderer::doRender(RenderContext& renderContext) {

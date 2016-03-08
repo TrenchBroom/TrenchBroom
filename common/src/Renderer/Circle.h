@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Circle__
-#define __TrenchBroom__Circle__
+#ifndef TrenchBroom_Circle
+#define TrenchBroom_Circle
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -31,6 +31,7 @@ namespace TrenchBroom {
         class Circle {
         private:
             VertexArray m_array;
+            bool m_filled;
         public:
             Circle(float radius, size_t segments, bool filled);
             Circle(float radius, size_t segments, bool filled, float startAngle, float angleLength);
@@ -41,10 +42,10 @@ namespace TrenchBroom {
             void prepare(Vbo& vbo);
             void render();
         private:
-            void init3D(float radius, size_t segments, bool filled, Math::Axis::Type axis, float startAngle, float angleLength);
-            void init2D(float radius, size_t segments, bool filled, float startAngle, float angleLength);
+            void init3D(float radius, size_t segments, Math::Axis::Type axis, float startAngle, float angleLength);
+            void init2D(float radius, size_t segments, float startAngle, float angleLength);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Circle__) */
+#endif /* defined(TrenchBroom_Circle) */

@@ -25,16 +25,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
-        SetLockStateCommand* SetLockStateCommand::lock(const Model::NodeList& nodes) {
-            return new SetLockStateCommand(nodes, Model::Lock_Locked);
+        SetLockStateCommand::Ptr SetLockStateCommand::lock(const Model::NodeList& nodes) {
+            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Locked));
         }
         
-        SetLockStateCommand* SetLockStateCommand::unlock(const Model::NodeList& nodes) {
-            return new SetLockStateCommand(nodes, Model::Lock_Unlocked);
+        SetLockStateCommand::Ptr SetLockStateCommand::unlock(const Model::NodeList& nodes) {
+            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Unlocked));
         }
         
-        SetLockStateCommand* SetLockStateCommand::reset(const Model::NodeList& nodes) {
-            return new SetLockStateCommand(nodes, Model::Lock_Inherited);
+        SetLockStateCommand::Ptr SetLockStateCommand::reset(const Model::NodeList& nodes) {
+            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Inherited));
         }
 
         SetLockStateCommand::SetLockStateCommand(const Model::NodeList& nodes, const Model::LockState state) :
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                     return "Lock Objects";
                 case Model::Lock_Unlocked:
                     return "Unlock Objects";
-		DEFAULT_SWITCH()
+		switchDefault()
             }
         }
         
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetLockStateCommand::doCollateWith(UndoableCommand* command) {
+        bool SetLockStateCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
 

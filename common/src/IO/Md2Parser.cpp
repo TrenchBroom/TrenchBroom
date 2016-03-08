@@ -28,7 +28,8 @@
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
-#include "Renderer/TriangleMesh.h"
+#include "Renderer/IndexRangeMap.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
@@ -204,9 +205,10 @@ namespace TrenchBroom {
 
         Vec3f Md2Parser::Md2Frame::vertex(const size_t index) const {
             const Md2Vertex& vertex = vertices[index];
-            return Vec3f(static_cast<float>(vertex.position[0]) * scale[0] + offset[0],
-                         static_cast<float>(vertex.position[1]) * scale[1] + offset[1],
-                         static_cast<float>(vertex.position[2]) * scale[2] + offset[2]);
+            const Vec3f position(static_cast<float>(vertex.x),
+                                 static_cast<float>(vertex.y),
+                                 static_cast<float>(vertex.z));
+            return position * scale + offset;
         }
 
         const Vec3f& Md2Parser::Md2Frame::normal(const size_t index) const {
@@ -226,6 +228,7 @@ namespace TrenchBroom {
         m_palette(palette),
         m_fs(fs) {}
         
+        // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* Md2Parser::doParseModel() {
             const char* cursor = m_begin;
             const int ident = readInt<int32_t>(cursor);
@@ -352,59 +355,52 @@ namespace TrenchBroom {
         }
 
         Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            size_t fanVertexCount = 0;
-            size_t stripVertexCount = 0;
-
-            typedef std::vector<Md2MeshList::const_iterator> PrimitiveList;
-            PrimitiveList md2Fans;
-            PrimitiveList md2Strips;
-            
-            md2Fans.reserve(meshes.size());
-            md2Strips.reserve(meshes.size());
-            
             Md2MeshList::const_iterator mIt, mEnd;
+
+            size_t vertexCount = 0;
+            Renderer::IndexRangeMap::Size size;
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
-                const size_t vertexCount = md2Mesh.vertices.size();
-                if (md2Mesh.type == Md2Mesh::Fan) {
-                    fanVertexCount += vertexCount;
-                    md2Fans.push_back(mIt);
-                } else {
-                    stripVertexCount += vertexCount;
-                    md2Strips.push_back(mIt);
+                vertexCount += md2Mesh.vertices.size();
+                if (md2Mesh.type == Md2Mesh::Fan)
+                    size.inc(GL_TRIANGLE_FAN);
+                else
+                    size.inc(GL_TRIANGLE_STRIP);
+            }
+
+            Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
+            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
+                const Md2Mesh& md2Mesh = *mIt;
+                if (md2Mesh.vertices.size() > 0) {
+                    vertexCount += md2Mesh.vertices.size();
+                    if (md2Mesh.type == Md2Mesh::Fan)
+                        builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
+                    else
+                        builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
                 }
             }
-                
-            typedef Assets::Md2Model::Mesh Mesh;
             
-            Mesh::IndexedList fans(fanVertexCount, md2Fans.size());
-            Mesh::IndexedList strips(stripVertexCount, md2Strips.size());
-
-            buildPrimitives(frame, md2Fans, fans);
-            buildPrimitives(frame, md2Strips, strips);
-            
-            return new Assets::Md2Model::Frame(fans, strips);
+            return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
         
-        void Md2Parser::buildPrimitives(const Md2Frame& frame, const std::vector<Md2MeshList::const_iterator>& meshes, Assets::Md2Model::Mesh::IndexedList& list) {
+        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
             typedef Assets::Md2Model::Vertex Vertex;
 
-            std::vector<Md2MeshList::const_iterator>::const_iterator pIt, pEnd;
-            for (pIt = meshes.begin(), pEnd = meshes.end(); pIt != pEnd; ++pIt) {
-                const Md2Mesh& md2Mesh = **pIt;
-                const size_t vertexCount = md2Mesh.vertices.size();
+            Vertex::List result(0);
+            result.reserve(meshVertices.size());
+            
+            Md2MeshVertexList::const_iterator it, end;
+            for (it = meshVertices.begin(), end = meshVertices.end(); it != end; ++it) {
+                const Md2MeshVertex& md2MeshVertex = *it;
                 
-                for (size_t i = 0; i < vertexCount; ++i) {
-                    const Md2MeshVertex& md2MeshVertex = md2Mesh.vertices[i];
-                    
-                    const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
-                    const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
-                    const Vec2f& texCoords = md2MeshVertex.texCoords;
-                    
-                    list.addVertex(Vertex(position, normal, texCoords));
-                }
-                list.endPrimitive();
+                const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
+                const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
+                const Vec2f& texCoords = md2MeshVertex.texCoords;
+                
+                result.push_back(Vertex(position, normal, texCoords));
             }
+            
+            return result;
         }
     }
 }

@@ -26,6 +26,7 @@
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 
 #include <iostream>
 
@@ -64,9 +65,31 @@ namespace TrenchBroom {
             SetBackgroundColour(*wxWHITE);
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
-            wxPanel* creditsPanel = new wxPanel(this);
-            creditsPanel->SetBackgroundColour(*wxWHITE);
-            
+            wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
+            creditsText->SetBackgroundColour(*wxWHITE);
+            creditsText->SetLabelMarkup("<b>Developed by Kristian Duske</b>\n"
+                                 "kristianduske.com/trenchbroom\n\n"
+                                 "<b>Contributors</b>\n"
+                                 "Corey Jones (Documentation)\n"
+                                 "Eric Wasylishen (Code, bug fixes)\n"
+                                 "Jonas Lund (Bug fixes)\n"
+                                 "negke (FGD files)\n"
+                                 "Philipp Nahratow (Bug fixes, Linux builds)\n"
+                                 "rebb (Shaders, bug fixes)\n"
+                                 "Rohit Nirmal (Bug fixes)\n"
+                                 "Scampie (Documentation)\n\n"
+                                 "<b>3rd Party Libraries, Tools and Assets</b>\n"
+                                 "wxWidgets (Cross platform GUI library)\n"
+                                 "FreeType (Font rendering library)\n"
+                                 "FreeImage (Image loading & manipulation library)\n"
+                                 "GLEW (OpenGL extension library)\n"
+                                 "Google Test (C++ testing framework)\n"
+                                 "Google Mock (C++ mocking framework)\n"
+                                 "CMake (Cross platform build manager)\n"
+                                 "Pandoc (Universal document converter)\n"
+                                 "Source Sans Pro (Font)\n");
+
+            /*
             wxStaticText* creditsText = new wxStaticText(creditsPanel, wxID_ANY, "Developed by Kristian Duske");
             creditsText->SetFont(creditsText->GetFont().Bold());
             
@@ -83,6 +106,7 @@ namespace TrenchBroom {
             wxStaticText* gmockText = createURLText(creditsPanel, "Google Mock", "Google C++ Mocking Framework", "http://code.google.com/p/googlemock/");
             wxStaticText* cmakeText = createURLText(creditsPanel, "CMake", "Cross-Platform Make", "http://www.cmake.org");
             wxStaticText* fontText = createURLText(creditsPanel, "Source Sans Pro", "Sans serif font family for user interface environments", "https://github.com/adobe/source-sans-pro");
+            wxStaticText* pandocText = createURLText(creditsPanel, "Pandoc", "Universal Document Converter", "http://www.pandoc.org/");
             
             wxSizer* creditsSizer = new wxBoxSizer(wxVERTICAL);
             creditsSizer->AddSpacer(20);
@@ -97,14 +121,16 @@ namespace TrenchBroom {
             creditsSizer->Add(gtestText);
             creditsSizer->Add(gmockText);
             creditsSizer->Add(cmakeText);
+            creditsSizer->Add(pandocText);
             creditsSizer->Add(fontText);
             creditsPanel->SetSizer(creditsSizer);
+             */
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->AddSpacer(50);
             outerSizer->Add(infoPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 20);
             outerSizer->AddSpacer(50);
-            outerSizer->Add(creditsPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP | wxBOTTOM, 20);
+            outerSizer->Add(creditsText, 1, wxEXPAND | wxTOP | wxBOTTOM, 20);
             outerSizer->AddSpacer(50);
             
             SetSizerAndFit(outerSizer);

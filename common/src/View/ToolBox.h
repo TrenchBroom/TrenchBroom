@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ToolBox__
-#define __TrenchBroom__ToolBox__
+#ifndef TrenchBroom_ToolBox
+#define TrenchBroom_ToolBox
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,14 +43,14 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         class Tool;
-        class ToolAdapter;
+        class ToolController;
         class ToolChain;
         
         class ToolBox {
         private:
-            ToolAdapter* m_dragReceiver;
-            ToolAdapter* m_dropReceiver;
-            ToolAdapter* m_savedDropReceiver;
+            ToolController* m_dragReceiver;
+            ToolController* m_dropReceiver;
+            ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
             
             typedef std::vector<Tool*> ToolList;
@@ -73,9 +73,12 @@ namespace TrenchBroom {
             ToolBox();
         public: // focus window management
             void addWindow(wxWindow* window);
+            void removeWindow(wxWindow* window);
         private:
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
+            void OnEnterWindow(wxMouseEvent& event);
+            void OnLeaveWindow(wxMouseEvent& event);
             void setFocusCursor();
             void clearFocusCursor();
         protected:
@@ -106,7 +109,7 @@ namespace TrenchBroom {
             bool startMouseDrag(ToolChain* chain, const InputState& inputState);
             bool mouseDrag(const InputState& inputState);
             void endMouseDrag(const InputState& inputState);
-            void cancelDrag();
+            void cancelMouseDrag();
             
             void mouseScroll(ToolChain* chain, const InputState& inputState);
 
@@ -132,4 +135,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ToolBox__) */
+#endif /* defined(TrenchBroom_ToolBox) */

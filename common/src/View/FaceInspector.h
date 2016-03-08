@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FaceInspector__
-#define __TrenchBroom__FaceInspector__
+#ifndef TrenchBroom_FaceInspector
+#define TrenchBroom_FaceInspector
 
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
@@ -61,4 +61,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FaceInspector__) */
+#endif /* defined(TrenchBroom_FaceInspector) */

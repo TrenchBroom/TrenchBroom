@@ -30,7 +30,7 @@ namespace TrenchBroom {
             const AttributeName Classname         = "classname";
             const AttributeName Origin            = "origin";
             const AttributeName Wad               = "wad";
-            const AttributeName Wal               = "_tb_wals";
+            const AttributeName Textures          = "_tb_textures";
             const AttributeName Mods              = "_tb_mod";
             const AttributeName Spawnflags        = "spawnflags";
             const AttributeName EntityDefinitions = "_tb_def";
@@ -47,6 +47,7 @@ namespace TrenchBroom {
             const AttributeName GroupId           = "_tb_id";
             const AttributeName GroupName         = "_tb_name";
             const AttributeName Group             = "_tb_group";
+            const AttributeName Message           = "_tb_message";
         }
         
         namespace AttributeValues {
@@ -221,7 +222,7 @@ namespace TrenchBroom {
         }
 
         EntityAttributeSnapshot EntityAttributes::snapshot(const AttributeName& name) const {
-            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
             if (matches.empty())
                 return EntityAttributeSnapshot(name);
             
@@ -229,11 +230,11 @@ namespace TrenchBroom {
             return EntityAttributeSnapshot(name, matches.front()->value());
         }
 
-        bool EntityAttributes::containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const {
+        bool EntityAttributes::containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const {
             if (matches.empty())
                 return false;
             
-            AttributeIndex::ValueList::const_iterator it, end;
+            AttributeIndex::QueryResult::const_iterator it, end;
             for (it = matches.begin(), end = matches.end(); it != end; ++it) {
                 const EntityAttribute::List::iterator attrIt = *it;
                 const EntityAttribute& attribute = *attrIt;
@@ -272,7 +273,7 @@ namespace TrenchBroom {
         }
 
         EntityAttribute::List::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
-            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
             if (matches.empty())
                 return m_attributes.end();
             
@@ -281,7 +282,7 @@ namespace TrenchBroom {
         }
         
         EntityAttribute::List::iterator EntityAttributes::findAttribute(const AttributeName& name) {
-            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
             if (matches.empty())
                 return m_attributes.end();
             

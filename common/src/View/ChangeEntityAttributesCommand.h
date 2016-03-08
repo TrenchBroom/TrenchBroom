@@ -17,9 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeEntityAttributesCommand__
-#define __TrenchBroom__ChangeEntityAttributesCommand__
+#ifndef TrenchBroom_ChangeEntityAttributesCommand
+#define TrenchBroom_ChangeEntityAttributesCommand
 
+#include "SharedPointer.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -31,6 +32,7 @@ namespace TrenchBroom {
         class ChangeEntityAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
+            typedef std::tr1::shared_ptr<ChangeEntityAttributesCommand> Ptr;
         private:
             typedef enum {
                 Action_Set,
@@ -45,9 +47,9 @@ namespace TrenchBroom {
             
             Model::EntityAttributeSnapshot::Map m_snapshots;
         public:
-            static ChangeEntityAttributesCommand* set(const Model::AttributeName& name, const Model::AttributeValue& value);
-            static ChangeEntityAttributesCommand* remove(const Model::AttributeName& name);
-            static ChangeEntityAttributesCommand* rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            static Ptr set(const Model::AttributeName& name, const Model::AttributeValue& value);
+            static Ptr remove(const Model::AttributeName& name);
+            static Ptr rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
         protected:
             void setName(const Model::AttributeName& name);
             void setNewName(const Model::AttributeName& newName);
@@ -61,9 +63,9 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
-            bool doCollateWith(UndoableCommand* command);
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeEntityAttributesCommand__) */
+#endif /* defined(TrenchBroom_ChangeEntityAttributesCommand) */

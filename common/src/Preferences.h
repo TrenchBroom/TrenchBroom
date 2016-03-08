@@ -34,6 +34,7 @@ namespace TrenchBroom {
     namespace Preferences {
         extern Preference<int> MapViewLayout;
         
+        extern Preference<bool>  ShowAxes;
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;
@@ -50,6 +51,9 @@ namespace TrenchBroom {
         extern Preference<Color> CameraFrustumColor;
         
         extern Preference<Color> DefaultGroupColor;
+        
+        extern Preference<Color> TutorialOverlayTextColor;
+        extern Preference<Color> TutorialOverlayBackgroundColor;
         
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
@@ -120,6 +124,7 @@ namespace TrenchBroom {
         extern Preference<bool> CameraPanInvertH;
         extern Preference<bool> CameraPanInvertV;
         extern Preference<float> CameraMoveSpeed;
+        extern Preference<bool> CameraMouseWheelInvert;
         extern Preference<bool> CameraEnableAltMove;
         extern Preference<bool> CameraAltMoveInvert;
         extern Preference<bool> CameraMoveInCursorDir;

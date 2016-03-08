@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType EntityDefinitionFileCommand::Type = Command::freeType();
 
-        EntityDefinitionFileCommand* EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
-            return new EntityDefinitionFileCommand("Set Entity Definitions", spec);
+        EntityDefinitionFileCommand::Ptr EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
+            return Ptr(new EntityDefinitionFileCommand("Set Entity Definitions", spec));
         }
 
         EntityDefinitionFileCommand::EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec) :
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand* command) {
+        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
     }

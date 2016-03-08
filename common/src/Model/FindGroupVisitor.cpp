@@ -41,12 +41,16 @@ namespace TrenchBroom {
         Model::Group* findGroup(Model::Node* node) {
             FindGroupVisitor visitor(false);
             node->escalate(visitor);
+            if (!visitor.hasResult())
+                return NULL;
             return visitor.result();
         }
 
         Model::Group* findTopGroup(Model::Node* node) {
             FindGroupVisitor visitor(true);
             node->escalate(visitor);
+            if (!visitor.hasResult())
+                return NULL;
             return visitor.result();
         }
     }

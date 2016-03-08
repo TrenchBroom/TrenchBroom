@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "SetBool.h"
+#include "SetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             assert(camera != NULL);
-            CHECK_BOOL(VectorUtils::erase(m_cameras, camera));
+            assertResult(VectorUtils::erase(m_cameras, camera));
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

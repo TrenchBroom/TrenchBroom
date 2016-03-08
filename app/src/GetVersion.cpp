@@ -22,9 +22,27 @@
 
 namespace TrenchBroom {
     namespace View {
-        wxString getVersion() {
+        wxString getBuildVersion() {
             wxString result;
             result << VERSION_STR;
+            return result;
+        }
+
+        wxString getBuildChannel() {
+            wxString result;
+            result << BUILD_CHANNEL;
+            return result;
+        }
+
+        wxString getBuildId() {
+            wxString result;
+            result << BUILD_ID;
+            return result;
+        }
+        
+        wxString getBuildType() {
+            wxString result;
+            result << BUILD_TYPE;
             return result;
         }
     }

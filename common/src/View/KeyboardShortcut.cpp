@@ -573,6 +573,22 @@ namespace TrenchBroom {
             return m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
         }
         
+        bool KeyboardShortcut::hasModifier(const size_t index) const {
+            return modifier(index) != WXK_NONE;
+        }
+        
+        int KeyboardShortcut::modifier(const size_t index) const {
+            assert(index < 3);
+            switch (index) {
+                case 0:
+                    return m_modifier1;
+                case 1:
+                    return m_modifier2;
+                default:
+                    return m_modifier3;
+            }
+        }
+
         wxAcceleratorEntry KeyboardShortcut::acceleratorEntry(const int id) const {
             return wxAcceleratorEntry(acceleratorFlags(), m_key, id);
         }
@@ -622,6 +638,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool KeyboardShortcut::matchesKey(const wxKeyEvent& event) const {
+            return event.GetKeyCode() == m_key;
+        }
+
         bool KeyboardShortcut::alwaysShowModifier() const {
             switch (m_key) {
                 case WXK_BACK:
@@ -721,6 +741,27 @@ namespace TrenchBroom {
             return text;
         }
         
+        wxString KeyboardShortcut::asJsonString() const {
+            wxString str;
+            str << "{ key:" << key() << ", modifiers: [";
+            
+            bool hadModifier = false;
+            for (size_t i = 0; i < 3; ++i) {
+                if (hasModifier(i)) {
+                    if (hadModifier)
+                        str << ", ";
+                    str << modifier(i);
+                    hadModifier = true;
+                } else {
+                    hadModifier = false;
+                }
+            }
+            
+            str << "] }";
+            
+            return str;
+        }
+
         wxString KeyboardShortcut::asString() const {
             wxString str;
             str << m_key << ":" << m_modifier1 << ":" << m_modifier2 << ":" << m_modifier3;
