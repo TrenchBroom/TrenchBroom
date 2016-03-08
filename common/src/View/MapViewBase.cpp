@@ -978,7 +978,7 @@ namespace TrenchBroom {
 
         void MapViewBase::OnAddObjectsToGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             assert(newGroup != NULL);
             
@@ -990,11 +990,13 @@ namespace TrenchBroom {
         
         void MapViewBase::OnRemoveObjectsFromGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             assert(currentGroup != NULL);
             
             Transaction transaction(document, "Remove Objects from Group");
+            if (currentGroup->childCount() == nodes.size())
+                document->closeGroup();
             reparentNodes(nodes, document->currentLayer());
             document->deselectAll();
             document->select(nodes);
@@ -1057,7 +1059,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             
             StringStream name;
-            name << "Move " << (reparentableNodes.size() == 1 ? "Brush" : "Brushes") << " to " << newParent->name();
+            name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
