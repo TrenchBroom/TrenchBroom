@@ -176,12 +176,12 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition) {
-            EntityAttribute::List::iterator it = findAttribute(name);
-            if (it == m_attributes.end())
+            if (!hasAttribute(name))
                 return;
-            m_index.remove(it->name(), it);
-            it->setName(newName, newDefinition);
-            m_index.insert(it->name(), it);
+            
+            const AttributeValue value = *attribute(name);
+            removeAttribute(name);
+            addOrUpdateAttribute(newName, value, newDefinition);
         }
 
         void EntityAttributes::removeAttribute(const AttributeName& name) {
