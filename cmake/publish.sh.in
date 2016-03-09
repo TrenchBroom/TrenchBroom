@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# -lt 1 ] || [ -z "$1" ] || ([ "$1" != "Alpha" ] && [ "$1" != "Beta" ] && [ "$1" != "Final" ]) ; then
+if [ $# -lt 1 ] || [ -z "$1" ] || ([ "$1" != "Alpha" ] && [ "$1" != "Beta" ] && [ "$1" != "Stable" ]) ; then
     echo "You must supply the build channel."
     echo "Example: publish.sh <channel>"
-    echo "  where <channel> is 'Alpha', 'Beta', or 'Final'"
+    echo "  where <channel> is 'Alpha', 'Beta', or 'Stable'"
     exit 1
 fi
 

@@ -12,8 +12,8 @@ if [ "$1" == "Beta" ] ; then
 	scp @APP_PACKAGE_FILE_NAME@.* "$TB_BETA_DEST"
 fi
 
-if [ "$1" == "Final" ] ; then
+if [ "$1" == "Stable" ] ; then
 	# Publish the build to a local directory (e.g. dropbox).
-	[ -z "$TB_FINAL_DEST" ] && { echo "Need to set environment variable TB_FINAL_DEST to an scp destination path."; exit 1; }
-	scp @APP_PACKAGE_FILE_NAME@.* "$TB_FINAL_DEST"
+	[ -z "$TB_STABLE_DEST" ] && { echo "Need to set environment variable TB_STABLE_DEST to an scp destination path."; exit 1; }
+	scp @APP_PACKAGE_FILE_NAME@.* "$TB_STABLE_DEST"
 fi

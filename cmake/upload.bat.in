@@ -2,7 +2,7 @@
 
 IF "%~1"=="Alpha" GOTO alpha
 IF "%~1"=="Beta" GOTO beta
-IF "%~1"=="Final" GOTO final
+IF "%~1"=="Stable" GOTO stable
 
 :alpha
 IF "%TB_ALPHA_DEST%"=="" GOTO noalphadest
@@ -24,13 +24,13 @@ ECHO You must set environment variable TB_BETA_DEST to an scp destination path.
 EXIT /B 1
 GOTO end
 
-:final
-IF "%TB_FINAL_DEST%"=="" GOTO nofinaldest
-pscp @APP_PACKAGE_FILE_NAME@.* "%TB_FINAL_DEST%"
+:stable
+IF "%TB_STABLE_DEST%"=="" GOTO nostabledest
+pscp @APP_PACKAGE_FILE_NAME@.* "%TB_STABLE_DEST%"
 GOTO end
 
-:nofinaldest
-ECHO You must set environment variable TB_FINAL_DEST to an scp destination path.
+:nostabledest
+ECHO You must set environment variable TB_STABLE_DEST to an scp destination path.
 EXIT /B 1
 GOTO end
 

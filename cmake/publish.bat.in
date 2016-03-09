@@ -2,7 +2,7 @@
 
 IF "%~1"=="Alpha" GOTO dobuild
 IF "%~1"=="Beta" GOTO dobuild
-IF "%~1"=="Final" GOTO dobuild
+IF "%~1"=="Stable" GOTO dobuild
 GOTO argsfailed
 
 :dobuild
@@ -25,7 +25,7 @@ GOTO end
 :argsfailed
 ECHO You must supply the build channel.
 ECHO Example: publish.bat channel
-ECHO   where channel is 'Alpha', 'Beta', or 'Final'
+ECHO   where channel is 'Alpha', 'Beta', or 'Stable'
 EXIT /B 1
 GOTO end
 
