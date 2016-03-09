@@ -3,7 +3,7 @@
 if [ "$1" == "Alpha" ] ; then
 	# Publish the build to a local directory (e.g. dropbox).
 	[ -z "$TB_ALPHA_DEST" ] && { echo "You must set environment variable TB_ALPHA_DEST to a local directory."; exit 1; }
-	cp @APP_PACKAGE_FILE_NAME@.* "$TB_ALPHA_DEST"
+	scp @APP_PACKAGE_FILE_NAME@.* "$TB_ALPHA_DEST"
 fi
 
 if [ "$1" == "Beta" ] ; then
