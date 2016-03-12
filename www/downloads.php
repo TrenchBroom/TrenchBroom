@@ -1,10 +1,18 @@
 <?php
-function list_downloads($dir, $ext) {
+function has_extension($file, $exts) {
+	foreach ($exts as $ext) {
+		if (pathinfo($file, PATHINFO_EXTENSION) == $ext)
+			return true;
+	}
+	return false;
+}
+
+function list_downloads($dir, $exts) {
 	$files = array();
 	if (is_dir($dir) && $dir_handle = opendir($dir)) {
 		while (($file = readdir($dir_handle)) !== false) {
-			if (!is_dir($file) && pathinfo($file, PATHINFO_EXTENSION) == $ext)
-				$files[filectime($dir . '/' . $file)] = $file;
+			if (!is_dir($file) && has_extension($file, $exts))
+				$files[filemtime($dir . '/' . $file)] = $file;
 		}
 	}
 	krsort($files);
@@ -13,7 +21,7 @@ function list_downloads($dir, $ext) {
 
 function print_download_link($file) {
 ?>
-<a href="<?php echo $dir . '/' . urlencode($file) ?>"><?php echo $file ?></a>
+<a href="<?php echo $dir . '/' . urlencode($file) ?>"><?php echo $file ?></a><br />
 <?php
 }
 
@@ -42,8 +50,8 @@ function print_old_downloads($files) {
 	}
 }
 
-function print_downloads($header, $dir, $ext) {
-	$files = list_downloads($dir, $ext);
+function print_downloads($header, $dir, $exts) {
+	$files = list_downloads($dir, $exts);
 	if (count($files) > 0) {
 ?>
 <div class="releases">
@@ -57,9 +65,9 @@ function print_downloads($header, $dir, $ext) {
 	}
 }
 
-function print_all_downloads($basedir, $ext) {
-	print_downloads("Stable", $basedir . "/stable", $ext);
-	print_downloads("Beta", $basedir . "/beta", $ext);
+function print_all_downloads($basedir, $exts) {
+	print_downloads("Stable", $basedir . "/stable", $exts);
+	print_downloads("Beta", $basedir . "/beta", $exts);
 }
 ?>
 <?php include 'header.php' ?>
@@ -77,7 +85,7 @@ if ($_REQUEST["platform"] == "win32") {
 				<li>OpenGL 2.1 and GLSL 1.2 capable driver</li>
 			</ul>
 		</div>
-		<?php print_all_downloads("downloads/win32", "zip"); ?>
+		<?php print_all_downloads("downloads/win32", array("zip")); ?>
 	</div>
 <?php	
 } else if ($_REQUEST["platform"] == "macosx") {
@@ -91,21 +99,21 @@ if ($_REQUEST["platform"] == "win32") {
 				<li>OpenGL 2.1 and GLSL 1.2 capable driver</li>
 			</ul>
 		</div>
-		<?php print_all_downloads("downloads/macosx", "dmg"); ?>
+		<?php print_all_downloads("downloads/macosx", array("dmg", "zip")); ?>
 	</div>
 <?php	
 } else if ($_REQUEST["platform"] == "linux_deb") {
 ?>
 	<div class="downloads">
 		<h2>Linux DEB Packages</h2>
-		<?php print_all_downloads("downloads/linux", "deb"); ?>
+		<?php print_all_downloads("downloads/linux", array("deb")); ?>
 	</div>
 <?php	
 } else if ($_REQUEST["platform"] == "linux_rpm") {
 ?>
 	<div class="downloads">
 		<h2>Linux RPM Packages</h2>
-		<?php print_all_downloads("downloads/linux", "rpm"); ?>
+		<?php print_all_downloads("downloads/linux", array("rpm")); ?>
 	</div>
 <?php	
 } else {
