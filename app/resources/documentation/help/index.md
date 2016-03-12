@@ -13,21 +13,24 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- High performance renderer with support for huge maps
 	- Unlimited Undo and Redo
 	- Macro-like command repetition
+	- Issue browser with automatic quick fixes
 	- Point file support
 	- Automatic backups
 	- Free and cross platform
-	- Issue browser with automatic quick fixes
 * **Brush Editing**
-	- Robust vertex editing with edge and face splitting
+	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
 	- Clipping tool with two and three points
-	- CSG operations: merge, subtract, intersect, partition
+	- CSG operations: merge, subtract, intersect
 	- UV view for easy texture manipulations
 	- Precise texture lock for all brush editing operations
+	- Multiple texture collections
 * **Entity Editing**
 	- Entity browser with drag and drop support
+	- Support for FGD and DEF files for entity definitions
+	- Mod support
 	- Entity link visualization
 	- Displays 3D models in the editor
-	- Smart Entity Property Editors
+	- Smart entity property editors
 
 ## About This Document
 

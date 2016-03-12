@@ -1,34 +1,37 @@
 # TrenchBroom
 
-TrenchBroom is a modern cross-platform level editor for Quake.
+TrenchBroom is a modern cross-platform level editor for Quake-engine based games.
 
 - Website:   http://kristianduske.com/trenchbroom
 - Downloads: http://kristianduske.com/trenchbroom/downloads.php
 
 ## Features
-- True 3D editing, no 2D views required
-- High performance renderer with support for huge maps
-- Vertex editing with edge and face splitting that will not create invalid brushes
-- Manipulation of multiple vertices at once (great for trisoup editing)
-- Smart clip tool
-- Move, rotate and flip brushes and entities
-- Precise texture lock for all operations
-- Smart entity property editors
-- Graphical entity browser with drag and drop support
-- Comprehensive texture application and manipulation tools
-- Search and filter functions
-- Unlimited undo and redo
-- Point file support
-- Automatic backup
-- Support for .def and .fdg files, mods and multiple wad files
-- Full documentation
-- Free (as in beer) and open source (GPLv3)
-- Cross platform (Windows, Mac OS X and Linux supported)
+* **General**
+	- Full support for editing in 3D and in up to three 2D views
+	- High performance renderer with support for huge maps
+	- Unlimited Undo and Redo
+	- Macro-like command repetition
+	- Issue browser with automatic quick fixes
+	- Point file support
+	- Automatic backups
+	- Free and cross platform
+* **Brush Editing**
+	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
+	- Clipping tool with two and three points
+	- CSG operations: merge, subtract, intersect
+	- UV view for easy texture manipulations
+	- Precise texture lock for all brush editing operations
+	- Multiple texture collections
+* **Entity Editing**
+	- Entity browser with drag and drop support
+	- Support for FGD and DEF files for entity definitions
+	- Mod support
+	- Entity link visualization
+	- Displays 3D models in the editor
+	- Smart entity property editors
 
 ## Compiling
-- Windows: You need Visual Studio 2010, read [Windows/Build.txt](Windows/Build.txt) for instructions
-- Mac OS X: You need XCode 4, read [Mac/Build.txt](Mac/Build.txt) for instructions
-- Linux: You need Code::Blocks, read [Linux/Build.txt](Linux/Build.txt) for instructions
+- Read [Build.txt](Build.txt) for instructions
 
 # Contributing
 - Bug reports and feature suggestions are welcome. Please submit them at https://github.com/kduske/TrenchBroom/issues
@@ -37,14 +40,28 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 
 # Credits
 - wxWidgets www.wxwidgets.org
-- FreeType library www.freetype.org
-- FreeImage library www.freeimage.org
-- GoogleTest library code.google.com/p/googletest/
-- GoogleMock library code.google.com/p/googlemock/
+- FreeType www.freetype.org
+- FreeImage www.freeimage.org
+- GLEW glew.sourceforge.net
+- GoogleTest code.google.com/p/googletest/
+- GoogleMock code.google.com/p/googlemock/
+- CMake www.cmake.org
+- Pandoc www.pandoc.org
 - Quake icons by Th3 ProphetMan th3-prophetman.deviantart.com
 - Hexen 2 icon by thedoctor45 thedoctor45.deviantart.com
+- Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
+### TrenchBroom 2.0.0
+- Complete rewrite with many new features and bug fixes
+- New 2D views with multiple view layouts
+- Support for multiple games
+- Macro-like command repetition
+- Issue browser
+- CSG operations: merge, subtract, intersect
+- UV view for easy texture manipulations
+- Proper Linux support
+
 ### TrenchBroom 1.0.9
 - Fix the rotation tool handle position
 
