@@ -19,34 +19,34 @@ function list_downloads($dir, $exts) {
 	return $files;
 }
 
-function print_download_link($file) {
+function print_download_link($dir, $file) {
 ?>
 <a href="<?php echo $dir . '/' . urlencode($file) ?>"><?php echo $file ?></a><br />
 <?php
 }
 
-function print_download_list($files) {
+function print_download_list($dir, $files) {
 	while (list($time, $file) = each($files))
-		print_download_link($file);
+		print_download_link($dir, $file);
 }
 
-function print_latest_download($files) {
+function print_latest_download($dir, $files) {
 	if (list($time, $file) = each($files)) {
 ?>
 <div class="latest">
 	<h3>Latest</h3>
-	<?php print_download_link($file); ?>
+	<?php print_download_link($dir, $file); ?>
 </div>
 <?php		
 	}
 }
 
-function print_old_downloads($files) {
+function print_old_downloads($dir, $files) {
 	if (current($files)) {
 ?>
 <h3>All Releases</h3>
 <?php
-		print_download_list($files);
+		print_download_list($dir, $files);
 	}
 }
 
@@ -57,8 +57,8 @@ function print_downloads($header, $dir, $exts) {
 <div class="releases">
 	<h2><?php echo($header); ?></h2>
 <?php
-		print_latest_download($files);
-		print_old_downloads($files);
+		print_latest_download($dir, $files);
+		print_old_downloads($dir, $files);
 ?>
 </div>
 <?php
