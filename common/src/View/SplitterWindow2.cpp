@@ -251,7 +251,7 @@ namespace TrenchBroom {
         
         void SplitterWindow2::initSashPosition() {
             if (m_splitMode != SplitMode_Unset && m_currentSplitRatio == -1.0 && h(GetClientSize()) > 0)
-                setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))) + 1);
+                setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))));
         }
         
         bool SplitterWindow2::setSashPosition(int newSashPosition) {
@@ -262,8 +262,8 @@ namespace TrenchBroom {
             
             newSashPosition = std::min(newSashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
             newSashPosition = std::max(newSashPosition, h(m_minSizes[0]));
-
-            m_currentSplitRatio = splitRatio(newSashPosition);
+			if (newSashPosition >= h(m_minSizes[0]) && newSashPosition <= h(GetClientSize()) - h(m_minSizes[1]))
+	            m_currentSplitRatio = splitRatio(newSashPosition);
             return m_currentSplitRatio >= 0.0;
         }
         
