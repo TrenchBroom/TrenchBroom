@@ -140,14 +140,16 @@ namespace TrenchBroom {
         }
         
         void ClipToolController::AddClipPointPart::doEndDrag(const InputState& inputState) {
-            m_callback->tool()->endDragPoint();
+            if (m_secondPointSet)
+                m_callback->tool()->endDragPoint();
         }
         
         void ClipToolController::AddClipPointPart::doCancelDrag() {
-            m_callback->tool()->cancelDragPoint();
-            m_callback->tool()->removeLastPoint();
-            if (m_secondPointSet)
+            if (m_secondPointSet) {
+                m_callback->tool()->cancelDragPoint();
                 m_callback->tool()->removeLastPoint();
+            }
+            m_callback->tool()->removeLastPoint();
         }
         
         void ClipToolController::AddClipPointPart::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
