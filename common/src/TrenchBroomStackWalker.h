@@ -30,20 +30,15 @@ namespace TrenchBroom {
     class TrenchBroomStackTrace {
         friend class TrenchBroomStackWalker;
     private:
-        std::vector<wxStackFrame> m_frames;
-        TrenchBroomStackTrace(std::vector<wxStackFrame> frames) : m_frames(frames) {}
+        std::vector<void *> m_frames;
+        TrenchBroomStackTrace(std::vector<void *> frames) : m_frames(frames) {}
     public:
         String asString();
     };
     
-    class TrenchBroomStackWalker : public wxStackWalker {
-    private:
-        std::vector<wxStackFrame> m_frames;
-    protected:
-        void OnStackFrame(const wxStackFrame &frame);
+    class TrenchBroomStackWalker {
     public:
         static TrenchBroomStackTrace getStackTrace();
-        static TrenchBroomStackTrace getStackTraceFromOnFatalException();
     };
 }
 

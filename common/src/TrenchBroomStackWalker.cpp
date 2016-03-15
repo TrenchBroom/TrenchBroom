@@ -17,49 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include <execinfo.h>
 #include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
-    static String stackFrameToString(const wxStackFrame &frame) {
-        StringStream ss;
-        ss << frame.GetLevel() << "\t";
-        ss << frame.GetModule() << "\t";
-        ss << frame.GetAddress() << " ";
-        ss << frame.GetName() << " ";
-        if (frame.HasSourceLocation()) {
-            ss << "(" << frame.GetFileName() << ":" << frame.GetLine() << ") ";
-        }
-        return ss.str();
-    }
-
+    
     String TrenchBroomStackTrace::asString() {
+        if (m_frames.empty())
+            return "";
+        
         StringStream ss;
-        std::vector<wxStackFrame>::const_iterator it;
-        for (it = m_frames.begin(); it != m_frames.end(); it++) {
-            String frameStr = stackFrameToString(*it);
-            ss << frameStr << std::endl;
+        char **strs = backtrace_symbols(&m_frames.front(), static_cast<int>(m_frames.size()));
+        for (size_t i = 0; i < m_frames.size(); i++) {
+            ss << strs[i] << std::endl;
         }
+        free(strs);
         return ss.str();
     }
     
-    void TrenchBroomStackWalker::OnStackFrame(const wxStackFrame &frame) {
-        m_frames.push_back(frame);
-    }
-
     TrenchBroomStackTrace TrenchBroomStackWalker::getStackTrace() {
-        TrenchBroomStackWalker w;
-        w.Walk();
-        
-        TrenchBroomStackTrace trace(w.m_frames);
-        return trace;
-    }
+        const int MaxDepth = 256;
+        void *callstack[MaxDepth];
+        const int frames = backtrace(callstack, MaxDepth);
 
-    TrenchBroomStackTrace TrenchBroomStackWalker::getStackTraceFromOnFatalException() {
-        TrenchBroomStackWalker w;
-        w.WalkFromException();
-        
-        TrenchBroomStackTrace trace(w.m_frames);
+        // copy into a vector
+        std::vector<void *> framesVec(callstack, callstack + frames);
+        TrenchBroomStackTrace trace(framesVec);
         return trace;
     }
 }
