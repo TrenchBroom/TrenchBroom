@@ -21,7 +21,7 @@
 #include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
-    static String StackFrameToString(const wxStackFrame &frame) {
+    static String stackFrameToString(const wxStackFrame &frame) {
         StringStream ss;
         ss << frame.GetLevel() << "\t";
         ss << frame.GetModule() << "\t";
@@ -34,17 +34,17 @@ namespace TrenchBroom {
     }
 
     void TrenchBroomStackWalker::OnStackFrame(const wxStackFrame &frame) {
-        m_stacktrace.append(StackFrameToString(frame));
+        m_stacktrace.append(stackFrameToString(frame));
         m_stacktrace.append("\n");
     }
 
-    String TrenchBroomStackWalker::GetStackTrace() {
+    String TrenchBroomStackWalker::getStackTrace() {
         TrenchBroomStackWalker w;
         w.Walk();
         return w.m_stacktrace;
     }
 
-    String TrenchBroomStackWalker::GetStackTraceFromOnFatalException() {
+    String TrenchBroomStackWalker::getStackTraceFromOnFatalException() {
         TrenchBroomStackWalker w;
         w.WalkFromException();
         return w.m_stacktrace;

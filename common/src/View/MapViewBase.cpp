@@ -62,15 +62,15 @@ namespace TrenchBroom {
     namespace View {
         static wxString GLVendor, GLRenderer, GLVersion;
         
-        const wxString &MapViewBase::GLRendererString() {
+        const wxString &MapViewBase::glRendererString() {
             return GLRenderer;
         }
         
-        const wxString &MapViewBase::GLVendorString() {
+        const wxString &MapViewBase::glVendorString() {
             return GLVendor;
         }
         
-        const wxString &MapViewBase::GLVersionString() {
+        const wxString &MapViewBase::glVersionString() {
             return GLVersion;
         }
         

@@ -59,9 +59,9 @@ namespace TrenchBroom {
         
         class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
         public:
-            static const wxString &GLRendererString();
-            static const wxString &GLVendorString();
-            static const wxString &GLVersionString();
+            static const wxString &glRendererString();
+            static const wxString &glVendorString();
+            static const wxString &glVersionString();
         protected:
             static const wxLongLong DefaultCameraAnimationDuration;
             

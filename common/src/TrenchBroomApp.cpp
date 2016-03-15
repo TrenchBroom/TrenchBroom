@@ -245,12 +245,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        static String MakeCrashReport(const String &stacktrace, const String &exception) {
+        static String makeCrashReport(const String &stacktrace, const String &exception) {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
-            ss << "GL_VENDOR:\t" << MapViewBase::GLVendorString() << std::endl;
-            ss << "GL_RENDERER:\t" << MapViewBase::GLRendererString() << std::endl;
-            ss << "GL_VERSION:\t" << MapViewBase::GLVersionString() << std::endl;
+            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
+            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
+            ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
             ss << "Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
             ss << "Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
             ss << "Exception:\t" << exception << std::endl;
@@ -260,7 +260,7 @@ namespace TrenchBroom {
         }
         
         // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-        static MapDocumentSPtr TopDocument() {
+        static MapDocumentSPtr topDocument() {
             FrameManager *fm = TrenchBroomApp::instance().frameManager();
             if (fm == NULL)
                 return MapDocumentSPtr();
@@ -273,8 +273,8 @@ namespace TrenchBroom {
         }
         
         // returns the empty path for unsaved maps, or if we can't determine the current map
-        static IO::Path SavedMapPath() {
-            MapDocumentSPtr doc = TopDocument();
+        static IO::Path savedMapPath() {
+            MapDocumentSPtr doc = topDocument();
             if (doc.get() == NULL)
                 return IO::Path();
             
@@ -285,8 +285,8 @@ namespace TrenchBroom {
             return mapPath;
         }
 
-        static IO::Path CrashLogPath() {
-            IO::Path mapPath = SavedMapPath();
+        static IO::Path crashLogPath() {
+            IO::Path mapPath = savedMapPath();
             IO::Path crashLogPath;
             
             if (mapPath.isEmpty()) {
@@ -311,23 +311,24 @@ namespace TrenchBroom {
             return testCrashLogPath.asString();
         }
         
-        static void ReportCrashAndExit(const String &stacktrace, const String &exception) {
+        static void reportCrashAndExit(const String &stacktrace, const String &exception) {
             // get the crash report as a string
-            String report = MakeCrashReport(stacktrace, exception);
+            String report = makeCrashReport(stacktrace, exception);
             
             // write it to the crash log file
-            IO::Path crashLogPath = CrashLogPath();
-            IO::Path crashMapPath = crashLogPath.deleteExtension().addExtension("map");
+            IO::Path logPath = crashLogPath();
+            IO::Path mapPath = logPath.deleteExtension().addExtension("map");
             
-            std::ofstream crashlog(crashLogPath.asString().c_str());
-            crashlog << report;
-            std::cout << "wrote crash log to " << crashLogPath.asString() << std::endl;
+            std::ofstream logStream(logPath.asString().c_str());
+            logStream << report;
+            logStream.close();
+            std::cout << "wrote crash log to " << logPath.asString() << std::endl;
             
             // save the map
-            MapDocumentSPtr doc = TopDocument();
+            MapDocumentSPtr doc = topDocument();
             if (doc.get() != NULL) {
-                doc->saveDocumentTo(crashMapPath);
-                std::cout << "wrote map to " << crashMapPath.asString() << std::endl;
+                doc->saveDocumentTo(mapPath);
+                std::cout << "wrote map to " << mapPath.asString() << std::endl;
             }
 
             // write the crash log to stdout
@@ -336,8 +337,8 @@ namespace TrenchBroom {
 
             // show a dialog
             StringStream userMessage;
-            userMessage << "TrenchBroom crashed. A log was saved to:\n\n" << crashLogPath.asString() << "\n\n"
-                << "and the current state of the map was saved to\n\n" << crashMapPath.asString() << "\n\n"
+            userMessage << "TrenchBroom crashed. A log was saved to:\n\n" << logPath.asString() << "\n\n"
+                << "and the current state of the map was saved to\n\n" << mapPath.asString() << "\n\n"
                 << "Please create an issue and upload both files at:\n\n"
                 << "https://github.com/kduske/TrenchBroom/issues";
             wxString userMessageWx(userMessage.str());
@@ -358,18 +359,18 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFatalException() {
-            ReportCrashAndExit(TrenchBroomStackWalker::GetStackTraceFromOnFatalException(), "");
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromOnFatalException(), "");
         }
         
         void TrenchBroomApp::handleException() {
             try {
                 throw;
             } catch (Exception& e) {
-                ReportCrashAndExit(e.stackTrace(), e.what());
+                reportCrashAndExit(e.stackTrace(), e.what());
             } catch (std::exception& e) {
-                ReportCrashAndExit("", e.what());
+                reportCrashAndExit("", e.what());
             } catch (...) {
-                ReportCrashAndExit("", "");
+                reportCrashAndExit("", "");
             }
         }
 

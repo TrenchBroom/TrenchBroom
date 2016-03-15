@@ -32,8 +32,8 @@ namespace TrenchBroom {
         String m_msg;
         String m_trace;
     public:
-        Exception() throw() : m_trace(TrenchBroomStackWalker::GetStackTrace()) {}
-        Exception(const String& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::GetStackTrace()) {}
+        Exception() throw() : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
+        Exception(const String& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
         virtual ~Exception() throw() {}
 
         const char* what() const throw() {

@@ -33,8 +33,8 @@ namespace TrenchBroom {
     protected:
         void OnStackFrame(const wxStackFrame &frame);
     public:
-        static String GetStackTrace();
-        static String GetStackTraceFromOnFatalException();
+        static String getStackTrace();
+        static String getStackTraceFromOnFatalException();
     };
 }
 
