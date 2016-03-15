@@ -388,7 +388,7 @@ namespace TrenchBroom {
             attribs.setYScale(token.toFloat<float>());
             
             // We'll be pretty lenient when parsing additional face attributes.
-            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.peekToken())) {
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
                 // There's more stuff - let's examine it!
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 // It could be a Hexen 2 face attribute or Quake 2 content and surface flags and surface values
