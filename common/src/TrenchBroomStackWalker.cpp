@@ -33,20 +33,33 @@ namespace TrenchBroom {
         return ss.str();
     }
 
+    String TrenchBroomStackTrace::asString() {
+        StringStream ss;
+        std::vector<wxStackFrame>::const_iterator it;
+        for (it = m_frames.begin(); it != m_frames.end(); it++) {
+            String frameStr = stackFrameToString(*it);
+            ss << frameStr << std::endl;
+        }
+        return ss.str();
+    }
+    
     void TrenchBroomStackWalker::OnStackFrame(const wxStackFrame &frame) {
-        m_stacktrace.append(stackFrameToString(frame));
-        m_stacktrace.append("\n");
+        m_frames.push_back(frame);
     }
 
-    String TrenchBroomStackWalker::getStackTrace() {
+    TrenchBroomStackTrace TrenchBroomStackWalker::getStackTrace() {
         TrenchBroomStackWalker w;
         w.Walk();
-        return w.m_stacktrace;
+        
+        TrenchBroomStackTrace trace(w.m_frames);
+        return trace;
     }
 
-    String TrenchBroomStackWalker::getStackTraceFromOnFatalException() {
+    TrenchBroomStackTrace TrenchBroomStackWalker::getStackTraceFromOnFatalException() {
         TrenchBroomStackWalker w;
         w.WalkFromException();
-        return w.m_stacktrace;
+        
+        TrenchBroomStackTrace trace(w.m_frames);
+        return trace;
     }
 }

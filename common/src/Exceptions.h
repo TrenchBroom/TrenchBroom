@@ -30,7 +30,7 @@ namespace TrenchBroom {
     class Exception : public std::exception {
     protected:
         String m_msg;
-        String m_trace;
+        TrenchBroomStackTrace m_trace;
     public:
         Exception() throw() : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
         Exception(const String& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
@@ -40,8 +40,8 @@ namespace TrenchBroom {
             return m_msg.c_str();
         }
         
-        const String &stackTrace() {
-            return m_trace;
+        const String stackTrace() {
+            return m_trace.asString();
         }
     };
     
