@@ -48,6 +48,10 @@ namespace TrenchBroom {
         FrameList FrameManager::frames() const {
             return m_frames;
         }
+        
+        MapFrame *FrameManager::topFrame() const {
+            return m_topFrame;
+        }
 
         bool FrameManager::closeAllFrames() {
             return closeAllFrames(false);

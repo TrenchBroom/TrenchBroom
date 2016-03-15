@@ -151,6 +151,10 @@ namespace TrenchBroom {
             }
         }
 
+        MapDocumentSPtr MapFrame::document() const {
+            return m_document;
+        }
+
         Logger* MapFrame::logger() const {
             return m_console;
         }
