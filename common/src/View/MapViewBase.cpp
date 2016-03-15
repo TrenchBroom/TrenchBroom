@@ -60,6 +60,20 @@
 
 namespace TrenchBroom {
     namespace View {
+        static wxString GLVendor, GLRenderer, GLVersion;
+        
+        const wxString &MapViewBase::GLRendererString() {
+            return GLRenderer;
+        }
+        
+        const wxString &MapViewBase::GLVendorString() {
+            return GLVendor;
+        }
+        
+        const wxString &MapViewBase::GLVersionString() {
+            return GLVersion;
+        }
+        
         const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
@@ -808,11 +822,11 @@ namespace TrenchBroom {
         
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
-                const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-                const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-                const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+                GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+                GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+                GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
-                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
+                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
                 m_logger->info("Depth buffer bits: %d", depthBits());
 
                 if (multisample())
