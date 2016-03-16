@@ -22,23 +22,10 @@
 
 #include "StringUtils.h"
 
-#include <wx/wx.h>
-#include <wx/stackwalk.h>
-
 namespace TrenchBroom {
-    
-    class TrenchBroomStackTrace {
-        friend class TrenchBroomStackWalker;
-    private:
-        std::vector<void *> m_frames;
-        TrenchBroomStackTrace(std::vector<void *> frames) : m_frames(frames) {}
-    public:
-        String asString();
-    };
-    
     class TrenchBroomStackWalker {
     public:
-        static TrenchBroomStackTrace getStackTrace();
+        static String getStackTrace();
     };
 }
 

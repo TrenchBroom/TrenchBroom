@@ -17,32 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef _WIN32
+#else
 #include <execinfo.h>
+#endif
 #include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
-    
-    String TrenchBroomStackTrace::asString() {
-        if (m_frames.empty())
-            return "";
-        
-        StringStream ss;
-        char **strs = backtrace_symbols(&m_frames.front(), static_cast<int>(m_frames.size()));
-        for (size_t i = 0; i < m_frames.size(); i++) {
-            ss << strs[i] << std::endl;
-        }
-        free(strs);
-        return ss.str();
-    }
-    
-    TrenchBroomStackTrace TrenchBroomStackWalker::getStackTrace() {
+#ifdef _WIN32
+	String TrenchBroomStackWalker::getStackTrace() {
+		return "???";
+	}
+#else
+    String TrenchBroomStackWalker::getStackTrace() {
         const int MaxDepth = 256;
         void *callstack[MaxDepth];
         const int frames = backtrace(callstack, MaxDepth);
 
         // copy into a vector
         std::vector<void *> framesVec(callstack, callstack + frames);
-        TrenchBroomStackTrace trace(framesVec);
-        return trace;
+        if (framesVec.empty())
+            return "";
+        
+        StringStream ss;
+        char **strs = backtrace_symbols(&framesVec.front(), static_cast<int>(framesVec.size()));
+        for (size_t i = 0; i < framesVec.size(); i++) {
+            ss << strs[i] << std::endl;
+        }
+        free(strs);
+        return ss.str();
     }
+#endif
 }

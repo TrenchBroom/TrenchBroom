@@ -359,7 +359,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFatalException() {
-            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace().asString(), "");
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "");
         }
         
         void TrenchBroomApp::handleException() {
