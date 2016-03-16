@@ -245,7 +245,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        static String makeCrashReport(const String &stacktrace, const String &exception) {
+        static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
             ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
             ss << "Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
             ss << "Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
-            ss << "Exception:\t" << exception << std::endl;
+            ss << "Reason:\t" << reason << std::endl;
             ss << "Stack trace:" << std::endl;
             ss << stacktrace << std::endl;
             return ss.str();
@@ -311,9 +311,9 @@ namespace TrenchBroom {
             return testCrashLogPath.asString();
         }
         
-        static void reportCrashAndExit(const String &stacktrace, const String &exception) {
+        static void reportCrashAndExit(const String &stacktrace, const String &reason) {
             // get the crash report as a string
-            String report = makeCrashReport(stacktrace, exception);
+            String report = makeCrashReport(stacktrace, reason);
             
             // write it to the crash log file
             IO::Path logPath = crashLogPath();
@@ -361,18 +361,20 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFatalException() {
-            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "");
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
         
         void TrenchBroomApp::handleException() {
             try {
                 throw;
             } catch (Exception& e) {
-                reportCrashAndExit(e.stackTrace(), e.what());
+                const String reason = String("Exception: ") + e.what();
+                reportCrashAndExit(e.stackTrace(), reason);
             } catch (std::exception& e) {
-                reportCrashAndExit("", e.what());
+                const String reason = String("std::exception: ") + e.what();
+                reportCrashAndExit("", reason);
             } catch (...) {
-                reportCrashAndExit("", "");
+                reportCrashAndExit("", "Unknown exception");
             }
         }
 
