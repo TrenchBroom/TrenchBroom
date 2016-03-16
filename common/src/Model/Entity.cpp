@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
         
         Vec3 Entity::origin() const {
-            return Vec3::parse(attribute(AttributeNames::Origin));
+            return Vec3::parse(attribute(AttributeNames::Origin, ""));
         }
 
         Mat4x4 Entity::rotation() const {
@@ -317,13 +317,13 @@ namespace TrenchBroom {
         
         void Entity::validateBounds() const {
             const Assets::EntityDefinition* def = definition();
-            if (def != NULL && def->type() == Assets::EntityDefinition::Type_PointEntity) {
-                m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                m_bounds.translate(origin());
-            } else if (hasChildren()) {
+            if (hasChildren()) {
                 ComputeNodeBoundsVisitor visitor(DefaultBounds);
                 iterate(visitor);
                 m_bounds = visitor.bounds();
+            } else if (def != NULL && def->type() == Assets::EntityDefinition::Type_PointEntity) {
+                m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
+                m_bounds.translate(origin());
             } else {
                 m_bounds = DefaultBounds;
                 m_bounds.translate(origin());

@@ -79,29 +79,6 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             void reloadModels();
-
-            template <typename Iter>
-            void addEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    addEntity(*cur);
-                    ++cur;
-                }
-            }
-            template <typename Iter>
-            void updateEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    updateEntity(*cur);
-                    ++cur;
-                }
-            }
-            
-            template <typename Iter>
-            void removeEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    removeEntity(*cur);
-                    ++cur;
-                }
-            }
             
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
