@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_GLAttribs_h
 #define TrenchBroom_GLAttribs_h
 
+#include <wx/glcanvas.h>
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        typedef std::vector<int> GLAttribs;
+        // typedef std::vector<int> GLAttribs;
+        typedef wxGLAttributes GLAttribs;
         
         const GLAttribs& buildAttribs();
+        GLAttribs endList(GLAttribs attribs);
     }
 }
 

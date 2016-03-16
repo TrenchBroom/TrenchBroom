@@ -21,93 +21,37 @@
 
 #include "Renderer/GL.h"
 
-#include <wx/glcanvas.h>
-
 namespace TrenchBroom {
     namespace View {
         const GLAttribs& buildAttribs() {
             static bool initialized = false;
-            static GLAttribs attribs;
+            static GLAttribs attribs = endList(GLAttribs().PlatformDefaults());
             if (initialized)
                 return attribs;
             
-            int testAttribs[] =
-            {
-                // 32 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 24 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 32 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 24 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 16 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 16 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 32 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                0,
-                // 24 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                0,
-                // 16 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                0,
-                0,
-            };
-            
-            size_t index = 0;
-            while (!initialized && testAttribs[index] != 0) {
-                size_t count = 0;
-                for (; testAttribs[index + count] != 0; ++count);
-                if (wxGLCanvas::IsDisplaySupported(&testAttribs[index])) {
-                    for (size_t i = 0; i < count; ++i)
-                        attribs.push_back(testAttribs[index + i]);
-                    attribs.push_back(0);
+            typedef std::vector<GLAttribs> List;
+            List testAttribs;
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32).SampleBuffers(1).Samplers(4)));
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24).SampleBuffers(1).Samplers(4)));
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32).SampleBuffers(1).Samplers(2)));
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24).SampleBuffers(1).Samplers(2)));
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32)));
+            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24)));
+
+            List::iterator it, end;
+            for (it = testAttribs.begin(), end = testAttribs.end(); it != end && !initialized; ++it) {
+                if (wxGLCanvas::IsDisplaySupported(*it)) {
+                    attribs = *it;
                     initialized = true;
                 }
-                index += count + 1;
             }
             
             assert(initialized);
-            assert(!attribs.empty());
+            return attribs;
+        }
+
+        GLAttribs endList(GLAttribs attribs) {
+            attribs.EndList();
             return attribs;
         }
     }
