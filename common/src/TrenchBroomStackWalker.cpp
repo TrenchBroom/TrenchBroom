@@ -24,12 +24,17 @@
 #endif
 #include "TrenchBroomStackWalker.h"
 
+#include <wx/thread.h>
+
 namespace TrenchBroom {
 #ifdef _WIN32
     class TBStackWalker : public StackWalker {
     public:
         StringStream m_string;
         TBStackWalker() : StackWalker() {}
+        void clear() {
+            m_string.str("");
+        }
         String asString() {
             return m_string.str();
         }
@@ -39,10 +44,20 @@ namespace TrenchBroom {
       }
     };
 
+    static wxMutex s_stackWalkerMutex;
+    static TBStackWalker *s_stackWalker;
+
 	String TrenchBroomStackWalker::getStackTrace() {
-        TBStackWalker w;
-        w.ShowCallstack();
-		return w.asString();
+        // StackWalker is not threadsafe so acquire a mutex
+        wxMutexLocker lock(s_stackWalkerMutex);
+
+        if (s_stackWalker == NULL) {
+            // create a shared instance on first use
+            s_stackWalker = new TBStackWalker();
+        }
+        s_stackWalker->clear();
+        s_stackWalker->ShowCallstack();
+		return s_stackWalker->asString();
 	}
 #else
     String TrenchBroomStackWalker::getStackTrace() {
