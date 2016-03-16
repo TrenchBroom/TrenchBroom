@@ -28,6 +28,7 @@
 #include "TrenchBroomStackWalker.h"
 
 #include <wx/thread.h>
+#include <cstdlib>
 
 namespace TrenchBroom {
 #ifdef _WIN32
