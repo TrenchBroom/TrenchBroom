@@ -248,11 +248,12 @@ namespace TrenchBroom {
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << wxGetOsDescription() << std::endl;
+            ss << "wxWidgets:\n" << wxGetLibraryVersionInfo().ToString() << std::endl;
             ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
             ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
             ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
-            ss << "Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
-            ss << "Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
+            ss << "TrenchBroom Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
+            ss << "TrenchBroom Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
             ss << "Reason:\t" << reason << std::endl;
             ss << "Stack trace:" << std::endl;
             ss << stacktrace << std::endl;
