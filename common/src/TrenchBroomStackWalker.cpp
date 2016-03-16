@@ -18,16 +18,22 @@
  */
 
 #ifdef _WIN32
+#ifdef _MSC_VER
 #include "StackWalker.h"
+#endif
 #else
 #include <execinfo.h>
 #endif
+
 #include "TrenchBroomStackWalker.h"
 
 #include <wx/thread.h>
 
 namespace TrenchBroom {
 #ifdef _WIN32
+#ifdef _MSC_VER
+
+    // use https://stackwalker.codeplex.com/
     class TBStackWalker : public StackWalker {
     public:
         StringStream m_string;
@@ -59,6 +65,12 @@ namespace TrenchBroom {
         s_stackWalker->ShowCallstack();
 		return s_stackWalker->asString();
 	}
+#else
+    // TODO: not sure what to use on mingw
+    String TrenchBroomStackWalker::getStackTrace() {
+        return "";
+    }
+#endif
 #else
     String TrenchBroomStackWalker::getStackTrace() {
         const int MaxDepth = 256;
