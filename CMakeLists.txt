@@ -25,7 +25,7 @@ INCLUDE(cmake/GTest.cmake)
 INCLUDE(cmake/GMock.cmake)
 INCLUDE(cmake/Glew.cmake)
 INCLUDE(cmake/Common.cmake)
-INCLUDE(cmake/stackwalker.cmake)
+INCLUDE(cmake/StackWalker.cmake)
 
 # Include directories
 # INCLUDE_DIRECTORIES("${SOURCE_DIR}" "${TEST_SOURCE_DIR}")
