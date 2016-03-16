@@ -20,17 +20,42 @@
 #ifndef TrenchBroom_GLAttribs_h
 #define TrenchBroom_GLAttribs_h
 
-#include <wx/glcanvas.h>
-
 #include <vector>
+
+class wxGLAttributes;
 
 namespace TrenchBroom {
     namespace View {
-        // typedef std::vector<int> GLAttribs;
-        typedef wxGLAttributes GLAttribs;
-        
-        const GLAttribs& buildAttribs();
-        GLAttribs endList(GLAttribs attribs);
+        class GLAttribs {
+        private:
+            struct Config {
+                int depth;
+                bool multisample;
+                int samples;
+
+                Config();
+                Config(const int i_depth, const bool i_multisample, const int i_samples);
+                wxGLAttributes attribs() const;
+            };
+            
+            bool m_initialized;
+            Config m_config;
+        private:
+            GLAttribs();
+            void initialize();
+        private:
+            static const GLAttribs& instance();
+            
+            wxGLAttributes getAttribs() const;
+            int getDepth() const;
+            bool getMultisample() const;
+            int getSamples() const;
+        public:
+            static wxGLAttributes attribs();
+            static int depth();
+            static bool multisample();
+            static int samples();
+        };
     }
 }
 

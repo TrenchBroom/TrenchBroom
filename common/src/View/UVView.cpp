@@ -51,7 +51,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, buildAttribs()),
+        RenderView(parent, contextManager, GLAttribs::attribs()),
         ToolBoxConnector(this),
         m_document(document),
         m_helper(m_camera) {

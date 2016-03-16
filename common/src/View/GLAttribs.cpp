@@ -21,38 +21,95 @@
 
 #include "Renderer/GL.h"
 
+#include <wx/glcanvas.h>
+
 namespace TrenchBroom {
     namespace View {
-        const GLAttribs& buildAttribs() {
-            static bool initialized = false;
-            static GLAttribs attribs = endList(GLAttribs().PlatformDefaults());
-            if (initialized)
-                return attribs;
-            
-            typedef std::vector<GLAttribs> List;
-            List testAttribs;
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32).SampleBuffers(1).Samplers(4)));
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24).SampleBuffers(1).Samplers(4)));
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32).SampleBuffers(1).Samplers(2)));
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24).SampleBuffers(1).Samplers(2)));
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(32)));
-            testAttribs.push_back(endList(GLAttribs().PlatformDefaults().RGBA().DoubleBuffer().Depth(24)));
-
-            List::iterator it, end;
-            for (it = testAttribs.begin(), end = testAttribs.end(); it != end && !initialized; ++it) {
-                if (wxGLCanvas::IsDisplaySupported(*it)) {
-                    attribs = *it;
-                    initialized = true;
-                }
+        GLAttribs::Config::Config() :
+        depth(0),
+        multisample(false),
+        samples(0) {}
+        
+        GLAttribs::Config::Config(const int i_depth, const bool i_multisample, const int i_samples) :
+        depth(i_depth),
+        multisample(i_multisample),
+        samples(i_samples) {}
+        
+        wxGLAttributes GLAttribs::Config::attribs() const {
+            wxGLAttributes result;
+            result.PlatformDefaults();
+            result.RGBA();
+            result.DoubleBuffer();
+            result.Depth(depth);
+            if (multisample) {
+                result.SampleBuffers(1);
+                result.Samplers(samples);
             }
-            
-            assert(initialized);
-            return attribs;
+            result.EndList();
+            return result;
+        }
+        
+        GLAttribs::GLAttribs() :
+        m_initialized(false) {
+            initialize();
         }
 
-        GLAttribs endList(GLAttribs attribs) {
-            attribs.EndList();
-            return attribs;
+        void GLAttribs::initialize() {
+            typedef std::vector<Config> List;
+            List configs;
+            configs.push_back(Config(32, true, 4));
+            configs.push_back(Config(24, true, 4));
+            configs.push_back(Config(32, true, 2));
+            configs.push_back(Config(24, true, 2));
+            configs.push_back(Config(32, false, 0));
+            configs.push_back(Config(24, false, 0));
+
+            List::const_iterator it, end;
+            for (it = configs.begin(), end = configs.end(); !m_initialized && it != end; ++it) {
+                const Config& config = *it;
+                const wxGLAttributes attribs = config.attribs();
+                if (wxGLCanvas::IsDisplaySupported(attribs)) {
+                    m_config = config;
+                    m_initialized = true;
+                }
+            }
+        }
+
+        const GLAttribs& GLAttribs::instance() {
+            static const GLAttribs instance;
+            return instance;
+        }
+        
+        wxGLAttributes GLAttribs::getAttribs() const {
+            return m_config.attribs();
+        }
+        
+        int GLAttribs::getDepth() const {
+            return m_config.depth;
+        }
+
+        bool GLAttribs::getMultisample() const {
+            return m_config.multisample;
+        }
+        
+        int GLAttribs::getSamples() const {
+            return m_config.samples;
+        }
+        
+        wxGLAttributes GLAttribs::attribs() {
+            return instance().getAttribs();
+        }
+        
+        int GLAttribs::depth() {
+            return instance().getDepth();
+        }
+
+        bool GLAttribs::multisample() {
+            return instance().getMultisample();
+        }
+        
+        int GLAttribs::samples() {
+            return instance().getSamples();
         }
     }
 }

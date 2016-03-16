@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs) :
+        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs) :
         wxGLCanvas(parent, attribs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_glContext(contextManager.createContext(this)),
         m_attribs(attribs),
@@ -96,11 +96,11 @@ namespace TrenchBroom {
         }
 
         int RenderView::depthBits() const {
-            return 0;
+            return GLAttribs::depth();
         }
         
         bool RenderView::multisample() const {
-            return false;
+            return GLAttribs::multisample();
         }
 
         void RenderView::bindEvents() {
