@@ -978,11 +978,30 @@ namespace TrenchBroom {
 
         }
 
+        static void debugSegfault() {
+            volatile void *test = 0;
+            printf("%p\n", *((void **)test));
+        }
+
+        static void debugException() {
+            Exception e;
+            throw e;
+        }
+
         void MapFrame::OnDebugCrash(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            volatile void *test = 0;
-            printf("%p\n", *((void **)test));
+            wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
+
+            wxSingleChoiceDialog d(NULL, "Choose a crash type", "Crash", 2, crashTypes);
+            if (d.ShowModal() == wxID_OK) {
+                const int idx = d.GetSelection();
+                if (idx == 0) {
+                    debugSegfault();
+                } else if (idx == 1) {
+                    debugException();
+                }
+            }
         }
 
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
