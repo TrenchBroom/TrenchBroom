@@ -978,11 +978,11 @@ namespace TrenchBroom {
 
         }
 
-		void MapFrame::OnDebugCrash(wxCommandEvent& event) {
+        void MapFrame::OnDebugCrash(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
             volatile void *test = 0;
-			printf("%p\n", *((void **)test));
+            printf("%p\n", *((void **)test));
         }
 
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
@@ -1213,7 +1213,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
-				case CommandIds::Menu::DebugCrash:
+                case CommandIds::Menu::DebugCrash:
                     event.Enable(true);
                     break;
                 case CommandIds::Actions::FlipObjectsHorizontally:
