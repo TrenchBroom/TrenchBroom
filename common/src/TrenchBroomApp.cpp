@@ -265,7 +265,7 @@ namespace TrenchBroom {
             if (fm == NULL)
                 return MapDocumentSPtr();
             
-            MapFrame *frame = fm->topFrame();
+            MapFrame *frame = fm->singleOrTopFrame();
             if (frame == NULL)
                 return MapDocumentSPtr();
             
@@ -329,6 +329,8 @@ namespace TrenchBroom {
             if (doc.get() != NULL) {
                 doc->saveDocumentTo(mapPath);
                 std::cout << "wrote map to " << mapPath.asString() << std::endl;
+            } else {
+                mapPath = IO::Path();
             }
 
             // write the crash log to stdout

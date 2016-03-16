@@ -49,7 +49,7 @@ namespace TrenchBroom {
             bool closeAllFrames();
 
             FrameList frames() const;
-            MapFrame *topFrame() const;
+            MapFrame *singleOrTopFrame() const;
             bool allFramesClosed() const;
             
             void OnFrameActivate(wxActivateEvent& event);

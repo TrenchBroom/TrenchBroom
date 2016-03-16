@@ -49,7 +49,9 @@ namespace TrenchBroom {
             return m_frames;
         }
         
-        MapFrame *FrameManager::topFrame() const {
+        MapFrame *FrameManager::singleOrTopFrame() const {
+            if (m_frames.size() == 1)
+                return m_frames[0];
             return m_topFrame;
         }
 
