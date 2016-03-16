@@ -17,24 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AppInfoPanel
-#define TrenchBroom_AppInfoPanel
+#include "OpenClipboard.h"
 
-#include <wx/panel.h>
-
-class wxWindow;
+#include <wx/clipbrd.h>
 
 namespace TrenchBroom {
     namespace View {
-        class AppInfoPanel : public wxPanel {
-        public:
-            AppInfoPanel(wxWindow* parent);
-        private:
-            void createGui();
-            
-            void OnClickVersionInfo(wxMouseEvent& event);
-        };
+        OpenClipboard::OpenClipboard() {
+            if (!wxTheClipboard->IsOpened())
+                wxTheClipboard->Open();
+        }
+        
+        OpenClipboard::~OpenClipboard() {
+            if (wxTheClipboard->IsOpened())
+                wxTheClipboard->Close();
+        }
     }
 }
-
-#endif /* defined(TrenchBroom_AppInfoPanel) */

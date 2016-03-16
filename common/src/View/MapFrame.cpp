@@ -41,6 +41,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
+#include "View/OpenClipboard.h"
 #include "View/ReplaceTextureFrame.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
@@ -572,19 +573,6 @@ namespace TrenchBroom {
             if (canCopy())
                 copyToClipboard();
         }
-
-        class OpenClipboard {
-        public:
-            OpenClipboard() {
-                if (!wxTheClipboard->IsOpened())
-                    wxTheClipboard->Open();
-            }
-
-            ~OpenClipboard() {
-                if (wxTheClipboard->IsOpened())
-                    wxTheClipboard->Close();
-            }
-        };
 
         void MapFrame::copyToClipboard() {
             OpenClipboard openClipboard;

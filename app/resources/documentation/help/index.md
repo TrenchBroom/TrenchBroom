@@ -1108,6 +1108,8 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
 
+*If you click on the version information strings, they will be copied to the clipboard, which is useful for bug reports.*
+
 ## Contact
 
 - IRC: \#trenchbroom on quakenet.org
