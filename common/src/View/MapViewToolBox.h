@@ -95,6 +95,7 @@ namespace TrenchBroom {
             void toolActivated(Tool* tool);
             void toolDeactivated(Tool* tool);
             void updateEditorContext();
+            void documentWasNewedOrLoaded(MapDocument* document);
         };
     }
 }
