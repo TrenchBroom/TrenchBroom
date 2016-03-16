@@ -18,6 +18,7 @@
  */
 
 #ifdef _WIN32
+#include "StackWalker.h"
 #else
 #include <execinfo.h>
 #endif
@@ -25,8 +26,23 @@
 
 namespace TrenchBroom {
 #ifdef _WIN32
+    class TBStackWalker : public StackWalker {
+    public:
+        StringStream m_string;
+        TBStackWalker() : StackWalker() {}
+        String asString() {
+            return m_string.str();
+        }
+    protected:
+      virtual void OnOutput(LPCSTR szText) {
+          m_string << szText;
+      }
+    };
+
 	String TrenchBroomStackWalker::getStackTrace() {
-		return "???";
+        TBStackWalker w;
+        w.ShowCallstack();
+		return w.asString();
 	}
 #else
     String TrenchBroomStackWalker::getStackTrace() {
