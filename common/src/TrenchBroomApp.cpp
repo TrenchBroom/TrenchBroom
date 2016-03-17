@@ -20,6 +20,7 @@
 #include "TrenchBroomApp.h"
 
 #include <clocale>
+#include <fstream>
 
 #include "GLInit.h"
 #include "Macros.h"
@@ -32,9 +33,12 @@
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
 #include "View/GameDialog.h"
+#include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
+#include "View/GetVersion.h"
+#include "View/MapViewBase.h"
 
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
@@ -42,6 +46,7 @@
 #include <wx/generic/helpext.h>
 #include <wx/platinfo.h>
 #include <wx/utils.h>
+#include <wx/stdpaths.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -55,6 +60,11 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_recentDocuments(NULL),
         m_lastActivation(0) {
+            // enable having TrenchBroomApp::OnFatalException called on segfaults
+            if (!wxHandleFatalExceptions(true)) {
+                wxLogWarning("enabling wxHandleFatalExceptions failed");
+            }
+
             detectAndSetupUbuntu();
 
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
@@ -234,7 +244,114 @@ namespace TrenchBroom {
 
             return true;
         }
+        
+        static String makeCrashReport(const String &stacktrace, const String &reason) {
+            StringStream ss;
+            ss << "OS:\t" << wxGetOsDescription() << std::endl;
+            ss << "wxWidgets:\n" << wxGetLibraryVersionInfo().ToString() << std::endl;
+            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
+            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
+            ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
+            ss << "TrenchBroom Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
+            ss << "TrenchBroom Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
+            ss << "Reason:\t" << reason << std::endl;
+            ss << "Stack trace:" << std::endl;
+            ss << stacktrace << std::endl;
+            return ss.str();
+        }
+        
+        // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
+        static MapDocumentSPtr topDocument() {
+            FrameManager *fm = TrenchBroomApp::instance().frameManager();
+            if (fm == NULL)
+                return MapDocumentSPtr();
+            
+            MapFrame *frame = fm->singleOrTopFrame();
+            if (frame == NULL)
+                return MapDocumentSPtr();
+            
+            return frame->document();
+        }
+        
+        // returns the empty path for unsaved maps, or if we can't determine the current map
+        static IO::Path savedMapPath() {
+            MapDocumentSPtr doc = topDocument();
+            if (doc.get() == NULL)
+                return IO::Path();
+            
+            IO::Path mapPath = doc->path();
+            if (!mapPath.isAbsolute())
+                return IO::Path();
+            
+            return mapPath;
+        }
 
+        static IO::Path crashLogPath() {
+            IO::Path mapPath = savedMapPath();
+            IO::Path crashLogPath;
+            
+            if (mapPath.isEmpty()) {
+                IO::Path docsDir(wxStandardPaths::Get().GetDocumentsDir().ToStdString());
+                crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
+            } else {
+                String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
+                crashLogPath = mapPath.deleteLastComponent() + IO::Path(crashFileName);
+            }
+            
+            // ensure it doesn't exist
+            int index = 0;
+            IO::Path testCrashLogPath = crashLogPath;
+            while (wxFileExists(testCrashLogPath.asString())) {
+                index++;
+                
+                StringStream testCrashLogName;
+                testCrashLogName << crashLogPath.lastComponent().deleteExtension().asString() << "-" << index << ".txt";
+                
+                testCrashLogPath = crashLogPath.deleteLastComponent() + testCrashLogName.str();
+            }
+            return testCrashLogPath.asString();
+        }
+        
+        static void reportCrashAndExit(const String &stacktrace, const String &reason) {
+            // get the crash report as a string
+            String report = makeCrashReport(stacktrace, reason);
+            
+            // write it to the crash log file
+            IO::Path logPath = crashLogPath();
+            IO::Path mapPath = logPath.deleteExtension().addExtension("map");
+            
+            std::ofstream logStream(logPath.asString().c_str());
+            logStream << report;
+            logStream.close();
+            std::cout << "wrote crash log to " << logPath.asString() << std::endl;
+            
+            // save the map
+            MapDocumentSPtr doc = topDocument();
+            if (doc.get() != NULL) {
+                doc->saveDocumentTo(mapPath);
+                std::cout << "wrote map to " << mapPath.asString() << std::endl;
+            } else {
+                mapPath = IO::Path();
+            }
+
+            // write the crash log to stdout
+            std::cout << "crash log:" << std::endl;
+            std::cout << report << std::endl;
+
+            // show a dialog
+            StringStream userMessage;
+            userMessage << "TrenchBroom crashed. A log was saved to:\n\n" << logPath.asString() << "\n\n"
+                << "and the current state of the map was saved to\n\n" << mapPath.asString() << "\n\n"
+                << "Please create an issue and upload both files at:\n\n"
+                << "https://github.com/kduske/TrenchBroom/issues";
+            wxString userMessageWx(userMessage.str());
+            
+            wxMessageDialog d(NULL, userMessageWx, "Crashed", wxOK|wxCENTRE|wxICON_ERROR);
+            d.ShowModal();
+            
+            wxAbort();
+        }
+        
         void TrenchBroomApp::OnUnhandledException() {
             handleException();
         }
@@ -245,16 +362,20 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFatalException() {
-            handleException();
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
-
+        
         void TrenchBroomApp::handleException() {
             try {
                 throw;
+            } catch (Exception& e) {
+                const String reason = String("Exception: ") + e.what();
+                reportCrashAndExit(e.stackTrace(), reason);
             } catch (std::exception& e) {
-                wxLogError(e.what());
+                const String reason = String("std::exception: ") + e.what();
+                reportCrashAndExit("", reason);
             } catch (...) {
-                wxLogError("Unhandled exception");
+                reportCrashAndExit("", "Unknown exception");
             }
         }
 

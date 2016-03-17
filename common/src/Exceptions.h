@@ -23,19 +23,25 @@
 #include <exception>
 
 #include "StringUtils.h"
+#include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
     
     class Exception : public std::exception {
     protected:
         String m_msg;
+        String m_trace;
     public:
-        Exception() throw() {}
-        Exception(const String& str) throw() : m_msg(str) {}
+        Exception() throw() : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
+        Exception(const String& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
         virtual ~Exception() throw() {}
 
         const char* what() const throw() {
             return m_msg.c_str();
+        }
+        
+        const String stackTrace() {
+            return m_trace;
         }
     };
     

@@ -152,6 +152,10 @@ namespace TrenchBroom {
             }
         }
 
+        MapDocumentSPtr MapFrame::document() const {
+            return m_document;
+        }
+
         Logger* MapFrame::logger() const {
             return m_console;
         }
@@ -476,7 +480,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
-            
+            Bind(wxEVT_MENU, &MapFrame::OnDebugCrash, this, CommandIds::Menu::DebugCrash);
+
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
 
@@ -961,6 +966,32 @@ namespace TrenchBroom {
 
         }
 
+        static void debugSegfault() {
+            volatile void *test = 0;
+            printf("%p\n", *((void **)test));
+        }
+
+        static void debugException() {
+            Exception e;
+            throw e;
+        }
+
+        void MapFrame::OnDebugCrash(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
+
+            wxSingleChoiceDialog d(NULL, "Choose a crash type", "Crash", 2, crashTypes);
+            if (d.ShowModal() == wxID_OK) {
+                const int idx = d.GetSelection();
+                if (idx == 0) {
+                    debugSegfault();
+                } else if (idx == 1) {
+                    debugException();
+                }
+            }
+        }
+
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Left);
@@ -1189,6 +1220,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
+                case CommandIds::Menu::DebugCrash:
                     event.Enable(true);
                     break;
                 case CommandIds::Actions::FlipObjectsHorizontally:
