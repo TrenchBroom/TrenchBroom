@@ -966,11 +966,14 @@ namespace TrenchBroom {
 
         }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
         static void debugSegfault() {
             volatile void *test = 0;
             printf("%p\n", *((void **)test));
         }
-
+#pragma clang diagnostic pop
+        
         static void debugException() {
             Exception e;
             throw e;

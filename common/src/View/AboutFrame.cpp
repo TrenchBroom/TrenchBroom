@@ -85,50 +85,14 @@ namespace TrenchBroom {
                                  "GLEW (OpenGL extension library)\n"
                                  "Google Test (C++ testing framework)\n"
                                  "Google Mock (C++ mocking framework)\n"
+                                 "StackWalker (C++ stack trace analyzer)\n"
                                  "CMake (Cross platform build manager)\n"
                                  "Pandoc (Universal document converter)\n"
                                  "Source Sans Pro (Font)\n");
 
-            /*
-            wxStaticText* creditsText = new wxStaticText(creditsPanel, wxID_ANY, "Developed by Kristian Duske");
-            creditsText->SetFont(creditsText->GetFont().Bold());
-            
-            wxStaticText* creditsUrl = createURLText(creditsPanel, "kristianduske.com/trenchbroom", "TrenchBroom Website", "http://www.kristianduske.com/trenchbroom");
-            
-            wxStaticText* thirdPartyHeader = new wxStaticText(creditsPanel, wxID_ANY, "3rd Party Libraries, Tools and Assets");
-            thirdPartyHeader->SetFont(thirdPartyHeader->GetFont().Bold());
-            
-            wxStaticText* wxWidgetsText = createURLText(creditsPanel, "wxWidgets", "Cross-Platform GUI Library", "http://www.wxwidgets.org");
-            wxStaticText* freetypeText = createURLText(creditsPanel, "FreeType", "The FreeType Project", "http://www.freetype.org");
-            wxStaticText* freeimageText = createURLText(creditsPanel, "FreeImage", "The FreeImage Project", "http://freeimage.sourceforge.net");
-            wxStaticText* glewText = createURLText(creditsPanel, "GLEW", "The OpenGL Extension Wrangler Library", "http://glew.sourceforge.net");
-            wxStaticText* gtestText = createURLText(creditsPanel, "Google Test", "Google C++ Testing Framework", "http://code.google.com/p/googletest/");
-            wxStaticText* gmockText = createURLText(creditsPanel, "Google Mock", "Google C++ Mocking Framework", "http://code.google.com/p/googlemock/");
-            wxStaticText* cmakeText = createURLText(creditsPanel, "CMake", "Cross-Platform Make", "http://www.cmake.org");
-            wxStaticText* fontText = createURLText(creditsPanel, "Source Sans Pro", "Sans serif font family for user interface environments", "https://github.com/adobe/source-sans-pro");
-            wxStaticText* pandocText = createURLText(creditsPanel, "Pandoc", "Universal Document Converter", "http://www.pandoc.org/");
-            
-            wxSizer* creditsSizer = new wxBoxSizer(wxVERTICAL);
-            creditsSizer->AddSpacer(20);
-            creditsSizer->Add(creditsText);
-            creditsSizer->Add(creditsUrl);
-            creditsSizer->AddSpacer(20);
-            creditsSizer->Add(thirdPartyHeader);
-            creditsSizer->Add(wxWidgetsText);
-            creditsSizer->Add(freetypeText);
-            creditsSizer->Add(freeimageText);
-            creditsSizer->Add(glewText);
-            creditsSizer->Add(gtestText);
-            creditsSizer->Add(gmockText);
-            creditsSizer->Add(cmakeText);
-            creditsSizer->Add(pandocText);
-            creditsSizer->Add(fontText);
-            creditsPanel->SetSizer(creditsSizer);
-             */
-            
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->AddSpacer(50);
-            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 20);
+            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER | wxBOTTOM, 20);
             outerSizer->AddSpacer(50);
             outerSizer->Add(creditsText, 1, wxEXPAND | wxTOP | wxBOTTOM, 20);
             outerSizer->AddSpacer(50);

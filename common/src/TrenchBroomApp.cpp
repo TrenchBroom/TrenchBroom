@@ -31,6 +31,7 @@
 #include "View/AboutFrame.h"
 #include "View/ActionManager.h"
 #include "View/CommandIds.h"
+#include "View/CrashDialog.h"
 #include "View/ExecutableEvent.h"
 #include "View/GameDialog.h"
 #include "View/MapDocument.h"
@@ -327,7 +328,7 @@ namespace TrenchBroom {
             
             // save the map
             MapDocumentSPtr doc = topDocument();
-            if (doc.get() != NULL) {
+            if (doc != NULL) {
                 doc->saveDocumentTo(mapPath);
                 std::cout << "wrote map to " << mapPath.asString() << std::endl;
             } else {
@@ -338,16 +339,9 @@ namespace TrenchBroom {
             std::cout << "crash log:" << std::endl;
             std::cout << report << std::endl;
 
-            // show a dialog
-            StringStream userMessage;
-            userMessage << "TrenchBroom crashed. A log was saved to:\n\n" << logPath.asString() << "\n\n"
-                << "and the current state of the map was saved to\n\n" << mapPath.asString() << "\n\n"
-                << "Please create an issue and upload both files at:\n\n"
-                << "https://github.com/kduske/TrenchBroom/issues";
-            wxString userMessageWx(userMessage.str());
-            
-            wxMessageDialog d(NULL, userMessageWx, "Crashed", wxOK|wxCENTRE|wxICON_ERROR);
-            d.ShowModal();
+            CrashDialog dialog;
+            dialog.Create(logPath, mapPath);
+            dialog.ShowModal();
             
             wxAbort();
         }
