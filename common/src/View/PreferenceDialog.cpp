@@ -199,7 +199,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
-            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CLOSE);
+            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
         }
 
@@ -223,6 +223,11 @@ namespace TrenchBroom {
 #if defined __APPLE__
             updateAcceleratorTable(pane);
 #endif
+
+			if (pane == PrefPane_Keyboard)
+				SetEscapeId(wxID_NONE);
+			else
+				SetEscapeId(wxID_CANCEL);
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
@@ -242,9 +247,10 @@ namespace TrenchBroom {
             // allow the dialog to be closed using CMD+W
             // but only if the keyboard preference pane is not active
             if (pane != PrefPane_Keyboard) {
-                wxAcceleratorEntry acceleratorEntries[1];
+                wxAcceleratorEntry acceleratorEntries[2];
                 acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-                wxAcceleratorTable accceleratorTable(1, acceleratorEntries);
+				acceleratorEntries[1].Set(wxACCEL_CMD, WXK_ESCAPE, 123123123);
+                wxAcceleratorTable accceleratorTable(2, acceleratorEntries);
                 SetAcceleratorTable(accceleratorTable);
             } else {
                 wxAcceleratorTable accceleratorTable(0, NULL);
