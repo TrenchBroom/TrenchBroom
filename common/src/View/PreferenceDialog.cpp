@@ -199,7 +199,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &PreferenceDialog::OnFileClose, this, wxID_CLOSE);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
-            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
+            Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CLOSE);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
         }
 
