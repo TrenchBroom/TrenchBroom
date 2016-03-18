@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 Eric Wasylishen
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
