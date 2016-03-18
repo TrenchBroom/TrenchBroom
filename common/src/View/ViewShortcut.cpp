@@ -41,6 +41,8 @@ namespace TrenchBroom {
         }
 
         void ViewShortcut::resetShortcut() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(m_preference);
         }
 
         int ViewShortcut::doGetActionContext() const {
