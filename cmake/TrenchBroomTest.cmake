@@ -9,6 +9,9 @@ ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
 
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 TARGET_LINK_LIBRARIES(TrenchBroom-Test gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
+IF (COMPILER_IS_MSVC)
+    TARGET_LINK_LIBRARIES(TrenchBroom-Test stackwalker)
+ENDIF()
 
 # Copy some Windows-specific resources
 IF(WIN32)

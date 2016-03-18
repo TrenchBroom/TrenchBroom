@@ -332,7 +332,7 @@ public:
         // If still not found, try the old directories...
         if ( (m_hDbhHelp == NULL) && (GetEnvironmentVariable(_T("ProgramFiles"), szTemp, 4096) > 0) )
         {
-          _tcscat_s(szTemp, _T("\\Debugging Tools for Windows\\dbghelp.dll"));
+			_tcscat_s(szTemp, _T("\\Debugging Tools for Windows\\dbghelp.dll"));
           // now check if the file exists:
           if (GetFileAttributes(szTemp) != INVALID_FILE_ATTRIBUTES)
           {
@@ -877,7 +877,7 @@ StackWalker::StackWalker(int options, LPCSTR szSymPath, DWORD dwProcessId, HANDL
 StackWalker::~StackWalker()
 {
   if (m_szSymPath != NULL)
-    free(m_szSymPath);
+    free(m_szSymPath);;
   m_szSymPath = NULL;
   if (this->m_sw != NULL)
     delete this->m_sw;
@@ -1006,6 +1006,10 @@ BOOL StackWalker::LoadModules()
 static StackWalker::PReadProcessMemoryRoutine s_readMemoryFunction = NULL;
 static LPVOID s_readMemoryFunction_UserData = NULL;
 
+#ifdef _MSC_VER
+// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+#pragma warning(push)
+#pragma warning(disable : 4748)
 BOOL StackWalker::ShowCallstack(HANDLE hThread, const CONTEXT *context, PReadProcessMemoryRoutine readMemoryFunction, LPVOID pUserData)
 {
   CONTEXT c;
@@ -1245,6 +1249,7 @@ BOOL StackWalker::ShowCallstack(HANDLE hThread, const CONTEXT *context, PReadPro
 
   return TRUE;
 }
+#endif
 
 BOOL __stdcall StackWalker::myReadProcMem(
     HANDLE      hProcess,
