@@ -127,7 +127,7 @@ namespace TrenchBroom {
         wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
-            // addMenuActions(context, view, tableEntries);
+            // addMenuActions(context, view, tableEntries); this causes some shortcuts such as "2" to not work on Windows
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
