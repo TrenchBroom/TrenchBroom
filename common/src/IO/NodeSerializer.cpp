@@ -40,8 +40,30 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
         };
 
+        NodeSerializer::NodeSerializer() :
+        m_entityNo(0),
+        m_brushNo(0) {}
+        
         NodeSerializer::~NodeSerializer() {}
         
+        NodeSerializer::ObjectNo NodeSerializer::entityNo() const {
+            return m_entityNo;
+        }
+        
+        NodeSerializer::ObjectNo NodeSerializer::brushNo() const {
+            return m_brushNo;
+        }
+
+        void NodeSerializer::beginFile() {
+            m_entityNo = 0;
+            m_brushNo = 0;
+            doBeginFile();
+        }
+        
+        void NodeSerializer::endFile() {
+            doEndFile();
+        }
+
         void NodeSerializer::defaultLayer(Model::World* world) {
             entity(world, world->attributes(), Model::EntityAttribute::EmptyList, world->defaultLayer());
         }
@@ -76,11 +98,13 @@ namespace TrenchBroom {
         }
         
         void NodeSerializer::beginEntity(const Model::Node* node) {
+            m_brushNo = 0;
             doBeginEntity(node);
         }
         
         void NodeSerializer::endEntity(Model::Node* node) {
             doEndEntity(node);
+            ++m_entityNo;
         }
         
         void NodeSerializer::entityAttributes(const Model::EntityAttribute::List& attributes) {
@@ -111,6 +135,7 @@ namespace TrenchBroom {
         
         void NodeSerializer::endBrush(Model::Brush* brush) {
             doEndBrush(brush);
+            ++m_brushNo;
         }
         
         void NodeSerializer::brushFaces(const Model::BrushFaceList& faces) {
