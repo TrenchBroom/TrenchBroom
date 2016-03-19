@@ -7,10 +7,10 @@ if [ $# -lt 1 ] || [ -z "$1" ] || ([ "$1" != "Alpha" ] && [ "$1" != "Beta" ] && 
     exit 1
 fi
 
-if ["$1" == "Stable"] ; then
-    CONFIG = "Release"
+if [ "$1" == "Stable" ] ; then
+    CONFIG="Release"
 else
-    CONFIG = "RelWithDebInfo"
+    CONFIG="RelWithDebInfo"
 fi
 
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@" -DAPP_BUILD_CHANNEL=$1
