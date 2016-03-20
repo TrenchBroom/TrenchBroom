@@ -257,6 +257,28 @@ namespace TrenchBroom {
                 if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
                     return false;
 
+                if (m_numPoints == 3) {
+                    size_t index0, index1;
+                    switch (m_dragIndex) {
+                        case 0:
+                            index0 = 1;
+                            index1 = 2;
+                            break;
+                        case 1:
+                            index0 = 0;
+                            index1 = 2;
+                            break;
+                        case 2:
+                        default:
+                            index0 = 0;
+                            index1 = 1;
+                            break;
+                    }
+                    
+                    if (linearlyDependent(m_points[index0].point, m_points[index1].point, newPosition))
+                        return false;
+                }
+                
                 if (helpVectors.empty())
                     m_points[m_dragIndex] = ClipPoint(newPosition, m_points[m_dragIndex].helpVectors);
                 else
