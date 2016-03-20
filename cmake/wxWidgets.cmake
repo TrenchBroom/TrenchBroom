@@ -6,7 +6,7 @@ ELSE()
 ENDIF()
 
 IF(WIN32)
-    IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
         SET(wxWidgets_CONFIGURATION "mswud")
     ELSE()
         SET(wxWidgets_CONFIGURATION "mswu")
