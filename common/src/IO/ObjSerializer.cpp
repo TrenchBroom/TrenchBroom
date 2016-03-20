@@ -45,7 +45,9 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "\n");
             writeTexCoords();
             std::fprintf(m_stream, "\n");
-            writeFaces();
+            writeNormals();
+            std::fprintf(m_stream, "\n");
+            writeObjects();
         }
 
         void ObjFileSerializer::writeVertices() {
@@ -54,7 +56,7 @@ namespace TrenchBroom {
             IndexMap<Vec3>::List::const_iterator it, end;
             for (it = elements.begin(), end = elements.end(); it != end; ++it) {
                 const Vec3& elem = *it;
-                std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.y(), elem.z());
+                std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
         }
         
@@ -74,14 +76,27 @@ namespace TrenchBroom {
             IndexMap<Vec3>::List::const_iterator it, end;
             for (it = elements.begin(), end = elements.end(); it != end; ++it) {
                 const Vec3& elem = *it;
-                std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.y(), elem.z());
+                std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
         }
         
-        void ObjFileSerializer::writeFaces() {
-            std::fprintf(m_stream, "# faces\n");
+        void ObjFileSerializer::writeObjects() {
+            std::fprintf(m_stream, "# objects\n");
+            ObjectList::const_iterator fIt, fEnd;
+            for (fIt = m_objects.begin(), fEnd = m_objects.end(); fIt != fEnd; ++fIt) {
+                const Object& object = *fIt;
+                std::fprintf(m_stream, "o entity%u_brush%u\n",
+                             static_cast<unsigned long>(object.entityNo),
+                             static_cast<unsigned long>(object.brushNo));
+                
+                writeFaces(object.faces);
+                std::fprintf(m_stream, "\n");
+            }
+        }
+
+        void ObjFileSerializer::writeFaces(const FaceList& faces) {
             FaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
                 const IndexedVertexList& face = *fIt;
                 std::fprintf(m_stream, "f");
                 
@@ -89,9 +104,9 @@ namespace TrenchBroom {
                 for (vIt = face.begin(), vEnd = face.end(); vIt != vEnd; ++vIt) {
                     const IndexedVertex& vertex = *vIt;
                     std::fprintf(m_stream, " %u/%u/%u",
-                                static_cast<unsigned long>(vertex.vertex),
-                                static_cast<unsigned long>(vertex.texCoords),
-                                static_cast<unsigned long>(vertex.normal));
+                                 static_cast<unsigned long>(vertex.vertex) + 1,
+                                 static_cast<unsigned long>(vertex.texCoords) + 1,
+                                 static_cast<unsigned long>(vertex.normal) + 1);
                 }
                 std::fprintf(m_stream, "\n");
             }
@@ -101,8 +116,15 @@ namespace TrenchBroom {
         void ObjFileSerializer::doEndEntity(Model::Node* node) {}
         void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {}
         
-        void ObjFileSerializer::doBeginBrush(const Model::Brush* brush) {}
-        void ObjFileSerializer::doEndBrush(Model::Brush* brush) {}
+        void ObjFileSerializer::doBeginBrush(const Model::Brush* brush) {
+            m_currentObject.entityNo = entityNo();
+            m_currentObject.brushNo = brushNo();
+        }
+        
+        void ObjFileSerializer::doEndBrush(Model::Brush* brush) {
+            m_objects.push_back(m_currentObject);
+            m_currentObject.faces.clear();
+        }
         
         void ObjFileSerializer::doBrushFace(Model::BrushFace* face) {
             const Vec3& normal = face->boundary().normal;
@@ -123,7 +145,7 @@ namespace TrenchBroom {
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
             
-            m_faces.push_back(indexedVertices);
+            m_currentObject.faces.push_back(indexedVertices);
         }
     }
 }

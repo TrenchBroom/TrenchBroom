@@ -262,6 +262,10 @@ namespace TrenchBroom {
             m_game->writeMap(m_world, path);
         }
         
+        void MapDocument::exportDocumentAs(const Model::ExportFormat format, const IO::Path& path) {
+            m_game->exportMap(m_world, format, path);
+        }
+
         void MapDocument::doSaveDocument(const IO::Path& path) {
             saveDocumentTo(path);
             setLastSaveModificationCount();

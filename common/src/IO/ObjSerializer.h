@@ -65,14 +65,23 @@ namespace TrenchBroom {
             
             typedef std::vector<IndexedVertex> IndexedVertexList;
             typedef std::list<IndexedVertexList> FaceList;
+
+            struct Object {
+                size_t entityNo;
+                size_t brushNo;
+                FaceList faces;
+            };
+            
+            typedef std::list<Object> ObjectList;
             
             FILE* m_stream;
 
             IndexMap<Vec3> m_vertices;
             IndexMap<Vec2f> m_texCoords;
             IndexMap<Vec3> m_normals;
-            
-            FaceList m_faces;
+
+            Object m_currentObject;
+            ObjectList m_objects;
         public:
             ObjFileSerializer(FILE* stream);
         private:
@@ -82,7 +91,8 @@ namespace TrenchBroom {
             void writeVertices();
             void writeTexCoords();
             void writeNormals();
-            void writeFaces();
+            void writeObjects();
+            void writeFaces(const FaceList& faces);
             
             void doBeginEntity(const Model::Node* node);
             void doEndEntity(Model::Node* node);

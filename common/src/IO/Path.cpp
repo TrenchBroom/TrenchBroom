@@ -256,6 +256,10 @@ namespace TrenchBroom {
             return Path(m_absolute, components);
         }
 
+        Path Path::replaceExtension(const String& extension) const {
+            return deleteExtension().addExtension(extension);
+        }
+
         bool Path::isAbsolute() const {
             return m_absolute;
         }

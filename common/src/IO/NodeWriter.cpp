@@ -106,6 +106,10 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world->format(), stream)) {}
 
+        NodeWriter::NodeWriter(Model::World* world, NodeSerializer* serializer) :
+        m_world(world),
+        m_serializer(serializer) {}
+
         void NodeWriter::writeMap() {
             m_serializer->beginFile();
             writeDefaultLayer();

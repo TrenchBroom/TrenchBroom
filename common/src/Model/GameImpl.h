@@ -56,6 +56,7 @@ namespace TrenchBroom {
             World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
+            void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
 
             NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
             BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
