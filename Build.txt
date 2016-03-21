@@ -78,14 +78,16 @@ wxWidgets
   - Create two directories: build-release and build-debug (don't rename those!)
   - Change into wxwidgets/build-release
   - Run 
-    ../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)
+    ../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)/install
   - Run 
     make
+    make install
   - Change into wxwidgets/build-debug
   - Run 
-    ../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)
+    ../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)/install
   - Run 
     make
+    make install
   
 CMake
 - Install CMake using your package manager: sudo apt-get install cmake
@@ -94,7 +96,7 @@ Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
-  cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
   cmake --build . --target TrenchBroom
 - You can replace "Release" with "Debug" if you want to create a debug build. Also change the value of the wxWidgets_PREFIX variable to point to your wxWidgets build-debug directory in that case.
 
@@ -124,26 +126,28 @@ Build environment
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 
-  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)
+  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
 - Run
   make
+  make install
 - Change into wxwidgets/build-debug
 - Run 
-  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)
+  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
 - Run
   make
+  make install
 
 4. Build
 - For a release build:
   mkdir build-ninja
   cd build-ninja
-  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release
+  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
   ninja
 
 - To generate an Xcode project for developing with:
   mkdir build-xcode
   cd build-xcode
-  cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-debug
+  cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-debug/install
   open TrenchBroom.xcodeproj
 
 Notes

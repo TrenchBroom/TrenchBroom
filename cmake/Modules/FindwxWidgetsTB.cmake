@@ -738,13 +738,11 @@ else()
     SET(wxWidgets_CONFIG_OPTIONS "--prefix=${wxWidgets_PREFIX}")
 
     find_program(wxWidgets_CONFIG_EXECUTABLE wx-config
-      PATHS "${wxWidgets_PREFIX}"
-      NO_CMAKE_FIND_ROOT_PATH
+      PATHS "${wxWidgets_PREFIX}/bin"
+      NO_DEFAULT_PATH
       )
 
-    find_program(wxWidgets_CONFIG_EXECUTABLE wx-config
-      ONLY_CMAKE_FIND_ROOT_PATH
-      )
+    find_program(wxWidgets_CONFIG_EXECUTABLE wx-config)
 
     if(wxWidgets_CONFIG_EXECUTABLE)
       set(wxWidgets_FOUND TRUE)
