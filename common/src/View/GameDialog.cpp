@@ -31,6 +31,7 @@
 
 #include <wx/button.h>
 #include <wx/choice.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -141,7 +142,7 @@ namespace TrenchBroom {
 
         wxWindow* GameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {
             wxPanel* infoPanel = new wxPanel(parent);
-            infoPanel->SetBackgroundColour(*wxWHITE);
+            infoPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxStaticText* header = new wxStaticText(infoPanel, wxID_ANY, title);
             header->SetFont(header->GetFont().Larger().Larger().Bold());
