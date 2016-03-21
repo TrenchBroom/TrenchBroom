@@ -37,6 +37,7 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/scrolwin.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -132,7 +133,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionCheckBoxList::createGui() {
             BorderPanel* border = new BorderPanel(this);
-            border->SetBackgroundColour(*wxWHITE);
+            border->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxScrolledWindow* scrollWindow = new wxScrolledWindow(border);
             int checkBoxHeight = 1;

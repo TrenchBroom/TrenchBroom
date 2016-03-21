@@ -35,6 +35,7 @@
 #include <wx/bmpbuttn.h>
 #include <wx/menu.h>
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
 
@@ -401,7 +402,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::createGui() {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_layerList = new LayerListView(this, m_document);
             m_layerList->Bind(LAYER_SET_CURRENT_EVENT, &LayerEditor::OnSetCurrentLayer, this);

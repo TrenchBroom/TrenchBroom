@@ -37,7 +37,7 @@ namespace TrenchBroom {
             wxPanel* flagsPanel = NULL;
             if (showFlagsText) {
                 flagsPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
-                flagsPanel->SetBackgroundColour(*wxWHITE);
+                flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
                 
                 m_flagsTxt = new wxStaticText(flagsPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT | wxST_ELLIPSIZE_END);
                 

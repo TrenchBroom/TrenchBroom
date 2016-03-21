@@ -25,6 +25,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/bmpbuttn.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
 #include <wx/stattext.h>
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             outerSizer->Add(bottomSizer, 0, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizer(outerSizer);
         }
     }

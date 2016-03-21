@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
         
         void AboutFrame::createGui() {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");

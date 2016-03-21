@@ -34,8 +34,9 @@
 #include <wx/bmpbuttn.h>
 #include <wx/gbsizer.h>
 #include <wx/listbox.h>
-#include <wx/srchctrl.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/srchctrl.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
 
@@ -250,7 +251,7 @@ namespace TrenchBroom {
             sizer->AddGrowableCol(2);
             sizer->AddGrowableRow(1);
 
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizerAndFit(sizer);
         }
 

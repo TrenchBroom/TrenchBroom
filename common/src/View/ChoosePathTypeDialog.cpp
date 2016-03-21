@@ -26,6 +26,7 @@
 #include <wx/gbsizer.h>
 #include <wx/panel.h>
 #include <wx/radiobut.h>
+#include <wx/settings.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
         
         bool ChoosePathTypeDialog::Create() {
             wxPanel* panel = new wxPanel(this);
-            panel->SetBackgroundColour(*wxWHITE);
+            panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxStaticText* infoText = new wxStaticText(panel, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
             infoText->Wrap(370);

@@ -32,6 +32,7 @@
 #include <wx/filedlg.h>
 #include <wx/listbox.h>
 #include <wx/panel.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -172,7 +173,7 @@ namespace TrenchBroom {
             sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizerAndFit(sizer);
         }
         

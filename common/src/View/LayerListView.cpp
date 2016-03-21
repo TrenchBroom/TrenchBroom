@@ -148,7 +148,7 @@ namespace TrenchBroom {
                     background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
                 } else {
                     foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
-                    background = *wxWHITE;
+                    background = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX);
                 }
 
                 SetBackgroundColour(background);
@@ -203,7 +203,7 @@ namespace TrenchBroom {
         m_document(document),
         m_scrollWindow(NULL),
         m_selection(-1) {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             createGui();
             bindObservers();
         }

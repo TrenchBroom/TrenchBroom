@@ -28,6 +28,7 @@
 
 #include <wx/bmpbuttn.h>
 #include <wx/checkbox.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -221,7 +222,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_table = new EntityAttributeGridTable(document);
             
@@ -230,7 +231,7 @@ namespace TrenchBroom {
             // m_grid->SetUseNativeColLabels();
             // m_grid->UseNativeColHeader();
             m_grid->SetColLabelSize(18);
-            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
             m_grid->DisableColResize(0);

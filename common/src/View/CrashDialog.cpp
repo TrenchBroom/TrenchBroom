@@ -27,6 +27,7 @@
 #include <wx/button.h>
 #include <wx/gbsizer.h>
 #include <wx/panel.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -41,7 +42,7 @@ namespace TrenchBroom {
             wxDialog::Create(NULL, wxID_ANY, "Crash");
             
             wxPanel* panel = new wxPanel(this);
-            panel->wxWindowBase::SetBackgroundColour(*wxWHITE);
+            panel->wxWindowBase::SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxStaticText* header = new wxStaticText(panel, wxID_ANY, "Crash Report");
             header->SetFont(header->GetFont().Scale(1.5).Bold());

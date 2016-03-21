@@ -23,6 +23,7 @@
 
 #include <wx/dcclient.h>
 #include <wx/panel.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 #include <algorithm>
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             
             wxPaintDC dc(this);
             dc.SetPen(*wxTRANSPARENT_PEN);
-            dc.SetBrush(*wxWHITE_BRUSH);
+            dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
             dc.DrawRectangle(0, 0, virtualSize.x, virtualSize.y);
             
             ColorList::const_iterator it = m_colors.begin();

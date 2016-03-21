@@ -34,6 +34,7 @@
 #include <wx/button.h>
 #include <wx/filedlg.h>
 #include <wx/listbox.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -136,7 +137,7 @@ namespace TrenchBroom {
             sizer->Add(externalSizer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizerAndFit(sizer);
         }
         
