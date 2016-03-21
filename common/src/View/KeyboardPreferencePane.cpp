@@ -26,6 +26,7 @@
 #include "View/ViewConstants.h"
 
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             SetSizerAndFit(outerSizer);
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
         }
         
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
@@ -62,7 +63,7 @@ namespace TrenchBroom {
         
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
-            container->SetBackgroundColour(*wxWHITE);
+            container->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_table = new KeyboardShortcutGridTable();
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetColLabelSize(18);
-            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             m_grid->SetCellHighlightPenWidth(0);
             m_grid->SetCellHighlightROPenWidth(0);
@@ -87,7 +88,7 @@ namespace TrenchBroom {
             m_table->update();
             
             wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
-            infoText->SetBackgroundColour(*wxWHITE);
+            infoText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
