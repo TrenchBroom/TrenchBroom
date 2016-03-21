@@ -206,6 +206,25 @@ IF(WIN32)
         WX_LIB_TO_DLL(${WX_adv}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
         WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ENDIF()
+    
+    # Copy PDB files (msvc debug symbols)
+    IF(COMPILER_IS_MSVC)
+        IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            # Get paths to wxwidgets debug symbols
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_core ${WIN_LIB_WX_core})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_base ${WIN_LIB_WX_base})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_adv ${WIN_LIB_WX_adv})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
+        
+            INSTALL(FILES
+                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                ${WIN_PDB_WX_core}
+                ${WIN_PDB_WX_base}
+                ${WIN_PDB_WX_adv}
+                ${WIN_PDB_WX_gl}
+                DESTINATION . COMPONENT TrenchBroom)
+        ENDIF()
+    ENDIF()
 
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
     INSTALL(FILES
