@@ -61,16 +61,16 @@ namespace TrenchBroom {
             
             switch (level) {
                 case LogLevel_Debug:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(128, 128, 128), *wxWHITE));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(128, 128, 128), m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Info:
-                    m_textView->SetStyle(start, end, wxTextAttr(*wxBLACK, *wxWHITE));
+                    // m_textView->SetStyle(start, end, wxTextAttr(*wxBLACK, m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Warn:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 150, 25), *wxWHITE));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 150, 25), m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Error:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), *wxWHITE));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), m_textView->GetBackgroundColour()));
                     break;
             }
         }
