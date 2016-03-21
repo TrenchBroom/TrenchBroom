@@ -33,7 +33,6 @@
 #include <wx/choice.h>
 #include <wx/clrpicker.h>
 #include <wx/gbsizer.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
@@ -175,13 +174,10 @@ namespace TrenchBroom {
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
         }
         
         wxWindow* ViewPreferencePane::createViewPreferences() {
             wxPanel* viewBox = new wxPanel(this);
-            viewBox->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxStaticText* viewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map Views");
             viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());

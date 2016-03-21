@@ -27,6 +27,7 @@
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
+#include "View/BorderLine.h"
 #include "View/LayerListView.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -403,7 +404,7 @@ namespace TrenchBroom {
 
         void LayerEditor::createGui() {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-
+            
             m_layerList = new LayerListView(this, m_document);
             m_layerList->Bind(LAYER_SET_CURRENT_EVENT, &LayerEditor::OnSetCurrentLayer, this);
             m_layerList->Bind(LAYER_RIGHT_CLICK_EVENT, &LayerEditor::OnLayerRightClick, this);
@@ -427,6 +428,7 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_layerList, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }

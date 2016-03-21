@@ -29,7 +29,6 @@
 
 #include <wx/checkbox.h>
 #include <wx/gbsizer.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
@@ -233,13 +232,10 @@ namespace TrenchBroom {
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
         }
         
         wxWindow* MousePreferencePane::createCameraPreferences() {
             wxPanel* box = new wxPanel(this);
-            box->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxStaticText* lookPrefsHeader = new wxStaticText(box, wxID_ANY, "Mouse Look");
             lookPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());

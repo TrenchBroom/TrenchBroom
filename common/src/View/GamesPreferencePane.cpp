@@ -31,7 +31,6 @@
 
 #include <wx/button.h>
 #include <wx/dirdlg.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
 #include <wx/stattext.h>
@@ -85,13 +84,11 @@ namespace TrenchBroom {
             
             SetSizer(sizer);
             SetMinSize(wxSize(600, 300));
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
         }
         
         wxWindow* GamesPreferencePane::createGamePreferences() {
             wxPanel* box = new wxPanel(this);
-            box->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
+
             wxStaticText* gamePathLabel = new wxStaticText(box, wxID_ANY, "Game Path");
             gamePathLabel->SetFont(gamePathLabel->GetFont().Bold());
             m_gamePathValueLabel = new wxStaticText(box, wxID_ANY, "Not set");

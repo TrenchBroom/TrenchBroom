@@ -23,7 +23,6 @@
 #include "View/AppInfoPanel.h"
 
 #include <wx/panel.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
@@ -63,11 +62,9 @@ namespace TrenchBroom {
         }
         
         void AboutFrame::createGui() {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
-            creditsText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             creditsText->SetLabelMarkup("<b>Developed by Kristian Duske</b>\n"
                                  "kristianduske.com/trenchbroom\n\n"
                                  "<b>Contributors</b>\n"

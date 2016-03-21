@@ -26,8 +26,9 @@
 #include "Model/Game.h"
 #include "Model/Object.h"
 #include "View/BorderLine.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/TitledPanel.h"
+#include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
@@ -187,22 +188,14 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            static const int ListBoxMargin =
-#ifdef __APPLE__
-            0;
-#else
-            LayoutConstants::NarrowHMargin;
-#endif
-            
-            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, "Available");
-            availableModListTitle->SetFont(availableModListTitle->GetFont().Bold());
+            TitledPanel* availableModContainer = new TitledPanel(this, "Available", false);
+            availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_availableModList = new wxListBox(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, "Enabled");
-            enabledModListTitle->SetFont(enabledModListTitle->GetFont().Bold());
+            wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            availableModContainerSizer->Add(m_availableModList, 1, wxEXPAND);
+            availableModContainer->getPanel()->SetSizer(availableModContainerSizer);
             
-            m_availableModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
-            m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
-
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->SetToolTip("Filter the list of available mods");
             m_filterBox->SetFont(m_availableModList->GetFont());
@@ -212,11 +205,42 @@ namespace TrenchBroom {
             filterBoxSizer->Add(m_filterBox, 0, wxEXPAND);
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
+            TitledPanel* enabledModContainer = new TitledPanel(this, "Enabled", false);
+            enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_enabledModList = new wxListBox(enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+
+            wxSizer* enabledModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            enabledModContainerSizer->Add(m_enabledModList, 1, wxEXPAND);
+            enabledModContainer->getPanel()->SetSizer(enabledModContainerSizer);
+
             wxWindow* addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
             wxWindow* removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
             wxWindow* moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
             wxWindow* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddStretchSpacer();
+            
+            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
+            sizer->Add(availableModContainer,                                   wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
+            sizer->Add(enabledModContainer,                                     wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal),  wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND);
+            sizer->Add(filterBoxSizer,                                          wxGBPosition(2, 0), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            sizer->Add(buttonSizer,                                             wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            sizer->SetItemMinSize(availableModContainer, 100, 100);
+            sizer->SetItemMinSize(enabledModContainer, 100, 100);
+            sizer->AddGrowableCol(0);
+            sizer->AddGrowableCol(2);
+            sizer->AddGrowableRow(1);
+
+            SetSizerAndFit(sizer);
+
             m_availableModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnAddModClicked, this);
             m_enabledModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnRemoveModClicked, this);
             m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
@@ -228,31 +252,7 @@ namespace TrenchBroom {
             removeModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateRemoveButtonUI, this);
             moveModUpButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateMoveUpButtonUI, this);
             moveModDownButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateMoveDownButtonUI, this);
-
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddStretchSpacer();
             
-            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
-            sizer->Add(availableModListTitle, wxGBPosition(0, 0), wxDefaultSpan, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->Add(enabledModListTitle, wxGBPosition(0, 2), wxDefaultSpan, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->Add(m_availableModList, wxGBPosition(1, 0), wxDefaultSpan, wxEXPAND | wxLEFT, ListBoxMargin);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
-            sizer->Add(m_enabledModList, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND | wxRIGHT, ListBoxMargin);
-            sizer->Add(filterBoxSizer, wxGBPosition(2, 0), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->Add(buttonSizer, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->SetItemMinSize(m_availableModList, 100, 100);
-            sizer->SetItemMinSize(m_enabledModList, 100, 100);
-            sizer->AddGrowableCol(0);
-            sizer->AddGrowableCol(2);
-            sizer->AddGrowableRow(1);
-
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            SetSizerAndFit(sizer);
         }
 
         void ModEditor::bindObservers() {

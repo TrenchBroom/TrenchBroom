@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "Preferences.h"
 #include "View/ActionManager.h"
+#include "View/BorderLine.h"
 #include "View/KeyboardShortcutGridTable.h"
 #include "View/ViewConstants.h"
 
@@ -45,7 +46,6 @@ namespace TrenchBroom {
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             SetSizerAndFit(outerSizer);
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
         }
         
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
@@ -63,7 +63,6 @@ namespace TrenchBroom {
         
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
-            container->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_table = new KeyboardShortcutGridTable();
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -88,13 +87,13 @@ namespace TrenchBroom {
             m_table->update();
             
             wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
-            infoText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_grid, 1, wxEXPAND);
+            sizer->Add(new BorderLine(container, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
             sizer->Add(infoText, 0, wxALIGN_CENTER);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);

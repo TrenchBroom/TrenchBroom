@@ -27,7 +27,6 @@
 #include "View/RecentDocumentSelectedCommand.h"
 
 #include <wx/panel.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -43,7 +42,6 @@ namespace TrenchBroom {
 
         void WelcomeFrame::createGui() {
             wxPanel* container = new wxPanel(this);
-            container->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
@@ -112,7 +110,6 @@ namespace TrenchBroom {
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
-            appPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");

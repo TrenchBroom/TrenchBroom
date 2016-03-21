@@ -161,7 +161,6 @@ namespace TrenchBroom {
             outerSizer->Add(bottomSizer, 0, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizer(outerSizer);
         }
     }

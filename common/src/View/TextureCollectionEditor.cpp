@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "Assets/TextureCollection.h"
+#include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -138,13 +139,6 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::createGui() {
-            static const int ListBoxMargin =
-#ifdef __APPLE__
-            0;
-#else
-            LayoutConstants::NarrowHMargin;
-#endif
-
             m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxWindow* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
@@ -169,7 +163,8 @@ namespace TrenchBroom {
             buttonSizer->AddStretchSpacer();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_collections, 1, wxEXPAND | wxLEFT | wxRIGHT, ListBoxMargin);
+            sizer->Add(m_collections, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             

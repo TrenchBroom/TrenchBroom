@@ -30,7 +30,6 @@
 #include <wx/event.h>
 #include <wx/tglbtn.h>
 #include <wx/srchctrl.h>
-#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -129,7 +128,6 @@ namespace TrenchBroom {
             outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizer(outerSizer);
         }
         
