@@ -115,7 +115,7 @@ namespace TrenchBroom {
             if (IsSelected(n))
                 dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
             else
-                dc.SetBrush(*wxWHITE_BRUSH);
+                dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
             dc.DrawRectangle(rect);
         }
         
