@@ -26,6 +26,7 @@
 
 #include <wx/bitmap.h>
 #include <wx/clipbrd.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statbmp.h>
 #include <wx/statline.h>
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             version->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
             build->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
             
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
