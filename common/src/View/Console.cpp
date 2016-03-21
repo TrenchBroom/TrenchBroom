@@ -19,6 +19,8 @@
 
 #include "Console.h"
 
+#include "View/ViewConstants.h"
+
 #include <wx/log.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -61,13 +63,13 @@ namespace TrenchBroom {
             
             switch (level) {
                 case LogLevel_Debug:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(128, 128, 128), m_textView->GetBackgroundColour()));
+                    m_textView->SetStyle(start, end, wxTextAttr(Colors::disabledText(), m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Info:
                     // m_textView->SetStyle(start, end, wxTextAttr(*wxBLACK, m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Warn:
-                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 150, 25), m_textView->GetBackgroundColour()));
+                    m_textView->SetStyle(start, end, wxTextAttr(Colors::defaultText(), m_textView->GetBackgroundColour()));
                     break;
                 case LogLevel_Error:
                     m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), m_textView->GetBackgroundColour()));
