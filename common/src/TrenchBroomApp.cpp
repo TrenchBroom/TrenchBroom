@@ -326,6 +326,13 @@ namespace TrenchBroom {
         }
         
         static void reportCrashAndExit(const String &stacktrace, const String &reason) {
+            static bool inFunction = false;
+            // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
+            if (inFunction) {
+                wxAbort();
+            }
+            inFunction = true;
+            
             // get the crash report as a string
             String report = makeCrashReport(stacktrace, reason);
             
