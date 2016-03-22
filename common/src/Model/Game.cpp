@@ -66,6 +66,11 @@ namespace TrenchBroom {
             doWriteMap(world, path);
         }
 
+        void Game::exportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
+            assert(world != NULL);
+            doExportMap(world, format, path);
+        }
+
         NodeList Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }

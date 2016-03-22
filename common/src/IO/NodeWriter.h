@@ -42,6 +42,7 @@ namespace TrenchBroom {
         public:
             NodeWriter(Model::World* world, FILE* stream);
             NodeWriter(Model::World* world, std::ostream& stream);
+            NodeWriter(Model::World* world, NodeSerializer* serializer);
             
             void writeMap();
         private:

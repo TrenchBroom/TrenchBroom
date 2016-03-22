@@ -133,6 +133,10 @@ namespace TrenchBroom {
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;
+        
+        typedef enum {
+            EF_WavefrontObj
+        } ExportFormat;
     }
 }
 

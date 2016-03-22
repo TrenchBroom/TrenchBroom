@@ -222,9 +222,16 @@ namespace TrenchBroom {
         
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
-        m_stream(stream) {}
+        m_stream(stream) {
+            assert(m_stream != NULL);
+        }
         
+        void MapFileSerializer::doBeginFile() {}
+        void MapFileSerializer::doEndFile() {}
+
         void MapFileSerializer::doBeginEntity(const Model::Node* node) {
+            std::fprintf(m_stream, "// entity %u\n", entityNo());
+            ++m_line;
             m_startLineStack.push_back(m_line);
             std::fprintf(m_stream, "{\n");
             ++m_line;
@@ -242,6 +249,8 @@ namespace TrenchBroom {
         }
         
         void MapFileSerializer::doBeginBrush(const Model::Brush* brush) {
+            std::fprintf(m_stream, "// brush %u\n", brushNo());
+            ++m_line;
             m_startLineStack.push_back(m_line);
             std::fprintf(m_stream, "{\n");
             ++m_line;

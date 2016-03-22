@@ -69,6 +69,7 @@ namespace TrenchBroom {
                 const int ViewToggleInspector                = Lowest +  91;
                 
                 const int FileOpenRecent                     = Lowest +  96;
+                const int FileExportObj                      = Lowest +  97;
                 const int EditPrintFilePositions             = Lowest + 101;
                 const int EditSelectInside                   = Lowest + 103;
                 const int EditSelectTall                     = Lowest + 104;

@@ -61,6 +61,7 @@ namespace TrenchBroom {
             World* newMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* loadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
+            void exportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
             NodeList parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
             BrushFaceList parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
@@ -95,6 +96,7 @@ namespace TrenchBroom {
             virtual World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const = 0;
             virtual World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
+            virtual void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const = 0;
             
             virtual NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
             virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
