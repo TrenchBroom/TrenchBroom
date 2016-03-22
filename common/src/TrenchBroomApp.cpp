@@ -56,7 +56,9 @@ namespace TrenchBroom {
             return *app;
         }
 
+#if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
+#endif
 
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
@@ -369,11 +371,13 @@ namespace TrenchBroom {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
         
+#if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
             return EXCEPTION_EXECUTE_HANDLER;
         }
-
+#endif
+        
         void TrenchBroomApp::handleException() {
             try {
                 throw;
