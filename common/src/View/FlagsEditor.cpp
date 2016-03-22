@@ -25,6 +25,7 @@
 #include <cassert>
 #include <wx/checkbox.h>
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,6 +43,8 @@ namespace TrenchBroom {
         }
 
         void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
+            wxWindowUpdateLocker locker(this);
+            
             const size_t count = values.size();
             setCheckBoxCount(count);
             
@@ -68,6 +71,7 @@ namespace TrenchBroom {
         }
         
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
+            wxWindowUpdateLocker locker(this);
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 wxCheckBox* checkBox = m_checkBoxes[i];
                 const int value = m_values[i];
