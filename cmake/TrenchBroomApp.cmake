@@ -196,15 +196,34 @@ IF(WIN32)
 
     FILE(GLOB WIN_LIBS "${LIB_BIN_DIR}/win32/*.dll")
     IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        WX_LIB_TO_DLL(${WX_cored} _vc100 WIN_LIB_WX_core)
-        WX_LIB_TO_DLL(${WX_based} _vc100 WIN_LIB_WX_base)
-        WX_LIB_TO_DLL(${WX_advd}  _vc100 WIN_LIB_WX_adv)
-        WX_LIB_TO_DLL(${WX_gld}   _vc100 WIN_LIB_WX_gl)
+        WX_LIB_TO_DLL(${WX_cored} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_core)
+        WX_LIB_TO_DLL(${WX_based} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_base)
+        WX_LIB_TO_DLL(${WX_advd}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
+        WX_LIB_TO_DLL(${WX_gld}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ELSE()
-        WX_LIB_TO_DLL(${WX_core} _vc100 WIN_LIB_WX_core)
-        WX_LIB_TO_DLL(${WX_base} _vc100 WIN_LIB_WX_base)
-        WX_LIB_TO_DLL(${WX_adv}  _vc100 WIN_LIB_WX_adv)
-        WX_LIB_TO_DLL(${WX_gl}   _vc100 WIN_LIB_WX_gl)
+        WX_LIB_TO_DLL(${WX_core} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_core)
+        WX_LIB_TO_DLL(${WX_base} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_base)
+        WX_LIB_TO_DLL(${WX_adv}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
+        WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
+    ENDIF()
+    
+    # Copy PDB files (msvc debug symbols)
+    IF(COMPILER_IS_MSVC)
+        IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            # Get paths to wxwidgets debug symbols
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_core ${WIN_LIB_WX_core})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_base ${WIN_LIB_WX_base})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_adv ${WIN_LIB_WX_adv})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
+        
+            INSTALL(FILES
+                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                ${WIN_PDB_WX_core}
+                ${WIN_PDB_WX_base}
+                ${WIN_PDB_WX_adv}
+                ${WIN_PDB_WX_gl}
+                DESTINATION . COMPONENT TrenchBroom)
+        ENDIF()
     ENDIF()
 
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)

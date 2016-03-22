@@ -17,7 +17,7 @@ cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@" -DAPP_BUILD_CHANNEL=%1 -DCMAKE
 cmake --build . --config %CONFIG% -- %2 %3 %4 %5 %6 %7
 IF ERRORLEVEL 1 GOTO buildfailed
 
-cd Release
+cd %CONFIG%
 TrenchBroom-Test
 IF ERRORLEVEL 1 GOTO testfailed
 cd ..
