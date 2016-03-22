@@ -149,32 +149,32 @@ ENDIF()
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Copy button images to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/images"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/images"
 	)
 
     # Copy fonts to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/fonts" "$<TARGET_FILE_DIR:TrenchBroom>/fonts"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/fonts" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/fonts"
     )
 
 	# Copy game files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" "$<TARGET_FILE_DIR:TrenchBroom>/games"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/games"
 	)
 
 	# Copy shader files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/shader"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/shader"
 	)
 
     # Copy help files to resource directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/help/"
+		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
 	)
 
     FOREACH(HELP_FILE ${DOC_HELP_TARGET_FILES})
         ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/help/"
+            COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/Resources/help/"
         )
     ENDFOREACH(HELP_FILE)
 ENDIF()
@@ -243,12 +243,12 @@ IF(WIN32)
         DESTINATION . COMPONENT TrenchBroom)
     INSTALL(FILES
         ${DOC_HELP_TARGET_FILES}
-        DESTINATION help COMPONENT TrenchBroom)
+        DESTINATION Resources/help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
-        DESTINATION . COMPONENT TrenchBroom)
+        DESTINATION Resources COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "7Z")
     SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 ELSEIF(APPLE)
