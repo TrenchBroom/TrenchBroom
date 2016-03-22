@@ -244,7 +244,7 @@ IF(WIN32)
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
-    SET(CPACK_GENERATOR "ZIP")
+    SET(CPACK_GENERATOR "7Z")
     SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 ELSEIF(APPLE)
     INSTALL(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
