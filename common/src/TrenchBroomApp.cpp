@@ -56,15 +56,25 @@ namespace TrenchBroom {
             return *app;
         }
 
+        LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
+
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL),
         m_recentDocuments(NULL),
         m_lastActivation(0) {
+
+#if defined(_WIN32) && defined(_MSC_VER)
+            // with MSVC, set our own handler for segfaults so we can access the context
+            // pointer, to allow StackWalker to read the backtrace.
+            // see also: http://crashrpt.sourceforge.net/docs/html/exception_handling.html
+            SetUnhandledExceptionFilter(TrenchBroomUnhandledExceptionFilter);
+#else
             // enable having TrenchBroomApp::OnFatalException called on segfaults
             if (!wxHandleFatalExceptions(true)) {
                 wxLogWarning("enabling wxHandleFatalExceptions failed");
             }
+#endif
 
             detectAndSetupUbuntu();
 
@@ -359,6 +369,11 @@ namespace TrenchBroom {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
         
+        LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
+            return EXCEPTION_EXECUTE_HANDLER;
+        }
+
         void TrenchBroomApp::handleException() {
             try {
                 throw;
