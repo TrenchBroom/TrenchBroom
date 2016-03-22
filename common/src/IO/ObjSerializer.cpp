@@ -134,7 +134,7 @@ namespace TrenchBroom {
             IndexedVertexList indexedVertices;
             indexedVertices.reserve(vertices.size());
             
-            typename Model::BrushFace::VertexList::const_iterator it, end;
+            Model::BrushFace::VertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                 const Vec3& vertex = (*it)->position();
                 const Vec2f texCoords = face->textureCoords(vertex);
