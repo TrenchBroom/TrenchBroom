@@ -54,7 +54,7 @@ namespace TrenchBroom {
     static wxMutex s_stackWalkerMutex;
     static TBStackWalker *s_stackWalker;
 
-	String TrenchBroomStackWalker::getStackTrace() {
+    static String getStackTraceInternal(CONTEXT *context) {
         // StackWalker is not threadsafe so acquire a mutex
         wxMutexLocker lock(s_stackWalkerMutex);
 
@@ -63,9 +63,24 @@ namespace TrenchBroom {
             s_stackWalker = new TBStackWalker();
         }
         s_stackWalker->clear();
-        s_stackWalker->ShowCallstack();
-		return s_stackWalker->asString();
-	}
+        if (context == NULL) {
+            // get the current call stack
+            s_stackWalker->ShowCallstack();
+        } else {
+            // get the call stack of the exception.
+            // see: http://www.codeproject.com/Articles/11132/Walking-the-callstack
+            s_stackWalker->ShowCallstack(GetCurrentThread(), context);
+        }
+        return s_stackWalker->asString();
+    }
+
+    String TrenchBroomStackWalker::getStackTrace() {
+        return getStackTraceInternal(NULL);
+    }
+
+    String TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
+        return getStackTraceInternal(static_cast<CONTEXT *>(context));
+    }
 #else
     // TODO: not sure what to use on mingw
     String TrenchBroomStackWalker::getStackTrace() {

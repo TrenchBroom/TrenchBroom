@@ -25,6 +25,9 @@
 namespace TrenchBroom {
     class TrenchBroomStackWalker {
     public:
+#if defined(_WIN32) && defined(_MSC_VER)
+        static String getStackTraceFromContext(void *context);
+#endif
         static String getStackTrace();
     };
 }
