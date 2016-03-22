@@ -73,6 +73,7 @@ namespace TrenchBroom {
             const String extension() const;
             Path deleteExtension() const;
             Path addExtension(const String& extension) const;
+            Path replaceExtension(const String& extension) const;
             
             bool isAbsolute() const;
             bool canMakeRelative(const Path& absolutePath) const;

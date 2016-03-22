@@ -37,6 +37,9 @@ namespace TrenchBroom {
         public:
             virtual ~MapStreamSerializer();
         private:
+            void doBeginFile();
+            void doEndFile();
+
             void doBeginEntity(const Model::Node* node);
             void doEndEntity(Model::Node* node);
             void doEntityAttribute(const Model::EntityAttribute& attribute);

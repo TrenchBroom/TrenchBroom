@@ -224,6 +224,33 @@ namespace TrenchBroom {
             }
         }
 
+        bool MapFrame::exportDocumentAsObj() {
+            const IO::Path& originalPath = m_document->path();
+            const IO::Path directory = originalPath.deleteLastComponent();
+            const IO::Path filename = originalPath.lastComponent().replaceExtension("obj");
+            wxString wildcard;
+            
+            wxFileDialog saveDialog(this, "Export Wavefront OBJ file", directory.asString(), filename.asString(), "Wavefront OBJ files (*.obj)|*.obj", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+            if (saveDialog.ShowModal() == wxID_CANCEL)
+                return false;
+            
+            return exportDocument(Model::EF_WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
+        }
+
+        bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
+            try {
+                m_document->exportDocumentAs(format, path);
+                logger()->info("Exported " + path.asString());
+                return true;
+            } catch (FileSystemException e) {
+                ::wxMessageBox(e.what(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            } catch (...) {
+                ::wxMessageBox("Unknown error while exporting " + path.asString(), "", wxOK | wxICON_ERROR, this);
+                return false;
+            }
+        }
+
         bool MapFrame::confirmOrDiscardChanges() {
             if (!m_document->modified())
                 return true;
@@ -412,6 +439,7 @@ namespace TrenchBroom {
         void MapFrame::bindEvents() {
             Bind(wxEVT_MENU, &MapFrame::OnFileSave, this, wxID_SAVE);
             Bind(wxEVT_MENU, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
+            Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
@@ -516,6 +544,12 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             saveDocumentAs();
+        }
+
+        void MapFrame::OnFileExportObj(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            exportDocumentAsObj();
         }
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
@@ -1019,6 +1053,7 @@ namespace TrenchBroom {
                 case wxID_SAVE:
                 case wxID_SAVEAS:
                 case wxID_CLOSE:
+                case CommandIds::Menu::FileExportObj:
                 case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;

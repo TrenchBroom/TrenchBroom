@@ -33,6 +33,7 @@
 #include "IO/Md2Parser.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
+#include "IO/ObjSerializer.h"
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
@@ -110,6 +111,17 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
+        void GameImpl::doExportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
+            IO::OpenFile openFile(path, true);
+            FILE* stream = openFile.file();
+            
+            switch (format) {
+                case Model::EF_WavefrontObj:
+                    IO::NodeWriter(world, new IO::ObjFileSerializer(stream)).writeMap();
+                    break;
+            }
+        }
+        
         NodeList GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             IO::NodeReader reader(str, world, logger);
             return reader.read(worldBounds);

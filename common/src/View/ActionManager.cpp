@@ -170,7 +170,7 @@ namespace TrenchBroom {
         void ActionManager::createMenuBar() {
             assert(m_menuBar == NULL);
             m_menuBar = new MenuBar();
-            
+
             Menu* fileMenu = m_menuBar->addMenu("File");
             fileMenu->addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
             fileMenu->addSeparator();
@@ -179,6 +179,10 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
             fileMenu->addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+            
+            Menu* exportMenu = fileMenu->addMenu("Export");
+            exportMenu->addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
+            
             fileMenu->addSeparator();
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");

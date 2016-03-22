@@ -84,6 +84,8 @@ namespace TrenchBroom {
         private:
             bool saveDocument();
             bool saveDocumentAs();
+            bool exportDocumentAsObj();
+            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
 
             bool confirmOrDiscardChanges();
         private: // title bar contents
@@ -113,6 +115,7 @@ namespace TrenchBroom {
 
             void OnFileSave(wxCommandEvent& event);
             void OnFileSaveAs(wxCommandEvent& event);
+            void OnFileExportObj(wxCommandEvent& event);
             void OnFileLoadPointFile(wxCommandEvent& event);
             void OnFileUnloadPointFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
