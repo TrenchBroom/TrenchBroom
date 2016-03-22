@@ -30,7 +30,6 @@ namespace TrenchBroom {
             Path appDirectory();
             Path logDirectory();
             Path resourceDirectory();
-            Path findFontFile(const String& fontName);
         }
     }
 }

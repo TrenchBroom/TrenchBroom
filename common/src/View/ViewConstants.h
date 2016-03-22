@@ -63,7 +63,7 @@ namespace TrenchBroom {
             static const int TextBoxInnerMargin                 = 0;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
-#elif defined __linux__
+#elif defined __linux__ || defined __FreeBSD__
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
             static const int DialogButtonSideMargin             = 0;
