@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-# add target symlink
-ln -sf @LINUX_TARGET_EXECUTABLE_PATH@ /usr/bin/trenchbroom
-
 # Add icons to the system icons
 XDG_ICON_RESOURCE="`which xdg-icon-resource 2> /dev/null || true`"
 if [ ! -x "$XDG_ICON_RESOURCE" ]; then
