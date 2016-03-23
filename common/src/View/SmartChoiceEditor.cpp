@@ -27,6 +27,7 @@
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 
@@ -88,6 +89,7 @@ namespace TrenchBroom {
             assert(m_panel != NULL);
             assert(m_comboBox != NULL);
             
+            wxWindowUpdateLocker locker(m_panel);
             m_comboBox->Clear();
 
             const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);
