@@ -246,6 +246,7 @@ IF(WIN32)
         DESTINATION Resources/help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
+        "${APP_DIR}/resources/fonts"
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
