@@ -59,6 +59,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Add crash reporter by @ericwa
 - Write entity and brush ID comments like Radiant
 - Better support for OS themes
+- Fix a crash when undoing too many times
 - Fix a problem that made certain keyboard shortcuts unusable on Windows
 - Fix ESC key not usable in keyboard shortcut editor
 - Fix dropdown menus not working on popup windows
