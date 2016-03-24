@@ -85,7 +85,7 @@ if ($_REQUEST["platform"] == "win32") {
 				<li>OpenGL 2.1 and GLSL 1.2 capable driver</li>
 			</ul>
 		</div>
-		<?php print_all_downloads("downloads/win32", array("zip")); ?>
+		<?php print_all_downloads("downloads/win32", array("zip", "7z")); ?>
 	</div>
 <?php	
 } else if ($_REQUEST["platform"] == "macosx") {
