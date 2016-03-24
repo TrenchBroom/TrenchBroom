@@ -25,7 +25,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const String QuakeMapTokenizer::NumberDelim = Whitespace + ")";
+        const String& QuakeMapTokenizer::NumberDelim() {
+            static const String numberDelim(Whitespace() + ")");
+            return numberDelim;
+        }
 
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end),
@@ -88,18 +91,18 @@ namespace TrenchBroom {
                     case '\r':
                     case ' ':
                     case '\t':
-                        discardWhile(Whitespace);
+                        discardWhile(Whitespace());
                         break;
                     default: { // whitespace, integer, decimal or word
-                        const char* e = readInteger(NumberDelim);
+                        const char* e = readInteger(NumberDelim());
                         if (e != NULL)
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
                         
-                        e = readDecimal(NumberDelim);
+                        e = readDecimal(NumberDelim());
                         if (e != NULL)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
-                        e = readString(Whitespace);
+                        e = readString(Whitespace());
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
@@ -356,7 +359,7 @@ namespace TrenchBroom {
             }
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace);
+            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             

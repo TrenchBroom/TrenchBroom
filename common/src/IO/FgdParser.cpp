@@ -79,7 +79,7 @@ namespace TrenchBroom {
                     case '\t':
                     case '\n':
                     case '\r':
-                        discardWhile(Whitespace);
+                        discardWhile(Whitespace());
                         break;
                     default: {
                         const char* e = readInteger(WordDelims);

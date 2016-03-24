@@ -61,10 +61,10 @@ namespace TrenchBroom {
                     case '\t':
                     case '\n':
                     case '\r':
-                        discardWhile(Whitespace);
+                        discardWhile(Whitespace());
                         break;
                     default: {
-                        const char* e = readString(Whitespace + "=");
+                        const char* e = readString(Whitespace() + "=");
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(ConfigToken::Identifier, c, e, offset(c), startLine, startColumn);
