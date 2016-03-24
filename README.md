@@ -52,7 +52,28 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
-### TrenchBroom 2.0.0
+### TrenchBroom 2.0.0 Beta 0f4b6d2
+- Add Wavefront OBJ exporter
+- Add support for Alt+RMB drag for scrolling browser views
+- Add support for zooming 2D views with Alt+MMB
+- Add crash reporter by @ericwa
+- Write entity and brush ID comments like Radiant
+- Better support for OS themes
+- Fix a problem that made certain keyboard shortcuts unusable on Windows
+- Fix ESC key not usable in keyboard shortcut editor
+- Fix dropdown menus not working on popup windows
+- Fix a parse error when copy / pasting brush faces
+- Fix reset to defaults not working for certain keyboard shortcuts
+- Fix a crash when opening entity or texture browser on Windows with Intel hardware
+- Fix a crash in clip tool when dragging clip points
+- Fix an OpenGL related crash on Linux
+- Preliminary FreeBSD support by @danfe
+- Upgrade to wxWidgets 3.1.0
+- Support for Visual Studio 15 by @ericwa
+- Minor performance improvements
+- Minor fixes
+
+### TrenchBroom 2.0.0 Beta 93e34bf
 - Complete rewrite with many new features and bug fixes
 - New 2D views with multiple view layouts
 - Support for multiple games
