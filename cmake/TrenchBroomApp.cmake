@@ -139,9 +139,10 @@ IF(WIN32)
 	)
 ENDIF()
 
-# Properly link to OpenGL libraries on Linux
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+# Properly link to OpenGL libraries on Unix-like systems
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
+    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
 ENDIF()
 
