@@ -253,7 +253,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
             
-            if (game != NULL) {
+            if (game.get() != NULL) {
                 Model::BrushContentType::FlagType hiddenFlags = 0;
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 
@@ -453,7 +453,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
-            if (game == NULL) {
+            if (game.get() == NULL) {
                 createEmptyBrushContentTypeFilter(parent);
             } else {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
@@ -575,7 +575,7 @@ namespace TrenchBroom {
             const Model::BrushContentType::FlagType hiddenFlags = editorContext.hiddenBrushContentTypes();
             
             Model::GamePtr game = document->game();
-            if (game != NULL) {
+            if (game.get() != NULL) {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 for (size_t i = 0; i < contentTypes.size(); ++i) {
                     const Model::BrushContentType& contentType = contentTypes[i];

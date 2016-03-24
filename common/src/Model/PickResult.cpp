@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
         
         void PickResult::addHit(const Hit& hit) {
-            assert(m_compare != NULL);
+            assert(m_compare.get() != NULL);
             Hit::List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit, CompareWrapper(m_compare.get()));
             m_hits.insert(pos, hit);
         }

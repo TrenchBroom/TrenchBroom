@@ -87,7 +87,7 @@ namespace TrenchBroom {
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
             assert(frameManager != NULL);
-            assert(document != NULL);
+            assert(document.get() != NULL);
 
             m_frameManager = frameManager;
             m_document = document;

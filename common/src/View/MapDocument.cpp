@@ -154,7 +154,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::isGamePathPreference(const IO::Path& path) const {
-            return m_game != NULL && m_game->isGamePathPreference(path);
+            return m_game.get() != NULL && m_game->isGamePathPreference(path);
         }
         
         Model::Layer* MapDocument::currentLayer() const {
@@ -257,7 +257,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::saveDocumentTo(const IO::Path& path) {
-            assert(m_game != NULL);
+            assert(m_game.get() != NULL);
             assert(m_world != NULL);
             m_game->writeMap(m_world, path);
         }
