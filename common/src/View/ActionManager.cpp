@@ -127,7 +127,11 @@ namespace TrenchBroom {
         wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
-            // addMenuActions(context, view, tableEntries); this causes some shortcuts such as "2" to not work on Windows
+#ifdef __WXGTK20__
+	    // This causes some shortcuts such as "2" to not work on Windows.
+            // But it's necessary to enable one key menu shortcuts to work on GTK.
+            addMenuActions(context, view, tableEntries);
+#endif
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
