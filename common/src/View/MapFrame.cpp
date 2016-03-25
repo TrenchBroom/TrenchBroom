@@ -279,6 +279,8 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             wxWindow* focus = FindFocus();
+            if (focus == NULL)
+                focus = event.GetWindow();
             if (focus != m_lastFocus && focus != this) {
                 rebuildMenuBar();
                 m_lastFocus = focus;
