@@ -11,8 +11,9 @@ function list_downloads($dir, $exts) {
 	$files = array();
 	if (is_dir($dir) && $dir_handle = opendir($dir)) {
 		while (($file = readdir($dir_handle)) !== false) {
-			if (!is_dir($file) && has_extension($file, $exts))
-				$files[filemtime($dir . '/' . $file)] = $file;
+			$mtime = filemtime($dir . '/' . $file);
+			if (!is_dir($file) && has_extension($file, $exts) && $mtime < (time() - 10))
+				$files[$mtime] = $file;
 		}
 	}
 	krsort($files);
