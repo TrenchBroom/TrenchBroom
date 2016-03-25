@@ -139,10 +139,13 @@ IF(WIN32)
 	)
 ENDIF()
 
-# Properly link to OpenGL libraries on Linux
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Properly link to OpenGL libraries on Linux
     FIND_PACKAGE(OpenGL)
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
+
+    # make executable name conventional lowercase on linux
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES OUTPUT_NAME "trenchbroom")
 ENDIF()
 
 # Set up the resources and DLLs for the executable
@@ -261,11 +264,10 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     # generate deb and rpm packages
     SET(CPACK_GENERATOR "DEB;RPM")
+    SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 
-    # the software will get installed under /opt
-    SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt")
-    SET(LINUX_TARGET_DIRECTORY "${CPACK_PACKAGING_INSTALL_PREFIX}/trenchbroom")
-    SET(LINUX_TARGET_EXECUTABLE_PATH "${LINUX_TARGET_DIRECTORY}/TrenchBroom")
+    SET(LINUX_RESOURCE_LOCATION "share/TrenchBroom")
+    SET(LINUX_TARGET_RESOURCE_DIRECTORY ${CPACK_PACKAGING_INSTALL_PREFIX}/${LINUX_RESOURCE_LOCATION})
 
     # configure install scripts
     CONFIGURE_FILE(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/linux/postinst @ONLY)
@@ -273,12 +275,16 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     CONFIGURE_FILE(${APP_DIR}/resources/linux/postrm ${CMAKE_CURRENT_BINARY_DIR}/linux/postrm @ONLY)
 
     # add files
-    INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION trenchbroom COMPONENT TrenchBroom)
-    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Resources" DESTINATION trenchbroom COMPONENT TrenchBroom)
-    INSTALL(DIRECTORY "${APP_DIR}/resources/linux/icons" DESTINATION trenchbroom COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
-    INSTALL(FILES "${CMAKE_SOURCE_DIR}/gpl.txt" DESTINATION trenchbroom COMPONENT TrenchBroom)
-    INSTALL(FILES "${APP_DIR}/resources/linux/copyright" DESTINATION trenchbroom COMPONENT TrenchBroom)
-    INSTALL(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop" DESTINATION trenchbroom COMPONENT TrenchBroom)
+    INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fonts"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/games"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/help"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${APP_DIR}/resources/linux/icons"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
+    INSTALL(FILES "${CMAKE_SOURCE_DIR}/gpl.txt"                     DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop"  DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
 
     # deb package specifics
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
