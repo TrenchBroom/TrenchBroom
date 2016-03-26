@@ -49,7 +49,8 @@ namespace TrenchBroom {
         T m_newValue;
     public:
         SetLate(T& value, T newValue) :
-        m_value(value) {}
+        m_value(value),
+        m_newValue(newValue) {}
         
         ~SetLate() {
             m_value = m_newValue;
