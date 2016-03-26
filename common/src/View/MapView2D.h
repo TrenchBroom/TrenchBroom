@@ -86,7 +86,8 @@ namespace TrenchBroom {
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
             
-            Renderer::RenderContext doCreateRenderContext();
+            Renderer::RenderContext::RenderMode doGetRenderMode();
+            Renderer::Camera& doGetCamera();
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

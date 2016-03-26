@@ -28,6 +28,11 @@ namespace TrenchBroom {
         m_prepared(false),
         m_setup(false) {}
         
+        VertexArray::VertexArray(const VertexArray& other) :
+        m_holder(other.m_holder),
+        m_prepared(other.m_prepared),
+        m_setup(other.m_setup) {}
+
         VertexArray& VertexArray::operator=(VertexArray other) {
             using std::swap;
             swap(*this, other);

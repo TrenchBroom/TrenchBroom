@@ -312,7 +312,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
-            Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
             
             Renderer::ActivateVbo activate(vertexVbo());
             

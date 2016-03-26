@@ -148,6 +148,9 @@ namespace TrenchBroom {
             void validate();
             void validateVertices();
             void validateIndices();
+        private:
+            BrushRenderer(const BrushRenderer& other);
+            BrushRenderer& operator=(const BrushRenderer& other);
         };
     }
 }

@@ -40,12 +40,12 @@ namespace TrenchBroom {
             applyRotation(normal, attribs.rotation());
         }
 
-        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const BrushFaceAttributes& attribs) :
+        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
         
         TexCoordSystem* ParallelTexCoordSystem::doClone() const {
-            return new ParallelTexCoordSystem(*this);
+            return new ParallelTexCoordSystem(m_xAxis, m_yAxis);
         }
         
         TexCoordSystemSnapshot* ParallelTexCoordSystem::doTakeSnapshot() {

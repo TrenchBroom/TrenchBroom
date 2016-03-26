@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new RotateTexturesCommand(*this));
+            return UndoableCommand::Ptr(new RotateTexturesCommand(m_angle));
         }
         
         bool RotateTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {

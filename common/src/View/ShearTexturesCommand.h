@@ -47,6 +47,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            ShearTexturesCommand(const ShearTexturesCommand& other);
+            ShearTexturesCommand& operator=(const ShearTexturesCommand& other);
         };
     }
 }

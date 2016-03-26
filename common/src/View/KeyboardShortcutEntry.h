@@ -41,6 +41,8 @@ namespace TrenchBroom {
             bool m_hasConflicts;
         protected:
             KeyboardShortcutEntry();
+            KeyboardShortcutEntry(const KeyboardShortcutEntry& other);
+            KeyboardShortcutEntry& operator=(const KeyboardShortcutEntry& other);
         public:
             virtual ~KeyboardShortcutEntry();
             

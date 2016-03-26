@@ -49,8 +49,12 @@ namespace TrenchBroom {
                 bool operator()(const Path& path, const bool directory) const;
             };
         public:
+            FileSystem();
+            FileSystem(const FileSystem& other);
             virtual ~FileSystem();
             
+            FileSystem& operator=(const FileSystem& other);
+
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
 
@@ -97,7 +101,11 @@ namespace TrenchBroom {
         
         class WritableFileSystem {
         public:
+            WritableFileSystem();
+            WritableFileSystem(const WritableFileSystem& other);
             virtual ~WritableFileSystem();
+            
+            WritableFileSystem& operator=(const WritableFileSystem& other);
             
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);

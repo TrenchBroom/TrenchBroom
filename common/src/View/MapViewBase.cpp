@@ -42,7 +42,6 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
@@ -845,7 +844,22 @@ namespace TrenchBroom {
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
-            Renderer::RenderContext renderContext = createRenderContext();
+            MapDocumentSPtr document = lock(m_document);
+            const MapViewConfig& mapViewConfig = document->mapViewConfig();
+            const Grid& grid = document->grid();
+
+            Renderer::RenderContext renderContext(doGetRenderMode(), doGetCamera(), fontManager(), shaderManager());
+            renderContext.setShowTextures(mapViewConfig.showTextures());
+            renderContext.setShowFaces(mapViewConfig.showFaces());
+            renderContext.setShowEdges(mapViewConfig.showEdges());
+            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
+            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
+            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
+            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
+            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowFog(mapViewConfig.showFog());
+            renderContext.setShowGrid(grid.visible());
+            renderContext.setGridSize(grid.actualSize());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);
@@ -861,26 +875,6 @@ namespace TrenchBroom {
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
-        }
-
-        Renderer::RenderContext MapViewBase::createRenderContext() {
-            MapDocumentSPtr document = lock(m_document);
-            const MapViewConfig& mapViewConfig = document->mapViewConfig();
-            const Grid& grid = document->grid();
-
-            Renderer::RenderContext renderContext = doCreateRenderContext();
-            renderContext.setShowTextures(mapViewConfig.showTextures());
-            renderContext.setShowFaces(mapViewConfig.showFaces());
-            renderContext.setShowEdges(mapViewConfig.showEdges());
-            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
-            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
-            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
-            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
-            renderContext.setShowFog(mapViewConfig.showFog());
-            renderContext.setShowGrid(grid.visible());
-            renderContext.setGridSize(grid.actualSize());
-            return renderContext;
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {

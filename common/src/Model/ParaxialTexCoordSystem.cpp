@@ -68,8 +68,13 @@ namespace TrenchBroom {
             projectionAxis = BaseAxes[(index / 2) * 6];
         }
         
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const size_t index, const Vec3& xAxis, const Vec3& yAxis) :
+        m_index(index),
+        m_xAxis(xAxis),
+        m_yAxis(yAxis) {}
+
         TexCoordSystem* ParaxialTexCoordSystem::doClone() const {
-            return new ParaxialTexCoordSystem(*this);
+            return new ParaxialTexCoordSystem(m_index, m_xAxis, m_yAxis);
         }
 
         TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {

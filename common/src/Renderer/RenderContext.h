@@ -132,6 +132,9 @@ namespace TrenchBroom {
             void setForceHideSelectionGuide();
         private:
             void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
+        private:
+            RenderContext(const RenderContext& other);
+            RenderContext& operator=(const RenderContext& other);
         };
     }
 }

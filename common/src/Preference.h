@@ -334,8 +334,12 @@ namespace TrenchBroom {
     class PreferenceBase {
     public:
         typedef std::set<const PreferenceBase*> Set;
-        
+        PreferenceBase() {}
+
+        PreferenceBase(const PreferenceBase& other) {}
         virtual ~PreferenceBase() {}
+        
+        PreferenceBase& operator=(const PreferenceBase& other) { return *this; }
         
         virtual void load(wxConfigBase* config) const = 0;
         virtual void save(wxConfigBase* config) = 0;
@@ -398,6 +402,29 @@ namespace TrenchBroom {
         m_initialized(false),
         m_modified(false) {
             m_modified = m_initialized;
+        }
+        
+        Preference(const Preference& other) :
+        PreferenceBase(other),
+        m_path(other.m_path),
+        m_defaultValue(other.m_defaultValue),
+        m_value(other.m_value),
+        m_initialized(other.m_initialized),
+        m_modified(other.m_modified) {}
+        
+        Preference& operator=(Preference other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+
+        friend void swap(Preference& lhs, Preference& rhs) {
+            using std::swap;
+            swap(lhs.m_path, rhs.m_path);
+            swap(lhs.m_defaultValue, rhs.m_defaultValue);
+            swap(lhs.m_value, rhs.m_value);
+            swap(lhs.m_initialized, rhs.m_initialized);
+            swap(lhs.m_modified, rhs.m_modified);
         }
         
         const IO::Path& path() const {
