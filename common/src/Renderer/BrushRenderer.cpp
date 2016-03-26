@@ -34,14 +34,23 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        BrushRenderer::Filter::Filter() {}
+        
+        BrushRenderer::Filter::Filter(const Filter& other) {}
+
         BrushRenderer::Filter::~Filter() {}
         
+        BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
+
         bool BrushRenderer::Filter::show(const Model::BrushFace* face) const      { return doShow(face);  }
         bool BrushRenderer::Filter::show(const Model::BrushEdge* edge) const      { return doShow(edge);  }
         bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  { return doIsTransparent(brush); }
 
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
         BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
+
+        BrushRenderer::DefaultFilter::DefaultFilter(const DefaultFilter& other) :
+        m_context(other.m_context) {}
 
         bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
         bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }

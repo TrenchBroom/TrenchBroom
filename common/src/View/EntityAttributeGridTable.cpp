@@ -239,7 +239,7 @@ namespace TrenchBroom {
             assert(attributeNames.size() == count);
             
             AttributeRow::List::iterator entryIt = m_rows.begin();
-            std::advance(entryIt, rowIndex);
+            std::advance(entryIt, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
             for (size_t i = 0; i < count; i++) {
                 entryIt = m_rows.insert(entryIt, AttributeRow(attributeNames[i], "", true, true, "", false, attributables.size()));
                 entryIt->reset();
@@ -254,8 +254,8 @@ namespace TrenchBroom {
             
             AttributeRow::List::iterator first = m_rows.begin();
             AttributeRow::List::iterator last = first;
-            std::advance(first, rowIndex);
-            std::advance(last, rowIndex + count);
+            std::advance(first, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
+            std::advance(last, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex + count));
             m_rows.erase(first, last);
         }
         
