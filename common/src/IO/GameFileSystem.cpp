@@ -36,6 +36,20 @@ namespace TrenchBroom {
             }
         }
 
+        GameFileSystem::GameFileSystem(const GameFileSystem& other) :
+        m_fileSystems(other.m_fileSystems) {}
+
+        GameFileSystem& GameFileSystem::operator=(GameFileSystem other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+        
+        void swap(GameFileSystem& lhs, GameFileSystem& rhs) {
+            using std::swap;
+            swap(lhs.m_fileSystems, rhs.m_fileSystems);
+        }
+
         void GameFileSystem::addFileSystem(const String& pakExtension, const Path& path) {
             if (Disk::directoryExists(path)) {
                 FSPtr diskFS(new DiskFileSystem(path));

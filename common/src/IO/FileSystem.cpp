@@ -44,8 +44,14 @@ namespace TrenchBroom {
             return StringUtils::caseInsensitiveEqual(path.extension(), m_extension);
         }
         
+        FileSystem::FileSystem() {}
+        
+        FileSystem::FileSystem(const FileSystem& other) {}
+
         FileSystem::~FileSystem() {}
         
+        FileSystem& FileSystem::operator=(const FileSystem& other) { return *this; }
+
         bool FileSystem::directoryExists(const Path& path) const {
             try {
                 if (path.isAbsolute())
@@ -98,8 +104,14 @@ namespace TrenchBroom {
             }
         }
         
+        WritableFileSystem::WritableFileSystem() {}
+
+        WritableFileSystem::WritableFileSystem(const WritableFileSystem& other) {}
+
         WritableFileSystem::~WritableFileSystem() {}
         
+        WritableFileSystem& WritableFileSystem::operator=(const WritableFileSystem& other) { return *this; }
+
         void WritableFileSystem::createDirectory(const Path& path) {
             try {
                 if (path.isAbsolute())

@@ -91,7 +91,7 @@ namespace TrenchBroom {
             switch (m_format) {
                 case MapFormat::Valve:
                     return new BrushFace(point1, point2, point3, attribs,
-                                         new ParallelTexCoordSystem(texAxisX, texAxisY, attribs));
+                                         new ParallelTexCoordSystem(texAxisX, texAxisY));
                 default:
                     return new BrushFace(point1, point2, point3, attribs,
                                          new ParaxialTexCoordSystem(point1, point2, point3, attribs));

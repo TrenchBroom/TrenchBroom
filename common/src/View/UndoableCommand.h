@@ -51,6 +51,9 @@ namespace TrenchBroom {
             virtual bool doCollateWith(UndoableCommand::Ptr command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
+        private:
+            UndoableCommand(const UndoableCommand& other);
+            UndoableCommand& operator=(const UndoableCommand& other);
         };
     }
 }

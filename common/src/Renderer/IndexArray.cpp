@@ -28,6 +28,10 @@ namespace TrenchBroom {
         IndexArray::IndexArray() :
         m_prepared(false) {}
         
+        IndexArray::IndexArray(const IndexArray& other) :
+        m_holder(other.m_holder),
+        m_prepared(other.m_prepared) {}
+
         IndexArray& IndexArray::operator=(IndexArray other) {
             using std::swap;
             swap(*this, other);

@@ -58,6 +58,9 @@ namespace TrenchBroom {
             virtual bool performDo(MapDocumentCommandFacade* document);
         private:
             virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
+        private:
+            Command(const Command& other);
+            Command& operator=(const Command& other);
         };
     }
 }

@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new ShearTexturesCommand(*this));
+            return UndoableCommand::Ptr(new ShearTexturesCommand(m_factors));
         }
         
         bool ShearTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {

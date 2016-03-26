@@ -38,6 +38,10 @@ namespace TrenchBroom {
             FileSystemList m_fileSystems;
         public:
             GameFileSystem(const String& pakExtension, const Path& gamePath, const Path& searchPath, const Path::List& additionalSearchPaths = Path::List());
+            GameFileSystem(const GameFileSystem& other);
+            
+            GameFileSystem& operator=(GameFileSystem other);
+            friend void swap(GameFileSystem& lhs, GameFileSystem& rhs);
         private:
             void addFileSystem(const String& pakExtension, const Path& path);
             

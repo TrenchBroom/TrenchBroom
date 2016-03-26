@@ -32,6 +32,10 @@ namespace TrenchBroom {
     namespace Model {
         class HitFilter::Always : public HitFilter {
         private:
+            HitFilter* doClone() const {
+                return new Always();
+            }
+            
             bool doMatches(const Hit& hit) const {
                 return true;
             }
@@ -39,6 +43,10 @@ namespace TrenchBroom {
         
         class HitFilter::Never : public HitFilter {
         private:
+            HitFilter* doClone() const {
+                return new Never();
+            }
+            
             bool doMatches(const Hit& hit) const {
                 return false;
             }
@@ -49,6 +57,10 @@ namespace TrenchBroom {
         
         HitFilter::~HitFilter() {}
         
+        HitFilter* HitFilter::clone() const {
+            return doClone();
+        }
+
         bool HitFilter::matches(const Hit& hit) const {
             return doMatches(hit);
         }
@@ -65,6 +77,10 @@ namespace TrenchBroom {
             delete m_next;
         }
         
+        HitFilter* HitFilterChain::doClone() const {
+            return new HitFilterChain(m_filter->clone(), m_next->clone());
+        }
+        
         bool HitFilterChain::doMatches(const Hit& hit) const {
             if (!m_filter->matches(hit))
                 return false;
@@ -74,10 +90,18 @@ namespace TrenchBroom {
         TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
         m_typeMask(typeMask) {}
         
+        HitFilter* TypedHitFilter::doClone() const {
+            return new TypedHitFilter(m_typeMask);
+        }
+        
         bool TypedHitFilter::doMatches(const Hit& hit) const {
             return (hit.type() & m_typeMask) != 0;
         }
 
+        HitFilter* SelectionHitFilter::doClone() const {
+            return new SelectionHitFilter();
+        }
+        
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == Group::GroupHit)
                 return hitToGroup(hit)->selected();
@@ -91,12 +115,20 @@ namespace TrenchBroom {
         MinDistanceHitFilter::MinDistanceHitFilter(const FloatType minDistance) :
         m_minDistance(minDistance) {}
 
+        HitFilter* MinDistanceHitFilter::doClone() const {
+            return new MinDistanceHitFilter(m_minDistance);
+        }
+        
         bool MinDistanceHitFilter::doMatches(const Hit& hit) const {
             return hit.distance() >= m_minDistance;
         }
 
         ContextHitFilter::ContextHitFilter(const EditorContext& context) :
         m_context(context) {}
+        
+        HitFilter* ContextHitFilter::doClone() const {
+            return new ContextHitFilter(m_context);
+        }
         
         bool ContextHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == Group::GroupHit)

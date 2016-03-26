@@ -69,6 +69,12 @@ namespace TrenchBroom {
             m_end(str.c_str() + str.size()),
             m_state(State(m_begin)) {}
             
+            Tokenizer(const Tokenizer& other) :
+            m_begin(other.m_begin),
+            m_end(other.m_end),
+            m_state(other.m_state),
+            m_tokenStack(other.m_tokenStack) {}
+            
             virtual ~Tokenizer() {}
             
             Token nextToken() {
