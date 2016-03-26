@@ -293,7 +293,7 @@ namespace TrenchBroom {
                 }
             }
             
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);

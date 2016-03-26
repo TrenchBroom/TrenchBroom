@@ -25,6 +25,7 @@
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
+#include <wx/wupdlock.h>
 
 #include <iostream>
 
@@ -56,6 +57,8 @@ namespace TrenchBroom {
         }
 
         void Console::logToConsole(const LogLevel level, const wxString& message) {
+            wxWindowUpdateLocker locker(m_textView);
+            
             const long start = m_textView->GetLastPosition();
             m_textView->AppendText(message);
             m_textView->AppendText("\n");

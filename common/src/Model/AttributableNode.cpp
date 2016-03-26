@@ -185,12 +185,12 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
             
-            const NotifyAttributeChange notifyChange(this);
+            const AttributeValue value = *valuePtr;
+			const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
             m_attributes.renameAttribute(name, newName, newDefinition);
             
-            const AttributeValue value = *valuePtr;
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
         }

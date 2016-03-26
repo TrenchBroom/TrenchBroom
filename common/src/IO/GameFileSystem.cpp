@@ -44,7 +44,7 @@ namespace TrenchBroom {
                     Path::List::const_iterator it, end;
                     for (it = paks.begin(), end = paks.end(); it != end; ++it) {
                         MappedFile::Ptr file = diskFS->openFile(*it);
-                        assert(file != NULL);
+                        assert(file.get() != NULL);
                         m_fileSystems.push_back(FSPtr(new PakFileSystem(path, file)));
                     }
                 } else {
@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 const FSPtr fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     const MappedFile::Ptr file = fileSystem->openFile(path);
-                    if (file != NULL)
+                    if (file.get() != NULL)
                         return file;
                 }
             }

@@ -54,7 +54,10 @@ namespace TrenchBroom {
             
             TokenStack m_tokenStack;
         public:
-            static const String Whitespace;
+            static const String& Whitespace() {
+                static const String whitespace(" \t\n\r");
+                return whitespace;
+            }
         public:
             Tokenizer(const char* begin, const char* end) :
             m_begin(begin),
@@ -205,7 +208,7 @@ namespace TrenchBroom {
             }
             
             bool isWhitespace(const char c) const {
-                return isAnyOf(c, Whitespace);
+                return isAnyOf(c, Whitespace());
             }
 
             const char* readInteger(const String& delims) {
@@ -297,9 +300,6 @@ namespace TrenchBroom {
             
             virtual Token emitToken() = 0;
         };
-        
-        template <typename TokenType>
-        const String Tokenizer<TokenType>::Whitespace = " \t\n\r";
     }
 }
 #endif

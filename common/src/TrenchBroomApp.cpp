@@ -188,7 +188,7 @@ namespace TrenchBroom {
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
-            assert(game != NULL);
+            assert(game.get() != NULL);
 
             MapFrame* frame = m_frameManager->newFrame();
             frame->newDocument(game, mapFormat);
@@ -213,7 +213,7 @@ namespace TrenchBroom {
                 }
 
                 Model::GamePtr game = gameFactory.createGame(gameName);
-                assert(game != NULL);
+                assert(game.get() != NULL);
 
                 frame = m_frameManager->newFrame();
                 frame->openDocument(game, mapFormat, path);
@@ -326,6 +326,13 @@ namespace TrenchBroom {
         }
         
         static void reportCrashAndExit(const String &stacktrace, const String &reason) {
+            static bool inFunction = false;
+            // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
+            if (inFunction) {
+                wxAbort();
+            }
+            inFunction = true;
+            
             // get the crash report as a string
             String report = makeCrashReport(stacktrace, reason);
             

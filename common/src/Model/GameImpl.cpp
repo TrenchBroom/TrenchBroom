@@ -270,7 +270,7 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
                 const IO::MappedFile::Ptr file = m_fs.openFile(path);
-                assert(file != NULL);
+                assert(file.get() != NULL);
                 
                 const String modelName = path.lastComponent().asString();
                 const String extension = StringUtils::toLower(path.extension());

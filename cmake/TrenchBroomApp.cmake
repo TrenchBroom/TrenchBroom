@@ -139,9 +139,10 @@ IF(WIN32)
 	)
 ENDIF()
 
-# Properly link to OpenGL libraries on Linux
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+# Properly link to OpenGL libraries on Unix-like systems
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
+    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
 ENDIF()
 
@@ -246,6 +247,7 @@ IF(WIN32)
         DESTINATION Resources/help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
+        "${APP_DIR}/resources/fonts"
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
@@ -295,6 +297,7 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
     SET(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
     SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
+    SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
 

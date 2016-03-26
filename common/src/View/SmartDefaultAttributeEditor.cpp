@@ -24,6 +24,7 @@
 
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+            wxWindowUpdateLocker locker(m_descriptionTxt);
             m_descriptionTxt->Clear();
 
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);

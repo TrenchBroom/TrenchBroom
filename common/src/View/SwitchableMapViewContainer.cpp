@@ -93,6 +93,7 @@ namespace TrenchBroom {
                     break;
             }
             
+            SetSizer(NULL); // delete the old sizer first
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapViewBar, 0, wxEXPAND);
             sizer->Add(m_mapView, 1, wxEXPAND);

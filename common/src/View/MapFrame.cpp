@@ -87,7 +87,7 @@ namespace TrenchBroom {
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
             assert(frameManager != NULL);
-            assert(document != NULL);
+            assert(document.get() != NULL);
 
             m_frameManager = frameManager;
             m_document = document;
@@ -279,6 +279,8 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             wxWindow* focus = FindFocus();
+            if (focus == NULL)
+                focus = event.GetWindow();
             if (focus != m_lastFocus && focus != this) {
                 rebuildMenuBar();
                 m_lastFocus = focus;
