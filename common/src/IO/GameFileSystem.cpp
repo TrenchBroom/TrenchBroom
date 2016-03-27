@@ -37,6 +37,7 @@ namespace TrenchBroom {
         }
 
         GameFileSystem::GameFileSystem(const GameFileSystem& other) :
+        FileSystem(),
         m_fileSystems(other.m_fileSystems) {}
 
         GameFileSystem& GameFileSystem::operator=(GameFileSystem other) {

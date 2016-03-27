@@ -50,6 +50,7 @@ namespace TrenchBroom {
         BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
 
         BrushRenderer::DefaultFilter::DefaultFilter(const DefaultFilter& other) :
+        Filter(),
         m_context(other.m_context) {}
 
         bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
