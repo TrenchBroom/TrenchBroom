@@ -19,14 +19,37 @@
 
 #include "MapCompilationTask.h"
 
+#include "View/MapCompilationContext.h"
+
+#include <wx/filefn.h>
+
 namespace TrenchBroom {
     namespace View {
         MapCompilationTask::MapCompilationTask() {}
-        
-        MapCompilationTask::MapCompilationTask(const MapCompilationTask& other) {}
     
+        MapCompilationTask::~MapCompilationTask() {}
+
         bool MapCompilationTask::execute(MapCompilationContext& context) const {
             return doExecute(context);
         }
+    
+        MapCompilationCopyFiles::MapCompilationCopyFiles(const String& sourceFileSpec, const String& targetFileSpec) :
+        m_sourceFileSpec(sourceFileSpec),
+        m_targetFileSpec(targetFileSpec) {}
+    
+        bool MapCompilationCopyFiles::doExecute(MapCompilationContext& context) const {
+            const IO::Path sourceFilePath = getSourceFilePath(context);
+            const IO::Path targetFilePath = getTargetFilePath(context);
+            
+        }
+
+        IO::Path MapCompilationCopyFiles::getSourceFilePath(const MapCompilationContext& context) const {
+            return IO::Path(context.translateVariables(m_sourceFileSpec));
+        }
+        
+        IO::Path MapCompilationCopyFiles::getTargetFilePath(const MapCompilationContext& context) const {
+            return IO::Path(context.translateVariables(m_targetFileSpec));
+        }
+        
     }
 }

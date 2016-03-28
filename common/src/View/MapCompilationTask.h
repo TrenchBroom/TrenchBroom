@@ -20,6 +20,9 @@
 #ifndef MapCompilationTask_h
 #define MapCompilationTask_h
 
+#include "StringUtils.h"
+#include "IO/Path.h"
+
 #include <list>
 
 namespace TrenchBroom {
@@ -29,25 +32,48 @@ namespace TrenchBroom {
         class MapCompilationTask {
         public:
             typedef std::list<MapCompilationTask*> List;
-        public:
+        protected:
             MapCompilationTask();
-            MapCompilationTask(const MapCompilationTask& other);
+        public:
+            virtual ~MapCompilationTask();
             
             bool execute(MapCompilationContext& context) const;
         private:
-            bool doExecute(MapCompilationContext& context) const;
+            virtual bool doExecute(MapCompilationContext& context) const = 0;
+        private:
+            MapCompilationTask(const MapCompilationTask& other);
+            MapCompilationTask& operator=(const MapCompilationTask& other);
         };
         
         class MapCompilationCopyFiles : public MapCompilationTask {
+        private:
+            String m_sourceFileSpec;
+            String m_targetFileSpec;
+        public:
+            MapCompilationCopyFiles(const String& sourceFileSpec, const String& targetFileSpec);
+        private:
+            bool doExecute(MapCompilationContext& context) const;
+        
+            IO::Path getSourceFilePath(const MapCompilationContext& context) const;
+            IO::Path getTargetFilePath(const MapCompilationContext& context) const;
+        private:
+            MapCompilationCopyFiles(const MapCompilationCopyFiles& other);
+            MapCompilationCopyFiles& operator=(const MapCompilationCopyFiles& other);
         };
 
-        class MapCompilationMoveFiles : public MapCompilationTask {
-        };
-        
         class MapCompilationRunTool : public MapCompilationTask {
+        private:
+            String m_toolPathSpec;
+            String m_toolParameterSpec;
+        private:
+            MapCompilationRunTool(const MapCompilationRunTool& other);
+            MapCompilationRunTool& operator=(const MapCompilationRunTool& other);
         };
         
         class MapCompilationRunGame : public MapCompilationTask {
+        private:
+            MapCompilationRunGame(const MapCompilationRunGame& other);
+            MapCompilationRunGame& operator=(const MapCompilationRunGame& other);
         };
     }
 }

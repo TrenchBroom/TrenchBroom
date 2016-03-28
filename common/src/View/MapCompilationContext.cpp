@@ -18,3 +18,11 @@
  */
 
 #include "MapCompilationContext.h"
+
+namespace TrenchBroom {
+    namespace View {
+        String MapCompilationContext::translateVariables(const String& input) const {
+            return "";
+        }
+    }
+}

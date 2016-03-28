@@ -31,6 +31,7 @@ namespace TrenchBroom {
             }
 
             const wxColour& highlightText() {
+                // Used for selected tabs of TabBar control.
                 static const wxColour col =
 #if defined __APPLE__
                 wxColour(26, 79, 189);

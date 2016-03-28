@@ -30,7 +30,13 @@ namespace TrenchBroom {
         private:
             MapCompilationTask::List m_tasks;
         public:
+            MapCompilationProfile();
+            ~MapCompilationProfile();
+            
             bool execute(MapCompilationContext& context) const;
+        private:
+            MapCompilationProfile(const MapCompilationProfile& other);
+            MapCompilationProfile& operator=(const MapCompilationProfile& other);
         };
     }
 }

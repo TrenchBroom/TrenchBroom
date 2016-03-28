@@ -20,13 +20,13 @@
 #ifndef MapCompilationContext_h
 #define MapCompilationContext_h
 
-#include <stdio.h>
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace View {
         class MapCompilationContext {
         public:
-            
+            String translateVariables(const String& input) const;
         };
     }
 }

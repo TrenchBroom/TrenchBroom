@@ -19,10 +19,17 @@
 
 #include "MapCompilationProfile.h"
 
+#include "CollectionUtils.h"
 #include "View/MapCompilationTask.h"
 
 namespace TrenchBroom {
     namespace View {
+        MapCompilationProfile::MapCompilationProfile() {}
+        
+        MapCompilationProfile::~MapCompilationProfile() {
+            ListUtils::clearAndDelete(m_tasks);
+        }
+
         bool MapCompilationProfile::execute(MapCompilationContext& context) const {
             MapCompilationTask::List::const_iterator it, end;
             for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
