@@ -37,8 +37,8 @@ namespace TrenchBroom {
                 bool m_files;
                 bool m_directories;
             public:
-                TypeMatcher(const bool files = true, const bool directories = true);
-                bool operator()(const Path& path, const bool directory) const;
+                TypeMatcher(bool files = true, bool directories = true);
+                bool operator()(const Path& path, bool directory) const;
             };
 
             class ExtensionMatcher {
@@ -46,7 +46,15 @@ namespace TrenchBroom {
                 String m_extension;
             public:
                 ExtensionMatcher(const String& extension);
-                bool operator()(const Path& path, const bool directory) const;
+                bool operator()(const Path& path, bool directory) const;
+            };
+            
+            class WildcardMatcher {
+            private:
+                String m_pattern;
+            public:
+                WildcardMatcher(const String& pattern);
+                bool operator()(const Path& path, bool directory) const;
             };
         public:
             FileSystem();
@@ -109,11 +117,13 @@ namespace TrenchBroom {
             
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
-            void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
+            void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         private:
             virtual void doCreateDirectory(const Path& path) = 0;
             virtual void doDeleteFile(const Path& path) = 0;
-            virtual void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) = 0;
+            virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+            virtual void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
         };
     }
 }

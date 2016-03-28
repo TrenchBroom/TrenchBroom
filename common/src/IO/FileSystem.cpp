@@ -44,6 +44,14 @@ namespace TrenchBroom {
             return StringUtils::caseInsensitiveEqual(path.extension(), m_extension);
         }
         
+        FileSystem::WildcardMatcher::WildcardMatcher(const String& pattern) :
+        m_pattern(pattern) {}
+        
+        bool FileSystem::WildcardMatcher::operator()(const Path& path, const bool directory) const {
+            const String filename = path.lastComponent().asString();
+            return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
+        }
+
         FileSystem::FileSystem() {}
         
         FileSystem::FileSystem(const FileSystem& other) {}
@@ -132,6 +140,18 @@ namespace TrenchBroom {
             }
         }
         
+        void WritableFileSystem::copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+            try {
+                if (sourcePath.isAbsolute())
+                    throw FileSystemException("Source path is absolute: '" + sourcePath.asString() + "'");
+                if (destPath.isAbsolute())
+                    throw FileSystemException("Destination path is absolute: '" + destPath.asString() + "'");
+                doCopyFile(sourcePath, destPath, overwrite);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid source or destination path: '" + sourcePath.asString() + "', '" + destPath.asString() + "'", e);
+            }
+        }
+
         void WritableFileSystem::moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             try {
                 if (sourcePath.isAbsolute())

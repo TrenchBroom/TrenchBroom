@@ -419,5 +419,45 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.fileExists(Path("test2.map")));
             ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
         }
+        
+        TEST(WritableDiskFileSystemTest, copyFile) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.copyFile(Path("c:\\hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("C:\\dest.txt"), false), FileSystemException);
+#else
+            ASSERT_THROW(fs.copyFile(Path("/hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("/dest.txt"), false), FileSystemException);
+#endif
+            
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("test2.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/test3.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
+            
+            fs.copyFile(Path("test.txt"),
+                        Path("test2.txt"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            
+            fs.copyFile(Path("test2.txt"),
+                        Path("test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            // we're trusting that the file is actually overwritten (should really test the contents here...)
+            
+            fs.copyFile(Path("test2.map"),
+                        Path("dir1/test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+        }
     }
 }

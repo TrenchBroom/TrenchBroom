@@ -66,6 +66,7 @@ namespace TrenchBroom {
         private:
             void doCreateDirectory(const Path& path);
             void doDeleteFile(const Path& path);
+            void doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
             void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
         };
     }

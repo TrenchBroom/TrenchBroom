@@ -254,9 +254,18 @@ namespace TrenchBroom {
                 throw FileSystemException("Could not delete file '" + path.asString() + "'");
         }
         
+        void WritableDiskFileSystem::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+            if (!overwrite && fileExists(destPath))
+                throw FileSystemException("Could not copy file '" + sourcePath.asString() + "' to '" + destPath.asString() + "': file already exists");
+            if (!::wxCopyFile((m_root + fixPath(sourcePath)).asString(),
+                              (m_root + fixPath(destPath)).asString(),
+                              overwrite))
+                throw FileSystemException("Could not copy file '" + sourcePath.asString() + "' to '" + destPath.asString() + "'");
+        }
+
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             if (!overwrite && fileExists(destPath))
-                throw FileSystemException("Could not move file '" + sourcePath.asString() + "' to '" + destPath.asString() + "'");
+                throw FileSystemException("Could not move file '" + sourcePath.asString() + "' to '" + destPath.asString() + "': file already exists");
             if (!::wxRenameFile((m_root + fixPath(sourcePath)).asString(),
                                 (m_root + fixPath(destPath)).asString(),
                                 overwrite))
