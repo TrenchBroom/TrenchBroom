@@ -128,7 +128,7 @@ namespace TrenchBroom {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
-	    // This causes some shortcuts such as "2" to not work on Windows.
+            // This causes some shortcuts such as "2" to not work on Windows.
             // But it's necessary to enable one key menu shortcuts to work on GTK.
             addMenuActions(context, view, tableEntries);
 #endif

@@ -147,7 +147,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 ENDIF()
 
 # Set up the resources and DLLs for the executable
-IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 	# Copy button images to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/images"

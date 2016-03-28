@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
         
         bool KeyboardShortcut::isShortcutValid(const int key, const int modifier1, const int modifier2, const int modifier3) {
-#ifdef __linux__
+#ifdef __WXGTK20__
             // TAB and Escape are never allowed on GTK2:
             if (key == WXK_TAB || key == WXK_ESCAPE)
                 return false;
