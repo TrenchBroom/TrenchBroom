@@ -184,21 +184,34 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, matchesPattern) {
-        ASSERT_TRUE(matchesPattern("", ""));
-        ASSERT_TRUE(matchesPattern("", "*"));
-        ASSERT_FALSE(matchesPattern("", "?"));
-        ASSERT_TRUE(matchesPattern("asdf", "asdf"));
-        ASSERT_TRUE(matchesPattern("asdf", "*"));
-        ASSERT_TRUE(matchesPattern("asdf", "a??f"));
-        ASSERT_FALSE(matchesPattern("asdf", "a?f"));
-        ASSERT_TRUE(matchesPattern("asdf", "*f"));
-        ASSERT_TRUE(matchesPattern("asdf", "a*f"));
-        ASSERT_TRUE(matchesPattern("asdf", "?s?f"));
-        ASSERT_TRUE(matchesPattern("asdfjkl", "a*f*l"));
-        ASSERT_TRUE(matchesPattern("asdfjkl", "*a*f*l*"));
-        ASSERT_TRUE(matchesPattern("asd*fjkl", "*a*f*l*"));
-        ASSERT_TRUE(matchesPattern("asd*fjkl", "asd\\*fjkl"));
-        ASSERT_TRUE(matchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("", ""));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("", "*"));
+        ASSERT_FALSE(caseSensitiveMatchesPattern("", "?"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "asdf"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "a??f"));
+        ASSERT_FALSE(caseSensitiveMatchesPattern("asdf", "a?f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "*f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "a*f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "?s?f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdfjkl", "a*f*l"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdfjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*fjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*fjkl", "asd\\*fjkl"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "asdf"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsdF", "*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "a??f"));
+        ASSERT_FALSE(caseInsensitiveMatchesPattern("AsDF", "a?f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("asdF", "*f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("aSDF", "a*f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASDF", "?s?f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsDfjkl", "a*f*l"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsDfjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "*a*f*l*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "asd\\*fjkl"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
     }
     
     TEST(StringUtilsTest, escape) {

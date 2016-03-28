@@ -149,8 +149,12 @@ namespace StringUtils {
         return str.find_first_not_of(" \t\n\r") == String::npos;
     }
 
-    bool matchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end());
+    bool caseSensitiveMatchesPattern(const String& str, const String& pattern) {
+        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end(), StringUtils::CharEqual<StringUtils::CaseSensitiveCharCompare>());
+    }
+    
+    bool caseInsensitiveMatchesPattern(const String& str, const String& pattern) {
+        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end(), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
     }
 
     long makeHash(const String& str) {
