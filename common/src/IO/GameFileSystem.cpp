@@ -21,8 +21,9 @@
 
 #include "CollectionUtils.h"
 #include "StringUtils.h"
-#include "DiskFileSystem.h"
-#include "PakFileSystem.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
+#include "IO/PakFileSystem.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             if (Disk::directoryExists(path)) {
                 FSPtr diskFS(new DiskFileSystem(path));
                 if (StringUtils::caseInsensitiveEqual(pakExtension, "pak")) {
-                    const Path::List paks = diskFS->findItems(Path(""), FileSystem::ExtensionMatcher(pakExtension));
+                    const Path::List paks = diskFS->findItems(Path(""), FileExtensionMatcher(pakExtension));
                     Path::List::const_iterator it, end;
                     for (it = paks.begin(), end = paks.end(); it != end; ++it) {
                         MappedFile::Ptr file = diskFS->openFile(*it);

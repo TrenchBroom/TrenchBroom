@@ -21,37 +21,10 @@
 
 #include "Exceptions.h"
 
+#include "IO/FileMatcher.h"
+
 namespace TrenchBroom {
     namespace IO {
-        FileSystem::TypeMatcher::TypeMatcher(const bool files, const bool directories) :
-        m_files(files),
-        m_directories(directories) {}
-        
-        bool FileSystem::TypeMatcher::operator()(const Path& path, const bool directory) const {
-            if (m_files && !directory)
-                return true;
-            if (m_directories && directory)
-                return true;
-            return false;
-        }
-
-        FileSystem::ExtensionMatcher::ExtensionMatcher(const String& extension) :
-        m_extension(extension) {}
-        
-        bool FileSystem::ExtensionMatcher::operator()(const Path& path, const bool directory) const {
-            if (directory)
-                return false;
-            return StringUtils::caseInsensitiveEqual(path.extension(), m_extension);
-        }
-        
-        FileSystem::WildcardMatcher::WildcardMatcher(const String& pattern) :
-        m_pattern(pattern) {}
-        
-        bool FileSystem::WildcardMatcher::operator()(const Path& path, const bool directory) const {
-            const String filename = path.lastComponent().asString();
-            return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
-        }
-
         FileSystem::FileSystem() {}
         
         FileSystem::FileSystem(const FileSystem& other) {}
@@ -81,11 +54,11 @@ namespace TrenchBroom {
         }
 
         Path::List FileSystem::findItems(const Path& path) const {
-            return findItems(path, TypeMatcher());
+            return findItems(path, FileTypeMatcher());
         }
         
         Path::List FileSystem::findItemsRecursively(const Path& path) const {
-            return findItemsRecursively(path, TypeMatcher());
+            return findItemsRecursively(path, FileTypeMatcher());
         }
 
         Path::List FileSystem::getDirectoryContents(const Path& path) const {

@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/PakFileSystem.h"
 #include "IO/MappedFile.h"
 
@@ -72,12 +73,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
             
-            items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("cfg"));
+            items = fs.findItems(Path(""), FileExtensionMatcher("cfg"));
             ASSERT_EQ(2u, items.size());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
 
-            items = fs.findItems(Path("pics"), FileSystem::ExtensionMatcher("cfg"));
+            items = fs.findItems(Path("pics"), FileExtensionMatcher("cfg"));
             ASSERT_TRUE(items.empty());
 
             items = fs.findItems(Path("pics"));
@@ -115,7 +116,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
             
-            items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("wal"));
+            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal"));
             ASSERT_EQ(7u, items.size());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/box1_3.wal")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/brlava.wal")) != items.end());
@@ -125,7 +126,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stairs1_3.wal")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
             
-            items = fs.findItemsRecursively(Path("textures"), FileSystem::ExtensionMatcher("WAL"));
+            items = fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL"));
             ASSERT_EQ(7u, items.size());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/box1_3.wal")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/brlava.wal")) != items.end());

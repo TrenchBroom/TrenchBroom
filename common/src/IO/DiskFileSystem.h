@@ -26,26 +26,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace Disk {
-            bool isCaseSensitive();
-            
-            Path fixPath(const Path& path);
-            
-            bool directoryExists(const Path& path);
-            bool fileExists(const Path& path);
-            
-            Path::List getDirectoryContents(const Path& path);
-            MappedFile::Ptr openFile(const Path& path);
-            Path getCurrentWorkingDir();
-            
-            void createDirectory(const Path& path);
-            void deleteFile(const Path& path);
-            void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-            void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-            
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
-        }
-        
         class DiskFileSystem : public FileSystem {
         protected:
             Path m_root;

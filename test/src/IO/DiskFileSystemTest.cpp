@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 
 #include <algorithm>
@@ -250,7 +251,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
-            items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("TXT"));
+            items = fs.findItems(Path(""), FileExtensionMatcher("TXT"));
             ASSERT_EQ(1u, items.size());
             ASSERT_EQ(Path("test.txt"), items.front());
 
@@ -282,7 +283,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
-            items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("MAP"));
+            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP"));
             ASSERT_EQ(3u, items.size());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());

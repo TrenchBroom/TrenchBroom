@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
@@ -115,7 +116,7 @@ namespace TrenchBroom {
             if (!fs.directoryExists(IO::Path("games")))
                 return;
             
-            const IO::Path::List configFiles = fs.findItems(IO::Path("games"), IO::FileSystem::ExtensionMatcher("cfg"));
+            const IO::Path::List configFiles = fs.findItems(IO::Path("games"), IO::FileExtensionMatcher("cfg"));
             
             IO::Path::List::const_iterator it, end;
             for (it = configFiles.begin(), end = configFiles.end(); it != end; ++it) {

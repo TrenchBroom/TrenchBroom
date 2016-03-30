@@ -29,6 +29,7 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureCollectionSpec.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/IOUtils.h"
 
 #include <algorithm>
@@ -40,7 +41,7 @@ namespace TrenchBroom {
         m_palette(palette) {}
         
         Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            Path::List texturePaths = m_fs.findItems(spec.path(), FileSystem::ExtensionMatcher("wal"));
+            Path::List texturePaths = m_fs.findItems(spec.path(), FileExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
             
             Assets::TextureList textures;

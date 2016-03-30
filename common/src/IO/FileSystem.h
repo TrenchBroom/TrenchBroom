@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_FileSystem
 #define TrenchBroom_FileSystem
 
+#include "Functor.h"
 #include "StringUtils.h"
+#include "IO/DiskIO.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
@@ -32,30 +34,6 @@ namespace TrenchBroom {
         
         class FileSystem {
         public:
-            class TypeMatcher {
-            private:
-                bool m_files;
-                bool m_directories;
-            public:
-                TypeMatcher(bool files = true, bool directories = true);
-                bool operator()(const Path& path, bool directory) const;
-            };
-
-            class ExtensionMatcher {
-            private:
-                String m_extension;
-            public:
-                ExtensionMatcher(const String& extension);
-                bool operator()(const Path& path, bool directory) const;
-            };
-            
-            class WildcardMatcher {
-            private:
-                String m_pattern;
-            public:
-                WildcardMatcher(const String& pattern);
-                bool operator()(const Path& path, bool directory) const;
-            };
         public:
             FileSystem();
             FileSystem(const FileSystem& other);
@@ -85,8 +63,8 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& path) const;
             const MappedFile::Ptr openFile(const Path& path) const;
         private:
-            template <class Matcher>
-            void doFindItems(const Path& searchPath, const Matcher& matcher, const bool recurse, Path::List& result) const {
+            template <class M>
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
                 const Path::List contents = getDirectoryContents(searchPath);
                 Path::List::const_iterator it, end;
                 for (it = contents.begin(), end = contents.end(); it != end; ++it) {

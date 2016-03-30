@@ -41,6 +41,7 @@ namespace TrenchBroom {
             const IO::Path sourceFilePath = getSourceFilePath(context);
             const IO::Path targetFilePath = getTargetFilePath(context);
             
+            
         }
 
         IO::Path MapCompilationCopyFiles::getSourceFilePath(const MapCompilationContext& context) const {

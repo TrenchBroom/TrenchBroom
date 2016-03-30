@@ -81,6 +81,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R>
+    class ConstMemFuncPtr0 : public FuncBase0<R> {
+    public:
+        typedef R (C::*F)() const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr0(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()() const {
+            return (m_receiver->*m_function)();
+        }
+    };
+    
     template <typename R>
     class Func0 {
     private:
@@ -122,7 +139,7 @@ namespace TrenchBroom {
             return (*m_func)();
         }
     };
-
+    
     // ====== Function pointer with 1 argument ======
     template <typename R, typename A1>
     class FuncBase1 {
@@ -172,6 +189,23 @@ namespace TrenchBroom {
         F m_function;
     public:
         MemFuncPtr1(C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1) const {
+            return (m_receiver->*m_function)(a1);
+        }
+    };
+    
+    template <class C, typename R, typename A1>
+    class ConstMemFuncPtr1 : public FuncBase1<R,A1> {
+    public:
+        typedef R (C::*F)(A1 a1) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr1(const C* receiver, F function) :
         m_receiver(receiver),
         m_function(function) {}
         
@@ -279,6 +313,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R, typename A1, typename A2>
+    class ConstMemFuncPtr2 : public FuncBase2<R,A1,A2> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr2(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2) const {
+            return (m_receiver->*m_function)(a1, a2);
+        }
+    };
+    
     template <typename R, typename A1, typename A2>
     class Func2 {
     private:
@@ -296,7 +347,7 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr2<R,A1,A2>(func);
         }
-
+        
 #ifdef _MSC_VER
         void bindFunc(typename StdCallFuncPtr2<R,A1,A2>::F func) {
             delete m_func;
@@ -378,6 +429,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R, typename A1, typename A2, typename A3>
+    class ConstMemFuncPtr3 : public FuncBase3<R,A1,A2,A3> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr3(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3) const {
+            return (m_receiver->*m_function)(a1, a2, a3);
+        }
+    };
+    
     template <typename R, typename A1, typename A2, typename A3>
     class Func3 {
     private:
@@ -402,7 +470,7 @@ namespace TrenchBroom {
             m_func = new StdCallFuncPtr3<R,A1,A2,A3>(func);
         }
 #endif
-
+        
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr3<C,R,A1,A2,A3>::F func) {
             delete m_func;
@@ -469,6 +537,23 @@ namespace TrenchBroom {
         F m_function;
     public:
         MemFuncPtr4(C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4);
+        }
+    };
+    
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4>
+    class ConstMemFuncPtr4 : public FuncBase4<R,A1,A2,A3,A4> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr4(const C* receiver, F function) :
         m_receiver(receiver),
         m_function(function) {}
         
@@ -576,6 +661,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+    class ConstMemFuncPtr5 : public FuncBase5<R,A1,A2,A3,A4,A5> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr5(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5);
+        }
+    };
+    
     template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
     class Func5 {
     private:
@@ -667,6 +769,23 @@ namespace TrenchBroom {
         F m_function;
     public:
         MemFuncPtr6(C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6);
+        }
+    };
+    
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+    class ConstMemFuncPtr6 : public FuncBase6<R,A1,A2,A3,A4,A5,A6> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr6(const C* receiver, F function) :
         m_receiver(receiver),
         m_function(function) {}
         
@@ -774,6 +893,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+    class ConstMemFuncPtr7 : public FuncBase7<R,A1,A2,A3,A4,A5,A6,A7> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr7(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7);
+        }
+    };
+    
     template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
     class Func7 {
     private:
@@ -873,6 +1009,23 @@ namespace TrenchBroom {
         }
     };
     
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+    class ConstMemFuncPtr8 : public FuncBase8<R,A1,A2,A3,A4,A5,A6,A7,A8> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr8(const C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+    };
+    
     template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
     class Func8 {
     private:
@@ -964,6 +1117,23 @@ namespace TrenchBroom {
         F m_function;
     public:
         MemFuncPtr9(C* receiver, F function) :
+        m_receiver(receiver),
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const {
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+    };
+    
+    template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
+    class ConstMemFuncPtr9 : public FuncBase9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> {
+    public:
+        typedef R (C::*F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const;
+    private:
+        const C* m_receiver;
+        F m_function;
+    public:
+        ConstMemFuncPtr9(const C* receiver, F function) :
         m_receiver(receiver),
         m_function(function) {}
         

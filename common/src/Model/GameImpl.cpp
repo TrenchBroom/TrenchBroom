@@ -26,6 +26,7 @@
 #include "IO/DefParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
+#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
@@ -155,7 +156,7 @@ namespace TrenchBroom {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
                 if (!searchPath.isEmpty())
-                    return m_fs.findItems(searchPath, IO::FileSystem::TypeMatcher(false, true));
+                    return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
                 throw GameException("Cannot find builtin textures: " + String(e.what()));
@@ -342,7 +343,7 @@ namespace TrenchBroom {
             
             const String& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
-            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileSystem::TypeMatcher(false, true));
+            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
                 if (!StringUtils::caseInsensitiveEqual(mod, defaultMod))
