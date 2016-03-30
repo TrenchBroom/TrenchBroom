@@ -104,24 +104,20 @@ namespace TrenchBroom {
             }
             
             bool directoryExists(const Path& path) {
-                if (!path.isAbsolute())
-                    throw FileSystemException("Cannot handle relative path: '" + path.asString() + "'");
-                return ::wxDirExists(path.asString());
+                const Path fixedPath = fixPath(path);
+                return ::wxDirExists(fixedPath.asString());
             }
             
             bool fileExists(const Path& path) {
-                if (!path.isAbsolute())
-                    throw FileSystemException("Cannot handle relative path: '" + path.asString() + "'");
-                return ::wxFileExists(path.asString());
+                const Path fixedPath = fixPath(path);
+                return ::wxFileExists(fixedPath.asString());
             }
             
             Path::List getDirectoryContents(const Path& path) {
-                if (!path.isAbsolute())
-                    throw FileSystemException("Cannot get contents of relative path: '" + path.asString() + "'");
-                
-                wxDir dir(path.asString());
+                const Path fixedPath = fixPath(path);
+                wxDir dir(fixedPath.asString());
                 if (!dir.IsOpened())
-                    throw FileSystemException("Cannot open directory: '" + path.asString() + "'");
+                    throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
                 
                 Path::List result;
                 wxString filename;
@@ -135,14 +131,13 @@ namespace TrenchBroom {
             }
             
             MappedFile::Ptr openFile(const Path& path) {
-                if (!path.isAbsolute())
-                    throw FileSystemException("Cannot open file at relative path: '" + path.asString() + "'");
-                if (!fileExists(path))
-                    throw FileNotFoundException("File not found: '" + path.asString() + "'");
+                const Path fixedPath = fixPath(path);
+                if (!fileExists(fixedPath))
+                    throw FileNotFoundException("File not found: '" + fixedPath.asString() + "'");
 #ifdef _WIN32
-                return MappedFile::Ptr(new WinMappedFile(path, std::ios::in));
+                return MappedFile::Ptr(new WinMappedFile(fixedPath, std::ios::in));
 #else
-                return MappedFile::Ptr(new PosixMappedFile(path, std::ios::in));
+                return MappedFile::Ptr(new PosixMappedFile(fixedPath, std::ios::in));
 #endif
             }
             
@@ -150,6 +145,42 @@ namespace TrenchBroom {
                 return Path(::wxGetCwd().ToStdString());
             }
             
+            void createDirectory(const Path& path) {
+                const Path fixedPath = fixPath(path);
+                if (fileExists(fixedPath))
+                    throw FileSystemException("Could not create directory '" + fixedPath.asString() + "': A file already exists at that path.");
+                if (directoryExists(fixedPath))
+                    throw FileSystemException("Could not create directory '" + fixedPath.asString() + "': A directory already exists at that path.");
+                if (!::wxMkdir(fixedPath.asString()))
+                    throw FileSystemException("Could not create directory '" + fixedPath.asString() + "'");
+            }
+            
+            void deleteFile(const Path& path) {
+                const Path fixedPath = fixPath(path);
+                if (!fileExists(fixedPath))
+                    throw FileSystemException("Could not delete file '" + fixedPath.asString() + "': File does not exist.");
+                if (!::wxRemoveFile(fixedPath.asString()))
+                    throw FileSystemException("Could not delete file '" + path.asString() + "'");
+            }
+            
+            void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+                const Path fixedSourcePath = fixPath(sourcePath);
+                const Path fixedDestPath = fixPath(destPath);
+                if (!overwrite && fileExists(fixedDestPath))
+                    throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (!::wxCopyFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
+                    throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
+            }
+            
+            void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+                const Path fixedSourcePath = fixPath(sourcePath);
+                const Path fixedDestPath = fixPath(destPath);
+                if (!overwrite && fileExists(fixedDestPath))
+                    throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (!::wxRenameFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
+                    throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
+            }
+
             IO::Path resolvePath(const Path::List& searchPaths, const Path& path) {
                 if (path.isAbsolute()) {
                     if (fileExists(path) || directoryExists(path))
@@ -176,62 +207,23 @@ namespace TrenchBroom {
         }
         
         const Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
-            return getPath() + fixPath(relPath);
-        }
-        
-        Path DiskFileSystem::fixPath(const Path& path) const {
-            if (path.isAbsolute())
-                throw FileSystemException("Cannot handle absolute path: '" + path.asString() + "'");
-            if (path.isEmpty())
-                return path;
-            return fixCase(path.makeCanonical());
-        }
-        
-        Path DiskFileSystem::fixCase(const Path& path) const {
-            if (path.isEmpty() || !Disk::isCaseSensitive())
-                return path;
-            const String str = (m_root + path).asString();
-            if (::wxFileExists(str) || ::wxDirExists(str))
-                return path;
-            
-            Path result("");
-            Path remainder(path);
-            if (remainder.isEmpty())
-                return result;
-            
-            while (!remainder.isEmpty()) {
-                const Path currentPath = m_root + result;
-                const Path nextPath = currentPath + remainder.firstComponent();
-                const String nextPathStr = nextPath.asString();
-                if (!::wxDirExists(nextPathStr) &&
-                    !::wxFileExists(nextPathStr)) {
-                    const Path::List content = Disk::getDirectoryContents(currentPath);
-                    const Path part = Disk::findCaseSensitivePath(content, remainder.firstComponent());
-                    if (part.isEmpty())
-                        return path;
-                    result = result + part;
-                } else {
-                    result = result + remainder.firstComponent();
-                }
-                remainder = remainder.deleteFirstComponent();
-            }
-            return result;
+            return getPath() + relPath.makeCanonical();
         }
         
         bool DiskFileSystem::doDirectoryExists(const Path& path) const {
-            return Disk::directoryExists(m_root + fixPath(path));
+            return Disk::directoryExists(m_root + path.makeCanonical());
         }
         
         bool DiskFileSystem::doFileExists(const Path& path) const {
-            return Disk::fileExists(m_root + fixPath(path));
+            return Disk::fileExists(m_root + path.makeCanonical());
         }
         
         Path::List DiskFileSystem::doGetDirectoryContents(const Path& path) const {
-            return Disk::getDirectoryContents(m_root + fixPath(path));
+            return Disk::getDirectoryContents(m_root + path.makeCanonical());
         }
         
         const MappedFile::Ptr DiskFileSystem::doOpenFile(const Path& path) const {
-            return Disk::openFile(m_root + fixPath(path));
+            return Disk::openFile(m_root + path.makeCanonical());
         }
         
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :
@@ -241,35 +233,19 @@ namespace TrenchBroom {
         }
         
         void WritableDiskFileSystem::doCreateDirectory(const Path& path) {
-            if (fileExists(path) || directoryExists(path))
-                throw FileSystemException("Could not create directory '" + path.asString() + "'");
-            if (!::wxMkdir((m_root + fixPath(path)).asString()))
-                throw FileSystemException("Could not create directory '" + path.asString() + "'");
+            Disk::createDirectory(m_root + path.makeCanonical());
         }
         
         void WritableDiskFileSystem::doDeleteFile(const Path& path) {
-            if (!fileExists(path))
-                throw FileSystemException("Could not delete file '" + path.asString() + "'");
-            if (!::wxRemoveFile((m_root + fixPath(path)).asString()))
-                throw FileSystemException("Could not delete file '" + path.asString() + "'");
+            Disk::deleteFile(m_root + path.makeCanonical());
         }
         
         void WritableDiskFileSystem::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            if (!overwrite && fileExists(destPath))
-                throw FileSystemException("Could not copy file '" + sourcePath.asString() + "' to '" + destPath.asString() + "': file already exists");
-            if (!::wxCopyFile((m_root + fixPath(sourcePath)).asString(),
-                              (m_root + fixPath(destPath)).asString(),
-                              overwrite))
-                throw FileSystemException("Could not copy file '" + sourcePath.asString() + "' to '" + destPath.asString() + "'");
+            Disk::copyFile(m_root + sourcePath.makeCanonical(), m_root + destPath.makeCanonical(), overwrite);
         }
 
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            if (!overwrite && fileExists(destPath))
-                throw FileSystemException("Could not move file '" + sourcePath.asString() + "' to '" + destPath.asString() + "': file already exists");
-            if (!::wxRenameFile((m_root + fixPath(sourcePath)).asString(),
-                                (m_root + fixPath(destPath)).asString(),
-                                overwrite))
-                throw FileSystemException("Could not move file '" + sourcePath.asString() + "' to '" + destPath.asString() + "'");
+            Disk::moveFile(m_root + sourcePath.makeCanonical(), m_root + destPath.makeCanonical(), overwrite);
         }
     }
 }

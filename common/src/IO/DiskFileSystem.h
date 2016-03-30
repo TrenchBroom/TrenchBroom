@@ -38,6 +38,11 @@ namespace TrenchBroom {
             MappedFile::Ptr openFile(const Path& path);
             Path getCurrentWorkingDir();
             
+            void createDirectory(const Path& path);
+            void deleteFile(const Path& path);
+            void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            
             IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
         }
         
@@ -45,13 +50,10 @@ namespace TrenchBroom {
         protected:
             Path m_root;
         public:
-            DiskFileSystem(const Path& root, const bool ensureExists = true);
+            DiskFileSystem(const Path& root, bool ensureExists = true);
             
             const Path& getPath() const;
             const Path makeAbsolute(const Path& relPath) const;
-        protected:
-            Path fixPath(const Path& path) const;
-            Path fixCase(const Path& path) const;
         private:
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
@@ -62,12 +64,12 @@ namespace TrenchBroom {
         
         class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
         public:
-            WritableDiskFileSystem(const Path& root, const bool create);
+            WritableDiskFileSystem(const Path& root, bool create);
         private:
             void doCreateDirectory(const Path& path);
             void doDeleteFile(const Path& path);
-            void doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
-            void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         };
     }
 }
