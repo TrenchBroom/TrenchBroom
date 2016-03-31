@@ -19,8 +19,6 @@
 
 #include "DiskIO.h"
 
-#include "IO/FileMatcher.h"
-
 #include <wx/dir.h>
 #include <wx/filefn.h>
 #include <wx/filename.h>
@@ -169,18 +167,22 @@ namespace TrenchBroom {
             
             void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
                 const Path fixedSourcePath = fixPath(sourcePath);
-                const Path fixedDestPath = fixPath(destPath);
+                Path fixedDestPath = fixPath(destPath);
                 if (!overwrite && fileExists(fixedDestPath))
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (directoryExists(fixedDestPath))
+                    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
                 if (!::wxCopyFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
             
             void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
                 const Path fixedSourcePath = fixPath(sourcePath);
-                const Path fixedDestPath = fixPath(destPath);
+                Path fixedDestPath = fixPath(destPath);
                 if (!overwrite && fileExists(fixedDestPath))
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (directoryExists(fixedDestPath))
+                    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
                 if (!::wxRenameFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }

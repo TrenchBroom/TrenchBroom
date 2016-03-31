@@ -22,6 +22,7 @@
 
 #include "Functor.h"
 
+#include "IO/FileMatcher.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
@@ -73,8 +74,70 @@ namespace TrenchBroom {
             
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
+
+            template <typename M>
+            void deleteFiles(const Path& sourceDirPath, const M& matcher) {
+                const Path::List files = findItems(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    deleteFile(filePath);
+                }
+            }
+            
+            template <typename M>
+            void deleteFilesRecursively(const Path& sourceDirPath, const M& matcher) {
+                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    deleteFile(filePath);
+                }
+            }
+            
             void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            
+            template <typename M>
+            void copyFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
+                const Path::List files = findItems(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    copyFile(filePath, destDirPath, overwrite);
+                }
+            }
+            
+            template <typename M>
+            void copyFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
+                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    copyFile(filePath, destDirPath, overwrite);
+                }
+            }
+            
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            
+            template <typename M>
+            void moveFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
+                const Path::List files = findItems(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    moveFile(filePath, destDirPath, overwrite);
+                }
+            }
+            
+            template <typename M>
+            void moveFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
+                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
+                Path::List::const_iterator it, end;
+                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                    const Path& filePath = *it;
+                    moveFile(filePath, destDirPath, overwrite);
+                }
+            }
             
             IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
         }
