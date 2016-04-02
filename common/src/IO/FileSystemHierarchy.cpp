@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameFileSystem.h"
+#include "FileSystemHierarchy.h"
 
 #include "CollectionUtils.h"
 #include "StringUtils.h"
@@ -27,74 +27,46 @@
 
 namespace TrenchBroom {
     namespace IO {
-        GameFileSystem::GameFileSystem(const String& pakExtension, const Path& gamePath, const Path& searchPath, const Path::List& additionalSearchPaths) {
-            if (!gamePath.isEmpty()) {
-                addFileSystem(pakExtension, gamePath + searchPath);
-                
-                Path::List::const_iterator it, end;
-                for (it = additionalSearchPaths.begin(), end = additionalSearchPaths.end(); it != end; ++it)
-                    addFileSystem(pakExtension, gamePath + *it);
-            }
-        }
+        FileSystemHierarchy::FileSystemHierarchy() {}
 
-        GameFileSystem::GameFileSystem(const GameFileSystem& other) :
-        FileSystem(),
-        m_fileSystems(other.m_fileSystems) {}
-
-        GameFileSystem& GameFileSystem::operator=(GameFileSystem other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
+        FileSystemHierarchy::~FileSystemHierarchy() {
+            clear();
         }
         
-        void swap(GameFileSystem& lhs, GameFileSystem& rhs) {
-            using std::swap;
-            swap(lhs.m_fileSystems, rhs.m_fileSystems);
+        void FileSystemHierarchy::addFileSystem(FileSystem* fileSystem) {
+            assert(fileSystem != NULL);
+            m_fileSystems.push_back(fileSystem);
         }
 
-        void GameFileSystem::addFileSystem(const String& pakExtension, const Path& path) {
-            if (Disk::directoryExists(path)) {
-                FSPtr diskFS(new DiskFileSystem(path));
-                if (StringUtils::caseInsensitiveEqual(pakExtension, "pak")) {
-                    const Path::List paks = diskFS->findItems(Path(""), FileExtensionMatcher(pakExtension));
-                    Path::List::const_iterator it, end;
-                    for (it = paks.begin(), end = paks.end(); it != end; ++it) {
-                        MappedFile::Ptr file = diskFS->openFile(*it);
-                        assert(file.get() != NULL);
-                        m_fileSystems.push_back(FSPtr(new PakFileSystem(path, file)));
-                    }
-                } else {
-                    throw FileSystemException("Unknown file extension: '" + pakExtension + "'");
-                }
-                m_fileSystems.push_back(diskFS);
-            }
+        void FileSystemHierarchy::clear() {
+            VectorUtils::clearAndDelete(m_fileSystems);
         }
 
-        bool GameFileSystem::doDirectoryExists(const Path& path) const {
+        bool FileSystemHierarchy::doDirectoryExists(const Path& path) const {
             FileSystemList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FSPtr fileSystem = *it;
+                const FileSystem* fileSystem = *it;
                 if (fileSystem->directoryExists(path))
                     return true;
             }
             return false;
         }
         
-        bool GameFileSystem::doFileExists(const Path& path) const {
+        bool FileSystemHierarchy::doFileExists(const Path& path) const {
             FileSystemList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FSPtr fileSystem = *it;
+                const FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path))
                     return true;
             }
             return false;
         }
         
-        Path::List GameFileSystem::doGetDirectoryContents(const Path& path) const {
+        Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
             Path::List result;
             FileSystemList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FSPtr fileSystem = *it;
+                const FileSystem* fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
                     const Path::List contents = fileSystem->getDirectoryContents(path);
                     VectorUtils::append(result, contents);
@@ -105,10 +77,10 @@ namespace TrenchBroom {
             return result;
         }
         
-        const MappedFile::Ptr GameFileSystem::doOpenFile(const Path& path) const {
+        const MappedFile::Ptr FileSystemHierarchy::doOpenFile(const Path& path) const {
             FileSystemList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FSPtr fileSystem = *it;
+                const FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     const MappedFile::Ptr file = fileSystem->openFile(path);
                     if (file.get() != NULL)

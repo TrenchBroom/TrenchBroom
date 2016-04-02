@@ -32,11 +32,18 @@ namespace TrenchBroom {
     namespace Model {
         class GameConfig {
         public:
+            struct PackageFormatConfig {
+                String extension;
+                String format;
+                
+                PackageFormatConfig(const String& i_extension, const String& i_format);
+            };
+            
             struct FileSystemConfig {
                 IO::Path searchPath;
-                String packageFormat;
+                PackageFormatConfig packageFormat;
                 
-                FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat);
+                FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
             };
             
             struct TextureConfig {

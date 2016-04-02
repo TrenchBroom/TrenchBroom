@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -42,11 +42,14 @@ namespace TrenchBroom {
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
             
-            IO::GameFileSystem m_fs;
+            IO::FileSystemHierarchy m_gameFS;
             Assets::Palette* m_palette;
         public:
             GameImpl(const GameConfig& config, const IO::Path& gamePath);
             ~GameImpl();
+        private:
+            void initializeFileSystem();
+            void addPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const;
             IO::Path doGamePath() const;

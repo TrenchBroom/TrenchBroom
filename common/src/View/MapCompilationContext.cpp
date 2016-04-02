@@ -24,5 +24,8 @@ namespace TrenchBroom {
         String MapCompilationContext::translateVariables(const String& input) const {
             return "";
         }
+
+        void MapCompilationContext::appendOutput(const String& text) {
+        }
     }
 }

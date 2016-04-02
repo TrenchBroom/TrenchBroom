@@ -84,10 +84,22 @@ namespace TrenchBroom {
             expectTableEntry("searchpath", ConfigEntry::Type_Value, table);
             const String searchPath = table["searchpath"];
             
-            expectTableEntry("packageformat", ConfigEntry::Type_Value, table);
-            const String packageFormat = table["packageformat"];
+            expectTableEntry("packageformat", ConfigEntry::Type_Table, table);
+            const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(table["packageformat"]);
             
-            return GameConfig::FileSystemConfig(Path(searchPath), packageFormat);
+            return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
+        }
+
+        Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            expectTableEntry("extension", ConfigEntry::Type_Value, table);
+            const String extension = table["extension"];
+            
+            expectTableEntry("format", ConfigEntry::Type_Value, table);
+            const String format = table["format"];
+            
+            return GameConfig::PackageFormatConfig(extension, format);
         }
 
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const ConfigTable& table) const {

@@ -27,7 +27,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat) :
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
+        extension(i_extension),
+        format(i_format) {}
+
+        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
         
@@ -91,7 +95,7 @@ namespace TrenchBroom {
         GameConfig::GameConfig() :
         m_path(IO::Path("")),
         m_icon(IO::Path("")),
-        m_fileSystemConfig(IO::Path(""), ""),
+        m_fileSystemConfig(IO::Path(""), PackageFormatConfig("", "")),
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 

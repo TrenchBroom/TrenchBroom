@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GameFileSystem
-#define TrenchBroom_GameFileSystem
+#ifndef TrenchBroom_FileSystemHierarchy
+#define TrenchBroom_FileSystemHierarchy
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
@@ -31,27 +31,27 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
         
-        class GameFileSystem : public FileSystem {
+        class FileSystemHierarchy : public FileSystem {
         private:
-            typedef std::tr1::shared_ptr<FileSystem> FSPtr;
-            typedef std::vector<FSPtr> FileSystemList;
+            typedef std::vector<FileSystem*> FileSystemList;
             FileSystemList m_fileSystems;
         public:
-            GameFileSystem(const String& pakExtension, const Path& gamePath, const Path& searchPath, const Path::List& additionalSearchPaths = Path::List());
-            GameFileSystem(const GameFileSystem& other);
+            FileSystemHierarchy();
+            virtual ~FileSystemHierarchy();
             
-            GameFileSystem& operator=(GameFileSystem other);
-            friend void swap(GameFileSystem& lhs, GameFileSystem& rhs);
+            void addFileSystem(FileSystem* fileSystem);
+            void clear();
         private:
-            void addFileSystem(const String& pakExtension, const Path& path);
-            
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             
             Path::List doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
+        private:
+            FileSystemHierarchy(const FileSystemHierarchy& other);
+            FileSystemHierarchy& operator=(FileSystemHierarchy other);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_GameFileSystem) */
+#endif /* defined(TrenchBroom_FileSystemHierarchy) */

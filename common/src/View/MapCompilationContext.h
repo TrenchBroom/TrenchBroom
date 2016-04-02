@@ -20,6 +20,7 @@
 #ifndef MapCompilationContext_h
 #define MapCompilationContext_h
 
+#include "Logger.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
@@ -27,6 +28,8 @@ namespace TrenchBroom {
         class MapCompilationContext {
         public:
             String translateVariables(const String& input) const;
+            
+            void appendOutput(const String& text);
         };
     }
 }

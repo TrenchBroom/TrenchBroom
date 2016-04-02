@@ -35,6 +35,7 @@
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
+#include "IO/PakFileSystem.h"
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
@@ -52,11 +53,9 @@ namespace TrenchBroom {
         GameImpl::GameImpl(const GameConfig& config, const IO::Path& gamePath) :
         m_config(config),
         m_gamePath(gamePath),
-        m_fs(m_config.fileSystemConfig().packageFormat,
-             m_gamePath,
-             m_config.fileSystemConfig().searchPath,
-             m_additionalSearchPaths),
         m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
+            initializeFileSystem();
+            
             // sneak in the brush content type for tutorial brushes
             const BrushContentType::FlagType flag = 1 << brushContentTypes().size();
             m_config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
@@ -65,6 +64,39 @@ namespace TrenchBroom {
         GameImpl::~GameImpl() {
             delete m_palette;
             m_palette = NULL;
+        }
+
+        void GameImpl::initializeFileSystem() {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            addPackages(m_gamePath + fileSystemConfig.searchPath);
+            
+            IO::Path::List::const_iterator it, end;
+            for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
+                const IO::Path& searchPath = *it;
+                addPackages(m_gamePath + searchPath);
+            }
+        }
+
+        void GameImpl::addPackages(const IO::Path& searchPath) {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;
+            
+            const String& packageExtension = packageFormatConfig.extension;
+            const String& packageFormat = packageFormatConfig.format;
+            
+            if (IO::Disk::directoryExists(searchPath)) {
+                const IO::DiskFileSystem diskFS(searchPath);
+                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
+                IO::Path::List::const_iterator it, end;
+                for (it = packages.begin(), end = packages.end(); it != end; ++it) {
+                    const IO::Path& packagePath = *it;
+                    IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
+                    assert(packageFile.get() != NULL);
+                    
+                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
+                        m_gameFS.addFileSystem(new IO::PakFileSystem(packagePath, packageFile));
+                }
+            }
         }
 
         const String& GameImpl::doGameName() const {
@@ -77,18 +109,14 @@ namespace TrenchBroom {
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath) {
             m_gamePath = gamePath;
-            m_fs = IO::GameFileSystem(m_config.fileSystemConfig().packageFormat,
-                                      m_gamePath,
-                                      m_config.fileSystemConfig().searchPath,
-                                      m_additionalSearchPaths);
+            m_gameFS.clear();
+            initializeFileSystem();
         }
         
         void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {
             m_additionalSearchPaths = searchPaths;
-            m_fs = IO::GameFileSystem(m_config.fileSystemConfig().packageFormat,
-                                      m_gamePath,
-                                      m_config.fileSystemConfig().searchPath,
-                                      m_additionalSearchPaths);
+            m_gameFS.clear();
+            initializeFileSystem();
         }
 
         World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
@@ -156,7 +184,7 @@ namespace TrenchBroom {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
                 if (!searchPath.isEmpty())
-                    return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
+                    return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
                 throw GameException("Cannot find builtin textures: " + String(e.what()));
@@ -270,7 +298,7 @@ namespace TrenchBroom {
 
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
-                const IO::MappedFile::Ptr file = m_fs.openFile(path);
+                const IO::MappedFile::Ptr file = m_gameFS.openFile(path);
                 assert(file.get() != NULL);
                 
                 const String modelName = path.lastComponent().asString();
@@ -306,7 +334,7 @@ namespace TrenchBroom {
                 const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
                 return loader.loadTextureCollection(newSpec);
             } else {
-                IO::WalTextureLoader loader(m_fs, *m_palette);
+                IO::WalTextureLoader loader(m_gameFS, *m_palette);
                 return loader.loadTextureCollection(spec);
             }
         }
@@ -328,7 +356,7 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
             assert(m_palette != NULL);
             
-            IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_fs);
+            IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_gameFS);
             return parser.parseModel();
         }
 

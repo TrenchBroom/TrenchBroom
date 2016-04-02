@@ -23,7 +23,14 @@
 #include "StringUtils.h"
 #include "IO/Path.h"
 
+#include <wx/event.h>
+#include <wx/process.h>
+#include <wx/thread.h>
+
 #include <list>
+
+class wxTimer;
+class wxTimerEvent;
 
 namespace TrenchBroom {
     namespace View {
@@ -32,14 +39,35 @@ namespace TrenchBroom {
         class MapCompilationTask {
         public:
             typedef std::list<MapCompilationTask*> List;
+            
+            class TaskRunner {
+            protected:
+                MapCompilationContext& m_context;
+            private:
+                TaskRunner* m_next;
+            public:
+                TaskRunner(MapCompilationContext& context, TaskRunner* next);
+                virtual ~TaskRunner();
+                
+                void execute();
+                void terminate();
+            protected:
+                void executeNext();
+            private:
+                virtual void doExecute() = 0;
+                virtual void doTerminate() = 0;
+            private:
+                TaskRunner(const TaskRunner& other);
+                TaskRunner& operator=(const TaskRunner& other);
+            };
         protected:
             MapCompilationTask();
         public:
             virtual ~MapCompilationTask();
             
-            bool execute(MapCompilationContext& context) const;
+            TaskRunner* createTaskRunner(MapCompilationContext& context, TaskRunner* next = NULL) const;
         private:
-            virtual bool doExecute(MapCompilationContext& context) const = 0;
+            virtual TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const = 0;
         private:
             MapCompilationTask(const MapCompilationTask& other);
             MapCompilationTask& operator=(const MapCompilationTask& other);
@@ -47,15 +75,26 @@ namespace TrenchBroom {
         
         class MapCompilationCopyFiles : public MapCompilationTask {
         private:
-            String m_sourceFileSpec;
-            String m_targetFileSpec;
+            class Runner : public TaskRunner {
+            private:
+                IO::Path m_sourcePath;
+                IO::Path m_targetPath;
+            public:
+                Runner(MapCompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec);
+            private:
+                void doExecute();
+                void doTerminate();
+            private:
+                Runner(const Runner& other);
+                Runner& operator=(const Runner& other);
+            };
+            
+            String m_sourceSpec;
+            String m_targetSpec;
         public:
-            MapCompilationCopyFiles(const String& sourceFileSpec, const String& targetFileSpec);
+            MapCompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
         private:
-            bool doExecute(MapCompilationContext& context) const;
-        
-            IO::Path getSourceFilePath(const MapCompilationContext& context) const;
-            IO::Path getTargetFilePath(const MapCompilationContext& context) const;
+            TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const;
         private:
             MapCompilationCopyFiles(const MapCompilationCopyFiles& other);
             MapCompilationCopyFiles& operator=(const MapCompilationCopyFiles& other);
@@ -63,8 +102,38 @@ namespace TrenchBroom {
 
         class MapCompilationRunTool : public MapCompilationTask {
         private:
-            String m_toolPathSpec;
-            String m_toolParameterSpec;
+            class Runner : public wxEvtHandler, public TaskRunner {
+            private:
+                IO::Path m_toolPath;
+                String m_parameters;
+                wxProcess* m_process;
+                wxCriticalSection m_processSection;
+                wxTimer* m_processTimer;
+            public:
+                Runner(MapCompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec);
+                ~Runner();
+            private:
+                void doExecute();
+                void doTerminate();
+            private:
+                void OnTerminateProcess(wxProcessEvent& event);
+                void OnProcessTimer(wxTimerEvent& event);
+                String readStream(wxInputStream* stream);
+                
+                void createProcess();
+                void startProcess(const String& cmd);
+                void deleteProcess();
+            private:
+                Runner(const Runner& other);
+                Runner& operator=(const Runner& other);
+            };
+            
+            String m_toolSpec;
+            String m_parameterSpec;
+        public:
+            MapCompilationRunTool(const String& toolSpec, const String& parameterSpec);
+        private:
+            TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const;
         private:
             MapCompilationRunTool(const MapCompilationRunTool& other);
             MapCompilationRunTool& operator=(const MapCompilationRunTool& other);

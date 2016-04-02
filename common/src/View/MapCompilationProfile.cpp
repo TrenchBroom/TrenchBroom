@@ -24,20 +24,47 @@
 
 namespace TrenchBroom {
     namespace View {
+        MapCompilationProfileRunner::MapCompilationProfileRunner(MapCompilationContext& context, const MapCompilationTask::List& tasks) :
+        m_tasks(NULL) {
+            if (!tasks.empty()) {
+                MapCompilationTask::List::const_reverse_iterator it = tasks.rbegin();
+                MapCompilationTask::TaskRunner* runner = (*it)->createTaskRunner(context);
+                ++it;
+                
+                while (it != tasks.rend()) {
+                    runner = (*it)->createTaskRunner(context, runner);
+                    ++it;
+                }
+                
+                m_tasks = runner;
+            }
+        }
+        
+        MapCompilationProfileRunner::~MapCompilationProfileRunner() {
+            if (m_tasks != NULL) {
+                m_tasks->terminate();
+                delete m_tasks;
+            }
+        }
+
+        void MapCompilationProfileRunner::execute() {
+            if (m_tasks != NULL)
+                m_tasks->execute();
+        }
+        
+        void MapCompilationProfileRunner::terminate() {
+            if (m_tasks != NULL)
+                m_tasks->terminate();
+        }
+
         MapCompilationProfile::MapCompilationProfile() {}
         
         MapCompilationProfile::~MapCompilationProfile() {
             ListUtils::clearAndDelete(m_tasks);
         }
 
-        bool MapCompilationProfile::execute(MapCompilationContext& context) const {
-            MapCompilationTask::List::const_iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
-                const MapCompilationTask* task = *it;
-                if (!task->execute(context))
-                    return false;
-            }
-            return true;
+        MapCompilationProfileRunner* MapCompilationProfile::createRunner(MapCompilationContext& context) const {
+            return new MapCompilationProfileRunner(context, m_tasks);
         }
     }
 }

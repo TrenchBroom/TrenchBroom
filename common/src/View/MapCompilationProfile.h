@@ -25,6 +25,20 @@
 namespace TrenchBroom {
     namespace View {
         class MapCompilationContext;
+
+        class MapCompilationProfileRunner {
+        private:
+            MapCompilationTask::TaskRunner* m_tasks;
+        public:
+            MapCompilationProfileRunner(MapCompilationContext& context, const MapCompilationTask::List& tasks);
+            ~MapCompilationProfileRunner();
+            
+            void execute();
+            void terminate();
+        private:
+            MapCompilationProfileRunner(const MapCompilationProfileRunner& other);
+            MapCompilationProfileRunner& operator=(const MapCompilationProfileRunner& other);
+        };
         
         class MapCompilationProfile {
         private:
@@ -32,8 +46,8 @@ namespace TrenchBroom {
         public:
             MapCompilationProfile();
             ~MapCompilationProfile();
-            
-            bool execute(MapCompilationContext& context) const;
+
+            MapCompilationProfileRunner* createRunner(MapCompilationContext& context) const;
         private:
             MapCompilationProfile(const MapCompilationProfile& other);
             MapCompilationProfile& operator=(const MapCompilationProfile& other);
