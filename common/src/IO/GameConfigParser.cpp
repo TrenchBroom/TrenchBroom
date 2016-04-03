@@ -41,6 +41,9 @@ namespace TrenchBroom {
             
             expectEntry(ConfigEntry::Type_Table, *root);
             const ConfigTable& rootTable = *root;
+
+            expectTableEntry("version", ConfigEntry::Type_Value, rootTable);
+            const String version = rootTable["version"];
             
             expectTableEntry("name", ConfigEntry::Type_Value, rootTable);
             const String name = rootTable["name"];

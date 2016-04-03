@@ -26,15 +26,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class DiskFileSystem : public FileSystem {
+        class DiskFileSystem : public virtual FileSystem {
         protected:
             Path m_root;
         public:
             DiskFileSystem(const Path& root, bool ensureExists = true);
-            
-            const Path& getPath() const;
-            const Path makeAbsolute(const Path& relPath) const;
         private:
+            Path doMakeAbsolute(const Path& relPath) const;
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             

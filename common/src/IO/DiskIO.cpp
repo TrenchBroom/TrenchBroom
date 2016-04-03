@@ -147,16 +147,27 @@ namespace TrenchBroom {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
             
+            bool createDirectoryHelper(const Path& path);
+            
             void createDirectory(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (fileExists(fixedPath))
                     throw FileSystemException("Could not create directory '" + fixedPath.asString() + "': A file already exists at that path.");
                 if (directoryExists(fixedPath))
                     throw FileSystemException("Could not create directory '" + fixedPath.asString() + "': A directory already exists at that path.");
-                if (!::wxMkdir(fixedPath.asString()))
+                if (!createDirectoryHelper(fixedPath))
                     throw FileSystemException("Could not create directory '" + fixedPath.asString() + "'");
             }
             
+            bool createDirectoryHelper(const Path& path) {
+                if (path.isEmpty())
+                    return false;
+                const IO::Path parent = path.deleteLastComponent();
+                if (!::wxDirExists(parent.asString()) && !createDirectoryHelper(parent))
+                    return false;
+                return ::wxMkdir(path.asString());
+            }
+
             void deleteFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath))

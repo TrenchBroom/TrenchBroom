@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
         
-        class FileSystemHierarchy : public FileSystem {
+        class FileSystemHierarchy : public virtual FileSystem {
         private:
             typedef std::vector<FileSystem*> FileSystemList;
             FileSystemList m_fileSystems;
@@ -40,16 +40,37 @@ namespace TrenchBroom {
             virtual ~FileSystemHierarchy();
             
             void addFileSystem(FileSystem* fileSystem);
-            void clear();
+            virtual void clear();
         private:
+            Path doMakeAbsolute(const Path& relPath) const;
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
+            FileSystem* findFileSystemContaining(const Path& path) const;
             
             Path::List doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
         private:
             FileSystemHierarchy(const FileSystemHierarchy& other);
             FileSystemHierarchy& operator=(FileSystemHierarchy other);
+        };
+        
+        class WritableFileSystemHierarchy : public FileSystemHierarchy, public WritableFileSystem {
+        private:
+            WritableFileSystem* m_writableFileSystem;
+        public:
+            WritableFileSystemHierarchy();
+            
+            void addReadableFileSystem(FileSystem* fileSystem);
+            void addWritableFileSystem(WritableFileSystem* fileSystem);
+            void clear();
+        private:
+            void doCreateDirectory(const Path& path);
+            void doDeleteFile(const Path& path);
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+        private:
+            WritableFileSystemHierarchy(const WritableFileSystemHierarchy& other);
+            WritableFileSystemHierarchy& operator=(WritableFileSystemHierarchy other);
         };
     }
 }

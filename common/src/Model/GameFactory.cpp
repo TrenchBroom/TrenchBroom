@@ -104,33 +104,35 @@ namespace TrenchBroom {
         }
 
         GameFactory::GameFactory() {
+            initializeFileSystem();
             loadGameConfigs();
         }
         
+        void GameFactory::initializeFileSystem() {
+            const IO::Path resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
+            if (IO::Disk::directoryExists(resourceGameDir))
+                m_configFS.addReadableFileSystem(new IO::DiskFileSystem(resourceGameDir));
+
+            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            m_configFS.addWritableFileSystem(new IO::WritableDiskFileSystem(userGameDir, true));
+        }
+
         void GameFactory::loadGameConfigs() {
-            const IO::Path resourceDir = IO::SystemPaths::resourceDirectory();
-            if (!IO::Disk::directoryExists(resourceDir))
-                return;
-            
-            const IO::DiskFileSystem fs(resourceDir);
-            if (!fs.directoryExists(IO::Path("games")))
-                return;
-            
-            const IO::Path::List configFiles = fs.findItems(IO::Path("games"), IO::FileExtensionMatcher("cfg"));
+            const IO::Path::List configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
             
             IO::Path::List::const_iterator it, end;
             for (it = configFiles.begin(), end = configFiles.end(); it != end; ++it) {
                 const IO::Path& configFilePath = *it;
-                loadGameConfig(fs, configFilePath);
+                loadGameConfig(configFilePath);
             }
             
             StringUtils::sortCaseSensitive(m_names);
         }
 
-        void GameFactory::loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path) {
+        void GameFactory::loadGameConfig(const IO::Path& path) {
             try {
-                const IO::MappedFile::Ptr configFile = fs.openFile(path);
-                IO::GameConfigParser parser(configFile->begin(), configFile->end(), fs.makeAbsolute(path));
+                const IO::MappedFile::Ptr configFile = m_configFS.openFile(path);
+                IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS.makeAbsolute(path));
                 GameConfig config = parser.parse();
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());

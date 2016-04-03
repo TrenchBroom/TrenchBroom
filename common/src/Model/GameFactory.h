@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Preference.h"
+#include "IO/FileSystemHierarchy.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
@@ -39,6 +40,8 @@ namespace TrenchBroom {
         private:
             typedef std::map<String, GameConfig> ConfigMap;
             typedef std::map<String, Preference<IO::Path> > GamePathMap;
+            
+            IO::WritableFileSystemHierarchy m_configFS;
             
             StringList m_names;
             ConfigMap m_configs;
@@ -59,8 +62,9 @@ namespace TrenchBroom {
             std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
+            void initializeFileSystem();
             void loadGameConfigs();
-            void loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path);
+            void loadGameConfig(const IO::Path& path);
             const GameConfig& gameConfig(const String& name) const;
         };
     }

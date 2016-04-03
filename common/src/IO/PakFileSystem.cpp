@@ -152,6 +152,10 @@ namespace TrenchBroom {
             }
         }
         
+        Path PakFileSystem::doMakeAbsolute(const Path& relPath) const {
+            return m_path + relPath.makeCanonical();
+        }
+
         bool PakFileSystem::doDirectoryExists(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             return m_root.directoryExists(searchPath);

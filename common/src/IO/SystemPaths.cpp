@@ -47,6 +47,10 @@ namespace TrenchBroom {
                 return appDirectory() + Path("Resources");
 #endif
             }
+
+            Path userDataDirectory() {
+                return IO::Path(wxStandardPaths::Get().GetUserDataDir().ToStdString());
+            }
         }
     }
 }

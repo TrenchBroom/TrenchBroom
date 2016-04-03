@@ -35,28 +35,24 @@ namespace TrenchBroom {
                 throw FileSystemException("Root directory not found: '" + m_root.asString() + "'");
         }
         
-        const Path& DiskFileSystem::getPath() const {
-            return m_root;
-        }
-        
-        const Path DiskFileSystem::makeAbsolute(const Path& relPath) const {
-            return getPath() + relPath.makeCanonical();
+        Path DiskFileSystem::doMakeAbsolute(const Path& relPath) const {
+            return m_root + relPath.makeCanonical();
         }
         
         bool DiskFileSystem::doDirectoryExists(const Path& path) const {
-            return Disk::directoryExists(m_root + path.makeCanonical());
+            return Disk::directoryExists(makeAbsolute(path));
         }
         
         bool DiskFileSystem::doFileExists(const Path& path) const {
-            return Disk::fileExists(m_root + path.makeCanonical());
+            return Disk::fileExists(makeAbsolute(path));
         }
         
         Path::List DiskFileSystem::doGetDirectoryContents(const Path& path) const {
-            return Disk::getDirectoryContents(m_root + path.makeCanonical());
+            return Disk::getDirectoryContents(makeAbsolute(path));
         }
         
         const MappedFile::Ptr DiskFileSystem::doOpenFile(const Path& path) const {
-            return Disk::openFile(m_root + path.makeCanonical());
+            return Disk::openFile(makeAbsolute(path));
         }
         
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :
@@ -66,19 +62,19 @@ namespace TrenchBroom {
         }
         
         void WritableDiskFileSystem::doCreateDirectory(const Path& path) {
-            Disk::createDirectory(m_root + path.makeCanonical());
+            Disk::createDirectory(makeAbsolute(path));
         }
         
         void WritableDiskFileSystem::doDeleteFile(const Path& path) {
-            Disk::deleteFile(m_root + path.makeCanonical());
+            Disk::deleteFile(makeAbsolute(path));
         }
         
         void WritableDiskFileSystem::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            Disk::copyFile(m_root + sourcePath.makeCanonical(), m_root + destPath.makeCanonical(), overwrite);
+            Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
         }
 
         void WritableDiskFileSystem::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            Disk::moveFile(m_root + sourcePath.makeCanonical(), m_root + destPath.makeCanonical(), overwrite);
+            Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
         }
     }
 }

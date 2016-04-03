@@ -32,6 +32,10 @@ namespace TrenchBroom {
         FileSystem::~FileSystem() {}
         
         FileSystem& FileSystem::operator=(const FileSystem& other) { return *this; }
+        
+        Path FileSystem::makeAbsolute(const Path& relPath) const {
+            return doMakeAbsolute(relPath);
+        }
 
         bool FileSystem::directoryExists(const Path& path) const {
             try {

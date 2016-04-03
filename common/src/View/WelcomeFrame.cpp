@@ -65,14 +65,10 @@ namespace TrenchBroom {
 
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            try {
-                if (app.newDocument())
-                    Destroy();
-                else
-                    Show();
-            } catch (...) {
+            if (app.newDocument())
+                Destroy();
+            else
                 Show();
-            }
         }
         
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
@@ -82,14 +78,10 @@ namespace TrenchBroom {
             if (!pathStr.empty()) {
                 Hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
-                try {
-                    if (app.openDocument(pathStr.ToStdString()))
-                        Destroy();
-                    else
-                        Show();
-                } catch (...) {
+                if (app.openDocument(pathStr.ToStdString()))
+                    Destroy();
+                else
                     Show();
-                }
             }
         }
 
@@ -98,14 +90,10 @@ namespace TrenchBroom {
 
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            try {
-                if (app.openDocument(event.documentPath().asString()))
-                    Destroy();
-                else
-                    Show();
-            } catch (...) {
+            if (app.openDocument(event.documentPath().asString()))
+                Destroy();
+            else
                 Show();
-            }
         }
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {

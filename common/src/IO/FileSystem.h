@@ -41,6 +41,8 @@ namespace TrenchBroom {
             
             FileSystem& operator=(const FileSystem& other);
 
+            Path makeAbsolute(const Path& relPath) const;
+            
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
 
@@ -76,7 +78,8 @@ namespace TrenchBroom {
                         result.push_back(searchPath + itemPath);
                 }
             }
-            
+
+            virtual Path doMakeAbsolute(const Path& relPath) const = 0;
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
             
@@ -85,7 +88,7 @@ namespace TrenchBroom {
             virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
         };
         
-        class WritableFileSystem {
+        class WritableFileSystem : public virtual FileSystem {
         public:
             WritableFileSystem();
             WritableFileSystem(const WritableFileSystem& other);

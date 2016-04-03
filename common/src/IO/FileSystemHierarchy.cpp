@@ -42,6 +42,13 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_fileSystems);
         }
 
+        Path FileSystemHierarchy::doMakeAbsolute(const Path& relPath) const {
+            const FileSystem* fileSystem = findFileSystemContaining(relPath);
+            if (fileSystem != NULL)
+                return fileSystem->makeAbsolute(relPath);
+            return Path("");
+        }
+
         bool FileSystemHierarchy::doDirectoryExists(const Path& path) const {
             FileSystemList::const_reverse_iterator it, end;
             for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
@@ -53,15 +60,19 @@ namespace TrenchBroom {
         }
         
         bool FileSystemHierarchy::doFileExists(const Path& path) const {
-            FileSystemList::const_reverse_iterator it, end;
-            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FileSystem* fileSystem = *it;
-                if (fileSystem->fileExists(path))
-                    return true;
-            }
-            return false;
+            return (findFileSystemContaining(path)) != NULL;
         }
         
+        FileSystem* FileSystemHierarchy::findFileSystemContaining(const Path& path) const {
+            FileSystemList::const_reverse_iterator it, end;
+            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
+                FileSystem* fileSystem = *it;
+                if (fileSystem->fileExists(path))
+                    return fileSystem;
+            }
+            return NULL;
+        }
+
         Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
             Path::List result;
             FileSystemList::const_reverse_iterator it, end;
@@ -88,6 +99,44 @@ namespace TrenchBroom {
                 }
             }
             return MappedFile::Ptr();
+        }
+
+        WritableFileSystemHierarchy::WritableFileSystemHierarchy() :
+        m_writableFileSystem(NULL) {}
+        
+        void WritableFileSystemHierarchy::addReadableFileSystem(FileSystem* fileSystem) {
+            addFileSystem(fileSystem);
+        }
+        
+        void WritableFileSystemHierarchy::addWritableFileSystem(WritableFileSystem* fileSystem) {
+            assert(m_writableFileSystem == NULL);
+            addFileSystem(fileSystem);
+            m_writableFileSystem = fileSystem;
+        }
+        
+        void WritableFileSystemHierarchy::clear() {
+            FileSystemHierarchy::clear();
+            m_writableFileSystem = NULL;
+        }
+
+        void WritableFileSystemHierarchy::doCreateDirectory(const Path& path) {
+            assert(m_writableFileSystem != NULL);
+            m_writableFileSystem->createDirectory(path);
+        }
+        
+        void WritableFileSystemHierarchy::doDeleteFile(const Path& path) {
+            assert(m_writableFileSystem != NULL);
+            m_writableFileSystem->deleteFile(path);
+        }
+        
+        void WritableFileSystemHierarchy::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+            assert(m_writableFileSystem != NULL);
+            m_writableFileSystem->copyFile(sourcePath, destPath, overwrite);
+        }
+        
+        void WritableFileSystemHierarchy::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
+            assert(m_writableFileSystem != NULL);
+            m_writableFileSystem->moveFile(sourcePath, destPath, overwrite);
         }
     }
 }
