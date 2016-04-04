@@ -107,6 +107,11 @@ namespace TrenchBroom {
                 return ::wxFileExists(fixedPath.asString());
             }
             
+            String replaceForbiddenChars(const String& name) {
+                static const String forbidden = wxFileName::GetForbiddenChars().ToStdString();
+                return StringUtils::replaceChars(name, forbidden, "_");
+            }
+
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 wxDir dir(fixedPath.asString());

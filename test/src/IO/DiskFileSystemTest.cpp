@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
             
             const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(DiskFileSystemTest, directoryExists) {
@@ -327,7 +327,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
             
             const WritableDiskFileSystem fs(env.dir() + Path("anotherDir/.."), false);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(WritableDiskFileSystemTest, createDirectory) {

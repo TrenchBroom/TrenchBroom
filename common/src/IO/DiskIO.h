@@ -36,6 +36,8 @@ namespace TrenchBroom {
             bool directoryExists(const Path& path);
             bool fileExists(const Path& path);
             
+            String replaceForbiddenChars(const String& name);
+            
             Path::List getDirectoryContents(const Path& path);
             MappedFile::Ptr openFile(const Path& path);
             Path getCurrentWorkingDir();
