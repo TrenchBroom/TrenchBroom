@@ -21,7 +21,7 @@
 #define TrenchBroom_GameConfigParser
 
 #include "StringUtils.h"
-#include "IO/ConfigParser.h"
+#include "IO/ConfigParserBase.h"
 #include "IO/Path.h"
 #include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
@@ -30,10 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class GameConfigParser {
-        private:
-            ConfigParser m_parser;
-            Path m_path;
+        class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
             GameConfigParser(const String& str, const Path& path = Path(""));
@@ -47,12 +44,6 @@ namespace TrenchBroom {
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const ConfigTable& table) const;
             Model::GameConfig::FlagConfigList parseFlagConfig(const ConfigList& list) const;
             Model::BrushContentType::List parseBrushContentTypes(const ConfigList& list, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
-            StringSet parseSet(const ConfigList& list) const;
-            StringList parseList(const ConfigList& list) const;
-            
-            void expectEntry(int typeMask, const ConfigEntry& entry) const;
-            void expectTableEntry(const String& key, int typeMask, const ConfigTable& table) const;
-            String typeNames(int typeMask) const;
         };
     }
 }
