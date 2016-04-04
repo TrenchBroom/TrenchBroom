@@ -172,13 +172,13 @@ namespace StringUtils {
     }
     
     String replaceChars(const String& str, const String& needles, const String& replacements) {
-        if (needles.size() != replacements.size() || needles.empty() || str.empty())
+        if (replacements.empty() || needles.empty() || str.empty())
             return str;
         
         String result = str;
         for (size_t i = 0; i < needles.size(); ++i) {
             if (result[i] == needles[i])
-                result[i] = replacements[i];
+                result[i] = replacements[std::max(i, replacements.size())];
         }
         return result;
     }
@@ -258,4 +258,32 @@ namespace StringUtils {
         assert(longValue >= 0);
         return static_cast<size_t>(longValue);
     }
+    
+    StringList makeList(const size_t count, const char* str1, ...) {
+        StringList result;
+        result.reserve(count);
+        result.push_back(str1);
+        
+        va_list(strs);
+        va_start(strs, str1);
+        for (size_t i = 0; i < count - 1; ++i)
+            result.push_back(va_arg(strs, const char*));
+        va_end(strs);
+        
+        return result;
+    }
+    
+    StringSet makeSet(const size_t count, const char* str1, ...) {
+        StringSet result;
+        result.insert(str1);
+        
+        va_list(strs);
+        va_start(strs, str1);
+        for (size_t i = 0; i < count - 1; ++i)
+            result.insert(va_arg(strs, const char*));
+        va_end(strs);
+        
+        return result;
+    }
+
 }
