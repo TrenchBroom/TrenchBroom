@@ -17,18 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MapCompiler_h
-#define MapCompiler_h
-
-#include <stdio.h>
+#include "CompilationContext.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MapCompiler {
-        public:
-            
-        };
+    namespace Model {
+        String CompilationContext::translateVariables(const String& input) const {
+            return "";
+        }
+
+        void CompilationContext::appendOutput(const String& text) {
+        }
     }
 }
-
-#endif /* MapCompiler_h */

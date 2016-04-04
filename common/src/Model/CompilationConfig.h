@@ -17,22 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MapCompilationContext_h
-#define MapCompilationContext_h
+#ifndef CompilationConfig_h
+#define CompilationConfig_h
 
-#include "Logger.h"
-#include "StringUtils.h"
+#include "Model/CompilationProfile.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MapCompilationContext {
+    namespace Model {
+        class CompilationConfig {
+        private:
+            CompilationProfile::List m_profiles;
         public:
-            String translateVariables(const String& input) const;
+            CompilationConfig(const CompilationProfile::List& profiles);
             
-            void appendOutput(const String& text);
+            size_t profileCount() const;
+            const CompilationProfile& profile(size_t index);
+            
+            void addProfile(const CompilationProfile& profile);
+            void updateProfile(size_t index, const CompilationProfile& profile);
+            void removeProfile(size_t index);
         };
     }
 }
 
-
-#endif /* MapCompilationContext_h */
+#endif /* CompilationConfig_h */

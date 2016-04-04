@@ -17,15 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapCompilationContext.h"
+#ifndef CompilationContext_h
+#define CompilationContext_h
+
+#include "Logger.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
-    namespace View {
-        String MapCompilationContext::translateVariables(const String& input) const {
-            return "";
-        }
-
-        void MapCompilationContext::appendOutput(const String& text) {
-        }
+    namespace Model {
+        class CompilationContext {
+        public:
+            String translateVariables(const String& input) const;
+            
+            void appendOutput(const String& text);
+        };
     }
 }
+
+
+#endif /* CompilationContext_h */

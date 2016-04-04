@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MapCompilationTask_h
-#define MapCompilationTask_h
+#ifndef CompilationTask_h
+#define CompilationTask_h
 
 #include "StringUtils.h"
 #include "IO/Path.h"
@@ -33,20 +33,20 @@ class wxTimer;
 class wxTimerEvent;
 
 namespace TrenchBroom {
-    namespace View {
-        class MapCompilationContext;
+    namespace Model {
+        class CompilationContext;
         
-        class MapCompilationTask {
+        class CompilationTask {
         public:
-            typedef std::list<MapCompilationTask*> List;
+            typedef std::list<CompilationTask*> List;
             
             class TaskRunner {
             protected:
-                MapCompilationContext& m_context;
+                CompilationContext& m_context;
             private:
                 TaskRunner* m_next;
             public:
-                TaskRunner(MapCompilationContext& context, TaskRunner* next);
+                TaskRunner(CompilationContext& context, TaskRunner* next);
                 virtual ~TaskRunner();
                 
                 void execute();
@@ -61,26 +61,29 @@ namespace TrenchBroom {
                 TaskRunner& operator=(const TaskRunner& other);
             };
         protected:
-            MapCompilationTask();
+            CompilationTask();
         public:
-            virtual ~MapCompilationTask();
+            virtual ~CompilationTask();
+
+            CompilationTask* clone() const;
             
-            TaskRunner* createTaskRunner(MapCompilationContext& context, TaskRunner* next = NULL) const;
+            TaskRunner* createTaskRunner(CompilationContext& context, TaskRunner* next = NULL) const;
         private:
-            virtual TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const = 0;
+            virtual CompilationTask* doClone() const = 0;
+            virtual TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const = 0;
         private:
-            MapCompilationTask(const MapCompilationTask& other);
-            MapCompilationTask& operator=(const MapCompilationTask& other);
+            CompilationTask(const CompilationTask& other);
+            CompilationTask& operator=(const CompilationTask& other);
         };
         
-        class MapCompilationCopyFiles : public MapCompilationTask {
+        class CompilationCopyFiles : public CompilationTask {
         private:
             class Runner : public TaskRunner {
             private:
                 IO::Path m_sourcePath;
                 IO::Path m_targetPath;
             public:
-                Runner(MapCompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec);
+                Runner(CompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec);
             private:
                 void doExecute();
                 void doTerminate();
@@ -92,15 +95,16 @@ namespace TrenchBroom {
             String m_sourceSpec;
             String m_targetSpec;
         public:
-            MapCompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
+            CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
         private:
-            TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const;
+            CompilationTask* doClone() const;
+            TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
         private:
-            MapCompilationCopyFiles(const MapCompilationCopyFiles& other);
-            MapCompilationCopyFiles& operator=(const MapCompilationCopyFiles& other);
+            CompilationCopyFiles(const CompilationCopyFiles& other);
+            CompilationCopyFiles& operator=(const CompilationCopyFiles& other);
         };
 
-        class MapCompilationRunTool : public MapCompilationTask {
+        class CompilationRunTool : public CompilationTask {
         private:
             class Runner : public wxEvtHandler, public TaskRunner {
             private:
@@ -110,7 +114,7 @@ namespace TrenchBroom {
                 wxCriticalSection m_processSection;
                 wxTimer* m_processTimer;
             public:
-                Runner(MapCompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec);
+                Runner(CompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec);
                 ~Runner();
             private:
                 void doExecute();
@@ -131,20 +135,15 @@ namespace TrenchBroom {
             String m_toolSpec;
             String m_parameterSpec;
         public:
-            MapCompilationRunTool(const String& toolSpec, const String& parameterSpec);
+            CompilationRunTool(const String& toolSpec, const String& parameterSpec);
         private:
-            TaskRunner* doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const;
+            CompilationTask* doClone() const;
+            TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
         private:
-            MapCompilationRunTool(const MapCompilationRunTool& other);
-            MapCompilationRunTool& operator=(const MapCompilationRunTool& other);
-        };
-        
-        class MapCompilationRunGame : public MapCompilationTask {
-        private:
-            MapCompilationRunGame(const MapCompilationRunGame& other);
-            MapCompilationRunGame& operator=(const MapCompilationRunGame& other);
+            CompilationRunTool(const CompilationRunTool& other);
+            CompilationRunTool& operator=(const CompilationRunTool& other);
         };
     }
 }
 
-#endif /* MapCompilationTask_h */
+#endif /* CompilationTask_h */

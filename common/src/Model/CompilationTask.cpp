@@ -17,55 +17,59 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapCompilationTask.h"
+#include "CompilationTask.h"
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "View/MapCompilationContext.h"
+#include "Model/CompilationContext.h"
 
 #include <wx/sstream.h>
 #include <wx/timer.h>
 
 namespace TrenchBroom {
-    namespace View {
-        MapCompilationTask::TaskRunner::TaskRunner(MapCompilationContext& context, TaskRunner* next) :
+    namespace Model {
+        CompilationTask::TaskRunner::TaskRunner(CompilationContext& context, TaskRunner* next) :
         m_context(context),
         m_next(next) {}
         
-        MapCompilationTask::TaskRunner::~TaskRunner() {
+        CompilationTask::TaskRunner::~TaskRunner() {
             if (m_next != NULL)
                 delete m_next;
         }
 
-        void MapCompilationTask::TaskRunner::execute() {
+        void CompilationTask::TaskRunner::execute() {
             doExecute();
         }
 
-        void MapCompilationTask::TaskRunner::terminate() {
+        void CompilationTask::TaskRunner::terminate() {
             doTerminate();
             if (m_next != NULL)
                 m_next->terminate();
         }
 
-        void MapCompilationTask::TaskRunner::executeNext() {
+        void CompilationTask::TaskRunner::executeNext() {
             if (m_next != NULL)
                 m_next->execute();
         }
 
-        MapCompilationTask::MapCompilationTask() {}
+        CompilationTask::CompilationTask() {}
     
-        MapCompilationTask::~MapCompilationTask() {}
+        CompilationTask::~CompilationTask() {}
 
-        MapCompilationTask::TaskRunner* MapCompilationTask::createTaskRunner(MapCompilationContext& context, TaskRunner* next) const {
+        CompilationTask* CompilationTask::clone() const {
+            return doClone();
+        }
+
+        CompilationTask::TaskRunner* CompilationTask::createTaskRunner(CompilationContext& context, TaskRunner* next) const {
             return doCreateTaskRunner(context, next);
         }
     
-        MapCompilationCopyFiles::Runner::Runner(MapCompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec) :
-        MapCompilationTask::TaskRunner(context, next),
+        CompilationCopyFiles::Runner::Runner(CompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec) :
+        CompilationTask::TaskRunner(context, next),
         m_sourcePath(m_context.translateVariables(sourceSpec)),
         m_targetPath(m_context.translateVariables(targetSpec)) {}
 
-        void MapCompilationCopyFiles::Runner::doExecute() {
+        void CompilationCopyFiles::Runner::doExecute() {
             const IO::Path sourceDirPath = m_sourcePath.deleteLastComponent();
             const String sourcePattern = m_sourcePath.lastComponent().asString();
             
@@ -83,28 +87,32 @@ namespace TrenchBroom {
             }
         }
         
-        void MapCompilationCopyFiles::Runner::doTerminate() {}
+        void CompilationCopyFiles::Runner::doTerminate() {}
 
-        MapCompilationCopyFiles::MapCompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
+        CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
         
-        MapCompilationTask::TaskRunner* MapCompilationCopyFiles::doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const {
+        CompilationTask* CompilationCopyFiles::doClone() const {
+            return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
+        }
+
+        CompilationTask::TaskRunner* CompilationCopyFiles::doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const {
             return new Runner(context, next, m_sourceSpec, m_targetSpec);
         }
 
-        MapCompilationRunTool::Runner::Runner(MapCompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec) :
+        CompilationRunTool::Runner::Runner(CompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec) :
         TaskRunner(context, next),
         m_toolPath(m_context.translateVariables(toolSpec)),
         m_parameters(m_context.translateVariables(parameterSpec)),
         m_process(NULL),
         m_processTimer(NULL) {}
 
-        MapCompilationRunTool::Runner::~Runner() {
+        CompilationRunTool::Runner::~Runner() {
             terminate();
         }
         
-        void MapCompilationRunTool::Runner::doExecute() {
+        void CompilationRunTool::Runner::doExecute() {
             wxCriticalSectionLocker lockProcess(m_processSection);
 
             const String cmd = m_toolPath.asString() + " " + m_parameters;
@@ -112,7 +120,7 @@ namespace TrenchBroom {
             startProcess(cmd);
         }
         
-        void MapCompilationRunTool::Runner::doTerminate() {
+        void CompilationRunTool::Runner::doTerminate() {
             wxCriticalSectionLocker lockProcess(m_processSection);
             if (m_process != NULL) {
                 wxProcess::Kill(static_cast<int>(m_process->GetPid()));
@@ -120,49 +128,46 @@ namespace TrenchBroom {
             }
         }
 
-        void MapCompilationRunTool::Runner::OnTerminateProcess(wxProcessEvent& event) {
+        void CompilationRunTool::Runner::OnTerminateProcess(wxProcessEvent& event) {
             wxCriticalSectionLocker lockProcess(m_processSection);
             if (m_process != NULL) {
                 assert(m_process->GetPid() == event.GetPid());
-                if (event.GetExitCode() == 0) {
-                    executeNext();
-                } else {
-                    StringStream str;
-                    str << "Finished with exit status " << event.GetExitCode() << ", aborting\n";
-                    m_context.appendOutput(str.str());
-                }
+                
+                StringStream str;
+                str << "Finished with exit status " << event.GetExitCode() << "\n";
+                m_context.appendOutput(str.str());
+                
                 deleteProcess();
+                executeNext();
             }
         }
 
-        void MapCompilationRunTool::Runner::OnProcessTimer(wxTimerEvent& event) {
+        void CompilationRunTool::Runner::OnProcessTimer(wxTimerEvent& event) {
             wxCriticalSectionLocker lockProcess(m_processSection);
             
             if (m_process != NULL) {
                 if (m_process->IsInputAvailable())
                     m_context.appendOutput(readStream(m_process->GetInputStream()));
-                if (m_process->IsErrorAvailable())
-                    m_context.appendOutput(readStream(m_process->GetErrorStream()));
             }
         }
 
-        String MapCompilationRunTool::Runner::readStream(wxInputStream* stream) {
+        String CompilationRunTool::Runner::readStream(wxInputStream* stream) {
             assert(stream != NULL);
             wxStringOutputStream out;
             stream->Read(out);
             return out.GetString().ToStdString();
         }
 
-        void MapCompilationRunTool::Runner::createProcess() {
+        void CompilationRunTool::Runner::createProcess() {
             assert(m_process == NULL);
             m_process = new wxProcess(this);
             m_processTimer = new wxTimer(this);
             
-            m_process->Bind(wxEVT_END_PROCESS, &MapCompilationRunTool::Runner::OnTerminateProcess, this);
-            m_processTimer->Bind(wxEVT_TIMER, &MapCompilationRunTool::Runner::OnProcessTimer, this);
+            m_process->Bind(wxEVT_END_PROCESS, &CompilationRunTool::Runner::OnTerminateProcess, this);
+            m_processTimer->Bind(wxEVT_TIMER, &CompilationRunTool::Runner::OnProcessTimer, this);
         }
         
-        void MapCompilationRunTool::Runner::startProcess(const String& cmd) {
+        void CompilationRunTool::Runner::startProcess(const String& cmd) {
             assert(m_process != NULL);
             assert(m_processTimer != NULL);
 
@@ -171,7 +176,7 @@ namespace TrenchBroom {
             m_processTimer->Start(20);
         }
 
-        void MapCompilationRunTool::Runner::deleteProcess() {
+        void CompilationRunTool::Runner::deleteProcess() {
             if (m_processTimer != NULL) {
                 delete m_processTimer;
                 m_processTimer = NULL;
@@ -180,11 +185,15 @@ namespace TrenchBroom {
             m_process = NULL;
         }
 
-        MapCompilationRunTool::MapCompilationRunTool(const String& toolSpec, const String& parameterSpec) :
+        CompilationRunTool::CompilationRunTool(const String& toolSpec, const String& parameterSpec) :
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
 
-        MapCompilationTask::TaskRunner* MapCompilationRunTool::doCreateTaskRunner(MapCompilationContext& context, TaskRunner* next) const {
+        CompilationTask* CompilationRunTool::doClone() const {
+            return new CompilationRunTool(m_toolSpec, m_parameterSpec);
+        }
+
+        CompilationTask::TaskRunner* CompilationRunTool::doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const {
             return new Runner(context, next, m_toolSpec, m_parameterSpec);
         }
     }
