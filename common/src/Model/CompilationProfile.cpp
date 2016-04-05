@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
 
         CompilationProfile::~CompilationProfile() {
-            ListUtils::clearAndDelete(m_tasks);
+            VectorUtils::clearAndDelete(m_tasks);
         }
 
         CompilationProfile& CompilationProfile::operator=(CompilationProfile other) {
@@ -89,6 +89,19 @@ namespace TrenchBroom {
             swap(lhs.m_tasks, rhs.m_tasks);
         }
 
+        const String& CompilationProfile::name() const  {
+            return m_name;
+        }
+        
+        size_t CompilationProfile::taskCount() const {
+            return m_tasks.size();
+        }
+
+        const CompilationTask& CompilationProfile::task(const size_t index) const {
+            assert(index < taskCount());
+            return *m_tasks[index];
+        }
+        
         CompilationProfileRunner* CompilationProfile::createRunner(CompilationContext& context) const {
             return new CompilationProfileRunner(context, m_tasks);
         }

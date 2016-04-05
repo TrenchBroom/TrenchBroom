@@ -52,9 +52,14 @@ namespace TrenchBroom {
                 m_next->execute();
         }
 
-        CompilationTask::CompilationTask() {}
+        CompilationTask::CompilationTask(const Type type) :
+        m_type(type) {}
     
         CompilationTask::~CompilationTask() {}
+
+        CompilationTask::Type CompilationTask::type() const {
+            return m_type;
+        }
 
         CompilationTask* CompilationTask::clone() const {
             return doClone();
@@ -90,9 +95,18 @@ namespace TrenchBroom {
         void CompilationCopyFiles::Runner::doTerminate() {}
 
         CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
+        CompilationTask(Type_Copy),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
         
+        const String& CompilationCopyFiles::sourceSpec() const {
+            return m_sourceSpec;
+        }
+        
+        const String& CompilationCopyFiles::targetSpec() const {
+            return m_targetSpec;
+        }
+
         CompilationTask* CompilationCopyFiles::doClone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
@@ -186,8 +200,17 @@ namespace TrenchBroom {
         }
 
         CompilationRunTool::CompilationRunTool(const String& toolSpec, const String& parameterSpec) :
+        CompilationTask(Type_Tool),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
+
+        const String& CompilationRunTool::toolSpec() const {
+            return m_toolSpec;
+        }
+        
+        const String& CompilationRunTool::parameterSpec() const {
+            return m_parameterSpec;
+        }
 
         CompilationTask* CompilationRunTool::doClone() const {
             return new CompilationRunTool(m_toolSpec, m_parameterSpec);

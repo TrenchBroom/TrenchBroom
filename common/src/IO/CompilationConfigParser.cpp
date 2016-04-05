@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     result.push_back(parseTask(list[i]));
                 }
             } catch (...) {
-                ListUtils::clearAndDelete(result);
+                VectorUtils::clearAndDelete(result);
                 throw;
             }
             

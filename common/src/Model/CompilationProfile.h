@@ -58,6 +58,10 @@ namespace TrenchBroom {
             CompilationProfile& operator=(CompilationProfile other);
             friend void swap(CompilationProfile& lhs, CompilationProfile& rhs);
 
+            const String& name() const;
+            size_t taskCount() const;
+            const CompilationTask& task(size_t index) const;
+            
             CompilationProfileRunner* createRunner(CompilationContext& context) const;
         };
     }

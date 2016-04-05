@@ -27,7 +27,7 @@
 #include <wx/process.h>
 #include <wx/thread.h>
 
-#include <list>
+#include <vector>
 
 class wxTimer;
 class wxTimerEvent;
@@ -38,7 +38,12 @@ namespace TrenchBroom {
         
         class CompilationTask {
         public:
-            typedef std::list<CompilationTask*> List;
+            typedef std::vector<CompilationTask*> List;
+            
+            typedef enum {
+                Type_Copy,
+                Type_Tool
+            } Type;
             
             class TaskRunner {
             protected:
@@ -60,11 +65,15 @@ namespace TrenchBroom {
                 TaskRunner(const TaskRunner& other);
                 TaskRunner& operator=(const TaskRunner& other);
             };
+        private:
+            Type m_type;
         protected:
-            CompilationTask();
+            CompilationTask(Type type);
         public:
             virtual ~CompilationTask();
 
+            Type type() const;
+            
             CompilationTask* clone() const;
             
             TaskRunner* createTaskRunner(CompilationContext& context, TaskRunner* next = NULL) const;
@@ -96,6 +105,9 @@ namespace TrenchBroom {
             String m_targetSpec;
         public:
             CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
+            
+            const String& sourceSpec() const;
+            const String& targetSpec() const;
         private:
             CompilationTask* doClone() const;
             TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
@@ -136,6 +148,9 @@ namespace TrenchBroom {
             String m_parameterSpec;
         public:
             CompilationRunTool(const String& toolSpec, const String& parameterSpec);
+            
+            const String& toolSpec() const;
+            const String& parameterSpec() const;
         private:
             CompilationTask* doClone() const;
             TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
