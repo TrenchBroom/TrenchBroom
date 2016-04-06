@@ -24,39 +24,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationProfileRunner::CompilationProfileRunner(CompilationContext& context, const CompilationTask::List& tasks) :
-        m_tasks(NULL) {
-            if (!tasks.empty()) {
-                CompilationTask::List::const_reverse_iterator it = tasks.rbegin();
-                CompilationTask::TaskRunner* runner = (*it)->createTaskRunner(context);
-                ++it;
-                
-                while (it != tasks.rend()) {
-                    runner = (*it)->createTaskRunner(context, runner);
-                    ++it;
-                }
-                
-                m_tasks = runner;
-            }
-        }
-        
-        CompilationProfileRunner::~CompilationProfileRunner() {
-            if (m_tasks != NULL) {
-                m_tasks->terminate();
-                delete m_tasks;
-            }
-        }
-
-        void CompilationProfileRunner::execute() {
-            if (m_tasks != NULL)
-                m_tasks->execute();
-        }
-        
-        void CompilationProfileRunner::terminate() {
-            if (m_tasks != NULL)
-                m_tasks->terminate();
-        }
-
         CompilationProfile::CompilationProfile(const String& name) :
         m_name(name) {}
         
@@ -93,8 +60,18 @@ namespace TrenchBroom {
             return m_name;
         }
         
+        void CompilationProfile::setName(const String& name) {
+            m_name = name;
+            profileDidChange();
+        }
+
         size_t CompilationProfile::taskCount() const {
             return m_tasks.size();
+        }
+        
+        CompilationTask& CompilationProfile::task(const size_t index) {
+            assert(index < taskCount());
+            return *m_tasks[index];
         }
 
         const CompilationTask& CompilationProfile::task(const size_t index) const {
@@ -102,8 +79,75 @@ namespace TrenchBroom {
             return *m_tasks[index];
         }
         
-        CompilationProfileRunner* CompilationProfile::createRunner(CompilationContext& context) const {
-            return new CompilationProfileRunner(context, m_tasks);
+        void CompilationProfile::addTask(const CompilationTask& task) {
+            m_tasks.push_back(task.clone());
+            profileDidChange();
+        }
+        
+        void CompilationProfile::removeTask(const size_t index) {
+            assert(index < taskCount());
+            delete m_tasks[index];
+            VectorUtils::erase(m_tasks, index);
+            profileDidChange();
+        }
+        
+        void CompilationProfile::moveTaskUp(const size_t index) {
+            assert(index > 0);
+            assert(index < taskCount());
+            
+            CompilationTask::List::iterator it = m_tasks.begin();
+            std::advance(it, index);
+            
+            CompilationTask::List::iterator pr = m_tasks.begin();
+            std::advance(pr, index - 1);
+            
+            std::iter_swap(it, pr);
+            profileDidChange();
+        }
+        
+        void CompilationProfile::moveTaskDown(const size_t index) {
+            assert(index < taskCount() - 1);
+            
+            CompilationTask::List::iterator it = m_tasks.begin();
+            std::advance(it, index);
+            
+            CompilationTask::List::iterator nx = m_tasks.begin();
+            std::advance(nx, index - 1);
+            
+            std::iter_swap(it, nx);
+            profileDidChange();
+        }
+
+        void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
+            CompilationTask::List::iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                CompilationTask* task = *it;
+                task->accept(visitor);
+            }
+        }
+        
+        void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const {
+            CompilationTask::List::const_iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                CompilationTask* task = *it;
+                task->accept(visitor);
+            }
+        }
+        
+        void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor) {
+            CompilationTask::List::iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                CompilationTask* task = *it;
+                task->accept(visitor);
+            }
+        }
+        
+        void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
+            CompilationTask::List::const_iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                CompilationTask* task = *it;
+                task->accept(visitor);
+            }
         }
     }
 }

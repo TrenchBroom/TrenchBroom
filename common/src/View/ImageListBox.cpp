@@ -57,7 +57,7 @@ namespace TrenchBroom {
             return std::max(imageHeight, textHeight);
         }
 
-        void ImageListBox::SetItemCount(size_t itemCount) {
+        void ImageListBox::SetItemCount(const size_t itemCount) {
             if (itemCount == 0) {
                 m_empty = true;
                 wxVListBox::SetItemCount(1);
@@ -67,14 +67,14 @@ namespace TrenchBroom {
             }
         }
 
-        void ImageListBox::OnDrawItem(wxDC& dc, const wxRect& rect, size_t n) const {
+        void ImageListBox::OnDrawItem(wxDC& dc, const wxRect& rect, const size_t n) const {
             if (m_empty)
                 drawEmptyItem(dc, rect);
             else
                 drawItem(dc, rect, n);
         }
         
-        void ImageListBox::drawItem(wxDC& dc, const wxRect& rect, size_t n) const {
+        void ImageListBox::drawItem(wxDC& dc, const wxRect& rect, const size_t n) const {
             const wxBitmap& img = image(n);
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             dc.DrawText(m_emptyText, x, y);
         }
 
-        void ImageListBox::OnDrawBackground(wxDC& dc, const wxRect& rect, size_t n) const {
+        void ImageListBox::OnDrawBackground(wxDC& dc, const wxRect& rect, const size_t n) const {
             assert(n < GetItemCount());
             dc.SetPen(*wxTRANSPARENT_PEN);
             if (IsSelected(n))
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             dc.DrawRectangle(rect);
         }
         
-        void ImageListBox::OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const {
+        void ImageListBox::OnDrawSeparator(wxDC& dc, wxRect& rect, const size_t n) const {
             if (m_empty)
                 return;
             
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             rect.Deflate(0, 1);
         }
         
-        wxCoord ImageListBox::OnMeasureItem(size_t n) const {
+        wxCoord ImageListBox::OnMeasureItem(const size_t n) const {
             return itemHeight();
         }
     }

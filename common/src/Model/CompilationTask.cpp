@@ -19,86 +19,37 @@
 
 #include "CompilationTask.h"
 
-#include "Exceptions.h"
-#include "IO/DiskIO.h"
-#include "Model/CompilationContext.h"
-
-#include <wx/sstream.h>
-#include <wx/timer.h>
-
 namespace TrenchBroom {
     namespace Model {
-        CompilationTask::TaskRunner::TaskRunner(CompilationContext& context, TaskRunner* next) :
-        m_context(context),
-        m_next(next) {}
-        
-        CompilationTask::TaskRunner::~TaskRunner() {
-            if (m_next != NULL)
-                delete m_next;
-        }
-
-        void CompilationTask::TaskRunner::execute() {
-            doExecute();
-        }
-
-        void CompilationTask::TaskRunner::terminate() {
-            doTerminate();
-            if (m_next != NULL)
-                m_next->terminate();
-        }
-
-        void CompilationTask::TaskRunner::executeNext() {
-            if (m_next != NULL)
-                m_next->execute();
-        }
-
-        CompilationTask::CompilationTask(const Type type) :
-        m_type(type) {}
+        CompilationTask::CompilationTask() {}
     
         CompilationTask::~CompilationTask() {}
-
-        CompilationTask::Type CompilationTask::type() const {
-            return m_type;
-        }
 
         CompilationTask* CompilationTask::clone() const {
             return doClone();
         }
 
-        CompilationTask::TaskRunner* CompilationTask::createTaskRunner(CompilationContext& context, TaskRunner* next) const {
-            return doCreateTaskRunner(context, next);
-        }
-    
-        CompilationCopyFiles::Runner::Runner(CompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec) :
-        CompilationTask::TaskRunner(context, next),
-        m_sourcePath(m_context.translateVariables(sourceSpec)),
-        m_targetPath(m_context.translateVariables(targetSpec)) {}
-
-        void CompilationCopyFiles::Runner::doExecute() {
-            const IO::Path sourceDirPath = m_sourcePath.deleteLastComponent();
-            const String sourcePattern = m_sourcePath.lastComponent().asString();
-            
-            try {
-                StringStream str;
-                str << "Copying '" << m_sourcePath.asString() << "' to '" << m_targetPath.asString() << "'\n";
-                m_context.appendOutput(str.str());
-                
-                IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), m_targetPath, true);
-                executeNext();
-            } catch (const Exception& e) {
-                StringStream str;
-                str << "Could not copy '" << m_sourcePath.asString() << "' to '" << m_targetPath.asString() << "': " << e.what() << "\n";
-                m_context.appendOutput(str.str());
-            }
-        }
-        
-        void CompilationCopyFiles::Runner::doTerminate() {}
-
         CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
-        CompilationTask(Type_Copy),
+        CompilationTask(),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
         
+        void CompilationCopyFiles::accept(CompilationTaskVisitor& visitor) {
+            visitor.visit(*this);
+        }
+        
+        void CompilationCopyFiles::accept(ConstCompilationTaskVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+        
+        void CompilationCopyFiles::accept(const CompilationTaskConstVisitor& visitor) {
+            visitor.visit(*this);
+        }
+        
+        void CompilationCopyFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+
         const String& CompilationCopyFiles::sourceSpec() const {
             return m_sourceSpec;
         }
@@ -107,103 +58,41 @@ namespace TrenchBroom {
             return m_targetSpec;
         }
 
+        void CompilationCopyFiles::setSourceSpec(const String& sourceSpec) {
+            m_sourceSpec = sourceSpec;
+            taskDidChange();
+        }
+        
+        void CompilationCopyFiles::setTargetSpec(const String& targetSpec) {
+            m_targetSpec = targetSpec;
+            taskDidChange();
+        }
+
         CompilationTask* CompilationCopyFiles::doClone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
 
-        CompilationTask::TaskRunner* CompilationCopyFiles::doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const {
-            return new Runner(context, next, m_sourceSpec, m_targetSpec);
-        }
-
-        CompilationRunTool::Runner::Runner(CompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec) :
-        TaskRunner(context, next),
-        m_toolPath(m_context.translateVariables(toolSpec)),
-        m_parameters(m_context.translateVariables(parameterSpec)),
-        m_process(NULL),
-        m_processTimer(NULL) {}
-
-        CompilationRunTool::Runner::~Runner() {
-            terminate();
-        }
-        
-        void CompilationRunTool::Runner::doExecute() {
-            wxCriticalSectionLocker lockProcess(m_processSection);
-
-            const String cmd = m_toolPath.asString() + " " + m_parameters;
-            createProcess();
-            startProcess(cmd);
-        }
-        
-        void CompilationRunTool::Runner::doTerminate() {
-            wxCriticalSectionLocker lockProcess(m_processSection);
-            if (m_process != NULL) {
-                wxProcess::Kill(static_cast<int>(m_process->GetPid()));
-                deleteProcess();
-            }
-        }
-
-        void CompilationRunTool::Runner::OnTerminateProcess(wxProcessEvent& event) {
-            wxCriticalSectionLocker lockProcess(m_processSection);
-            if (m_process != NULL) {
-                assert(m_process->GetPid() == event.GetPid());
-                
-                StringStream str;
-                str << "Finished with exit status " << event.GetExitCode() << "\n";
-                m_context.appendOutput(str.str());
-                
-                deleteProcess();
-                executeNext();
-            }
-        }
-
-        void CompilationRunTool::Runner::OnProcessTimer(wxTimerEvent& event) {
-            wxCriticalSectionLocker lockProcess(m_processSection);
-            
-            if (m_process != NULL) {
-                if (m_process->IsInputAvailable())
-                    m_context.appendOutput(readStream(m_process->GetInputStream()));
-            }
-        }
-
-        String CompilationRunTool::Runner::readStream(wxInputStream* stream) {
-            assert(stream != NULL);
-            wxStringOutputStream out;
-            stream->Read(out);
-            return out.GetString().ToStdString();
-        }
-
-        void CompilationRunTool::Runner::createProcess() {
-            assert(m_process == NULL);
-            m_process = new wxProcess(this);
-            m_processTimer = new wxTimer(this);
-            
-            m_process->Bind(wxEVT_END_PROCESS, &CompilationRunTool::Runner::OnTerminateProcess, this);
-            m_processTimer->Bind(wxEVT_TIMER, &CompilationRunTool::Runner::OnProcessTimer, this);
-        }
-        
-        void CompilationRunTool::Runner::startProcess(const String& cmd) {
-            assert(m_process != NULL);
-            assert(m_processTimer != NULL);
-
-            m_context.appendOutput("Executing " + cmd + "\n");
-            wxExecute(cmd, wxEXEC_ASYNC, m_process);
-            m_processTimer->Start(20);
-        }
-
-        void CompilationRunTool::Runner::deleteProcess() {
-            if (m_processTimer != NULL) {
-                delete m_processTimer;
-                m_processTimer = NULL;
-            }
-            delete m_process;
-            m_process = NULL;
-        }
-
         CompilationRunTool::CompilationRunTool(const String& toolSpec, const String& parameterSpec) :
-        CompilationTask(Type_Tool),
+        CompilationTask(),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
 
+        void CompilationRunTool::accept(CompilationTaskVisitor& visitor) {
+            visitor.visit(*this);
+        }
+        
+        void CompilationRunTool::accept(ConstCompilationTaskVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+        
+        void CompilationRunTool::accept(const CompilationTaskConstVisitor& visitor) {
+            visitor.visit(*this);
+        }
+        
+        void CompilationRunTool::accept(const ConstCompilationTaskConstVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+        
         const String& CompilationRunTool::toolSpec() const {
             return m_toolSpec;
         }
@@ -212,12 +101,23 @@ namespace TrenchBroom {
             return m_parameterSpec;
         }
 
+        void CompilationRunTool::setToolSpec(const String& toolSpec) {
+            m_toolSpec = toolSpec;
+            taskDidChange();
+        }
+        
+        void CompilationRunTool::setParameterSpec(const String& parameterSpec) {
+            m_parameterSpec = parameterSpec;
+            taskDidChange();
+        }
+
         CompilationTask* CompilationRunTool::doClone() const {
             return new CompilationRunTool(m_toolSpec, m_parameterSpec);
         }
 
-        CompilationTask::TaskRunner* CompilationRunTool::doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const {
-            return new Runner(context, next, m_toolSpec, m_parameterSpec);
-        }
+        CompilationTaskVisitor::~CompilationTaskVisitor() {}
+        ConstCompilationTaskVisitor::~ConstCompilationTaskVisitor() {}
+        CompilationTaskConstVisitor::~CompilationTaskConstVisitor() {}
+        ConstCompilationTaskConstVisitor::~ConstCompilationTaskConstVisitor() {}
     }
 }

@@ -20,6 +20,7 @@
 #ifndef CompilationProfile_h
 #define CompilationProfile_h
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "Model/CompilationTask.h"
 
@@ -27,25 +28,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationContext;
-
-        class CompilationProfileRunner {
-        private:
-            CompilationTask::TaskRunner* m_tasks;
-        public:
-            CompilationProfileRunner(CompilationContext& context, const CompilationTask::List& tasks);
-            ~CompilationProfileRunner();
-            
-            void execute();
-            void terminate();
-        private:
-            CompilationProfileRunner(const CompilationProfileRunner& other);
-            CompilationProfileRunner& operator=(const CompilationProfileRunner& other);
-        };
-        
         class CompilationProfile {
         public:
             typedef std::vector<CompilationProfile> List;
+            
+            Notifier0 profileDidChange;
         private:
             String m_name;
             CompilationTask::List m_tasks;
@@ -59,10 +46,22 @@ namespace TrenchBroom {
             friend void swap(CompilationProfile& lhs, CompilationProfile& rhs);
 
             const String& name() const;
-            size_t taskCount() const;
-            const CompilationTask& task(size_t index) const;
+            void setName(const String& name);
             
-            CompilationProfileRunner* createRunner(CompilationContext& context) const;
+            size_t taskCount() const;
+            CompilationTask& task(size_t index);
+            const CompilationTask& task(size_t index) const;
+
+            void addTask(const CompilationTask& task);
+            void removeTask(size_t index);
+            
+            void moveTaskUp(size_t index);
+            void moveTaskDown(size_t index);
+            
+            void accept(CompilationTaskVisitor& visitor);
+            void accept(ConstCompilationTaskVisitor& visitor) const;
+            void accept(const CompilationTaskConstVisitor& visitor);
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
         };
     }
 }

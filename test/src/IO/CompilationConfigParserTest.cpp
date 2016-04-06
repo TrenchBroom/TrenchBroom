@@ -191,6 +191,44 @@ namespace TrenchBroom {
             ASSERT_THROW(parser.parse(), ParserException);
         }
         
+        class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor {
+        private:
+            const String& m_sourceSpec;
+            const String& m_targetSpec;
+        public:
+            AssertCompilationCopyFilesVisitor(const String& sourceSpec, const String& targetSpec) :
+            m_sourceSpec(sourceSpec),
+            m_targetSpec(targetSpec) {}
+
+            void visit(const Model::CompilationCopyFiles& task) const {
+                ASSERT_EQ(m_sourceSpec, task.sourceSpec());
+                ASSERT_EQ(m_targetSpec, task.targetSpec());
+            }
+            
+            void visit(const Model::CompilationRunTool& task) const {
+                ASSERT_TRUE(false);
+            }
+        };
+        
+        class AssertCompilationRunToolVisitor : public Model::ConstCompilationTaskConstVisitor {
+        private:
+            const String& m_toolSpec;
+            const String& m_parameterSpec;
+        public:
+            AssertCompilationRunToolVisitor(const String& toolSpec, const String& parameterSpec) :
+            m_toolSpec(toolSpec),
+            m_parameterSpec(parameterSpec) {}
+            
+            void visit(const Model::CompilationCopyFiles& task) const {
+                ASSERT_TRUE(false);
+            }
+            
+            void visit(const Model::CompilationRunTool& task) const {
+                ASSERT_EQ(m_toolSpec, task.toolSpec());
+                ASSERT_EQ(m_parameterSpec, task.parameterSpec());
+            }
+        };
+        
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTask) {
             const String config("{\n"
                                 "    version = \"1\",\n"
@@ -216,12 +254,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("A profile"), profile.name());
             ASSERT_EQ(1u, profile.taskCount());
             
-            const Model::CompilationTask& task = profile.task(0);
-            ASSERT_EQ(Model::CompilationTask::Type_Copy, task.type());
-            
-            const Model::CompilationCopyFiles& copyTask = static_cast<const Model::CompilationCopyFiles&>(task);
-            ASSERT_EQ(String("the source"), copyTask.sourceSpec());
-            ASSERT_EQ(String("the target"), copyTask.targetSpec());
+            profile.task(0).accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTaskWithMissingTool) {
@@ -287,12 +320,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("A profile"), profile.name());
             ASSERT_EQ(1u, profile.taskCount());
             
-            const Model::CompilationTask& task = profile.task(0);
-            ASSERT_EQ(Model::CompilationTask::Type_Tool, task.type());
-            
-            const Model::CompilationRunTool& toolTask = static_cast<const Model::CompilationRunTool&>(task);
-            ASSERT_EQ(String("tyrbsp.exe"), toolTask.toolSpec());
-            ASSERT_EQ(String("this and that"), toolTask.parameterSpec());
+            profile.task(0).accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
         }
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndTwoTasks) {
@@ -325,19 +353,8 @@ namespace TrenchBroom {
             ASSERT_EQ(String("A profile"), profile.name());
             ASSERT_EQ(2u, profile.taskCount());
             
-            const Model::CompilationTask& firstTask = profile.task(0);
-            ASSERT_EQ(Model::CompilationTask::Type_Tool, firstTask.type());
-            
-            const Model::CompilationRunTool& toolTask = static_cast<const Model::CompilationRunTool&>(firstTask);
-            ASSERT_EQ(String("tyrbsp.exe"), toolTask.toolSpec());
-            ASSERT_EQ(String("this and that"), toolTask.parameterSpec());
-        
-            const Model::CompilationTask& secondTask = profile.task(1);
-            ASSERT_EQ(Model::CompilationTask::Type_Copy, secondTask.type());
-            
-            const Model::CompilationCopyFiles& copyTask = static_cast<const Model::CompilationCopyFiles&>(secondTask);
-            ASSERT_EQ(String("the source"), copyTask.sourceSpec());
-            ASSERT_EQ(String("the target"), copyTask.targetSpec());
+            profile.task(0).accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
+            profile.task(1).accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
         }
     }
 }

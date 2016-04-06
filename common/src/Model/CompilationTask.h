@@ -20,12 +20,9 @@
 #ifndef CompilationTask_h
 #define CompilationTask_h
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
-
-#include <wx/event.h>
-#include <wx/process.h>
-#include <wx/thread.h>
 
 #include <vector>
 
@@ -35,51 +32,29 @@ class wxTimerEvent;
 namespace TrenchBroom {
     namespace Model {
         class CompilationContext;
+        class CompilationTaskVisitor;
+        class ConstCompilationTaskVisitor;
+        class CompilationTaskConstVisitor;
+        class ConstCompilationTaskConstVisitor;
         
         class CompilationTask {
         public:
             typedef std::vector<CompilationTask*> List;
             
-            typedef enum {
-                Type_Copy,
-                Type_Tool
-            } Type;
-            
-            class TaskRunner {
-            protected:
-                CompilationContext& m_context;
-            private:
-                TaskRunner* m_next;
-            public:
-                TaskRunner(CompilationContext& context, TaskRunner* next);
-                virtual ~TaskRunner();
-                
-                void execute();
-                void terminate();
-            protected:
-                void executeNext();
-            private:
-                virtual void doExecute() = 0;
-                virtual void doTerminate() = 0;
-            private:
-                TaskRunner(const TaskRunner& other);
-                TaskRunner& operator=(const TaskRunner& other);
-            };
-        private:
-            Type m_type;
+            Notifier0 taskDidChange;
         protected:
-            CompilationTask(Type type);
+            CompilationTask();
         public:
             virtual ~CompilationTask();
 
-            Type type() const;
+            virtual void accept(CompilationTaskVisitor& visitor) = 0;
+            virtual void accept(ConstCompilationTaskVisitor& visitor) const = 0;
+            virtual void accept(const CompilationTaskConstVisitor& visitor) = 0;
+            virtual void accept(const ConstCompilationTaskConstVisitor& visitor) const = 0;
             
             CompilationTask* clone() const;
-            
-            TaskRunner* createTaskRunner(CompilationContext& context, TaskRunner* next = NULL) const;
         private:
             virtual CompilationTask* doClone() const = 0;
-            virtual TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const = 0;
         private:
             CompilationTask(const CompilationTask& other);
             CompilationTask& operator=(const CompilationTask& other);
@@ -87,30 +62,23 @@ namespace TrenchBroom {
         
         class CompilationCopyFiles : public CompilationTask {
         private:
-            class Runner : public TaskRunner {
-            private:
-                IO::Path m_sourcePath;
-                IO::Path m_targetPath;
-            public:
-                Runner(CompilationContext& context, TaskRunner* next, const String& sourceSpec, const String& targetSpec);
-            private:
-                void doExecute();
-                void doTerminate();
-            private:
-                Runner(const Runner& other);
-                Runner& operator=(const Runner& other);
-            };
-            
             String m_sourceSpec;
             String m_targetSpec;
         public:
             CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
             
+            void accept(CompilationTaskVisitor& visitor);
+            void accept(ConstCompilationTaskVisitor& visitor) const;
+            void accept(const CompilationTaskConstVisitor& visitor);
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+
             const String& sourceSpec() const;
             const String& targetSpec() const;
+            
+            void setSourceSpec(const String& sourceSpec);
+            void setTargetSpec(const String& targetSpec);
         private:
             CompilationTask* doClone() const;
-            TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
         private:
             CompilationCopyFiles(const CompilationCopyFiles& other);
             CompilationCopyFiles& operator=(const CompilationCopyFiles& other);
@@ -118,45 +86,58 @@ namespace TrenchBroom {
 
         class CompilationRunTool : public CompilationTask {
         private:
-            class Runner : public wxEvtHandler, public TaskRunner {
-            private:
-                IO::Path m_toolPath;
-                String m_parameters;
-                wxProcess* m_process;
-                wxCriticalSection m_processSection;
-                wxTimer* m_processTimer;
-            public:
-                Runner(CompilationContext& context, TaskRunner* next, const String& toolSpec, const String& parameterSpec);
-                ~Runner();
-            private:
-                void doExecute();
-                void doTerminate();
-            private:
-                void OnTerminateProcess(wxProcessEvent& event);
-                void OnProcessTimer(wxTimerEvent& event);
-                String readStream(wxInputStream* stream);
-                
-                void createProcess();
-                void startProcess(const String& cmd);
-                void deleteProcess();
-            private:
-                Runner(const Runner& other);
-                Runner& operator=(const Runner& other);
-            };
-            
             String m_toolSpec;
             String m_parameterSpec;
         public:
             CompilationRunTool(const String& toolSpec, const String& parameterSpec);
             
+            void accept(CompilationTaskVisitor& visitor);
+            void accept(ConstCompilationTaskVisitor& visitor) const;
+            void accept(const CompilationTaskConstVisitor& visitor);
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+
             const String& toolSpec() const;
             const String& parameterSpec() const;
+            
+            void setToolSpec(const String& toolSpec);
+            void setParameterSpec(const String& parameterSpec);
         private:
             CompilationTask* doClone() const;
-            TaskRunner* doCreateTaskRunner(CompilationContext& context, TaskRunner* next) const;
         private:
             CompilationRunTool(const CompilationRunTool& other);
             CompilationRunTool& operator=(const CompilationRunTool& other);
+        };
+        
+        class CompilationTaskVisitor {
+        public:
+            virtual ~CompilationTaskVisitor();
+            
+            virtual void visit(CompilationCopyFiles& task) = 0;
+            virtual void visit(CompilationRunTool& task) = 0;
+        };
+        
+        class ConstCompilationTaskVisitor {
+        public:
+            virtual ~ConstCompilationTaskVisitor();
+            
+            virtual void visit(const CompilationCopyFiles& task) = 0;
+            virtual void visit(const CompilationRunTool& task) = 0;
+        };
+        
+        class CompilationTaskConstVisitor {
+        public:
+            virtual ~CompilationTaskConstVisitor();
+            
+            virtual void visit(CompilationCopyFiles& task) const = 0;
+            virtual void visit(CompilationRunTool& task) const = 0;
+        };
+        
+        class ConstCompilationTaskConstVisitor {
+        public:
+            virtual ~ConstCompilationTaskConstVisitor();
+            
+            virtual void visit(const CompilationCopyFiles& task) const = 0;
+            virtual void visit(const CompilationRunTool& task) const = 0;
         };
     }
 }
