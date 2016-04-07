@@ -28,13 +28,18 @@ namespace TrenchBroom {
         private:
             CompilationProfile::List m_profiles;
         public:
+            CompilationConfig();
             CompilationConfig(const CompilationProfile::List& profiles);
+            CompilationConfig(const CompilationConfig& other);
+            ~CompilationConfig();
+            
+            CompilationConfig& operator=(CompilationConfig other);
+            friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
             
             size_t profileCount() const;
-            const CompilationProfile& profile(size_t index);
+            CompilationProfile* profile(size_t index) const;
             
-            void addProfile(const CompilationProfile& profile);
-            void updateProfile(size_t index, const CompilationProfile& profile);
+            void addProfile(CompilationProfile* profile);
             void removeProfile(size_t index);
         };
     }

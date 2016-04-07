@@ -157,6 +157,14 @@ namespace TrenchBroom {
             return m_brushContentTypes;
         }
 
+        CompilationConfig& GameConfig::compilationConfig() {
+            return m_compilationConfig;
+        }
+        
+        void GameConfig::setCompilationConfig(const CompilationConfig& compilationConfig) {
+            m_compilationConfig = compilationConfig;
+        }
+
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
             const IO::Path relPath = path().deleteLastComponent() + filePath;
 //            if (IO::Disk::fileExists(relPath))

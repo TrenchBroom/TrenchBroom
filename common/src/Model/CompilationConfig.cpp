@@ -23,29 +23,52 @@
 
 namespace TrenchBroom {
     namespace Model {
+        CompilationConfig::CompilationConfig() {}
+
         CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
         m_profiles(profiles) {}
+
+        CompilationConfig::CompilationConfig(const CompilationConfig& other) {
+            m_profiles.reserve(other.m_profiles.size());
+            
+            CompilationProfile::List::const_iterator it, end;
+            for (it = other.m_profiles.begin(), end = other.m_profiles.end(); it != end; ++it) {
+                const CompilationProfile* original = *it;
+                m_profiles.push_back(original->clone());
+            }
+        }
+
+        CompilationConfig::~CompilationConfig() {
+            VectorUtils::clearAndDelete(m_profiles);
+        }
+
+        CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+        
+        void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
+            using std::swap;
+            swap(lhs.m_profiles, rhs.m_profiles);
+        }
 
         size_t CompilationConfig::profileCount() const {
             return m_profiles.size();
         }
         
-        const CompilationProfile& CompilationConfig::profile(const size_t index) {
+        CompilationProfile* CompilationConfig::profile(const size_t index) const {
             assert(index < profileCount());
             return m_profiles[index];
         }
         
-        void CompilationConfig::addProfile(const CompilationProfile& profile) {
+        void CompilationConfig::addProfile(CompilationProfile* profile) {
             m_profiles.push_back(profile);
-        }
-        
-        void CompilationConfig::updateProfile(const size_t index, const CompilationProfile& profile) {
-            assert(index < profileCount());
-            m_profiles[index] = profile;
         }
         
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
+            delete m_profiles[index];
             VectorUtils::erase(m_profiles, index);
         }
     }

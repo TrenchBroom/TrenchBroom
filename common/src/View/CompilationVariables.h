@@ -17,20 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompilationDialog.h"
+#ifndef CompilationVariables_h
+#define CompilationVariables_h
 
-#include "View/CompilationTaskView.h"
-#include "View/MapFrame.h"
+#include "VariableHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
-        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX) {
-            createGui();
-        }
-        
-        void CompilationDialog::createGui() {
-            
-        }
+        const VariableTable& compilationVariables();
     }
 }
+
+#endif /* CompilationVariables_h */

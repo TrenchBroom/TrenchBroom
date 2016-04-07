@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "IO/CompilationConfigParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
@@ -134,6 +135,8 @@ namespace TrenchBroom {
                 const IO::MappedFile::Ptr configFile = m_configFS.openFile(path);
                 IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS.makeAbsolute(path));
                 GameConfig config = parser.parse();
+                loadCompilationConfig(config);
+
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());
 
@@ -141,6 +144,15 @@ namespace TrenchBroom {
                 m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(prefPath, IO::Path(""))));
             } catch (const Exception& e) {
                 throw GameException("Cannot load game configuration '" + path.asString() + "': " + String(e.what()));
+            }
+        }
+
+        void GameFactory::loadCompilationConfig(GameConfig& gameConfig) {
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            if (m_configFS.fileExists(profilesPath)) {
+                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                gameConfig.setCompilationConfig(parser.parse());
             }
         }
 

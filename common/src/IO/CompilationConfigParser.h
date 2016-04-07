@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Model::CompilationConfig parse();
         private:
             Model::CompilationProfile::List parseProfiles(const ConfigList& list) const;
-            Model::CompilationProfile parseProfile(const ConfigTable& table) const;
+            Model::CompilationProfile* parseProfile(const ConfigTable& table) const;
             
             Model::CompilationTask::List parseTasks(const ConfigList& list) const;
             Model::CompilationTask* parseTask(const ConfigTable& table) const;

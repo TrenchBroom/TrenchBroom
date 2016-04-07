@@ -112,32 +112,32 @@ namespace TrenchBroom {
         public:
             virtual ~CompilationTaskVisitor();
             
-            virtual void visit(CompilationCopyFiles& task) = 0;
-            virtual void visit(CompilationRunTool& task) = 0;
+            virtual void visit(CompilationCopyFiles* task) = 0;
+            virtual void visit(CompilationRunTool* task) = 0;
         };
         
         class ConstCompilationTaskVisitor {
         public:
             virtual ~ConstCompilationTaskVisitor();
             
-            virtual void visit(const CompilationCopyFiles& task) = 0;
-            virtual void visit(const CompilationRunTool& task) = 0;
+            virtual void visit(const CompilationCopyFiles* task) = 0;
+            virtual void visit(const CompilationRunTool* task) = 0;
         };
         
         class CompilationTaskConstVisitor {
         public:
             virtual ~CompilationTaskConstVisitor();
             
-            virtual void visit(CompilationCopyFiles& task) const = 0;
-            virtual void visit(CompilationRunTool& task) const = 0;
+            virtual void visit(CompilationCopyFiles* task) const = 0;
+            virtual void visit(CompilationRunTool* task) const = 0;
         };
         
         class ConstCompilationTaskConstVisitor {
         public:
             virtual ~ConstCompilationTaskConstVisitor();
             
-            virtual void visit(const CompilationCopyFiles& task) const = 0;
-            virtual void visit(const CompilationRunTool& task) const = 0;
+            virtual void visit(const CompilationCopyFiles* task) const = 0;
+            virtual void visit(const CompilationRunTool* task) const = 0;
         };
     }
 }

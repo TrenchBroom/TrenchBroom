@@ -30,29 +30,27 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationProfile {
         public:
-            typedef std::vector<CompilationProfile> List;
+            typedef std::vector<CompilationProfile*> List;
             
             Notifier0 profileDidChange;
+            Notifier0 taskDidChange;
         private:
             String m_name;
             CompilationTask::List m_tasks;
         public:
             CompilationProfile(const String& name);
             CompilationProfile(const String& name, const CompilationTask::List& tasks);
-            CompilationProfile(const CompilationProfile& other);
             ~CompilationProfile();
 
-            CompilationProfile& operator=(CompilationProfile other);
-            friend void swap(CompilationProfile& lhs, CompilationProfile& rhs);
-
+            CompilationProfile* clone() const;
+            
             const String& name() const;
             void setName(const String& name);
             
             size_t taskCount() const;
-            CompilationTask& task(size_t index);
-            const CompilationTask& task(size_t index) const;
+            CompilationTask* task(size_t index) const;
 
-            void addTask(const CompilationTask& task);
+            void addTask(CompilationTask* task);
             void removeTask(size_t index);
             
             void moveTaskUp(size_t index);
@@ -62,6 +60,9 @@ namespace TrenchBroom {
             void accept(ConstCompilationTaskVisitor& visitor) const;
             void accept(const CompilationTaskConstVisitor& visitor);
             void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+        private:
+            CompilationProfile(const CompilationProfile& other);
+            CompilationProfile& operator=(CompilationProfile other);
         };
     }
 }

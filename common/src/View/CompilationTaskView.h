@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class CompilationTaskView : public wxPanel {
         private:
+            template <typename T> class TaskEditor;
             class CopyFilesTaskEditor;
             class RunToolTaskEditor;
         private:

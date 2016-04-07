@@ -26,17 +26,14 @@ namespace TrenchBroom {
     namespace Model {
         CompilationProfile::CompilationProfile(const String& name) :
         m_name(name) {}
-        
+
         CompilationProfile::CompilationProfile(const String& name, const CompilationTask::List& tasks) :
         m_name(name),
-        m_tasks(tasks) {}
-
-        CompilationProfile::CompilationProfile(const CompilationProfile& other) :
-        m_name(other.m_name) {
-            CompilationTask::List::const_iterator it, end;
-            for (it = other.m_tasks.begin(), end = other.m_tasks.end(); it != end; ++it) {
-                const CompilationTask* original = *it;
-                m_tasks.push_back(original->clone());
+        m_tasks(tasks) {
+            CompilationTask::List::iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                CompilationTask* task = *it;
+                task->taskDidChange.addObserver(taskDidChange);
             }
         }
 
@@ -44,16 +41,17 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_tasks);
         }
 
-        CompilationProfile& CompilationProfile::operator=(CompilationProfile other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-        
-        void swap(CompilationProfile& lhs, CompilationProfile& rhs) {
-            using std::swap;
-            swap(lhs.m_name, rhs.m_name);
-            swap(lhs.m_tasks, rhs.m_tasks);
+        CompilationProfile* CompilationProfile::clone() const {
+            CompilationTask::List clones;
+            clones.reserve(m_tasks.size());
+            
+            CompilationTask::List::const_iterator it, end;
+            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+                const CompilationTask* original = *it;
+                clones.push_back(original->clone());
+            }
+            
+            return new CompilationProfile(m_name, clones);
         }
 
         const String& CompilationProfile::name() const  {
@@ -69,18 +67,14 @@ namespace TrenchBroom {
             return m_tasks.size();
         }
         
-        CompilationTask& CompilationProfile::task(const size_t index) {
+        CompilationTask* CompilationProfile::task(const size_t index) const {
             assert(index < taskCount());
-            return *m_tasks[index];
-        }
-
-        const CompilationTask& CompilationProfile::task(const size_t index) const {
-            assert(index < taskCount());
-            return *m_tasks[index];
+            return m_tasks[index];
         }
         
-        void CompilationProfile::addTask(const CompilationTask& task) {
-            m_tasks.push_back(task.clone());
+        void CompilationProfile::addTask(CompilationTask* task) {
+            m_tasks.push_back(task);
+            task->taskDidChange.addObserver(taskDidChange);
             profileDidChange();
         }
         

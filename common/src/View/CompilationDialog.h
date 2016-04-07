@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationDialog_hpp
-#define CompilationDialog_hpp
+#ifndef CompilationDialog_h
+#define CompilationDialog_h
 
 #include <wx/dialog.h>
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationDialog_hpp */
+#endif /* CompilationDialog_h */

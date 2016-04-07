@@ -21,6 +21,7 @@
 
 #include "Model/CompilationProfile.h"
 #include "View/BorderLine.h"
+#include "View/CompilationVariables.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
@@ -31,52 +32,112 @@
 
 namespace TrenchBroom {
     namespace View {
-        class CompilationTaskView::CopyFilesTaskEditor : public TitledPanel {
-        private:
-            Model::CompilationCopyFiles& m_task;
+        template <typename T>
+        class CompilationTaskView::TaskEditor : public TitledPanel {
+        protected:
+            T* m_task;
+        protected:
+            TaskEditor(wxWindow* parent, const String& title, T* task) :
+            TitledPanel(parent, title),
+            m_task(task) {}
         public:
-            CopyFilesTaskEditor(wxWindow* parent, Model::CompilationCopyFiles& task) :
-            TitledPanel(parent, "Copy Files"),
-            m_task(task) {
+            void initialize() {
+                createGui();
+                refresh();
+                m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
+            }
+        public:
+            virtual ~TaskEditor() {
+                m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
+            }
+        protected:
+            void enableAutoComplete(wxTextEntry* textEntry) {
+                const VariableTable& variables = compilationVariables();
+                const StringSet& nameSet = variables.declaredVariables();
+                wxArrayString nameArray;
+                nameArray.Alloc(nameSet.size());
+                
+                StringSet::const_iterator it, end;
+                for (it = nameSet.begin(), end = nameSet.end(); it != end; ++it) {
+                    const String& variableName = *it;
+                    const String variableString = variables.buildVariableString(variableName);
+                    nameArray.Add(variableString);
+                }
+                
+                textEntry->AutoComplete(nameArray);
+            }
+        private:
+            void taskDidChange() {
+                refresh();
+            }
+            
+            virtual void createGui() = 0;
+            virtual void refresh() = 0;
+        };
+        
+        class CompilationTaskView::CopyFilesTaskEditor : public TaskEditor<Model::CompilationCopyFiles> {
+        private:
+            wxTextCtrl* m_sourceEditor;
+            wxTextCtrl* m_targetEditor;
+        public:
+            CopyFilesTaskEditor(wxWindow* parent, Model::CompilationCopyFiles* task) :
+            TaskEditor(parent, "Copy Files", task),
+            m_sourceEditor(NULL),
+            m_targetEditor(NULL) {}
+        private:
+            void createGui() {
                 wxStaticText* sourceLabel = new wxStaticText(getPanel(), wxID_ANY, "Source");
                 sourceLabel->SetFont(sourceLabel->GetFont().Bold());
-                wxTextCtrl* sourceEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                m_sourceEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                enableAutoComplete(m_sourceEditor);
                 
                 wxStaticText* targetLabel = new wxStaticText(getPanel(), wxID_ANY, "Target");
                 targetLabel->SetFont(targetLabel->GetFont().Bold());
-                wxTextCtrl* targetEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                m_targetEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                enableAutoComplete(m_targetEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
                 const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
                 const int EditorMargin = LayoutConstants::WideHMargin;
-
+                
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
                 sizer->Add(sourceLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(sourceEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(m_sourceEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
                 sizer->Add(targetLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(targetEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(m_targetEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
                 
                 sizer->AddGrowableCol(1);
                 
                 SetSizer(sizer);
             }
+            
+            void refresh() {
+                m_sourceEditor->SetValue(m_task->sourceSpec());
+                m_targetEditor->SetValue(m_task->targetSpec());
+            }
         };
         
-        class CompilationTaskView::RunToolTaskEditor : public TitledPanel {
+        class CompilationTaskView::RunToolTaskEditor : public TaskEditor<Model::CompilationRunTool> {
         private:
-            Model::CompilationRunTool& m_task;
+            wxTextCtrl* m_toolEditor;
+            wxTextCtrl* m_parametersEditor;
         public:
-            RunToolTaskEditor(wxWindow* parent, Model::CompilationRunTool& task) :
-            TitledPanel(parent, "Run Tool"),
-            m_task(task) {
+            RunToolTaskEditor(wxWindow* parent, Model::CompilationRunTool* task) :
+            TaskEditor(parent, "Run Tool", task),
+            m_toolEditor(NULL),
+            m_parametersEditor(NULL) {}
+        private:
+            void createGui() {
                 wxStaticText* toolLabel = new wxStaticText(getPanel(), wxID_ANY, "Tool");
                 toolLabel->SetFont(toolLabel->GetFont().Bold());
-                wxTextCtrl* sourceEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                m_toolEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                enableAutoComplete(m_toolEditor);
                 
                 wxStaticText* parameterLabel = new wxStaticText(getPanel(), wxID_ANY, "Parameters");
                 parameterLabel->SetFont(parameterLabel->GetFont().Bold());
-                wxTextCtrl* targetEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                m_parametersEditor = new wxTextCtrl(getPanel(), wxID_ANY);
+                enableAutoComplete(m_parametersEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
                 const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT;
@@ -85,13 +146,18 @@ namespace TrenchBroom {
                 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
                 sizer->Add(toolLabel,       wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(sourceEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(m_toolEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
                 sizer->Add(parameterLabel,  wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(targetEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(m_parametersEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
                 
                 sizer->AddGrowableCol(1);
                 
                 SetSizer(sizer);
+            }
+            
+            void refresh() {
+                m_toolEditor->SetValue(m_task->toolSpec());
+                m_parametersEditor->SetValue(m_task->toolSpec());
             }
         };
         
@@ -126,12 +192,16 @@ namespace TrenchBroom {
             m_parent(parent),
             m_sizer(sizer) {}
             
-            void visit(Model::CompilationCopyFiles& task) {
-                m_sizer->Add(new CopyFilesTaskEditor(m_parent, task), 0, wxEXPAND);
+            void visit(Model::CompilationCopyFiles* task) {
+                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, task);
+                editor->initialize();
+                m_sizer->Add(editor, 0, wxEXPAND);
             }
             
-            void visit(Model::CompilationRunTool& task) {
-                m_sizer->Add(new RunToolTaskEditor(m_parent, task), 0, wxEXPAND);
+            void visit(Model::CompilationRunTool* task) {
+                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, task);
+                editor->initialize();
+                m_sizer->Add(editor, 0, wxEXPAND);
             }
         };
         

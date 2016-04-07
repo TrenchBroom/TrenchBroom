@@ -35,19 +35,19 @@ namespace TrenchBroom {
         m_targetSpec(targetSpec) {}
         
         void CompilationCopyFiles::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationCopyFiles::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationCopyFiles::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationCopyFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
 
         const String& CompilationCopyFiles::sourceSpec() const {
@@ -78,19 +78,19 @@ namespace TrenchBroom {
         m_parameterSpec(parameterSpec) {}
 
         void CompilationRunTool::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationRunTool::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationRunTool::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         void CompilationRunTool::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(*this);
+            visitor.visit(this);
         }
         
         const String& CompilationRunTool::toolSpec() const {

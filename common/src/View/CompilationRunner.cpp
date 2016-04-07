@@ -79,10 +79,10 @@ namespace TrenchBroom {
             IO::Path m_sourcePath;
             IO::Path m_targetPath;
         public:
-            CopyFilesRunner(Model::CompilationContext& context, const Model::CompilationCopyFiles& task) :
+            CopyFilesRunner(Model::CompilationContext& context, const Model::CompilationCopyFiles* task) :
             TaskRunner(context),
-            m_sourcePath(m_context.translateVariables(task.sourceSpec())),
-            m_targetPath(m_context.translateVariables(task.targetSpec())) {}
+            m_sourcePath(m_context.translateVariables(task->sourceSpec())),
+            m_targetPath(m_context.translateVariables(task->targetSpec())) {}
         private:
             void doExecute() {
                 const IO::Path sourceDirPath = m_sourcePath.deleteLastComponent();
@@ -116,10 +116,10 @@ namespace TrenchBroom {
             wxCriticalSection m_processSection;
             wxTimer* m_processTimer;
         public:
-            RunToolRunner(Model::CompilationContext& context, const Model::CompilationRunTool& task) :
+            RunToolRunner(Model::CompilationContext& context, const Model::CompilationRunTool* task) :
             TaskRunner(context),
-            m_toolPath(m_context.translateVariables(task.toolSpec())),
-            m_parameters(m_context.translateVariables(task.parameterSpec())),
+            m_toolPath(m_context.translateVariables(task->toolSpec())),
+            m_parameters(m_context.translateVariables(task->parameterSpec())),
             m_process(NULL),
             m_processTimer(NULL) {}
             
@@ -227,11 +227,11 @@ namespace TrenchBroom {
                 return m_runnerChain;
             }
             
-            void visit(const Model::CompilationCopyFiles& task) {
+            void visit(const Model::CompilationCopyFiles* task) {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
             
-            void visit(const Model::CompilationRunTool& task) {
+            void visit(const Model::CompilationRunTool* task) {
                 appendRunner(new RunToolRunner(m_context, task));
             }
             
