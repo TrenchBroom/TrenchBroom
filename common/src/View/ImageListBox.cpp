@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, const long style) :
+        ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText, const wxSize& imageSize, const long style) :
         wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | style),
         m_imageSize(imageSize),
         m_empty(true),
@@ -79,7 +79,8 @@ namespace TrenchBroom {
             const wxString ttl = title(n);
             const wxString sub = subtitle(n);
             
-            dc.DrawBitmap(img, rect.GetLeft() + m_border.x, rect.GetTop() + m_border.y, true);
+            if (m_imageSize.x > 0 && m_imageSize.y > 0)
+                dc.DrawBitmap(img, rect.GetLeft() + m_border.x, rect.GetTop() + m_border.y, true);
             
 			int yOff = rect.GetTop() + m_border.y;
 
@@ -131,6 +132,10 @@ namespace TrenchBroom {
         
         wxCoord ImageListBox::OnMeasureItem(const size_t n) const {
             return itemHeight();
+        }
+
+        const wxBitmap& ImageListBox::image(const size_t n) const {
+            return wxNullBitmap;
         }
     }
 }

@@ -19,18 +19,58 @@
 
 #include "CompilationDialog.h"
 
+#include "Model/Game.h"
+#include "View/BorderLine.h"
+#include "View/CompilationProfilesListBox.h"
 #include "View/CompilationTaskView.h"
+#include "View/MapDocument.h"
 #include "View/MapFrame.h"
+#include "View/SplitterWindow2.h"
+
+#include <wx/sizer.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
-        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX) {
+        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
+        m_mapFrame(mapFrame),
+        m_output(NULL) {
             createGui();
+            SetSize(800, 600);
+            CentreOnParent();
         }
         
         void CompilationDialog::createGui() {
+            MapDocumentSPtr document = m_mapFrame->document();
+            Model::GamePtr game = document->game();
+            Model::CompilationConfig& compilationConfig = game->compilationConfig();
             
+            wxPanel* outerPanel = new wxPanel(this);
+            SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
+            wxPanel* upperPanel = new wxPanel(splitter);
+            
+            CompilationProfilesListBox* profileList = new CompilationProfilesListBox(upperPanel, compilationConfig);
+            CompilationTaskView* taskView = new CompilationTaskView(upperPanel);
+            
+            m_output = new wxTextCtrl(splitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+
+            wxSizer* upperPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            upperPanelSizer->Add(profileList, 0, wxEXPAND);
+            upperPanelSizer->Add(new BorderLine(upperPanel, BorderLine::Direction_Vertical), 0, wxEXPAND);
+            upperPanelSizer->Add(taskView, 1, wxEXPAND);
+            upperPanelSizer->SetItemMinSize(profileList, wxSize(200, 200));
+            upperPanel->SetSizer(upperPanelSizer);
+            
+            splitter->splitHorizontally(upperPanel, m_output);
+
+            wxSizer* outerPanelSizer = new wxBoxSizer(wxVERTICAL);
+            outerPanelSizer->Add(splitter, 1, wxEXPAND);
+            outerPanel->SetSizer(outerPanelSizer);
+            
+            wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
+            dialogSizer->Add(outerPanel, 1, wxEXPAND);
+            SetSizer(dialogSizer);
         }
     }
 }

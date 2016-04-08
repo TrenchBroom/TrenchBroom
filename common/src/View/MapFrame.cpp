@@ -33,6 +33,7 @@
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
+#include "View/CompilationDialog.h"
 #include "View/Console.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
@@ -186,8 +187,7 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocument() {
             try {
-                const IO::Path& path = m_document->path();
-                if (path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
+                if (m_document->persistent()) {
                     m_document->saveDocument();
                     logger()->info("Saved " + m_document->path().asString());
                     return true;
@@ -507,6 +507,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleInfoPanel, this, CommandIds::Menu::ViewToggleInfoPanel);
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleInspector, this, CommandIds::Menu::ViewToggleInspector);
 
+            Bind(wxEVT_MENU, &MapFrame::OnRunCompile, this, CommandIds::Menu::RunCompile);
+            
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
@@ -974,6 +976,13 @@ namespace TrenchBroom {
                 m_hSplitter->maximize(m_vSplitter);
         }
 
+        void MapFrame::OnRunCompile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            CompilationDialog dialog(this);
+            dialog.ShowModal();
+        }
+
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1261,6 +1270,9 @@ namespace TrenchBroom {
                     event.Enable(true);
                     event.Check(m_hSplitter->isMaximized(m_vSplitter));
                     break;
+                case CommandIds::Menu::RunCompile:
+                    event.Enable(canCompile());
+                    break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
@@ -1401,6 +1413,10 @@ namespace TrenchBroom {
 
         bool MapFrame::canFocusCamera() const {
             return m_document->hasSelectedNodes();
+        }
+
+        bool MapFrame::canCompile() const {
+            return m_document->persistent();
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {

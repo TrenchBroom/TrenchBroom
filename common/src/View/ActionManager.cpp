@@ -283,6 +283,8 @@ namespace TrenchBroom {
             viewMenu->addSeparator();
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
             
+            Menu* runMenu = m_menuBar->addMenu("Run");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
 
 #ifndef NDEBUG
             Menu* debugMenu = m_menuBar->addMenu("Debug");

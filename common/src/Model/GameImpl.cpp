@@ -119,6 +119,10 @@ namespace TrenchBroom {
             initializeFileSystem();
         }
 
+        CompilationConfig& GameImpl::doCompilationConfig() {
+            return m_config.compilationConfig();
+        }
+
         World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }

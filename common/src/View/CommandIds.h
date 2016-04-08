@@ -97,6 +97,8 @@ namespace TrenchBroom {
                 const int DebugCopyJSShortcuts               = Lowest + 129;
                 const int DebugCrash                         = Lowest + 130;
                 
+                const int RunCompile                         = Lowest + 131;
+                
                 const int FileRecentDocuments                = Lowest + 190;
 
                 const int Highest                            = Lowest + 200;

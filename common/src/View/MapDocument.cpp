@@ -1465,7 +1465,11 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
         }
         
-        const String MapDocument::filename() const {
+        bool MapDocument::persistent() const {
+            return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
+        }
+
+        String MapDocument::filename() const {
             if (m_path.isEmpty())
                 return EmptyString;
             return  m_path.lastComponent().asString();

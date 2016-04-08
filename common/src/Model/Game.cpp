@@ -53,6 +53,10 @@ namespace TrenchBroom {
             doSetAdditionalSearchPaths(searchPaths);
         }
 
+        CompilationConfig& Game::compilationConfig() {
+            return doCompilationConfig();
+        }
+
         World* Game::newMap(const MapFormat::Type format, const BBox3& worldBounds) const {
             return doNewMap(format, worldBounds);
         }

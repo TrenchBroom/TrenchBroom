@@ -17,28 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationDialog_h
-#define CompilationDialog_h
+#ifndef CompilationProfilesListBox_h
+#define CompilationProfilesListBox_h
 
-#include <wx/dialog.h>
-
-class wxTextCtrl;
+#include "View/ImageListBox.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationConfig;
+    }
+    
     namespace View {
-        class MapFrame;
-        
-        class CompilationDialog : public wxDialog {
+        class CompilationProfilesListBox : public ImageListBox {
         private:
-            MapFrame* m_mapFrame;
-            
-            wxTextCtrl* m_output;
+            const Model::CompilationConfig& m_config;
         public:
-            CompilationDialog(MapFrame* mapFrame);
+            CompilationProfilesListBox(wxWindow* parent, const Model::CompilationConfig& config);
+            ~CompilationProfilesListBox();
         private:
-            void createGui();
+            void profilesDidChange();
+        private:
+            wxString title(size_t n) const;
+            wxString subtitle(size_t n) const;
         };
     }
 }
 
-#endif /* CompilationDialog_h */
+#endif /* CompilationProfilesListBox_h */

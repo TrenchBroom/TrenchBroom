@@ -31,7 +31,7 @@ namespace TrenchBroom {
             wxString m_emptyText;
 			wxSize m_border;
         public:
-            ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, long style = wxBORDER_NONE);
+            ImageListBox(wxWindow* parent, const wxString& emptyText, const wxSize& imageSize = wxSize(0,0), long style = wxBORDER_NONE);
             
             size_t selection() const;
             bool hasSelection() const;
@@ -48,9 +48,9 @@ namespace TrenchBroom {
             void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const;
             wxCoord OnMeasureItem(size_t n) const;
             
-            virtual const wxBitmap& image(const size_t n) const = 0;
-            virtual wxString title(const size_t n) const = 0;
-            virtual wxString subtitle(const size_t n) const = 0;
+            virtual const wxBitmap& image(size_t n) const;
+            virtual wxString title(size_t n) const = 0;
+            virtual wxString subtitle(size_t n) const = 0;
         };
     }
 }

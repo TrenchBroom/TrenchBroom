@@ -34,7 +34,9 @@ namespace TrenchBroom {
             CompilationProfile::List::const_iterator it, end;
             for (it = other.m_profiles.begin(), end = other.m_profiles.end(); it != end; ++it) {
                 const CompilationProfile* original = *it;
-                m_profiles.push_back(original->clone());
+                CompilationProfile* clone = original->clone();
+                m_profiles.push_back(clone);
+                clone->profileDidChange.addObserver(profilesDidChange);
             }
         }
 
@@ -51,6 +53,7 @@ namespace TrenchBroom {
         void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
             using std::swap;
             swap(lhs.m_profiles, rhs.m_profiles);
+            swap(lhs.profilesDidChange, rhs.profilesDidChange);
         }
 
         size_t CompilationConfig::profileCount() const {
@@ -64,12 +67,14 @@ namespace TrenchBroom {
         
         void CompilationConfig::addProfile(CompilationProfile* profile) {
             m_profiles.push_back(profile);
+            profilesDidChange();
         }
         
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
             delete m_profiles[index];
             VectorUtils::erase(m_profiles, index);
+            profilesDidChange();
         }
     }
 }

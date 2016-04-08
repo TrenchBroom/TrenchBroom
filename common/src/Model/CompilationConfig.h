@@ -20,6 +20,7 @@
 #ifndef CompilationConfig_h
 #define CompilationConfig_h
 
+#include "Notifier.h"
 #include "Model/CompilationProfile.h"
 
 namespace TrenchBroom {
@@ -27,6 +28,8 @@ namespace TrenchBroom {
         class CompilationConfig {
         private:
             CompilationProfile::List m_profiles;
+        public:
+            mutable Notifier0 profilesDidChange;
         public:
             CompilationConfig();
             CompilationConfig(const CompilationProfile::List& profiles);

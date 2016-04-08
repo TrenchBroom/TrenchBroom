@@ -397,7 +397,8 @@ namespace TrenchBroom {
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // document path
-            const String filename() const;
+            bool persistent() const;
+            String filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);
