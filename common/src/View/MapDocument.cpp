@@ -1158,11 +1158,17 @@ namespace TrenchBroom {
         
         void MapDocument::loadEntityDefinitions() {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
-            const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-            SimpleParserStatus status(this);
-            
-            m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-            info("Loaded entity definition file " + path.lastComponent().asString());
+            try {
+                const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+                SimpleParserStatus status(this);
+                m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
+                info("Loaded entity definition file " + path.lastComponent().asString());
+            } catch (const Exception& e) {
+                if (spec.builtin())
+                    error("Unable to load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                else
+                    error("Unable to load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+            }
         }
         
         void MapDocument::unloadEntityDefinitions() {

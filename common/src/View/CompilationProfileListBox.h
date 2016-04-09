@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfilesListBox_h
-#define CompilationProfilesListBox_h
+#ifndef CompilationProfileListBox_h
+#define CompilationProfileListBox_h
 
 #include "View/ImageListBox.h"
 
@@ -28,12 +28,12 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CompilationProfilesListBox : public ImageListBox {
+        class CompilationProfileListBox : public ImageListBox {
         private:
             const Model::CompilationConfig& m_config;
         public:
-            CompilationProfilesListBox(wxWindow* parent, const Model::CompilationConfig& config);
-            ~CompilationProfilesListBox();
+            CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config);
+            ~CompilationProfileListBox();
         private:
             void profilesDidChange();
         private:
@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfilesListBox_h */
+#endif /* CompilationProfileListBox_h */

@@ -17,34 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompilationProfilesListBox.h"
+#include "CompilationProfileListBox.h"
 
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfilesListBox::CompilationProfilesListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
+        CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
         ImageListBox(parent, "No Profiles Found"),
         m_config(config) {
-            m_config.profilesDidChange.addObserver(this, &CompilationProfilesListBox::profilesDidChange);
+            m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());
         }
 
-        CompilationProfilesListBox::~CompilationProfilesListBox() {
-            m_config.profilesDidChange.removeObserver(this, &CompilationProfilesListBox::profilesDidChange);
+        CompilationProfileListBox::~CompilationProfileListBox() {
+            m_config.profilesDidChange.removeObserver(this, &CompilationProfileListBox::profilesDidChange);
         }
 
-        void CompilationProfilesListBox::profilesDidChange() {
+        void CompilationProfileListBox::profilesDidChange() {
             SetItemCount(m_config.profileCount());
         }
 
-        wxString CompilationProfilesListBox::title(const size_t n) const {
+        wxString CompilationProfileListBox::title(const size_t n) const {
             const Model::CompilationProfile* profile = m_config.profile(n);
             return profile->name();
         }
         
-        wxString CompilationProfilesListBox::subtitle(const size_t n) const {
+        wxString CompilationProfileListBox::subtitle(const size_t n) const {
             const Model::CompilationProfile* profile = m_config.profile(n);
             wxString result;
             result << profile->taskCount() << " tasks";

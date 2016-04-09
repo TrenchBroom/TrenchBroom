@@ -17,29 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationDialog_h
-#define CompilationDialog_h
+#ifndef CompilationProfileManager_h
+#define CompilationProfileManager_h
 
-#include <wx/dialog.h>
-
-class wxTextCtrl;
+#include <wx/panel.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationConfig;
+    }
+    
     namespace View {
-        class CompilationProfileManager;
-        class MapFrame;
+        class CompilationProfileListBox;
+        class CompilationProfileEditor;
         
-        class CompilationDialog : public wxDialog {
+        class CompilationProfileManager : public wxPanel {
         private:
-            MapFrame* m_mapFrame;
-            CompilationProfileManager* m_profileManager;
-            wxTextCtrl* m_output;
+            Model::CompilationConfig& m_config;
+            CompilationProfileListBox* m_listView;
+            CompilationProfileEditor* m_editor;
         public:
-            CompilationDialog(MapFrame* mapFrame);
+            CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config);
         private:
-            void createGui();
+            void OnProfileSelectionChanged(wxCommandEvent& event);
         };
     }
 }
 
-#endif /* CompilationDialog_h */
+#endif /* CompilationProfileManager_h */

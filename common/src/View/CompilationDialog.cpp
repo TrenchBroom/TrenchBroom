@@ -21,8 +21,7 @@
 
 #include "Model/Game.h"
 #include "View/BorderLine.h"
-#include "View/CompilationProfilesListBox.h"
-#include "View/CompilationTaskView.h"
+#include "View/CompilationProfileManager.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/SplitterWindow2.h"
@@ -48,21 +47,11 @@ namespace TrenchBroom {
             
             wxPanel* outerPanel = new wxPanel(this);
             SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
-            wxPanel* upperPanel = new wxPanel(splitter);
             
-            CompilationProfilesListBox* profileList = new CompilationProfilesListBox(upperPanel, compilationConfig);
-            CompilationTaskView* taskView = new CompilationTaskView(upperPanel);
-            
+            m_profileManager = new CompilationProfileManager(splitter, compilationConfig);
             m_output = new wxTextCtrl(splitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
 
-            wxSizer* upperPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-            upperPanelSizer->Add(profileList, 0, wxEXPAND);
-            upperPanelSizer->Add(new BorderLine(upperPanel, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            upperPanelSizer->Add(taskView, 1, wxEXPAND);
-            upperPanelSizer->SetItemMinSize(profileList, wxSize(200, 200));
-            upperPanel->SetSizer(upperPanelSizer);
-            
-            splitter->splitHorizontally(upperPanel, m_output);
+            splitter->splitHorizontally(m_profileManager, m_output);
 
             wxSizer* outerPanelSizer = new wxBoxSizer(wxVERTICAL);
             outerPanelSizer->Add(splitter, 1, wxEXPAND);

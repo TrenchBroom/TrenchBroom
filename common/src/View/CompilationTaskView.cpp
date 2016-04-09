@@ -38,7 +38,7 @@ namespace TrenchBroom {
             T* m_task;
         protected:
             TaskEditor(wxWindow* parent, const String& title, T* task) :
-            TitledPanel(parent, title),
+            TitledPanel(parent, title, false),
             m_task(task) {}
         public:
             void initialize() {
@@ -87,29 +87,30 @@ namespace TrenchBroom {
         private:
             void createGui() {
                 wxStaticText* sourceLabel = new wxStaticText(getPanel(), wxID_ANY, "Source");
-                sourceLabel->SetFont(sourceLabel->GetFont().Bold());
                 m_sourceEditor = new wxTextCtrl(getPanel(), wxID_ANY);
                 enableAutoComplete(m_sourceEditor);
                 
                 wxStaticText* targetLabel = new wxStaticText(getPanel(), wxID_ANY, "Target");
-                targetLabel->SetFont(targetLabel->GetFont().Bold());
                 m_targetEditor = new wxTextCtrl(getPanel(), wxID_ANY);
                 enableAutoComplete(m_targetEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT;
+                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT | wxEXPAND;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
                 const int EditorMargin = LayoutConstants::WideHMargin;
+                const int OuterMargin  = LayoutConstants::WideVMargin;
                 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->Add(sourceLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_sourceEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
-                sizer->Add(targetLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_targetEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(1, OuterMargin,  wxGBPosition(0, 0), wxGBSpan(1, 2));
+                sizer->Add(sourceLabel,     wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->Add(m_sourceEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(targetLabel,     wxGBPosition(2, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->Add(m_targetEditor,  wxGBPosition(2, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(1, OuterMargin,  wxGBPosition(3, 0), wxGBSpan(1, 2));
                 
                 sizer->AddGrowableCol(1);
                 
-                SetSizer(sizer);
+                getPanel()->SetSizer(sizer);
             }
             
             void refresh() {
@@ -130,29 +131,30 @@ namespace TrenchBroom {
         private:
             void createGui() {
                 wxStaticText* toolLabel = new wxStaticText(getPanel(), wxID_ANY, "Tool");
-                toolLabel->SetFont(toolLabel->GetFont().Bold());
                 m_toolEditor = new wxTextCtrl(getPanel(), wxID_ANY);
                 enableAutoComplete(m_toolEditor);
                 
                 wxStaticText* parameterLabel = new wxStaticText(getPanel(), wxID_ANY, "Parameters");
-                parameterLabel->SetFont(parameterLabel->GetFont().Bold());
                 m_parametersEditor = new wxTextCtrl(getPanel(), wxID_ANY);
                 enableAutoComplete(m_parametersEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
-                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT;
+                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxRIGHT | wxEXPAND;
                 const int LabelMargin  = LayoutConstants::NarrowHMargin;
                 const int EditorMargin = LayoutConstants::WideHMargin;
+                const int OuterMargin  = LayoutConstants::WideVMargin;
                 
                 wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
-                sizer->Add(toolLabel,       wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_toolEditor,    wxGBPosition(0, 1), wxDefaultSpan, EditorFlags, EditorMargin);
-                sizer->Add(parameterLabel,  wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
-                sizer->Add(m_parametersEditor,    wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(1, OuterMargin,      wxGBPosition(0, 0), wxGBSpan(1, 2));
+                sizer->Add(toolLabel,           wxGBPosition(1, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->Add(m_toolEditor,        wxGBPosition(1, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(parameterLabel,      wxGBPosition(2, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->Add(m_parametersEditor,  wxGBPosition(2, 1), wxDefaultSpan, EditorFlags, EditorMargin);
+                sizer->Add(1, OuterMargin,      wxGBPosition(3, 0), wxGBSpan(1, 2));
                 
                 sizer->AddGrowableCol(1);
                 
-                SetSizer(sizer);
+                getPanel()->SetSizer(sizer);
             }
             
             void refresh() {
@@ -196,12 +198,14 @@ namespace TrenchBroom {
                 TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, task);
                 editor->initialize();
                 m_sizer->Add(editor, 0, wxEXPAND);
+                m_sizer->Add(new BorderLine(m_parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             }
             
             void visit(Model::CompilationRunTool* task) {
                 TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, task);
                 editor->initialize();
                 m_sizer->Add(editor, 0, wxEXPAND);
+                m_sizer->Add(new BorderLine(m_parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             }
         };
         
@@ -215,11 +219,11 @@ namespace TrenchBroom {
                 CompilationTaskEditorFactory factory(this, sizer);
                 m_profile->accept(factory);
                 
-                sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
                 sizer->AddStretchSpacer();
-                
                 SetSizer(sizer);
             }
+            
+            Layout();
         }
     }
 }
