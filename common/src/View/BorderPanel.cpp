@@ -21,7 +21,7 @@
 
 #include "View/ViewConstants.h"
 
-#include <wx/dcclient.h>
+#include <wx/dcbuffer.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         void BorderPanel::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 
-            wxPaintDC dc(this);
+            wxAutoBufferedPaintDC dc(this);
             dc.SetPen(wxPen(Colors::borderColor()));
             
             wxRect rect = GetClientRect();

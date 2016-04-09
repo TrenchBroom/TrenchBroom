@@ -125,8 +125,10 @@ namespace TrenchBroom {
                 return;
             
             assert(n < GetItemCount());
-            dc.SetPen(Colors::borderColor());
-            dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
+            dc.SetPen(wxPen(Colors::borderColor()));
+            dc.SetBrush(wxBrush(Colors::borderColor()));
+            
+            dc.DrawRectangle(wxRect(rect.GetBottomLeft(), rect.GetBottomRight()));
             rect.Deflate(0, 1);
         }
         
