@@ -25,6 +25,8 @@
 #include <wx/stdpaths.h>
 
 namespace TrenchBroom {
+    TrenchBroomAppTraits::~TrenchBroomAppTraits() {}
+    
 #if defined __linux__ || defined __FreeBSD__
     wxConfigBase* TrenchBroomAppTraits::CreateConfig() {
         wxFileName configFile(wxStandardPaths::Get().GetUserDataDir());

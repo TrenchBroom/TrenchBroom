@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     class TrenchBroomAppTraits : public wxGUIAppTraits {
     public:
+        ~TrenchBroomAppTraits();
 #if defined __linux__ || defined __FreeBSD__
         wxConfigBase* CreateConfig();
 #endif
