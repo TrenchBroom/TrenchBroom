@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LayerListView.h"
+#include "LayerListBox.h"
 
 #include "Model/Layer.h"
 #include "Model/World.h"
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             return new LayerCommand(*this);
         }
 
-        class LayerListView::LayerEntry : public wxPanel {
+        class LayerListBox::LayerEntry : public wxPanel {
         private:
             int m_index;
             MapDocumentWPtr m_document;
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             }
         };
 
-        LayerListView::LayerListView(wxWindow* parent, MapDocumentWPtr document) :
+        LayerListBox::LayerListBox(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
         m_scrollWindow(NULL),
@@ -208,11 +208,11 @@ namespace TrenchBroom {
             bindObservers();
         }
 
-        LayerListView::~LayerListView() {
+        LayerListBox::~LayerListBox() {
             unbindObservers();
         }
 
-        Model::Layer* LayerListView::selectedLayer() const {
+        Model::Layer* LayerListBox::selectedLayer() const {
             if (m_selection == -1)
                 return NULL;
 
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             return layers[index];
         }
 
-        void LayerListView::setSelectedLayer(Model::Layer* layer) {
+        void LayerListBox::setSelectedLayer(Model::Layer* layer) {
             m_selection = -1;
             for (size_t i = 0; i < m_entries.size(); ++i) {
                 LayerEntry* entry = m_entries[i];
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void LayerListView::OnMouseEntryDown(wxMouseEvent& event) {
+        void LayerListBox::OnMouseEntryDown(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
-        void LayerListView::OnMouseEntryDClick(wxMouseEvent& event) {
+        void LayerListBox::OnMouseEntryDClick(wxMouseEvent& event) {
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
             assert(data != NULL);
             
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
-        void LayerListView::OnMouseEntryRightUp(wxMouseEvent& event) {
+        void LayerListBox::OnMouseEntryRightUp(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
-        void LayerListView::OnMouseVoidDown(wxMouseEvent& event) {
+        void LayerListBox::OnMouseVoidDown(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             setSelectedLayer(NULL);
@@ -303,46 +303,46 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
-        void LayerListView::bindObservers() {
+        void LayerListBox::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &LayerListView::documentDidChange);
-            document->documentWasLoadedNotifier.addObserver(this, &LayerListView::documentDidChange);
-            document->documentWasClearedNotifier.addObserver(this, &LayerListView::documentDidChange);
-            document->currentLayerDidChangeNotifier.addObserver(this, &LayerListView::currentLayerDidChange);
-            document->nodesWereAddedNotifier.addObserver(this, &LayerListView::nodesDidChange);
-            document->nodesWereRemovedNotifier.addObserver(this, &LayerListView::nodesDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &LayerListView::nodesDidChange);
+            document->documentWasNewedNotifier.addObserver(this, &LayerListBox::documentDidChange);
+            document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
+            document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
+            document->currentLayerDidChangeNotifier.addObserver(this, &LayerListBox::currentLayerDidChange);
+            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
         }
 
-        void LayerListView::unbindObservers() {
+        void LayerListBox::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &LayerListView::documentDidChange);
-                document->documentWasLoadedNotifier.removeObserver(this, &LayerListView::documentDidChange);
-                document->documentWasClearedNotifier.removeObserver(this, &LayerListView::documentDidChange);
-                document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListView::currentLayerDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &LayerListView::nodesDidChange);
-                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListView::nodesDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &LayerListView::nodesDidChange);
+                document->documentWasNewedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
+                document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
+                document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
+                document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListBox::currentLayerDidChange);
+                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
             }
         }
 
-        void LayerListView::documentDidChange(MapDocument* document) {
+        void LayerListBox::documentDidChange(MapDocument* document) {
             reload();
         }
 
-        void LayerListView::nodesDidChange(const Model::NodeList& nodes) {
+        void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
             reload();
         }
 
-        void LayerListView::currentLayerDidChange() {
+        void LayerListBox::currentLayerDidChange() {
             refresh();
         }
 
-        void LayerListView::createGui() {
+        void LayerListBox::createGui() {
             m_scrollWindow = new wxScrolledWindow(this);
-            m_scrollWindow->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseVoidDown, this);
-            m_scrollWindow->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseVoidDown, this);
+            m_scrollWindow->Bind(wxEVT_LEFT_DOWN, &LayerListBox::OnMouseVoidDown, this);
+            m_scrollWindow->Bind(wxEVT_RIGHT_DOWN, &LayerListBox::OnMouseVoidDown, this);
             m_scrollWindow->SetBackgroundColour(GetBackgroundColour());
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -350,7 +350,7 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
         }
 
-        void LayerListView::reload() {
+        void LayerListBox::reload() {
 			wxWindowUpdateLocker locker(this);
 
             m_selection = -1;
@@ -367,10 +367,10 @@ namespace TrenchBroom {
 				for (size_t i = 0; i < layers.size(); ++i) {
 					Model::Layer* layer = layers[i];
 					LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), m_document, layer);
-					entry->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-                    entry->Bind(wxEVT_LEFT_DCLICK, &LayerListView::OnMouseEntryDClick, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-					entry->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-					entry->Bind(wxEVT_RIGHT_UP, &LayerListView::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+					entry->Bind(wxEVT_LEFT_DOWN, &LayerListBox::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+                    entry->Bind(wxEVT_LEFT_DCLICK, &LayerListBox::OnMouseEntryDClick, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+					entry->Bind(wxEVT_RIGHT_DOWN, &LayerListBox::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
+					entry->Bind(wxEVT_RIGHT_UP, &LayerListBox::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
 
 					scrollWindowSizer->Add(entry, 0, wxEXPAND);
 					scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
@@ -384,7 +384,7 @@ namespace TrenchBroom {
             Layout();
         }
 
-        void LayerListView::refresh() {
+        void LayerListBox::refresh() {
             for (size_t i = 0; i < m_entries.size(); ++i)
                 m_entries[i]->refresh();
         }

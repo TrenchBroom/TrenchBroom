@@ -19,8 +19,8 @@
 
 #include "BitmapToggleButton.h"
 
-#include <wx/dcclient.h>
-#include <wx/log.h> 
+#include <wx/dcbuffer.h>
+#include <wx/log.h>
 
 #include <algorithm>
 
@@ -36,6 +36,7 @@ namespace TrenchBroom {
             assert(m_upBitmap.IsOk());
             assert(m_downBitmap.IsOk());
 
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             SetMinClientSize(bitmapSize());
             
             Bind(wxEVT_PAINT, &BitmapToggleButton::OnPaint, this);
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             const wxSize delta = size - bmpSize;
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
-            wxPaintDC dc(this);
+            wxAutoBufferedPaintDC dc(this);
             dc.DrawBitmap(currentBitmap(), offset);
         }
         

@@ -205,7 +205,7 @@ namespace TrenchBroom {
         }
         
         bool GameDialog::isOkEnabled() const {
-            return m_gameListBox->GetSelectedCount() > 0;
+            return m_gameListBox->GetSelection() != wxNOT_FOUND;
         }
         
         void GameDialog::gameSelectionChanged(const String& gameName) {

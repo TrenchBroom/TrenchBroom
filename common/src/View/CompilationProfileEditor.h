@@ -28,12 +28,12 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class CompilationTaskView;
+        class CompilationTaskList;
         
         class CompilationProfileEditor : public wxPanel {
         private:
             Model::CompilationProfile* m_profile;
-            CompilationTaskView* m_taskView;
+            CompilationTaskList* m_taskView;
         public:
             CompilationProfileEditor(wxWindow* parent);
             ~CompilationProfileEditor();

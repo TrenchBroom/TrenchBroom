@@ -20,7 +20,7 @@
 #include "CompilationProfileEditor.h"
 
 #include "Model/CompilationProfile.h"
-#include "View/CompilationTaskView.h"
+#include "View/CompilationTaskList.h"
 
 #include <wx/sizer.h>
 
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent) :
         wxPanel(parent),
         m_profile(NULL),
-        m_taskView(new CompilationTaskView(this)) {
+        m_taskView(new CompilationTaskList(this)) {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_taskView, 1, wxEXPAND);
             SetSizer(sizer);

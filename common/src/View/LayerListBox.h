@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayerListView
-#define TrenchBroom_LayerListView
+#ifndef TrenchBroom_LayerListBox
+#define TrenchBroom_LayerListBox
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             virtual wxEvent* Clone() const;
         };
 
-        class LayerListView : public wxPanel {
+        class LayerListBox : public wxPanel {
         private:
             class LayerEntry;
 
@@ -79,8 +79,8 @@ namespace TrenchBroom {
 
             int m_selection;
         public:
-            LayerListView(wxWindow* parent, MapDocumentWPtr document);
-            ~LayerListView();
+            LayerListBox(wxWindow* parent, MapDocumentWPtr document);
+            ~LayerListBox();
 
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
@@ -105,4 +105,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_LayerListView) */
+#endif /* defined(TrenchBroom_LayerListBox) */

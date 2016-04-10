@@ -19,121 +19,37 @@
 
 #include "ImageListBox.h"
 
+#include "View/ImagePanel.h"
 #include "View/ViewConstants.h"
 
-#include <wx/control.h>
-#include <wx/dc.h>
-#include <wx/dcmemory.h>
-#include <wx/settings.h>
+#include <wx/panel.h>
+#include <wx/gbsizer.h>
+#include <wx/stattext.h>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText, const wxSize& imageSize, const long style) :
-        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | style),
-        m_imageSize(imageSize),
-        m_empty(true),
-        m_emptyText(emptyText),
-		m_border(2, 4) {}
+        ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
+        ControlListBox(parent, emptyText) {}
 
-		wxCoord ImageListBox::itemWidth(const wxString& subtitle) const {
-			wxMemoryDC dc;
-			dc.SetFont(*wxNORMAL_FONT);
-			return dc.GetTextExtent(subtitle).x + 2 * m_border.x + m_imageSize.x + 8;
-		}
-
-		wxCoord ImageListBox::itemHeight() const {
-			const int imageHeight = m_imageSize.y + 2 * m_border.y;
-			int textHeight = 2 * m_border.y + 4;
-
-			wxMemoryDC dc;
-			dc.SetFont(wxNORMAL_FONT->Bold());
-			textHeight += dc.GetTextExtent("Wgy").y;
-			
-			dc.SetFont(*wxNORMAL_FONT);
-			textHeight += dc.GetTextExtent("Wgy").y;
-
-            return std::max(imageHeight, textHeight);
-        }
-
-        void ImageListBox::SetItemCount(const size_t itemCount) {
-            if (itemCount == 0) {
-                m_empty = true;
-                wxVListBox::SetItemCount(1);
-            } else {
-                m_empty = false;
-                wxVListBox::SetItemCount(itemCount);
-            }
-        }
-
-        void ImageListBox::OnDrawItem(wxDC& dc, const wxRect& rect, const size_t n) const {
-            if (m_empty)
-                drawEmptyItem(dc, rect);
-            else
-                drawItem(dc, rect, n);
-        }
-        
-        void ImageListBox::drawItem(wxDC& dc, const wxRect& rect, const size_t n) const {
-            const wxBitmap& img = image(n);
-            const wxString ttl = title(n);
-            const wxString sub = subtitle(n);
+        wxWindow* ImageListBox::createItem(wxWindow* parent, const size_t index) {
+            wxPanel* container = new wxPanel(parent);
+            ImagePanel* imagePanel = new ImagePanel(container, image(index));
+            wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+            wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
             
-            if (m_imageSize.x > 0 && m_imageSize.y > 0)
-                dc.DrawBitmap(img, rect.GetLeft() + m_border.x, rect.GetTop() + m_border.y, true);
+            titleText->SetFont(titleText->GetFont().Bold());
+            subtitleText->SetFont(subtitleText->GetFont().Smaller());
             
-			int yOff = rect.GetTop() + m_border.y;
-
-			if (IsSelected(n))
-                dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT));
-            else
-                dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
+            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
+            sizer->Add(imagePanel,      wxGBPosition(0, 0), wxGBSpan(2, 1), wxALIGN_BOTTOM);
+            sizer->Add(titleText,       wxGBPosition(0, 1), wxDefaultSpan, wxALIGN_BOTTOM);
+            sizer->Add(subtitleText,    wxGBPosition(1, 1), wxDefaultSpan, wxALIGN_TOP);
+            sizer->AddGrowableCol(1);
             
-            dc.SetFont(wxNORMAL_FONT->Bold());
-            const wxString shortTtl = wxControl::Ellipsize(ttl, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
-            dc.DrawText(shortTtl, rect.GetLeft() + m_imageSize.x + 8, yOff);
-
-			yOff += dc.GetTextExtent("Wgy").y + 4;
-
-            dc.SetFont(*wxSMALL_FONT);
-            const wxString shortSub = wxControl::Ellipsize(sub, dc, wxELLIPSIZE_MIDDLE, rect.GetWidth() - (rect.GetLeft() + m_imageSize.x + 8 + 6));
-            dc.DrawText(shortSub, rect.GetLeft() + m_imageSize.x + 8, yOff);
-        }
-        
-        void ImageListBox::drawEmptyItem(wxDC& dc, const wxRect& rect) const {
-            dc.SetFont(wxNORMAL_FONT->Larger().Larger().Bold());
-            const wxSize textSize = dc.GetTextExtent(m_emptyText);
-            
-            const int x = (rect.GetWidth() - textSize.x) / 2;
-            const int y = (rect.GetHeight() - textSize.y) / 2;
-            dc.SetTextForeground(*wxLIGHT_GREY);
-            dc.DrawText(m_emptyText, x, y);
-        }
-
-        void ImageListBox::OnDrawBackground(wxDC& dc, const wxRect& rect, const size_t n) const {
-            assert(n < GetItemCount());
-            dc.SetPen(*wxTRANSPARENT_PEN);
-            if (IsSelected(n))
-                dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
-            else
-                dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
-            dc.DrawRectangle(rect);
-        }
-        
-        void ImageListBox::OnDrawSeparator(wxDC& dc, wxRect& rect, const size_t n) const {
-            if (m_empty)
-                return;
-            
-            assert(n < GetItemCount());
-            dc.SetPen(wxPen(Colors::borderColor()));
-            dc.SetBrush(wxBrush(Colors::borderColor()));
-            
-            dc.DrawRectangle(wxRect(rect.GetBottomLeft(), rect.GetBottomRight()));
-            rect.Deflate(0, 1);
-        }
-        
-        wxCoord ImageListBox::OnMeasureItem(const size_t n) const {
-            return itemHeight();
+            container->SetSizer(sizer);
+            return container;
         }
 
         const wxBitmap& ImageListBox::image(const size_t n) const {

@@ -17,25 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ImageListBox
-#define TrenchBroom_ImageListBox
+#ifndef ImagePanel_h
+#define ImagePanel_h
 
-#include "ControlListBox.h"
+#include <wx/bitmap.h>
+#include <wx/panel.h>
+
+class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class ImageListBox : public ControlListBox {
-        public:
-            ImageListBox(wxWindow* parent, const wxString& emptyText);
+        class ImagePanel : public wxPanel {
         private:
-            wxWindow* createItem(wxWindow* parent, size_t index);
-            
-            virtual const wxBitmap& image(size_t index) const;
-            virtual wxString title(size_t index) const = 0;
-            virtual wxString subtitle(size_t index) const = 0;
+            wxBitmap m_bitmap;
+        public:
+            ImagePanel(wxWindow* parent, const wxBitmap& bitmap);
+        private:
+            void OnPaint(wxPaintEvent& event);
         };
     }
 }
 
-
-#endif /* defined(TrenchBroom_ImageListBox) */
+#endif /* ImagePanel_h */

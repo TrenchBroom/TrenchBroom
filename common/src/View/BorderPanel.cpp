@@ -45,6 +45,7 @@ namespace TrenchBroom {
             wxPanel::Create(parent);
             m_borders = borders;
             m_thickness = thickness;
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
         }
 

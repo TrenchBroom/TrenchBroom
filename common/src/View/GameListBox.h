@@ -39,7 +39,7 @@ namespace TrenchBroom {
             
             InfoList m_gameInfos;
         public:
-            GameListBox(wxWindow* parent, long style = wxBORDER_NONE);
+            GameListBox(wxWindow* parent);
             
             String selectedGameName() const;
             void selectGame(int index);

@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameListBox::GameListBox(wxWindow* parent, const long style) :
-        ImageListBox(parent, "No Games Found", wxSize(32, 32), style) {
+        GameListBox::GameListBox(wxWindow* parent) :
+        ImageListBox(parent, "No Games Found") {
             reloadGameInfos();
             Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);

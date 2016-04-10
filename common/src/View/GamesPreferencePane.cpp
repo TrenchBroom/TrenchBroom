@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::createGui() {
-            m_gameListBox = new GameListBox(this, wxBORDER_NONE);
+            m_gameListBox = new GameListBox(this);
             m_gameListBox->selectGame(0);
             
             wxWindow* gamePreferences = createGamePreferences();

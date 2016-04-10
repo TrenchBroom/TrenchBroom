@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationTaskView_h
-#define CompilationTaskView_h
+#ifndef CompilationTaskList_h
+#define CompilationTaskList_h
 
-#include <wx/panel.h>
+#include "View/ControlListBox.h"
 
 class wxWindow;
 
@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CompilationTaskView : public wxPanel {
+        class CompilationTaskList : public ControlListBox {
         private:
             template <typename T> class TaskEditor;
             class CopyFilesTaskEditor;
@@ -39,17 +39,18 @@ namespace TrenchBroom {
         private:
             Model::CompilationProfile* m_profile;
         public:
-            CompilationTaskView(wxWindow* parent);
-            ~CompilationTaskView();
+            CompilationTaskList(wxWindow* parent);
+            ~CompilationTaskList();
             
             void setProfile(Model::CompilationProfile* profile);
         private:
             void profileDidChange();
+            void refresh();
         private:
             class CompilationTaskEditorFactory;
-            void refresh();
+            wxWindow* createItem(wxWindow* parent, size_t index);
         };
     }
 }
 
-#endif /* CompilationTaskView_h */
+#endif /* CompilationTaskList_h */
