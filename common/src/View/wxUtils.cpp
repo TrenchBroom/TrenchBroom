@@ -85,6 +85,7 @@ namespace TrenchBroom {
 
             wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             button->SetToolTip(tooltip);
+            button->SetBackgroundColour(parent->GetBackgroundColour());
             return button;
         }
 
