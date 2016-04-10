@@ -26,7 +26,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
-#include <wx/panel.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -93,6 +93,8 @@ namespace TrenchBroom {
         };
 
         void ControlListBox::refresh(const size_t itemCount) {
+            wxWindowUpdateLocker lock(this);
+            
             SetSizer(NULL);
             DestroyChildren();
             m_items.clear();
@@ -187,6 +189,8 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::setSelection(const size_t index) {
+            wxWindowUpdateLocker lock(this);
+
             assert(index <= m_items.size());
             const bool changed = m_selectionIndex != index;
             m_selectionIndex = index;
