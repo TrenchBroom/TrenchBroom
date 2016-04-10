@@ -54,6 +54,11 @@ namespace TrenchBroom {
             FileSystemHierarchy& operator=(FileSystemHierarchy other);
         };
         
+#ifdef _MSC_VER
+// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
         class WritableFileSystemHierarchy : public FileSystemHierarchy, public WritableFileSystem {
         private:
             WritableFileSystem* m_writableFileSystem;
@@ -72,6 +77,9 @@ namespace TrenchBroom {
             WritableFileSystemHierarchy(const WritableFileSystemHierarchy& other);
             WritableFileSystemHierarchy& operator=(WritableFileSystemHierarchy other);
         };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
     }
 }
 

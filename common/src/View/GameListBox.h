@@ -23,6 +23,8 @@
 #include "StringUtils.h"
 #include "View/ImageListBox.h"
 
+#include <wx/bitmap.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -48,9 +50,9 @@ namespace TrenchBroom {
             void OnListBoxDoubleClick(wxCommandEvent& event);
             void reloadGameInfos();
         private:
-            const wxBitmap& image(const size_t n) const;
-            wxString title(const size_t n) const;
-            wxString subtitle(const size_t n) const;
+            const wxBitmap& image(size_t n) const;
+            wxString title(size_t n) const;
+            wxString subtitle(size_t n) const;
             
             void submitChangeEvent(wxEventType type);
         };

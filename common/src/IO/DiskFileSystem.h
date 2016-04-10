@@ -40,6 +40,11 @@ namespace TrenchBroom {
             const MappedFile::Ptr doOpenFile(const Path& path) const;
         };
         
+#ifdef _MSC_VER
+// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
         class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
         public:
             WritableDiskFileSystem(const Path& root, bool create);
@@ -49,6 +54,9 @@ namespace TrenchBroom {
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
     }
 }
 
