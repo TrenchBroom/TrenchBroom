@@ -21,17 +21,17 @@
 #define ImagePanel_h
 
 #include <wx/bitmap.h>
-#include <wx/panel.h>
-
-class wxWindow;
+#include <wx/window.h>
 
 namespace TrenchBroom {
     namespace View {
-        class ImagePanel : public wxPanel {
+        class ImagePanel : public wxWindow {
         private:
             wxBitmap m_bitmap;
         public:
             ImagePanel(wxWindow* parent, const wxBitmap& bitmap);
+            
+            bool AcceptsFocus() const;
         private:
             void OnPaint(wxPaintEvent& event);
         };

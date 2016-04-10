@@ -53,6 +53,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             wxAutoBufferedPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
+
             dc.SetPen(wxPen(Colors::borderColor()));
             
             wxRect rect = GetClientRect();

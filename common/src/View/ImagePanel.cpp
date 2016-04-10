@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace View {
         ImagePanel::ImagePanel(wxWindow* parent, const wxBitmap& bitmap) :
-        wxPanel(parent),
+        wxWindow(parent, wxID_ANY),
         m_bitmap(bitmap) {
             SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &ImagePanel::OnPaint, this);
@@ -32,8 +32,16 @@ namespace TrenchBroom {
                 SetMinClientSize(m_bitmap.GetSize());
         }
         
+        bool ImagePanel::AcceptsFocus() const {
+            return false;
+        }
+
         void ImagePanel::OnPaint(wxPaintEvent& event) {
             wxAutoBufferedPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
+            
             if (m_bitmap.IsOk())
                 dc.DrawBitmap(m_bitmap, 0, 0);
         }

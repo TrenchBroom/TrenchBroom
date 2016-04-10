@@ -52,6 +52,9 @@ namespace TrenchBroom {
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
             wxAutoBufferedPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
