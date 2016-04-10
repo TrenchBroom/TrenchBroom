@@ -41,9 +41,11 @@ namespace TrenchBroom {
             
             void SetItemCount(size_t itemCount);
             void SetSelection(int index);
+        protected:
+            class Container;
+            wxWindow* createNonFocusableContainer(wxWindow* parent);
         private:
             class Sizer;
-            class Container;
             
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);

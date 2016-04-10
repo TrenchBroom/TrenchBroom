@@ -65,6 +65,20 @@ namespace TrenchBroom {
                 setSelection(static_cast<size_t>(index));
         }
 
+        class ControlListBox::Container : public wxWindow {
+        public:
+            Container(wxWindow* parent) :
+            wxWindow(parent, wxID_ANY) {}
+            
+            bool AcceptsFocus() const {
+                return false;
+            }
+        };
+        
+        wxWindow* ControlListBox::createNonFocusableContainer(wxWindow* parent) {
+            return new Container(parent);
+        }
+
         class ControlListBox::Sizer : public wxBoxSizer {
         public:
             Sizer(const int orient) :
@@ -78,16 +92,6 @@ namespace TrenchBroom {
             }
         };
 
-        class ControlListBox::Container : public wxWindow {
-        public:
-            Container(wxWindow* parent) :
-            wxWindow(parent, wxID_ANY) {}
-            
-            bool AcceptsFocus() const {
-                return false;
-            }
-        };
-
         void ControlListBox::refresh(const size_t itemCount) {
             SetSizer(NULL);
             DestroyChildren();
@@ -98,7 +102,7 @@ namespace TrenchBroom {
                 wxSizer* listSizer = new Sizer(wxVERTICAL);
                 
                 for (size_t i = 0; i < itemCount; ++i) {
-                    wxWindow* itemContainer = new Container(this);
+                    wxWindow* itemContainer = createNonFocusableContainer(this);
                     wxWindow* item = createItem(itemContainer, i);
                     
                     wxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
