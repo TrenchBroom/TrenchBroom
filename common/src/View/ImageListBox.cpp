@@ -34,7 +34,7 @@ namespace TrenchBroom {
         ControlListBox(parent, emptyText) {}
 
         wxWindow* ImageListBox::createItem(wxWindow* parent, const size_t index) {
-            wxPanel* container = new wxPanel(parent);
+            wxWindow* container = new wxWindow(parent, wxID_ANY);
             ImagePanel* imagePanel = new ImagePanel(container, image(index));
             wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
             wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
