@@ -197,6 +197,8 @@ namespace TrenchBroom {
             if (m_selectionIndex < m_items.size())
                 setColours(m_items[m_selectionIndex], wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             
+			Refresh();
+
             if (changed) {
                 wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX, GetId());
                 command->SetInt(GetSelection());
