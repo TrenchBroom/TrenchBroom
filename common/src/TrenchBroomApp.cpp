@@ -24,6 +24,7 @@
 
 #include "GLInit.h"
 #include "Macros.h"
+#include "TrenchBroomAppTraits.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
@@ -158,6 +159,10 @@ namespace TrenchBroom {
                     wxSetEnv(varName, "1");
             }
 #endif
+        }
+
+        wxAppTraits* TrenchBroomApp::CreateTraits() {
+            return new TrenchBroomAppTraits();
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
