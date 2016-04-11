@@ -63,13 +63,17 @@ namespace TrenchBroom {
     }
 
     void ConfigEntry::appendToStream(std::ostream& stream) const {
-        doAppendToStream(stream);
+        doAppendToStream(stream, "");
     }
 
     String ConfigEntry::asString() const {
         StringStream stream;
-        stream << this;
+        appendToStream(stream);
         return stream.str();
+    }
+
+    void ConfigEntry::appendToStream(std::ostream& stream, const String& indent) const {
+        doAppendToStream(stream, indent);
     }
 
     void swap(ConfigEntry& lhs, ConfigEntry& rhs) {
@@ -104,7 +108,7 @@ namespace TrenchBroom {
         return new ConfigValue(m_value, line(), column());
     }
 
-    void ConfigValue::doAppendToStream(std::ostream& stream) const {
+    void ConfigValue::doAppendToStream(std::ostream& stream, const String& indent) const {
         stream << "\"" << m_value << "\"";
     }
 
@@ -156,14 +160,21 @@ namespace TrenchBroom {
         return new ConfigList(*this);
     }
 
-    void ConfigList::doAppendToStream(std::ostream& stream) const {
-        stream << "{";
-        if (!m_entries.empty()) {
-            for (size_t i = 0; i < m_entries.size() - 1; ++i)
-                stream << m_entries[i] << ",";
-            stream << m_entries.back();
+    void ConfigList::doAppendToStream(std::ostream& stream, const String& indent) const {
+        if (m_entries.empty()) {
+            stream << "{}";
+        } else {
+            stream << "{\n";
+            const String childIndent = indent + "    ";
+            for (size_t i = 0; i < m_entries.size(); ++i) {
+                stream << childIndent;
+                m_entries[i]->appendToStream(stream, childIndent);
+                if (i < m_entries.size() - 1)
+                    stream << ",";
+                stream << "\n";
+            }
+            stream << indent << "}";
         }
-        stream << "}";
     }
 
     ConfigTable::ConfigTable() :
@@ -227,18 +238,25 @@ namespace TrenchBroom {
         return new ConfigTable(*this);
     }
 
-    void ConfigTable::doAppendToStream(std::ostream& stream) const {
-        stream << "{";
-        EntryMap::const_iterator it = m_entries.begin();
-        EntryMap::const_iterator end = m_entries.end();
-        while (it != end) {
-            const String& key = it->first;
-            const ConfigEntry* entry = it->second;
-            stream << key << "=" << entry;
-            ++it;
-            if (it != end)
-                stream << ",";
+    void ConfigTable::doAppendToStream(std::ostream& stream, const String& indent) const {
+        if (m_entries.empty()) {
+            stream << indent << "{}";
+        } else {
+            const String childIndent = indent + "    ";
+            stream << "{\n";
+            EntryMap::const_iterator it = m_entries.begin();
+            EntryMap::const_iterator end = m_entries.end();
+            while (it != end) {
+                const String& key = it->first;
+                const ConfigEntry* entry = it->second;
+                stream << childIndent << key << " = ";
+                entry->appendToStream(stream, childIndent);
+                ++it;
+                if (it != end)
+                    stream << ",";
+                stream << "\n";
+            }
         }
-        stream << "}";
+        stream << indent << "}";
     }
 }

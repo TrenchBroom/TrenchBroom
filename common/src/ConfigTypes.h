@@ -60,10 +60,12 @@ namespace TrenchBroom {
         void appendToStream(std::ostream& stream) const;
         String asString() const;
     public:
+        void appendToStream(std::ostream& stream, const String& indent) const;
+    public:
         friend void swap(ConfigEntry& lhs, ConfigEntry& rhs);
     private:
         virtual ConfigEntry* doClone() const = 0;
-        virtual void doAppendToStream(std::ostream& stream) const = 0;
+        virtual void doAppendToStream(std::ostream& stream, const String& indent) const = 0;
     protected:
         ConfigEntry(const Type type, size_t line, size_t column);
     };
@@ -80,7 +82,7 @@ namespace TrenchBroom {
         operator const String&() const;
     private:
         ConfigEntry* doClone() const;
-        void doAppendToStream(std::ostream& stream) const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
     
     class ConfigList : public ConfigEntry {
@@ -102,7 +104,7 @@ namespace TrenchBroom {
         void addEntry(ConfigEntry* entry);
     private:
         ConfigEntry* doClone() const;
-        void doAppendToStream(std::ostream& stream) const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
     
     class ConfigTable : public ConfigEntry {
@@ -127,7 +129,7 @@ namespace TrenchBroom {
         void addEntry(const String& key, ConfigEntry* entry);
     private:
         ConfigEntry* doClone() const;
-        void doAppendToStream(std::ostream& stream) const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
 }
 
