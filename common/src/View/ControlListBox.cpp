@@ -66,7 +66,6 @@ namespace TrenchBroom {
         m_emptyText(emptyText),
         m_selectionIndex(0) {
             SetScrollRate(0, 10);
-            ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_ALWAYS);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnClickList, this);
