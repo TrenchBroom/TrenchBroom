@@ -49,6 +49,7 @@ namespace TrenchBroom {
         public:
             WritableDiskFileSystem(const Path& root, bool create);
         private:
+            void doCreateFile(const Path& path, const String& contents);
             void doCreateDirectory(const Path& path);
             void doDeleteFile(const Path& path);
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);

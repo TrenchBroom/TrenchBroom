@@ -23,6 +23,8 @@
 #include <wx/filefn.h>
 #include <wx/filename.h>
 
+#include <fstream>
+
 namespace TrenchBroom {
     namespace IO {
         namespace Disk {
@@ -152,6 +154,21 @@ namespace TrenchBroom {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
             
+            void createFile(const Path& path, const String& contents) {
+                const Path fixedPath = fixPath(path);
+                if (fileExists(fixedPath)) {
+                    deleteFile(fixedPath);
+                } else {
+                    const Path directory = fixedPath.deleteLastComponent();
+                    if (!directoryExists(directory))
+                        createDirectory(directory);
+                }
+                
+                const String fixedPathStr = fixedPath.asString();
+                std::ofstream stream(fixedPathStr.c_str());
+                stream  << contents;
+            }
+
             bool createDirectoryHelper(const Path& path);
             
             void createDirectory(const Path& path) {

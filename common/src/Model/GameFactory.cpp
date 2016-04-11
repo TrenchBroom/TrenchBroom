@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/CompilationConfigParser.h"
+#include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
@@ -39,6 +40,10 @@
 
 namespace TrenchBroom {
     namespace Model {
+        GameFactory::~GameFactory() {
+            writeCompilationConfigs();
+        }
+
         GameFactory& GameFactory::instance() {
             static GameFactory instance;
             return instance;
@@ -52,7 +57,7 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GamePtr GameFactory::createGame(const String& gameName) const {
+        GamePtr GameFactory::createGame(const String& gameName) {
             return GamePtr(new GameImpl(gameConfig(gameName), gamePath(gameName)));
         }
         
@@ -154,6 +159,30 @@ namespace TrenchBroom {
                 IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
                 gameConfig.setCompilationConfig(parser.parse());
             }
+        }
+        
+        void GameFactory::writeCompilationConfigs() {
+            ConfigMap::const_iterator it, end;
+            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+                const GameConfig& gameConfig = it->second;
+                writeCompilationConfig(gameConfig);
+            }
+        }
+        
+        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig) {
+            StringStream stream;
+            IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
+            writer.writeConfig();
+            
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            m_configFS.createFile(profilesPath, stream.str());
+        }
+
+        GameConfig& GameFactory::gameConfig(const String& name) {
+            ConfigMap::iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
         }
 
         const GameConfig& GameFactory::gameConfig(const String& name) const {

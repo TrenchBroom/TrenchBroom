@@ -979,8 +979,8 @@ namespace TrenchBroom {
         void MapFrame::OnRunCompile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            CompilationDialog dialog(this);
-            dialog.ShowModal();
+            CompilationDialog* dialog = new CompilationDialog(this);
+            dialog->ShowWindowModal();
         }
 
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {

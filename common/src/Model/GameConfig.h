@@ -119,6 +119,7 @@ namespace TrenchBroom {
             const BrushContentType::List& brushContentTypes() const;
             
             CompilationConfig& compilationConfig();
+            const CompilationConfig& compilationConfig() const;
             void setCompilationConfig(const CompilationConfig& compilationConfig);
             
             const IO::Path findConfigFile(const IO::Path& filePath) const;

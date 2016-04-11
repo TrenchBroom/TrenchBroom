@@ -50,7 +50,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameImpl::GameImpl(const GameConfig& config, const IO::Path& gamePath) :
+        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath) :
         m_config(config),
         m_gamePath(gamePath),
         m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {

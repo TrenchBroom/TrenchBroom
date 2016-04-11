@@ -19,12 +19,12 @@
 
 #include "ImageListBox.h"
 
-#include "View/ImagePanel.h"
 #include "View/ViewConstants.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/statbmp.h>
 
 #include <cassert>
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
         ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             Item* container = new Item(parent);
-            ImagePanel* imagePanel = new ImagePanel(container, image(index));
+            wxStaticBitmap* imagePanel = new wxStaticBitmap(container, wxID_ANY, image(index));
             wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
             wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
             

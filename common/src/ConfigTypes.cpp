@@ -88,6 +88,10 @@ namespace TrenchBroom {
         return stream;
     }
     
+    ConfigValue::ConfigValue(const String& value) :
+    ConfigEntry(Type_Value, 0, 0),
+    m_value(value) {}
+    
     ConfigValue::ConfigValue(const String& value, const size_t line, const size_t column) :
     ConfigEntry(Type_Value, line, column),
     m_value(value) {}
@@ -104,6 +108,9 @@ namespace TrenchBroom {
         stream << "\"" << m_value << "\"";
     }
 
+    ConfigList::ConfigList() :
+    ConfigEntry(Type_List, 0, 0) {}
+    
     ConfigList::ConfigList(const size_t line, const size_t column) :
     ConfigEntry(Type_List, line, column) {}
 
@@ -158,6 +165,9 @@ namespace TrenchBroom {
         }
         stream << "}";
     }
+
+    ConfigTable::ConfigTable() :
+    ConfigEntry(Type_Table, 0, 0) {}
 
     ConfigTable::ConfigTable(const size_t line, const size_t column) :
     ConfigEntry(Type_Table, line, column) {}

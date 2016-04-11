@@ -119,6 +119,11 @@ namespace TrenchBroom {
             m_writableFileSystem = NULL;
         }
 
+        void WritableFileSystemHierarchy::doCreateFile(const Path& path, const String& contents) {
+            assert(m_writableFileSystem != NULL);
+            m_writableFileSystem->createFile(path, contents);
+        }
+
         void WritableFileSystemHierarchy::doCreateDirectory(const Path& path) {
             assert(m_writableFileSystem != NULL);
             m_writableFileSystem->createDirectory(path);

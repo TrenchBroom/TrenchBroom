@@ -161,6 +161,10 @@ namespace TrenchBroom {
             return m_compilationConfig;
         }
         
+        const CompilationConfig& GameConfig::compilationConfig() const {
+            return m_compilationConfig;
+        }
+
         void GameConfig::setCompilationConfig(const CompilationConfig& compilationConfig) {
             m_compilationConfig = compilationConfig;
         }

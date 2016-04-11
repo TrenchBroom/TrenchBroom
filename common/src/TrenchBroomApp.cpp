@@ -191,7 +191,7 @@ namespace TrenchBroom {
             if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                 return false;
 
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
             assert(game.get() != NULL);
 
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 String gameName = "";
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 
-                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
                 gameName = detected.first;
                 mapFormat = detected.second;

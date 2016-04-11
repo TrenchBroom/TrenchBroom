@@ -96,11 +96,13 @@ namespace TrenchBroom {
             
             WritableFileSystem& operator=(const WritableFileSystem& other);
             
+            void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
             void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         private:
+            virtual void doCreateFile(const Path& path, const String& contents) = 0;
             virtual void doCreateDirectory(const Path& path) = 0;
             virtual void doDeleteFile(const Path& path) = 0;
             virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;

@@ -74,6 +74,7 @@ namespace TrenchBroom {
     private:
         String m_value;
     public:
+        ConfigValue(const String& value);
         ConfigValue(const String& value, size_t line, size_t column);
         
         operator const String&() const;
@@ -87,6 +88,7 @@ namespace TrenchBroom {
         typedef std::vector<ConfigEntry*> EntryList;
         EntryList m_entries;
     public:
+        ConfigList();
         ConfigList(size_t line, size_t column);
         ConfigList(const ConfigList& other);
         ~ConfigList();
@@ -109,6 +111,7 @@ namespace TrenchBroom {
         StringSet m_keys;
         EntryMap m_entries;
     public:
+        ConfigTable();
         ConfigTable(size_t line, size_t column);
         ConfigTable(const ConfigTable& other);
         ~ConfigTable();

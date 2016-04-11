@@ -48,9 +48,11 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::Item::setColours(wxWindow* window, const wxColour& foreground, const wxColour& background) {
-            if (!window->IsFocusable()) {
-                window->SetForegroundColour(foreground);
-                window->SetBackgroundColour(background);
+            if (!window->GetChildren().IsEmpty() || window->ShouldInheritColours()) {
+                if (window->GetForegroundColour() != foreground)
+                    window->SetForegroundColour(foreground);
+                if (window->GetBackgroundColour() != background)
+                    window->SetBackgroundColour(background);
             }
             
             const wxWindowList& children = window->GetChildren();
@@ -93,20 +95,6 @@ namespace TrenchBroom {
                 setSelection(m_items.size());
             else
                 setSelection(static_cast<size_t>(index));
-        }
-
-        class ControlListBox::Container : public wxWindow {
-        public:
-            Container(wxWindow* parent) :
-            wxWindow(parent, wxID_ANY) {}
-            
-            bool AcceptsFocus() const {
-                return false;
-            }
-        };
-        
-        wxWindow* ControlListBox::createNonFocusableContainer(wxWindow* parent) {
-            return new Container(parent);
         }
 
         class ControlListBox::Sizer : public wxBoxSizer {

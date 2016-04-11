@@ -47,11 +47,13 @@ namespace TrenchBroom {
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
         public:
+            ~GameFactory();
+            
             static GameFactory& instance();
             
             const StringList& gameList() const;
             size_t gameCount() const;
-            GamePtr createGame(const String& gameName) const;
+            GamePtr createGame(const String& gameName);
             
             const StringList& fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
@@ -66,6 +68,11 @@ namespace TrenchBroom {
             void loadGameConfigs();
             void loadGameConfig(const IO::Path& path);
             void loadCompilationConfig(GameConfig& gameConfig);
+            
+            void writeCompilationConfigs();
+            void writeCompilationConfig(const GameConfig& gameConfig);
+
+            GameConfig& gameConfig(const String& name);
             const GameConfig& gameConfig(const String& name) const;
         };
     }

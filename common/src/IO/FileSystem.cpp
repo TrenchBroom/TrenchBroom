@@ -97,6 +97,16 @@ namespace TrenchBroom {
         
         WritableFileSystem& WritableFileSystem::operator=(const WritableFileSystem& other) { return *this; }
 
+        void WritableFileSystem::createFile(const Path& path, const String& contents) {
+            try {
+                if (path.isAbsolute())
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                doCreateFile(path, contents);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
+        }
+
         void WritableFileSystem::createDirectory(const Path& path) {
             try {
                 if (path.isAbsolute())

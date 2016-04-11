@@ -70,14 +70,10 @@ namespace TrenchBroom {
             }
         private:
             void setSelectionColours(const wxColour& foreground, const wxColour& background) {
-                m_panel->getPanel()->SetForegroundColour(foreground);
-                m_panel->getPanel()->SetBackgroundColour(background);
                 setColours(m_panel->getPanel(), foreground, background);
             }
             
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {
-                m_panel->getPanel()->SetForegroundColour(foreground);
-                m_panel->getPanel()->SetBackgroundColour(background);
                 setColours(m_panel->getPanel(), foreground, background);
             }
         protected:
@@ -120,10 +116,12 @@ namespace TrenchBroom {
                 
                 wxStaticText* sourceLabel = new wxStaticText(container, wxID_ANY, "Source");
                 m_sourceEditor = new wxTextCtrl(container, wxID_ANY);
+                m_sourceEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnSourceSpecChanged, this);
                 enableAutoComplete(m_sourceEditor);
                 
                 wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
                 m_targetEditor = new wxTextCtrl(container, wxID_ANY);
+                m_targetEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
@@ -141,9 +139,18 @@ namespace TrenchBroom {
                 return container;
             }
             
+            void OnSourceSpecChanged(wxCommandEvent& event) {
+                m_task->setSourceSpec(m_sourceEditor->GetValue().ToStdString());
+            }
+            
+            void OnTargetSpecChanged(wxCommandEvent& event) {
+                m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
+            }
+            
             void refresh() {
-                m_sourceEditor->SetValue(m_task->sourceSpec());
-                m_targetEditor->SetValue(m_task->targetSpec());
+                // call ChangeValue to avoid sending a change event
+                m_sourceEditor->ChangeValue(m_task->sourceSpec());
+                m_targetEditor->ChangeValue(m_task->targetSpec());
             }
         };
         
@@ -162,10 +169,12 @@ namespace TrenchBroom {
                 
                 wxStaticText* toolLabel = new wxStaticText(container, wxID_ANY, "Tool");
                 m_toolEditor = new wxTextCtrl(container, wxID_ANY);
+                m_toolEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnToolSpecChanged, this);
                 enableAutoComplete(m_toolEditor);
                 
                 wxStaticText* parameterLabel = new wxStaticText(container, wxID_ANY, "Parameters");
                 m_parametersEditor = new wxTextCtrl(container, wxID_ANY);
+                m_parametersEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnParameterSpecChanged, this);
                 enableAutoComplete(m_parametersEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
@@ -184,9 +193,17 @@ namespace TrenchBroom {
                 return container;
             }
             
+            void OnToolSpecChanged(wxCommandEvent& event) {
+                m_task->setToolSpec(m_toolEditor->GetValue().ToStdString());
+            }
+            
+            void OnParameterSpecChanged(wxCommandEvent& event) {
+                m_task->setParameterSpec(m_parametersEditor->GetValue().ToStdString());
+            }
+            
             void refresh() {
-                m_toolEditor->SetValue(m_task->toolSpec());
-                m_parametersEditor->SetValue(m_task->toolSpec());
+                m_toolEditor->ChangeValue(m_task->toolSpec());
+                m_parametersEditor->ChangeValue(m_task->parameterSpec());
             }
         };
         

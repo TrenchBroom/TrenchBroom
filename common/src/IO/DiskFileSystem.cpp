@@ -61,6 +61,10 @@ namespace TrenchBroom {
                 Disk::createDirectory(m_root);
         }
         
+        void WritableDiskFileSystem::doCreateFile(const Path& path, const String& contents) {
+            Disk::createFile(makeAbsolute(path), contents);
+        }
+
         void WritableDiskFileSystem::doCreateDirectory(const Path& path) {
             Disk::createDirectory(makeAbsolute(path));
         }

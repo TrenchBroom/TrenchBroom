@@ -38,14 +38,14 @@ namespace TrenchBroom {
         private:
             typedef std::tr1::shared_ptr<IO::MapWriter> MapWriterPtr;
             
-            GameConfig m_config;
+            GameConfig& m_config;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
             
             IO::FileSystemHierarchy m_gameFS;
             Assets::Palette* m_palette;
         public:
-            GameImpl(const GameConfig& config, const IO::Path& gamePath);
+            GameImpl(GameConfig& config, const IO::Path& gamePath);
             ~GameImpl();
         private:
             void initializeFileSystem();
