@@ -120,6 +120,8 @@ namespace TrenchBroom {
             }
 
             void refresh() {
+                wxWindowUpdateLocker locker(this);
+                
                 m_nameText->SetLabel(m_layer->name());
                 if (lock(m_document)->currentLayer() == m_layer)
                     m_nameText->SetFont(GetFont().Bold());
