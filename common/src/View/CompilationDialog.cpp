@@ -66,11 +66,11 @@ namespace TrenchBroom {
             outerPanelSizer->Add(splitter, 1, wxEXPAND);
             outerPanel->SetSizer(outerPanelSizer);
             
-            wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
+            wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
             
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->AddButton(compileButton);
+            buttonSizer->SetAffirmativeButton(compileButton);
             buttonSizer->AddButton(closeButton);
             buttonSizer->Realize();
             
