@@ -23,6 +23,7 @@
 #include "View/BorderLine.h"
 #include "View/CompilationProfileListBox.h"
 #include "View/CompilationProfileEditor.h"
+#include "View/TitledPanel.h"
 
 #include <wx/sizer.h>
 
@@ -31,14 +32,28 @@ namespace TrenchBroom {
         CompilationProfileManager::CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config) :
         wxPanel(parent),
         m_config(config),
-        m_listView(new CompilationProfileListBox(this, m_config)),
-        m_editor(new CompilationProfileEditor(this)) {
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_listView, 0, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            sizer->Add(m_editor, 1, wxEXPAND);
-            sizer->SetItemMinSize(m_listView, wxSize(200, 200));
-            SetSizer(sizer);
+        m_listView(NULL),
+        m_editor() {
+            TitledPanel* listPanel = new TitledPanel(this, "Profiles");
+            TitledPanel* editorPanel = new TitledPanel(this, "Details");
+            
+            m_listView = new CompilationProfileListBox(listPanel->getPanel(), m_config);
+            m_editor = new CompilationProfileEditor(editorPanel->getPanel());
+            
+            wxSizer* listSizer = new wxBoxSizer(wxVERTICAL);
+            listSizer->Add(m_listView, 1, wxEXPAND);
+            listPanel->getPanel()->SetSizer(listSizer);
+            
+            wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
+            editorSizer->Add(m_editor, 1, wxEXPAND);
+            editorPanel->getPanel()->SetSizer(editorSizer);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            outerSizer->Add(listPanel, 0, wxEXPAND);
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
+            outerSizer->Add(editorPanel, 1, wxEXPAND);
+            outerSizer->SetItemMinSize(listPanel, wxSize(200, 200));
+            SetSizer(outerSizer);
             
             m_listView->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
         }

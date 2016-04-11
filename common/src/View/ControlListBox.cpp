@@ -30,8 +30,39 @@
 
 namespace TrenchBroom {
     namespace View {
+        ControlListBox::Item::Item(wxWindow* parent) :
+        wxWindow(parent, wxID_ANY) {}
+        
+        ControlListBox::Item::~Item() {}
+        
+        bool ControlListBox::Item::AcceptsFocus() const {
+            return false;
+        }
+
+        void ControlListBox::Item::setSelectionColours(const wxColour& foreground, const wxColour& background) {
+            setColours(this, foreground, background);
+        }
+        
+        void ControlListBox::Item::setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            setColours(this, foreground, background);
+        }
+
+        void ControlListBox::Item::setColours(wxWindow* window, const wxColour& foreground, const wxColour& background) {
+            if (!window->IsFocusable()) {
+                window->SetForegroundColour(foreground);
+                window->SetBackgroundColour(background);
+            }
+            
+            const wxWindowList& children = window->GetChildren();
+            wxWindowList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                wxWindow* child = *it;
+                setColours(child, foreground, background);
+            }
+        }
+
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
-        wxScrolledCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
+        wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
         m_selectionIndex(0) {
             SetScrollRate(0, 10);
@@ -104,20 +135,13 @@ namespace TrenchBroom {
                 wxSizer* listSizer = new Sizer(wxVERTICAL);
                 
                 for (size_t i = 0; i < itemCount; ++i) {
-                    wxWindow* itemContainer = createNonFocusableContainer(this);
-                    wxWindow* item = createItem(itemContainer, i);
+                    Item* item = createItem(this, wxSize(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin), i);
                     
-                    wxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
-                    itemSizer->AddSpacer(LayoutConstants::WideVMargin);
-                    itemSizer->Add(item, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::WideHMargin);
-                    itemSizer->AddSpacer(LayoutConstants::WideVMargin);
-                    itemContainer->SetSizer(itemSizer);
-                    
-                    listSizer->Add(itemContainer, 0, wxEXPAND);
+                    listSizer->Add(item, 0, wxEXPAND);
                     listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
                     
-                    bindEvents(itemContainer, i);
-                    m_items.push_back(itemContainer);
+                    bindEvents(item, i);
+                    m_items.push_back(item);
                 }
                 
                 listSizer->AddStretchSpacer();
@@ -196,10 +220,10 @@ namespace TrenchBroom {
             m_selectionIndex = index;
 
             for (size_t i = 0; i < m_items.size(); ++i)
-                setColours(m_items[i], GetForegroundColour(), GetBackgroundColour());
+                m_items[i]->setDefaultColours(GetForegroundColour(), GetBackgroundColour());
             
             if (m_selectionIndex < m_items.size())
-                setColours(m_items[m_selectionIndex], wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+                m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             
 			Refresh();
 
@@ -208,20 +232,6 @@ namespace TrenchBroom {
                 command->SetInt(GetSelection());
                 command->SetEventObject(this);
                 QueueEvent(command);
-            }
-        }
-        
-        void ControlListBox::setColours(wxWindow* window, const wxColour& foreground, const wxColour& background) {
-            if (!window->IsFocusable()) {
-                window->SetForegroundColour(foreground);
-                window->SetBackgroundColour(background);
-            }
-
-            const wxWindowList& children = window->GetChildren();
-            wxWindowList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
-                wxWindow* child = *it;
-                setColours(child, foreground, background);
             }
         }
     }

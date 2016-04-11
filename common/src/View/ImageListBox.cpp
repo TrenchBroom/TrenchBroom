@@ -23,7 +23,7 @@
 #include "View/ViewConstants.h"
 
 #include <wx/panel.h>
-#include <wx/gbsizer.h>
+#include <wx/sizer.h>
 #include <wx/stattext.h>
 
 #include <cassert>
@@ -33,8 +33,8 @@ namespace TrenchBroom {
         ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
         ControlListBox(parent, emptyText) {}
 
-        wxWindow* ImageListBox::createItem(wxWindow* parent, const size_t index) {
-            wxWindow* container = createNonFocusableContainer(parent);
+        ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            Item* container = new Item(parent);
             ImagePanel* imagePanel = new ImagePanel(container, image(index));
             wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
             wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
@@ -42,13 +42,17 @@ namespace TrenchBroom {
             titleText->SetFont(titleText->GetFont().Bold());
             subtitleText->SetFont(subtitleText->GetFont().Smaller());
             
-            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
-            sizer->Add(imagePanel,      wxGBPosition(0, 0), wxGBSpan(2, 1), wxALIGN_BOTTOM);
-            sizer->Add(titleText,       wxGBPosition(0, 1), wxDefaultSpan, wxALIGN_BOTTOM);
-            sizer->Add(subtitleText,    wxGBPosition(1, 1), wxDefaultSpan, wxALIGN_TOP);
-            sizer->AddGrowableCol(1);
+            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            vSizer->Add(titleText, 0);
+            vSizer->Add(subtitleText, 0);
             
-            container->SetSizer(sizer);
+            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+            hSizer->AddSpacer(margins.x);
+            hSizer->Add(imagePanel, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+            hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
+            hSizer->AddSpacer(margins.x);
+            
+            container->SetSizer(hSizer);
             return container;
         }
 

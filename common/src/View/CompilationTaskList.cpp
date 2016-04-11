@@ -22,6 +22,7 @@
 #include "Model/CompilationProfile.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
+#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
 #include <wx/gbsizer.h>
@@ -32,28 +33,33 @@
 namespace TrenchBroom {
     namespace View {
         template <typename T>
-        class CompilationTaskList::TaskEditor : public wxPanel {
+        class CompilationTaskList::TaskEditor : public Item {
         protected:
+            const wxSize m_margins;
             const String m_title;
             T* m_task;
+            TitledPanel* m_panel;
         protected:
-            TaskEditor(wxWindow* parent, const String& title, T* task) :
-            wxPanel(parent),
+            TaskEditor(wxWindow* parent, const wxSize& margins, const String& title, T* task) :
+            Item(parent),
+            m_margins(margins),
             m_title(title),
-            m_task(task) {}
+            m_task(task),
+            m_panel(NULL) {}
         public:
             void initialize() {
-                wxStaticText* titleText = new wxStaticText(this, wxID_ANY, m_title);
-                titleText->SetFont(titleText->GetFont().Bold());
-
-                wxWindow* editor = createGui();
+                m_panel = new TitledPanel(this, m_title, true, false);
+                wxWindow* editor = createGui(m_panel->getPanel());
                 
-                wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-                sizer->Add(titleText, 0);
-                sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-                sizer->AddSpacer(LayoutConstants::WideVMargin);
-                sizer->Add(editor, 0, wxEXPAND);
-                SetSizer(sizer);
+                wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
+                editorSizer->AddSpacer(m_margins.y);
+                editorSizer->Add(editor, 0, wxEXPAND | wxLEFT | wxRIGHT, m_margins.x);
+                editorSizer->AddSpacer(m_margins.y);
+                m_panel->getPanel()->SetSizer(editorSizer);
+                
+                wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+                panelSizer->Add(m_panel, 0, wxEXPAND);
+                SetSizer(panelSizer);
                 
                 refresh();
                 m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
@@ -61,6 +67,18 @@ namespace TrenchBroom {
         public:
             virtual ~TaskEditor() {
                 m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
+            }
+        private:
+            void setSelectionColours(const wxColour& foreground, const wxColour& background) {
+                m_panel->getPanel()->SetForegroundColour(foreground);
+                m_panel->getPanel()->SetBackgroundColour(background);
+                setColours(m_panel->getPanel(), foreground, background);
+            }
+            
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                m_panel->getPanel()->SetForegroundColour(foreground);
+                m_panel->getPanel()->SetBackgroundColour(background);
+                setColours(m_panel->getPanel(), foreground, background);
             }
         protected:
             void enableAutoComplete(wxTextEntry* textEntry) {
@@ -83,7 +101,7 @@ namespace TrenchBroom {
                 refresh();
             }
             
-            virtual wxWindow* createGui() = 0;
+            virtual wxWindow* createGui(wxWindow* parent) = 0;
             virtual void refresh() = 0;
         };
         
@@ -92,20 +110,20 @@ namespace TrenchBroom {
             wxTextCtrl* m_sourceEditor;
             wxTextCtrl* m_targetEditor;
         public:
-            CopyFilesTaskEditor(wxWindow* parent, Model::CompilationCopyFiles* task) :
-            TaskEditor(parent, "Copy Files", task),
+            CopyFilesTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationCopyFiles* task) :
+            TaskEditor(parent, margins, "Copy Files", task),
             m_sourceEditor(NULL),
             m_targetEditor(NULL) {}
         private:
-            wxWindow* createGui() {
-                wxPanel* parent = new wxPanel(this);
+            wxWindow* createGui(wxWindow* parent) {
+                wxPanel* container = new wxPanel(parent);
                 
-                wxStaticText* sourceLabel = new wxStaticText(parent, wxID_ANY, "Source");
-                m_sourceEditor = new wxTextCtrl(parent, wxID_ANY);
+                wxStaticText* sourceLabel = new wxStaticText(container, wxID_ANY, "Source");
+                m_sourceEditor = new wxTextCtrl(container, wxID_ANY);
                 enableAutoComplete(m_sourceEditor);
                 
-                wxStaticText* targetLabel = new wxStaticText(parent, wxID_ANY, "Target");
-                m_targetEditor = new wxTextCtrl(parent, wxID_ANY);
+                wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
+                m_targetEditor = new wxTextCtrl(container, wxID_ANY);
                 enableAutoComplete(m_targetEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
@@ -119,9 +137,8 @@ namespace TrenchBroom {
                 sizer->Add(m_targetEditor,  wxGBPosition(1, 1), wxDefaultSpan, EditorFlags);
                 
                 sizer->AddGrowableCol(1);
-                
-                parent->SetSizer(sizer);
-                return parent;
+                container->SetSizer(sizer);
+                return container;
             }
             
             void refresh() {
@@ -135,20 +152,20 @@ namespace TrenchBroom {
             wxTextCtrl* m_toolEditor;
             wxTextCtrl* m_parametersEditor;
         public:
-            RunToolTaskEditor(wxWindow* parent, Model::CompilationRunTool* task) :
-            TaskEditor(parent, "Run Tool", task),
+            RunToolTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationRunTool* task) :
+            TaskEditor(parent, margins, "Run Tool", task),
             m_toolEditor(NULL),
             m_parametersEditor(NULL) {}
         private:
-            wxWindow* createGui() {
-                wxPanel* parent = new wxPanel(this);
+            wxWindow* createGui(wxWindow* parent) {
+                wxPanel* container = new wxPanel(parent);
                 
-                wxStaticText* toolLabel = new wxStaticText(parent, wxID_ANY, "Tool");
-                m_toolEditor = new wxTextCtrl(parent, wxID_ANY);
+                wxStaticText* toolLabel = new wxStaticText(container, wxID_ANY, "Tool");
+                m_toolEditor = new wxTextCtrl(container, wxID_ANY);
                 enableAutoComplete(m_toolEditor);
                 
-                wxStaticText* parameterLabel = new wxStaticText(parent, wxID_ANY, "Parameters");
-                m_parametersEditor = new wxTextCtrl(parent, wxID_ANY);
+                wxStaticText* parameterLabel = new wxStaticText(container, wxID_ANY, "Parameters");
+                m_parametersEditor = new wxTextCtrl(container, wxID_ANY);
                 enableAutoComplete(m_parametersEditor);
                 
                 const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
@@ -163,8 +180,8 @@ namespace TrenchBroom {
                 
                 sizer->AddGrowableCol(1);
                 
-                parent->SetSizer(sizer);
-                return parent;
+                container->SetSizer(sizer);
+                return container;
             }
             
             void refresh() {
@@ -205,33 +222,35 @@ namespace TrenchBroom {
         class CompilationTaskList::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
         private:
             wxWindow* m_parent;
-            wxWindow* m_result;
+            const wxSize m_margins;
+            Item* m_result;
         public:
-            CompilationTaskEditorFactory(wxWindow* parent) :
+            CompilationTaskEditorFactory(wxWindow* parent, const wxSize& margins) :
             m_parent(parent),
+            m_margins(margins),
             m_result(NULL) {}
             
-            wxWindow* result() const {
+            Item* result() const {
                 return m_result;
             }
             
             void visit(Model::CompilationCopyFiles* task) {
-                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, task);
+                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, m_margins, task);
                 editor->initialize();
                 m_result = editor;
             }
             
             void visit(Model::CompilationRunTool* task) {
-                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, task);
+                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, m_margins, task);
                 editor->initialize();
                 m_result = editor;
             }
         };
 
-        wxWindow* CompilationTaskList::createItem(wxWindow* parent, const size_t index) {
+        ControlListBox::Item* CompilationTaskList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             assert(m_profile != NULL);
             
-            CompilationTaskEditorFactory factory(parent);
+            CompilationTaskEditorFactory factory(parent, margins);
             Model::CompilationTask* task = m_profile->task(index);
             task->accept(factory);
             return factory.result();

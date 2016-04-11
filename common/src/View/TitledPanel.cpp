@@ -27,14 +27,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        TitledPanel::TitledPanel(wxWindow* parent, const wxString& title, const bool showDivider) :
+        TitledPanel::TitledPanel(wxWindow* parent, const wxString& title, const bool showDivider, const bool boldTitle) :
         wxPanel(parent),
         m_panel(new wxPanel(this)) {
             const int hMargin = showDivider ? LayoutConstants::NarrowHMargin : 0;
             const int vMargin = showDivider ? LayoutConstants::NarrowVMargin : 0;
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(new TitleBar(this, title, hMargin, vMargin), 0, wxEXPAND);
+            sizer->Add(new TitleBar(this, title, hMargin, vMargin, boldTitle), 0, wxEXPAND);
             if (showDivider)
                 sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(m_panel, 1, wxEXPAND);

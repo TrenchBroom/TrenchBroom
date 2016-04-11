@@ -28,9 +28,22 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class ControlListBox : public wxScrolledCanvas {
+        class ControlListBox : public wxScrolledWindow {
+        protected:
+            class Item : public wxWindow {
+            public:
+                Item(wxWindow* parent);
+                virtual ~Item();
+                
+                bool AcceptsFocus() const;
+                
+                virtual void setSelectionColours(const wxColour& foreground, const wxColour& background);
+                virtual void setDefaultColours(const wxColour& foreground, const wxColour& background);
+            protected:
+                void setColours(wxWindow* window, const wxColour& foreground, const wxColour& background);
+            };
         private:
-            typedef std::vector<wxWindow*> ItemList;
+            typedef std::vector<Item*> ItemList;
             wxString m_emptyText;
             ItemList m_items;
             size_t m_selectionIndex;
@@ -57,10 +70,8 @@ namespace TrenchBroom {
             
             void setSelection(const wxEvent& event);
             void setSelection(size_t index);
-            
-            void setColours(wxWindow* window, const wxColour& foreground, const wxColour& background);
         private:
-            virtual wxWindow* createItem(wxWindow* parent, size_t index) = 0;
+            virtual Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) = 0;
         };
     }
 }

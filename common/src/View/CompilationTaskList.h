@@ -48,7 +48,7 @@ namespace TrenchBroom {
             void refresh();
         private:
             class CompilationTaskEditorFactory;
-            wxWindow* createItem(wxWindow* parent, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
         };
     }
 }
