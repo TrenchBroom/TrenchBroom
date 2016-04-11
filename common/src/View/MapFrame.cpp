@@ -980,7 +980,12 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             CompilationDialog* dialog = new CompilationDialog(this);
+            dialog->Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, &MapFrame::OnCompilationDialogClosed, this);
             dialog->ShowWindowModal();
+        }
+
+        void MapFrame::OnCompilationDialogClosed(wxWindowModalDialogEvent& event) {
+            event.GetDialog()->Destroy();
         }
 
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {

@@ -25,6 +25,7 @@
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
+#include <wx/dialog.h>
 #include <wx/frame.h>
 
 class wxChoice;
@@ -190,6 +191,7 @@ namespace TrenchBroom {
             void OnViewToggleInspector(wxCommandEvent& event);
 
             void OnRunCompile(wxCommandEvent& event);
+            void OnCompilationDialogClosed(wxWindowModalDialogEvent& event);
             
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);

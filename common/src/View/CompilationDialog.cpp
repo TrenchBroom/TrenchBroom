@@ -25,7 +25,10 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/SplitterWindow2.h"
+#include "View/TitledPanel.h"
+#include "View/wxUtils.h"
 
+#include <wx/button.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 
@@ -49,16 +52,31 @@ namespace TrenchBroom {
             SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
             
             m_profileManager = new CompilationProfileManager(splitter, compilationConfig);
-            m_output = new wxTextCtrl(splitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
 
-            splitter->splitHorizontally(m_profileManager, m_output);
+            TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
+            m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+
+            splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
+
+            wxSizer* outputSizer = new wxBoxSizer(wxVERTICAL);
+            outputSizer->Add(m_output, 1, wxEXPAND);
+            outputPanel->getPanel()->SetSizer(outputSizer);
 
             wxSizer* outerPanelSizer = new wxBoxSizer(wxVERTICAL);
             outerPanelSizer->Add(splitter, 1, wxEXPAND);
             outerPanel->SetSizer(outerPanelSizer);
             
+            wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
+            
+            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
+            buttonSizer->AddButton(compileButton);
+            buttonSizer->AddButton(closeButton);
+            buttonSizer->Realize();
+            
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
+            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
         }
     }
