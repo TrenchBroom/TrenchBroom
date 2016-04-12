@@ -21,13 +21,13 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BitmapButton.h"
 #include "View/BitmapToggleButton.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
 #include <wx/bitmap.h>
-#include <wx/bmpbuttn.h>
 #include <wx/frame.h>
 #include <wx/listctrl.h>
 #include <wx/sizer.h>
@@ -83,9 +83,8 @@ namespace TrenchBroom {
             wxBitmap bitmap = IO::loadImageResource(image);
             assert(bitmap.IsOk());
 
-            wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            BitmapButton* button = new BitmapButton(parent, wxID_ANY, bitmap);
             button->SetToolTip(tooltip);
-            button->SetBackgroundColour(parent->GetBackgroundColour());
             return button;
         }
 
@@ -95,12 +94,6 @@ namespace TrenchBroom {
 
             wxBitmap downBitmap = IO::loadImageResource(downImage);
             assert(downBitmap.IsOk());
-
-            /*
-            wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, offBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
-            button->SetBitmapPressed(onBitmap);
-            button->SetToolTip(tooltip);
-            */
 
             BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);

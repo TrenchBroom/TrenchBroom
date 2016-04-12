@@ -39,6 +39,11 @@ namespace TrenchBroom {
         public:
             CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config);
         private:
+            void OnAddProfile(wxCommandEvent& event);
+            void OnRemoveProfile(wxCommandEvent& event);
+            void OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event);
+            
             void OnProfileSelectionChanged(wxCommandEvent& event);
         };
     }

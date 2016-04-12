@@ -24,7 +24,10 @@
 #include "View/CompilationProfileListBox.h"
 #include "View/CompilationProfileEditor.h"
 #include "View/TitledPanel.h"
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -34,14 +37,31 @@ namespace TrenchBroom {
         m_config(config),
         m_listView(NULL),
         m_editor() {
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            
             TitledPanel* listPanel = new TitledPanel(this, "Profiles");
             TitledPanel* editorPanel = new TitledPanel(this, "Details");
             
             m_listView = new CompilationProfileListBox(listPanel->getPanel(), m_config);
             m_editor = new CompilationProfileEditor(editorPanel->getPanel());
             
+            wxWindow* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
+            wxWindow* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
+            
+            addProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnAddProfile, this);
+            removeProfileButton->Bind(wxEVT_BUTTON, &CompilationProfileManager::OnRemoveProfile, this);
+            addProfileButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileManager::OnUpdateAddProfileButtonUI, this);
+            removeProfileButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileManager::OnUpdateRemoveProfileButtonUI, this);
+            
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(addProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removeProfileButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddStretchSpacer();
+
             wxSizer* listSizer = new wxBoxSizer(wxVERTICAL);
             listSizer->Add(m_listView, 1, wxEXPAND);
+            listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            listSizer->Add(buttonSizer);
             listPanel->getPanel()->SetSizer(listSizer);
             
             wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
@@ -56,6 +76,20 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
             
             m_listView->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
+        }
+
+        void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileManager::OnRemoveProfile(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileManager::OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(true);
+        }
+        
+        void CompilationProfileManager::OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_listView->GetSelection() != wxNOT_FOUND);
         }
 
         void CompilationProfileManager::OnProfileSelectionChanged(wxCommandEvent& event) {

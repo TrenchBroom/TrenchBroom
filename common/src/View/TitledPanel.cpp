@@ -29,9 +29,11 @@ namespace TrenchBroom {
     namespace View {
         TitledPanel::TitledPanel(wxWindow* parent, const wxString& title, const bool showDivider, const bool boldTitle) :
         wxPanel(parent),
-        m_panel(new wxPanel(this)) {
+        m_panel(NULL) {
             const int hMargin = showDivider ? LayoutConstants::NarrowHMargin : 0;
             const int vMargin = showDivider ? LayoutConstants::NarrowVMargin : 0;
+            
+            m_panel = new wxPanel(this);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(new TitleBar(this, title, hMargin, vMargin, boldTitle), 0, wxEXPAND);

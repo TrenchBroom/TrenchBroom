@@ -17,23 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BitmapToggleButton
-#define TrenchBroom_BitmapToggleButton
+#ifndef TrenchBroom_BitmapButton
+#define TrenchBroom_BitmapButton
 
 #include <wx/bitmap.h>
 #include <wx/control.h>
 
 namespace TrenchBroom {
     namespace View {
-        class BitmapToggleButton : public wxControl {
+        class BitmapButton : public wxControl {
         private:
-            wxBitmap m_upBitmap;
-            wxBitmap m_downBitmap;
-            wxBitmap m_upDisabledBitmap;
-            wxBitmap m_downDisabledBitmap;
-            bool m_state;
+            wxBitmap m_bitmap;
+            wxBitmap m_disabledBitmap;
         public:
-            BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);
+            BitmapButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap);
             
             void OnPaint(wxPaintEvent& event);
             void OnMouseDown(wxMouseEvent& event);
@@ -45,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BitmapToggleButton) */
+#endif /* defined(TrenchBroom_BitmapButton) */

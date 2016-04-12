@@ -33,11 +33,21 @@ namespace TrenchBroom {
         class CompilationProfileEditor : public wxPanel {
         private:
             Model::CompilationProfile* m_profile;
-            CompilationTaskList* m_taskView;
+            CompilationTaskList* m_taskList;
         public:
             CompilationProfileEditor(wxWindow* parent);
             ~CompilationProfileEditor();
+        private:
+            void OnAddTask(wxCommandEvent& event);
+            void OnRemoveTask(wxCommandEvent& event);
+            void OnMoveTaskUp(wxCommandEvent& event);
+            void OnMoveTaskDown(wxCommandEvent& event);
             
+            void OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event);
+        public:
             void setProfile(Model::CompilationProfile* profile);
         private:
             void profileDidChange();

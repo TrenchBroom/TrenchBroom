@@ -20,8 +20,12 @@
 #include "CompilationProfileEditor.h"
 
 #include "Model/CompilationProfile.h"
+#include "View/BorderLine.h"
 #include "View/CompilationTaskList.h"
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -30,9 +34,35 @@ namespace TrenchBroom {
         CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent) :
         wxPanel(parent),
         m_profile(NULL),
-        m_taskView(new CompilationTaskList(this)) {
+        m_taskList(new CompilationTaskList(this)) {
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            
+            wxWindow* addTaskButton = createBitmapButton(this, "Add.png", "Add task");
+            wxWindow* removeTaskButton = createBitmapButton(this, "Remove.png", "Remove the selected task");
+            wxWindow* moveTaskUpButton = createBitmapButton(this, "Up.png", "Move the selected task up");
+            wxWindow* moveTaskDownButton = createBitmapButton(this, "Down.png", "Move the selected task down");
+            
+            addTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnAddTask, this);
+            removeTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnRemoveTask, this);
+            moveTaskUpButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnMoveTaskUp, this);
+            moveTaskDownButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnMoveTaskDown, this);
+            addTaskButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateAddTaskButtonUI, this);
+            removeTaskButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateRemoveTaskButtonUI, this);
+            moveTaskUpButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI, this);
+            moveTaskDownButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI, this);
+            
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(addTaskButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removeTaskButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(moveTaskUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveTaskDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddStretchSpacer();
+            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_taskView, 1, wxEXPAND);
+            sizer->Add(m_taskList, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }
         
@@ -41,11 +71,39 @@ namespace TrenchBroom {
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
         }
 
+        void CompilationProfileEditor::OnAddTask(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileEditor::OnRemoveTask(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileEditor::OnMoveTaskUp(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileEditor::OnMoveTaskDown(wxCommandEvent& event) {
+        }
+        
+        void CompilationProfileEditor::OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_profile != NULL);
+        }
+        
+        void CompilationProfileEditor::OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND);
+        }
+        
+        void CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && m_taskList->GetSelection() > 0);
+        }
+        
+        void CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) > m_profile->taskCount());
+        }
+
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
             if (m_profile != NULL)
                 m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
             m_profile = profile;
-            m_taskView->setProfile(profile);
+            m_taskList->setProfile(profile);
             if (m_profile != NULL)
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
         }

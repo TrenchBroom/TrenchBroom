@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BitmapToggleButton.h"
+#include "BitmapButton.h"
 
 #include <wx/dcclient.h>
 #include <wx/log.h>
@@ -26,23 +26,19 @@
 
 namespace TrenchBroom {
     namespace View {
-        BitmapToggleButton::BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
+        BitmapButton::BitmapButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap) :
         wxControl(parent, windowId),
-        m_upBitmap(upBitmap),
-        m_downBitmap(downBitmap),
-        m_upDisabledBitmap(m_upBitmap.ConvertToDisabled()),
-        m_downDisabledBitmap(m_downBitmap.ConvertToDisabled()),
-        m_state(false) {
-            assert(m_upBitmap.IsOk());
-            assert(m_downBitmap.IsOk());
+        m_bitmap(bitmap),
+        m_disabledBitmap(bitmap.ConvertToDisabled()) {
+            assert(m_bitmap.IsOk());
 
             SetMinClientSize(bitmapSize());
             
-            Bind(wxEVT_PAINT, &BitmapToggleButton::OnPaint, this);
-            Bind(wxEVT_LEFT_DOWN, &BitmapToggleButton::OnMouseDown, this);
+            Bind(wxEVT_PAINT, &BitmapButton::OnPaint, this);
+            Bind(wxEVT_LEFT_DOWN, &BitmapButton::OnMouseDown, this);
         }
         
-        void BitmapToggleButton::OnPaint(wxPaintEvent& event) {
+        void BitmapButton::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxSize size = GetClientSize();
@@ -54,44 +50,32 @@ namespace TrenchBroom {
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
-        void BitmapToggleButton::OnMouseDown(wxMouseEvent& event) {
+        void BitmapButton::OnMouseDown(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (!IsEnabled())
                 return;
             
-            m_state = !m_state;
-            Refresh();
-            
             wxCommandEvent buttonEvent(wxEVT_BUTTON, GetId());
             buttonEvent.SetEventObject(this);
-            buttonEvent.SetInt(static_cast<int>(m_state));
+            buttonEvent.SetInt(1);
             
             ProcessEvent(buttonEvent);
         }
 
-        void BitmapToggleButton::DoUpdateWindowUI(wxUpdateUIEvent& event) {
+        void BitmapButton::DoUpdateWindowUI(wxUpdateUIEvent& event) {
             if (event.GetSetEnabled() && IsEnabled() != event.GetEnabled()) {
                 Enable(event.GetEnabled());
                 Refresh();
             }
-            if (event.GetSetChecked()) {
-                if (m_state != event.GetChecked()) {
-                    m_state = event.GetChecked();
-                    Refresh();
-                }
-            }
         }
 
-        wxSize BitmapToggleButton::bitmapSize() const {
-            return wxSize(std::max(m_upBitmap.GetWidth(), m_downBitmap.GetWidth()),
-                          std::max(m_upBitmap.GetHeight(), m_downBitmap.GetHeight()));
+        wxSize BitmapButton::bitmapSize() const {
+            return wxSize(m_bitmap.GetWidth(), m_bitmap.GetHeight());
         }
 
-        wxBitmap BitmapToggleButton::currentBitmap() const {
-            if (IsEnabled())
-                return m_state ? m_downBitmap : m_upBitmap;
-            return m_state ? m_downDisabledBitmap : m_upDisabledBitmap;
+        wxBitmap BitmapButton::currentBitmap() const {
+            return IsEnabled() ? m_bitmap : m_disabledBitmap;
         }
     }
 }
