@@ -25,6 +25,7 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <wx/menu.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
 
@@ -72,6 +73,18 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::OnAddTask(wxCommandEvent& event) {
+            wxMenu menu;
+            menu.Append(1, "Copy Files");
+            menu.Append(2, "Run Tool");
+            const int result = GetPopupMenuSelectionFromUser(menu);
+            switch (result) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                default:
+                    break;
+            }
         }
         
         void CompilationProfileEditor::OnRemoveTask(wxCommandEvent& event) {
