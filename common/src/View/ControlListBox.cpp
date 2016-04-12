@@ -133,7 +133,6 @@ namespace TrenchBroom {
                 
                 listSizer->AddStretchSpacer();
                 SetSizer(listSizer);
-                Layout();
             } else if (!m_emptyText.empty()) {
                 wxStaticText* emptyText = new wxStaticText(this, wxID_ANY, m_emptyText);
                 emptyText->SetFont(emptyText->GetFont().Larger().Bold());
@@ -153,8 +152,9 @@ namespace TrenchBroom {
                 listSizer->AddStretchSpacer();
                 
                 SetSizer(listSizer);
-                Layout();
             }
+            Layout();
+            GetParent()->Layout();
         }
         
         void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {
