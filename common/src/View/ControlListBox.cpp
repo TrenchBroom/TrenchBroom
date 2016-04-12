@@ -64,10 +64,10 @@ namespace TrenchBroom {
         }
 
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
-        wxScrolledCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
+        wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
         m_selectionIndex(0) {
-            SetScrollRate(0, 10);
+            SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnClickList, this);
@@ -131,7 +131,6 @@ namespace TrenchBroom {
                     m_items.push_back(item);
                 }
                 
-                listSizer->AddStretchSpacer();
                 SetSizer(listSizer);
             } else if (!m_emptyText.empty()) {
                 wxStaticText* emptyText = new wxStaticText(this, wxID_ANY, m_emptyText);
@@ -153,8 +152,7 @@ namespace TrenchBroom {
                 
                 SetSizer(listSizer);
             }
-            Layout();
-            GetParent()->Layout();
+            FitInside();
         }
         
         void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {

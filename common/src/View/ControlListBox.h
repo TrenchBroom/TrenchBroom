@@ -28,7 +28,7 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class ControlListBox : public wxScrolledCanvas {
+        class ControlListBox : public wxScrolledWindow {
         protected:
             class Item : public wxWindow {
             public:
