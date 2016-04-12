@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace View {
         BitmapToggleButton::BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
-        wxControl(parent, windowId),
+        wxControl(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_upBitmap(upBitmap),
         m_downBitmap(downBitmap),
         m_upDisabledBitmap(m_upBitmap.ConvertToDisabled()),

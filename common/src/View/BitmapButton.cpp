@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace View {
         BitmapButton::BitmapButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& bitmap) :
-        wxControl(parent, windowId),
+        wxControl(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_bitmap(bitmap),
         m_disabledBitmap(bitmap.ConvertToDisabled()) {
             assert(m_bitmap.IsOk());
