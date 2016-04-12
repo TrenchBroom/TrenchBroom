@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
-        wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
+        wxScrolledCanvas(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
         m_selectionIndex(0) {
             SetScrollRate(0, 10);

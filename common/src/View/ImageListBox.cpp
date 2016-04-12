@@ -40,7 +40,9 @@ namespace TrenchBroom {
             wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
             
             titleText->SetFont(titleText->GetFont().Bold());
+#ifndef _WIN32
             subtitleText->SetFont(subtitleText->GetFont().Smaller());
+#endif
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
             vSizer->Add(titleText, 0);

@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     task = new Model::CompilationRunTool("", "");
                     break;
                 default:
-                    break;
+                    return;
             }
             
             assert(task != NULL);

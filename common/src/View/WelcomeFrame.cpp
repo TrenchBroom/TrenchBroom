@@ -46,6 +46,7 @@ namespace TrenchBroom {
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
             m_recentDocumentListBox->SetToolTip("Double click on a file to open it");
+            m_recentDocumentListBox->SetMaxSize(wxSize(350, wxDefaultCoord));
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, 0, wxALIGN_CENTRE_VERTICAL);

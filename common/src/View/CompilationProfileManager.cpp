@@ -41,6 +41,8 @@ namespace TrenchBroom {
             
             TitledPanel* listPanel = new TitledPanel(this, "Profiles");
             TitledPanel* editorPanel = new TitledPanel(this, "Details");
+            listPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
+            editorPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
             
             m_listView = new CompilationProfileListBox(listPanel->getPanel(), m_config);
             m_editor = new CompilationProfileEditor(editorPanel->getPanel());

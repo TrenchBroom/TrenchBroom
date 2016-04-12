@@ -51,7 +51,7 @@ namespace TrenchBroom {
             wxAutoBufferedPaintDC dc(this);
             dc.SetPen(wxPen(GetBackgroundColour()));
             dc.SetBrush(wxBrush(GetBackgroundColour()));
-            dc.DrawRectangle(GetClientRect());
+            dc.DrawRectangle(GetRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
