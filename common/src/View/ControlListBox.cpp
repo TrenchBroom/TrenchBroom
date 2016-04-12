@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 wxSizer* listSizer = new Sizer(wxVERTICAL);
                 
                 for (size_t i = 0; i < itemCount; ++i) {
-                    Item* item = createItem(this, wxSize(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin), i);
+                    Item* item = createItem(this, wxSize(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin), i);
                     
                     listSizer->Add(item, 0, wxEXPAND);
                     listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);

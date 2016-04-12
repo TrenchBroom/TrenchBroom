@@ -73,8 +73,9 @@ namespace TrenchBroom {
             SetItemCount(recentDocuments.size());
         }
 
-        const wxBitmap& RecentDocumentListBox::image(const size_t n) const {
-            return m_documentIcon;
+        bool RecentDocumentListBox::image(size_t n, wxBitmap& result) const {
+            result = m_documentIcon;
+            return true;
         }
         
         wxString RecentDocumentListBox::title(const size_t n) const {

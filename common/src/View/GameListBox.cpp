@@ -96,9 +96,10 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        const wxBitmap& GameListBox::image(const size_t n) const {
+        bool GameListBox::image(const size_t n, wxBitmap& result) const {
             assert(n < m_gameInfos.size());
-            return m_gameInfos[n].image;
+            result = m_gameInfos[n].image;
+            return true;
         }
         
         wxString GameListBox::title(const size_t n) const {

@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             void recentDocumentsDidChange();
             
-            const wxBitmap& image(size_t n) const;
+            bool image(size_t n, wxBitmap& result) const;
             wxString title(size_t n) const;
             wxString subtitle(size_t n) const;
         };

@@ -35,7 +35,6 @@ namespace TrenchBroom {
 
         ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             Item* container = new Item(parent);
-            wxStaticBitmap* imagePanel = new wxStaticBitmap(container, wxID_ANY, image(index));
             wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
             wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
             
@@ -50,7 +49,12 @@ namespace TrenchBroom {
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(margins.x);
-            hSizer->Add(imagePanel, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+
+            wxBitmap bitmap;
+            if (image(index, bitmap)) {
+                wxStaticBitmap* imagePanel = new wxStaticBitmap(container, wxID_ANY, bitmap);
+                hSizer->Add(imagePanel, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+            }
             hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
             hSizer->AddSpacer(margins.x);
             
@@ -58,8 +62,9 @@ namespace TrenchBroom {
             return container;
         }
 
-        const wxBitmap& ImageListBox::image(const size_t n) const {
-            return wxNullBitmap;
+        bool ImageListBox::image(const size_t n, wxBitmap& result) const {
+            result = wxNullBitmap;
+            return false;
         }
     }
 }
