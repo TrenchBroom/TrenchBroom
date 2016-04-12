@@ -19,7 +19,7 @@
 
 #include "BitmapButton.h"
 
-#include <wx/dcbuffer.h>
+#include <wx/dcclient.h>
 #include <wx/log.h>
 
 #include <algorithm>
@@ -48,10 +48,10 @@ namespace TrenchBroom {
             const wxSize delta = size - bmpSize;
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
-            wxAutoBufferedPaintDC dc(this);
+            wxPaintDC dc(this);
             dc.SetPen(wxPen(GetBackgroundColour()));
             dc.SetBrush(wxBrush(GetBackgroundColour()));
-            dc.DrawRectangle(GetRect());
+            dc.DrawRectangle(GetClientRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
