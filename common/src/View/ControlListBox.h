@@ -47,6 +47,8 @@ namespace TrenchBroom {
             wxString m_emptyText;
             ItemList m_items;
             size_t m_selectionIndex;
+        private:
+            class Sizer;
         public:
             ControlListBox(wxWindow* parent, const wxString& emptyText = "");
 
@@ -55,7 +57,6 @@ namespace TrenchBroom {
             void SetItemCount(size_t itemCount);
             void SetSelection(int index);
         private:
-            class Sizer;
             
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);

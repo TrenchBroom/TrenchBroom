@@ -62,11 +62,25 @@ namespace TrenchBroom {
                 setColours(child, foreground, background);
             }
         }
+        
+        class ControlListBox::Sizer : public wxBoxSizer {
+        public:
+            Sizer(const int orient) :
+            wxBoxSizer(orient) {}
+            
+            wxSize CalcMin() {
+                const wxSize originalSize = wxBoxSizer::CalcMin();
+                const wxSize containerSize = GetContainingWindow()->GetClientSize();
+                const wxSize result(containerSize.x, originalSize.y);
+                return result;
+            }
+        };
 
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
         m_selectionIndex(0) {
+            SetSizer(new Sizer(wxVERTICAL));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
@@ -97,30 +111,16 @@ namespace TrenchBroom {
                 setSelection(static_cast<size_t>(index));
         }
 
-        class ControlListBox::Sizer : public wxBoxSizer {
-        public:
-            Sizer(const int orient) :
-            wxBoxSizer(orient) {}
-            
-            wxSize CalcMin() {
-                const wxSize originalSize = wxBoxSizer::CalcMin();
-                const wxSize containerSize = GetContainingWindow()->GetClientSize();
-                const wxSize result(containerSize.x, originalSize.y);
-                return result;
-            }
-        };
-
         void ControlListBox::refresh(const size_t itemCount) {
             wxWindowUpdateLocker lock(this);
             
-            SetSizer(NULL);
-            DestroyChildren();
+            wxSizer* listSizer = GetSizer();
+            listSizer->Clear(true);
+            
             m_items.clear();
             m_items.reserve(itemCount);
             
             if (itemCount > 0) {
-                wxSizer* listSizer = new Sizer(wxVERTICAL);
-                
                 for (size_t i = 0; i < itemCount; ++i) {
                     Item* item = createItem(this, wxSize(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin), i);
                     
@@ -130,8 +130,6 @@ namespace TrenchBroom {
                     bindEvents(item, i);
                     m_items.push_back(item);
                 }
-                
-                SetSizer(listSizer);
             } else if (!m_emptyText.empty()) {
                 wxStaticText* emptyText = new wxStaticText(this, wxID_ANY, m_emptyText);
                 emptyText->SetFont(emptyText->GetFont().Larger().Bold());
@@ -144,13 +142,10 @@ namespace TrenchBroom {
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->AddStretchSpacer();
                 
-                wxSizer* listSizer = new wxBoxSizer(wxVERTICAL);
                 listSizer->AddSpacer(LayoutConstants::WideVMargin);
                 listSizer->Add(justifySizer, 0, wxEXPAND);
                 listSizer->AddSpacer(LayoutConstants::WideVMargin);
                 listSizer->AddStretchSpacer();
-                
-                SetSizer(listSizer);
             }
             FitInside();
         }
