@@ -19,7 +19,7 @@
 
 #include "BitmapButton.h"
 
-#include <wx/dcclient.h>
+#include <wx/dcbuffer.h>
 #include <wx/log.h>
 
 #include <algorithm>
@@ -32,6 +32,8 @@ namespace TrenchBroom {
         m_disabledBitmap(bitmap.ConvertToDisabled()) {
             assert(m_bitmap.IsOk());
 
+            SetBackgroundColour(parent->GetBackgroundColour());
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             SetMinClientSize(bitmapSize());
             
             Bind(wxEVT_PAINT, &BitmapButton::OnPaint, this);
@@ -46,7 +48,10 @@ namespace TrenchBroom {
             const wxSize delta = size - bmpSize;
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
-            wxPaintDC dc(this);
+            wxAutoBufferedPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         
