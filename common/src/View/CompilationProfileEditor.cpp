@@ -77,23 +77,48 @@ namespace TrenchBroom {
             menu.Append(1, "Copy Files");
             menu.Append(2, "Run Tool");
             const int result = GetPopupMenuSelectionFromUser(menu);
+            
+            Model::CompilationTask* task = NULL;
             switch (result) {
                 case 1:
+                    task = new Model::CompilationCopyFiles("", "");
                     break;
                 case 2:
+                    task = new Model::CompilationRunTool("", "");
                     break;
                 default:
                     break;
             }
+            
+            assert(task != NULL);
+            const int index = m_taskList->GetSelection();
+            if (index == wxNOT_FOUND) {
+                m_profile->addTask(task);
+                m_taskList->SetSelection(static_cast<int>(m_profile->taskCount()) - 1);
+            } else {
+                m_profile->insertTask(static_cast<size_t>(index), task);
+                m_taskList->SetSelection(index);
+            }
         }
         
         void CompilationProfileEditor::OnRemoveTask(wxCommandEvent& event) {
+            const int index = m_taskList->GetSelection();
+            assert(index != wxNOT_FOUND);
+            m_profile->removeTask(static_cast<size_t>(index));
         }
         
         void CompilationProfileEditor::OnMoveTaskUp(wxCommandEvent& event) {
+            const int index = m_taskList->GetSelection();
+            assert(index != wxNOT_FOUND);
+            m_profile->moveTaskUp(static_cast<size_t>(index));
+            m_taskList->SetSelection(index - 1);
         }
         
         void CompilationProfileEditor::OnMoveTaskDown(wxCommandEvent& event) {
+            const int index = m_taskList->GetSelection();
+            assert(index != wxNOT_FOUND);
+            m_profile->moveTaskDown(static_cast<size_t>(index));
+            m_taskList->SetSelection(index + 1);
         }
         
         void CompilationProfileEditor::OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event) {
@@ -109,7 +134,7 @@ namespace TrenchBroom {
         }
         
         void CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) > m_profile->taskCount());
+            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) < m_profile->taskCount() - 1);
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {

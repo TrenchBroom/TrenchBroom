@@ -51,6 +51,7 @@ namespace TrenchBroom {
             CompilationTask* task(size_t index) const;
 
             void addTask(CompilationTask* task);
+            void insertTask(size_t index, CompilationTask* task);
             void removeTask(size_t index);
             
             void moveTaskUp(size_t index);

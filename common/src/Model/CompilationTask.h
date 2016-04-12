@@ -41,6 +41,7 @@ namespace TrenchBroom {
         public:
             typedef std::vector<CompilationTask*> List;
             
+            Notifier0 taskWillBeDeleted;
             Notifier0 taskDidChange;
         protected:
             CompilationTask();

@@ -23,7 +23,9 @@ namespace TrenchBroom {
     namespace Model {
         CompilationTask::CompilationTask() {}
     
-        CompilationTask::~CompilationTask() {}
+        CompilationTask::~CompilationTask() {
+            taskWillBeDeleted();
+        }
 
         CompilationTask* CompilationTask::clone() const {
             return doClone();

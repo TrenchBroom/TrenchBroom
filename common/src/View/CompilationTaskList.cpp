@@ -62,11 +62,15 @@ namespace TrenchBroom {
                 SetSizer(panelSizer);
                 
                 refresh();
+                m_task->taskWillBeDeleted.addObserver(this, &TaskEditor::taskWillBeDeleted);
                 m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
             }
         public:
             virtual ~TaskEditor() {
-                m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
+                if (m_task != NULL) {
+                    m_task->taskWillBeDeleted.removeObserver(this, &TaskEditor::taskWillBeDeleted);
+                    m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
+                }
             }
         private:
             void setSelectionColours(const wxColour& foreground, const wxColour& background) {
@@ -93,8 +97,13 @@ namespace TrenchBroom {
                 textEntry->AutoComplete(nameArray);
             }
         private:
+            void taskWillBeDeleted() {
+                m_task = NULL;
+            }
+            
             void taskDidChange() {
-                refresh();
+                if (m_task != NULL)
+                    refresh();
             }
             
             virtual wxWindow* createGui(wxWindow* parent) = 0;

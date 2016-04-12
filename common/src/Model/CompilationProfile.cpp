@@ -73,11 +73,25 @@ namespace TrenchBroom {
         }
         
         void CompilationProfile::addTask(CompilationTask* task) {
-            m_tasks.push_back(task);
+            insertTask(m_tasks.size(), task);
+        }
+        
+        void CompilationProfile::insertTask(const size_t index, CompilationTask* task) {
+            assert(index <= m_tasks.size());
+            assert(task != NULL);
+            
+            if (index == m_tasks.size()) {
+                m_tasks.push_back(task);
+            } else {
+                CompilationTask::List::iterator it = m_tasks.begin();
+                std::advance(it, index);
+                m_tasks.insert(it, task);
+                
+            }
             task->taskDidChange.addObserver(taskDidChange);
             profileDidChange();
         }
-        
+
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
             delete m_tasks[index];
@@ -106,7 +120,7 @@ namespace TrenchBroom {
             std::advance(it, index);
             
             CompilationTask::List::iterator nx = m_tasks.begin();
-            std::advance(nx, index - 1);
+            std::advance(nx, index + 1);
             
             std::iter_swap(it, nx);
             profileDidChange();
