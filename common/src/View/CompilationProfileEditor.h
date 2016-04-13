@@ -22,6 +22,8 @@
 
 #include <wx/panel.h>
 
+class wxTextCtrl;
+
 namespace TrenchBroom {
     namespace Model {
         class CompilationProfile;
@@ -33,11 +35,17 @@ namespace TrenchBroom {
         class CompilationProfileEditor : public wxPanel {
         private:
             Model::CompilationProfile* m_profile;
+            wxTextCtrl* m_nameTxt;
+            wxTextCtrl* m_workDirTxt;
             CompilationTaskList* m_taskList;
         public:
             CompilationProfileEditor(wxWindow* parent);
             ~CompilationProfileEditor();
         private:
+            void OnNameChanged(wxCommandEvent& event);
+            void OnWorkDirChanged(wxCommandEvent& event);
+            void OnUpdateTxtUI(wxUpdateUIEvent& event);
+            
             void OnAddTask(wxCommandEvent& event);
             void OnRemoveTask(wxCommandEvent& event);
             void OnMoveTaskUp(wxCommandEvent& event);

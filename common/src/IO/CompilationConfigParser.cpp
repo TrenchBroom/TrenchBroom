@@ -66,16 +66,19 @@ namespace TrenchBroom {
 
         Model::CompilationProfile* CompilationConfigParser::parseProfile(const ConfigTable& table) const {
             expectTableEntries(table,
-                               StringUtils::makeSet(2, "name", "tasks"),
+                               StringUtils::makeSet(3, "name", "workdir", "tasks"),
                                StringSet());
 
             expectTableEntry("name", ConfigEntry::Type_Value, table);
             const String name = table["name"];
             
+            expectTableEntry("workdir", ConfigEntry::Type_Value, table);
+            const String workdir = table["workdir"];
+            
             expectTableEntry("tasks", ConfigEntry::Type_List, table);
             const Model::CompilationTask::List tasks = parseTasks(table["tasks"]);
             
-            return new Model::CompilationProfile(name, tasks);
+            return new Model::CompilationProfile(name, workdir, tasks);
         }
 
         Model::CompilationTask::List CompilationConfigParser::parseTasks(const ConfigList& list) const {

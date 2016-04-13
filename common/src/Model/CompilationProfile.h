@@ -36,16 +36,20 @@ namespace TrenchBroom {
             Notifier0 taskDidChange;
         private:
             String m_name;
+            String m_workDirSpec;
             CompilationTask::List m_tasks;
         public:
-            CompilationProfile(const String& name);
-            CompilationProfile(const String& name, const CompilationTask::List& tasks);
+            CompilationProfile(const String& name, const String& workDirSpec);
+            CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks);
             ~CompilationProfile();
 
             CompilationProfile* clone() const;
             
             const String& name() const;
             void setName(const String& name);
+            
+            const String& workDirSpec() const;
+            void setWorkDirSpec(const String& workDirSpec);
             
             size_t taskCount() const;
             CompilationTask* task(size_t index) const;

@@ -52,6 +52,7 @@ namespace TrenchBroom {
         ConfigTable* CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
             ConfigTable* result = new ConfigTable();
             result->addEntry("name", new ConfigValue(profile->name()));
+            result->addEntry("workdir", new ConfigValue(profile->workDirSpec()));
             result->addEntry("tasks", writeTasks(profile));
             return result;
         }

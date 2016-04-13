@@ -24,11 +24,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationProfile::CompilationProfile(const String& name) :
-        m_name(name) {}
-
-        CompilationProfile::CompilationProfile(const String& name, const CompilationTask::List& tasks) :
+        CompilationProfile::CompilationProfile(const String& name, const String& workDirSpec) :
         m_name(name),
+        m_workDirSpec(workDirSpec) {}
+
+        CompilationProfile::CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks) :
+        m_name(name),
+        m_workDirSpec(workDirSpec),
         m_tasks(tasks) {
             CompilationTask::List::iterator it, end;
             for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
@@ -51,7 +53,7 @@ namespace TrenchBroom {
                 clones.push_back(original->clone());
             }
             
-            return new CompilationProfile(m_name, clones);
+            return new CompilationProfile(m_name, m_workDirSpec, clones);
         }
 
         const String& CompilationProfile::name() const  {
@@ -63,6 +65,16 @@ namespace TrenchBroom {
             profileDidChange();
         }
 
+        const String& CompilationProfile::workDirSpec() const {
+            return m_workDirSpec;
+        }
+        
+        void CompilationProfile::setWorkDirSpec(const String& workDirSpec) {
+            m_workDirSpec = workDirSpec;
+            profileDidChange();
+        }
+
+        
         size_t CompilationProfile::taskCount() const {
             return m_tasks.size();
         }

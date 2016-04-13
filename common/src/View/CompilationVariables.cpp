@@ -37,6 +37,7 @@ namespace TrenchBroom {
             result.declare("GAME_DIR_PATH");
             result.declare("MOD_DIR_PATH");
             result.declare("MOD_NAME");
+            result.declare("WORK_DIR_PATH");
             return result;
         }
     }
