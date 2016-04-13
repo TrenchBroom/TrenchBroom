@@ -28,7 +28,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CompilationProfileListBox : public ImageListBox {
+        class CompilationProfileListBox : public ControlListBox {
         private:
             const Model::CompilationConfig& m_config;
         public:
@@ -37,8 +37,8 @@ namespace TrenchBroom {
         private:
             void profilesDidChange();
         private:
-            wxString title(size_t n) const;
-            wxString subtitle(size_t n) const;
+            class ProfileItem;
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
         };
     }
 }

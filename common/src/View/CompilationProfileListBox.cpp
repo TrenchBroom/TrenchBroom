@@ -22,10 +22,13 @@
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 
+#include <wx/stattext.h>
+#include <wx/sizer.h>
+
 namespace TrenchBroom {
     namespace View {
         CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
-        ImageListBox(parent, "No Profiles Found"),
+        ControlListBox(parent, "No Profiles Found"),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());
@@ -39,16 +42,84 @@ namespace TrenchBroom {
             SetItemCount(m_config.profileCount());
         }
 
-        wxString CompilationProfileListBox::title(const size_t n) const {
-            const Model::CompilationProfile* profile = m_config.profile(n);
-            return profile->name();
-        }
-        
-        wxString CompilationProfileListBox::subtitle(const size_t n) const {
-            const Model::CompilationProfile* profile = m_config.profile(n);
-            wxString result;
-            result << profile->taskCount() << " tasks";
-            return result;
+        class CompilationProfileListBox::ProfileItem : public Item {
+        private:
+            Model::CompilationProfile* m_profile;
+            wxStaticText* m_nameText;
+            wxStaticText* m_taskCountText;
+        public:
+            ProfileItem(wxWindow* parent, Model::CompilationProfile* profile, const wxSize& margins) :
+            Item(parent),
+            m_profile(profile),
+            m_nameText(NULL),
+            m_taskCountText(NULL) {
+                assert(m_profile != NULL);
+
+                m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                
+                m_nameText->SetFont(m_nameText->GetFont().Bold());
+#ifndef _WIN32
+                m_taskCountText->SetFont(m_taskCountText->GetFont().Smaller());
+#endif
+                
+                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                vSizer->Add(m_nameText, 0, wxEXPAND);
+                vSizer->Add(m_taskCountText, 0, wxEXPAND);
+                
+                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+                hSizer->AddSpacer(margins.x);
+                hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
+                hSizer->AddSpacer(margins.x);
+
+                SetSizer(hSizer);
+                
+                refresh();
+                addObservers();
+            }
+            
+            ~ProfileItem() {
+                if (m_profile != NULL)
+                    removeObservers();
+            }
+        private:
+            void addObservers() {
+                m_profile->profileWillBeRemoved.addObserver(this, &ProfileItem::profileWillBeRemoved);
+                m_profile->profileDidChange.addObserver(this, &ProfileItem::profileDidChange);
+            }
+            
+            void removeObservers() {
+                m_profile->profileWillBeRemoved.removeObserver(this, &ProfileItem::profileWillBeRemoved);
+                m_profile->profileDidChange.removeObserver(this, &ProfileItem::profileDidChange);
+            }
+            
+            void profileWillBeRemoved() {
+                if (m_profile != NULL) {
+                    removeObservers();
+                    m_profile = NULL;
+                }
+            }
+            
+            void profileDidChange() {
+                refresh();
+            }
+            
+            void refresh() {
+                if (m_profile == NULL) {
+                    m_nameText->SetLabel("");
+                    m_taskCountText->SetLabel("");
+                } else {
+                    m_nameText->SetLabel(m_profile->name());
+                    wxString taskCountLabel;
+                    taskCountLabel << m_profile->taskCount() << " tasks";
+                    m_taskCountText->SetLabel(taskCountLabel);
+                }
+            }
+        };
+
+        ControlListBox::Item* CompilationProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            Model::CompilationProfile* profile = m_config.profile(index);
+            return new ProfileItem(parent, profile, margins);
         }
     }
 }
