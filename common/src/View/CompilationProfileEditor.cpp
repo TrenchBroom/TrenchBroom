@@ -42,8 +42,10 @@ namespace TrenchBroom {
         m_workDirTxt(NULL),
         m_taskList(NULL) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
+
             wxPanel* upperPanel = new wxPanel(this);
+            upperPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
+            
             wxStaticText* nameLabel = new wxStaticText(upperPanel, wxID_ANY, "Name");
             wxStaticText* workDirLabel = new wxStaticText(upperPanel, wxID_ANY, "Working Directory");
             
@@ -191,13 +193,21 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != NULL)
+            if (m_profile != NULL) {
+                m_profile->profileWillBeDeleted.removeObserver(this, &CompilationProfileEditor::profileWillBeDeleted);
                 m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
+            }
             m_profile = profile;
             m_taskList->setProfile(profile);
-            if (m_profile != NULL)
+            if (m_profile != NULL) {
+                m_profile->profileWillBeDeleted.addObserver(this, &CompilationProfileEditor::profileWillBeDeleted);
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
+            }
             refresh();
+        }
+
+        void CompilationProfileEditor::profileWillBeDeleted() {
+            setProfile(NULL);
         }
 
         void CompilationProfileEditor::profileDidChange() {

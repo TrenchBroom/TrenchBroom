@@ -48,7 +48,7 @@ namespace TrenchBroom {
             m_panel(NULL) {}
         public:
             void initialize() {
-                m_panel = new TitledPanel(this, m_title, true, false);
+                m_panel = new TitledPanel(this, m_title);
                 wxWindow* editor = createGui(m_panel->getPanel());
                 
                 wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);

@@ -21,23 +21,42 @@
 
 namespace TrenchBroom {
     namespace View {
-        const VariableTable createCompilationVariableTable();
+        VariableTable createCompilationWorkDirVariableTable();
         
+        const VariableTable& compilationWorkDirVariables() {
+            static const VariableTable variables = createCompilationWorkDirVariableTable();
+            return variables;
+        }
+        
+        
+        VariableTable createCompilationWorkDirVariableTable() {
+            VariableTable result;
+            result.declare("MAP_DIR_PATH");
+            result.declare("MAP_BASE_NAME");
+            result.declare("MAP_FULL_NAME");
+            result.declare("GAME_DIR_PATH");
+            result.declare("MOD_DIR_PATH");
+            result.declare("MOD_NAME");
+            result.declare("APP_DIR_PATH");
+            return result;
+        }
+
+        VariableTable createCompilationVariableTable();
         const VariableTable& compilationVariables() {
             static const VariableTable variables = createCompilationVariableTable();
             return variables;
         }
 
-        const VariableTable createCompilationVariableTable() {
+        VariableTable createCompilationVariableTable() {
             VariableTable result;
-            result.declare("MAP_DIR_PATH");
+            result.declare("WORK_DIR_PATH");
             result.declare("MAP_BASE_NAME");
             result.declare("MAP_FULL_NAME");
             result.declare("CPU_COUNT");
             result.declare("GAME_DIR_PATH");
             result.declare("MOD_DIR_PATH");
             result.declare("MOD_NAME");
-            result.declare("WORK_DIR_PATH");
+            result.declare("APP_DIR_PATH");
             return result;
         }
     }

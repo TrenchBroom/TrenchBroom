@@ -40,6 +40,7 @@ namespace TrenchBroom {
         }
 
         CompilationProfile::~CompilationProfile() {
+            profileWillBeDeleted();
             VectorUtils::clearAndDelete(m_tasks);
         }
 

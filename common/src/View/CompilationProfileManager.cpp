@@ -81,9 +81,14 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
+            m_config.addProfile(new Model::CompilationProfile("unnamed", ""));
+            m_listView->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
         
         void CompilationProfileManager::OnRemoveProfile(wxCommandEvent& event) {
+            const int index = m_listView->GetSelection();
+            assert(index != wxNOT_FOUND);
+            m_config.removeProfile(static_cast<size_t>(index));
         }
         
         void CompilationProfileManager::OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event) {

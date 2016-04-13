@@ -24,6 +24,7 @@
 
 namespace TrenchBroom {
     namespace View {
+        const VariableTable& compilationWorkDirVariables();
         const VariableTable& compilationVariables();
     }
 }
