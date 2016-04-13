@@ -22,9 +22,10 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
-#include "Model/CompilationContext.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "View/CompilationContext.h"
+#include "View/MapDocument.h"
 
 #include <wx/event.h>
 #include <wx/process.h>
@@ -36,11 +37,11 @@ namespace TrenchBroom {
     namespace View {
         class CompilationRunner::TaskRunner {
         protected:
-            Model::CompilationContext& m_context;
+            CompilationContext& m_context;
         private:
             TaskRunner* m_next;
         public:
-            TaskRunner(Model::CompilationContext& context) :
+            TaskRunner(CompilationContext& context) :
             m_context(context),
             m_next(NULL) {}
             
@@ -73,13 +74,54 @@ namespace TrenchBroom {
             TaskRunner(const TaskRunner& other);
             TaskRunner& operator=(const TaskRunner& other);
         };
+        
+        class CompilationRunner::ExportMapRunner : public TaskRunner {
+        private:
+            IO::Path m_targetPath;
+        public:
+            ExportMapRunner(CompilationContext& context, const Model::CompilationExportMap* task) :
+            TaskRunner(context),
+            m_targetPath(m_context.translateVariables(task->targetSpec())) {}
+        private:
+            void doExecute() {
+                try {
+                    StringStream str;
+                    str << "Exporting map file '" << m_targetPath.asString() << "'\n";
+                    m_context.appendOutput(str.str());
+
+                    const IO::Path directoryPath = m_targetPath.deleteLastComponent();
+                    IO::Disk::createDirectory(directoryPath);
+                    
+                    const MapDocumentSPtr document = m_context.document();
+                    document->saveDocumentTo(m_targetPath);
+                    
+                    const IO::Path filename = m_targetPath.lastComponent();
+                    const IO::Path basename = filename.deleteExtension();
+                    
+                    m_context.redefineVariable("MAP_DIR_PATH", directoryPath.asString());
+                    m_context.redefineVariable("MAP_FULL_NAME", filename.asString());
+                    m_context.redefineVariable("MAP_BASE_NAME", basename.asString());
+                    
+                    executeNext();
+                } catch (const Exception& e) {
+                    StringStream str;
+                    str << "Could export map file '" << m_targetPath.asString() << "': " << e.what() << "\n";
+                    m_context.appendOutput(str.str());
+                }
+            }
+            
+            void doTerminate() {}
+        private:
+            ExportMapRunner(const CopyFilesRunner& other);
+            ExportMapRunner& operator=(const CopyFilesRunner& other);
+        };
 
         class CompilationRunner::CopyFilesRunner : public TaskRunner {
         private:
             IO::Path m_sourcePath;
             IO::Path m_targetPath;
         public:
-            CopyFilesRunner(Model::CompilationContext& context, const Model::CompilationCopyFiles* task) :
+            CopyFilesRunner(CompilationContext& context, const Model::CompilationCopyFiles* task) :
             TaskRunner(context),
             m_sourcePath(m_context.translateVariables(task->sourceSpec())),
             m_targetPath(m_context.translateVariables(task->targetSpec())) {}
@@ -116,7 +158,7 @@ namespace TrenchBroom {
             wxCriticalSection m_processSection;
             wxTimer* m_processTimer;
         public:
-            RunToolRunner(Model::CompilationContext& context, const Model::CompilationRunTool* task) :
+            RunToolRunner(CompilationContext& context, const Model::CompilationRunTool* task) :
             TaskRunner(context),
             m_toolPath(m_context.translateVariables(task->toolSpec())),
             m_parameters(m_context.translateVariables(task->parameterSpec())),
@@ -204,7 +246,7 @@ namespace TrenchBroom {
             RunToolRunner& operator=(const RunToolRunner& other);
         };
     
-        CompilationRunner::CompilationRunner(Model::CompilationContext& context, const Model::CompilationProfile& profile) :
+        CompilationRunner::CompilationRunner(CompilationContext& context, const Model::CompilationProfile& profile) :
         m_runnerChain(createRunnerChain(context, profile)) {}
         
         CompilationRunner::~CompilationRunner() {
@@ -216,10 +258,10 @@ namespace TrenchBroom {
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:
-            Model::CompilationContext& m_context;
+            CompilationContext& m_context;
             TaskRunner* m_runnerChain;
         public:
-            CreateTaskRunnerVisitor(Model::CompilationContext& context) :
+            CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context),
             m_runnerChain(NULL) {}
             
@@ -227,6 +269,10 @@ namespace TrenchBroom {
                 return m_runnerChain;
             }
             
+            void visit(const Model::CompilationExportMap* task) {
+                appendRunner(new ExportMapRunner(m_context, task));
+            }
+
             void visit(const Model::CompilationCopyFiles* task) {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
@@ -244,7 +290,7 @@ namespace TrenchBroom {
             }
         };
 
-        CompilationRunner::TaskRunner* CompilationRunner::createRunnerChain(Model::CompilationContext& context, const Model::CompilationProfile& profile) {
+        CompilationRunner::TaskRunner* CompilationRunner::createRunnerChain(CompilationContext& context, const Model::CompilationProfile& profile) {
             CreateTaskRunnerVisitor visitor(context);
             profile.accept(visitor);
             return visitor.runnerChain();

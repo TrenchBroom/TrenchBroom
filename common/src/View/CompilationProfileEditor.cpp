@@ -129,16 +129,20 @@ namespace TrenchBroom {
 
         void CompilationProfileEditor::OnAddTask(wxCommandEvent& event) {
             wxMenu menu;
-            menu.Append(1, "Copy Files");
-            menu.Append(2, "Run Tool");
+            menu.Append(1, "Export Map");
+            menu.Append(2, "Copy Files");
+            menu.Append(3, "Run Tool");
             const int result = GetPopupMenuSelectionFromUser(menu);
             
             Model::CompilationTask* task = NULL;
             switch (result) {
                 case 1:
-                    task = new Model::CompilationCopyFiles("", "");
+                    task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_FULL_NAME}");
                     break;
                 case 2:
+                    task = new Model::CompilationCopyFiles("", "");
+                    break;
+                case 3:
                     task = new Model::CompilationRunTool("", "");
                     break;
                 default:
@@ -151,16 +155,28 @@ namespace TrenchBroom {
                 m_profile->addTask(task);
                 m_taskList->SetSelection(static_cast<int>(m_profile->taskCount()) - 1);
             } else {
-                m_profile->insertTask(static_cast<size_t>(index), task);
-                m_taskList->SetSelection(index);
+                m_profile->insertTask(static_cast<size_t>(index + 1), task);
+                m_taskList->SetSelection(index + 1);
             }
         }
         
         void CompilationProfileEditor::OnRemoveTask(wxCommandEvent& event) {
             const int index = m_taskList->GetSelection();
             assert(index != wxNOT_FOUND);
-            m_profile->removeTask(static_cast<size_t>(index));
+            
+            if (m_profile->taskCount() == 1) {
+                m_taskList->SetSelection(wxNOT_FOUND);
+                m_profile->removeTask(static_cast<size_t>(index));
+            } else if (index > 0) {
+                m_taskList->SetSelection(index - 1);
+                m_profile->removeTask(static_cast<size_t>(index));
+            } else {
+                m_taskList->SetSelection(1);
+                m_profile->removeTask(static_cast<size_t>(index));
+                m_taskList->SetSelection(0);
+            }
         }
+
         
         void CompilationProfileEditor::OnMoveTaskUp(wxCommandEvent& event) {
             const int index = m_taskList->GetSelection();
@@ -194,19 +210,19 @@ namespace TrenchBroom {
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
             if (m_profile != NULL) {
-                m_profile->profileWillBeDeleted.removeObserver(this, &CompilationProfileEditor::profileWillBeDeleted);
+                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
             }
             m_profile = profile;
             m_taskList->setProfile(profile);
             if (m_profile != NULL) {
-                m_profile->profileWillBeDeleted.addObserver(this, &CompilationProfileEditor::profileWillBeDeleted);
+                m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
             }
             refresh();
         }
 
-        void CompilationProfileEditor::profileWillBeDeleted() {
+        void CompilationProfileEditor::profileWillBeRemoved() {
             setProfile(NULL);
         }
 

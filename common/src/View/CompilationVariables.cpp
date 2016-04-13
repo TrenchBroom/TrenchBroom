@@ -28,7 +28,6 @@ namespace TrenchBroom {
             return variables;
         }
         
-        
         VariableTable createCompilationWorkDirVariableTable() {
             VariableTable result;
             result.declare("MAP_DIR_PATH");

@@ -63,6 +63,13 @@ namespace TrenchBroom {
         public:
             WriteCompilationTaskVisitor(ConfigList* result) : m_result(result) {}
         public:
+            void visit(const Model::CompilationExportMap* task) {
+                ConfigTable* table = new ConfigTable();
+                table->addEntry("type", new ConfigValue("export"));
+                table->addEntry("target", new ConfigValue(task->targetSpec()));
+                m_result->addEntry(table);
+            }
+            
             void visit(const Model::CompilationCopyFiles* task) {
                 ConfigTable* table = new ConfigTable();
                 table->addEntry("type", new ConfigValue("copy"));

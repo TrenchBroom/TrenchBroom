@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class CompilationTaskList : public ControlListBox {
         private:
             template <typename T> class TaskEditor;
+            class ExportMapTaskEditor;
             class CopyFilesTaskEditor;
             class RunToolTaskEditor;
         private:

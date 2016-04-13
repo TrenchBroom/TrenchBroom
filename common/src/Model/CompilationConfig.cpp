@@ -72,6 +72,7 @@ namespace TrenchBroom {
         
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
+            m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
             VectorUtils::erase(m_profiles, index);
             profilesDidChange();

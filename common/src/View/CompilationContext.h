@@ -22,12 +22,18 @@
 
 #include "Logger.h"
 #include "StringUtils.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
         class CompilationContext {
+        private:
+            MapDocumentSPtr m_document;
         public:
+            MapDocumentSPtr document() const;
+            
             String translateVariables(const String& input) const;
+            void redefineVariable(const String& variableName, const String& value);
             
             void appendOutput(const String& text);
         };

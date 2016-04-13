@@ -24,24 +24,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationContext;
         class CompilationProfile;
     }
     
     namespace View {
+        class CompilationContext;
+
         class CompilationRunner {
         private:
             class TaskRunner;
+            class ExportMapRunner;
             class CopyFilesRunner;
             class RunToolRunner;
             
             TaskRunner* m_runnerChain;
         public:
-            CompilationRunner(Model::CompilationContext& context, const Model::CompilationProfile& profile);
+            CompilationRunner(CompilationContext& context, const Model::CompilationProfile& profile);
             ~CompilationRunner();
         private:
             class CreateTaskRunnerVisitor;
-            static TaskRunner* createRunnerChain(Model::CompilationContext& context, const Model::CompilationProfile& profile);
+            static TaskRunner* createRunnerChain(CompilationContext& context, const Model::CompilationProfile& profile);
         public:
             void execute();
             void terminate();

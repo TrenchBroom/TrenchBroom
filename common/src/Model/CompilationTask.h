@@ -41,7 +41,7 @@ namespace TrenchBroom {
         public:
             typedef std::vector<CompilationTask*> List;
             
-            Notifier0 taskWillBeDeleted;
+            Notifier0 taskWillBeRemoved;
             Notifier0 taskDidChange;
         protected:
             CompilationTask();
@@ -59,6 +59,27 @@ namespace TrenchBroom {
         private:
             CompilationTask(const CompilationTask& other);
             CompilationTask& operator=(const CompilationTask& other);
+        };
+        
+        class CompilationExportMap : public CompilationTask {
+        private:
+            String m_targetSpec;
+        public:
+            CompilationExportMap(const String& targetSpec);
+            
+            void accept(CompilationTaskVisitor& visitor);
+            void accept(ConstCompilationTaskVisitor& visitor) const;
+            void accept(const CompilationTaskConstVisitor& visitor);
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+            
+            const String& targetSpec() const;
+            
+            void setTargetSpec(const String& targetSpec);
+        private:
+            CompilationTask* doClone() const;
+        private:
+            CompilationExportMap(const CompilationExportMap& other);
+            CompilationExportMap& operator=(const CompilationExportMap& other);
         };
         
         class CompilationCopyFiles : public CompilationTask {
@@ -113,6 +134,7 @@ namespace TrenchBroom {
         public:
             virtual ~CompilationTaskVisitor();
             
+            virtual void visit(CompilationExportMap* task) = 0;
             virtual void visit(CompilationCopyFiles* task) = 0;
             virtual void visit(CompilationRunTool* task) = 0;
         };
@@ -121,6 +143,7 @@ namespace TrenchBroom {
         public:
             virtual ~ConstCompilationTaskVisitor();
             
+            virtual void visit(const CompilationExportMap* task) = 0;
             virtual void visit(const CompilationCopyFiles* task) = 0;
             virtual void visit(const CompilationRunTool* task) = 0;
         };
@@ -129,6 +152,7 @@ namespace TrenchBroom {
         public:
             virtual ~CompilationTaskConstVisitor();
             
+            virtual void visit(CompilationExportMap* task) const = 0;
             virtual void visit(CompilationCopyFiles* task) const = 0;
             virtual void visit(CompilationRunTool* task) const = 0;
         };
@@ -137,6 +161,7 @@ namespace TrenchBroom {
         public:
             virtual ~ConstCompilationTaskConstVisitor();
             
+            virtual void visit(const CompilationExportMap* task) const = 0;
             virtual void visit(const CompilationCopyFiles* task) const = 0;
             virtual void visit(const CompilationRunTool* task) const = 0;
         };

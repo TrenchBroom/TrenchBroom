@@ -40,7 +40,6 @@ namespace TrenchBroom {
         }
 
         CompilationProfile::~CompilationProfile() {
-            profileWillBeDeleted();
             VectorUtils::clearAndDelete(m_tasks);
         }
 
@@ -107,6 +106,7 @@ namespace TrenchBroom {
 
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
+            m_tasks[index]->taskWillBeRemoved();
             delete m_tasks[index];
             VectorUtils::erase(m_tasks, index);
             profileDidChange();

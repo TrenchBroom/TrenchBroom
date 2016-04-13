@@ -34,8 +34,8 @@ namespace TrenchBroom {
         class CompilationProfileManager : public wxPanel {
         private:
             Model::CompilationConfig& m_config;
-            CompilationProfileListBox* m_listView;
-            CompilationProfileEditor* m_editor;
+            CompilationProfileListBox* m_profileList;
+            CompilationProfileEditor* m_profileEditor;
         public:
             CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config);
         private:

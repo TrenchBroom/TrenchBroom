@@ -62,13 +62,13 @@ namespace TrenchBroom {
                 SetSizer(panelSizer);
                 
                 refresh();
-                m_task->taskWillBeDeleted.addObserver(this, &TaskEditor::taskWillBeDeleted);
+                m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
                 m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
             }
         public:
             virtual ~TaskEditor() {
                 if (m_task != NULL) {
-                    m_task->taskWillBeDeleted.removeObserver(this, &TaskEditor::taskWillBeDeleted);
+                    m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
                     m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
                 }
             }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 textEntry->AutoComplete(nameArray);
             }
         private:
-            void taskWillBeDeleted() {
+            void taskWillBeRemoved() {
                 m_task = NULL;
             }
             
@@ -108,6 +108,44 @@ namespace TrenchBroom {
             
             virtual wxWindow* createGui(wxWindow* parent) = 0;
             virtual void refresh() = 0;
+        };
+        
+        class CompilationTaskList::ExportMapTaskEditor : public TaskEditor<Model::CompilationExportMap> {
+        private:
+            wxTextCtrl* m_targetEditor;
+        public:
+            ExportMapTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationExportMap* task) :
+            TaskEditor(parent, margins, "Export Map", task),
+            m_targetEditor(NULL) {}
+        private:
+            wxWindow* createGui(wxWindow* parent) {
+                wxPanel* container = new wxPanel(parent);
+                
+                wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
+                m_targetEditor = new wxTextCtrl(container, wxID_ANY);
+                m_targetEditor->Bind(wxEVT_TEXT, &ExportMapTaskEditor::OnTargetSpecChanged, this);
+                enableAutoComplete(m_targetEditor);
+                
+                const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
+                const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
+                const int LabelMargin  = LayoutConstants::NarrowHMargin;
+                
+                wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin);
+                sizer->Add(targetLabel,     wxGBPosition(0, 0), wxDefaultSpan, LabelFlags, LabelMargin);
+                sizer->Add(m_targetEditor,  wxGBPosition(0, 1), wxDefaultSpan, EditorFlags);
+                
+                sizer->AddGrowableCol(1);
+                container->SetSizer(sizer);
+                return container;
+            }
+            
+            void OnTargetSpecChanged(wxCommandEvent& event) {
+                m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
+            }
+            
+            void refresh() {
+                m_targetEditor->ChangeValue(m_task->targetSpec());
+            }
         };
         
         class CompilationTaskList::CopyFilesTaskEditor : public TaskEditor<Model::CompilationCopyFiles> {
@@ -258,6 +296,12 @@ namespace TrenchBroom {
             
             Item* result() const {
                 return m_result;
+            }
+            
+            void visit(Model::CompilationExportMap* task) {
+                TaskEditor<Model::CompilationExportMap>* editor = new ExportMapTaskEditor(m_parent, m_margins, task);
+                editor->initialize();
+                m_result = editor;
             }
             
             void visit(Model::CompilationCopyFiles* task) {

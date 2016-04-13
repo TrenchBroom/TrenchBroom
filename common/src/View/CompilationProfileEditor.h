@@ -58,7 +58,7 @@ namespace TrenchBroom {
         public:
             void setProfile(Model::CompilationProfile* profile);
         private:
-            void profileWillBeDeleted();
+            void profileWillBeRemoved();
             void profileDidChange();
             void refresh();
         };

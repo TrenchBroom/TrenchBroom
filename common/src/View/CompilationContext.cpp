@@ -20,9 +20,16 @@
 #include "CompilationContext.h"
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
+        MapDocumentSPtr CompilationContext::document() const {
+            return m_document;
+        }
+
         String CompilationContext::translateVariables(const String& input) const {
             return "";
+        }
+
+        void CompilationContext::redefineVariable(const String& variableName, const String& value) {
         }
 
         void CompilationContext::appendOutput(const String& text) {

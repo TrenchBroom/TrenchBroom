@@ -39,7 +39,8 @@ namespace TrenchBroom {
         m_mapFrame(mapFrame),
         m_output(NULL) {
             createGui();
-            SetSize(800, 600);
+            SetMinSize(wxSize(600, 300));
+            SetSize(wxSize(800, 600));
             CentreOnParent();
         }
         

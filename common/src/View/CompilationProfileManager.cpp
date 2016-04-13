@@ -35,8 +35,8 @@ namespace TrenchBroom {
         CompilationProfileManager::CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config) :
         wxPanel(parent),
         m_config(config),
-        m_listView(NULL),
-        m_editor() {
+        m_profileList(NULL),
+        m_profileEditor() {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             TitledPanel* listPanel = new TitledPanel(this, "Profiles");
@@ -44,8 +44,8 @@ namespace TrenchBroom {
             listPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
             editorPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
             
-            m_listView = new CompilationProfileListBox(listPanel->getPanel(), m_config);
-            m_editor = new CompilationProfileEditor(editorPanel->getPanel());
+            m_profileList = new CompilationProfileListBox(listPanel->getPanel(), m_config);
+            m_profileEditor = new CompilationProfileEditor(editorPanel->getPanel());
             
             wxWindow* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
             wxWindow* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");
@@ -61,13 +61,13 @@ namespace TrenchBroom {
             buttonSizer->AddStretchSpacer();
 
             wxSizer* listSizer = new wxBoxSizer(wxVERTICAL);
-            listSizer->Add(m_listView, 1, wxEXPAND);
+            listSizer->Add(m_profileList, 1, wxEXPAND);
             listSizer->Add(new BorderLine(listPanel->getPanel(), BorderLine::Direction_Horizontal), 0, wxEXPAND);
             listSizer->Add(buttonSizer);
             listPanel->getPanel()->SetSizer(listSizer);
             
             wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
-            editorSizer->Add(m_editor, 1, wxEXPAND);
+            editorSizer->Add(m_profileEditor, 1, wxEXPAND);
             editorPanel->getPanel()->SetSizer(editorSizer);
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -77,18 +77,29 @@ namespace TrenchBroom {
             outerSizer->SetItemMinSize(listPanel, wxSize(200, 200));
             SetSizer(outerSizer);
             
-            m_listView->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
+            m_profileList->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
         }
 
         void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
-            m_config.addProfile(new Model::CompilationProfile("unnamed", ""));
-            m_listView->SetSelection(static_cast<int>(m_config.profileCount() - 1));
+            m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}/compile"));
+            m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
         
         void CompilationProfileManager::OnRemoveProfile(wxCommandEvent& event) {
-            const int index = m_listView->GetSelection();
+            const int index = m_profileList->GetSelection();
             assert(index != wxNOT_FOUND);
-            m_config.removeProfile(static_cast<size_t>(index));
+
+            if (m_config.profileCount() == 1) {
+                m_profileList->SetSelection(wxNOT_FOUND);
+                m_config.removeProfile(static_cast<size_t>(index));
+            } else if (index > 0) {
+                m_profileList->SetSelection(index - 1);
+                m_config.removeProfile(static_cast<size_t>(index));
+            } else {
+                m_profileList->SetSelection(1);
+                m_config.removeProfile(static_cast<size_t>(index));
+                m_profileList->SetSelection(0);
+            }
         }
         
         void CompilationProfileManager::OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event) {
@@ -96,16 +107,16 @@ namespace TrenchBroom {
         }
         
         void CompilationProfileManager::OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_listView->GetSelection() != wxNOT_FOUND);
+            event.Enable(m_profileList->GetSelection() != wxNOT_FOUND);
         }
 
         void CompilationProfileManager::OnProfileSelectionChanged(wxCommandEvent& event) {
-            const int selection = m_listView->GetSelection();
+            const int selection = m_profileList->GetSelection();
             if (selection != wxNOT_FOUND) {
                 Model::CompilationProfile* profile = m_config.profile(static_cast<size_t>(selection));
-                m_editor->setProfile(profile);
+                m_profileEditor->setProfile(profile);
             } else {
-                m_editor->setProfile(NULL);
+                m_profileEditor->setProfile(NULL);
             }
         }
     }

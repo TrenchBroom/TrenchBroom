@@ -981,7 +981,7 @@ namespace TrenchBroom {
             
             CompilationDialog* dialog = new CompilationDialog(this);
             dialog->Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, &MapFrame::OnCompilationDialogClosed, this);
-            dialog->ShowWindowModal();
+            dialog->Show();
         }
 
         void MapFrame::OnCompilationDialogClosed(wxWindowModalDialogEvent& event) {

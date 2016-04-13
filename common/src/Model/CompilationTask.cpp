@@ -23,12 +23,42 @@ namespace TrenchBroom {
     namespace Model {
         CompilationTask::CompilationTask() {}
     
-        CompilationTask::~CompilationTask() {
-            taskWillBeDeleted();
-        }
+        CompilationTask::~CompilationTask() {}
 
         CompilationTask* CompilationTask::clone() const {
             return doClone();
+        }
+
+        CompilationExportMap::CompilationExportMap(const String& targetSpec) :
+        m_targetSpec(targetSpec) {}
+        
+        void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
+            visitor.visit(this);
+        }
+        
+        void CompilationExportMap::accept(ConstCompilationTaskVisitor& visitor) const {
+            visitor.visit(this);
+        }
+        
+        void CompilationExportMap::accept(const CompilationTaskConstVisitor& visitor) {
+            visitor.visit(this);
+        }
+        
+        void CompilationExportMap::accept(const ConstCompilationTaskConstVisitor& visitor) const {
+            visitor.visit(this);
+        }
+        
+        const String& CompilationExportMap::targetSpec() const {
+            return m_targetSpec;
+        }
+        
+        void CompilationExportMap::setTargetSpec(const String& targetSpec) {
+            m_targetSpec = targetSpec;
+            taskDidChange();
+        }
+    
+        CompilationTask* CompilationExportMap::doClone() const {
+            return new CompilationExportMap(m_targetSpec);
         }
 
         CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :

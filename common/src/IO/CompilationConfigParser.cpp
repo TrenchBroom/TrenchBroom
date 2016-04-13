@@ -101,12 +101,25 @@ namespace TrenchBroom {
             expectTableEntry("type", ConfigEntry::Type_Value, table);
             const String type = table["type"];
             
-            if (type == "copy")
+            if (type == "export")
+                return parseExportTask(table);
+            else if (type == "copy")
                 return parseCopyTask(table);
             else if (type == "tool")
                 return parseToolTask(table);
             else
                 throw ParserException("Unknown compilation task type '" + type + "'");
+        }
+        
+        Model::CompilationTask* CompilationConfigParser::parseExportTask(const ConfigTable& table) const {
+            expectTableEntries(table,
+                               StringUtils::makeSet(2, "type", "target"),
+                               StringSet());
+            
+            expectTableEntry("target", ConfigEntry::Type_Value, table);
+            const String target = table["target"];
+            
+            return new Model::CompilationExportMap(target);
         }
 
         Model::CompilationTask* CompilationConfigParser::parseCopyTask(const ConfigTable& table) const {
