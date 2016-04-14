@@ -77,25 +77,26 @@ namespace TrenchBroom {
         
         class CompilationRunner::ExportMapRunner : public TaskRunner {
         private:
-            IO::Path m_targetPath;
+            String m_targetSpec;
         public:
             ExportMapRunner(CompilationContext& context, const Model::CompilationExportMap* task) :
             TaskRunner(context),
-            m_targetPath(m_context.translateVariables(task->targetSpec())) {}
+            m_targetSpec(task->targetSpec()) {}
         private:
             void doExecute() {
+                const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
                 try {
                     StringStream str;
-                    str << "Exporting map file '" << m_targetPath.asString() << "'\n";
+                    str << "Exporting map file '" << targetPath.asString() << "'\n";
                     m_context.appendOutput(str.str());
 
-                    const IO::Path directoryPath = m_targetPath.deleteLastComponent();
+                    const IO::Path directoryPath = targetPath.deleteLastComponent();
                     IO::Disk::createDirectory(directoryPath);
                     
                     const MapDocumentSPtr document = m_context.document();
-                    document->saveDocumentTo(m_targetPath);
+                    document->saveDocumentTo(targetPath);
                     
-                    const IO::Path filename = m_targetPath.lastComponent();
+                    const IO::Path filename = targetPath.lastComponent();
                     const IO::Path basename = filename.deleteExtension();
                     
                     m_context.redefineVariable("MAP_DIR_PATH", directoryPath.asString());
@@ -105,7 +106,7 @@ namespace TrenchBroom {
                     executeNext();
                 } catch (const Exception& e) {
                     StringStream str;
-                    str << "Could export map file '" << m_targetPath.asString() << "': " << e.what() << "\n";
+                    str << "Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
                     m_context.appendOutput(str.str());
                 }
             }
@@ -118,28 +119,31 @@ namespace TrenchBroom {
 
         class CompilationRunner::CopyFilesRunner : public TaskRunner {
         private:
-            IO::Path m_sourcePath;
-            IO::Path m_targetPath;
+            String m_sourceSpec;
+            String m_targetSpec;
         public:
             CopyFilesRunner(CompilationContext& context, const Model::CompilationCopyFiles* task) :
             TaskRunner(context),
-            m_sourcePath(m_context.translateVariables(task->sourceSpec())),
-            m_targetPath(m_context.translateVariables(task->targetSpec())) {}
+            m_sourceSpec(task->sourceSpec()),
+            m_targetSpec(task->targetSpec()) {}
         private:
             void doExecute() {
-                const IO::Path sourceDirPath = m_sourcePath.deleteLastComponent();
-                const String sourcePattern = m_sourcePath.lastComponent().asString();
+                const IO::Path sourcePath(m_context.translateVariables(m_sourceSpec));
+                const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
+                
+                const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
+                const String sourcePattern = sourcePath.lastComponent().asString();
                 
                 try {
                     StringStream str;
-                    str << "Copying '" << m_sourcePath.asString() << "' to '" << m_targetPath.asString() << "'\n";
+                    str << "Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
                     m_context.appendOutput(str.str());
                     
-                    IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), m_targetPath, true);
+                    IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
                     executeNext();
                 } catch (const Exception& e) {
                     StringStream str;
-                    str << "Could not copy '" << m_sourcePath.asString() << "' to '" << m_targetPath.asString() << "': " << e.what() << "\n";
+                    str << "Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
                     m_context.appendOutput(str.str());
                 }
             }
@@ -152,16 +156,16 @@ namespace TrenchBroom {
 
         class CompilationRunner::RunToolRunner : public wxEvtHandler, public TaskRunner {
         private:
-            IO::Path m_toolPath;
-            String m_parameters;
+            String m_toolSpec;
+            String m_parameterSpec;
             wxProcess* m_process;
             wxCriticalSection m_processSection;
             wxTimer* m_processTimer;
         public:
             RunToolRunner(CompilationContext& context, const Model::CompilationRunTool* task) :
             TaskRunner(context),
-            m_toolPath(m_context.translateVariables(task->toolSpec())),
-            m_parameters(m_context.translateVariables(task->parameterSpec())),
+            m_toolSpec(task->toolSpec()),
+            m_parameterSpec(task->parameterSpec()),
             m_process(NULL),
             m_processTimer(NULL) {}
             
@@ -172,7 +176,10 @@ namespace TrenchBroom {
             void doExecute() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 
-                const String cmd = m_toolPath.asString() + " " + m_parameters;
+                const IO::Path toolPath(m_context.translateVariables(m_toolSpec));
+                const String parameters(m_context.translateVariables(m_parameterSpec));
+                const String cmd = toolPath.asString() + " " + parameters;
+                
                 createProcess();
                 startProcess(cmd);
             }
