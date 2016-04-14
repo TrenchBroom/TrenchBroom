@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Model {
         class CompilationConfig;
+        class CompilationProfile;
     }
     
     namespace View {
@@ -38,6 +39,8 @@ namespace TrenchBroom {
             CompilationProfileEditor* m_profileEditor;
         public:
             CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config);
+            
+            const Model::CompilationProfile* selectedProfile() const;
         private:
             void OnAddProfile(wxCommandEvent& event);
             void OnRemoveProfile(wxCommandEvent& event);

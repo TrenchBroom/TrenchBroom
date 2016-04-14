@@ -27,6 +27,7 @@ class wxTextCtrl;
 namespace TrenchBroom {
     namespace View {
         class CompilationProfileManager;
+        class CompilationRunner;
         class MapFrame;
         
         class CompilationDialog : public wxDialog {
@@ -34,10 +35,15 @@ namespace TrenchBroom {
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
             wxTextCtrl* m_output;
+            CompilationRunner* m_runner;
         public:
             CompilationDialog(MapFrame* mapFrame);
         private:
             void createGui();
+            
+            void OnCompileClicked(wxCommandEvent& event);
+            void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
         };
     }
 }

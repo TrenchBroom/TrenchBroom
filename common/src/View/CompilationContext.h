@@ -22,14 +22,27 @@
 
 #include "Logger.h"
 #include "StringUtils.h"
+#include "VariableHelper.h"
 #include "View/ViewTypes.h"
+
+#include <wx/string.h>
+#include <wx/thread.h>
 
 namespace TrenchBroom {
     namespace View {
         class CompilationContext {
         private:
             MapDocumentSPtr m_document;
+            VariableTable m_variables;
+            VariableValueTable m_variableValues;
+            
+            wxCriticalSection m_outputSection;
+            wxString m_output;
         public:
+            CompilationContext(MapDocumentSPtr document, const VariableTable& variables, const VariableValueTable& variableValues);
+            CompilationContext(const CompilationContext& other);
+            CompilationContext& operator=(const CompilationContext& other);
+            
             MapDocumentSPtr document() const;
             
             String translateVariables(const String& input) const;

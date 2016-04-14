@@ -21,7 +21,9 @@
 
 #include "Model/Game.h"
 #include "View/BorderLine.h"
+#include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
+#include "View/CompilationRunner.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/SplitterWindow2.h"
@@ -37,7 +39,8 @@ namespace TrenchBroom {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
         wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
         m_mapFrame(mapFrame),
-        m_output(NULL) {
+        m_output(NULL),
+        m_runner(NULL) {
             createGui();
             SetMinSize(wxSize(600, 300));
             SetSize(wxSize(800, 600));
@@ -70,6 +73,10 @@ namespace TrenchBroom {
             wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
             
+            compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCompileClicked, this);
+            compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
+            closeButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCloseButtonUI, this);
+            
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
             buttonSizer->SetAffirmativeButton(compileButton);
             buttonSizer->AddButton(closeButton);
@@ -79,6 +86,29 @@ namespace TrenchBroom {
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
+        }
+
+        void CompilationDialog::OnCompileClicked(wxCommandEvent& event) {
+            assert(m_runner == NULL);
+            const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
+            assert(profile != NULL);
+            
+            m_runner = new CompilationRunner(CompilationContext(), profile);
+            m_runner->execute();
+        }
+
+        void CompilationDialog::OnUpdateCompileButtonUI(wxUpdateUIEvent& event) {
+            if (m_runner != NULL) {
+                event.SetText("Stop");
+                event.Enable(true);
+            } else {
+                event.SetText("Run");
+                event.Enable(m_profileManager->selectedProfile());
+            }
+        }
+
+        void CompilationDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_runner == NULL);
         }
     }
 }

@@ -253,8 +253,9 @@ namespace TrenchBroom {
             RunToolRunner& operator=(const RunToolRunner& other);
         };
     
-        CompilationRunner::CompilationRunner(CompilationContext& context, const Model::CompilationProfile& profile) :
-        m_runnerChain(createRunnerChain(context, profile)) {}
+        CompilationRunner::CompilationRunner(const CompilationContext& context, const Model::CompilationProfile* profile) :
+        m_context(context),
+        m_runnerChain(createRunnerChain(m_context, profile)) {}
         
         CompilationRunner::~CompilationRunner() {
             if (m_runnerChain != NULL) {
@@ -297,9 +298,9 @@ namespace TrenchBroom {
             }
         };
 
-        CompilationRunner::TaskRunner* CompilationRunner::createRunnerChain(CompilationContext& context, const Model::CompilationProfile& profile) {
+        CompilationRunner::TaskRunner* CompilationRunner::createRunnerChain(CompilationContext& context, const Model::CompilationProfile* profile) {
             CreateTaskRunnerVisitor visitor(context);
-            profile.accept(visitor);
+            profile->accept(visitor);
             return visitor.runnerChain();
         }
 

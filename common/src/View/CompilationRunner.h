@@ -20,7 +20,7 @@
 #ifndef CompilationRunner_h
 #define CompilationRunner_h
 
-#include <stdio.h>
+#include "View/CompilationContext.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -28,8 +28,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CompilationContext;
-
         class CompilationRunner {
         private:
             class TaskRunner;
@@ -37,13 +35,14 @@ namespace TrenchBroom {
             class CopyFilesRunner;
             class RunToolRunner;
             
+            CompilationContext m_context;
             TaskRunner* m_runnerChain;
         public:
-            CompilationRunner(CompilationContext& context, const Model::CompilationProfile& profile);
+            CompilationRunner(const CompilationContext& context, const Model::CompilationProfile* profile);
             ~CompilationRunner();
         private:
             class CreateTaskRunnerVisitor;
-            static TaskRunner* createRunnerChain(CompilationContext& context, const Model::CompilationProfile& profile);
+            static TaskRunner* createRunnerChain(CompilationContext& context, const Model::CompilationProfile* profile);
         public:
             void execute();
             void terminate();

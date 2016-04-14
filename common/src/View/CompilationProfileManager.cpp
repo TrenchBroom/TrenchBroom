@@ -80,6 +80,13 @@ namespace TrenchBroom {
             m_profileList->Bind(wxEVT_LISTBOX, &CompilationProfileManager::OnProfileSelectionChanged, this);
         }
 
+        const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {
+            const int index = m_profileList->GetSelection();
+            if (index == wxNOT_FOUND)
+                return NULL;
+            return m_config.profile(static_cast<size_t>(index));
+        }
+
         void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
             m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}/compile"));
             m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));

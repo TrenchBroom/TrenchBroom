@@ -21,18 +21,38 @@
 
 namespace TrenchBroom {
     namespace View {
+        CompilationContext::CompilationContext(MapDocumentSPtr document, const VariableTable& variables, const VariableValueTable& variableValues) :
+        m_document(document),
+        m_variables(variables),
+        m_variableValues(variableValues) {}
+        
+        CompilationContext::CompilationContext(const CompilationContext& other) :
+        m_document(other.m_document),
+        m_variables(other.m_variables),
+        m_variableValues(other.m_variableValues) {}
+        
+        CompilationContext& CompilationContext::operator=(const CompilationContext& other) {
+            m_document = other.m_document;
+            m_variables = other.m_variables;
+            m_variableValues = other.m_variableValues;
+            return *this;
+        }
+
         MapDocumentSPtr CompilationContext::document() const {
             return m_document;
         }
 
         String CompilationContext::translateVariables(const String& input) const {
-            return "";
+            return m_variables.translate(input, m_variableValues);
         }
 
         void CompilationContext::redefineVariable(const String& variableName, const String& value) {
+            m_variableValues.define(variableName, value);
         }
 
         void CompilationContext::appendOutput(const String& text) {
+            wxCriticalSectionLocker lock(m_outputSection);
+            m_output << text;
         }
     }
 }
