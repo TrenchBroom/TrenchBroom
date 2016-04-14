@@ -60,6 +60,8 @@ namespace TrenchBroom {
         
         void define(const String& variableName, const String& variableValue);
         void undefine(const String& variableName);
+        
+        const String translate(const String& string) const;
     private:
         virtual String doGetValue(const String& variableName) const;
     };

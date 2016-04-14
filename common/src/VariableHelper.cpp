@@ -79,6 +79,10 @@ namespace TrenchBroom {
         m_variableValues.erase(variableName);
     }
 
+    const String VariableValueTable::translate(const String& string) const {
+        return m_variableTable.translate(string, *this);
+    }
+
     String VariableValueTable::doGetValue(const String& variableName) const {
         StringMap::const_iterator it = m_variableValues.find(variableName);
         if (it == m_variableValues.end())

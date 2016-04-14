@@ -35,10 +35,10 @@ namespace TrenchBroom {
             class CopyFilesRunner;
             class RunToolRunner;
             
-            CompilationContext m_context;
+            CompilationContext* m_context;
             TaskRunner* m_runnerChain;
         public:
-            CompilationRunner(const CompilationContext& context, const Model::CompilationProfile* profile);
+            CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile);
             ~CompilationRunner();
         private:
             class CreateTaskRunnerVisitor;
@@ -46,6 +46,7 @@ namespace TrenchBroom {
         public:
             void execute();
             void terminate();
+            wxString pollOutput();
         private:
             CompilationRunner(const CompilationRunner& other);
             CompilationRunner& operator=(const CompilationRunner& other);

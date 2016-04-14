@@ -20,10 +20,23 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
+#include "StringUtils.h"
 #include "VariableHelper.h"
 
 namespace TrenchBroom {
     namespace View {
+        namespace CompilationVariableNames {
+            extern const String WORK_DIR_PATH;
+            extern const String MAP_DIR_PATH;
+            extern const String MAP_BASE_NAME;
+            extern const String MAP_FULL_NAME;
+            extern const String CPU_COUNT;
+            extern const String GAME_DIR_PATH;
+            extern const String MOD_DIR_PATH;
+            extern const String MOD_NAME;
+            extern const String APP_DIR_PATH;
+        };
+        
         const VariableTable& compilationWorkDirVariables();
         const VariableTable& compilationVariables();
     }

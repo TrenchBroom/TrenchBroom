@@ -21,6 +21,18 @@
 
 namespace TrenchBroom {
     namespace View {
+        namespace CompilationVariableNames {
+            const String WORK_DIR_PATH  = "WORK_DIR_PATH";
+            const String MAP_DIR_PATH   = "MAP_DIR_PATH";
+            const String MAP_BASE_NAME  = "MAP_BASE_NAME";
+            const String MAP_FULL_NAME  = "MAP_FULL_NAME";
+            const String CPU_COUNT      = "CPU_COUNT";
+            const String GAME_DIR_PATH  = "GAME_DIR_PATH";
+            const String MOD_DIR_PATH   = "MOD_DIR_PATH";
+            const String MOD_NAME       = "MOD_NAME";
+            const String APP_DIR_PATH   = "APP_DIR_PATH";
+        }
+
         VariableTable createCompilationWorkDirVariableTable();
         
         const VariableTable& compilationWorkDirVariables() {
@@ -29,14 +41,17 @@ namespace TrenchBroom {
         }
         
         VariableTable createCompilationWorkDirVariableTable() {
+            using namespace CompilationVariableNames;
+            
             VariableTable result;
-            result.declare("MAP_DIR_PATH");
-            result.declare("MAP_BASE_NAME");
-            result.declare("MAP_FULL_NAME");
-            result.declare("GAME_DIR_PATH");
-            result.declare("MOD_DIR_PATH");
-            result.declare("MOD_NAME");
-            result.declare("APP_DIR_PATH");
+            result.declare(MAP_BASE_NAME);
+            result.declare(MAP_FULL_NAME);
+            result.declare(GAME_DIR_PATH);
+            result.declare(MOD_DIR_PATH);
+            result.declare(MOD_NAME);
+            result.declare(APP_DIR_PATH);
+
+            result.declare(MAP_DIR_PATH);
             return result;
         }
 
@@ -47,15 +62,18 @@ namespace TrenchBroom {
         }
 
         VariableTable createCompilationVariableTable() {
+            using namespace CompilationVariableNames;
+            
             VariableTable result;
-            result.declare("WORK_DIR_PATH");
-            result.declare("MAP_BASE_NAME");
-            result.declare("MAP_FULL_NAME");
-            result.declare("CPU_COUNT");
-            result.declare("GAME_DIR_PATH");
-            result.declare("MOD_DIR_PATH");
-            result.declare("MOD_NAME");
-            result.declare("APP_DIR_PATH");
+            result.declare(MAP_BASE_NAME);
+            result.declare(MAP_FULL_NAME);
+            result.declare(GAME_DIR_PATH);
+            result.declare(MOD_DIR_PATH);
+            result.declare(MOD_NAME);
+            result.declare(APP_DIR_PATH);
+            
+            result.declare(WORK_DIR_PATH);
+            result.declare(CPU_COUNT);
             return result;
         }
     }

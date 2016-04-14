@@ -40,15 +40,11 @@ namespace TrenchBroom {
             wxString m_output;
         public:
             CompilationContext(MapDocumentSPtr document, const VariableTable& variables, const VariableValueTable& variableValues);
-            CompilationContext(const CompilationContext& other);
-            CompilationContext& operator=(const CompilationContext& other);
             
             MapDocumentSPtr document() const;
             
             String translateVariables(const String& input) const;
             void redefineVariable(const String& variableName, const String& value);
-            
-            void appendOutput(const String& text);
         };
     }
 }
