@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 
                 wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->AddSpacer(margins.x);
-                hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
+                hSizer->Add(vSizer, 1, wxEXPAND | wxTOP | wxBOTTOM, margins.y);
                 hSizer->AddSpacer(margins.x);
 
                 SetSizer(hSizer);
