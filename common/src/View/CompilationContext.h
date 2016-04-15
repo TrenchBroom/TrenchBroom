@@ -32,19 +32,19 @@ namespace TrenchBroom {
     namespace View {
         class CompilationContext {
         private:
-            MapDocumentSPtr m_document;
+            MapDocumentWPtr m_document;
             VariableTable m_variables;
             VariableValueTable m_variableValues;
             
             wxCriticalSection m_outputSection;
             wxString m_output;
         public:
-            CompilationContext(MapDocumentSPtr document, const VariableTable& variables, const VariableValueTable& variableValues);
+            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues);
             
             MapDocumentSPtr document() const;
             
             String translateVariables(const String& input) const;
-            void redefineVariable(const String& variableName, const String& value);
+            String variableValue(const String& variableName) const;
         };
     }
 }

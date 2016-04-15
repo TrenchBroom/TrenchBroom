@@ -31,6 +31,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 
@@ -39,8 +40,7 @@ namespace TrenchBroom {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
         wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
         m_mapFrame(mapFrame),
-        m_output(NULL),
-        m_runner(NULL) {
+        m_output(NULL) {
             createGui();
             SetMinSize(wxSize(600, 300));
             SetSize(wxSize(800, 600));
@@ -59,6 +59,7 @@ namespace TrenchBroom {
 
             TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
             m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+            m_output->SetFont(wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT));
 
             splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
 
@@ -86,19 +87,24 @@ namespace TrenchBroom {
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
+            
+            Bind(wxEVT_IDLE, &CompilationDialog::OnIdle, this);
+        }
+
+        void CompilationDialog::OnIdle(wxIdleEvent& event) {
+            m_run.pollOutput();
         }
 
         void CompilationDialog::OnCompileClicked(wxCommandEvent& event) {
-            assert(m_runner == NULL);
+            assert(!m_run.running());
             const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
             assert(profile != NULL);
             
-            m_runner = new CompilationRunner(CompilationContext(), profile);
-            m_runner->execute();
+            m_run.run(profile, m_mapFrame->document(), m_output);
         }
 
         void CompilationDialog::OnUpdateCompileButtonUI(wxUpdateUIEvent& event) {
-            if (m_runner != NULL) {
+            if (m_run.running()) {
                 event.SetText("Stop");
                 event.Enable(true);
             } else {
@@ -108,7 +114,7 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_runner == NULL);
+            event.Enable(!m_run.running());
         }
     }
 }

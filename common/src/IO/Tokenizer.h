@@ -268,8 +268,11 @@ namespace TrenchBroom {
             }
             
             const char* readQuotedString() {
-                while (!eof() && curChar() != '"')
+                char lastChar = 0;
+                while (!eof() && (curChar() != '"' || lastChar == '\\')) {
+                    lastChar = curChar();
                     advance();
+                }
                 errorIfEof();
                 const char* end = curPos();
                 advance();

@@ -130,7 +130,7 @@ namespace TrenchBroom {
         ConfigEntry* ConfigFileParser::parseValue() {
             const Token token = m_tokenizer.nextToken();
             expect(ConfigFileToken::String, token);
-            ConfigEntry* value = new ConfigValue(token.data(), token.line(), token.column());
+            ConfigEntry* value = new ConfigValue(StringUtils::unescape(token.data(), "\""), token.line(), token.column());
             return value;
         }
         

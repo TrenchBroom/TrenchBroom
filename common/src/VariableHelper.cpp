@@ -23,6 +23,10 @@ namespace TrenchBroom {
     GetVariableValue::~GetVariableValue() {}
     
     String GetVariableValue::operator()(const String& variableName) const {
+        return value(variableName);
+    }
+
+    String GetVariableValue::value(const String& variableName) const {
         return doGetValue(variableName);
     }
 

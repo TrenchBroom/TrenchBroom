@@ -25,6 +25,7 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
+#include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
 #include <wx/event.h>
@@ -40,6 +41,8 @@ namespace TrenchBroom {
             CompilationContext& m_context;
         private:
             TaskRunner* m_next;
+            wxString m_output;
+            wxCriticalSection m_outputSection;
         public:
             TaskRunner(CompilationContext& context) :
             m_context(context),
@@ -62,10 +65,27 @@ namespace TrenchBroom {
                 if (m_next != NULL)
                     m_next->terminate();
             }
+
+            void getOutput(wxString& output) {
+                doGetOutput(output);
+                if (m_next != NULL)
+                    m_next->getOutput(output);
+            }
+        private:
+            void doGetOutput(wxString& output) {
+                wxCriticalSectionLocker lock(m_outputSection);
+                output << m_output;
+                m_output.Clear();
+            }
         protected:
             void executeNext() {
                 if (m_next != NULL)
                     m_next->execute();
+            }
+            
+            void appendOutput(const wxString& string) {
+                wxCriticalSectionLocker lock(m_outputSection);
+                m_output << string;
             }
         private:
             virtual void doExecute() = 0;
@@ -86,28 +106,22 @@ namespace TrenchBroom {
             void doExecute() {
                 const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
                 try {
-                    StringStream str;
+                    wxString str;
                     str << "Exporting map file '" << targetPath.asString() << "'\n";
-                    m_context.appendOutput(str.str());
+                    appendOutput(str);
 
                     const IO::Path directoryPath = targetPath.deleteLastComponent();
-                    IO::Disk::createDirectory(directoryPath);
+                    if (!IO::Disk::directoryExists(directoryPath))
+                        IO::Disk::createDirectory(directoryPath);
                     
                     const MapDocumentSPtr document = m_context.document();
                     document->saveDocumentTo(targetPath);
                     
-                    const IO::Path filename = targetPath.lastComponent();
-                    const IO::Path basename = filename.deleteExtension();
-                    
-                    m_context.redefineVariable("MAP_DIR_PATH", directoryPath.asString());
-                    m_context.redefineVariable("MAP_FULL_NAME", filename.asString());
-                    m_context.redefineVariable("MAP_BASE_NAME", basename.asString());
-                    
                     executeNext();
                 } catch (const Exception& e) {
-                    StringStream str;
+                    wxString str;
                     str << "Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
-                    m_context.appendOutput(str.str());
+                    appendOutput(str);
                 }
             }
             
@@ -135,16 +149,16 @@ namespace TrenchBroom {
                 const String sourcePattern = sourcePath.lastComponent().asString();
                 
                 try {
-                    StringStream str;
+                    wxString str;
                     str << "Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
-                    m_context.appendOutput(str.str());
+                    appendOutput(str);
                     
                     IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
                     executeNext();
                 } catch (const Exception& e) {
-                    StringStream str;
+                    wxString str;
                     str << "Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
-                    m_context.appendOutput(str.str());
+                    appendOutput(str);
                 }
             }
             
@@ -187,6 +201,7 @@ namespace TrenchBroom {
             void doTerminate() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
+                    readOutput();
                     wxProcess::Kill(static_cast<int>(m_process->GetPid()));
                     deleteProcess();
                 }
@@ -197,9 +212,11 @@ namespace TrenchBroom {
                 if (m_process != NULL) {
                     assert(m_process->GetPid() == event.GetPid());
                     
-                    StringStream str;
+                    readOutput();
+                    
+                    wxString str;
                     str << "Finished with exit status " << event.GetExitCode() << "\n";
-                    m_context.appendOutput(str.str());
+                    appendOutput(str);
                     
                     deleteProcess();
                     executeNext();
@@ -209,17 +226,22 @@ namespace TrenchBroom {
             void OnProcessTimer(wxTimerEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 
-                if (m_process != NULL) {
-                    if (m_process->IsInputAvailable())
-                        m_context.appendOutput(readStream(m_process->GetInputStream()));
-                }
+                if (m_process != NULL)
+                    readOutput();
             }
             
-            String readStream(wxInputStream* stream) {
+            void readOutput() {
+                if (m_process->IsInputAvailable())
+                    appendOutput(readStream(m_process->GetInputStream()));
+                if (m_process->IsErrorAvailable())
+                    appendOutput(readStream(m_process->GetErrorStream()));
+            }
+            
+            wxString readStream(wxInputStream* stream) {
                 assert(stream != NULL);
                 wxStringOutputStream out;
                 stream->Read(out);
-                return out.GetString().ToStdString();
+                return out.GetString();
             }
             
             void createProcess() {
@@ -227,6 +249,7 @@ namespace TrenchBroom {
                 m_process = new wxProcess(this);
                 m_processTimer = new wxTimer(this);
                 
+                m_process->Redirect();
                 m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnTerminateProcess, this);
                 m_processTimer->Bind(wxEVT_TIMER, &RunToolRunner::OnProcessTimer, this);
             }
@@ -234,9 +257,14 @@ namespace TrenchBroom {
             void startProcess(const String& cmd) {
                 assert(m_process != NULL);
                 assert(m_processTimer != NULL);
+
+                wxExecuteEnv* env = new wxExecuteEnv();
+                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
                 
-                m_context.appendOutput("Executing " + cmd + "\n");
-                wxExecute(cmd, wxEXEC_ASYNC, m_process);
+                wxString str;
+                str << "Executing " << cmd << "\n";
+                appendOutput(str);
+                wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
                 m_processTimer->Start(20);
             }
             
@@ -262,6 +290,8 @@ namespace TrenchBroom {
                 m_runnerChain->terminate();
                 delete m_runnerChain;
             }
+            if (m_context != NULL)
+                delete m_context;
         }
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
@@ -312,6 +342,13 @@ namespace TrenchBroom {
         void CompilationRunner::terminate() {
             if (m_runnerChain != NULL)
                 m_runnerChain->terminate();
+        }
+
+        wxString CompilationRunner::pollOutput() {
+            wxString result;
+            if (m_runnerChain != NULL)
+                m_runnerChain->getOutput(result);
+            return result;
         }
     }
 }

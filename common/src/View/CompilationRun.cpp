@@ -59,6 +59,8 @@ namespace TrenchBroom {
             defineCompilationVariables(values, profile, document);
             
             m_currentOutput = currentOutput;
+            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, values), profile);
+            m_currentRun->execute();
         }
         
         void CompilationRun::terminate() {
@@ -80,7 +82,9 @@ namespace TrenchBroom {
         }
 
         void CompilationRun::doPollOutput() {
-            m_currentOutput->AppendText(m_currentRun->pollOutput());
+            const wxString output = m_currentRun->pollOutput();
+            if (!output.empty())
+                m_currentOutput->AppendText(output);
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
@@ -93,7 +97,7 @@ namespace TrenchBroom {
         void CompilationRun::defineWorkDirVariables(VariableValueTable& values, MapDocumentSPtr document) {
             using namespace CompilationVariableNames;
             
-            values.define(MAP_DIR_PATH, document->path().asString());
+            values.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
             defineCommonVariables(values, document);
         }
         
@@ -113,7 +117,7 @@ namespace TrenchBroom {
 
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
-            const String lastMod = document->mods().back();
+            const String lastMod = "id1";
             const IO::Path modPath = gamePath + IO::Path(lastMod);
             const IO::Path appPath = IO::SystemPaths::appDirectory();
             

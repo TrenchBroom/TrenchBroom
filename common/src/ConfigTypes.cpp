@@ -109,7 +109,7 @@ namespace TrenchBroom {
     }
 
     void ConfigValue::doAppendToStream(std::ostream& stream, const String& indent) const {
-        stream << "\"" << m_value << "\"";
+        stream << "\"" << StringUtils::escape(m_value, "\"") << "\"";
     }
 
     ConfigList::ConfigList() :

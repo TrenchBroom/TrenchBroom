@@ -20,6 +20,8 @@
 #ifndef CompilationDialog_h
 #define CompilationDialog_h
 
+#include "View/CompilationRun.h"
+
 #include <wx/dialog.h>
 
 class wxTextCtrl;
@@ -35,12 +37,13 @@ namespace TrenchBroom {
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
             wxTextCtrl* m_output;
-            CompilationRunner* m_runner;
+            CompilationRun m_run;
         public:
             CompilationDialog(MapFrame* mapFrame);
         private:
             void createGui();
             
+            void OnIdle(wxIdleEvent& event);
             void OnCompileClicked(wxCommandEvent& event);
             void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
             void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);

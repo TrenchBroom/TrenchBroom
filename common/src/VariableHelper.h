@@ -28,6 +28,7 @@ namespace TrenchBroom {
         virtual ~GetVariableValue();
         
         String operator()(const String& variableName) const;
+        String value(const String& variableName) const;
     private:
         virtual String doGetValue(const String& variableName) const = 0;
     };

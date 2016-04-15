@@ -21,21 +21,21 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentSPtr document, const VariableTable& variables, const VariableValueTable& variableValues) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues) :
         m_document(document),
         m_variables(variables),
         m_variableValues(variableValues) {}
         
         MapDocumentSPtr CompilationContext::document() const {
-            return m_document;
+            return lock(m_document);
         }
 
         String CompilationContext::translateVariables(const String& input) const {
-            return m_variables.translate(input, m_variableValues);
+            return m_variableValues.translate(input);
         }
 
-        void CompilationContext::redefineVariable(const String& variableName, const String& value) {
-            m_variableValues.define(variableName, value);
+        String CompilationContext::variableValue(const String& variableName) const {
+            return m_variableValues.value(variableName);
         }
     }
 }
