@@ -24,6 +24,7 @@
 
 #include <vector>
 
+class wxStaticText;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -45,6 +46,7 @@ namespace TrenchBroom {
         private:
             typedef std::vector<Item*> ItemList;
             wxString m_emptyText;
+            wxStaticText* m_emptyTextLabel;
             ItemList m_items;
             size_t m_selectionIndex;
         private:
@@ -61,6 +63,7 @@ namespace TrenchBroom {
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);
             
+            void OnSize(wxSizeEvent& event);
             void OnFocusChild(wxFocusEvent& event);
             void OnClickChild(wxMouseEvent& event);
             void OnDoubleClickChild(wxMouseEvent& event);

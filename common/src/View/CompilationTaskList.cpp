@@ -255,7 +255,7 @@ namespace TrenchBroom {
         };
         
         CompilationTaskList::CompilationTaskList(wxWindow* parent) :
-        ControlListBox(parent, "No Tasks Found"),
+        ControlListBox(parent, "Click the '+' button to create a task."),
         m_profile(NULL) {}
 
         CompilationTaskList::~CompilationTaskList() {

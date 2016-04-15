@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
-        ControlListBox(parent, "No Profiles Found"),
+        ControlListBox(parent, "Click the '+' button to create a compilation profile."),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());

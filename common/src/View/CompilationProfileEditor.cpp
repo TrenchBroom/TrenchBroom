@@ -29,6 +29,7 @@
 #include <wx/menu.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/simplebook.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 
@@ -38,12 +39,56 @@ namespace TrenchBroom {
         CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent) :
         wxPanel(parent),
         m_profile(NULL),
+        m_book(NULL),
         m_nameTxt(NULL),
         m_workDirTxt(NULL),
         m_taskList(NULL) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
-            wxPanel* upperPanel = new wxPanel(this);
+            m_book = new wxSimplebook(this);
+            m_book->AddPage(createDefaultPage(m_book), "Default");
+            m_book->AddPage(createEditorPage(m_book), "Editor");
+            m_book->SetSelection(0);
+            
+            wxSizer* bookSizer = new wxBoxSizer(wxVERTICAL);
+            bookSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
+            SetSizer(bookSizer);
+        }
+        
+        CompilationProfileEditor::~CompilationProfileEditor() {
+            if (m_profile != NULL)
+                m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
+        }
+
+        wxWindow* CompilationProfileEditor::createDefaultPage(wxWindow* parent) {
+            wxPanel* containerPanel = new wxPanel(parent);
+
+            wxStaticText* emptyText = new wxStaticText(containerPanel, wxID_ANY, "Select a compilation profile.");
+            emptyText->SetFont(emptyText->GetFont().Bold());
+            emptyText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            
+            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+            justifySizer->AddStretchSpacer();
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->Add(emptyText, wxSizerFlags().Expand());
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->AddStretchSpacer();
+            
+            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->Add(justifySizer, wxSizerFlags().Expand());
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->AddStretchSpacer();
+            
+            containerPanel->SetSizer(containerSizer);
+            return containerPanel;
+        }
+        
+        wxWindow* CompilationProfileEditor::createEditorPage(wxWindow* parent) {
+            wxPanel* containerPanel = new wxPanel(parent);
+            containerPanel->SetBackgroundColour(GetBackgroundColour());
+            
+            wxPanel* upperPanel = new wxPanel(containerPanel);
             upperPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
             
             wxStaticText* nameLabel = new wxStaticText(upperPanel, wxID_ANY, "Name");
@@ -75,12 +120,12 @@ namespace TrenchBroom {
             
             upperPanel->SetSizer(upperOuterSizer);
             
-            m_taskList = new CompilationTaskList(this);
+            m_taskList = new CompilationTaskList(containerPanel);
             
-            wxWindow* addTaskButton = createBitmapButton(this, "Add.png", "Add task");
-            wxWindow* removeTaskButton = createBitmapButton(this, "Remove.png", "Remove the selected task");
-            wxWindow* moveTaskUpButton = createBitmapButton(this, "Up.png", "Move the selected task up");
-            wxWindow* moveTaskDownButton = createBitmapButton(this, "Down.png", "Move the selected task down");
+            wxWindow* addTaskButton = createBitmapButton(containerPanel, "Add.png", "Add task");
+            wxWindow* removeTaskButton = createBitmapButton(containerPanel, "Remove.png", "Remove the selected task");
+            wxWindow* moveTaskUpButton = createBitmapButton(containerPanel, "Up.png", "Move the selected task up");
+            wxWindow* moveTaskDownButton = createBitmapButton(containerPanel, "Down.png", "Move the selected task down");
             
             addTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnAddTask, this);
             removeTaskButton->Bind(wxEVT_BUTTON, &CompilationProfileEditor::OnRemoveTask, this);
@@ -92,25 +137,23 @@ namespace TrenchBroom {
             moveTaskDownButton->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI, this);
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(addTaskButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(removeTaskButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            const wxSizerFlags buttonFlags = wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(addTaskButton, buttonFlags);
+            buttonSizer->Add(removeTaskButton, buttonFlags);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(moveTaskUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(moveTaskDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveTaskUpButton, buttonFlags);
+            buttonSizer->Add(moveTaskDownButton, buttonFlags);
             buttonSizer->AddStretchSpacer();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(upperPanel, 0, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(m_taskList, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(buttonSizer, 0, wxEXPAND);
-            SetSizer(sizer);
-        }
-        
-        CompilationProfileEditor::~CompilationProfileEditor() {
-            if (m_profile != NULL)
-                m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
+            sizer->Add(upperPanel, wxSizerFlags().Expand());
+            sizer->Add(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            sizer->Add(m_taskList, wxSizerFlags().Expand().Proportion(1));
+            sizer->Add(new BorderLine(containerPanel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            sizer->Add(buttonSizer, wxSizerFlags().Expand());
+            
+            containerPanel->SetSizer(sizer);
+            return containerPanel;
         }
 
         void CompilationProfileEditor::OnNameChanged(wxCommandEvent& event) {
@@ -218,6 +261,9 @@ namespace TrenchBroom {
             if (m_profile != NULL) {
                 m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
+                m_book->SetSelection(1);
+            } else {
+                m_book->SetSelection(0);
             }
             refresh();
         }
@@ -234,9 +280,6 @@ namespace TrenchBroom {
             if (m_profile != NULL) {
                 m_nameTxt->ChangeValue(m_profile->name());
                 m_workDirTxt->ChangeValue(m_profile->workDirSpec());
-            } else {
-                m_nameTxt->ChangeValue("");
-                m_workDirTxt->ChangeValue("");
             }
         }
     }

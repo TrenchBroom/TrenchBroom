@@ -79,12 +79,14 @@ namespace TrenchBroom {
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
+        m_emptyTextLabel(NULL),
         m_selectionIndex(0) {
             SetSizer(new Sizer(wxVERTICAL));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnClickList, this);
+            Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
             SetItemCount(0);
         }
         
@@ -116,6 +118,7 @@ namespace TrenchBroom {
             
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
+            m_emptyTextLabel = NULL;
             
             m_items.clear();
             m_items.reserve(itemCount);
@@ -131,14 +134,15 @@ namespace TrenchBroom {
                     m_items.push_back(item);
                 }
             } else if (!m_emptyText.empty()) {
-                wxStaticText* emptyText = new wxStaticText(this, wxID_ANY, m_emptyText);
-                emptyText->SetFont(emptyText->GetFont().Larger().Bold());
-                emptyText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_emptyTextLabel = new wxStaticText(this, wxID_ANY, m_emptyText, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
+                m_emptyTextLabel->SetFont(m_emptyTextLabel->GetFont().Bold());
+                m_emptyTextLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
                 
                 wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
                 justifySizer->AddStretchSpacer();
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-                justifySizer->Add(emptyText, 0, wxEXPAND);
+                justifySizer->Add(m_emptyTextLabel, 0, wxEXPAND);
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->AddStretchSpacer();
                 
@@ -166,6 +170,12 @@ namespace TrenchBroom {
             }
         }
 
+        void ControlListBox::OnSize(wxSizeEvent& event) {
+            if (m_emptyTextLabel != NULL)
+                m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
+            event.Skip();
+        }
+        
         void ControlListBox::OnFocusChild(wxFocusEvent& event) {
             setSelection(event);
             event.Skip();
