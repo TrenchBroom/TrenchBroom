@@ -29,6 +29,7 @@
 #include "View/MapDocument.h"
 
 #include <wx/event.h>
+#include <wx/filefn.h>
 #include <wx/process.h>
 #include <wx/sstream.h>
 #include <wx/thread.h>
@@ -41,8 +42,6 @@ namespace TrenchBroom {
             CompilationContext& m_context;
         private:
             TaskRunner* m_next;
-            wxString m_output;
-            wxCriticalSection m_outputSection;
         public:
             TaskRunner(CompilationContext& context) :
             m_context(context),
@@ -65,27 +64,10 @@ namespace TrenchBroom {
                 if (m_next != NULL)
                     m_next->terminate();
             }
-
-            void getOutput(wxString& output) {
-                doGetOutput(output);
-                if (m_next != NULL)
-                    m_next->getOutput(output);
-            }
-        private:
-            void doGetOutput(wxString& output) {
-                wxCriticalSectionLocker lock(m_outputSection);
-                output << m_output;
-                m_output.Clear();
-            }
         protected:
             void executeNext() {
                 if (m_next != NULL)
                     m_next->execute();
-            }
-            
-            void appendOutput(const wxString& string) {
-                wxCriticalSectionLocker lock(m_outputSection);
-                m_output << string;
             }
         private:
             virtual void doExecute() = 0;
@@ -106,9 +88,7 @@ namespace TrenchBroom {
             void doExecute() {
                 const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
                 try {
-                    wxString str;
-                    str << "Exporting map file '" << targetPath.asString() << "'\n";
-                    appendOutput(str);
+                    m_context << "Exporting map file '" << targetPath.asString() << "'\n";
 
                     const IO::Path directoryPath = targetPath.deleteLastComponent();
                     if (!IO::Disk::directoryExists(directoryPath))
@@ -119,9 +99,7 @@ namespace TrenchBroom {
                     
                     executeNext();
                 } catch (const Exception& e) {
-                    wxString str;
-                    str << "Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
-                    appendOutput(str);
+                    m_context << "Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
             }
             
@@ -149,16 +127,12 @@ namespace TrenchBroom {
                 const String sourcePattern = sourcePath.lastComponent().asString();
                 
                 try {
-                    wxString str;
-                    str << "Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
-                    appendOutput(str);
+                    m_context << "Copying '" << sourcePath.asString() << "'\nTo '" << targetPath.asString() << "'\n";
                     
                     IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
                     executeNext();
                 } catch (const Exception& e) {
-                    wxString str;
-                    str << "Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
-                    appendOutput(str);
+                    m_context << "Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
             }
             
@@ -201,7 +175,7 @@ namespace TrenchBroom {
             void doTerminate() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
-                    readOutput();
+                    while (readOutput());
                     wxProcess::Kill(static_cast<int>(m_process->GetPid()));
                     deleteProcess();
                 }
@@ -212,11 +186,9 @@ namespace TrenchBroom {
                 if (m_process != NULL) {
                     assert(m_process->GetPid() == event.GetPid());
                     
-                    readOutput();
+                    while (readOutput());
                     
-                    wxString str;
-                    str << "Finished with exit status " << event.GetExitCode() << "\n";
-                    appendOutput(str);
+                    m_context << "Finished with exit status " << event.GetExitCode() << "\n";
                     
                     deleteProcess();
                     executeNext();
@@ -225,29 +197,40 @@ namespace TrenchBroom {
             
             void OnProcessTimer(wxTimerEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                
                 if (m_process != NULL)
                     readOutput();
             }
             
-            void readOutput() {
-                if (m_process->IsInputAvailable())
-                    appendOutput(readStream(m_process->GetInputStream()));
-                if (m_process->IsErrorAvailable())
-                    appendOutput(readStream(m_process->GetErrorStream()));
+            bool readOutput() {
+                bool hasOutput = false;
+                if (m_process->IsInputAvailable()) {
+                    m_context << readStream(m_process->GetInputStream());
+                    hasOutput = true;
+                }
+                if (m_process->IsErrorAvailable()) {
+                    m_context << readStream(m_process->GetErrorStream());
+                    hasOutput = true;
+                }
+                return hasOutput;
             }
             
             wxString readStream(wxInputStream* stream) {
                 assert(stream != NULL);
                 wxStringOutputStream out;
-                stream->Read(out);
-                return out.GetString();
+                if (stream->CanRead()) {
+                    static const size_t BUF_SIZE = 1024;
+                    char buffer[BUF_SIZE];
+                    stream->Read(buffer, BUF_SIZE);
+                    out.Write(buffer, stream->LastRead());
+                }
+                const wxString result = out.GetString();
+                return result;
             }
             
             void createProcess() {
                 assert(m_process == NULL);
                 m_process = new wxProcess(this);
-                m_processTimer = new wxTimer(this);
+                m_processTimer = new wxTimer();
                 
                 m_process->Redirect();
                 m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnTerminateProcess, this);
@@ -259,13 +242,18 @@ namespace TrenchBroom {
                 assert(m_processTimer != NULL);
 
                 wxExecuteEnv* env = new wxExecuteEnv();
-                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
+                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
                 
-                wxString str;
-                str << "Executing " << cmd << "\n";
-                appendOutput(str);
-                wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
-                m_processTimer->Start(20);
+                m_context << "Executing '" << cmd << "'\n";
+                m_processTimer->Start(10);
+                
+                // At least on OSX, setting the working directory using env is broken. Instead of using the
+                // directory provided in env->cwd, it inherits the one from the parent process, so we
+                // temporarily change our working directory and change it back immediately after.
+                // const wxString oldCwd = ::wxGetCwd();
+                // ::wxSetWorkingDirectory(env->cwd);
+                ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
+                // ::wxSetWorkingDirectory(oldCwd);
             }
             
             void deleteProcess() {
@@ -342,13 +330,6 @@ namespace TrenchBroom {
         void CompilationRunner::terminate() {
             if (m_runnerChain != NULL)
                 m_runnerChain->terminate();
-        }
-
-        wxString CompilationRunner::pollOutput() {
-            wxString result;
-            if (m_runnerChain != NULL)
-                m_runnerChain->getOutput(result);
-            return result;
         }
     }
 }

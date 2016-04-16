@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
             m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
-            m_output->SetFont(wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT));
+            m_output->SetFont(wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT)); // doesn't work on OS X
 
             splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
 
@@ -87,12 +87,6 @@ namespace TrenchBroom {
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
-            
-            Bind(wxEVT_IDLE, &CompilationDialog::OnIdle, this);
-        }
-
-        void CompilationDialog::OnIdle(wxIdleEvent& event) {
-            m_run.pollOutput();
         }
 
         void CompilationDialog::OnCompileClicked(wxCommandEvent& event) {

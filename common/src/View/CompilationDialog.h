@@ -43,7 +43,6 @@ namespace TrenchBroom {
         private:
             void createGui();
             
-            void OnIdle(wxIdleEvent& event);
             void OnCompileClicked(wxCommandEvent& event);
             void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
             void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);

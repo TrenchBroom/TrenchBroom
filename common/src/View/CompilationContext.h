@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "StringUtils.h"
 #include "VariableHelper.h"
+#include "View/TextCtrlOutputAdapter.h"
 #include "View/ViewTypes.h"
 
 #include <wx/string.h>
@@ -36,15 +37,20 @@ namespace TrenchBroom {
             VariableTable m_variables;
             VariableValueTable m_variableValues;
             
-            wxCriticalSection m_outputSection;
-            wxString m_output;
+            TextCtrlOutputAdapter m_output;
         public:
-            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues);
+            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues, const TextCtrlOutputAdapter& output);
             
             MapDocumentSPtr document() const;
             
             String translateVariables(const String& input) const;
             String variableValue(const String& variableName) const;
+            
+            template <typename T>
+            CompilationContext& operator<<(const T& t) {
+                m_output << t;
+                return *this;
+            }
         };
     }
 }

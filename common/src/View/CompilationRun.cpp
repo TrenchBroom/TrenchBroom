@@ -26,6 +26,7 @@
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
+#include "View/TextCtrlOutputAdapter.h"
 
 #include <wx/textctrl.h>
 #include <wx/thread.h>
@@ -33,8 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationRun::CompilationRun() :
-        m_currentRun(NULL),
-        m_currentOutput(NULL) {}
+        m_currentRun(NULL) {}
         
         CompilationRun::~CompilationRun() {
             if (running())
@@ -58,8 +58,7 @@ namespace TrenchBroom {
             VariableValueTable values(variables);
             defineCompilationVariables(values, profile, document);
             
-            m_currentOutput = currentOutput;
-            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, values), profile);
+            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, values, TextCtrlOutputAdapter(currentOutput)), profile);
             m_currentRun->execute();
         }
         
@@ -70,21 +69,9 @@ namespace TrenchBroom {
                 cleanup();
             }
         }
-        
-        void CompilationRun::pollOutput() {
-            wxCriticalSectionLocker lock(m_currentRunSection);
-            if (doIsRunning())
-                doPollOutput();
-        }
 
         bool CompilationRun::doIsRunning() const {
             return m_currentRun != NULL;
-        }
-
-        void CompilationRun::doPollOutput() {
-            const wxString output = m_currentRun->pollOutput();
-            if (!output.empty())
-                m_currentOutput->AppendText(output);
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
@@ -135,8 +122,6 @@ namespace TrenchBroom {
         }
 
         void CompilationRun::cleanup() {
-            doPollOutput();
-            m_currentOutput = NULL;
             delete m_currentRun;
             m_currentRun = NULL;
         }

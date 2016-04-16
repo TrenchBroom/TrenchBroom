@@ -46,7 +46,6 @@ namespace TrenchBroom {
         public:
             void execute();
             void terminate();
-            wxString pollOutput();
         private:
             CompilationRunner(const CompilationRunner& other);
             CompilationRunner& operator=(const CompilationRunner& other);

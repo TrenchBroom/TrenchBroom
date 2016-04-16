@@ -21,10 +21,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues, const TextCtrlOutputAdapter& output) :
         m_document(document),
         m_variables(variables),
-        m_variableValues(variableValues) {}
+        m_variableValues(variableValues),
+        m_output(output) {}
         
         MapDocumentSPtr CompilationContext::document() const {
             return lock(m_document);
