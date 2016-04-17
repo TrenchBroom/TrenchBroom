@@ -45,6 +45,7 @@ namespace TrenchBroom {
             
             void OnToggleCompileClicked(wxCommandEvent& event);
             void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
+			void OnCloseButtonClicked(wxCommandEvent& event);
             void OnClose(wxCloseEvent& event);
         };
     }

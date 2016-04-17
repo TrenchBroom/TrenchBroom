@@ -74,14 +74,15 @@ namespace TrenchBroom {
             outerPanel->SetSizer(outerPanelSizer);
             
             wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
+            wxButton* closeButton = new wxButton(this, wxID_CLOSE, "Close");
             
             compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
+			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
             
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
             buttonSizer->SetAffirmativeButton(compileButton);
-            buttonSizer->AddButton(closeButton);
+			buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
@@ -109,11 +110,15 @@ namespace TrenchBroom {
                 event.Enable(true);
             } else {
                 event.SetText("Run");
-                event.Enable(m_profileManager->selectedProfile());
+                event.Enable(m_profileManager->selectedProfile() != NULL);
             }
         }
 
-        void CompilationDialog::OnClose(wxCloseEvent& event) {
+		void CompilationDialog::OnCloseButtonClicked(wxCommandEvent& event) {
+			Close();
+		}
+
+		void CompilationDialog::OnClose(wxCloseEvent& event) {
             if (event.CanVeto() && m_run.running()) {
                 const int result = ::wxMessageBox("Closing this dialog will stop the running compilation. Are you sure?", "TrenchBroom", wxYES_NO, this);
                 if (result == wxNO)
