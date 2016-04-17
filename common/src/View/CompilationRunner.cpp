@@ -175,6 +175,14 @@ namespace TrenchBroom {
             m_parameterSpec(task->parameterSpec()),
             m_process(NULL),
             m_processTimer(NULL) {}
+            
+            ~RunToolRunner() {
+                wxCriticalSectionLocker lockProcess(m_processSection);
+                if (m_process != NULL) {
+                    m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnTerminateProcess, this);
+                    delete m_processTimer;
+                }
+            }
         private:
             void doExecute() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
@@ -322,10 +330,8 @@ namespace TrenchBroom {
         m_runnerChain(createRunnerChain(*m_context, profile)) {}
         
         CompilationRunner::~CompilationRunner() {
-            if (m_runnerChain != NULL) {
-                m_runnerChain->terminate();
+            if (m_runnerChain != NULL)
                 delete m_runnerChain;
-            }
             if (m_context != NULL)
                 delete m_context;
         }

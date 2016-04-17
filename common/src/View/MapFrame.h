@@ -66,6 +66,8 @@ namespace TrenchBroom {
             wxWindow* m_lastFocus;
 
             wxChoice* m_gridChoice;
+            
+            wxDialog* m_compilationDialog;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);

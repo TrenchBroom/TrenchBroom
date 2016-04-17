@@ -28,7 +28,8 @@ namespace TrenchBroom {
     namespace View {
         TextCtrlOutputAdapter::TextCtrlOutputAdapter(wxTextCtrl* textCtrl) :
         m_textCtrl(textCtrl),
-        m_lastNewLine(0) {
+        m_lastNewLine(0),
+        m_lastOutputTime(::wxGetLocalTimeMillis()) {
             assert(m_textCtrl != NULL);
             bindEvents();
         }
@@ -60,24 +61,14 @@ namespace TrenchBroom {
 
         void TextCtrlOutputAdapter::OnAsyncAppend(wxThreadEvent& event) {
             const wxString str = compressString(event.GetString());
-            if (!str.IsEmpty()) {
-                wxWindowUpdateLocker lock(m_textCtrl);
-                
-                size_t l = 0;
-                for (size_t i = 0; i < str.Len(); ++i) {
-                    const wxUniChar c = str[i];
-                    if (c == '\r') {
-                        const long from = static_cast<long>(m_lastNewLine);
-                        const long to   = m_textCtrl->GetLastPosition();
-                        m_textCtrl->Remove(from, to);
-                        l = i;
-                    } else if (c == '\n') {
-                        m_textCtrl->AppendText(str.Mid(l, i-l));
-                        m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
-                        l = i;
-                    }
-                }
-                m_textCtrl->AppendText(str.Mid(l));
+            appendString(str);
+            m_lastOutputTime = ::wxGetLocalTimeMillis();
+        }
+        
+        void TextCtrlOutputAdapter::OnIdle(wxIdleEvent& event) {
+            if (!m_remainder.IsEmpty() && ::wxGetLocalTimeMillis() - m_lastOutputTime > 10) {
+                appendString(m_remainder);
+                m_remainder.Clear();
             }
         }
         
@@ -104,12 +95,36 @@ namespace TrenchBroom {
             return result;
         }
 
+        void TextCtrlOutputAdapter::appendString(const wxString& str) {
+            if (!str.IsEmpty()) {
+                wxWindowUpdateLocker lock(m_textCtrl);
+                
+                size_t l = 0;
+                for (size_t i = 0; i < str.Len(); ++i) {
+                    const wxUniChar c = str[i];
+                    if (c == '\r') {
+                        const long from = static_cast<long>(m_lastNewLine);
+                        const long to   = m_textCtrl->GetLastPosition();
+                        m_textCtrl->Remove(from, to);
+                        l = i;
+                    } else if (c == '\n') {
+                        m_textCtrl->AppendText(str.Mid(l, i-l));
+                        m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
+                        l = i;
+                    }
+                }
+                m_textCtrl->AppendText(str.Mid(l));
+            }
+        }
+
         void TextCtrlOutputAdapter::bindEvents() {
             m_textCtrl->Bind(wxEVT_THREAD, &TextCtrlOutputAdapter::OnAsyncAppend, this, m_textCtrl->GetId());
+            m_textCtrl->Bind(wxEVT_IDLE, &TextCtrlOutputAdapter::OnIdle, this);
         }
         
         void TextCtrlOutputAdapter::unbindEvents() {
             m_textCtrl->Unbind(wxEVT_THREAD, &TextCtrlOutputAdapter::OnAsyncAppend, this, m_textCtrl->GetId());
+            m_textCtrl->Unbind(wxEVT_IDLE, &TextCtrlOutputAdapter::OnIdle, this);
         }
     }
 }

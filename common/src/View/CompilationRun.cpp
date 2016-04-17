@@ -37,8 +37,6 @@ namespace TrenchBroom {
         m_currentRun(NULL) {}
         
         CompilationRun::~CompilationRun() {
-            if (running())
-                terminate();
             delete m_currentRun;
         }
 

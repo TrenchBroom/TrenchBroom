@@ -70,7 +70,8 @@ namespace TrenchBroom {
         m_console(NULL),
         m_inspector(NULL),
         m_lastFocus(NULL),
-        m_gridChoice(NULL) {}
+        m_gridChoice(NULL),
+        m_compilationDialog(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "TrenchBroom"),
@@ -82,7 +83,8 @@ namespace TrenchBroom {
         m_console(NULL),
         m_inspector(NULL),
         m_lastFocus(NULL),
-        m_gridChoice(NULL)  {
+        m_gridChoice(NULL),
+        m_compilationDialog(NULL)  {
             Create(frameManager, document);
         }
 
@@ -979,13 +981,19 @@ namespace TrenchBroom {
         void MapFrame::OnRunCompile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            CompilationDialog* dialog = new CompilationDialog(this);
-            dialog->Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, &MapFrame::OnCompilationDialogClosed, this);
-            dialog->Show();
+            if (m_compilationDialog == NULL) {
+            m_compilationDialog = new CompilationDialog(this);
+            m_compilationDialog->Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, &MapFrame::OnCompilationDialogClosed, this);
+            m_compilationDialog->Show();
+            } else {
+                m_compilationDialog->Raise();
+            }
         }
 
         void MapFrame::OnCompilationDialogClosed(wxWindowModalDialogEvent& event) {
-            event.GetDialog()->Destroy();
+            assert(event.GetDialog() == m_compilationDialog);
+            m_compilationDialog->Destroy();
+            m_compilationDialog = NULL;
         }
 
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
@@ -1428,11 +1436,15 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (!IsBeingDeleted()) {
-                assert(m_frameManager != NULL);
-                if (event.CanVeto() && !confirmOrDiscardChanges())
+                if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
                     event.Veto();
-                else
-                    m_frameManager->removeAndDestroyFrame(this);
+                } else {
+                    assert(m_frameManager != NULL);
+                    if (event.CanVeto() && !confirmOrDiscardChanges())
+                        event.Veto();
+                    else
+                        m_frameManager->removeAndDestroyFrame(this);
+                }
             }
         }
 

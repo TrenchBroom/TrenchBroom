@@ -32,6 +32,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
+#include <wx/msgdlg.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
@@ -77,7 +78,6 @@ namespace TrenchBroom {
             
             compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
-            closeButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCloseButtonUI, this);
             
             wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
             buttonSizer->SetAffirmativeButton(compileButton);
@@ -88,6 +88,8 @@ namespace TrenchBroom {
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
             dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
+            
+            Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
         }
 
         void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
@@ -111,8 +113,14 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(!m_run.running());
+        void CompilationDialog::OnClose(wxCloseEvent& event) {
+            if (event.CanVeto() && m_run.running()) {
+                const int result = ::wxMessageBox("Closing this dialog will stop the running compilation. Are you sure?", "TrenchBroom", wxYES_NO, this);
+                if (result == wxNO)
+                    event.Veto();
+                else
+                    m_run.terminate();
+            }
         }
     }
 }

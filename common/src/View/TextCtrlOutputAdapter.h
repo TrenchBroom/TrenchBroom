@@ -24,6 +24,7 @@
 
 #include <wx/event.h>
 #include <wx/string.h>
+#include <wx/time.h>
 
 #include <iostream>
 
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             wxTextCtrl* m_textCtrl;
             size_t m_lastNewLine;
             wxString m_remainder;
+            wxLongLong m_lastOutputTime;
         public:
             TextCtrlOutputAdapter(wxTextCtrl* textCtrl);
             TextCtrlOutputAdapter(const TextCtrlOutputAdapter& other);
@@ -58,7 +60,10 @@ namespace TrenchBroom {
         private:
             void sendAppendEvent(const wxString& str);
             void OnAsyncAppend(wxThreadEvent& event);
+            void OnIdle(wxIdleEvent& event);
             wxString compressString(const wxString& str);
+            void appendString(const wxString& str);
+            
             void bindEvents();
             void unbindEvents();
         };
