@@ -28,6 +28,7 @@
 #include "View/MapFrame.h"
 #include "View/SplitterWindow2.h"
 #include "View/TitledPanel.h"
+#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
@@ -59,7 +60,7 @@ namespace TrenchBroom {
 
             TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
             m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
-            m_output->SetFont(wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT)); // doesn't work on OS X
+            m_output->SetFont(Fonts::fixedWidthFont());
 
             splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
 
@@ -72,9 +73,9 @@ namespace TrenchBroom {
             outerPanel->SetSizer(outerPanelSizer);
             
             wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             
-            compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCompileClicked, this);
+            compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCloseButtonUI, this);
             
@@ -89,12 +90,15 @@ namespace TrenchBroom {
             SetSizer(dialogSizer);
         }
 
-        void CompilationDialog::OnCompileClicked(wxCommandEvent& event) {
-            assert(!m_run.running());
-            const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
-            assert(profile != NULL);
-            
-            m_run.run(profile, m_mapFrame->document(), m_output);
+        void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
+            if (m_run.running()) {
+                m_run.terminate();
+            } else {
+                const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
+                assert(profile != NULL);
+                m_output->Clear();
+                m_run.run(profile, m_mapFrame->document(), m_output);
+            }
         }
 
         void CompilationDialog::OnUpdateCompileButtonUI(wxUpdateUIEvent& event) {

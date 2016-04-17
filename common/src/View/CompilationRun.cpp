@@ -39,6 +39,7 @@ namespace TrenchBroom {
         CompilationRun::~CompilationRun() {
             if (running())
                 terminate();
+            delete m_currentRun;
         }
 
         bool CompilationRun::running() const {
@@ -53,6 +54,10 @@ namespace TrenchBroom {
             
             wxCriticalSectionLocker lock(m_currentRunSection);
             assert(!doIsRunning());
+            if (m_currentRun != NULL) {
+                delete m_currentRun;
+                m_currentRun = NULL;
+            }
 
             const VariableTable variables = compilationVariables();
             VariableValueTable values(variables);
@@ -64,14 +69,12 @@ namespace TrenchBroom {
         
         void CompilationRun::terminate() {
             wxCriticalSectionLocker lock(m_currentRunSection);
-            if (doIsRunning()) {
+            if (doIsRunning())
                 m_currentRun->terminate();
-                cleanup();
-            }
         }
 
         bool CompilationRun::doIsRunning() const {
-            return m_currentRun != NULL;
+            return m_currentRun != NULL && m_currentRun->running();
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {

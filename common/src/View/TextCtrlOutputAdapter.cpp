@@ -59,39 +59,48 @@ namespace TrenchBroom {
         }
 
         void TextCtrlOutputAdapter::OnAsyncAppend(wxThreadEvent& event) {
-            wxWindowUpdateLocker lock(m_textCtrl);
             const wxString str = compressString(event.GetString());
-            
-            size_t l = 0;
-            for (size_t i = 0; i < str.length(); ++i) {
-                const wxUniChar c = str[i];
-                if (c == '\r') {
-                    const long from = static_cast<long>(m_lastNewLine);
-                    const long to   = m_textCtrl->GetLastPosition();
-                    m_textCtrl->Remove(from, to);
-                    l = i;
-                } else if (c == '\n') {
-                    m_textCtrl->AppendText(str.Mid(l, i-l));
-                    m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
-                    l = i;
+            if (!str.IsEmpty()) {
+                wxWindowUpdateLocker lock(m_textCtrl);
+                
+                size_t l = 0;
+                for (size_t i = 0; i < str.Len(); ++i) {
+                    const wxUniChar c = str[i];
+                    if (c == '\r') {
+                        const long from = static_cast<long>(m_lastNewLine);
+                        const long to   = m_textCtrl->GetLastPosition();
+                        m_textCtrl->Remove(from, to);
+                        l = i;
+                    } else if (c == '\n') {
+                        m_textCtrl->AppendText(str.Mid(l, i-l));
+                        m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
+                        l = i;
+                    }
                 }
+                m_textCtrl->AppendText(str.Mid(l));
             }
-            m_textCtrl->AppendText(str.Mid(l));
         }
         
-        wxString TextCtrlOutputAdapter::compressString(const wxString& str) const {
+        wxString TextCtrlOutputAdapter::compressString(const wxString& str) {
+            wxString fullStr = m_remainder + str;
             wxString result;
-            size_t l = 0;
-            for (size_t i = 0; i < str.Length(); ++i) {
-                const wxUniChar c = str[i];
+            size_t chunkStart = 0;
+            size_t previousChunkStart = 0;
+            for (size_t i = 0; i < fullStr.Len(); ++i) {
+                const wxUniChar c = fullStr[i];
                 if (c == '\r') {
-                    l = i;
+                    previousChunkStart = chunkStart;
+                    chunkStart = i;
                 } else if (c == '\n') {
-                    result << str.Mid(l, i-l+1);
-                    l = i+1;
+                    result << fullStr.Mid(chunkStart, i - chunkStart + 1);
+                    chunkStart = previousChunkStart = i+1;
                 }
             }
-            result << str.Mid(l);
+            if (previousChunkStart < chunkStart) {
+                const wxString chunk = fullStr.Mid(previousChunkStart, chunkStart - previousChunkStart);
+                result << chunk;
+            }
+            m_remainder = fullStr.Mid(chunkStart);
             return result;
         }
 

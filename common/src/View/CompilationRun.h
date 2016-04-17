@@ -41,7 +41,6 @@ namespace TrenchBroom {
         class CompilationRun {
         private:
             CompilationRunner* m_currentRun;
-            wxTextCtrl* m_currentOutput;
             mutable wxCriticalSection m_currentRunSection;
         public:
             CompilationRun();

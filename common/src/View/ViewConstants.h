@@ -21,6 +21,7 @@
 #define TrenchBroom_ViewConstants_h
 
 class wxColour;
+class wxFont;
 
 namespace TrenchBroom {
     namespace View {
@@ -85,6 +86,10 @@ namespace TrenchBroom {
 #endif
             static const int MinPreferenceLabelWidth            = 100;
             static const int HighlightBoxMargin                 = 5;
+        }
+        
+        namespace Fonts {
+            const wxFont& fixedWidthFont();
         }
         
         namespace Colors {

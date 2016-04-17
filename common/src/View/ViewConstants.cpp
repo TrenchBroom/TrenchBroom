@@ -24,6 +24,18 @@
 
 namespace TrenchBroom {
     namespace View {
+        namespace Fonts {
+            const wxFont& fixedWidthFont() {
+                static const wxFont font =
+#if defined __APPLE__
+                wxFont(wxFontInfo().FaceName("Monaco")).Smaller();
+#else
+                wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT);
+#endif
+                return font;
+            }
+        }
+        
         namespace Colors {
             const wxColour& defaultText() {
                 static const wxColour col = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT);

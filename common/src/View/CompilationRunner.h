@@ -46,6 +46,7 @@ namespace TrenchBroom {
         public:
             void execute();
             void terminate();
+            bool running() const;
         private:
             CompilationRunner(const CompilationRunner& other);
             CompilationRunner& operator=(const CompilationRunner& other);

@@ -42,10 +42,13 @@ namespace TrenchBroom {
             CompilationContext& m_context;
         private:
             TaskRunner* m_next;
+            bool m_finished;
+            mutable wxCriticalSection m_finishedSection;
         public:
             TaskRunner(CompilationContext& context) :
             m_context(context),
-            m_next(NULL) {}
+            m_next(NULL),
+            m_finished(false) {}
             
             virtual ~TaskRunner() {
                 delete m_next;
@@ -64,10 +67,24 @@ namespace TrenchBroom {
                 if (m_next != NULL)
                     m_next->terminate();
             }
+            
+            bool running() const {
+                wxCriticalSectionLocker lock(m_finishedSection);
+                if (!m_finished)
+                    return true;
+                if (m_next != NULL)
+                    return m_next->running();
+                return false;
+            }
         protected:
             void executeNext() {
                 if (m_next != NULL)
                     m_next->execute();
+            }
+            
+            void setFinished() {
+                wxCriticalSectionLocker lock(m_finishedSection);
+                m_finished = true;
             }
         private:
             virtual void doExecute() = 0;
@@ -88,7 +105,7 @@ namespace TrenchBroom {
             void doExecute() {
                 const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
                 try {
-                    m_context << "Exporting map file '" << targetPath.asString() << "'\n";
+                    m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
 
                     const IO::Path directoryPath = targetPath.deleteLastComponent();
                     if (!IO::Disk::directoryExists(directoryPath))
@@ -97,9 +114,10 @@ namespace TrenchBroom {
                     const MapDocumentSPtr document = m_context.document();
                     document->saveDocumentTo(targetPath);
                     
+                    setFinished();
                     executeNext();
                 } catch (const Exception& e) {
-                    m_context << "Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
+                    m_context << "#### Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
             }
             
@@ -127,12 +145,13 @@ namespace TrenchBroom {
                 const String sourcePattern = sourcePath.lastComponent().asString();
                 
                 try {
-                    m_context << "Copying '" << sourcePath.asString() << "'\nTo '" << targetPath.asString() << "'\n";
-                    
+                    m_context << "#### Copying '" << sourcePath.asString() << "'\nTo '" << targetPath.asString() << "'\n";
                     IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
+
+                    setFinished();
                     executeNext();
                 } catch (const Exception& e) {
-                    m_context << "Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
+                    m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
             }
             
@@ -156,10 +175,6 @@ namespace TrenchBroom {
             m_parameterSpec(task->parameterSpec()),
             m_process(NULL),
             m_processTimer(NULL) {}
-            
-            ~RunToolRunner() {
-                terminate();
-            }
         private:
             void doExecute() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
@@ -175,9 +190,7 @@ namespace TrenchBroom {
             void doTerminate() {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
-                    while (readOutput());
                     wxProcess::Kill(static_cast<int>(m_process->GetPid()));
-                    deleteProcess();
                 }
             }
         private:
@@ -186,12 +199,14 @@ namespace TrenchBroom {
                 if (m_process != NULL) {
                     assert(m_process->GetPid() == event.GetPid());
                     
-                    while (readOutput());
+                    readRemainingOutput();
                     
-                    m_context << "Finished with exit status " << event.GetExitCode() << "\n";
+                    m_context << "#### Finished with exit status " << event.GetExitCode() << "\n";
                     
                     deleteProcess();
-                    executeNext();
+                    setFinished();
+                    if (event.GetExitCode() >= 0)
+                        executeNext();
                 }
             }
             
@@ -201,15 +216,48 @@ namespace TrenchBroom {
                     readOutput();
             }
             
+            void readRemainingOutput() {
+                bool hasOutput = true;
+                bool hasTrailingNewline = true;
+                while (hasOutput) {
+                    hasOutput = false;
+                    if (m_process->IsInputAvailable()) {
+                        const wxString output = readStream(m_process->GetInputStream());
+                        if (!output.IsEmpty()) {
+                            m_context << output;
+                            hasOutput = true;
+                            hasTrailingNewline = output.Last() == '\n';
+                        }
+                    }
+                    if (m_process->IsErrorAvailable()) {
+                        const wxString output = readStream(m_process->GetErrorStream());
+                        if (!output.IsEmpty()) {
+                            m_context << output;
+                            hasOutput = true;
+                            hasTrailingNewline = output.Last() == '\n';
+                        }
+                    }
+                }
+                
+                if (!hasTrailingNewline)
+                    m_context << '\n';
+            }
+            
             bool readOutput() {
                 bool hasOutput = false;
                 if (m_process->IsInputAvailable()) {
-                    m_context << readStream(m_process->GetInputStream());
-                    hasOutput = true;
+                    const wxString output = readStream(m_process->GetInputStream());
+                    if (!output.IsEmpty()) {
+                        m_context << output;
+                        hasOutput = true;
+                    }
                 }
                 if (m_process->IsErrorAvailable()) {
-                    m_context << readStream(m_process->GetErrorStream());
-                    hasOutput = true;
+                    const wxString output = readStream(m_process->GetErrorStream());
+                    if (!output.IsEmpty()) {
+                        m_context << output;
+                        hasOutput = true;
+                    }
                 }
                 return hasOutput;
             }
@@ -218,7 +266,7 @@ namespace TrenchBroom {
                 assert(stream != NULL);
                 wxStringOutputStream out;
                 if (stream->CanRead()) {
-                    static const size_t BUF_SIZE = 1024;
+                    static const size_t BUF_SIZE = 8192;
                     char buffer[BUF_SIZE];
                     stream->Read(buffer, BUF_SIZE);
                     out.Write(buffer, stream->LastRead());
@@ -244,8 +292,8 @@ namespace TrenchBroom {
                 wxExecuteEnv* env = new wxExecuteEnv();
                 env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
                 
-                m_context << "Executing '" << cmd << "'\n";
-                m_processTimer->Start(10);
+                m_context << "#### Executing '" << cmd << "'\n";
+                m_processTimer->Start(50);
                 
                 // At least on OSX, setting the working directory using env is broken. Instead of using the
                 // directory provided in env->cwd, it inherits the one from the parent process, so we
@@ -330,6 +378,10 @@ namespace TrenchBroom {
         void CompilationRunner::terminate() {
             if (m_runnerChain != NULL)
                 m_runnerChain->terminate();
+        }
+
+        bool CompilationRunner::running() const {
+            return m_runnerChain != NULL && m_runnerChain->running();
         }
     }
 }
