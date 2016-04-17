@@ -982,17 +982,14 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             if (m_compilationDialog == NULL) {
-            m_compilationDialog = new CompilationDialog(this);
-            m_compilationDialog->Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, &MapFrame::OnCompilationDialogClosed, this);
-            m_compilationDialog->Show();
+                m_compilationDialog = new CompilationDialog(this);
+                m_compilationDialog->Show();
             } else {
                 m_compilationDialog->Raise();
             }
         }
 
-        void MapFrame::OnCompilationDialogClosed(wxWindowModalDialogEvent& event) {
-            assert(event.GetDialog() == m_compilationDialog);
-            m_compilationDialog->Destroy();
+        void MapFrame::compilationDialogWillClose() {
             m_compilationDialog = NULL;
         }
 

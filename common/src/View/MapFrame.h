@@ -193,8 +193,9 @@ namespace TrenchBroom {
             void OnViewToggleInspector(wxCommandEvent& event);
 
             void OnRunCompile(wxCommandEvent& event);
-            void OnCompilationDialogClosed(wxWindowModalDialogEvent& event);
-            
+        public:
+            void compilationDialogWillClose();
+        private:
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);

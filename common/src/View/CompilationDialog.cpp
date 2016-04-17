@@ -121,6 +121,9 @@ namespace TrenchBroom {
                 else
                     m_run.terminate();
             }
+            if (!event.GetVeto())
+                m_mapFrame->compilationDialogWillClose();
+            event.Skip();
         }
     }
 }
