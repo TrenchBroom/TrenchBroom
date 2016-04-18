@@ -58,6 +58,9 @@ namespace TrenchBroom {
             
             void SetItemCount(size_t itemCount);
             void SetSelection(int index);
+            void MakeVisible(size_t index);
+            void MakeVisible(const Item* item);
+            void MakeVisible(wxCoord y, wxCoord size);
         private:
             
             void refresh(size_t itemCount);

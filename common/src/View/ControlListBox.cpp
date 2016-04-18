@@ -107,10 +107,37 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::SetSelection(const int index) {
-            if (index < 0 || static_cast<size_t>(index) > m_items.size())
+            if (index < 0 || static_cast<size_t>(index) > m_items.size()) {
                 setSelection(m_items.size());
-            else
+            } else {
                 setSelection(static_cast<size_t>(index));
+            }
+        }
+
+        void ControlListBox::MakeVisible(const size_t index) {
+            assert(index < m_items.size());
+            MakeVisible(m_items[index]);
+        }
+        
+        void ControlListBox::MakeVisible(const Item* item) {
+            MakeVisible(item->GetPosition().y, item->GetSize().y);
+        }
+        
+        void ControlListBox::MakeVisible(wxCoord y, const wxCoord size) {
+            y = CalcUnscrolledPosition(wxPoint(0, y)).y;
+            int xUnit, yUnit;
+            GetScrollPixelsPerUnit(&xUnit, &yUnit);
+            const wxCoord startY = GetViewStart().y * yUnit;
+            const wxCoord sizeY  = GetClientSize().y;
+            
+            if (y >= startY && y + size <= sizeY)
+                return;
+            
+            if (size >= sizeY || y < startY) {
+                Scroll(wxDefaultCoord, y / yUnit);
+            } else if (y + size > startY + sizeY) {
+                Scroll(wxDefaultCoord, (y + size - sizeY) / yUnit + 1);
+            }
         }
 
         void ControlListBox::refresh(const size_t itemCount) {
@@ -212,8 +239,10 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_items.size(); ++i)
                 m_items[i]->setDefaultColours(GetForegroundColour(), GetBackgroundColour());
             
-            if (m_selectionIndex < m_items.size())
+            if (m_selectionIndex < m_items.size()) {
                 m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+                MakeVisible(index);
+            }
             
 			Refresh();
 
