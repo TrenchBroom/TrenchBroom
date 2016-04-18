@@ -79,7 +79,10 @@ namespace TrenchBroom {
             size_t previousChunkStart = 0;
             for (size_t i = 0; i < fullStr.Len(); ++i) {
                 const wxUniChar c = fullStr[i];
-                if (c == '\r') {
+                const wxUniChar n = i < fullStr.Len() - 1 ? fullStr[i+1] : wxUniChar(0);
+                if (c == '\r' && n == '\n') {
+                    continue;
+                } else if (c == '\r') {
                     previousChunkStart = chunkStart;
                     chunkStart = i;
                 } else if (c == '\n') {
@@ -102,7 +105,10 @@ namespace TrenchBroom {
                 size_t l = 0;
                 for (size_t i = 0; i < str.Len(); ++i) {
                     const wxUniChar c = str[i];
-                    if (c == '\r') {
+                    const wxUniChar n = i < str.Len() - 1 ? str[i+1] : wxUniChar(0);
+                    if (c == '\r' && n == '\n') {
+                        continue;
+                    } if (c == '\r') {
                         const long from = static_cast<long>(m_lastNewLine);
                         const long to   = m_textCtrl->GetLastPosition();
                         m_textCtrl->Remove(from, to);
