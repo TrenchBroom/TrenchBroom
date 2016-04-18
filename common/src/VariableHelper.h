@@ -36,6 +36,7 @@ namespace TrenchBroom {
     class VariableTable {
     private:
         StringSet m_variables;
+        StringMap m_values;
         const String m_prefix;
         const String m_suffix;
     public:
@@ -48,23 +49,12 @@ namespace TrenchBroom {
         void declare(const String& variable);
         void undeclare(const String& variable);
         
-        const String translate(const String& string, const GetVariableValue& getValue) const;
-        String buildVariableString(const String& variableName) const;
-    };
-    
-    class VariableValueTable : public GetVariableValue {
-    private:
-        const VariableTable& m_variableTable;
-        StringMap m_variableValues;
-    public:
-        VariableValueTable(const VariableTable& variableTable);
-        
         void define(const String& variableName, const String& variableValue);
         void undefine(const String& variableName);
         
-        const String translate(const String& string) const;
-    private:
-        virtual String doGetValue(const String& variableName) const;
+        const String& value(const String& variableName) const;
+        String translate(const String& string) const;
+        String buildVariableString(const String& variableName) const;
     };
 }
 

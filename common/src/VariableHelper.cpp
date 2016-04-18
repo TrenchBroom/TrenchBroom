@@ -20,16 +20,6 @@
 #include "VariableHelper.h"
 
 namespace TrenchBroom {
-    GetVariableValue::~GetVariableValue() {}
-    
-    String GetVariableValue::operator()(const String& variableName) const {
-        return value(variableName);
-    }
-
-    String GetVariableValue::value(const String& variableName) const {
-        return doGetValue(variableName);
-    }
-
     VariableTable::VariableTable() :
     m_prefix("${"),
     m_suffix("}") {}
@@ -55,13 +45,30 @@ namespace TrenchBroom {
         m_variables.erase(variable);
     }
     
-    const String VariableTable::translate(const String& string, const GetVariableValue& getValue) const {
+    void VariableTable::define(const String& variableName, const String& variableValue) {
+        assert(declared(variableName));
+        m_values.insert(std::make_pair(variableName, variableValue));
+    }
+    
+    void VariableTable::undefine(const String& variableName) {
+        assert(declared(variableName));
+        m_values.erase(variableName);
+    }
+
+    const String& VariableTable::value(const String& variableName) const {
+        StringMap::const_iterator it = m_values.find(variableName);
+        if (it == m_values.end())
+            return EmptyString;
+        return it->second;
+    }
+
+    String VariableTable::translate(const String& string) const {
         String result = string;
         StringSet::const_iterator it, end;
         for (it = m_variables.begin(), end = m_variables.end(); it != end; ++it) {
             const String& variableName   = *it;
             const String  variableString = buildVariableString(variableName);
-            const String  variableValue  = getValue(variableName);
+            const String& variableValue  = value(variableName);
             result = StringUtils::replaceAll(result, variableString, variableValue);
         }
         return result;
@@ -69,28 +76,5 @@ namespace TrenchBroom {
 
     String VariableTable::buildVariableString(const String& variableName) const {
         return m_prefix + variableName + m_suffix;
-    }
-
-    VariableValueTable::VariableValueTable(const VariableTable& variableTable) :
-    m_variableTable(variableTable) {}
-    
-    void VariableValueTable::define(const String& variableName, const String& variableValue) {
-        assert(m_variableTable.declared(variableName));
-        m_variableValues.insert(std::make_pair(variableName, variableValue));
-    }
-    
-    void VariableValueTable::undefine(const String& variableName) {
-        m_variableValues.erase(variableName);
-    }
-
-    const String VariableValueTable::translate(const String& string) const {
-        return m_variableTable.translate(string, *this);
-    }
-
-    String VariableValueTable::doGetValue(const String& variableName) const {
-        StringMap::const_iterator it = m_variableValues.find(variableName);
-        if (it == m_variableValues.end())
-            return "";
-        return it->second;
     }
 }

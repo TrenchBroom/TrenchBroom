@@ -37,6 +37,8 @@ namespace TrenchBroom {
         m_currentRun(NULL) {}
         
         CompilationRun::~CompilationRun() {
+            if (running())
+                m_currentRun->terminate();
             delete m_currentRun;
         }
 
@@ -57,11 +59,10 @@ namespace TrenchBroom {
                 m_currentRun = NULL;
             }
 
-            const VariableTable variables = compilationVariables();
-            VariableValueTable values(variables);
-            defineCompilationVariables(values, profile, document);
+            VariableTable variables = compilationVariables();
+            defineCompilationVariables(variables, profile, document);
             
-            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, values, TextCtrlOutputAdapter(currentOutput)), profile);
+            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput)), profile);
             m_currentRun->execute();
         }
         
@@ -76,31 +77,30 @@ namespace TrenchBroom {
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
-            const VariableTable variables = compilationWorkDirVariables();
-            VariableValueTable values(variables);
-            defineWorkDirVariables(values, document);
-            return values.translate(profile->workDirSpec());
+            VariableTable variables = compilationWorkDirVariables();
+            defineWorkDirVariables(variables, document);
+            return variables.translate(profile->workDirSpec());
         }
 
-        void CompilationRun::defineWorkDirVariables(VariableValueTable& values, MapDocumentSPtr document) {
+        void CompilationRun::defineWorkDirVariables(VariableTable& variables, MapDocumentSPtr document) {
             using namespace CompilationVariableNames;
             
-            values.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
-            defineCommonVariables(values, document);
+            variables.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
+            defineCommonVariables(variables, document);
         }
         
-        void CompilationRun::defineCompilationVariables(VariableValueTable& values, const Model::CompilationProfile* profile, MapDocumentSPtr document) {
+        void CompilationRun::defineCompilationVariables(VariableTable& variables, const Model::CompilationProfile* profile, MapDocumentSPtr document) {
             using namespace CompilationVariableNames;
             
             wxString cpuCount;
             cpuCount << wxThread::GetCPUCount();
             
-            values.define(WORK_DIR_PATH, buildWorkDir(profile, document));
-            values.define(CPU_COUNT, cpuCount.ToStdString());
-            defineCommonVariables(values, document);
+            variables.define(WORK_DIR_PATH, buildWorkDir(profile, document));
+            variables.define(CPU_COUNT, cpuCount.ToStdString());
+            defineCommonVariables(variables, document);
         }
         
-        void CompilationRun::defineCommonVariables(VariableValueTable& values, MapDocumentSPtr document) {
+        void CompilationRun::defineCommonVariables(VariableTable& variables, MapDocumentSPtr document) {
             using namespace CompilationVariableNames;
 
             const IO::Path filename = document->path().lastComponent();
@@ -109,12 +109,12 @@ namespace TrenchBroom {
             const IO::Path modPath = gamePath + IO::Path(lastMod);
             const IO::Path appPath = IO::SystemPaths::appDirectory();
             
-            values.define(MAP_BASE_NAME, filename.deleteExtension().asString());
-            values.define(MAP_FULL_NAME, filename.asString());
-            values.define(GAME_DIR_PATH, gamePath.asString());
-            values.define(MOD_DIR_PATH, lastMod);
-            values.define(MOD_DIR_PATH, modPath.asString());
-            values.define(APP_DIR_PATH, appPath.asString());
+            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
+            variables.define(MAP_FULL_NAME, filename.asString());
+            variables.define(GAME_DIR_PATH, gamePath.asString());
+            variables.define(MOD_DIR_PATH, lastMod);
+            variables.define(MOD_DIR_PATH, modPath.asString());
+            variables.define(APP_DIR_PATH, appPath.asString());
         }
 
         void CompilationRun::compilationRunnerDidFinish() {

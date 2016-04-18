@@ -29,7 +29,7 @@
 class wxTextCtrl;
 
 namespace TrenchBroom {
-    class VariableValueTable;
+    class VariableTable;
     
     namespace Model {
         class CompilationProfile;
@@ -53,9 +53,9 @@ namespace TrenchBroom {
             bool doIsRunning() const;
         private:
             String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
-            void defineWorkDirVariables(VariableValueTable& values, MapDocumentSPtr document);
-            void defineCompilationVariables(VariableValueTable& values, const Model::CompilationProfile* profile, MapDocumentSPtr document);
-            void defineCommonVariables(VariableValueTable& values, MapDocumentSPtr document);
+            void defineWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
+            void defineCompilationVariables(VariableTable& values, const Model::CompilationProfile* profile, MapDocumentSPtr document);
+            void defineCommonVariables(VariableTable& values, MapDocumentSPtr document);
             
             void compilationRunnerDidFinish();
             void cleanup();

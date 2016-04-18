@@ -21,10 +21,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues, const TextCtrlOutputAdapter& output) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const TextCtrlOutputAdapter& output) :
         m_document(document),
         m_variables(variables),
-        m_variableValues(variableValues),
         m_output(output) {}
         
         MapDocumentSPtr CompilationContext::document() const {
@@ -32,11 +31,11 @@ namespace TrenchBroom {
         }
 
         String CompilationContext::translateVariables(const String& input) const {
-            return m_variableValues.translate(input);
+            return m_variables.translate(input);
         }
 
         String CompilationContext::variableValue(const String& variableName) const {
-            return m_variableValues.value(variableName);
+            return m_variables.value(variableName);
         }
     }
 }

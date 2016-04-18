@@ -20,7 +20,12 @@
 #ifndef CompilationRunner_h
 #define CompilationRunner_h
 
-#include "View/CompilationContext.h"
+#include <wx/event.h>
+
+#include <list>
+
+wxDECLARE_EVENT(wxEVT_COMPILATION_START, wxNotifyEvent);
+wxDECLARE_EVENT(wxEVT_COMPILATION_END, wxNotifyEvent);
 
 namespace TrenchBroom {
     namespace Model {
@@ -28,6 +33,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class CompilationContext;
+        
         class CompilationRunner {
         private:
             class TaskRunner;
@@ -35,18 +42,23 @@ namespace TrenchBroom {
             class CopyFilesRunner;
             class RunToolRunner;
             
+            typedef std::list<TaskRunner*> TaskRunnerList;
+            
             CompilationContext* m_context;
-            TaskRunner* m_runnerChain;
+            TaskRunnerList m_taskRunners;
+            TaskRunnerList::iterator m_currentTask;
         public:
             CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile);
             ~CompilationRunner();
         private:
             class CreateTaskRunnerVisitor;
-            static TaskRunner* createRunnerChain(CompilationContext& context, const Model::CompilationProfile* profile);
+            static TaskRunnerList createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile);
         public:
             void execute();
             void terminate();
             bool running() const;
+        private:
+            void OnTaskEnded(wxEvent& event);
         private:
             CompilationRunner(const CompilationRunner& other);
             CompilationRunner& operator=(const CompilationRunner& other);

@@ -19,6 +19,7 @@
 
 #include "CompilationRunner.h"
 
+#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
@@ -28,35 +29,29 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
-#include <wx/event.h>
-#include <wx/filefn.h>
 #include <wx/process.h>
 #include <wx/sstream.h>
-#include <wx/thread.h>
 #include <wx/timer.h>
+
+wxDECLARE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
+wxDECLARE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
+
+wxDEFINE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
+wxDEFINE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
+
+wxDEFINE_EVENT(wxEVT_COMPILATION_START, wxNotifyEvent);
+wxDEFINE_EVENT(wxEVT_COMPILATION_END, wxNotifyEvent);
 
 namespace TrenchBroom {
     namespace View {
-        class CompilationRunner::TaskRunner {
+        class CompilationRunner::TaskRunner : public wxEvtHandler {
         protected:
             CompilationContext& m_context;
-        private:
-            TaskRunner* m_next;
-            bool m_finished;
-            mutable wxCriticalSection m_finishedSection;
-        public:
+        protected:
             TaskRunner(CompilationContext& context) :
-            m_context(context),
-            m_next(NULL),
-            m_finished(false) {}
-            
-            virtual ~TaskRunner() {
-                delete m_next;
-            }
-            
-            void setNext(TaskRunner* next) {
-                m_next = next;
-            }
+            m_context(context) {}
+        public:
+            virtual ~TaskRunner() {}
             
             void execute() {
                 doExecute();
@@ -64,27 +59,14 @@ namespace TrenchBroom {
             
             void terminate() {
                 doTerminate();
-                if (m_next != NULL)
-                    m_next->terminate();
-            }
-            
-            bool running() const {
-                wxCriticalSectionLocker lock(m_finishedSection);
-                if (!m_finished)
-                    return true;
-                if (m_next != NULL)
-                    return m_next->running();
-                return false;
             }
         protected:
-            void executeNext() {
-                if (m_next != NULL)
-                    m_next->execute();
+            void notifyStart() {
+                QueueEvent(new wxNotifyEvent(wxEVT_TASK_START));
             }
             
-            void setFinished() {
-                wxCriticalSectionLocker lock(m_finishedSection);
-                m_finished = true;
+            void notifyEnd() {
+                QueueEvent(new wxNotifyEvent(wxEVT_TASK_END));
             }
         private:
             virtual void doExecute() = 0;
@@ -96,50 +78,59 @@ namespace TrenchBroom {
         
         class CompilationRunner::ExportMapRunner : public TaskRunner {
         private:
-            String m_targetSpec;
+            const Model::CompilationExportMap* m_task;
         public:
             ExportMapRunner(CompilationContext& context, const Model::CompilationExportMap* task) :
             TaskRunner(context),
-            m_targetSpec(task->targetSpec()) {}
+            m_task(static_cast<const Model::CompilationExportMap*>(task->clone())) {}
+            
+            ~ExportMapRunner() {
+                delete m_task;
+            }
         private:
             void doExecute() {
-                const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
+                notifyStart();
+                
+                const IO::Path targetPath(m_context.translateVariables(m_task->targetSpec()));
                 try {
                     m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
-
+                    
                     const IO::Path directoryPath = targetPath.deleteLastComponent();
                     if (!IO::Disk::directoryExists(directoryPath))
                         IO::Disk::createDirectory(directoryPath);
                     
                     const MapDocumentSPtr document = m_context.document();
                     document->saveDocumentTo(targetPath);
-                    
-                    setFinished();
-                    executeNext();
                 } catch (const Exception& e) {
                     m_context << "#### Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
+                
+                notifyEnd();
             }
             
             void doTerminate() {}
         private:
-            ExportMapRunner(const CopyFilesRunner& other);
-            ExportMapRunner& operator=(const CopyFilesRunner& other);
+            ExportMapRunner(const ExportMapRunner& other);
+            ExportMapRunner& operator=(const ExportMapRunner& other);
         };
-
+        
         class CompilationRunner::CopyFilesRunner : public TaskRunner {
         private:
-            String m_sourceSpec;
-            String m_targetSpec;
+            const Model::CompilationCopyFiles* m_task;
         public:
             CopyFilesRunner(CompilationContext& context, const Model::CompilationCopyFiles* task) :
             TaskRunner(context),
-            m_sourceSpec(task->sourceSpec()),
-            m_targetSpec(task->targetSpec()) {}
+            m_task(static_cast<const Model::CompilationCopyFiles*>(task->clone())) {}
+            
+            ~CopyFilesRunner() {
+                delete m_task;
+            }
         private:
             void doExecute() {
-                const IO::Path sourcePath(m_context.translateVariables(m_sourceSpec));
-                const IO::Path targetPath(m_context.translateVariables(m_targetSpec));
+                notifyStart();
+                
+                const IO::Path sourcePath(m_context.translateVariables(m_task->sourceSpec()));
+                const IO::Path targetPath(m_context.translateVariables(m_task->targetSpec()));
                 
                 const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
                 const String sourcePattern = sourcePath.lastComponent().asString();
@@ -147,12 +138,11 @@ namespace TrenchBroom {
                 try {
                     m_context << "#### Copying '" << sourcePath.asString() << "'\nTo '" << targetPath.asString() << "'\n";
                     IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
-
-                    setFinished();
-                    executeNext();
                 } catch (const Exception& e) {
                     m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
+                
+                notifyEnd();
             }
             
             void doTerminate() {}
@@ -160,70 +150,93 @@ namespace TrenchBroom {
             CopyFilesRunner(const CopyFilesRunner& other);
             CopyFilesRunner& operator=(const CopyFilesRunner& other);
         };
-
-        class CompilationRunner::RunToolRunner : public wxEvtHandler, public TaskRunner {
+        
+        class CompilationRunner::RunToolRunner : public TaskRunner {
         private:
-            String m_toolSpec;
-            String m_parameterSpec;
+            const Model::CompilationRunTool* m_task;
             wxProcess* m_process;
-            wxCriticalSection m_processSection;
-            wxTimer* m_processTimer;
+            wxTimer* m_timer;
+            bool m_terminated;
         public:
             RunToolRunner(CompilationContext& context, const Model::CompilationRunTool* task) :
             TaskRunner(context),
-            m_toolSpec(task->toolSpec()),
-            m_parameterSpec(task->parameterSpec()),
+            m_task(static_cast<const Model::CompilationRunTool*>(task->clone())),
             m_process(NULL),
-            m_processTimer(NULL) {}
+            m_timer(NULL),
+            m_terminated(false) {}
             
             ~RunToolRunner() {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL) {
-                    m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnTerminateProcess, this);
-                    delete m_processTimer;
-                }
+                assert(m_process == NULL);
+                assert(m_timer == NULL);
+                delete m_task;
             }
         private:
             void doExecute() {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                
-                const IO::Path toolPath(m_context.translateVariables(m_toolSpec));
-                const String parameters(m_context.translateVariables(m_parameterSpec));
-                const String cmd = toolPath.asString() + " " + parameters;
-                
-                createProcess();
-                startProcess(cmd);
+                start();
             }
             
             void doTerminate() {
-                wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
-                    wxProcess::Kill(static_cast<int>(m_process->GetPid()));
+                    readRemainingOutput();
+                    m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
+                    m_process->Detach();
+                    const int pid = static_cast<int>(m_process->GetPid());
+                    end();
+                    ::wxKill(pid);
+                    m_context << "#### Terminated\n";
                 }
             }
         private:
-            void OnTerminateProcess(wxProcessEvent& event) {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL) {
-                    assert(m_process->GetPid() == event.GetPid());
-                    
-                    readRemainingOutput();
-                    
-                    m_context << "#### Finished with exit status " << event.GetExitCode() << "\n";
-                    
-                    deleteProcess();
-                    setFinished();
-                    if (event.GetExitCode() >= 0)
-                        executeNext();
-                }
+            void OnTimer(wxTimerEvent& event) {
+                readOutput();
             }
             
-            void OnProcessTimer(wxTimerEvent& event) {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL)
-                    readOutput();
+            void OnEndProcessAsync(wxProcessEvent& event) {
+                QueueEvent(event.Clone());
             }
             
+            void OnEndProcessSync(wxProcessEvent& event) {
+                readRemainingOutput();
+                end();
+                delete m_process;
+                m_context << "#### Finished with exit status " << event.GetPid() << "\n";
+            }
+        private:
+            void start() {
+                assert(m_process == NULL);
+                assert(m_timer == NULL);
+                
+                const IO::Path toolPath(m_context.translateVariables(m_task->toolSpec()));
+                const String parameters(m_context.translateVariables(m_task->parameterSpec()));
+                const String cmd = toolPath.asString() + " " + parameters;
+
+                m_process = new wxProcess(this);
+                m_process->Redirect();
+                m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
+                Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
+                
+                m_timer = new wxTimer();
+                m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
+                
+                wxExecuteEnv* env = new wxExecuteEnv();
+                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
+                
+                m_context << "#### Executing '" << cmd << "'\n";
+                ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
+                m_timer->Start(50);
+            }
+            
+            void end() {
+                assert(m_process != NULL);
+                assert(m_timer != NULL);
+
+                delete m_timer;
+                m_timer = NULL;
+                m_process = NULL; // process will be deleted by the library
+                
+                notifyEnd();
+            }
+        private:
             void readRemainingOutput() {
                 bool hasOutput = true;
                 bool hasTrailingNewline = true;
@@ -282,79 +295,37 @@ namespace TrenchBroom {
                 const wxString result = out.GetString();
                 return result;
             }
-            
-            void createProcess() {
-                assert(m_process == NULL);
-                m_process = new wxProcess(this);
-                m_processTimer = new wxTimer();
-                
-                m_process->Redirect();
-                m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnTerminateProcess, this);
-                m_processTimer->Bind(wxEVT_TIMER, &RunToolRunner::OnProcessTimer, this);
-            }
-            
-            void startProcess(const String& cmd) {
-                assert(m_process != NULL);
-                assert(m_processTimer != NULL);
-
-                wxExecuteEnv* env = new wxExecuteEnv();
-                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
-                
-                m_context << "#### Executing '" << cmd << "'\n";
-                m_processTimer->Start(50);
-                
-                // At least on OSX, setting the working directory using env is broken. Instead of using the
-                // directory provided in env->cwd, it inherits the one from the parent process, so we
-                // temporarily change our working directory and change it back immediately after.
-                // const wxString oldCwd = ::wxGetCwd();
-                // ::wxSetWorkingDirectory(env->cwd);
-                ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
-                // ::wxSetWorkingDirectory(oldCwd);
-            }
-            
-            void deleteProcess() {
-                if (m_processTimer != NULL) {
-                    delete m_processTimer;
-                    m_processTimer = NULL;
-                }
-                delete m_process;
-                m_process = NULL;
-            }
         private:
             RunToolRunner(const RunToolRunner& other);
             RunToolRunner& operator=(const RunToolRunner& other);
         };
-    
+
         CompilationRunner::CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile) :
         m_context(context),
-        m_runnerChain(createRunnerChain(*m_context, profile)) {}
+        m_taskRunners(createTaskRunners(*m_context, profile)),
+        m_currentTask(m_taskRunners.end()) {}
         
         CompilationRunner::~CompilationRunner() {
-            if (m_runnerChain != NULL)
-                delete m_runnerChain;
-            if (m_context != NULL)
-                delete m_context;
+            ListUtils::clearAndDelete(m_taskRunners);
+            delete m_context;
         }
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:
             CompilationContext& m_context;
-            TaskRunner* m_first;
-            TaskRunner* m_last;
+            TaskRunnerList m_runners;
         public:
             CreateTaskRunnerVisitor(CompilationContext& context) :
-            m_context(context),
-            m_first(NULL),
-            m_last(NULL) {}
+            m_context(context) {}
             
-            TaskRunner* runnerChain() {
-                return m_first;
+            const TaskRunnerList& runners() {
+                return m_runners;
             }
             
             void visit(const Model::CompilationExportMap* task) {
                 appendRunner(new ExportMapRunner(m_context, task));
             }
-
+            
             void visit(const Model::CompilationCopyFiles* task) {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
@@ -365,33 +336,43 @@ namespace TrenchBroom {
             
         private:
             void appendRunner(TaskRunner* runner) {
-                if (m_first == NULL) {
-                    m_first = m_last = runner;
-                } else {
-                    m_last->setNext(runner);
-                    m_last = runner;
-                }
+                m_runners.push_back(runner);
             }
         };
-
-        CompilationRunner::TaskRunner* CompilationRunner::createRunnerChain(CompilationContext& context, const Model::CompilationProfile* profile) {
+        
+        CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
             CreateTaskRunnerVisitor visitor(context);
             profile->accept(visitor);
-            return visitor.runnerChain();
+            return visitor.runners();
         }
 
         void CompilationRunner::execute() {
-            if (m_runnerChain != NULL)
-                m_runnerChain->execute();
+            assert(!running());
+            m_currentTask = m_taskRunners.begin();
+            (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+            (*m_currentTask)->execute();
         }
         
         void CompilationRunner::terminate() {
-            if (m_runnerChain != NULL)
-                m_runnerChain->terminate();
+            assert(running());
+            (*m_currentTask)->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+            (*m_currentTask)->terminate();
+            m_currentTask = m_taskRunners.end();
         }
-
+        
         bool CompilationRunner::running() const {
-            return m_runnerChain != NULL && m_runnerChain->running();
+            return m_currentTask != m_taskRunners.end();
+        }
+        
+        void CompilationRunner::OnTaskEnded(wxEvent& event) {
+            if (running()) {
+                (*m_currentTask)->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+                ++m_currentTask;
+                if (m_currentTask != m_taskRunners.end()) {
+                    (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+                    (*m_currentTask)->execute();
+                }
+            }
         }
     }
 }

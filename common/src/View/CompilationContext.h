@@ -35,11 +35,10 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             VariableTable m_variables;
-            VariableValueTable m_variableValues;
             
             TextCtrlOutputAdapter m_output;
         public:
-            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const VariableValueTable& variableValues, const TextCtrlOutputAdapter& output);
+            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const TextCtrlOutputAdapter& output);
             
             MapDocumentSPtr document() const;
             
