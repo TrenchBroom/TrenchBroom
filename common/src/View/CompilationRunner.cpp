@@ -339,14 +339,16 @@ namespace TrenchBroom {
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:
             CompilationContext& m_context;
-            TaskRunner* m_runnerChain;
+            TaskRunner* m_first;
+            TaskRunner* m_last;
         public:
             CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context),
-            m_runnerChain(NULL) {}
+            m_first(NULL),
+            m_last(NULL) {}
             
             TaskRunner* runnerChain() {
-                return m_runnerChain;
+                return m_first;
             }
             
             void visit(const Model::CompilationExportMap* task) {
@@ -363,10 +365,12 @@ namespace TrenchBroom {
             
         private:
             void appendRunner(TaskRunner* runner) {
-                if (m_runnerChain == NULL)
-                    m_runnerChain = runner;
-                else
-                    m_runnerChain->setNext(runner);
+                if (m_first == NULL) {
+                    m_first = m_last = runner;
+                } else {
+                    m_last->setNext(runner);
+                    m_last = runner;
+                }
             }
         };
 
