@@ -197,9 +197,9 @@ namespace TrenchBroom {
             
             void OnEndProcessSync(wxProcessEvent& event) {
                 readRemainingOutput();
+				m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
                 end();
                 delete m_process;
-                m_context << "#### Finished with exit status " << event.GetPid() << "\n";
             }
         private:
             void start() {
