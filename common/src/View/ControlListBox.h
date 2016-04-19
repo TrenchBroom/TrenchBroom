@@ -20,9 +20,12 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
+#include <wx/event.h>
 #include <wx/scrolwin.h>
 
 #include <vector>
+
+wxDECLARE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
 
 class wxStaticText;
 class wxWindow;
@@ -47,6 +50,7 @@ namespace TrenchBroom {
             typedef std::vector<Item*> ItemList;
             wxString m_emptyText;
             wxStaticText* m_emptyTextLabel;
+        protected:
             ItemList m_items;
             size_t m_selectionIndex;
         private:
@@ -62,15 +66,16 @@ namespace TrenchBroom {
             void MakeVisible(const Item* item);
             void MakeVisible(wxCoord y, wxCoord size);
         private:
-            
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);
             
             void OnSize(wxSizeEvent& event);
             void OnFocusChild(wxFocusEvent& event);
-            void OnClickChild(wxMouseEvent& event);
+            void OnLeftClickChild(wxMouseEvent& event);
+            void OnRightClickChild(wxMouseEvent& event);
             void OnDoubleClickChild(wxMouseEvent& event);
-            void OnClickList(wxMouseEvent& event);
+            void OnLeftClickVoid(wxMouseEvent& event);
+            void sendEvent(wxMouseEvent& event);
             
             void setSelection(const wxEvent& event);
             void setSelection(size_t index);

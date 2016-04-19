@@ -28,6 +28,8 @@
 #include <wx/stattext.h>
 #include <wx/wupdlock.h>
 
+wxDEFINE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
+
 namespace TrenchBroom {
     namespace View {
         ControlListBox::Item::Item(wxWindow* parent) :
@@ -85,7 +87,7 @@ namespace TrenchBroom {
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
-            Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnClickList, this);
+            Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickVoid, this);
             Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
             SetItemCount(0);
         }
@@ -101,12 +103,15 @@ namespace TrenchBroom {
                 m_selectionIndex = itemCount;
             else
                 m_selectionIndex = wxMin(itemCount, m_selectionIndex);
+
+            wxWindowUpdateLocker lock(this);
             refresh(itemCount);
             setSelection(m_selectionIndex);
-            Refresh();
         }
 
         void ControlListBox::SetSelection(const int index) {
+            wxWindowUpdateLocker lock(this);
+            
             if (index < 0 || static_cast<size_t>(index) > m_items.size()) {
                 setSelection(m_items.size());
             } else {
@@ -124,6 +129,8 @@ namespace TrenchBroom {
         }
         
         void ControlListBox::MakeVisible(wxCoord y, const wxCoord size) {
+            wxWindowUpdateLocker lock(this);
+
             y = CalcUnscrolledPosition(wxPoint(0, y)).y;
             int xUnit, yUnit;
             GetScrollPixelsPerUnit(&xUnit, &yUnit);
@@ -141,8 +148,6 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::refresh(const size_t itemCount) {
-            wxWindowUpdateLocker lock(this);
-            
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
             m_emptyTextLabel = NULL;
@@ -185,7 +190,8 @@ namespace TrenchBroom {
             if (window->IsFocusable()) {
                 window->Bind(wxEVT_SET_FOCUS, &ControlListBox::OnFocusChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
             } else {
-                window->Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
+                window->Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
+                window->Bind(wxEVT_RIGHT_DOWN, &ControlListBox::OnRightClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
                 window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
             }
             
@@ -198,18 +204,33 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::OnSize(wxSizeEvent& event) {
+            wxWindowUpdateLocker lock(this);
+
             if (m_emptyTextLabel != NULL)
                 m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
             event.Skip();
         }
         
         void ControlListBox::OnFocusChild(wxFocusEvent& event) {
+            wxWindowUpdateLocker lock(this);
             setSelection(event);
+            
             event.Skip();
         }
         
-        void ControlListBox::OnClickChild(wxMouseEvent& event) {
+        void ControlListBox::OnLeftClickChild(wxMouseEvent& event) {
+            wxWindowUpdateLocker lock(this);
             setSelection(event);
+        }
+
+        void ControlListBox::OnRightClickChild(wxMouseEvent& event) {
+            wxWindowUpdateLocker lock(this);
+            setSelection(event);
+            
+            wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_RCLICK, GetId());
+            command->SetInt(GetSelection());
+            command->SetEventObject(this);
+            QueueEvent(command);
         }
 
         void ControlListBox::OnDoubleClickChild(wxMouseEvent& event) {
@@ -219,7 +240,8 @@ namespace TrenchBroom {
             QueueEvent(command);
         }
 
-        void ControlListBox::OnClickList(wxMouseEvent& event) {
+        void ControlListBox::OnLeftClickVoid(wxMouseEvent& event) {
+            wxWindowUpdateLocker lock(this);
             setSelection(m_items.size());
         }
 
@@ -230,8 +252,6 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::setSelection(const size_t index) {
-            wxWindowUpdateLocker lock(this);
-
             assert(index <= m_items.size());
             const bool changed = m_selectionIndex != index;
             m_selectionIndex = index;

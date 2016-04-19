@@ -57,17 +57,15 @@ namespace TrenchBroom {
             return new LayerCommand(*this);
         }
 
-        class LayerListBox::LayerEntry : public wxPanel {
+        class LayerListBox::LayerItem : public Item {
         private:
-            int m_index;
             MapDocumentWPtr m_document;
             Model::Layer* m_layer;
             wxStaticText* m_nameText;
             wxStaticText* m_infoText;
         public:
-            LayerEntry(wxWindow* parent, int index, MapDocumentWPtr document, Model::Layer* layer) :
-            wxPanel(parent),
-            m_index(index),
+            LayerItem(wxWindow* parent, MapDocumentWPtr document, Model::Layer* layer, const wxSize& margins) :
+            Item(parent),
             m_document(document),
             m_layer(layer) {
                 m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
@@ -81,14 +79,14 @@ namespace TrenchBroom {
                 wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
                 wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
 
-                bindMouseEvents(this);
-                bindMouseEvents(m_nameText);
-                bindMouseEvents(m_infoText);
+                MapDocumentSPtr documentS = lock(m_document);
+                hiddenButton->Enable(m_layer->hidden() || m_layer != documentS->currentLayer());
+                lockButton->Enable(m_layer->locked() || m_layer != documentS->currentLayer());
 
-                hiddenButton->Bind(wxEVT_BUTTON, &LayerEntry::OnToggleVisible, this);
-                hiddenButton->Bind(wxEVT_UPDATE_UI, &LayerEntry::OnUpdateVisibleButton, this);
-                lockButton->Bind(wxEVT_BUTTON, &LayerEntry::OnToggleLocked, this);
-                lockButton->Bind(wxEVT_UPDATE_UI, &LayerEntry::OnUpdateLockButton, this);
+                hiddenButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleVisible, this);
+                hiddenButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateVisibleButton, this);
+                lockButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleLocked, this);
+                lockButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateLockButton, this);
 
                 wxSizer* itemPanelTopSizer = new wxBoxSizer(wxHORIZONTAL);
                 itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
@@ -107,12 +105,6 @@ namespace TrenchBroom {
                 itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
                 SetSizer(itemPanelSizer);
-
-                setSelected(false);
-            }
-
-            int index() const {
-                return m_index;
             }
 
             Model::Layer* layer() const {
@@ -129,38 +121,11 @@ namespace TrenchBroom {
                     m_nameText->SetFont(GetFont());
 
                 wxString info;
-                info << m_layer->childCount() << " objects";
+                info << m_layer->childCount() << " " << StringUtils::safePlural(m_layer->childCount(), "object", "objects");
                 m_infoText->SetLabel(info);
                 m_infoText->SetFont(GetFont());
                 
                 Layout();
-            }
-
-            void bindMouseEvents(wxWindow* window) {
-                window->Bind(wxEVT_LEFT_DCLICK, &LayerEntry::OnMouse, this);
-                window->Bind(wxEVT_LEFT_DOWN, &LayerEntry::OnMouse, this);
-                window->Bind(wxEVT_RIGHT_DOWN, &LayerEntry::OnMouse, this);
-                window->Bind(wxEVT_RIGHT_UP, &LayerEntry::OnMouse, this);
-            }
-
-            void setSelected(const bool selected) {
-                wxColour foreground, background;
-                if (selected) {
-                    foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT);
-                    background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-                } else {
-                    foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
-                    background = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX);
-                }
-
-                SetBackgroundColour(background);
-                SetForegroundColour(foreground);
-
-                const wxWindowList& children = GetChildren();
-                for (size_t i = 0; i < children.size(); ++i) {
-                    children[i]->SetBackgroundColour(background);
-                    children[i]->SetForegroundColour(foreground);
-                }
             }
 
             void OnToggleVisible(wxCommandEvent& event) {
@@ -192,22 +157,13 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 event.Enable(m_layer->locked() || m_layer != document->currentLayer());
             }
-
-            void OnMouse(wxMouseEvent& event) {
-                wxMouseEvent newEvent(event);
-                newEvent.SetEventObject(this);
-                ProcessEvent(newEvent);
-            }
         };
 
         LayerListBox::LayerListBox(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
-        m_document(document),
-        m_scrollWindow(NULL),
-        m_selection(-1) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            createGui();
+        ControlListBox(parent),
+        m_document(document) {
             bindObservers();
+            bindEvents();
         }
 
         LayerListBox::~LayerListBox() {
@@ -215,94 +171,54 @@ namespace TrenchBroom {
         }
 
         Model::Layer* LayerListBox::selectedLayer() const {
-            if (m_selection == -1)
+            if (GetSelection() == wxNOT_FOUND)
                 return NULL;
 
             const Model::World* world = lock(m_document)->world();
             const Model::LayerList layers = world->allLayers();
 
-            const size_t index = static_cast<size_t>(m_selection);
+            const size_t index = static_cast<size_t>(GetSelection());
             assert(index < layers.size());
             return layers[index];
         }
 
         void LayerListBox::setSelectedLayer(Model::Layer* layer) {
-            m_selection = -1;
-            for (size_t i = 0; i < m_entries.size(); ++i) {
-                LayerEntry* entry = m_entries[i];
-                if (entry->layer() == layer) {
-                    entry->setSelected(true);
-                    m_selection = static_cast<int>(i);
-                } else {
-                    entry->setSelected(false);
+            SetSelection(wxNOT_FOUND);
+            for (size_t i = 0; i < m_items.size(); ++i) {
+                LayerItem* item = static_cast<LayerItem*>(m_items[i]);
+                if (item->layer() == layer) {
+                    SetSelection(static_cast<int>(i));
+                    break;
                 }
             }
             Refresh();
         }
 
-        void LayerListBox::OnMouseEntryDown(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            assert(data != NULL);
-
-            LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
-            assert(entry != NULL);
-
-            Model::Layer* layer = entry->layer();
-            setSelectedLayer(layer);
-
+        void LayerListBox::OnSelectionChanged(wxCommandEvent& event) {
             LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
             command->SetId(GetId());
             command->SetEventObject(this);
-            command->setLayer(layer);
+            command->setLayer(selectedLayer());
             QueueEvent(command);
         }
-
-        void LayerListBox::OnMouseEntryDClick(wxMouseEvent& event) {
-            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            assert(data != NULL);
-            
-            LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
-            assert(entry != NULL);
-            
-            Model::Layer* layer = entry->layer();
-            
+        
+        void LayerListBox::OnDoubleClick(wxCommandEvent& event) {
             LayerCommand* command = new LayerCommand(LAYER_SET_CURRENT_EVENT);
             command->SetId(GetId());
             command->SetEventObject(this);
-            command->setLayer(layer);
+            command->setLayer(selectedLayer());
             QueueEvent(command);
         }
 
-        void LayerListBox::OnMouseEntryRightUp(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            assert(data != NULL);
-
-            LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
-            assert(entry != NULL);
-
-            Model::Layer* layer = entry->layer();
-
-            LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);
-            command->SetId(GetId());
-            command->SetEventObject(this);
-            command->setLayer(layer);
-            QueueEvent(command);
-        }
-
-        void LayerListBox::OnMouseVoidDown(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            setSelectedLayer(NULL);
-
-            LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
-            command->SetId(GetId());
-            command->SetEventObject(this);
-            command->setLayer(NULL);
-            QueueEvent(command);
+        void LayerListBox::OnRightClick(wxCommandEvent& event) {
+            Model::Layer* layer = selectedLayer();
+            if (layer != NULL) {
+                LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);
+                command->SetId(GetId());
+                command->SetEventObject(this);
+                command->setLayer(layer);
+                QueueEvent(command);
+            }
         }
 
         void LayerListBox::bindObservers() {
@@ -330,65 +246,49 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::documentDidChange(MapDocument* document) {
-            reload();
+            const Model::World* world = document->world();
+            if (world != NULL) {
+                SetItemCount(world->allLayers().size());
+            } else {
+                SetItemCount(0);
+            }
         }
 
         void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
-            reload();
+            MapDocumentSPtr document = lock(m_document);
+            const Model::World* world = document->world();
+            if (world != NULL) {
+                SetItemCount(world->allLayers().size());
+            } else {
+                SetItemCount(0);
+            }
         }
 
         void LayerListBox::currentLayerDidChange() {
-            refresh();
-        }
-
-        void LayerListBox::createGui() {
-            m_scrollWindow = new wxScrolledWindow(this);
-            m_scrollWindow->Bind(wxEVT_LEFT_DOWN, &LayerListBox::OnMouseVoidDown, this);
-            m_scrollWindow->Bind(wxEVT_RIGHT_DOWN, &LayerListBox::OnMouseVoidDown, this);
-            m_scrollWindow->SetBackgroundColour(GetBackgroundColour());
-
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_scrollWindow, 1, wxEXPAND);
-            SetSizer(outerSizer);
-        }
-
-        void LayerListBox::reload() {
-			wxWindowUpdateLocker locker(this);
-
-            m_selection = -1;
-            m_scrollWindow->DestroyChildren();
-            m_entries.clear();
-
-            wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
-
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-			if (world != NULL) {
-				const Model::LayerList layers = world->allLayers();
-
-				for (size_t i = 0; i < layers.size(); ++i) {
-					Model::Layer* layer = layers[i];
-					LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), m_document, layer);
-					entry->Bind(wxEVT_LEFT_DOWN, &LayerListBox::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-                    entry->Bind(wxEVT_LEFT_DCLICK, &LayerListBox::OnMouseEntryDClick, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-					entry->Bind(wxEVT_RIGHT_DOWN, &LayerListBox::OnMouseEntryDown, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-					entry->Bind(wxEVT_RIGHT_UP, &LayerListBox::OnMouseEntryRightUp, this, wxID_ANY, wxID_ANY, new wxVariant(entry));
-
-					scrollWindowSizer->Add(entry, 0, wxEXPAND);
-					scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
-					m_entries.push_back(entry);
-				}
-			}
-
-            scrollWindowSizer->AddStretchSpacer();
-            m_scrollWindow->SetSizer(scrollWindowSizer);
-            m_scrollWindow->SetScrollRate(0, 1);
-            Layout();
+            if (world != NULL) {
+                SetItemCount(world->allLayers().size());
+            } else {
+                SetItemCount(0);
+            }
         }
 
-        void LayerListBox::refresh() {
-            for (size_t i = 0; i < m_entries.size(); ++i)
-                m_entries[i]->refresh();
+        void LayerListBox::bindEvents() {
+            Bind(wxEVT_LISTBOX, &LayerListBox::OnSelectionChanged, this);
+            Bind(wxEVT_LISTBOX_DCLICK, &LayerListBox::OnDoubleClick, this);
+            Bind(wxEVT_LISTBOX_RCLICK, &LayerListBox::OnRightClick, this);
+        }
+        
+        ControlListBox::Item* LayerListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::World* world = document->world();
+            assert(world != NULL);
+            
+            const Model::LayerList layers = world->allLayers();
+            assert(index < layers.size());
+            
+            return new LayerItem(parent, document, layers[index], margins);
         }
     }
 }
