@@ -24,6 +24,7 @@
 
 #include <wx/dialog.h>
 
+class wxStaticText;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -36,6 +37,7 @@ namespace TrenchBroom {
         private:
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
+            wxStaticText* m_currentRunLabel;
             wxTextCtrl* m_output;
             CompilationRun m_run;
         public:
@@ -47,6 +49,8 @@ namespace TrenchBroom {
             void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
 			void OnCloseButtonClicked(wxCommandEvent& event);
             void OnClose(wxCloseEvent& event);
+
+            void OnCompilationEnd(wxEvent& event);
         };
     }
 }

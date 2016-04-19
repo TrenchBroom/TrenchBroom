@@ -29,6 +29,8 @@ namespace TrenchBroom {
                 static const wxFont font =
 #if defined __APPLE__
                 wxFont(wxFontInfo().FaceName("Monaco")).Smaller();
+#elif defined _WIN32
+                wxFont(wxFontInfo().FaceName("Lucida Console"));
 #else
                 wxSystemSettings::GetFont(wxSYS_OEM_FIXED_FONT);
 #endif

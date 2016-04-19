@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class CompilationContext;
         
-        class CompilationRunner {
+        class CompilationRunner : public wxEvtHandler {
         private:
             class TaskRunner;
             class ExportMapRunner;

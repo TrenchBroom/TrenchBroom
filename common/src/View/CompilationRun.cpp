@@ -63,6 +63,8 @@ namespace TrenchBroom {
             defineCompilationVariables(variables, profile, document);
             
             m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput)), profile);
+            m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
+            m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
             m_currentRun->execute();
         }
         
@@ -117,9 +119,13 @@ namespace TrenchBroom {
             variables.define(APP_DIR_PATH, appPath.asString());
         }
 
-        void CompilationRun::compilationRunnerDidFinish() {
-            wxCriticalSectionLocker lock(m_currentRunSection);
+        void CompilationRun::OnCompilationStart(wxEvent& event) {
+            ProcessEvent(event);
+        }
+        
+        void CompilationRun::OnCompilationEnd(wxEvent& event) {
             cleanup();
+            ProcessEvent(event);
         }
 
         void CompilationRun::cleanup() {

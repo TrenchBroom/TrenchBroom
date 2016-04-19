@@ -35,6 +35,7 @@
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
         wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
         m_mapFrame(mapFrame),
+        m_currentRunLabel(NULL),
         m_output(NULL) {
             createGui();
             SetMinSize(wxSize(600, 300));
@@ -85,11 +87,23 @@ namespace TrenchBroom {
 			buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
+            m_currentRunLabel = new wxStaticText(this, wxID_ANY, "");
+            
+            wxSizer* currentRunLabelSizer = new wxBoxSizer(wxVERTICAL);
+            currentRunLabelSizer->AddStretchSpacer();
+            currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
+            currentRunLabelSizer->AddStretchSpacer();
+            
+            wxSizer* controlLineSizer = new wxBoxSizer(wxHORIZONTAL);
+            controlLineSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxRIGHT, LayoutConstants::WideHMargin));
+            controlLineSizer->Add(buttonSizer);
+            
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
-            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+            dialogSizer->Add(wrapDialogButtonSizer(controlLineSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
             
+            m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);
             Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
         }
 
@@ -101,6 +115,9 @@ namespace TrenchBroom {
                 assert(profile != NULL);
                 m_output->Clear();
                 m_run.run(profile, m_mapFrame->document(), m_output);
+                
+                m_currentRunLabel->SetLabel("Running " + profile->name());
+                Layout();
             }
         }
 
@@ -129,6 +146,10 @@ namespace TrenchBroom {
             if (!event.GetVeto())
                 m_mapFrame->compilationDialogWillClose();
             event.Skip();
+        }
+
+        void CompilationDialog::OnCompilationEnd(wxEvent& event) {
+            m_currentRunLabel->SetLabel("");
         }
     }
 }

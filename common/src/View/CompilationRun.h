@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "View/ViewTypes.h"
 
+#include <wx/event.h>
 #include <wx/string.h>
 #include <wx/thread.h>
 
@@ -38,7 +39,7 @@ namespace TrenchBroom {
     namespace View {
         class CompilationRunner;
         
-        class CompilationRun {
+        class CompilationRun : public wxEvtHandler {
         private:
             CompilationRunner* m_currentRun;
             mutable wxCriticalSection m_currentRunSection;
@@ -56,8 +57,10 @@ namespace TrenchBroom {
             void defineWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
             void defineCompilationVariables(VariableTable& values, const Model::CompilationProfile* profile, MapDocumentSPtr document);
             void defineCommonVariables(VariableTable& values, MapDocumentSPtr document);
+
+            void OnCompilationStart(wxEvent& event);
+            void OnCompilationEnd(wxEvent& event);
             
-            void compilationRunnerDidFinish();
             void cleanup();
         };
     }

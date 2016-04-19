@@ -351,6 +351,9 @@ namespace TrenchBroom {
             m_currentTask = m_taskRunners.begin();
             (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
             (*m_currentTask)->execute();
+            
+            wxNotifyEvent event(wxEVT_COMPILATION_START);
+            ProcessEvent(event);
         }
         
         void CompilationRunner::terminate() {
@@ -358,6 +361,9 @@ namespace TrenchBroom {
             (*m_currentTask)->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
             (*m_currentTask)->terminate();
             m_currentTask = m_taskRunners.end();
+            
+            wxNotifyEvent event(wxEVT_COMPILATION_END);
+            ProcessEvent(event);
         }
         
         bool CompilationRunner::running() const {
@@ -371,6 +377,9 @@ namespace TrenchBroom {
                 if (m_currentTask != m_taskRunners.end()) {
                     (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
                     (*m_currentTask)->execute();
+                } else {
+                    wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
+                    ProcessEvent(endEvent);
                 }
             }
         }
