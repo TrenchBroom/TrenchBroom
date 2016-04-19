@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2016 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             assert(m_textCtrl != NULL);
             bindEvents();
         }
-        
+
         TextCtrlOutputAdapter::~TextCtrlOutputAdapter() {
             unbindEvents();
         }
@@ -64,14 +64,14 @@ namespace TrenchBroom {
             appendString(str);
             m_lastOutputTime = ::wxGetLocalTimeMillis();
         }
-        
+
         void TextCtrlOutputAdapter::OnIdle(wxIdleEvent& event) {
             if (!m_remainder.IsEmpty() && ::wxGetLocalTimeMillis() - m_lastOutputTime > 10) {
                 appendString(m_remainder);
                 m_remainder.Clear();
             }
         }
-        
+
         wxString TextCtrlOutputAdapter::compressString(const wxString& str) {
             wxString fullStr = m_remainder + str;
             wxString result;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         void TextCtrlOutputAdapter::appendString(const wxString& str) {
             if (!str.IsEmpty()) {
                 wxWindowUpdateLocker lock(m_textCtrl);
-                
+
                 size_t l = 0;
                 for (size_t i = 0; i < str.Len(); ++i) {
                     const wxUniChar c = str[i];
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                     } else if (c == '\n') {
 						const wxString text = str.Mid(l, i-l+1);
                         m_textCtrl->AppendText(text);
-#ifdef _WIN32
+#ifndef __APPLE__
 						m_textCtrl->ScrollLines(5);
 #endif
                         m_lastNewLine = static_cast<size_t>(m_textCtrl->GetLastPosition());
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             m_textCtrl->Bind(wxEVT_THREAD, &TextCtrlOutputAdapter::OnAsyncAppend, this, m_textCtrl->GetId());
             m_textCtrl->Bind(wxEVT_IDLE, &TextCtrlOutputAdapter::OnIdle, this);
         }
-        
+
         void TextCtrlOutputAdapter::unbindEvents() {
             m_textCtrl->Unbind(wxEVT_THREAD, &TextCtrlOutputAdapter::OnAsyncAppend, this, m_textCtrl->GetId());
             m_textCtrl->Unbind(wxEVT_IDLE, &TextCtrlOutputAdapter::OnIdle, this);
