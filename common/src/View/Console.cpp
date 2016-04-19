@@ -34,7 +34,8 @@ namespace TrenchBroom {
         Console::Console(wxWindow* parent) :
         TabBookPage(parent),
         m_textView(new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2)) {
-            
+			m_textView->SetFont(Fonts::fixedWidthFont());
+
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_textView, 1, wxEXPAND);
             SetSizer(sizer);
@@ -62,6 +63,9 @@ namespace TrenchBroom {
             const long start = m_textView->GetLastPosition();
             m_textView->AppendText(message);
             m_textView->AppendText("\n");
+#ifdef _WIN32
+			m_textView->ScrollLines(5);
+#endif
             const long end = m_textView->GetLastPosition();
             
             switch (level) {
