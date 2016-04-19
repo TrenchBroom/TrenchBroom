@@ -25,6 +25,7 @@
 #include "View/PreferencePane.h"
 
 class wxButton;
+class wxChoice;
 class wxStaticText;
 
 namespace TrenchBroom {
@@ -37,11 +38,14 @@ namespace TrenchBroom {
             GameListBox* m_gameListBox;
             wxStaticText* m_gamePathValueLabel;
             wxButton* m_chooseGamePathButton;
+            wxChoice* m_defaultEngineChoice;
         public:
             GamesPreferencePane(wxWindow* parent);
 
             void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
+            void OnDefaultEngineChanged(wxCommandEvent& event);
+            void OnUpdateControls(wxUpdateUIEvent& event);
         private:
             void createGui();
             wxWindow* createGamePreferences();
@@ -51,6 +55,7 @@ namespace TrenchBroom {
             bool doCanResetToDefaults();
             void doResetToDefaults();
             void doUpdateControls();
+            wxArrayString engines() const;
             bool doValidate();
         };
     }

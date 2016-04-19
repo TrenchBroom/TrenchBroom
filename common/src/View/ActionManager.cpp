@@ -242,7 +242,6 @@ namespace TrenchBroom {
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
-
             
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");

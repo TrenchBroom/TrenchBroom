@@ -50,6 +50,11 @@ namespace TrenchBroom {
             FileNameMatcher(const String& pattern);
             bool operator()(const Path& path, bool directory) const;
         };
+
+        class ExecutableFileMatcher {
+        public:
+            bool operator()(const Path& path, bool directory) const;
+        };
     }
 }
 

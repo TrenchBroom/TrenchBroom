@@ -21,6 +21,8 @@
 
 #include "IO/Path.h"
 
+#include <wx/filename.h>
+
 namespace TrenchBroom {
     namespace IO {
         FileTypeMatcher::FileTypeMatcher(const bool files, const bool directories) :
@@ -50,6 +52,14 @@ namespace TrenchBroom {
         bool FileNameMatcher::operator()(const Path& path, const bool directory) const {
             const String filename = path.lastComponent().asString();
             return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
+        }
+
+        bool ExecutableFileMatcher::operator()(const Path& path, const bool directory) const {
+#ifdef __APPLE__
+            if (directory && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
+                return true;
+#endif
+            return wxFileName::IsFileExecutable(path.asString());
         }
     }
 }

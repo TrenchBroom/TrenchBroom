@@ -46,6 +46,7 @@ namespace TrenchBroom {
             StringList m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
+            mutable GamePathMap m_defaultEngines;
         public:
             ~GameFactory();
             
@@ -61,6 +62,10 @@ namespace TrenchBroom {
             void setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
+            IO::Path::List findEngines(const String& gameName) const;
+            IO::Path defaultEngine(const String& gameName) const;
+            void setDefaultEngine(const String& gameName, const IO::Path& engine);
+            
             std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
             GameFactory();

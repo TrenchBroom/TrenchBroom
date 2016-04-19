@@ -95,6 +95,27 @@ namespace TrenchBroom {
             return pref.path() == prefPath;
         }
 
+        IO::Path::List GameFactory::findEngines(const String& gameName) const {
+            const IO::Path gamePath = this->gamePath(gameName);
+            return IO::Disk::findItems(gamePath, IO::ExecutableFileMatcher());
+        }
+
+        IO::Path GameFactory::defaultEngine(const String& gameName) const {
+            GamePathMap::iterator it = m_defaultEngines.find(gameName);
+            if (it == m_defaultEngines.end())
+                throw GameException("Unknown game: " + gameName);
+            Preference<IO::Path>& pref = it->second;
+            return PreferenceManager::instance().get(pref);
+        }
+        
+        void GameFactory::setDefaultEngine(const String& gameName, const IO::Path& engine) {
+            GamePathMap::iterator it = m_defaultEngines.find(gameName);
+            if (it == m_defaultEngines.end())
+                throw GameException("Unknown game: " + gameName);
+            Preference<IO::Path>& pref = it->second;
+            PreferenceManager::instance().set(pref, engine);
+        }
+
         std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
             if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
                 return std::make_pair("", MapFormat::Unknown);
@@ -145,8 +166,11 @@ namespace TrenchBroom {
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());
 
-                const IO::Path prefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
-                m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(prefPath, IO::Path(""))));
+                const IO::Path gamePathPrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
+                m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(gamePathPrefPath, IO::Path())));
+                
+                const IO::Path defaultEnginePrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Default Engine");
+                m_defaultEngines.insert(std::make_pair(config.name(), Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
             } catch (const Exception& e) {
                 throw GameException("Cannot load game configuration '" + path.asString() + "': " + String(e.what()));
             }
