@@ -342,19 +342,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        bool MapDocument::canLoadPointFile() const {
-            if (m_path.isEmpty())
-                return false;
-            const IO::Path pointFilePath = Model::PointFile::pointFilePath(m_path);
-            return pointFilePath.isAbsolute() && IO::Disk::fileExists(pointFilePath);
-        }
-        
-        void MapDocument::loadPointFile() {
-            assert(canLoadPointFile());
+        void MapDocument::loadPointFile(const IO::Path& path) {
             if (isPointFileLoaded())
                 unloadPointFile();
-            m_pointFile = new Model::PointFile(m_path);
-            info("Loaded point file");
+            m_pointFile = new Model::PointFile(path);
+            info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
         

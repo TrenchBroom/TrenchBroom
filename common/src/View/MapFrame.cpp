@@ -560,8 +560,14 @@ namespace TrenchBroom {
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            if (canLoadPointFile())
-                m_document->loadPointFile();
+            
+            wxString defaultDir;
+            if (!m_document->path().isEmpty())
+                defaultDir = m_document->path().deleteLastComponent().asString();
+            wxFileDialog browseDialog(this, "Load Point File", defaultDir, wxEmptyString, "Point files (*.pts)|*.pts|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+            if (browseDialog.ShowModal() == wxID_OK)
+                m_document->loadPointFile(IO::Path(browseDialog.GetPath().ToStdString()));
         }
 
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
@@ -1079,7 +1085,7 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileLoadPointFile:
-                    event.Enable(canLoadPointFile());
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
@@ -1309,10 +1315,6 @@ namespace TrenchBroom {
             const size_t size = static_cast<size_t>(event.GetSelection());
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
-        }
-
-        bool MapFrame::canLoadPointFile() const {
-            return m_document->canLoadPointFile();
         }
 
         bool MapFrame::canUnloadPointFile() const {

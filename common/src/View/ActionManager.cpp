@@ -188,7 +188,7 @@ namespace TrenchBroom {
             exportMenu->addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
             
             fileMenu->addSeparator();
-            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));

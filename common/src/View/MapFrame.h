@@ -208,7 +208,6 @@ namespace TrenchBroom {
 
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
-            bool canLoadPointFile() const;
             bool canUnloadPointFile() const;
             bool canUndo() const;
             bool canRedo() const;
