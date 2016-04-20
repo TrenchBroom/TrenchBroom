@@ -169,17 +169,19 @@ Make sure your terminal is open inside your `<wxWidgets-3.1.0 directory>` and Ru
 - Run the following two commands  
   `cmake .. -DCMAKE_BUILD_TYPE=Release`  
   `cmake --build . --target TrenchBroom`  
-  You can replace "`Release`" with "`Debug`" if you want to create a debug build.  
+  You can replace "`Release`" with "`Debug`" if you want to create a debug build. Also change the value of the wxWidgets_PREFIX variable to point to your wxWidgets build-debug directory in that case. 
 
 ####Packaging  
 - If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: `devscripts`, `debhelper`, `rpm`  
   `sudo apt-get install devscripts debhelper rpm`  
 
 ####Notes  
->On some systems, such as Xubuntu, you may have to pass the following extra parameter to cmake when creating the build scripts: `-DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype`  
+>You can install your preferred wxWidgets configuration using make install. If you wish to do this, then you can omit specifying the wxWidgets_PREFIX variable when generating the build configs with Cmake.
+
+On some systems, such as Xubuntu, you may have to pass the following extra parameter to cmake when creating the build scripts: `-DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype`  
 
   So the first cmake command should be  
-  ```bashc
+  ```bash
   make .. -DCMAKE_BUILD_TYPE=Release -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
   ```
 ___  
@@ -215,17 +217,17 @@ Build environment
 ```
 - Run 
 ```bash
- make  
- make install   
+  make  
+  make install   
  ```
 
 4. Build  
 - For a release build:  
 ```bash
--  mkdir build-ninja  
--  cd build-ninja  
--  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
--  ninja  
+  mkdir build-ninja  
+  cd build-ninja  
+  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
+  ninja  
 ```
 
 - To generate an Xcode project for developing with:  
