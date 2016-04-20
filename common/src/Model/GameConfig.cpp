@@ -169,6 +169,18 @@ namespace TrenchBroom {
             m_compilationConfig = compilationConfig;
         }
 
+        GameEngineConfig& GameConfig::gameEngineConfig() {
+            return m_gameEngineConfig;
+        }
+        
+        const GameEngineConfig& GameConfig::gameEngineConfig() const {
+            return m_gameEngineConfig;
+        }
+        
+        void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
+            m_gameEngineConfig = gameEngineConfig;
+        }
+
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
             const IO::Path relPath = path().deleteLastComponent() + filePath;
 //            if (IO::Disk::fileExists(relPath))

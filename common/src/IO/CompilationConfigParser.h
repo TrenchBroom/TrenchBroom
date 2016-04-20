@@ -46,6 +46,8 @@ namespace TrenchBroom {
             Model::CompilationTask* parseExportTask(const ConfigTable& table) const;
             Model::CompilationTask* parseCopyTask(const ConfigTable& table) const;
             Model::CompilationTask* parseToolTask(const ConfigTable& table) const;
+
+            deleteCopyAndAssignment(CompilationConfigParser)
         };
     }
 }

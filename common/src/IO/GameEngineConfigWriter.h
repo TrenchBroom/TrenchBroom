@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationConfigWriter_h
-#define CompilationConfigWriter_h
+#ifndef GameEngineConfigWriter_h
+#define GameEngineConfigWriter_h
 
 #include "ConfigTypes.h"
 #include "Macros.h"
@@ -27,29 +27,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
+        class GameEngineConfig;
+        class GameEngineProfile;
     }
     
     namespace IO {
-        class CompilationConfigWriter {
+        class GameEngineConfigWriter {
         private:
-            const Model::CompilationConfig& m_config;
+            const Model::GameEngineConfig& m_config;
             std::ostream& m_stream;
         public:
-            CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
+            GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream);
             
             void writeConfig();
         private:
-            ConfigList* writeProfiles(const Model::CompilationConfig& config) const;
-            ConfigTable* writeProfile(const Model::CompilationProfile* profile) const;
+            ConfigList* writeProfiles(const Model::GameEngineConfig& config) const;
+            ConfigTable* writeProfile(const Model::GameEngineProfile* profile) const;
             
-            class WriteCompilationTaskVisitor;
-            ConfigList* writeTasks(const Model::CompilationProfile* profile) const;
-            
-            deleteCopyAndAssignment(CompilationConfigWriter)
+            deleteCopyAndAssignment(GameEngineConfigWriter)
         };
     }
 }
 
-#endif /* CompilationConfigWriter_h */
+#endif /* GameEngineConfigWriter_h */

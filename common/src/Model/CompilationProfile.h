@@ -66,9 +66,8 @@ namespace TrenchBroom {
             void accept(ConstCompilationTaskVisitor& visitor) const;
             void accept(const CompilationTaskConstVisitor& visitor);
             void accept(const ConstCompilationTaskConstVisitor& visitor) const;
-        private:
-            CompilationProfile(const CompilationProfile& other);
-            CompilationProfile& operator=(CompilationProfile other);
+
+            deleteCopyAndAssignment(CompilationProfile)
         };
     }
 }

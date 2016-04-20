@@ -73,10 +73,14 @@ namespace TrenchBroom {
             void loadGameConfigs();
             void loadGameConfig(const IO::Path& path);
             void loadCompilationConfig(GameConfig& gameConfig);
+            void loadGameEngineConfig(GameConfig& gameConfig);
             
             void writeCompilationConfigs();
             void writeCompilationConfig(const GameConfig& gameConfig);
 
+            void writeGameEngineConfigs();
+            void writeGameEngineConfig(const GameConfig& gameConfig);
+            
             GameConfig& gameConfig(const String& name);
             const GameConfig& gameConfig(const String& name) const;
         };

@@ -26,7 +26,7 @@
 
 class wxSimplebook;
 class wxButton;
-class wxChoice;
+class wxListBox;
 class wxTextCtrl;
 
 namespace TrenchBroom {
@@ -40,7 +40,9 @@ namespace TrenchBroom {
             wxSimplebook* m_book;
             wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
-            wxChoice* m_defaultEngineChoice;
+            wxListBox* m_enginesListBox;
+            wxWindow* m_addEnginesButton;
+            wxWindow* m_removeEnginesButton;
         public:
             GamesPreferencePane(wxWindow* parent);
         private:
@@ -48,10 +50,12 @@ namespace TrenchBroom {
             void OnGamePathChanged(wxCommandEvent& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
             void updateGamePath(const wxString& str);
-            
-            void OnDefaultEngineChanged(wxCommandEvent& event);
             void OnUpdateGamePathText(wxIdleEvent& event);
             
+            void OnAddEngines(wxCommandEvent& event);
+            void OnRemoveEngines(wxCommandEvent& event);
+            void OnUpdateRemoveEngines(wxUpdateUIEvent& event);
+            void OnSetDefaultEngine(wxCommandEvent& event);
         private:
             bool isValidGamePath(const wxString& str) const;
         private:

@@ -17,61 +17,61 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompilationProfileListBox.h"
+#include "GameEngineListBox.h"
 
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
+#include "Model/GameEngineConfig.h"
+#include "Model/GameEngineProfile.h"
 
 #include <wx/stattext.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
-        ControlListBox(parent, "Click the '+' button to create a compilation profile."),
+        GameEngineProfileListBox::GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config)  :
+        ControlListBox(parent, "Click the '+' button to create a game engine profile."),
         m_config(config) {
-            m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
+            m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());
         }
-
-        CompilationProfileListBox::~CompilationProfileListBox() {
-            m_config.profilesDidChange.removeObserver(this, &CompilationProfileListBox::profilesDidChange);
+        
+        GameEngineProfileListBox::~GameEngineProfileListBox() {
+            m_config.profilesDidChange.removeObserver(this, &GameEngineProfileListBox::profilesDidChange);
         }
-
-        void CompilationProfileListBox::profilesDidChange() {
+        
+        void GameEngineProfileListBox::profilesDidChange() {
             SetItemCount(m_config.profileCount());
         }
-
-        class CompilationProfileListBox::ProfileItem : public Item {
+        
+        class GameEngineProfileListBox::ProfileItem : public Item {
         private:
-            Model::CompilationProfile* m_profile;
+            Model::GameEngineProfile* m_profile;
             wxStaticText* m_nameText;
-            wxStaticText* m_taskCountText;
+            wxStaticText* m_pathText;
         public:
-            ProfileItem(wxWindow* parent, Model::CompilationProfile* profile, const wxSize& margins) :
+            ProfileItem(wxWindow* parent, Model::GameEngineProfile* profile, const wxSize& margins) :
             Item(parent),
             m_profile(profile),
             m_nameText(NULL),
-            m_taskCountText(NULL) {
+            m_pathText(NULL) {
                 assert(m_profile != NULL);
-
+                
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
 #ifndef _WIN32
-                m_taskCountText->SetFont(m_taskCountText->GetFont().Smaller());
+                m_pathText->SetFont(m_pathText->GetFont().Smaller());
 #endif
                 
                 wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
                 vSizer->Add(m_nameText, wxSizerFlags().Expand());
-                vSizer->Add(m_taskCountText, wxSizerFlags().Expand());
+                vSizer->Add(m_pathText, wxSizerFlags().Expand());
                 
                 wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->AddSpacer(margins.x);
                 hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
                 hSizer->AddSpacer(margins.x);
-
+                
                 SetSizer(hSizer);
                 
                 refresh();
@@ -107,18 +107,16 @@ namespace TrenchBroom {
             void refresh() {
                 if (m_profile == NULL) {
                     m_nameText->SetLabel("");
-                    m_taskCountText->SetLabel("");
+                    m_pathText->SetLabel("");
                 } else {
                     m_nameText->SetLabel(m_profile->name());
-                    wxString taskCountLabel;
-                    taskCountLabel << m_profile->taskCount() << " tasks";
-                    m_taskCountText->SetLabel(taskCountLabel);
+                    m_pathText->SetLabel(m_profile->path().asString());
                 }
             }
         };
-
-        ControlListBox::Item* CompilationProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            Model::CompilationProfile* profile = m_config.profile(index);
+        
+        ControlListBox::Item* GameEngineProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            Model::GameEngineProfile* profile = m_config.profile(index);
             return new ProfileItem(parent, profile, margins);
         }
     }

@@ -17,60 +17,60 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompilationConfig.h"
+#include "GameEngineConfig.h"
 
 #include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationConfig::CompilationConfig() {}
-
-        CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
+        GameEngineConfig::GameEngineConfig() {}
+        
+        GameEngineConfig::GameEngineConfig(const GameEngineProfile::List& profiles) :
         m_profiles(profiles) {}
-
-        CompilationConfig::CompilationConfig(const CompilationConfig& other) {
+        
+        GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
             
-            CompilationProfile::List::const_iterator it, end;
+            GameEngineProfile::List::const_iterator it, end;
             for (it = other.m_profiles.begin(), end = other.m_profiles.end(); it != end; ++it) {
-                const CompilationProfile* original = *it;
-                CompilationProfile* clone = original->clone();
+                const GameEngineProfile* original = *it;
+                GameEngineProfile* clone = original->clone();
                 m_profiles.push_back(clone);
             }
         }
-
-        CompilationConfig::~CompilationConfig() {
+        
+        GameEngineConfig::~GameEngineConfig() {
             VectorUtils::clearAndDelete(m_profiles);
         }
-
-        CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
+        
+        GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {
             using std::swap;
             swap(*this, other);
             return *this;
         }
         
-        void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
+        void swap(GameEngineConfig& lhs, GameEngineConfig& rhs) {
             using std::swap;
             swap(lhs.m_profiles, rhs.m_profiles);
             swap(lhs.profilesDidChange, rhs.profilesDidChange);
         }
-
-        size_t CompilationConfig::profileCount() const {
+        
+        size_t GameEngineConfig::profileCount() const {
             return m_profiles.size();
         }
         
-        CompilationProfile* CompilationConfig::profile(const size_t index) const {
+        GameEngineProfile* GameEngineConfig::profile(const size_t index) const {
             assert(index < profileCount());
             return m_profiles[index];
         }
         
-        void CompilationConfig::addProfile(CompilationProfile* profile) {
+        void GameEngineConfig::addProfile(GameEngineProfile* profile) {
             assert(profile != NULL);
             m_profiles.push_back(profile);
             profilesDidChange();
         }
         
-        void CompilationConfig::removeProfile(const size_t index) {
+        void GameEngineConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];

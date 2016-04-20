@@ -28,6 +28,8 @@
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/GameConfigParser.h"
+#include "IO/GameEngineConfigParser.h"
+#include "IO/GameEngineConfigWriter.h"
 #include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
@@ -185,6 +187,15 @@ namespace TrenchBroom {
             }
         }
         
+        void GameFactory::loadGameEngineConfig(GameConfig& gameConfig) {
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
+            if (m_configFS.fileExists(profilesPath)) {
+                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                gameConfig.setGameEngineConfig(parser.parse());
+            }
+        }
+
         void GameFactory::writeCompilationConfigs() {
             ConfigMap::const_iterator it, end;
             for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
@@ -199,6 +210,23 @@ namespace TrenchBroom {
             writer.writeConfig();
             
             const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            m_configFS.createFile(profilesPath, stream.str());
+        }
+
+        void GameFactory::writeGameEngineConfigs() {
+            ConfigMap::const_iterator it, end;
+            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+                const GameConfig& gameConfig = it->second;
+                writeGameEngineConfig(gameConfig);
+            }
+        }
+        
+        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
+            StringStream stream;
+            IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
+            writer.writeConfig();
+            
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
             m_configFS.createFile(profilesPath, stream.str());
         }
 

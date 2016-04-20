@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/BrushContentType.h"
 #include "Model/CompilationConfig.h"
+#include "Model/GameEngineConfig.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -104,6 +105,7 @@ namespace TrenchBroom {
             FaceAttribsConfig m_faceAttribsConfig;
             BrushContentType::List m_brushContentTypes;
             CompilationConfig m_compilationConfig;
+            GameEngineConfig m_gameEngineConfig;
         public:
             GameConfig();
             GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
@@ -121,6 +123,10 @@ namespace TrenchBroom {
             CompilationConfig& compilationConfig();
             const CompilationConfig& compilationConfig() const;
             void setCompilationConfig(const CompilationConfig& compilationConfig);
+            
+            GameEngineConfig& gameEngineConfig();
+            const GameEngineConfig& gameEngineConfig() const;
+            void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
             
             const IO::Path findConfigFile(const IO::Path& filePath) const;
             

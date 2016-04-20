@@ -21,8 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -56,12 +54,16 @@ namespace TrenchBroom {
         Model::CompilationProfile::List CompilationConfigParser::parseProfiles(const ConfigList& list) const {
             Model::CompilationProfile::List result;
             
-            for (size_t i = 0; i < list.count(); ++i) {
-                expectListEntry(i, ConfigEntry::Type_Table, list);
-                result.push_back(parseProfile(list[i]));
+            try {
+                for (size_t i = 0; i < list.count(); ++i) {
+                    expectListEntry(i, ConfigEntry::Type_Table, list);
+                    result.push_back(parseProfile(list[i]));
+                }
+                return result;
+            } catch (...) {
+                VectorUtils::clearAndDelete(result);
+                throw;
             }
-            
-            return result;
         }
 
         Model::CompilationProfile* CompilationConfigParser::parseProfile(const ConfigTable& table) const {
@@ -89,12 +91,11 @@ namespace TrenchBroom {
                     expectListEntry(i, ConfigEntry::Type_Table, list);
                     result.push_back(parseTask(list[i]));
                 }
+                return result;
             } catch (...) {
                 VectorUtils::clearAndDelete(result);
                 throw;
             }
-            
-            return result;
         }
         
         Model::CompilationTask* CompilationConfigParser::parseTask(const ConfigTable& table) const {
