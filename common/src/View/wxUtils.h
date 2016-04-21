@@ -49,6 +49,8 @@ namespace TrenchBroom {
         
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
         wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip);
+
+        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message);
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 

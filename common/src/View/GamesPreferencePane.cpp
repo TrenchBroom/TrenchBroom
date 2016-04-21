@@ -25,6 +25,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
+#include "View/GameEngineDialog.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
@@ -47,10 +48,8 @@ namespace TrenchBroom {
         m_gameListBox(NULL),
         m_book(NULL),
         m_gamePathText(NULL),
-        m_chooseGamePathButton(NULL),
-        m_enginesListBox(NULL) {
+        m_chooseGamePathButton(NULL) {
             createGui();
-            bindEvents();
         }
         
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
@@ -90,28 +89,19 @@ namespace TrenchBroom {
                 m_gamePathText->SetForegroundColour(*wxRED);
         }
 
-        void GamesPreferencePane::OnAddEngines(wxCommandEvent& event) {
-        }
-        
-        void GamesPreferencePane::OnRemoveEngines(wxCommandEvent& event) {
-        }
-        
-        void GamesPreferencePane::OnUpdateRemoveEngines(wxUpdateUIEvent& event) {
-            wxArrayInt selections;
-            m_enginesListBox->GetSelections(selections);
-            event.Enable(!selections.IsEmpty());
-        }
-
-        void GamesPreferencePane::OnSetDefaultEngine(wxCommandEvent& event) {
-        }
-
         bool GamesPreferencePane::isValidGamePath(const wxString& str) const {
             try {
                 const IO::Path gamePath(str.ToStdString());
                 return IO::Disk::directoryExists(gamePath);
-            } catch (const PathException&) {
+            } catch (...) {
                 return false;
             }
+        }
+
+        void GamesPreferencePane::OnConfigureenginesClicked(wxCommandEvent& event) {
+            const String gameName = m_gameListBox->selectedGameName();
+            GameEngineDialog dialog(this, gameName);
+            dialog.ShowModal();
         }
 
         void GamesPreferencePane::createGui() {
@@ -119,7 +109,7 @@ namespace TrenchBroom {
             m_gameListBox->selectGame(0);
             
             m_book = new wxSimplebook(this);
-            m_book->AddPage(createDefaultPage(m_book), "Default");
+            m_book->AddPage(createDefaultPage(m_book, "Select a game."), "Default");
             m_book->AddPage(createGamePreferencesPage(m_book), "Game");
             m_book->SetSelection(0);
             
@@ -140,30 +130,6 @@ namespace TrenchBroom {
             SetMinSize(wxSize(600, 300));
         }
         
-        wxWindow* GamesPreferencePane::createDefaultPage(wxWindow* parent) {
-            wxPanel* containerPanel = new wxPanel(parent);
-            
-            wxStaticText* emptyText = new wxStaticText(containerPanel, wxID_ANY, "Select a game.");
-            emptyText->SetFont(emptyText->GetFont().Bold());
-            emptyText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-            
-            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
-            justifySizer->AddStretchSpacer();
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-            justifySizer->Add(emptyText, wxSizerFlags().Expand());
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-            justifySizer->AddStretchSpacer();
-            
-            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            containerSizer->Add(justifySizer, wxSizerFlags().Expand());
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            containerSizer->AddStretchSpacer();
-            
-            containerPanel->SetSizer(containerSizer);
-            return containerPanel;
-        }
-
         wxWindow* GamesPreferencePane::createGamePreferencesPage(wxWindow* parent) {
             wxPanel* containerPanel = new wxPanel(parent);
 
@@ -171,45 +137,26 @@ namespace TrenchBroom {
             m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_gamePathText->SetHint("Not set");
             m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+
+            wxButton* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
             
-            wxStaticText* engineLabel = new wxStaticText(containerPanel, wxID_ANY, "Engines");
-            m_enginesListBox = new wxListBox(containerPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED | wxLB_NEEDED_SB);
-            
-            m_addEnginesButton = createBitmapButton(containerPanel, "Add.png", "Add engine(s)");
-            m_removeEnginesButton = createBitmapButton(containerPanel, "Remove.png", "Remove the selected engines");
-            
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addEnginesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_removeEnginesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddStretchSpacer();
+            m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
+            m_gamePathText->Bind(wxEVT_TEXT_ENTER, &GamesPreferencePane::OnGamePathChanged, this);
+            m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
+            configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
+            Bind(wxEVT_IDLE, &GamesPreferencePane::OnUpdateGamePathText, this);
 
             wxGridBagSizer* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
             containerSizer->Add(gamePathLabel,           wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
             containerSizer->Add(m_gamePathText,          wxGBPosition(0,1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxEXPAND);
             containerSizer->Add(m_chooseGamePathButton,  wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-            containerSizer->Add(engineLabel,             wxGBPosition(1,0), wxGBSpan(2,1), wxALIGN_TOP | wxALIGN_RIGHT);
-            containerSizer->Add(m_enginesListBox,        wxGBPosition(1,1), wxGBSpan(1,2), wxALIGN_TOP | wxEXPAND);
-            containerSizer->Add(buttonSizer,             wxGBPosition(2,1), wxGBSpan(1,2), wxEXPAND);
+            containerSizer->Add(configureEnginesButton,  wxGBPosition(1,1), wxGBSpan(1,2));
             containerSizer->AddGrowableCol(1);
-            containerSizer->AddGrowableRow(1);
             
             containerPanel->SetSizer(containerSizer);
             return containerPanel;
         }
 
-        void GamesPreferencePane::bindEvents() {
-            m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
-            m_gamePathText->Bind(wxEVT_TEXT_ENTER, &GamesPreferencePane::OnGamePathChanged, this);
-            m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
-            m_enginesListBox->Bind(wxEVT_LISTBOX_DCLICK, &GamesPreferencePane::OnSetDefaultEngine, this);
-            
-            m_addEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnAddEngines, this);
-            m_removeEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnRemoveEngines, this);
-            m_removeEnginesButton->Bind(wxEVT_UPDATE_UI, &GamesPreferencePane::OnUpdateRemoveEngines, this);
-            
-            Bind(wxEVT_IDLE, &GamesPreferencePane::OnUpdateGamePathText, this);
-        }
-        
         bool GamesPreferencePane::doCanResetToDefaults() {
             return false;
         }
@@ -226,31 +173,13 @@ namespace TrenchBroom {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
                 m_gamePathText->ChangeValue(gamePath.asString());
                 m_gameListBox->reloadGameInfos();
-                m_enginesListBox->Set(engines());
-                // m_defaultEngineChoice->Set(engines());
-                // m_defaultEngineChoice->SetStringSelection(gameFactory.defaultEngine(gameName).asString());
             }
             Layout();
                 
         }
-        
-        wxArrayString GamesPreferencePane::engines() const {
-            const String gameName = m_gameListBox->selectedGameName();
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const IO::Path::List paths = gameFactory.findEngines(gameName);
-            
-            wxArrayString result;
-            IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const IO::Path& path = *it;
-                result.Add(path.lastComponent().asString());
-            }
-            
-            return result;
-        }
 
         bool GamesPreferencePane::doValidate() {
-            return true;
+            return isValidGamePath(m_gamePathText->GetValue());
         }
     }
 }

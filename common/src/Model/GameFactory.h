@@ -62,9 +62,8 @@ namespace TrenchBroom {
             void setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
-            IO::Path::List findEngines(const String& gameName) const;
-            IO::Path defaultEngine(const String& gameName) const;
-            void setDefaultEngine(const String& gameName, const IO::Path& engine);
+            GameConfig& gameConfig(const String& gameName);
+            const GameConfig& gameConfig(const String& gameName) const;
             
             std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
@@ -80,9 +79,6 @@ namespace TrenchBroom {
 
             void writeGameEngineConfigs();
             void writeGameEngineConfig(const GameConfig& gameConfig);
-            
-            GameConfig& gameConfig(const String& name);
-            const GameConfig& gameConfig(const String& name) const;
         };
     }
 }

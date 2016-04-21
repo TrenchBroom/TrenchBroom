@@ -30,7 +30,9 @@
 #include <wx/bitmap.h>
 #include <wx/frame.h>
 #include <wx/listctrl.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 #include <wx/tglbtn.h>
 #include <wx/window.h>
 
@@ -98,6 +100,30 @@ namespace TrenchBroom {
             BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);
             return button;
+        }
+
+        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message) {
+            wxPanel* containerPanel = new wxPanel(parent);
+            
+            wxStaticText* messageText = new wxStaticText(containerPanel, wxID_ANY, message);
+            messageText->SetFont(messageText->GetFont().Bold());
+            messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            
+            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+            justifySizer->AddStretchSpacer();
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->Add(messageText, wxSizerFlags().Expand());
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->AddStretchSpacer();
+            
+            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->Add(justifySizer, wxSizerFlags().Expand());
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->AddStretchSpacer();
+            
+            containerPanel->SetSizer(containerSizer);
+            return containerPanel;
         }
 
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {

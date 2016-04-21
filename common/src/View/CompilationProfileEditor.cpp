@@ -46,7 +46,7 @@ namespace TrenchBroom {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_book = new wxSimplebook(this);
-            m_book->AddPage(createDefaultPage(m_book), "Default");
+            m_book->AddPage(createDefaultPage(m_book, "Select a compilation profile."), "Default");
             m_book->AddPage(createEditorPage(m_book), "Editor");
             m_book->SetSelection(0);
             
@@ -56,32 +56,10 @@ namespace TrenchBroom {
         }
         
         CompilationProfileEditor::~CompilationProfileEditor() {
-            if (m_profile != NULL)
-                m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
-        }
-
-        wxWindow* CompilationProfileEditor::createDefaultPage(wxWindow* parent) {
-            wxPanel* containerPanel = new wxPanel(parent);
-
-            wxStaticText* emptyText = new wxStaticText(containerPanel, wxID_ANY, "Select a compilation profile.");
-            emptyText->SetFont(emptyText->GetFont().Bold());
-            emptyText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-            
-            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
-            justifySizer->AddStretchSpacer();
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-            justifySizer->Add(emptyText, wxSizerFlags().Expand());
-            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-            justifySizer->AddStretchSpacer();
-            
-            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            containerSizer->Add(justifySizer, wxSizerFlags().Expand());
-            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            containerSizer->AddStretchSpacer();
-            
-            containerPanel->SetSizer(containerSizer);
-            return containerPanel;
+            if (m_profile != NULL) {
+                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
+                m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
+            }
         }
         
         wxWindow* CompilationProfileEditor::createEditorPage(wxWindow* parent) {
@@ -99,8 +77,6 @@ namespace TrenchBroom {
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);
-            m_nameTxt->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateTxtUI, this);
-            m_workDirTxt->Bind(wxEVT_UPDATE_UI, &CompilationProfileEditor::OnUpdateTxtUI, this);
             
             const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
             const int EditorFlags  = wxALIGN_CENTER_VERTICAL | wxEXPAND;
@@ -164,10 +140,6 @@ namespace TrenchBroom {
         void CompilationProfileEditor::OnWorkDirChanged(wxCommandEvent& event) {
             assert(m_profile != NULL);
             m_profile->setWorkDirSpec(m_workDirTxt->GetValue().ToStdString());
-        }
-
-        void CompilationProfileEditor::OnUpdateTxtUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL);
         }
 
         void CompilationProfileEditor::OnAddTask(wxCommandEvent& event) {

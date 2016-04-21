@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfileEditor_h
-#define CompilationProfileEditor_h
+#ifndef GameEngineProfileEditor_h
+#define GameEngineProfileEditor_h
 
 #include <wx/panel.h>
 
@@ -27,45 +27,38 @@ class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationProfile;
+        class GameEngineProfile;
     }
-
+    
     namespace View {
-        class CompilationTaskList;
-        
-        class CompilationProfileEditor : public wxPanel {
+        class GameEngineProfileEditor : public wxPanel {
         private:
-            Model::CompilationProfile* m_profile;
+            Model::GameEngineProfile* m_profile;
             wxSimplebook* m_book;
-            wxTextCtrl* m_nameTxt;
-            wxTextCtrl* m_workDirTxt;
-            CompilationTaskList* m_taskList;
+            wxTextCtrl* m_nameText;
+            wxTextCtrl* m_pathText;
         public:
-            CompilationProfileEditor(wxWindow* parent);
-            ~CompilationProfileEditor();
+            GameEngineProfileEditor(wxWindow* parent);
+            ~GameEngineProfileEditor();
         private:
             wxWindow* createEditorPage(wxWindow* parent);
             
             void OnNameChanged(wxCommandEvent& event);
-            void OnWorkDirChanged(wxCommandEvent& event);
+            void OnPathChanged(wxCommandEvent& event);
+            void OnChangePathClicked(wxCommandEvent& event);
+            void OnUpdatePathTextUI(wxIdleEvent& event);
             
-            void OnAddTask(wxCommandEvent& event);
-            void OnRemoveTask(wxCommandEvent& event);
-            void OnMoveTaskUp(wxCommandEvent& event);
-            void OnMoveTaskDown(wxCommandEvent& event);
-            
-            void OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event);
+            void updatePath(const wxString& str);
         public:
-            void setProfile(Model::CompilationProfile* profile);
+            void setProfile(Model::GameEngineProfile* profile);
         private:
             void profileWillBeRemoved();
             void profileDidChange();
             void refresh();
+            
+            bool isValidEnginePath(const wxString& str) const;
         };
     }
 }
 
-#endif /* CompilationProfileEditor_h */
+#endif /* GameEngineProfileEditor_h */

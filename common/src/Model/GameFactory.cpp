@@ -44,6 +44,7 @@ namespace TrenchBroom {
     namespace Model {
         GameFactory::~GameFactory() {
             writeCompilationConfigs();
+            writeGameEngineConfigs();
         }
 
         GameFactory& GameFactory::instance() {
@@ -96,26 +97,19 @@ namespace TrenchBroom {
             Preference<IO::Path>& pref = it->second;
             return pref.path() == prefPath;
         }
-
-        IO::Path::List GameFactory::findEngines(const String& gameName) const {
-            const IO::Path gamePath = this->gamePath(gameName);
-            return IO::Disk::findItems(gamePath, IO::ExecutableFileMatcher());
-        }
-
-        IO::Path GameFactory::defaultEngine(const String& gameName) const {
-            GamePathMap::iterator it = m_defaultEngines.find(gameName);
-            if (it == m_defaultEngines.end())
-                throw GameException("Unknown game: " + gameName);
-            Preference<IO::Path>& pref = it->second;
-            return PreferenceManager::instance().get(pref);
+        
+        GameConfig& GameFactory::gameConfig(const String& name) {
+            ConfigMap::iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
         }
         
-        void GameFactory::setDefaultEngine(const String& gameName, const IO::Path& engine) {
-            GamePathMap::iterator it = m_defaultEngines.find(gameName);
-            if (it == m_defaultEngines.end())
-                throw GameException("Unknown game: " + gameName);
-            Preference<IO::Path>& pref = it->second;
-            PreferenceManager::instance().set(pref, engine);
+        const GameConfig& GameFactory::gameConfig(const String& name) const {
+            ConfigMap::const_iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
         }
 
         std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
@@ -164,6 +158,7 @@ namespace TrenchBroom {
                 IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS.makeAbsolute(path));
                 GameConfig config = parser.parse();
                 loadCompilationConfig(config);
+                loadGameEngineConfig(config);
 
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());
@@ -228,20 +223,6 @@ namespace TrenchBroom {
             
             const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
             m_configFS.createFile(profilesPath, stream.str());
-        }
-
-        GameConfig& GameFactory::gameConfig(const String& name) {
-            ConfigMap::iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
-                throw GameException("Unknown game: " + name);
-            return cIt->second;
-        }
-
-        const GameConfig& GameFactory::gameConfig(const String& name) const {
-            ConfigMap::const_iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
-                throw GameException("Unknown game: " + name);
-            return cIt->second;
         }
     }
 }

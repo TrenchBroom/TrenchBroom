@@ -20,10 +20,29 @@
 #ifndef GameEngineDialog_h
 #define GameEngineDialog_h
 
-#include <stdio.h>
+#include "StringUtils.h"
+
+#include <wx/dialog.h>
+
+class wxSimplebook;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
+        class GameEngineProfileManager;
+        
+        class GameEngineDialog : public wxDialog {
+        private:
+            const String m_gameName;
+            GameEngineProfileManager* m_profileManager;
+        public:
+            GameEngineDialog(wxWindow* parent, const String& gameName);
+        private:
+            void createGui();
+            
+            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
+            void OnCloseButtonClicked(wxCommandEvent& event);
+        };
     }
 }
 
