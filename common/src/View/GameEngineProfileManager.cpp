@@ -39,12 +39,9 @@ namespace TrenchBroom {
         m_config(config),
         m_profileList(NULL),
         m_profileEditor(NULL) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            
             TitledPanel* listPanel = new TitledPanel(this, "Profiles");
             TitledPanel* editorPanel = new TitledPanel(this, "Details");
-            listPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
-            editorPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
+            listPanel->getPanel()->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_profileList = new GameEngineProfileListBox(listPanel->getPanel(), m_config);
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());

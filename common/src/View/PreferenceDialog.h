@@ -52,8 +52,8 @@ namespace TrenchBroom {
             void OnOKClicked(wxCommandEvent& event);
             void OnApplyClicked(wxCommandEvent& event);
             void OnCancelClicked(wxCommandEvent& event);
-            void OnClose(wxCloseEvent& event);
             void OnFileClose(wxCommandEvent& event);
+            void OnUpdateFileClose(wxUpdateUIEvent& event);
 
             void OnResetClicked(wxCommandEvent& event);
             void OnUpdateReset(wxUpdateUIEvent& event);

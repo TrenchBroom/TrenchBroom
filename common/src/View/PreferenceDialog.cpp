@@ -100,28 +100,6 @@ namespace TrenchBroom {
             EndModal(wxID_CANCEL);
         }
 
-        void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (!currentPane()->validate() && event.CanVeto()) {
-                event.Veto();
-                return;
-            }
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly()) {
-                switch (event.GetId()) {
-                    case wxID_OK:
-                        prefs.saveChanges();
-                        break;
-                    default:
-                        prefs.discardChanges();
-                        break;
-                        
-                }
-            }
-        }
-
         void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -132,7 +110,11 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.discardChanges(); // does nothing if the preferences save changes instantly
-            Close();
+            EndModal(wxID_OK);
+        }
+
+        void PreferenceDialog::OnUpdateFileClose(wxUpdateUIEvent& event) {
+            event.Enable(true);
         }
 
         void PreferenceDialog::OnResetClicked(wxCommandEvent& event) {
@@ -175,22 +157,31 @@ namespace TrenchBroom {
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
             wxWindow* line = new BorderLine(this, BorderLine::Direction_Horizontal);
-            sizer->Add(line, 0, wxEXPAND);
+            sizer->Add(line, wxSizerFlags().Expand());
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
 
             wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
 #if !defined __APPLE__
-			bottomSizer->Add(resetButton, 0, wxALIGN_CENTER_VERTICAL);
+			bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical());
 			bottomSizer->AddStretchSpacer();
             bottomSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
 #else
-			bottomSizer->Add(resetButton, 0, wxALL, LayoutConstants::DialogOuterMargin);
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
+            closeButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnFileClose, this);
+            closeButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateFileClose, this);
+            
+            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
+            buttonSizer->SetCancelButton(closeButton);
+            buttonSizer->Realize();
+            
+            bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical().Border(wxLEFT, 18));
 			bottomSizer->AddStretchSpacer();
+            bottomSizer->Add(buttonSizer, wxSizerFlags().CenterVertical());
 #endif
 
-            sizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
+            sizer->Add(wrapDialogButtonSizer(bottomSizer, this), wxSizerFlags().Expand());
             
             SetSizer(sizer);
         }
@@ -204,11 +195,6 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
-            if (currentPaneId() == pane && currentPane() != NULL) {
-                toggleTools(currentPaneId());
-                return;
-            }
-            
             if (currentPane() != NULL && !currentPane()->validate()) {
                 toggleTools(currentPaneId());
                 return;
@@ -220,11 +206,12 @@ namespace TrenchBroom {
             
             GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
             Fit();
-#if defined __APPLE__
+
+#ifdef __APPLE__
             updateAcceleratorTable(pane);
 #endif
-
-			if (pane == PrefPane_Keyboard)
+            
+            if (pane == PrefPane_Keyboard)
 				SetEscapeId(wxID_NONE);
 			else
 				SetEscapeId(wxID_CANCEL);
@@ -249,7 +236,7 @@ namespace TrenchBroom {
             if (pane != PrefPane_Keyboard) {
                 wxAcceleratorEntry acceleratorEntries[2];
                 acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-				acceleratorEntries[1].Set(wxACCEL_CMD, WXK_ESCAPE, 123123123);
+                acceleratorEntries[1].Set(wxACCEL_NORMAL, WXK_CANCEL, wxID_CANCEL);
                 wxAcceleratorTable accceleratorTable(2, acceleratorEntries);
                 SetAcceleratorTable(accceleratorTable);
             } else {

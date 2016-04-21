@@ -50,6 +50,7 @@ namespace TrenchBroom {
         m_gamePathText(NULL),
         m_chooseGamePathButton(NULL) {
             createGui();
+            updateControls();
         }
         
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
@@ -179,7 +180,7 @@ namespace TrenchBroom {
         }
 
         bool GamesPreferencePane::doValidate() {
-            return isValidGamePath(m_gamePathText->GetValue());
+            return m_gameListBox->GetSelection() == wxNOT_FOUND || isValidGamePath(m_gamePathText->GetValue());
         }
     }
 }

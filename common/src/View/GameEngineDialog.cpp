@@ -19,14 +19,19 @@
 
 #include "GameEngineDialog.h"
 
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
+#include "View/BorderLine.h"
 #include "View/GameEngineProfileManager.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
+#include <wx/settings.h>
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
+#include <wx/statbmp.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 
@@ -42,10 +47,32 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::createGui() {
-            Model::GameConfig& gameConfig = Model::GameFactory::instance().gameConfig(m_gameName);
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+
+            wxPanel* gameInfoPanel = new wxPanel(this);
+            gameInfoPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            
+            const IO::Path gamePath = gameFactory.gamePath(m_gameName);
+            IO::Path iconPath = gameFactory.iconPath(m_gameName);
+            if (iconPath.isEmpty())
+                iconPath = IO::Path("DefaultGameIcon.png");
+
+            const wxBitmap gameIcon = IO::loadImageResource(iconPath);
+            wxStaticBitmap* gameIconImg = new wxStaticBitmap(gameInfoPanel, wxID_ANY, gameIcon);
+            wxStaticText* gameNameText = new wxStaticText(gameInfoPanel, wxID_ANY, m_gameName);
+            gameNameText->SetFont(gameNameText->GetFont().Larger().Larger().Bold());
+            
+            wxSizer* gameInfoPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            gameInfoPanelSizer->AddSpacer(LayoutConstants::WideHMargin);
+            gameInfoPanelSizer->Add(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
+            gameInfoPanelSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            gameInfoPanelSizer->Add(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
+            gameInfoPanel->SetSizer(gameInfoPanelSizer);
+            
+            Model::GameConfig& gameConfig = gameFactory.gameConfig(m_gameName);
             m_profileManager = new GameEngineProfileManager(this, gameConfig.gameEngineConfig());
             
-            wxButton* closeButton = new wxButton(this, wxID_CLOSE, "Close");
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             closeButton->Bind(wxEVT_BUTTON, &GameEngineDialog::OnCloseButtonClicked, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &GameEngineDialog::OnUpdateCloseButtonUI, this);
             
@@ -54,6 +81,8 @@ namespace TrenchBroom {
             buttonSizer->Realize();
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(gameInfoPanel, wxSizerFlags().Expand());
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             outerSizer->Add(m_profileManager, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(outerSizer);
@@ -64,7 +93,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::OnCloseButtonClicked(wxCommandEvent& event) {
-            Close();
+            EndModal(wxID_OK);
         }
     }
 }
