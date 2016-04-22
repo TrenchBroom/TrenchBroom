@@ -160,7 +160,7 @@ namespace TrenchBroom {
         };
 
         LayerListBox::LayerListBox(wxWindow* parent, MapDocumentWPtr document) :
-        ControlListBox(parent),
+        ControlListBox(parent, true),
         m_document(document) {
             bindObservers();
             bindEvents();

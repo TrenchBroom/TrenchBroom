@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         GameEngineProfileListBox::GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config)  :
-        ControlListBox(parent, "Click the '+' button to create a game engine profile."),
+        ControlListBox(parent, true, "Click the '+' button to create a game engine profile."),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
 #ifndef _WIN32
-                m_pathText->SetFont(m_pathText->GetFont().Smaller());
+                m_pathText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
                 
                 wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);

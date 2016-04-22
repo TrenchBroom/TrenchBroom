@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
-        ControlListBox(parent, "Click the '+' button to create a compilation profile."),
+        ControlListBox(parent, true, "Click the '+' button to create a compilation profile."),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             SetItemCount(config.profileCount());
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
 #ifndef _WIN32
-                m_taskCountText->SetFont(m_taskCountText->GetFont().Smaller());
+                m_taskCountText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
                 
                 wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);

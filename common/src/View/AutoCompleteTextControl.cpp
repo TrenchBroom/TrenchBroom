@@ -60,7 +60,8 @@ namespace TrenchBroom {
         }
 
         AutoCompleteTextControl::AutoCompletionList::AutoCompletionList(wxWindow* parent) :
-        ControlListBox(parent) {
+        ControlListBox(parent, false) {
+            SetItemMargin(wxSize(1, 1));
             SetShowLastDivider(false);
         }
         
@@ -76,18 +77,15 @@ namespace TrenchBroom {
             wxStaticText* descriptionText = new wxStaticText(container, wxID_ANY, m_result.GetDescription(index));
             
 #ifndef _WIN32
-            descriptionText->SetFont(descriptionText->GetFont().Smaller());
+            descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->Add(valueText, 0);
-            vSizer->Add(descriptionText, 0);
+            vSizer->Add(valueText);
+            vSizer->Add(descriptionText);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(margins.x);
-            
-            hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
-            hSizer->AddSpacer(margins.x);
+            hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
             
             container->SetSizer(hSizer);
             return container;
@@ -135,7 +133,10 @@ namespace TrenchBroom {
             helper = m_helper;
             if (m_helper == NULL)
                 m_helper = new DefaultHelper();
-            UpdateCompletionList(m_helper->GetCompletionResult(GetRange(0, GetInsertionPoint())));
+            if (AutoCompletionListVisible()) {
+                const wxString prefix = GetRange(0, GetInsertionPoint());
+                UpdateCompletionList(m_helper->GetCompletionResult(prefix));
+            }
             
         }
 
@@ -167,7 +168,9 @@ namespace TrenchBroom {
 
         void AutoCompleteTextControl::ShowAutoCompletionList() {
             wxASSERT(!AutoCompletionListVisible());
-            const wxPoint relPos = GetRect().GetBottomLeft();
+            const wxString prefix = GetRange(0, GetInsertionPoint());
+            const wxPoint offset = wxPoint(GetTextExtent(prefix).x, 0);
+            const wxPoint relPos = GetRect().GetBottomLeft() + offset;
             const wxPoint absPos = GetParent()->ClientToScreen(relPos);
             m_autoCompletionPopup->Position(absPos, wxSize());
             m_autoCompletionPopup->Show();

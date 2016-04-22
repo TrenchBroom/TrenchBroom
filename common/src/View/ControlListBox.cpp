@@ -65,13 +65,32 @@ namespace TrenchBroom {
             }
         }
 
-        ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
+        class ControlListBox::Sizer : public wxBoxSizer {
+        private:
+            const bool m_restrictToClientWidth;
+        public:
+            Sizer(const int orient, const bool restrictToClientWidth) :
+            wxBoxSizer(orient),
+            m_restrictToClientWidth(restrictToClientWidth){}
+            
+            wxSize CalcMin() {
+                const wxSize originalSize = wxBoxSizer::CalcMin();
+                if (!m_restrictToClientWidth)
+                    return originalSize;
+                const wxSize containerSize = GetContainingWindow()->GetClientSize();
+                const wxSize result(containerSize.x, originalSize.y);
+                return result;
+            }
+        };
+        
+        ControlListBox::ControlListBox(wxWindow* parent, const bool restrictToClientWidth, const wxString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
+        m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
         m_emptyText(emptyText),
         m_emptyTextLabel(NULL),
         m_showLastDivider(true),
         m_selectionIndex(0) {
-            SetSizer(new wxBoxSizer(wxVERTICAL));
+            SetSizer(new Sizer(wxVERTICAL, restrictToClientWidth));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
@@ -135,6 +154,13 @@ namespace TrenchBroom {
             }
         }
 
+        void ControlListBox::SetItemMargin(const wxSize& margin) {
+            if (m_itemMargin == margin)
+                return;
+            m_itemMargin = margin;
+            refresh(m_items.size());
+        }
+
         void ControlListBox::SetShowLastDivider(const bool showLastDivider) {
             if (m_showLastDivider == showLastDivider)
                 return;
@@ -152,7 +178,7 @@ namespace TrenchBroom {
             
             if (itemCount > 0) {
                 for (size_t i = 0; i < itemCount; ++i) {
-                    Item* item = createItem(this, wxSize(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin), i);
+                    Item* item = createItem(this, m_itemMargin, i);
                     
                     listSizer->Add(item, wxSizerFlags().Expand());
                     if (i < itemCount - 1 || m_showLastDivider)
@@ -255,8 +281,8 @@ namespace TrenchBroom {
                 m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
                 MakeVisible(index);
             }
-            
-			Refresh();
+
+            Refresh();
 
             if (changed) {
                 wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX, GetId());

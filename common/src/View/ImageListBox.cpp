@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
-        ControlListBox(parent, emptyText) {}
+        ControlListBox(parent, true, emptyText) {}
 
         ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             Item* container = new Item(parent);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             
             titleText->SetFont(titleText->GetFont().Bold());
 #ifndef _WIN32
-            subtitleText->SetFont(subtitleText->GetFont().Smaller());
+            subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);

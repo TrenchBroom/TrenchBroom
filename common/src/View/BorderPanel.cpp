@@ -70,18 +70,5 @@ namespace TrenchBroom {
                 dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
             event.Skip();
         }
-
-        wxSize BorderPanel::DoGetBestSize() const {
-            wxSize size = wxPanel::DoGetBestSize();
-            if ((m_borders & wxLEFT) != 0)
-                size.x += m_thickness;
-            if ((m_borders & wxTOP) != 0)
-                size.y += m_thickness;
-            if ((m_borders & wxRIGHT) != 0)
-                size.x += m_thickness;
-            if ((m_borders & wxBOTTOM) != 0)
-                size.y += m_thickness;
-            return size;
-        }
     }
 }
