@@ -19,6 +19,12 @@
 
 #include "CompilationVariables.h"
 
+#include "IO/SystemPaths.h"
+#include "Model/Game.h"
+#include "View/MapDocument.h"
+
+#include <wx/thread.h>
+
 namespace TrenchBroom {
     namespace View {
         namespace CompilationVariableNames {
@@ -75,6 +81,43 @@ namespace TrenchBroom {
             result.declare(WORK_DIR_PATH);
             result.declare(CPU_COUNT);
             return result;
+        }
+        
+        void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document);
+
+        void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document) {
+            using namespace CompilationVariableNames;
+            
+            variables.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
+            defineCommonCompilationVariables(variables, document);
+        }
+        
+        void defineCompilationVariables(VariableTable& variables, MapDocumentSPtr document, const String& workDir) {
+            using namespace CompilationVariableNames;
+            
+            wxString cpuCount;
+            cpuCount << wxThread::GetCPUCount();
+            
+            variables.define(WORK_DIR_PATH, workDir);
+            variables.define(CPU_COUNT, cpuCount.ToStdString());
+            defineCommonCompilationVariables(variables, document);
+        }
+
+        void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document) {
+            using namespace CompilationVariableNames;
+            
+            const IO::Path filename = document->path().lastComponent();
+            const IO::Path gamePath = document->game()->gamePath();
+            const String lastMod = document->mods().empty() ? "" : document->mods().back();
+            const IO::Path modPath = gamePath + IO::Path(lastMod);
+            const IO::Path appPath = IO::SystemPaths::appDirectory();
+            
+            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
+            variables.define(MAP_FULL_NAME, filename.asString());
+            variables.define(GAME_DIR_PATH, gamePath.asString());
+            variables.define(MOD_DIR_PATH, lastMod);
+            variables.define(MOD_DIR_PATH, modPath.asString());
+            variables.define(APP_DIR_PATH, appPath.asString());
         }
     }
 }

@@ -50,11 +50,10 @@ namespace TrenchBroom {
             typedef std::vector<Item*> ItemList;
             wxString m_emptyText;
             wxStaticText* m_emptyTextLabel;
+            bool m_showLastDivider;
         protected:
             ItemList m_items;
             size_t m_selectionIndex;
-        private:
-            class Sizer;
         public:
             ControlListBox(wxWindow* parent, const wxString& emptyText = "");
 
@@ -65,6 +64,8 @@ namespace TrenchBroom {
             void MakeVisible(size_t index);
             void MakeVisible(const Item* item);
             void MakeVisible(wxCoord y, wxCoord size);
+            
+            void SetShowLastDivider(bool showLastDivider);
         private:
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);

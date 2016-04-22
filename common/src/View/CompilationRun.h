@@ -54,9 +54,6 @@ namespace TrenchBroom {
             bool doIsRunning() const;
         private:
             String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
-            void defineWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
-            void defineCompilationVariables(VariableTable& values, const Model::CompilationProfile* profile, MapDocumentSPtr document);
-            void defineCommonVariables(VariableTable& values, MapDocumentSPtr document);
 
             void OnCompilationStart(wxEvent& event);
             void OnCompilationEnd(wxEvent& event);

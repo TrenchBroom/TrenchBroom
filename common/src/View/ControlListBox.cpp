@@ -64,26 +64,14 @@ namespace TrenchBroom {
                 setColours(child, foreground, background);
             }
         }
-        
-        class ControlListBox::Sizer : public wxBoxSizer {
-        public:
-            Sizer(const int orient) :
-            wxBoxSizer(orient) {}
-            
-            wxSize CalcMin() {
-                const wxSize originalSize = wxBoxSizer::CalcMin();
-                const wxSize containerSize = GetContainingWindow()->GetClientSize();
-                const wxSize result(containerSize.x, originalSize.y);
-                return result;
-            }
-        };
 
         ControlListBox::ControlListBox(wxWindow* parent, const wxString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_emptyText(emptyText),
         m_emptyTextLabel(NULL),
+        m_showLastDivider(true),
         m_selectionIndex(0) {
-            SetSizer(new Sizer(wxVERTICAL));
+            SetSizer(new wxBoxSizer(wxVERTICAL));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
@@ -147,6 +135,13 @@ namespace TrenchBroom {
             }
         }
 
+        void ControlListBox::SetShowLastDivider(const bool showLastDivider) {
+            if (m_showLastDivider == showLastDivider)
+                return;
+            m_showLastDivider = showLastDivider;
+            refresh(m_items.size());
+        }
+
         void ControlListBox::refresh(const size_t itemCount) {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
@@ -159,8 +154,9 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < itemCount; ++i) {
                     Item* item = createItem(this, wxSize(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin), i);
                     
-                    listSizer->Add(item, 0, wxEXPAND);
-                    listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+                    listSizer->Add(item, wxSizerFlags().Expand());
+                    if (i < itemCount - 1 || m_showLastDivider)
+                        listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
                     
                     bindEvents(item, i);
                     m_items.push_back(item);
@@ -173,14 +169,10 @@ namespace TrenchBroom {
                 
                 wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
                 justifySizer->AddStretchSpacer();
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-                justifySizer->Add(m_emptyTextLabel, 0, wxEXPAND);
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+                justifySizer->Add(m_emptyTextLabel, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
                 justifySizer->AddStretchSpacer();
                 
-                listSizer->AddSpacer(LayoutConstants::WideVMargin);
-                listSizer->Add(justifySizer, 0, wxEXPAND);
-                listSizer->AddSpacer(LayoutConstants::WideVMargin);
+                listSizer->Add(justifySizer, wxSizerFlags().Expand().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
                 listSizer->AddStretchSpacer();
             }
             FitInside();

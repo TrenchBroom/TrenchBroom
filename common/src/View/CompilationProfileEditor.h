@@ -31,6 +31,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class AutoCompleteTextControl;
         class CompilationTaskList;
         
         class CompilationProfileEditor : public wxPanel {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
             Model::CompilationProfile* m_profile;
             wxSimplebook* m_book;
             wxTextCtrl* m_nameTxt;
-            wxTextCtrl* m_workDirTxt;
+            AutoCompleteTextControl* m_workDirTxt;
             CompilationTaskList* m_taskList;
         public:
             CompilationProfileEditor(wxWindow* parent);

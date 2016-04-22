@@ -19,7 +19,6 @@
 
 #include "CompilationRun.h"
 
-#include "IO/SystemPaths.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "View/CompilationContext.h"
@@ -60,7 +59,7 @@ namespace TrenchBroom {
             }
 
             VariableTable variables = compilationVariables();
-            defineCompilationVariables(variables, profile, document);
+            defineCompilationVariables(variables, document, buildWorkDir(profile, document));
             
             m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput)), profile);
             m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
@@ -80,43 +79,8 @@ namespace TrenchBroom {
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
             VariableTable variables = compilationWorkDirVariables();
-            defineWorkDirVariables(variables, document);
+            defineCompilationWorkDirVariables(variables, document);
             return variables.translate(profile->workDirSpec());
-        }
-
-        void CompilationRun::defineWorkDirVariables(VariableTable& variables, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-            
-            variables.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
-            defineCommonVariables(variables, document);
-        }
-        
-        void CompilationRun::defineCompilationVariables(VariableTable& variables, const Model::CompilationProfile* profile, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-            
-            wxString cpuCount;
-            cpuCount << wxThread::GetCPUCount();
-            
-            variables.define(WORK_DIR_PATH, buildWorkDir(profile, document));
-            variables.define(CPU_COUNT, cpuCount.ToStdString());
-            defineCommonVariables(variables, document);
-        }
-        
-        void CompilationRun::defineCommonVariables(VariableTable& variables, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-
-            const IO::Path filename = document->path().lastComponent();
-            const IO::Path gamePath = document->game()->gamePath();
-            const String lastMod = "id1";
-            const IO::Path modPath = gamePath + IO::Path(lastMod);
-            const IO::Path appPath = IO::SystemPaths::appDirectory();
-            
-            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
-            variables.define(MAP_FULL_NAME, filename.asString());
-            variables.define(GAME_DIR_PATH, gamePath.asString());
-            variables.define(MOD_DIR_PATH, lastMod);
-            variables.define(MOD_DIR_PATH, modPath.asString());
-            variables.define(APP_DIR_PATH, appPath.asString());
         }
 
         void CompilationRun::OnCompilationStart(wxEvent& event) {

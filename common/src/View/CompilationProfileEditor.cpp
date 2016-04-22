@@ -20,6 +20,7 @@
 #include "CompilationProfileEditor.h"
 
 #include "Model/CompilationProfile.h"
+#include "View/AutoCompleteTextControl.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskList.h"
 #include "View/ViewConstants.h"
@@ -73,7 +74,7 @@ namespace TrenchBroom {
             wxStaticText* workDirLabel = new wxStaticText(upperPanel, wxID_ANY, "Working Directory");
             
             m_nameTxt = new wxTextCtrl(upperPanel, wxID_ANY);
-            m_workDirTxt = new wxTextCtrl(upperPanel, wxID_ANY);
+            m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);

@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "VariableHelper.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -39,6 +40,9 @@ namespace TrenchBroom {
 
         const VariableTable& compilationWorkDirVariables();
         const VariableTable& compilationVariables();
+        
+        void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
+        void defineCompilationVariables(VariableTable& variables, MapDocumentSPtr document, const String& workDir);
     }
 }
 
