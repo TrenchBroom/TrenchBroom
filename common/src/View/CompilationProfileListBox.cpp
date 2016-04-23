@@ -22,6 +22,7 @@
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 
+#include <wx/settings.h>
 #include <wx/stattext.h>
 #include <wx/sizer.h>
 
@@ -59,6 +60,7 @@ namespace TrenchBroom {
                 m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
+                m_taskCountText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 #ifndef _WIN32
                 m_taskCountText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -114,6 +116,11 @@ namespace TrenchBroom {
                     taskCountLabel << m_profile->taskCount() << " tasks";
                     m_taskCountText->SetLabel(taskCountLabel);
                 }
+            }
+        private:
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                Item::setDefaultColours(foreground, background);
+                m_taskCountText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
             }
         };
 

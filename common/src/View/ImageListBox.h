@@ -22,12 +22,16 @@
 
 #include "ControlListBox.h"
 
+class wxStaticText;
+class wxStaticBitmap;
+
 namespace TrenchBroom {
     namespace View {
         class ImageListBox : public ControlListBox {
         public:
             ImageListBox(wxWindow* parent, const wxString& emptyText);
         private:
+            class ImageListBoxItem;
             Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
         private:
             virtual bool image(size_t index, wxBitmap& result) const;

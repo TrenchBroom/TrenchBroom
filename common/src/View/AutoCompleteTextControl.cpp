@@ -22,6 +22,7 @@
 #include "View/BorderPanel.h"
 
 #include <wx/debug.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -32,6 +33,16 @@ namespace TrenchBroom {
         AutoCompleteTextControl::CompletionResult::SingleResult::SingleResult(const wxString& i_value, const wxString& i_description) :
         value(i_value),
         description(i_description) {}
+
+        AutoCompleteTextControl::CompletionResult::CompletionResult() :
+        m_startIndex(0) {}
+
+        AutoCompleteTextControl::CompletionResult::CompletionResult(const size_t startIndex) :
+        m_startIndex(startIndex) {}
+
+        size_t AutoCompleteTextControl::CompletionResult::StartIndex() const {
+            return m_startIndex;
+        }
 
         bool AutoCompleteTextControl::CompletionResult::IsEmpty() const {
             return Count() == 0;
@@ -57,17 +68,16 @@ namespace TrenchBroom {
 
         AutoCompleteTextControl::Helper::~Helper() {}
         
-        bool AutoCompleteTextControl::Helper::ShowCompletions(const wxString& str, const size_t index) const {
+        bool AutoCompleteTextControl::Helper::StartCompletion(const wxString& str, const size_t index) const {
             wxASSERT(index < str.Len());
-            return DoShowCompletions(str, index);
+            return DoStartCompletion(str, index);
         }
-        
+
         AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::Helper::GetCompletions(const wxString& str, size_t index) const {
-            wxASSERT(index < str.Len());
             return DoGetCompletions(str, index);
         }
 
-        bool AutoCompleteTextControl::DefaultHelper::DoShowCompletions(const wxString& str, const size_t index) const {
+        bool AutoCompleteTextControl::DefaultHelper::DoStartCompletion(const wxString& str, const size_t index) const {
             return false;
         }
         
@@ -76,36 +86,57 @@ namespace TrenchBroom {
         }
 
         AutoCompleteTextControl::AutoCompletionList::AutoCompletionList(wxWindow* parent) :
-        ControlListBox(parent, false) {
+        ControlListBox(parent, false, "No completions available.") {
             SetItemMargin(wxSize(1, 1));
             SetShowLastDivider(false);
         }
         
         void AutoCompleteTextControl::AutoCompletionList::SetResult(const CompletionResult& result) {
             m_result = result;
-            wxASSERT(!m_result.IsEmpty());
             SetItemCount(m_result.Count());
             Fit();
         }
 
-        ControlListBox::Item* AutoCompleteTextControl::AutoCompletionList::createItem(wxWindow* parent, const wxSize& margins, size_t index) {
-            Item* container = new Item(parent);
-            wxStaticText* valueText = new wxStaticText(container, wxID_ANY, m_result.GetValue(index));
-            wxStaticText* descriptionText = new wxStaticText(container, wxID_ANY, m_result.GetDescription(index));
-            
+        const wxString AutoCompleteTextControl::AutoCompletionList::CurrentSelection() const {
+            wxASSERT(GetSelection() != wxNOT_FOUND);
+            const size_t index = static_cast<size_t>(GetSelection());
+            return m_result.GetValue(index);
+        }
+
+        class AutoCompleteTextControl::AutoCompletionList::AutoCompletionListItem : public Item {
+        private:
+            wxStaticText* m_valueText;
+            wxStaticText* m_descriptionText;
+        public:
+            AutoCompletionListItem(wxWindow* parent, const wxSize& margins, const wxString& value, const wxString& description) :
+            Item(parent),
+            m_valueText(NULL),
+            m_descriptionText(NULL) {
+                m_valueText = new wxStaticText(this, wxID_ANY, value);
+                m_descriptionText = new wxStaticText(this, wxID_ANY, description);
+                m_descriptionText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 #ifndef _WIN32
-            descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+                m_descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
+                
+                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                vSizer->Add(m_valueText);
+                vSizer->Add(m_descriptionText);
+                
+                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+                hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
+                
+                SetSizer(hSizer);
+            }
             
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->Add(valueText);
-            vSizer->Add(descriptionText);
-            
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
-            
-            container->SetSizer(hSizer);
-            return container;
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                Item::setDefaultColours(foreground, background);
+                m_descriptionText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            }
+        };
+
+        ControlListBox::Item* AutoCompleteTextControl::AutoCompletionList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            return new AutoCompletionListItem(parent, margins, m_result.GetValue(index), m_result.GetDescription(index));
         }
 
         AutoCompleteTextControl::AutoCompletionPopup::AutoCompletionPopup(AutoCompleteTextControl* textControl) :
@@ -130,7 +161,8 @@ namespace TrenchBroom {
         
         void AutoCompleteTextControl::AutoCompletionPopup::SetResult(const AutoCompleteTextControl::CompletionResult& result) {
             m_list->SetResult(result);
-            m_list->SetSelection(0);
+            if (m_list->GetItemCount() > 0)
+                m_list->SetSelection(0);
             Fit();
             SetClientSize(m_list->GetVirtualSize() + wxSize(2, 2));
         }
@@ -138,8 +170,14 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::AutoCompletionPopup::OnShowHide(wxShowEvent& event) {
             if (event.IsShown()) {
                 m_textControl->Bind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+                m_textControl->Bind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+                m_textControl->Bind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+                m_textControl->Bind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
             } else {
                 m_textControl->Unbind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+                m_textControl->Unbind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+                m_textControl->Unbind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+                m_textControl->Unbind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
             }
         }
 
@@ -155,9 +193,24 @@ namespace TrenchBroom {
             } else if ((event.GetKeyCode() == WXK_DOWN && !event.HasAnyModifiers()) ||
                        (event.GetKeyCode() == WXK_TAB && !event.HasAnyModifiers())) {
                 SelectNextCompletion();
+                
             } else {
+                if (event.GetKeyCode() == WXK_LEFT ||
+                    event.GetKeyCode() == WXK_RIGHT ||
+                    event.GetKeyCode() == WXK_UP ||
+                    event.GetKeyCode() == WXK_DOWN ||
+                    event.GetKeyCode() == WXK_PAGEUP ||
+                    event.GetKeyCode() == WXK_PAGEDOWN ||
+                    event.GetKeyCode() == WXK_HOME ||
+                    event.GetKeyCode() == WXK_END)
+                    Hide();
                 event.Skip();
             }
+        }
+
+        void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlMouseDown(wxMouseEvent& event) {
+            Hide();
+            event.Skip();
         }
 
         void AutoCompleteTextControl::AutoCompletionPopup::SelectNextCompletion() {
@@ -177,6 +230,7 @@ namespace TrenchBroom {
         }
 
         void AutoCompleteTextControl::AutoCompletionPopup::DoAutoComplete() {
+            m_textControl->PerformAutoComplete(m_list->CurrentSelection());
         }
 
         AutoCompleteTextControl::AutoCompleteTextControl() :
@@ -213,8 +267,8 @@ namespace TrenchBroom {
             m_helper = helper;
             if (m_helper == NULL)
                 m_helper = new DefaultHelper();
-            if (AutoCompletionListVisible())
-                HideAutoCompletionList();
+            if (IsAutoCompleting())
+                EndAutoCompletion();
         }
 
         void AutoCompleteTextControl::OnChar(wxKeyEvent& event) {
@@ -224,9 +278,11 @@ namespace TrenchBroom {
                 wxString str = GetValue();
                 str.insert(index, key);
 
-                if (!AutoCompletionListVisible()) {
-                    if (m_helper->ShowCompletions(str, index))
-                        ShowAutoCompletionList();
+                if (!IsAutoCompleting()) {
+                    if (m_helper->StartCompletion(str, index)) {
+                        StartAutoCompletion();
+                        m_currentAutoCompletionStartIndex = index;
+                    }
                 }
             }
             event.Skip();
@@ -234,10 +290,11 @@ namespace TrenchBroom {
 
         void AutoCompleteTextControl::OnKeyDown(wxKeyEvent& event) {
             if (event.GetKeyCode() == WXK_SPACE && event.RawControlDown()) {
-                if (!AutoCompletionListVisible()) {
-                    const size_t index = static_cast<size_t>(GetInsertionPoint() - 1);
-                    ShowAutoCompletionList();
-                    UpdateCompletionList(m_helper->GetCompletions(GetValue(), index));
+                if (!IsAutoCompleting()) {
+                    StartAutoCompletion();
+                    UpdateAutoCompletion();
+                } else {
+                    EndAutoCompletion();
                 }
             } else {
                 event.Skip();
@@ -245,46 +302,52 @@ namespace TrenchBroom {
         }
         
         void AutoCompleteTextControl::OnText(wxCommandEvent& event) {
-            if (AutoCompletionListVisible()) {
-                static int count = 0;
-                if (count++ >= 3)
-                    bool b= true;
-                const size_t index = static_cast<size_t>(GetInsertionPoint()-1);
-                UpdateCompletionList(m_helper->GetCompletions(GetValue(), index));
+            if (IsAutoCompleting()) {
+                const size_t index = static_cast<size_t>(GetInsertionPoint());
+                if (index <= m_currentAutoCompletionStartIndex)
+                    EndAutoCompletion();
+                else
+                    UpdateAutoCompletion();
             }
         }
 
-        bool AutoCompleteTextControl::AutoCompletionListVisible() const {
+        bool AutoCompleteTextControl::IsAutoCompleting() const {
             return m_autoCompletionPopup->IsShown();
         }
 
-        void AutoCompleteTextControl::ShowAutoCompletionList() {
-            wxASSERT(!AutoCompletionListVisible());
+        void AutoCompleteTextControl::StartAutoCompletion() {
+            wxASSERT(!IsAutoCompleting());
             const wxString prefix = GetRange(0, GetInsertionPoint());
             const wxPoint offset = wxPoint(GetTextExtent(prefix).x, 0);
             const wxPoint relPos = GetRect().GetBottomLeft() + offset;
             const wxPoint absPos = GetParent()->ClientToScreen(relPos);
             m_autoCompletionPopup->Position(absPos, wxSize());
             m_autoCompletionPopup->Show();
-            
         }
         
-        void AutoCompleteTextControl::UpdateCompletionList(const CompletionResult& result) {
-            wxASSERT(AutoCompletionListVisible());
-            if (result.IsEmpty())
-                HideAutoCompletionList();
-            else
-                m_autoCompletionPopup->SetResult(result);
+        void AutoCompleteTextControl::UpdateAutoCompletion() {
+            wxASSERT(IsAutoCompleting());
+            const size_t index = static_cast<size_t>(GetInsertionPoint());
+            const CompletionResult result = m_helper->GetCompletions(GetValue(), index);
+            m_autoCompletionPopup->SetResult(result);
+            m_currentAutoCompletionStartIndex = result.StartIndex();
         }
         
-        void AutoCompleteTextControl::HideAutoCompletionList() {
-            wxASSERT(AutoCompletionListVisible());
+        void AutoCompleteTextControl::EndAutoCompletion() {
+            wxASSERT(IsAutoCompleting());
             m_autoCompletionPopup->Hide();
         }
 
+        void AutoCompleteTextControl::PerformAutoComplete(const wxString& replacement) {
+            wxASSERT(IsAutoCompleting());
+            const long from = static_cast<long>(m_currentAutoCompletionStartIndex);
+            const long to   = GetInsertionPoint();
+            Replace(from, to, replacement);
+        }
+
         void AutoCompleteTextControl::OnKillFocus(wxFocusEvent& event) {
-            if (AutoCompletionListVisible())
-                HideAutoCompletionList();
+            if (IsAutoCompleting())
+                EndAutoCompletion();
         }
 
         void AutoCompleteTextControl::OnIdle(wxIdleEvent& event) {

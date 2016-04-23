@@ -31,7 +31,7 @@ namespace TrenchBroom {
         public:
             AutoCompleteVariablesHelper(const VariableTable& variableTable);
         private:
-            bool DoShowCompletions(const wxString& str, size_t index) const;
+            bool DoStartCompletion(const wxString& str, size_t index) const;
             AutoCompleteTextControl::CompletionResult DoGetCompletions(const wxString& str, size_t index) const;
             
             size_t findLastDollar(const wxString& str, size_t startIndex) const;

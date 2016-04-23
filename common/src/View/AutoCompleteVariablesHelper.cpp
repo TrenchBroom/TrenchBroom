@@ -24,17 +24,17 @@ namespace TrenchBroom {
         AutoCompleteVariablesHelper::AutoCompleteVariablesHelper(const VariableTable& variableTable) :
         m_variableTable(variableTable) {}
 
-        bool AutoCompleteVariablesHelper::DoShowCompletions(const wxString& str, size_t index) const {
+        bool AutoCompleteVariablesHelper::DoStartCompletion(const wxString& str, size_t index) const {
             return str[index] == '$';
         }
         
         AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t index) const {
-            AutoCompleteTextControl::CompletionResult result;
-            
             const size_t dollarIndex = findLastDollar(str, index);
             if (dollarIndex == str.Len())
-                return result;
+                return AutoCompleteTextControl::CompletionResult();
             
+            AutoCompleteTextControl::CompletionResult result(dollarIndex);
+
             const wxString prefix = str.Mid(dollarIndex, index - dollarIndex + 1);
             const StringSet variables = m_variableTable.declaredVariables(prefix.ToStdString(), false);
             StringSet::const_iterator it, end;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         size_t AutoCompleteVariablesHelper::findLastDollar(const wxString& str, const size_t startIndex) const {
-            size_t curIndex = startIndex + 1;
+            size_t curIndex = startIndex;
             do {
                 --curIndex;
                 if (str[curIndex] == '$')

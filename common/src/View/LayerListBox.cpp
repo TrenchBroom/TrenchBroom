@@ -70,6 +70,7 @@ namespace TrenchBroom {
             m_layer(layer) {
                 m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
                 m_infoText = new wxStaticText(this, wxID_ANY, "");
+                m_infoText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
                 refresh();
 
                 wxWindow* hiddenText = new wxStaticText(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
@@ -156,6 +157,11 @@ namespace TrenchBroom {
 
                 MapDocumentSPtr document = lock(m_document);
                 event.Enable(m_layer->locked() || m_layer != document->currentLayer());
+            }
+        private:
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                Item::setDefaultColours(foreground, background);
+                m_infoText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
             }
         };
 

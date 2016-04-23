@@ -22,6 +22,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
+#include <wx/settings.h>
 #include <wx/stattext.h>
 #include <wx/sizer.h>
 
@@ -59,6 +60,7 @@ namespace TrenchBroom {
                 m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
+                m_pathText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 #ifndef _WIN32
                 m_pathText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -112,6 +114,11 @@ namespace TrenchBroom {
                     m_nameText->SetLabel(m_profile->name());
                     m_pathText->SetLabel(m_profile->path().asString());
                 }
+            }
+        private:
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                Item::setDefaultColours(foreground, background);
+                m_pathText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
             }
         };
         

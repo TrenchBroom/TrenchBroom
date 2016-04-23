@@ -22,6 +22,7 @@
 #include "View/ViewConstants.h"
 
 #include <wx/panel.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/statbmp.h>
@@ -33,33 +34,67 @@ namespace TrenchBroom {
         ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
         ControlListBox(parent, true, emptyText) {}
 
-        ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            Item* container = new Item(parent);
-            wxStaticText* titleText = new wxStaticText(container, wxID_ANY, title(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-            wxStaticText* subtitleText = new wxStaticText(container, wxID_ANY, subtitle(index), wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
-            
-            titleText->SetFont(titleText->GetFont().Bold());
-#ifndef _WIN32
-            subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
-            
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->Add(titleText, 0);
-            vSizer->Add(subtitleText, 0);
-            
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(margins.x);
-
-            wxBitmap bitmap;
-            if (image(index, bitmap)) {
-                wxStaticBitmap* imagePanel = new wxStaticBitmap(container, wxID_ANY, bitmap);
-                hSizer->Add(imagePanel, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+        class ImageListBox::ImageListBoxItem : public Item {
+        private:
+            wxStaticText* m_titleText;
+            wxStaticText* m_subtitleText;
+            wxStaticBitmap* m_imageBmp;
+        public:
+            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle) :
+            Item(parent),
+            m_titleText(NULL),
+            m_subtitleText(NULL),
+            m_imageBmp(NULL) {
+                createGui(margins, title, subtitle, NULL);
             }
-            hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
-            hSizer->AddSpacer(margins.x);
             
-            container->SetSizer(hSizer);
-            return container;
+            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap& image)  :
+            Item(parent),
+            m_titleText(NULL),
+            m_subtitleText(NULL),
+            m_imageBmp(NULL) {
+                createGui(margins, title, subtitle, &image);
+            }
+
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+                Item::setDefaultColours(foreground, background);
+                m_subtitleText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            }
+        private:
+            void createGui(const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap* image) {
+                m_titleText = new wxStaticText(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
+                m_subtitleText = new wxStaticText(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+                
+                m_titleText->SetFont(m_titleText->GetFont().Bold());
+                m_subtitleText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+#ifndef _WIN32
+                m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif
+                
+                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+                vSizer->Add(m_titleText, 0);
+                vSizer->Add(m_subtitleText, 0);
+                
+                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+                hSizer->AddSpacer(margins.x);
+                
+                if (image != NULL) {
+                    m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
+                    hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
+                }
+                hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
+                hSizer->AddSpacer(margins.x);
+                
+                SetSizer(hSizer);
+            }
+        };
+
+        ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
+            wxBitmap bitmap;
+            if (image(index, bitmap))
+                return new ImageListBoxItem(parent, margins, title(index), subtitle(index), bitmap);
+            else
+                return new ImageListBoxItem(parent, margins, title(index), subtitle(index));
         }
 
         bool ImageListBox::image(const size_t n, wxBitmap& result) const {

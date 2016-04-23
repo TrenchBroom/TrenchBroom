@@ -27,6 +27,8 @@
 
 #include <vector>
 
+class wxStaticText;
+
 namespace TrenchBroom {
     namespace View {
         class AutoCompleteTextControl : public wxTextCtrl {
@@ -41,7 +43,13 @@ namespace TrenchBroom {
                 
                 typedef std::vector<SingleResult> List;
                 List m_results;
+                size_t m_startIndex;
             public:
+                CompletionResult();
+                CompletionResult(size_t startIndex);
+                
+                size_t StartIndex() const;
+                
                 bool IsEmpty() const;
                 size_t Count() const;
                 
@@ -55,16 +63,16 @@ namespace TrenchBroom {
             public:
                 virtual ~Helper();
                 
-                bool ShowCompletions(const wxString& str, size_t index) const;
+                bool StartCompletion(const wxString& str, size_t index) const;
                 CompletionResult GetCompletions(const wxString& str, size_t index) const;
             private:
-                virtual bool DoShowCompletions(const wxString& str, size_t index) const = 0;
+                virtual bool DoStartCompletion(const wxString& str, size_t index) const = 0;
                 virtual CompletionResult DoGetCompletions(const wxString& str, size_t index) const = 0;
             };
         private:
             class DefaultHelper : public Helper {
             private:
-                bool DoShowCompletions(const wxString& str, size_t index) const;
+                bool DoStartCompletion(const wxString& str, size_t index) const;
                 CompletionResult DoGetCompletions(const wxString& str, size_t index) const;
             };
         private:
@@ -74,7 +82,9 @@ namespace TrenchBroom {
             public:
                 AutoCompletionList(wxWindow* parent);
                 void SetResult(const CompletionResult& result);
+                const wxString CurrentSelection() const;
             private:
+                class AutoCompletionListItem;
                 Item* createItem(wxWindow* parent, const wxSize& margin, size_t index);
             };
             
@@ -88,6 +98,7 @@ namespace TrenchBroom {
             private:
                 void OnShowHide(wxShowEvent& event);
                 void OnTextCtrlKeyDown(wxKeyEvent& event);
+                void OnTextCtrlMouseDown(wxMouseEvent& event);
                 
                 void SelectNextCompletion();
                 void SelectPreviousCompletion();
@@ -96,6 +107,7 @@ namespace TrenchBroom {
         private:
             Helper* m_helper;
             AutoCompletionPopup* m_autoCompletionPopup;
+            size_t m_currentAutoCompletionStartIndex;
         public:
             AutoCompleteTextControl();
             AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
@@ -109,10 +121,12 @@ namespace TrenchBroom {
             void OnKeyDown(wxKeyEvent& event);
             void OnText(wxCommandEvent& event);
             
-            bool AutoCompletionListVisible() const;
-            void ShowAutoCompletionList();
-            void UpdateCompletionList(const CompletionResult& result);
-            void HideAutoCompletionList();
+            bool IsAutoCompleting() const;
+            void StartAutoCompletion();
+            void UpdateAutoCompletion();
+            void EndAutoCompletion();
+            
+            void PerformAutoComplete(const wxString& replacement);
             
             void OnKillFocus(wxFocusEvent& event);
             void OnIdle(wxIdleEvent& event);

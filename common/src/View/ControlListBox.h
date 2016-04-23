@@ -49,6 +49,7 @@ namespace TrenchBroom {
         private:
             typedef std::vector<Item*> ItemList;
             wxSize m_itemMargin;
+            bool m_restrictToClientWidth;
             wxString m_emptyText;
             wxStaticText* m_emptyTextLabel;
             bool m_showLastDivider;
