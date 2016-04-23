@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config) :
+        CompilationProfileManager::CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config) :
         wxPanel(parent),
         m_config(config),
         m_profileList(NULL),
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             editorPanel->getPanel()->SetBackgroundColour(GetBackgroundColour());
             
             m_profileList = new CompilationProfileListBox(listPanel->getPanel(), m_config);
-            m_profileEditor = new CompilationProfileEditor(editorPanel->getPanel());
+            m_profileEditor = new CompilationProfileEditor(editorPanel->getPanel(), document);
             
             wxWindow* addProfileButton = createBitmapButton(listPanel->getPanel(), "Add.png", "Add profile");
             wxWindow* removeProfileButton = createBitmapButton(listPanel->getPanel(), "Remove.png", "Remove the selected profile");

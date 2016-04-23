@@ -99,6 +99,10 @@ namespace TrenchBroom {
             SetItemCount(0);
         }
         
+        size_t ControlListBox::GetItemCount() const {
+            return m_items.size();
+        }
+
         int ControlListBox::GetSelection() const {
             if (m_selectionIndex == m_items.size())
                 return  wxNOT_FOUND;
@@ -114,6 +118,7 @@ namespace TrenchBroom {
             wxWindowUpdateLocker lock(this);
             refresh(itemCount);
             setSelection(m_selectionIndex);
+            Refresh();
         }
 
         void ControlListBox::SetSelection(const int index) {
@@ -124,6 +129,7 @@ namespace TrenchBroom {
             } else {
                 setSelection(static_cast<size_t>(index));
             }
+            Refresh();
         }
 
         void ControlListBox::MakeVisible(const size_t index) {
@@ -202,6 +208,7 @@ namespace TrenchBroom {
                 listSizer->AddStretchSpacer();
             }
             FitInside();
+            InvalidateBestSize();
         }
         
         void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {

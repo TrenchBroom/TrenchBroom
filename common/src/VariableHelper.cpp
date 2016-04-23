@@ -32,6 +32,24 @@ namespace TrenchBroom {
         return m_variables;
     }
 
+    StringSet VariableTable::declaredVariables(const String& prefix, bool caseSensitive) const {
+        StringSet result;
+        StringSet::const_iterator it, end;
+        
+        for (it = m_variables.begin(), end = m_variables.end(); it != end; ++it) {
+            const String& variableName = *it;
+            const String variableString = buildVariableString(variableName);
+            if (caseSensitive) {
+                if (StringUtils::caseSensitivePrefix(variableString, prefix))
+                    result.insert(variableName);
+            } else {
+                if (StringUtils::caseInsensitivePrefix(variableString, prefix))
+                    result.insert(variableName);
+            }
+        }
+        return result;
+    }
+
     bool VariableTable::declared(const String& variable) const {
         return m_variables.count(variable) > 0;
     }

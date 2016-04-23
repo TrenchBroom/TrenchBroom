@@ -20,6 +20,8 @@
 #ifndef CompilationProfileEditor_h
 #define CompilationProfileEditor_h
 
+#include "View/ViewTypes.h"
+
 #include <wx/panel.h>
 
 class wxSimplebook;
@@ -36,13 +38,14 @@ namespace TrenchBroom {
         
         class CompilationProfileEditor : public wxPanel {
         private:
+            MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
             wxSimplebook* m_book;
             wxTextCtrl* m_nameTxt;
             AutoCompleteTextControl* m_workDirTxt;
             CompilationTaskList* m_taskList;
         public:
-            CompilationProfileEditor(wxWindow* parent);
+            CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document);
             ~CompilationProfileEditor();
         private:
             wxWindow* createEditorPage(wxWindow* parent);

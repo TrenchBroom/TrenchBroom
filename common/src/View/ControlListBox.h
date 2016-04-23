@@ -60,6 +60,7 @@ namespace TrenchBroom {
         public:
             ControlListBox(wxWindow* parent, bool restrictToClientWidth, const wxString& emptyText = "");
 
+            size_t GetItemCount() const;
             int GetSelection() const;
             
             void SetItemCount(size_t itemCount);

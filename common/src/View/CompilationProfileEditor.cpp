@@ -21,8 +21,10 @@
 
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
+#include "View/AutoCompleteVariablesHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskList.h"
+#include "View/CompilationVariables.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -37,8 +39,9 @@
 namespace TrenchBroom {
     namespace View {
 
-        CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent) :
+        CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
+        m_document(document),
         m_profile(NULL),
         m_book(NULL),
         m_nameTxt(NULL),
@@ -75,6 +78,10 @@ namespace TrenchBroom {
             
             m_nameTxt = new wxTextCtrl(upperPanel, wxID_ANY);
             m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
+            
+            VariableTable workDirVariables = compilationWorkDirVariables();
+            defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
+            m_workDirTxt->SetHelper(new AutoCompleteVariablesHelper(workDirVariables));
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);

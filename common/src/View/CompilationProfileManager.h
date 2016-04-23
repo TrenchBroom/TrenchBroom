@@ -20,6 +20,8 @@
 #ifndef CompilationProfileManager_h
 #define CompilationProfileManager_h
 
+#include "View/ViewTypes.h"
+
 #include <wx/panel.h>
 
 namespace TrenchBroom {
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             CompilationProfileListBox* m_profileList;
             CompilationProfileEditor* m_profileEditor;
         public:
-            CompilationProfileManager(wxWindow* parent, Model::CompilationConfig& config);
+            CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config);
             
             const Model::CompilationProfile* selectedProfile() const;
         private:

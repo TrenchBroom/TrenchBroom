@@ -44,6 +44,7 @@ namespace TrenchBroom {
         VariableTable(const String& prefix, const String& suffix);
 
         const StringSet& declaredVariables() const;
+        StringSet declaredVariables(const String& prefix, bool caseSensitive) const;
         bool declared(const String& variable) const;
         
         void declare(const String& variable);
@@ -55,6 +56,7 @@ namespace TrenchBroom {
         const String& value(const String& variableName) const;
         String translate(const String& string) const;
         String buildVariableString(const String& variableName) const;
+        
     };
 }
 

@@ -25,31 +25,47 @@
 #include <wx/popupwin.h>
 #include <wx/textctrl.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         class AutoCompleteTextControl : public wxTextCtrl {
         public:
             class CompletionResult {
+            private:
+                struct SingleResult {
+                    wxString value;
+                    wxString description;
+                    SingleResult(const wxString& i_value, const wxString& i_description);
+                };
+                
+                typedef std::vector<SingleResult> List;
+                List m_results;
             public:
                 bool IsEmpty() const;
                 size_t Count() const;
                 
                 const wxString GetValue(size_t index) const;
                 const wxString GetDescription(size_t index) const;
+                
+                void Add(const wxString& value, const wxString& description);
             };
             
             class Helper {
             public:
                 virtual ~Helper();
                 
-                CompletionResult GetCompletionResult(const wxString& fullPrefix) const;
+                bool ShowCompletions(const wxString& str, size_t index) const;
+                CompletionResult GetCompletions(const wxString& str, size_t index) const;
             private:
-                virtual CompletionResult DoGetCompletionResult(const wxString& fullPrefix) const = 0;
+                virtual bool DoShowCompletions(const wxString& str, size_t index) const = 0;
+                virtual CompletionResult DoGetCompletions(const wxString& str, size_t index) const = 0;
             };
         private:
             class DefaultHelper : public Helper {
             private:
-                CompletionResult DoGetCompletionResult(const wxString& fullPrefix) const;
+                bool DoShowCompletions(const wxString& str, size_t index) const;
+                CompletionResult DoGetCompletions(const wxString& str, size_t index) const;
             };
         private:
             class AutoCompletionList : public ControlListBox {
@@ -69,24 +85,39 @@ namespace TrenchBroom {
             public:
                 AutoCompletionPopup(AutoCompleteTextControl* textControl);
                 void SetResult(const CompletionResult& result);
+            private:
+                void OnShowHide(wxShowEvent& event);
+                void OnTextCtrlKeyDown(wxKeyEvent& event);
+                
+                void SelectNextCompletion();
+                void SelectPreviousCompletion();
+                void DoAutoComplete();
             };
         private:
             Helper* m_helper;
             AutoCompletionPopup* m_autoCompletionPopup;
         public:
+            AutoCompleteTextControl();
             AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
             ~AutoCompleteTextControl();
+            
+            void Create(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);
             
             void SetHelper(Helper* helper);
         private:
             void OnChar(wxKeyEvent& event);
-            void UpdateCompletionList(const CompletionResult& result);
+            void OnKeyDown(wxKeyEvent& event);
+            void OnText(wxCommandEvent& event);
             
             bool AutoCompletionListVisible() const;
             void ShowAutoCompletionList();
+            void UpdateCompletionList(const CompletionResult& result);
             void HideAutoCompletionList();
             
             void OnKillFocus(wxFocusEvent& event);
+            void OnIdle(wxIdleEvent& event);
+        public:
+            DECLARE_DYNAMIC_CLASS(AutoCompleteTextControl)
         };
     }
 }

@@ -59,7 +59,7 @@ namespace TrenchBroom {
             wxPanel* outerPanel = new wxPanel(this);
             SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
             
-            m_profileManager = new CompilationProfileManager(splitter, compilationConfig);
+            m_profileManager = new CompilationProfileManager(splitter, document , compilationConfig);
 
             TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
             m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
