@@ -272,17 +272,14 @@ namespace TrenchBroom {
         }
 
         void AutoCompleteTextControl::OnChar(wxKeyEvent& event) {
-            const wxChar key = event.GetUnicodeKey();
-            if (key != wxKEY_NONE) {
-                const size_t index = static_cast<size_t>(GetInsertionPoint());
-                wxString str = GetValue();
-                str.insert(index, key);
-
-                if (!IsAutoCompleting()) {
-                    if (m_helper->StartCompletion(str, index)) {
-                        StartAutoCompletion();
-                        m_currentAutoCompletionStartIndex = index;
-                    }
+            const size_t index = static_cast<size_t>(GetInsertionPoint());
+            wxString str = GetValue();
+            str.insert(index, event.GetUnicodeKey());
+            
+            if (!IsAutoCompleting()) {
+                if (m_helper->StartCompletion(str, index)) {
+                    StartAutoCompletion();
+                    m_currentAutoCompletionStartIndex = index;
                 }
             }
             event.Skip();
