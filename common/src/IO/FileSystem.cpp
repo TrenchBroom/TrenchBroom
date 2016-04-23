@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2016 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,13 +26,13 @@
 namespace TrenchBroom {
     namespace IO {
         FileSystem::FileSystem() {}
-        
+
         FileSystem::FileSystem(const FileSystem& other) {}
 
         FileSystem::~FileSystem() {}
-        
+
         FileSystem& FileSystem::operator=(const FileSystem& other) { return *this; }
-        
+
         Path FileSystem::makeAbsolute(const Path& relPath) const {
             return doMakeAbsolute(relPath);
         }
@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
         }
-        
+
         bool FileSystem::fileExists(const Path& path) const {
             try {
                 if (path.isAbsolute())
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         Path::List FileSystem::findItems(const Path& path) const {
             return findItems(path, FileTypeMatcher());
         }
-        
+
         Path::List FileSystem::findItemsRecursively(const Path& path) const {
             return findItemsRecursively(path, FileTypeMatcher());
         }
@@ -88,13 +88,14 @@ namespace TrenchBroom {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
         }
-        
+
         WritableFileSystem::WritableFileSystem() {}
 
-        WritableFileSystem::WritableFileSystem(const WritableFileSystem& other) {}
+        WritableFileSystem::WritableFileSystem(const WritableFileSystem& other) :
+        FileSystem() {}
 
         WritableFileSystem::~WritableFileSystem() {}
-        
+
         WritableFileSystem& WritableFileSystem::operator=(const WritableFileSystem& other) { return *this; }
 
         void WritableFileSystem::createFile(const Path& path, const String& contents) {
@@ -116,7 +117,7 @@ namespace TrenchBroom {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
         }
-        
+
         void WritableFileSystem::deleteFile(const Path& path) {
             try {
                 if (path.isAbsolute())
@@ -126,7 +127,7 @@ namespace TrenchBroom {
                 throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
             }
         }
-        
+
         void WritableFileSystem::copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
             try {
                 if (sourcePath.isAbsolute())
