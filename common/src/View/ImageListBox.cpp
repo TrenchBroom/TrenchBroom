@@ -20,6 +20,7 @@
 #include "ImageListBox.h"
 
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <wx/panel.h>
 #include <wx/settings.h>
@@ -58,7 +59,7 @@ namespace TrenchBroom {
 
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {
                 Item::setDefaultColours(foreground, background);
-                m_subtitleText->SetForegroundColour(m_subtitleText->GetForegroundColour().ChangeLightness(130));
+                m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
             }
         private:
             void createGui(const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap* image) {
@@ -66,7 +67,7 @@ namespace TrenchBroom {
                 m_subtitleText = new wxStaticText(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_titleText->SetFont(m_titleText->GetFont().Bold());
-                m_subtitleText->SetForegroundColour(m_subtitleText->GetForegroundColour().ChangeLightness(130));
+                m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
 #ifndef _WIN32
                 m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif

@@ -42,6 +42,7 @@ namespace TrenchBroom {
         wxFrame* findFrame(wxWindow* window);
         bool isNonOwned(wxWindow* window);
 
+        wxColor makeLighter(const wxColor& color);
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
 

@@ -50,6 +50,13 @@ namespace TrenchBroom {
             return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
         }
 
+        wxColor makeLighter(const wxColor& color) {
+            wxColor result = color.ChangeLightness(130);
+            if (result == color)
+                result = color.ChangeLightness(70);
+            return result;
+        }
+
         Color fromWxColor(const wxColor& color) {
             const float r = static_cast<float>(color.Red())   / 255.0f;
             const float g = static_cast<float>(color.Green()) / 255.0f;
