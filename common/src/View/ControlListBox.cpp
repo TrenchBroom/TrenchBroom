@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2016 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,9 +34,9 @@ namespace TrenchBroom {
     namespace View {
         ControlListBox::Item::Item(wxWindow* parent) :
         wxWindow(parent, wxID_ANY) {}
-        
+
         ControlListBox::Item::~Item() {}
-        
+
         bool ControlListBox::Item::AcceptsFocus() const {
             return false;
         }
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         void ControlListBox::Item::setSelectionColours(const wxColour& foreground, const wxColour& background) {
             setColours(this, foreground, background);
         }
-        
+
         void ControlListBox::Item::setDefaultColours(const wxColour& foreground, const wxColour& background) {
             setColours(this, foreground, background);
         }
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 if (window->GetBackgroundColour() != background)
                     window->SetBackgroundColour(background);
             }
-            
+
             const wxWindowList& children = window->GetChildren();
             wxWindowList::const_iterator it, end;
             for (it = children.begin(), end = children.end(); it != end; ++it) {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             Sizer(const int orient, const bool restrictToClientWidth) :
             wxBoxSizer(orient),
             m_restrictToClientWidth(restrictToClientWidth){}
-            
+
             wxSize CalcMin() {
                 const wxSize originalSize = wxBoxSizer::CalcMin();
                 if (!m_restrictToClientWidth)
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 return result;
             }
         };
-        
+
         ControlListBox::ControlListBox(wxWindow* parent, const bool restrictToClientWidth, const wxString& emptyText) :
         wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
         m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
             SetItemCount(0);
         }
-        
+
         size_t ControlListBox::GetItemCount() const {
             return m_items.size();
         }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
         void ControlListBox::SetSelection(const int index) {
             wxWindowUpdateLocker lock(this);
-            
+
             if (index < 0 || static_cast<size_t>(index) > m_items.size()) {
                 setSelection(m_items.size());
             } else {
@@ -137,11 +137,11 @@ namespace TrenchBroom {
             assert(index < m_items.size());
             MakeVisible(m_items[index]);
         }
-        
+
         void ControlListBox::MakeVisible(const Item* item) {
             MakeVisible(item->GetPosition().y, item->GetSize().y);
         }
-        
+
         void ControlListBox::MakeVisible(wxCoord y, const wxCoord size) {
             wxWindowUpdateLocker lock(this);
 
@@ -150,10 +150,10 @@ namespace TrenchBroom {
             GetScrollPixelsPerUnit(&xUnit, &yUnit);
             const wxCoord startY = GetViewStart().y * yUnit;
             const wxCoord sizeY  = GetClientSize().y;
-            
+
             if (y >= startY && y + size <= sizeY)
                 return;
-            
+
             if (size >= sizeY || y < startY) {
                 Scroll(wxDefaultCoord, y / yUnit);
             } else if (y + size > startY + sizeY) {
@@ -179,18 +179,18 @@ namespace TrenchBroom {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
             m_emptyTextLabel = NULL;
-            
+
             m_items.clear();
             m_items.reserve(itemCount);
-            
+
             if (itemCount > 0) {
                 for (size_t i = 0; i < itemCount; ++i) {
                     Item* item = createItem(this, m_itemMargin, i);
-                    
+
                     listSizer->Add(item, wxSizerFlags().Expand());
                     if (i < itemCount - 1 || m_showLastDivider)
                         listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-                    
+
                     bindEvents(item, i);
                     m_items.push_back(item);
                 }
@@ -200,15 +200,15 @@ namespace TrenchBroom {
                 m_emptyTextLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
                 if (m_restrictToClientWidth)
                     m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
-                
+
                 wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
                 justifySizer->AddStretchSpacer();
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->Add(m_emptyTextLabel);
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->AddStretchSpacer();
-                
-                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+
+                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin).Expand());
                 listSizer->AddStretchSpacer();
             }
             if (m_restrictToClientWidth)
@@ -217,7 +217,7 @@ namespace TrenchBroom {
                 GetParent()->Fit();
             InvalidateBestSize();
         }
-        
+
         void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {
             if (window->IsFocusable()) {
                 window->Bind(wxEVT_SET_FOCUS, &ControlListBox::OnFocusChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
@@ -226,7 +226,7 @@ namespace TrenchBroom {
                 window->Bind(wxEVT_RIGHT_DOWN, &ControlListBox::OnRightClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
                 window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
             }
-            
+
             const wxWindowList& children = window->GetChildren();
             wxWindowList::const_iterator it, end;
             for (it = children.begin(), end = children.end(); it != end; ++it) {
@@ -242,14 +242,14 @@ namespace TrenchBroom {
                 m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
             event.Skip();
         }
-        
+
         void ControlListBox::OnFocusChild(wxFocusEvent& event) {
             wxWindowUpdateLocker lock(this);
             setSelection(event);
-            
+
             event.Skip();
         }
-        
+
         void ControlListBox::OnLeftClickChild(wxMouseEvent& event) {
             wxWindowUpdateLocker lock(this);
             setSelection(event);
@@ -258,7 +258,7 @@ namespace TrenchBroom {
         void ControlListBox::OnRightClickChild(wxMouseEvent& event) {
             wxWindowUpdateLocker lock(this);
             setSelection(event);
-            
+
             wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_RCLICK, GetId());
             command->SetInt(GetSelection());
             command->SetEventObject(this);
@@ -290,7 +290,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < m_items.size(); ++i)
                 m_items[i]->setDefaultColours(GetForegroundColour(), GetBackgroundColour());
-            
+
             if (m_selectionIndex < m_items.size()) {
                 m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
                 MakeVisible(index);
