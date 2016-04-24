@@ -91,6 +91,8 @@ namespace TrenchBroom {
         }
 
         bool GamesPreferencePane::isValidGamePath(const wxString& str) const {
+            if (str.IsEmpty())
+                return true;
             try {
                 const IO::Path gamePath(str.ToStdString());
                 return IO::Disk::directoryExists(gamePath);
