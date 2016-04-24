@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
                 
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
-                m_pathText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_pathText->SetForegroundColour(m_pathText->GetForegroundColour().ChangeLightness(130));
 #ifndef _WIN32
                 m_pathText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         private:
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {
                 Item::setDefaultColours(foreground, background);
-                m_pathText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_pathText->SetForegroundColour(m_pathText->GetForegroundColour().ChangeLightness(130));
             }
         };
         

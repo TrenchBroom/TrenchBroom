@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_descriptionText(NULL) {
                 m_valueText = new wxStaticText(this, wxID_ANY, value);
                 m_descriptionText = new wxStaticText(this, wxID_ANY, description);
-                m_descriptionText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_descriptionText->SetForegroundColour(m_descriptionText->GetForegroundColour().ChangeLightness(130));
 #ifndef _WIN32
                 m_descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {
                 Item::setDefaultColours(foreground, background);
-                m_descriptionText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                m_descriptionText->SetForegroundColour(m_descriptionText->GetForegroundColour().ChangeLightness(130));
             }
         };
 
