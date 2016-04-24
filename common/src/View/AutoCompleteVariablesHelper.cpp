@@ -24,18 +24,20 @@ namespace TrenchBroom {
         AutoCompleteVariablesHelper::AutoCompleteVariablesHelper(const VariableTable& variableTable) :
         m_variableTable(variableTable) {}
 
-        bool AutoCompleteVariablesHelper::DoStartCompletion(const wxString& str, size_t index) const {
-            return str[index] == '$';
+        size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+            if (c == '$')
+                return insertPos;
+            return str.Length() + 1;
         }
         
-        AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t index) const {
-            const size_t dollarIndex = findLastDollar(str, index);
-            if (dollarIndex == str.Len())
-                return AutoCompleteTextControl::CompletionResult();
-            
-            AutoCompleteTextControl::CompletionResult result(dollarIndex);
+        size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
+            return findLastDollar(str, insertPos);
+        }
 
-            const wxString prefix = str.Mid(dollarIndex, index - dollarIndex + 1);
+        AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+            AutoCompleteTextControl::CompletionResult result;
+            
+            const wxString prefix = str.Mid(startIndex, count);
             const StringSet variables = m_variableTable.declaredVariables(prefix.ToStdString(), false);
             StringSet::const_iterator it, end;
             for (it = variables.begin(), end = variables.end(); it != end; ++it) {

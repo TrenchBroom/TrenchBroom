@@ -43,13 +43,7 @@ namespace TrenchBroom {
                 
                 typedef std::vector<SingleResult> List;
                 List m_results;
-                size_t m_startIndex;
             public:
-                CompletionResult();
-                CompletionResult(size_t startIndex);
-                
-                size_t StartIndex() const;
-                
                 bool IsEmpty() const;
                 size_t Count() const;
                 
@@ -62,18 +56,21 @@ namespace TrenchBroom {
             class Helper {
             public:
                 virtual ~Helper();
-                
-                bool StartCompletion(const wxString& str, size_t index) const;
-                CompletionResult GetCompletions(const wxString& str, size_t index) const;
+
+                size_t ShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
+                size_t ShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
+                CompletionResult GetCompletions(const wxString& str, size_t startIndex, size_t count) const;
             private:
-                virtual bool DoStartCompletion(const wxString& str, size_t index) const = 0;
-                virtual CompletionResult DoGetCompletions(const wxString& str, size_t index) const = 0;
+                virtual size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const = 0;
+                virtual size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const = 0;
+                virtual CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const = 0;
             };
         private:
             class DefaultHelper : public Helper {
             private:
-                bool DoStartCompletion(const wxString& str, size_t index) const;
-                CompletionResult DoGetCompletions(const wxString& str, size_t index) const;
+                size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
+                size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
+                CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const;
             };
         private:
             class AutoCompletionList : public ControlListBox {
@@ -107,7 +104,7 @@ namespace TrenchBroom {
         private:
             Helper* m_helper;
             AutoCompletionPopup* m_autoCompletionPopup;
-            size_t m_currentAutoCompletionStartIndex;
+            size_t m_currentStartIndex;
         public:
             AutoCompleteTextControl();
             AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTextCtrlNameStr);

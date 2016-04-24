@@ -34,16 +34,6 @@ namespace TrenchBroom {
         value(i_value),
         description(i_description) {}
 
-        AutoCompleteTextControl::CompletionResult::CompletionResult() :
-        m_startIndex(0) {}
-
-        AutoCompleteTextControl::CompletionResult::CompletionResult(const size_t startIndex) :
-        m_startIndex(startIndex) {}
-
-        size_t AutoCompleteTextControl::CompletionResult::StartIndex() const {
-            return m_startIndex;
-        }
-
         bool AutoCompleteTextControl::CompletionResult::IsEmpty() const {
             return Count() == 0;
         }
@@ -68,20 +58,30 @@ namespace TrenchBroom {
 
         AutoCompleteTextControl::Helper::~Helper() {}
 
-        bool AutoCompleteTextControl::Helper::StartCompletion(const wxString& str, const size_t index) const {
-            wxASSERT(index < str.Len());
-            return DoStartCompletion(str, index);
+        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+            wxASSERT(insertPos <= str.Length());
+            return DoShouldStartCompletionAfterInput(str, c, insertPos);
+        }
+        
+        size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
+            wxASSERT(insertPos <= str.Length());
+            return DoShouldStartCompletionAfterRequest(str, insertPos);
         }
 
-        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::Helper::GetCompletions(const wxString& str, size_t index) const {
-            return DoGetCompletions(str, index);
+        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::Helper::GetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+            wxASSERT(startIndex + count <= str.Length());
+            return DoGetCompletions(str, startIndex, count);
         }
 
-        bool AutoCompleteTextControl::DefaultHelper::DoStartCompletion(const wxString& str, const size_t index) const {
-            return false;
+        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+            return str.Length();
+        }
+        
+        size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const {
+            return str.Length();
         }
 
-        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::DefaultHelper::DoGetCompletions(const wxString& str, const size_t index) const {
+        AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::DefaultHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
             return CompletionResult();
         }
 
@@ -270,15 +270,11 @@ namespace TrenchBroom {
         }
 
         void AutoCompleteTextControl::OnChar(wxKeyEvent& event) {
-            const size_t index = static_cast<size_t>(GetInsertionPoint());
-            wxString str = GetValue();
-            str.insert(index, event.GetUnicodeKey());
-
             if (!IsAutoCompleting()) {
-                if (m_helper->StartCompletion(str, index)) {
+                const size_t index = static_cast<size_t>(GetInsertionPoint());
+                m_currentStartIndex = m_helper->ShouldStartCompletionAfterInput(GetValue(), event.GetUnicodeKey(), index);
+                if (m_currentStartIndex <= GetValue().Length())
                     StartAutoCompletion();
-                    m_currentAutoCompletionStartIndex = index;
-                }
             }
             event.Skip();
         }
@@ -286,8 +282,12 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::OnKeyDown(wxKeyEvent& event) {
             if (event.GetKeyCode() == WXK_SPACE && event.RawControlDown()) {
                 if (!IsAutoCompleting()) {
-                    StartAutoCompletion();
-                    UpdateAutoCompletion();
+                    const size_t index = static_cast<size_t>(GetInsertionPoint());
+                    m_currentStartIndex = m_helper->ShouldStartCompletionAfterRequest(GetValue(), index);
+                    if (m_currentStartIndex < GetValue().Length()) {
+                        StartAutoCompletion();
+                        UpdateAutoCompletion();
+                    }
                 } else {
                     EndAutoCompletion();
                 }
@@ -299,7 +299,7 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::OnText(wxCommandEvent& event) {
             if (IsAutoCompleting()) {
                 const size_t index = static_cast<size_t>(GetInsertionPoint());
-                if (index <= m_currentAutoCompletionStartIndex)
+                if (index <= m_currentStartIndex)
                     EndAutoCompletion();
                 else
                     UpdateAutoCompletion();
@@ -323,9 +323,9 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::UpdateAutoCompletion() {
             wxASSERT(IsAutoCompleting());
             const size_t index = static_cast<size_t>(GetInsertionPoint());
-            const CompletionResult result = m_helper->GetCompletions(GetValue(), index);
+            const size_t count = index - m_currentStartIndex;
+            const CompletionResult result = m_helper->GetCompletions(GetValue(), m_currentStartIndex, count);
             m_autoCompletionPopup->SetResult(result);
-            m_currentAutoCompletionStartIndex = result.StartIndex();
         }
 
         void AutoCompleteTextControl::EndAutoCompletion() {
@@ -335,7 +335,7 @@ namespace TrenchBroom {
 
         void AutoCompleteTextControl::PerformAutoComplete(const wxString& replacement) {
             wxASSERT(IsAutoCompleting());
-            const long from = static_cast<long>(m_currentAutoCompletionStartIndex);
+            const long from = static_cast<long>(m_currentStartIndex);
             const long to   = GetInsertionPoint();
             Replace(from, to, replacement);
         }
