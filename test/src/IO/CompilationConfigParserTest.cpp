@@ -200,6 +200,10 @@ namespace TrenchBroom {
             m_sourceSpec(sourceSpec),
             m_targetSpec(targetSpec) {}
 
+            void visit(const Model::CompilationExportMap* task) const {
+                ASSERT_TRUE(false);
+            }
+            
             void visit(const Model::CompilationCopyFiles* task) const {
                 ASSERT_EQ(m_sourceSpec, task->sourceSpec());
                 ASSERT_EQ(m_targetSpec, task->targetSpec());
@@ -218,6 +222,10 @@ namespace TrenchBroom {
             AssertCompilationRunToolVisitor(const String& toolSpec, const String& parameterSpec) :
             m_toolSpec(toolSpec),
             m_parameterSpec(parameterSpec) {}
+            
+            void visit(const Model::CompilationExportMap* task) const {
+                ASSERT_TRUE(false);
+            }
             
             void visit(const Model::CompilationCopyFiles* task) const {
                 ASSERT_TRUE(false);
