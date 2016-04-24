@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2016 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         bool AutoCompleteTextControl::CompletionResult::IsEmpty() const {
             return Count() == 0;
         }
-        
+
         size_t AutoCompleteTextControl::CompletionResult::Count() const {
             return m_results.size();
         }
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             wxASSERT(index < Count());
             return m_results[index].value;
         }
-        
+
         const wxString AutoCompleteTextControl::CompletionResult::GetDescription(const size_t index) const {
             wxASSERT(index < Count());
             return m_results[index].description;
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         AutoCompleteTextControl::Helper::~Helper() {}
-        
+
         bool AutoCompleteTextControl::Helper::StartCompletion(const wxString& str, const size_t index) const {
             wxASSERT(index < str.Len());
             return DoStartCompletion(str, index);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         bool AutoCompleteTextControl::DefaultHelper::DoStartCompletion(const wxString& str, const size_t index) const {
             return false;
         }
-        
+
         AutoCompleteTextControl::CompletionResult AutoCompleteTextControl::DefaultHelper::DoGetCompletions(const wxString& str, const size_t index) const {
             return CompletionResult();
         }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             SetItemMargin(wxSize(1, 1));
             SetShowLastDivider(false);
         }
-        
+
         void AutoCompleteTextControl::AutoCompletionList::SetResult(const CompletionResult& result) {
             m_result = result;
             SetItemCount(m_result.Count());
@@ -118,17 +118,17 @@ namespace TrenchBroom {
 #ifndef _WIN32
                 m_descriptionText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
-                
+
                 wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
                 vSizer->Add(m_valueText);
                 vSizer->Add(m_descriptionText);
-                
+
                 wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->Add(vSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, margins.y).Border(wxLEFT | wxRIGHT, margins.x));
-                
+
                 SetSizer(hSizer);
             }
-            
+
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {
                 Item::setDefaultColours(foreground, background);
                 m_descriptionText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
@@ -144,21 +144,21 @@ namespace TrenchBroom {
         m_textControl(textControl),
         m_list(NULL) {
             BorderPanel* panel = new BorderPanel(this, wxALL);
-            
+
             m_list = new AutoCompletionList(panel);
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
             panelSizer->Add(m_list, wxSizerFlags().Expand().Proportion(1).Border(wxALL, 1));
             panel->SetSizer(panelSizer);
-            
+
             wxSizer* windowSizer = new wxBoxSizer(wxVERTICAL);
             windowSizer->Add(panel, wxSizerFlags().Expand().Proportion(1));
             SetSizer(windowSizer);
-            
+
             SetSize(m_list->GetVirtualSize() + wxSize(2, 2));
-            
+
             Bind(wxEVT_SHOW, &AutoCompletionPopup::OnShowHide, this);
         }
-        
+
         void AutoCompleteTextControl::AutoCompletionPopup::SetResult(const AutoCompleteTextControl::CompletionResult& result) {
             m_list->SetResult(result);
             if (m_list->GetItemCount() > 0)
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             } else if ((event.GetKeyCode() == WXK_DOWN && !event.HasAnyModifiers()) ||
                        (event.GetKeyCode() == WXK_TAB && !event.HasAnyModifiers())) {
                 SelectNextCompletion();
-                
+
             } else {
                 if (event.GetKeyCode() == WXK_LEFT ||
                     event.GetKeyCode() == WXK_RIGHT ||
@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 m_list->SetSelection(m_list->GetSelection() + 1);
             }
         }
-        
+
         void AutoCompleteTextControl::AutoCompletionPopup::SelectPreviousCompletion() {
             if (m_list->GetSelection() == wxNOT_FOUND) {
                 m_list->SetSelection(static_cast<int>(m_list->GetItemCount() - 1));
@@ -237,25 +237,23 @@ namespace TrenchBroom {
         wxTextCtrl(),
         m_helper(NULL),
         m_autoCompletionPopup(NULL) {}
-        
+
         AutoCompleteTextControl::AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxTextCtrl(),
         m_helper(NULL),
         m_autoCompletionPopup(NULL) {
             Create(parent, id, value, pos, size, style, validator, name);
         }
-        
+
         AutoCompleteTextControl::~AutoCompleteTextControl() {
             delete m_helper;
         }
-        
+
         void AutoCompleteTextControl::Create(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) {
             wxTextCtrl::Create(parent, id, value, pos, size, style, validator, name);
             wxASSERT(IsSingleLine());
             m_helper = new DefaultHelper();
             m_autoCompletionPopup = new AutoCompletionPopup(this);
-            Bind(wxEVT_CHAR, &AutoCompleteTextControl::OnChar, this);
-            Bind(wxEVT_KEY_UP, &AutoCompleteTextControl::OnKeyDown, this);
             Bind(wxEVT_KILL_FOCUS, &AutoCompleteTextControl::OnKillFocus, this);
             Bind(wxEVT_IDLE, &AutoCompleteTextControl::OnIdle, this);
         }
@@ -275,7 +273,7 @@ namespace TrenchBroom {
             const size_t index = static_cast<size_t>(GetInsertionPoint());
             wxString str = GetValue();
             str.insert(index, event.GetUnicodeKey());
-            
+
             if (!IsAutoCompleting()) {
                 if (m_helper->StartCompletion(str, index)) {
                     StartAutoCompletion();
@@ -297,7 +295,7 @@ namespace TrenchBroom {
                 event.Skip();
             }
         }
-        
+
         void AutoCompleteTextControl::OnText(wxCommandEvent& event) {
             if (IsAutoCompleting()) {
                 const size_t index = static_cast<size_t>(GetInsertionPoint());
@@ -321,7 +319,7 @@ namespace TrenchBroom {
             m_autoCompletionPopup->Position(absPos, wxSize());
             m_autoCompletionPopup->Show();
         }
-        
+
         void AutoCompleteTextControl::UpdateAutoCompletion() {
             wxASSERT(IsAutoCompleting());
             const size_t index = static_cast<size_t>(GetInsertionPoint());
@@ -329,7 +327,7 @@ namespace TrenchBroom {
             m_autoCompletionPopup->SetResult(result);
             m_currentAutoCompletionStartIndex = result.StartIndex();
         }
-        
+
         void AutoCompleteTextControl::EndAutoCompletion() {
             wxASSERT(IsAutoCompleting());
             m_autoCompletionPopup->Hide();
@@ -350,6 +348,8 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::OnIdle(wxIdleEvent& event) {
             Unbind(wxEVT_IDLE, &AutoCompleteTextControl::OnIdle, this);
             Bind(wxEVT_TEXT, &AutoCompleteTextControl::OnText, this);
+            Bind(wxEVT_CHAR, &AutoCompleteTextControl::OnChar, this);
+            Bind(wxEVT_KEY_UP, &AutoCompleteTextControl::OnKeyDown, this);
         }
     }
 }
