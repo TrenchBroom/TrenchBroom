@@ -93,6 +93,8 @@ namespace TrenchBroom {
                 AutoCompletionList* m_list;
             public:
                 AutoCompletionPopup(AutoCompleteTextControl* textControl);
+                ~AutoCompletionPopup();
+                
                 void SetResult(const CompletionResult& result);
             private:
                 void OnShowHide(wxShowEvent& event);

@@ -160,31 +160,27 @@ namespace TrenchBroom {
 
             SetSize(m_list->GetVirtualSize() + wxSize(2, 2));
 
-            Bind(wxEVT_SHOW, &AutoCompletionPopup::OnShowHide, this);
+            m_textControl->Bind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+            m_textControl->Bind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
+            m_textControl->Bind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+            m_textControl->Bind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+            m_textControl->Bind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
         }
 
+        AutoCompleteTextControl::AutoCompletionPopup::~AutoCompletionPopup() {
+            m_textControl->Unbind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+            m_textControl->Unbind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
+            m_textControl->Unbind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+            m_textControl->Unbind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+            m_textControl->Unbind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
+        }
+        
         void AutoCompleteTextControl::AutoCompletionPopup::SetResult(const AutoCompleteTextControl::CompletionResult& result) {
             m_list->SetResult(result);
             if (m_list->GetItemCount() > 0)
                 m_list->SetSelection(0);
             Fit();
             SetClientSize(m_list->GetVirtualSize() + wxSize(2, 2));
-        }
-
-        void AutoCompleteTextControl::AutoCompletionPopup::OnShowHide(wxShowEvent& event) {
-            if (event.IsShown()) {
-                m_textControl->Bind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
-                m_textControl->Bind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
-                m_textControl->Bind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-                m_textControl->Bind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-                m_textControl->Bind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-            } else {
-                m_textControl->Unbind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
-                m_textControl->Unbind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
-                m_textControl->Unbind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-                m_textControl->Unbind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-                m_textControl->Unbind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
-            }
         }
 
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlKeyDown(wxKeyEvent& event) {
@@ -261,7 +257,6 @@ namespace TrenchBroom {
             wxTextCtrl::Create(parent, id, value, pos, size, style | wxTE_PROCESS_ENTER, validator, name);
             wxASSERT(IsSingleLine());
             m_helper = new DefaultHelper();
-            m_autoCompletionPopup = new AutoCompletionPopup(this);
             Bind(wxEVT_KILL_FOCUS, &AutoCompleteTextControl::OnKillFocus, this);
             Bind(wxEVT_IDLE, &AutoCompleteTextControl::OnDelayedEventBinding, this);
         }
@@ -322,7 +317,7 @@ namespace TrenchBroom {
         }
 
         bool AutoCompleteTextControl::IsAutoCompleting() const {
-            return m_autoCompletionPopup->IsShown();
+            return m_autoCompletionPopup != NULL && m_autoCompletionPopup->IsShown();
         }
 
         void AutoCompleteTextControl::StartAutoCompletion() {
@@ -331,6 +326,7 @@ namespace TrenchBroom {
             const wxPoint offset = wxPoint(GetTextExtent(prefix).x, 0);
             const wxPoint relPos = GetRect().GetBottomLeft() + offset;
             const wxPoint absPos = GetParent()->ClientToScreen(relPos);
+            m_autoCompletionPopup = new AutoCompletionPopup(this);
             m_autoCompletionPopup->Position(absPos, wxSize());
             m_autoCompletionPopup->Show();
         }
@@ -346,6 +342,8 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::EndAutoCompletion() {
             wxASSERT(IsAutoCompleting());
             m_autoCompletionPopup->Hide();
+            m_autoCompletionPopup->Destroy();
+            m_autoCompletionPopup = NULL;
         }
 
         void AutoCompleteTextControl::PerformAutoComplete(const wxString& replacement) {
