@@ -27,6 +27,8 @@
 
 #include <vector>
 
+wxDECLARE_EVENT(wxEVT_DELAYED_TEXT, wxCommandEvent);
+
 class wxStaticText;
 
 namespace TrenchBroom {
@@ -117,6 +119,7 @@ namespace TrenchBroom {
             void OnChar(wxKeyEvent& event);
             void OnKeyDown(wxKeyEvent& event);
             void OnText(wxCommandEvent& event);
+            void OnDelayedText(wxCommandEvent& event);
             
             bool IsAutoCompleting() const;
             void StartAutoCompletion();
@@ -126,7 +129,7 @@ namespace TrenchBroom {
             void PerformAutoComplete(const wxString& replacement);
             
             void OnKillFocus(wxFocusEvent& event);
-            void OnIdle(wxIdleEvent& event);
+            void OnDelayedEventBinding(wxIdleEvent& event);
         public:
             DECLARE_DYNAMIC_CLASS(AutoCompleteTextControl)
         };

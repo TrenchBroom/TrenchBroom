@@ -26,6 +26,8 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
+wxDEFINE_EVENT(wxEVT_DELAYED_TEXT, wxCommandEvent);
+
 namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(AutoCompleteTextControl, wxTextCtrl)
@@ -255,7 +257,7 @@ namespace TrenchBroom {
             m_helper = new DefaultHelper();
             m_autoCompletionPopup = new AutoCompletionPopup(this);
             Bind(wxEVT_KILL_FOCUS, &AutoCompleteTextControl::OnKillFocus, this);
-            Bind(wxEVT_IDLE, &AutoCompleteTextControl::OnIdle, this);
+            Bind(wxEVT_IDLE, &AutoCompleteTextControl::OnDelayedEventBinding, this);
         }
 
         void AutoCompleteTextControl::SetHelper(Helper* helper) {
@@ -297,6 +299,13 @@ namespace TrenchBroom {
         }
 
         void AutoCompleteTextControl::OnText(wxCommandEvent& event) {
+            // On GTK2, the insertion point is not yet updated when this event is fired.
+            // That's why we postpone processing by re-queuing a delayed text event until
+            // the insertion point is hopefully updated.
+            GetEventHandler()->QueueEvent(new wxCommandEvent(wxEVT_DELAYED_TEXT, GetId()));
+        }
+
+        void AutoCompleteTextControl::OnDelayedText(wxCommandEvent& event) {
             if (IsAutoCompleting()) {
                 const size_t index = static_cast<size_t>(GetInsertionPoint());
                 if (index <= m_currentStartIndex)
@@ -345,9 +354,10 @@ namespace TrenchBroom {
                 EndAutoCompletion();
         }
 
-        void AutoCompleteTextControl::OnIdle(wxIdleEvent& event) {
-            Unbind(wxEVT_IDLE, &AutoCompleteTextControl::OnIdle, this);
+        void AutoCompleteTextControl::OnDelayedEventBinding(wxIdleEvent& event) {
+            Unbind(wxEVT_IDLE, &AutoCompleteTextControl::OnDelayedEventBinding, this);
             Bind(wxEVT_TEXT, &AutoCompleteTextControl::OnText, this);
+            Bind(wxEVT_DELAYED_TEXT, &AutoCompleteTextControl::OnDelayedText, this);
             Bind(wxEVT_CHAR, &AutoCompleteTextControl::OnChar, this);
             Bind(wxEVT_KEY_DOWN, &AutoCompleteTextControl::OnKeyDown, this);
         }
