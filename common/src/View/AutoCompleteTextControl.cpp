@@ -350,7 +350,7 @@ namespace TrenchBroom {
             Unbind(wxEVT_IDLE, &AutoCompleteTextControl::OnIdle, this);
             Bind(wxEVT_TEXT, &AutoCompleteTextControl::OnText, this);
             Bind(wxEVT_CHAR, &AutoCompleteTextControl::OnChar, this);
-            Bind(wxEVT_KEY_UP, &AutoCompleteTextControl::OnKeyDown, this);
+            Bind(wxEVT_KEY_DOWN, &AutoCompleteTextControl::OnKeyDown, this);
         }
     }
 }
