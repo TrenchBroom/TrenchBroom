@@ -202,12 +202,11 @@ namespace TrenchBroom {
                     m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
                 
                 wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
-                justifySizer->AddStretchSpacer(),
+                justifySizer->AddStretchSpacer();
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
                 justifySizer->Add(m_emptyTextLabel);
                 justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-                justifySizer->AddStretchSpacer(),
-                
+                justifySizer->AddStretchSpacer();
                 
                 listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
                 listSizer->AddStretchSpacer();
