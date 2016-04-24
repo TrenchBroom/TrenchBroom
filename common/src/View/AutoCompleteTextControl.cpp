@@ -304,7 +304,7 @@ namespace TrenchBroom {
             // That's why we postpone processing by re-queuing a delayed text event until
             // the insertion point is hopefully updated.
             GetEventHandler()->QueueEvent(new wxCommandEvent(wxEVT_DELAYED_TEXT, GetId()));
-            event.Skip()
+            event.Skip();
         }
 
         void AutoCompleteTextControl::OnDelayedText(wxCommandEvent& event) {
