@@ -186,10 +186,10 @@ namespace TrenchBroom {
 
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlKeyDown(wxKeyEvent& event) {
             if (event.GetKeyCode() == WXK_ESCAPE && !event.HasAnyModifiers()) {
-                Hide();
+                m_textControl->EndAutoCompletion();
             } else if (event.GetKeyCode() == WXK_RETURN && !event.HasAnyModifiers()) {
                 DoAutoComplete();
-                Hide();
+                m_textControl->EndAutoCompletion();
             } else if ((event.GetKeyCode() == WXK_UP && !event.HasAnyModifiers()) ||
                        (event.GetKeyCode() == WXK_TAB && event.GetModifiers() == wxMOD_SHIFT)) {
                 SelectPreviousCompletion();
@@ -206,13 +206,13 @@ namespace TrenchBroom {
                     event.GetKeyCode() == WXK_PAGEDOWN ||
                     event.GetKeyCode() == WXK_HOME ||
                     event.GetKeyCode() == WXK_END)
-                    Hide();
+                    m_textControl->EndAutoCompletion();
                 event.Skip();
             }
         }
 
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlMouseDown(wxMouseEvent& event) {
-            Hide();
+            m_textControl->EndAutoCompletion();
             event.Skip();
         }
 
@@ -349,7 +349,7 @@ namespace TrenchBroom {
             const long to   = GetInsertionPoint();
             Replace(from, to, replacement);
         }
-
+        
         void AutoCompleteTextControl::OnKillFocus(wxFocusEvent& event) {
             if (IsAutoCompleting())
                 EndAutoCompletion();
