@@ -201,7 +201,15 @@ namespace TrenchBroom {
                 if (m_restrictToClientWidth)
                     m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
                 
-                listSizer->Add(m_emptyTextLabel, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin).Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).CenterHorizontal());
+                wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+                justifySizer->AddStretchSpacer(),
+                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+                justifySizer->Add(m_emptyTextLabel);
+                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+                justifySizer->AddStretchSpacer(),
+                
+                
+                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
                 listSizer->AddStretchSpacer();
             }
             if (m_restrictToClientWidth)
