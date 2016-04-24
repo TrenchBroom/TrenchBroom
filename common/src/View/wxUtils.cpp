@@ -37,6 +37,7 @@
 #include <wx/window.h>
 
 #include <list>
+#include <cstdlib>
 
 namespace TrenchBroom {
     namespace View {
@@ -52,7 +53,9 @@ namespace TrenchBroom {
 
         wxColor makeLighter(const wxColor& color) {
             wxColor result = color.ChangeLightness(130);
-            if (result == color)
+            if (std::abs(result.Red() - color.Red()) < 25 &&
+            std::abs(result.Green() - color.Green()) < 25 &&
+            std::abs(result.Blue() - color.Blue()) < 25)
                 result = color.ChangeLightness(70);
             return result;
         }
@@ -111,24 +114,24 @@ namespace TrenchBroom {
 
         wxWindow* createDefaultPage(wxWindow* parent, const wxString& message) {
             wxPanel* containerPanel = new wxPanel(parent);
-            
+
             wxStaticText* messageText = new wxStaticText(containerPanel, wxID_ANY, message);
             messageText->SetFont(messageText->GetFont().Bold());
             messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-            
+
             wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
             justifySizer->AddStretchSpacer();
             justifySizer->AddSpacer(LayoutConstants::WideHMargin);
             justifySizer->Add(messageText, wxSizerFlags().Expand());
             justifySizer->AddSpacer(LayoutConstants::WideHMargin);
             justifySizer->AddStretchSpacer();
-            
+
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->AddSpacer(LayoutConstants::WideVMargin);
             containerSizer->Add(justifySizer, wxSizerFlags().Expand());
             containerSizer->AddSpacer(LayoutConstants::WideVMargin);
             containerSizer->AddStretchSpacer();
-            
+
             containerPanel->SetSizer(containerSizer);
             return containerPanel;
         }
