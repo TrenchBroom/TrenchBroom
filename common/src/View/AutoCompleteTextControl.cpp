@@ -174,11 +174,13 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::AutoCompletionPopup::OnShowHide(wxShowEvent& event) {
             if (event.IsShown()) {
                 m_textControl->Bind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+                m_textControl->Bind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
                 m_textControl->Bind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
                 m_textControl->Bind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
                 m_textControl->Bind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
             } else {
                 m_textControl->Unbind(wxEVT_KEY_DOWN, &AutoCompletionPopup::OnTextCtrlKeyDown, this);
+                m_textControl->Unbind(wxEVT_TEXT_ENTER, &AutoCompletionPopup::OnTextCtrlEnter, this);
                 m_textControl->Unbind(wxEVT_LEFT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
                 m_textControl->Unbind(wxEVT_MIDDLE_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
                 m_textControl->Unbind(wxEVT_RIGHT_DOWN, &AutoCompletionPopup::OnTextCtrlMouseDown, this);
@@ -187,9 +189,6 @@ namespace TrenchBroom {
 
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlKeyDown(wxKeyEvent& event) {
             if (event.GetKeyCode() == WXK_ESCAPE && !event.HasAnyModifiers()) {
-                m_textControl->EndAutoCompletion();
-            } else if (event.GetKeyCode() == WXK_RETURN && !event.HasAnyModifiers()) {
-                DoAutoComplete();
                 m_textControl->EndAutoCompletion();
             } else if ((event.GetKeyCode() == WXK_UP && !event.HasAnyModifiers()) ||
                        (event.GetKeyCode() == WXK_TAB && event.GetModifiers() == wxMOD_SHIFT)) {
@@ -212,6 +211,11 @@ namespace TrenchBroom {
             }
         }
 
+        void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlEnter(wxCommandEvent& event) {
+            DoAutoComplete();
+            m_textControl->EndAutoCompletion();
+        }
+        
         void AutoCompleteTextControl::AutoCompletionPopup::OnTextCtrlMouseDown(wxMouseEvent& event) {
             m_textControl->EndAutoCompletion();
             event.Skip();
@@ -254,7 +258,7 @@ namespace TrenchBroom {
         }
 
         void AutoCompleteTextControl::Create(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) {
-            wxTextCtrl::Create(parent, id, value, pos, size, style, validator, name);
+            wxTextCtrl::Create(parent, id, value, pos, size, style | wxTE_PROCESS_ENTER, validator, name);
             wxASSERT(IsSingleLine());
             m_helper = new DefaultHelper();
             m_autoCompletionPopup = new AutoCompletionPopup(this);

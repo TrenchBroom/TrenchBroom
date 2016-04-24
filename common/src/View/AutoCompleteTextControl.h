@@ -97,6 +97,7 @@ namespace TrenchBroom {
             private:
                 void OnShowHide(wxShowEvent& event);
                 void OnTextCtrlKeyDown(wxKeyEvent& event);
+                void OnTextCtrlEnter(wxCommandEvent& event);
                 void OnTextCtrlMouseDown(wxMouseEvent& event);
                 
                 void SelectNextCompletion();
