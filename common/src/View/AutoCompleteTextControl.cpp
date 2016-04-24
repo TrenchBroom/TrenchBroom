@@ -22,6 +22,7 @@
 #include "View/BorderPanel.h"
 
 #include <wx/debug.h>
+#include <wx/log.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             wxASSERT(insertPos <= str.Length());
             return DoShouldStartCompletionAfterInput(str, c, insertPos);
         }
-        
+
         size_t AutoCompleteTextControl::Helper::ShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
             wxASSERT(insertPos <= str.Length());
             return DoShouldStartCompletionAfterRequest(str, insertPos);
@@ -78,7 +79,7 @@ namespace TrenchBroom {
         size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
             return str.Length();
         }
-        
+
         size_t AutoCompleteTextControl::DefaultHelper::DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const {
             return str.Length();
         }
