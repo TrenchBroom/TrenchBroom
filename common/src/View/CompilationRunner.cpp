@@ -192,7 +192,8 @@ namespace TrenchBroom {
         private:
             void OnTimer(wxTimerEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                readOutput();
+                if (m_process != NULL)
+                    readOutput();
             }
             
             void OnEndProcessAsync(wxProcessEvent& event) {
@@ -201,10 +202,12 @@ namespace TrenchBroom {
             
             void OnEndProcessSync(wxProcessEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                readRemainingOutput();
-				m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
-                end();
-                delete m_process;
+                if (m_process != NULL) {
+                    readRemainingOutput();
+                    m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
+                    end();
+                    delete m_process;
+                }
             }
         private:
             void start() {
