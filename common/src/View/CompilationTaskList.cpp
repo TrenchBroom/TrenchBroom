@@ -20,6 +20,8 @@
 #include "CompilationTaskList.h"
 
 #include "Model/CompilationProfile.h"
+#include "View/AutoCompleteTextControl.h"
+#include "View/AutoCompleteVariablesHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/TitledPanel.h"
@@ -39,15 +41,25 @@ namespace TrenchBroom {
         protected:
             const wxSize m_margins;
             const String m_title;
+            MapDocumentWPtr m_document;
+            Model::CompilationProfile* m_profile;
             T* m_task;
             TitledPanel* m_panel;
+            
+            typedef std::list<AutoCompleteTextControl*> AutoCompleteTextControlList;
+            AutoCompleteTextControlList m_autoCompleteTextControls;
         protected:
-            TaskEditor(wxWindow* parent, const wxSize& margins, const String& title, T* task) :
+            TaskEditor(wxWindow* parent, const wxSize& margins, const String& title, MapDocumentWPtr document, Model::CompilationProfile* profile, T* task) :
             Item(parent),
             m_margins(margins),
             m_title(title),
+            m_document(document),
+            m_profile(profile),
             m_task(task),
-            m_panel(NULL) {}
+            m_panel(NULL) {
+                assert(m_profile != NULL);
+                assert(m_task != NULL);
+            }
         public:
             void initialize() {
                 m_panel = new TitledPanel(this, m_title);
@@ -64,11 +76,13 @@ namespace TrenchBroom {
                 SetSizer(panelSizer);
 
                 refresh();
+                m_profile->profileDidChange.addObserver(this, &TaskEditor::profileDidChange);
                 m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
                 m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
             }
         public:
             virtual ~TaskEditor() {
+                m_profile->profileDidChange.removeObserver(this, &TaskEditor::profileDidChange);
                 if (m_task != NULL) {
                     m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
                     m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
@@ -83,20 +97,20 @@ namespace TrenchBroom {
                 setColours(m_panel->getPanel(), foreground, background);
             }
         protected:
-            void enableAutoComplete(wxTextEntry* textEntry) {
-                const VariableTable& variables = compilationVariables();
-                const StringSet& nameSet = variables.declaredVariables();
-                wxArrayString nameArray;
-                nameArray.Alloc(nameSet.size());
-
-                StringSet::const_iterator it, end;
-                for (it = nameSet.begin(), end = nameSet.end(); it != end; ++it) {
-                    const String& variableName = *it;
-                    const String variableString = variables.buildVariableString(variableName);
-                    nameArray.Add(variableString);
-                }
-
-                textEntry->AutoComplete(nameArray);
+            void enableAutoComplete(AutoCompleteTextControl* control) {
+                updateAutoComplete(control);
+                m_autoCompleteTextControls.push_back(control);
+            }
+        private:
+            void updateAutoComplete(AutoCompleteTextControl* control) {
+                VariableTable workDirVariables = compilationWorkDirVariables();
+                defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
+                const String workDir = workDirVariables.translate(m_profile->workDirSpec());
+                
+                VariableTable variables = compilationVariables();
+                defineCompilationVariables(variables, lock(m_document), workDir);
+                
+                control->SetHelper(new AutoCompleteVariablesHelper(variables));
             }
         private:
             void taskWillBeRemoved() {
@@ -108,23 +122,31 @@ namespace TrenchBroom {
                     refresh();
             }
 
+            void profileDidChange() {
+                AutoCompleteTextControlList::const_iterator it,end;
+                for (it = m_autoCompleteTextControls.begin(), end = m_autoCompleteTextControls.end(); it != end; ++it) {
+                    AutoCompleteTextControl* control = *it;
+                    updateAutoComplete(control);
+                }
+            }
+            
             virtual wxWindow* createGui(wxWindow* parent) = 0;
             virtual void refresh() = 0;
         };
 
         class CompilationTaskList::ExportMapTaskEditor : public TaskEditor<Model::CompilationExportMap> {
         private:
-            wxTextCtrl* m_targetEditor;
+            AutoCompleteTextControl* m_targetEditor;
         public:
-            ExportMapTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationExportMap* task) :
-            TaskEditor(parent, margins, "Export Map", task),
+            ExportMapTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationExportMap* task) :
+            TaskEditor(parent, margins, "Export Map", document, profile, task),
             m_targetEditor(NULL) {}
         private:
             wxWindow* createGui(wxWindow* parent) {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
-                m_targetEditor = new wxTextCtrl(container, wxID_ANY);
+                m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_targetEditor->Bind(wxEVT_TEXT, &ExportMapTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
 
@@ -152,11 +174,11 @@ namespace TrenchBroom {
 
         class CompilationTaskList::CopyFilesTaskEditor : public TaskEditor<Model::CompilationCopyFiles> {
         private:
-            wxTextCtrl* m_sourceEditor;
-            wxTextCtrl* m_targetEditor;
+            AutoCompleteTextControl* m_sourceEditor;
+            AutoCompleteTextControl* m_targetEditor;
         public:
-            CopyFilesTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationCopyFiles* task) :
-            TaskEditor(parent, margins, "Copy Files", task),
+            CopyFilesTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationCopyFiles* task) :
+            TaskEditor(parent, margins, "Copy Files", document, profile, task),
             m_sourceEditor(NULL),
             m_targetEditor(NULL) {}
         private:
@@ -164,12 +186,12 @@ namespace TrenchBroom {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* sourceLabel = new wxStaticText(container, wxID_ANY, "Source");
-                m_sourceEditor = new wxTextCtrl(container, wxID_ANY);
+                m_sourceEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_sourceEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnSourceSpecChanged, this);
                 enableAutoComplete(m_sourceEditor);
 
                 wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
-                m_targetEditor = new wxTextCtrl(container, wxID_ANY);
+                m_targetEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_targetEditor->Bind(wxEVT_TEXT, &CopyFilesTaskEditor::OnTargetSpecChanged, this);
                 enableAutoComplete(m_targetEditor);
 
@@ -205,11 +227,11 @@ namespace TrenchBroom {
 
         class CompilationTaskList::RunToolTaskEditor : public TaskEditor<Model::CompilationRunTool> {
         private:
-            wxTextCtrl* m_toolEditor;
-            wxTextCtrl* m_parametersEditor;
+            AutoCompleteTextControl* m_toolEditor;
+            AutoCompleteTextControl* m_parametersEditor;
         public:
-            RunToolTaskEditor(wxWindow* parent, const wxSize& margins, Model::CompilationRunTool* task) :
-            TaskEditor(parent, margins, "Run Tool", task),
+            RunToolTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationRunTool* task) :
+            TaskEditor(parent, margins, "Run Tool", document, profile, task),
             m_toolEditor(NULL),
             m_parametersEditor(NULL) {}
         private:
@@ -217,7 +239,7 @@ namespace TrenchBroom {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* toolLabel = new wxStaticText(container, wxID_ANY, "Tool");
-                m_toolEditor = new wxTextCtrl(container, wxID_ANY);
+                m_toolEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_toolEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnToolSpecChanged, this);
                 enableAutoComplete(m_toolEditor);
 
@@ -225,7 +247,7 @@ namespace TrenchBroom {
                 browseToolButton->Bind(wxEVT_BUTTON, &RunToolTaskEditor::OnBrowseTool, this);
 
                 wxStaticText* parameterLabel = new wxStaticText(container, wxID_ANY, "Parameters");
-                m_parametersEditor = new wxTextCtrl(container, wxID_ANY);
+                m_parametersEditor = new AutoCompleteTextControl(container, wxID_ANY);
                 m_parametersEditor->Bind(wxEVT_TEXT, &RunToolTaskEditor::OnParameterSpecChanged, this);
                 enableAutoComplete(m_parametersEditor);
 
@@ -266,8 +288,9 @@ namespace TrenchBroom {
             }
         };
 
-        CompilationTaskList::CompilationTaskList(wxWindow* parent) :
+        CompilationTaskList::CompilationTaskList(wxWindow* parent, MapDocumentWPtr document) :
         ControlListBox(parent, true, "Click the '+' button to create a task."),
+        m_document(document),
         m_profile(NULL) {}
 
         CompilationTaskList::~CompilationTaskList() {
@@ -299,11 +322,15 @@ namespace TrenchBroom {
         private:
             wxWindow* m_parent;
             const wxSize m_margins;
+            MapDocumentWPtr m_document;
+            Model::CompilationProfile* m_profile;
             Item* m_result;
         public:
-            CompilationTaskEditorFactory(wxWindow* parent, const wxSize& margins) :
+            CompilationTaskEditorFactory(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile) :
             m_parent(parent),
             m_margins(margins),
+            m_document(document),
+            m_profile(profile),
             m_result(NULL) {}
 
             Item* result() const {
@@ -311,19 +338,19 @@ namespace TrenchBroom {
             }
 
             void visit(Model::CompilationExportMap* task) {
-                TaskEditor<Model::CompilationExportMap>* editor = new ExportMapTaskEditor(m_parent, m_margins, task);
+                TaskEditor<Model::CompilationExportMap>* editor = new ExportMapTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;
             }
 
             void visit(Model::CompilationCopyFiles* task) {
-                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, m_margins, task);
+                TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;
             }
 
             void visit(Model::CompilationRunTool* task) {
-                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, m_margins, task);
+                TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;
             }
@@ -332,7 +359,7 @@ namespace TrenchBroom {
         ControlListBox::Item* CompilationTaskList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             assert(m_profile != NULL);
 
-            CompilationTaskEditorFactory factory(parent, margins);
+            CompilationTaskEditorFactory factory(parent, margins, m_document, m_profile);
             Model::CompilationTask* task = m_profile->task(index);
             task->accept(factory);
             return factory.result();

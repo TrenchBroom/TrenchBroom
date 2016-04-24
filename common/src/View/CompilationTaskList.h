@@ -21,6 +21,7 @@
 #define CompilationTaskList_h
 
 #include "View/ControlListBox.h"
+#include "View/ViewTypes.h"
 
 class wxWindow;
 
@@ -38,9 +39,10 @@ namespace TrenchBroom {
             class CopyFilesTaskEditor;
             class RunToolTaskEditor;
         private:
+            MapDocumentWPtr m_document;
             Model::CompilationProfile* m_profile;
         public:
-            CompilationTaskList(wxWindow* parent);
+            CompilationTaskList(wxWindow* parent, MapDocumentWPtr document);
             ~CompilationTaskList();
             
             void setProfile(Model::CompilationProfile* profile);

@@ -38,7 +38,6 @@
 
 namespace TrenchBroom {
     namespace View {
-
         CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
@@ -104,7 +103,7 @@ namespace TrenchBroom {
             
             upperPanel->SetSizer(upperOuterSizer);
             
-            m_taskList = new CompilationTaskList(containerPanel);
+            m_taskList = new CompilationTaskList(containerPanel, m_document);
             
             wxWindow* addTaskButton = createBitmapButton(containerPanel, "Add.png", "Add task");
             wxWindow* removeTaskButton = createBitmapButton(containerPanel, "Remove.png", "Remove the selected task");
