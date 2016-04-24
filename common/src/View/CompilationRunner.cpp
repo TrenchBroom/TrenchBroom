@@ -155,6 +155,7 @@ namespace TrenchBroom {
         private:
             const Model::CompilationRunTool* m_task;
             wxProcess* m_process;
+            wxCriticalSection m_processSection;
             wxTimer* m_timer;
             bool m_terminated;
         public:
@@ -172,10 +173,12 @@ namespace TrenchBroom {
             }
         private:
             void doExecute() {
+                wxCriticalSectionLocker lockProcess(m_processSection);
                 start();
             }
             
             void doTerminate() {
+                wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
                     readRemainingOutput();
                     m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
@@ -188,6 +191,7 @@ namespace TrenchBroom {
             }
         private:
             void OnTimer(wxTimerEvent& event) {
+                wxCriticalSectionLocker lockProcess(m_processSection);
                 readOutput();
             }
             
@@ -196,6 +200,7 @@ namespace TrenchBroom {
             }
             
             void OnEndProcessSync(wxProcessEvent& event) {
+                wxCriticalSectionLocker lockProcess(m_processSection);
                 readRemainingOutput();
 				m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
                 end();
