@@ -91,8 +91,19 @@ namespace TrenchBroom {
 
         WritableFileSystem::WritableFileSystem() {}
 
+        /*
+         GCC complains about the call to the base class initializer missing, and Clang complains
+         about it being there. We decide to keep it there and silence the Clang warning.
+         */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wabstract-vbase-init"
+#endif
         WritableFileSystem::WritableFileSystem(const WritableFileSystem& other) :
         FileSystem() {}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
         WritableFileSystem::~WritableFileSystem() {}
 
