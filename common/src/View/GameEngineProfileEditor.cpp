@@ -67,8 +67,10 @@ namespace TrenchBroom {
             wxStaticText* pathLabel = new wxStaticText(containerPanel, wxID_ANY, "Path");
             
             m_nameText = new wxTextCtrl(containerPanel, wxID_ANY);
+            m_nameText->SetHint("not set");
             m_pathText = new wxTextCtrl(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             wxButton* choosePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_pathText->SetHint("not set");
             
             m_nameText->Bind(wxEVT_TEXT, &GameEngineProfileEditor::OnNameChanged, this);
             m_pathText->Bind(wxEVT_TEXT_ENTER, &GameEngineProfileEditor::OnPathChanged, this);
@@ -120,7 +122,10 @@ namespace TrenchBroom {
         
         void GameEngineProfileEditor::updatePath(const wxString& str) {
             if (isValidEnginePath(str)) {
-                m_profile->setPath(IO::Path(str.ToStdString()));
+                const IO::Path path(str.ToStdString());
+                m_profile->setPath(path);
+                if (m_profile->name().empty())
+                    m_profile->setName(path.lastComponent().deleteExtension().asString());
                 refresh();
             }
         }

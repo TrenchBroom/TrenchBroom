@@ -152,7 +152,7 @@ namespace TrenchBroom {
             setupMsg->Wrap(250);
             
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
-            m_openPreferencesButton->SetToolTip("Open the preferences dialog to edit game paths");
+            m_openPreferencesButton->SetToolTip("Open the preferences dialog to manage game paths,");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);

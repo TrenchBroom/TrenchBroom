@@ -44,6 +44,8 @@ namespace TrenchBroom {
             
             void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
             
+            void OnEditGameEnginesButton(wxCommandEvent& event);
+            
             void OnCloseButton(wxCommandEvent& event);
             void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
             

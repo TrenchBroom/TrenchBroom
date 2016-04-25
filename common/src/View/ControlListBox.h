@@ -72,6 +72,8 @@ namespace TrenchBroom {
             
             void SetItemMargin(const wxSize& margin);
             void SetShowLastDivider(bool showLastDivider);
+            
+            void SetEmptyText(const wxString& emptyText);
         private:
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);

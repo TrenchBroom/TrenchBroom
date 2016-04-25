@@ -121,6 +121,8 @@ namespace TrenchBroom {
                     m_nameText->SetLabel(m_profile->name());
                     m_pathText->SetLabel(m_profile->path().asString());
                 }
+                if (m_nameText->GetLabel().IsEmpty())
+                    m_nameText->SetLabel("not set");
             }
         private:
             void setDefaultColours(const wxColour& foreground, const wxColour& background) {

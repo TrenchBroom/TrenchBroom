@@ -26,6 +26,7 @@
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
+#include "View/GameEngineDialog.h"
 #include "View/GameEngineProfileListBox.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -58,12 +59,16 @@ namespace TrenchBroom {
             const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
             const Model::GameEngineConfig& gameEngineConfig = gameConfig.gameEngineConfig();
             m_gameEngineList = new GameEngineProfileListBox(midPanel, gameEngineConfig);
+            m_gameEngineList->SetEmptyText("Click the 'Edit engines...' button to create a game engine profile.");
             
             wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
             wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
             message->Wrap(350);
+            
+            wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Edit engines...");
+            openPreferencesButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
             
             wxStaticText* parameterLabel = new wxStaticText(midPanel, wxID_ANY, "Parameters");
             parameterLabel->SetFont(parameterLabel->GetFont().Bold());
@@ -79,6 +84,8 @@ namespace TrenchBroom {
             midLeftSizer->Add(header, wxSizerFlags().Expand());
             midLeftSizer->AddSpacer(20);
             midLeftSizer->Add(message, wxSizerFlags().Expand());
+            midLeftSizer->AddSpacer(10);
+            midLeftSizer->Add(openPreferencesButton, wxSizerFlags().CenterHorizontal());
             midLeftSizer->AddStretchSpacer();
             midLeftSizer->Add(parameterLabel);
             midLeftSizer->AddSpacer(LayoutConstants::NarrowVMargin);
@@ -126,6 +133,12 @@ namespace TrenchBroom {
             event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
         }
 
+        void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            GameEngineDialog dialog(this, lock(m_document)->game()->gameName());
+            dialog.ShowModal();
+        }
         
         void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
             EndModal(wxCANCEL);

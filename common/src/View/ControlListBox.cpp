@@ -175,6 +175,15 @@ namespace TrenchBroom {
             refresh(m_items.size());
         }
 
+        void ControlListBox::SetEmptyText(const wxString& emptyText) {
+            if (m_emptyText == emptyText)
+                return;
+            
+            m_emptyText = emptyText;
+            if (GetItemCount() == 0)
+                refresh(0);
+        }
+
         void ControlListBox::refresh(const size_t itemCount) {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);

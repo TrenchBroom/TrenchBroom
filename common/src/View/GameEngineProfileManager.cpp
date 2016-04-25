@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
         
         void GameEngineProfileManager::OnAddProfile(wxCommandEvent& event) {
-            m_config.addProfile(new Model::GameEngineProfile("unnamed", IO::Path()));
+            m_config.addProfile(new Model::GameEngineProfile("", IO::Path()));
             m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
         
