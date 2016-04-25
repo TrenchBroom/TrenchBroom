@@ -106,6 +106,7 @@ namespace TrenchBroom {
             BrushContentType::List m_brushContentTypes;
             CompilationConfig m_compilationConfig;
             GameEngineConfig m_gameEngineConfig;
+            size_t m_maxPropertyValueLength;
         public:
             GameConfig();
             GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
@@ -127,6 +128,8 @@ namespace TrenchBroom {
             GameEngineConfig& gameEngineConfig();
             const GameEngineConfig& gameEngineConfig() const;
             void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
+            
+            size_t maxPropertyValueLength() const;
             
             const IO::Path findConfigFile(const IO::Path& filePath) const;
             

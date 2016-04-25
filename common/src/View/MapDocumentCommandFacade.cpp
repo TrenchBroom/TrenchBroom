@@ -31,6 +31,7 @@
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/Game.h"
 #include "Model/Group.h"
 #include "Model/Issue.h"
 #include "Model/ModelUtils.h"
@@ -1036,6 +1037,13 @@ namespace TrenchBroom {
             setEntityModels();
         }
 
+        void MapDocumentCommandFacade::performSetGameEngineParameterSpecs(const ::StringMap& specs) {
+            const Model::NodeList nodes(1, m_world);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            m_game->setGameEngineParameterSpecs(m_world, specs);
+        }
+
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
             if (issue->hidden() != hidden) {
                 issue->setHidden(hidden);
@@ -1117,7 +1125,11 @@ namespace TrenchBroom {
             m_commandProcessor.rollbackGroup();
         }
 
-        bool MapDocumentCommandFacade::doSubmit(UndoableCommand::Ptr command) {
+        bool MapDocumentCommandFacade::doSubmit(Command::Ptr command) {
+            return m_commandProcessor.submitCommand(command);
+        }
+
+        bool MapDocumentCommandFacade::doSubmitAndStore(UndoableCommand::Ptr command) {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
     }

@@ -44,7 +44,8 @@ namespace TrenchBroom {
         wxDialog(parent, wxID_ANY, "Launch Engine", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
         m_document(document),
         m_gameEngineList(NULL),
-        m_parameterText(NULL) {
+        m_parameterText(NULL),
+        m_lastProfile(NULL) {
             createGui();
         }
         
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
-            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
+            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values. Commandline parameters are stored in a worldspawn property, so the map document will be marked as modified if you change the parameters here.");
             message->Wrap(350);
             
             wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Edit engines...");
@@ -122,6 +123,7 @@ namespace TrenchBroom {
             
             SetSizerAndFit(outerSizer);
 
+            m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
             Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
         }
 
@@ -129,6 +131,19 @@ namespace TrenchBroom {
             VariableTable variables = launchGameEngineVariables();
             defineLaunchGameEngineVariables(variables, lock(m_document));
             return variables;
+        }
+
+        void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
+            saveCurrentParameterSpec(m_lastProfile);
+
+            m_lastProfile = m_gameEngineList->selectedProfile();
+            if (m_lastProfile != NULL) {
+                ::StringMap specs = lock(m_document)->gameEngineParameterSpecs();
+                const String spec = specs[m_lastProfile->name()];
+                m_parameterText->ChangeValue(spec);
+            } else {
+                m_parameterText->ChangeValue("");
+            }
         }
 
         void LaunchGameEngineDialog::OnUpdateParameterTextUI(wxUpdateUIEvent& event) {
@@ -155,8 +170,9 @@ namespace TrenchBroom {
             assert(profile != NULL);
             
             const IO::Path& path = profile->path();
-            const String parameters = variables().translate(m_parameterText->GetValue().ToStdString());
-            
+            const String parameterSpec = m_parameterText->GetValue().ToStdString();
+            const String parameters = variables().translate(parameterSpec);
+
             wxString launchStr;
 #ifdef __APPLE__
             // We have to launch apps via the 'open' command so that we can properly pass parameters.
@@ -174,9 +190,20 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::OnClose(wxCloseEvent& event) {
+            saveCurrentParameterSpec(m_gameEngineList->selectedProfile());
+            
             if (GetParent() != NULL)
                 GetParent()->Raise();
             event.Skip();
+        }
+
+        void LaunchGameEngineDialog::saveCurrentParameterSpec(const Model::GameEngineProfile* profile) {
+            if (profile != NULL && m_parameterText->IsModified()) {
+                const String parameterSpec = m_parameterText->GetValue().ToStdString();
+                MapDocumentSPtr document = lock(m_document);
+                document->setGameEngineParameterSpec(profile->name(), parameterSpec);
+                m_parameterText->SetModified(false);
+            }
         }
     }
 }

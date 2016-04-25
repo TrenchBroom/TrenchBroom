@@ -97,7 +97,8 @@ namespace TrenchBroom {
         m_icon(IO::Path("")),
         m_fileSystemConfig(IO::Path(""), PackageFormatConfig("", "")),
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
-        m_entityConfig(IO::Path(""), StringSet(), Color()) {}
+        m_entityConfig(IO::Path(""), StringSet(), Color()),
+        m_maxPropertyValueLength(1023) {}
 
         GameConfig::GameConfig(const String& name,
                                const IO::Path& path,
@@ -116,7 +117,8 @@ namespace TrenchBroom {
         m_textureConfig(textureConfig),
         m_entityConfig(entityConfig),
         m_faceAttribsConfig(faceAttribsConfig),
-        m_brushContentTypes(brushContentTypes) {
+        m_brushContentTypes(brushContentTypes),
+        m_maxPropertyValueLength(1023) {
             assert(!StringUtils::trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -179,6 +181,10 @@ namespace TrenchBroom {
         
         void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
             m_gameEngineConfig = gameEngineConfig;
+        }
+
+        size_t GameConfig::maxPropertyValueLength() const {
+            return m_maxPropertyValueLength;
         }
 
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {

@@ -97,8 +97,15 @@ namespace TrenchBroom {
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const World* world) const;
             
+            ::StringMap doExtractGameEngineParameterSpecs(const World* world) const;
+            void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;
+
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
+            
+        private:
+            void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
+            String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;
         };
     }
 }

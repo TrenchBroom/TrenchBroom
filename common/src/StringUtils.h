@@ -352,6 +352,9 @@ namespace StringUtils {
         return join(objs, delim, delim, delim, toString);
     }
     
+    StringList splitAndUnescape(const String& str, char d);
+    String escapeAndJoin(const StringList& strs, char d);
+    
     struct StringToString {
         const String& operator()(const String& str) const {
             return str;

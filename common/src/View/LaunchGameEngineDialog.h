@@ -27,6 +27,10 @@
 #include <wx/dialog.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class GameEngineProfile;
+    }
+    
     namespace View {
         class AutoCompleteTextControl;
         class GameEngineProfileListBox;
@@ -36,11 +40,14 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             GameEngineProfileListBox* m_gameEngineList;
             AutoCompleteTextControl* m_parameterText;
+            Model::GameEngineProfile* m_lastProfile;
         public:
             LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document);
         private:
             void createGui();
             VariableTable variables() const;
+            
+            void OnSelectGameEngineProfile(wxCommandEvent& event);
             
             void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
             
@@ -53,6 +60,8 @@ namespace TrenchBroom {
             void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
             
             void OnClose(wxCloseEvent& event);
+            
+            void saveCurrentParameterSpec(const Model::GameEngineProfile* profile);
         };
     }
 }

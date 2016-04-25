@@ -311,7 +311,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(UndoableCommand::Ptr command);
+            bool submit(Command::Ptr command);
+            bool submitAndStore(UndoableCommand::Ptr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -326,7 +327,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(UndoableCommand::Ptr command) = 0;
+            virtual bool doSubmit(Command::Ptr command) = 0;
+            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -389,6 +391,9 @@ namespace TrenchBroom {
         public:
             StringList mods() const;
             void setMods(const StringList& mods);
+        public: // game engine parameter specs
+            ::StringMap gameEngineParameterSpecs() const;
+            void setGameEngineParameterSpec(const String& name, const String& spec);
         private: // issue management
             void registerIssueGenerators();
         public:

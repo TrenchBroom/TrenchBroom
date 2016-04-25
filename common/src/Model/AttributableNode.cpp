@@ -213,6 +213,23 @@ namespace TrenchBroom {
             removeLinks(name, value);
         }
         
+        void AttributableNode::removeNumberedAttribute(const AttributeName& prefix) {
+            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
+            if (!attributes.empty()) {
+                const NotifyAttributeChange notifyChange(this);
+
+                EntityAttribute::List::const_iterator it, end;
+                for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                    const AttributeName& name = it->name();
+                    const AttributeValue& value = it->value();
+                    
+                    m_attributes.removeAttribute(name);
+                    removeAttributeFromIndex(name, value);
+                    removeLinks(name, value);
+                }
+            }
+        }
+
         bool AttributableNode::isAttributeNameMutable(const AttributeName& name) const {
             return doIsAttributeNameMutable(name);
         }

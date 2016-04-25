@@ -259,6 +259,50 @@ namespace StringUtils {
         return static_cast<size_t>(longValue);
     }
     
+    StringList splitAndUnescape(const String& str, const char d) {
+        StringStream escapedStr;
+        escapedStr << d << '\\';
+        const String escaped = escapedStr.str();
+        
+        StringList result;
+        char l = 0;
+        char ll = 0;
+        size_t li = 0;
+        for (size_t i = 0; i < str.size(); ++i) {
+            const char c = str[i];
+            
+            if (c == d && (l != '\\' || ll == '\\')) {
+                result.push_back(unescape(str.substr(li, i-li), escaped));
+                li = i+1;
+            }
+            
+            ll = l;
+            l = c;
+        }
+        
+        if (!str.empty() && li <= str.size())
+            result.push_back(unescape(str.substr(li), escaped));
+        
+        return result;
+    }
+    
+    String escapeAndJoin(const StringList& strs, const char d) {
+        StringStream escapedStr;
+        escapedStr << d << '\\';
+        const String escaped = escapedStr.str();
+        
+        StringStream buffer;
+
+        for (size_t i = 0; i < strs.size(); ++i) {
+            const String& str = strs[i];
+            buffer << escape(str, escaped);
+            if (i < strs.size() - 1)
+                buffer << d;
+        }
+        
+        return buffer.str();
+    }
+
     StringList makeList(const size_t count, const char* str1, ...) {
         StringList result;
         result.reserve(count);

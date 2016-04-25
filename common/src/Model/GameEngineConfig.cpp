@@ -59,6 +59,13 @@ namespace TrenchBroom {
             return m_profiles.size();
         }
         
+        bool GameEngineConfig::hasProfile(const String& name) const {
+            for (size_t i = 0; i < m_profiles.size(); ++i)
+                if (m_profiles[i]->name() == name)
+                    return true;
+            return false;
+        }
+
         GameEngineProfile* GameEngineConfig::profile(const size_t index) const {
             assert(index < profileCount());
             return m_profiles[index];

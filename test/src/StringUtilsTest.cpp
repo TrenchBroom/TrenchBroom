@@ -119,6 +119,53 @@ namespace StringUtils {
         ASSERT_EQ(String("asdf/yo"), join(components, "/"));
     }
     
+    TEST(StringUtilsTest, escapeAndJoin) {
+        ASSERT_EQ(String(""), StringUtils::escapeAndJoin(EmptyStringList, ';'));
+        ASSERT_EQ(String("test"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test"), ';'));
+        ASSERT_EQ(String("test\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test\\"), ';'));
+        ASSERT_EQ(String("test1;test2"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1", "test2"), ';'));
+        ASSERT_EQ(String("test1\\;;test2\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1;", "test2\\"), ';'));
+    }
+
+    TEST(StringUtilsTest, splitAndUnscape) {
+        StringList result;
+        
+        result = StringUtils::splitAndUnescape("", ';');
+        ASSERT_TRUE(result.empty());
+
+        result = StringUtils::splitAndUnescape("test", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test"), result[0]);
+
+        result = StringUtils::splitAndUnescape("test\\\\", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test\\"), result[0]);
+
+        result = StringUtils::splitAndUnescape("test\\;", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test;"), result[0]);
+
+        result = StringUtils::splitAndUnescape(";test", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String(""), result[0]);
+        ASSERT_EQ(String("test"), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test;", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test"), result[0]);
+        ASSERT_EQ(String(""), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test1;test2", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test1"), result[0]);
+        ASSERT_EQ(String("test2"), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test1\\;;\\;test2", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test1;"), result[0]);
+        ASSERT_EQ(String(";test2"), result[1]);
+    }
+    
     TEST(StringUtilsTest, sortCaseSensitive) {
         StringList strs;
         strs.push_back("bam");

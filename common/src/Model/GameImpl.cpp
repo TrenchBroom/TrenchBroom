@@ -387,20 +387,87 @@ namespace TrenchBroom {
         }
 
         StringList GameImpl::doExtractEnabledMods(const World* world) const {
-            StringList mods;
+            StringList result;
             const AttributeValue& modStr = world->attribute(AttributeNames::Mods);
             if (modStr.empty())
-                return mods;
+                return result;
             
             return StringUtils::splitAndTrim(modStr, ';');
         }
         
+        ::StringMap GameImpl::doExtractGameEngineParameterSpecs(const World* world) const {
+            ::StringMap result;
+
+            const String specAttrValue = readLongAttribute(world, AttributeNames::GameEngineParameterSpecs);
+            const StringList specStrs = StringUtils::splitAndUnescape(specAttrValue, ';');
+            StringList::const_iterator specIt, specEnd;
+            for (specIt = specStrs.begin(), specEnd = specStrs.end(); specIt != specEnd; ++specIt) {
+                const String& specStr = *specIt;
+                const StringList specStrParts = StringUtils::splitAndUnescape(specStr, ':');
+                if (specStrParts.size() != 2)
+                    continue;
+
+                const String& name = specStrParts[0];
+                if (m_config.gameEngineConfig().hasProfile(name)) {
+                    const String& spec = specStrParts[1];
+                    if (!StringUtils::isBlank(spec))
+                        result[name] = spec;
+                }
+            }
+            
+            return result;
+        }
+
+        void GameImpl::doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {
+            StringList specList;
+            ::StringMap::const_iterator it, end;
+            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
+                const String& name = it->first;
+                if (m_config.gameEngineConfig().hasProfile(name)) {
+                    const String& spec = it->second;
+                    if (!StringUtils::isBlank(spec))
+                        specList.push_back(StringUtils::escapeAndJoin(StringUtils::makeList(2, name.c_str(), spec.c_str()), ':'));
+                }
+            }
+            
+            const String value = StringUtils::escapeAndJoin(specList, ';');
+            writeLongAttribute(world, AttributeNames::GameEngineParameterSpecs, value, m_config.maxPropertyValueLength());
+        }
+
         const GameConfig::FlagsConfig& GameImpl::doSurfaceFlags() const {
             return m_config.faceAttribsConfig().surfaceFlags;
         }
         
         const GameConfig::FlagsConfig& GameImpl::doContentFlags() const {
             return m_config.faceAttribsConfig().contentFlags;
+        }
+
+        void GameImpl::writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+            
+            node->removeNumberedAttribute(baseName);
+            
+            StringStream nameStr;
+            for (size_t i = 0; i <= value.size() / maxLength; ++i) {
+                nameStr.str("");
+                nameStr << baseName << i+1;
+                node->addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
+            }
+        }
+        
+        String GameImpl::readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const {
+            assert(node != NULL);
+            
+            size_t index = 1;
+            StringStream nameStr;
+            StringStream valueStr;
+            nameStr << baseName << index;
+            while (node->hasAttribute(nameStr.str())) {
+                valueStr << node->attribute(nameStr.str());
+                nameStr.str("");
+                nameStr << baseName << ++index;
+            }
+            
+            return valueStr.str();
         }
     }
 }

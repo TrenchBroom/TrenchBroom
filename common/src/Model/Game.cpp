@@ -145,6 +145,16 @@ namespace TrenchBroom {
             return doExtractEnabledMods(world);
         }
         
+        ::StringMap Game::extractGameEngineParameterSpecs(const World* world) const {
+            assert(world != NULL);
+            return doExtractGameEngineParameterSpecs(world);
+        }
+
+        void Game::setGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {
+            assert(world != NULL);
+            doSetGameEngineParameterSpecs(world, specs);
+        }
+
         const GameConfig::FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }

@@ -43,6 +43,7 @@ namespace TrenchBroom {
             extern const AttributeName Wad;
             extern const AttributeName Textures;
             extern const AttributeName Mods;
+            extern const AttributeName GameEngineParameterSpecs;
             extern const AttributeName Spawnflags;
             extern const AttributeName EntityDefinitions;
             extern const AttributeName Angle;
