@@ -86,10 +86,10 @@ namespace TrenchBroom {
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
 			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
             
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetAffirmativeButton(compileButton);
-			buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
+            stdButtonSizer->SetAffirmativeButton(compileButton);
+			stdButtonSizer->SetCancelButton(closeButton);
+            stdButtonSizer->Realize();
             
             m_currentRunLabel = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
             
@@ -98,20 +98,14 @@ namespace TrenchBroom {
             currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
             currentRunLabelSizer->AddStretchSpacer();
             
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(launchButton, wxSizerFlags().CenterVertical().Border(wxLEFT,
-#ifdef __APPLE__
-                                                                                  12
-#else
-                                                                                  6
-#endif
-                                                                                  ));
-            bottomSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
-            bottomSizer->Add(buttonSizer);
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
+            buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
+            buttonSizer->Add(stdButtonSizer);
             
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
-            dialogSizer->Add(outerPanel, 1, wxEXPAND);
-            dialogSizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
+            dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
+            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(dialogSizer);
             
             m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);

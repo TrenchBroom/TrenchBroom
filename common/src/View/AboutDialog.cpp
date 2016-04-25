@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AboutFrame.h"
+#include "AboutDialog.h"
 
 #include "StringUtils.h"
 #include "View/AppInfoPanel.h"
@@ -32,22 +32,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        AboutFrame* AboutFrame::instance = NULL;
+        AboutDialog* AboutDialog::instance = NULL;
 
-        void AboutFrame::showAboutFrame() {
-            if (AboutFrame::instance == NULL) {
-                AboutFrame::instance = new AboutFrame();
-                AboutFrame::instance->Show();
+        void AboutDialog::showAboutDialog() {
+            if (AboutDialog::instance == NULL) {
+                AboutDialog::instance = new AboutDialog();
+                AboutDialog::instance->Show();
             } else {
-                AboutFrame::instance->Raise();
+                AboutDialog::instance->Raise();
             }
         }
         
-        AboutFrame::~AboutFrame() {
+        AboutDialog::~AboutDialog() {
             instance = NULL;
         }
 
-        void AboutFrame::OnClickUrl(wxMouseEvent& event) {
+        void AboutDialog::OnClickUrl(wxMouseEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxVariant* var = static_cast<wxVariant*>(event.GetEventUserData());
@@ -55,13 +55,13 @@ namespace TrenchBroom {
             ::wxLaunchDefaultBrowser(url);
         }
 
-        AboutFrame::AboutFrame() :
-        wxFrame(NULL, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        AboutDialog::AboutDialog() :
+        wxDialog(NULL, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDIALOG_NO_PARENT | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             createGui();
             CenterOnScreen();
         }
         
-        void AboutFrame::createGui() {
+        void AboutDialog::createGui() {
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
@@ -96,16 +96,22 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(50);
             
             SetSizerAndFit(outerSizer);
+            
+            Bind(wxEVT_CLOSE_WINDOW, &AboutDialog::OnClose, this);
         }
 
-        wxStaticText* AboutFrame::createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url) {
+        wxStaticText* AboutDialog::createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url) {
             wxStaticText* statText = new wxStaticText(parent, wxID_ANY, text);
             statText->SetFont(statText->GetFont().Underlined());
             statText->SetForegroundColour(*wxBLUE);
             statText->SetToolTip(tooltip);
             statText->SetCursor(wxCURSOR_HAND);
-            statText->Bind(wxEVT_LEFT_UP, &AboutFrame::OnClickUrl, this, wxID_ANY, wxID_ANY, new wxVariant(url));
+            statText->Bind(wxEVT_LEFT_UP, &AboutDialog::OnClickUrl, this, wxID_ANY, wxID_ANY, new wxVariant(url));
             return statText;
+        }
+
+        void AboutDialog::OnClose(wxCloseEvent& event) {
+            Destroy();
         }
     }
 }
