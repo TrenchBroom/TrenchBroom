@@ -41,7 +41,7 @@
 namespace TrenchBroom {
     namespace View {
         LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
-        wxDialog(parent, wxID_ANY, "Launch Engine", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
+        wxDialog(parent, wxID_ANY, "Launch Engine"),
         m_document(document),
         m_gameEngineList(NULL),
         m_parameterText(NULL),

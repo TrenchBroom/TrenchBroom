@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         AboutDialog::AboutDialog() :
-        wxDialog(NULL, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDIALOG_NO_PARENT | wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        wxDialog(NULL, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP) {
             createGui();
             CenterOnScreen();
         }

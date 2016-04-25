@@ -42,7 +42,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
-        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
+        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
         m_mapFrame(mapFrame),
         m_currentRunLabel(NULL),
         m_output(NULL) {
