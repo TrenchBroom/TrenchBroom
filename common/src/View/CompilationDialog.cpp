@@ -79,8 +79,8 @@ namespace TrenchBroom {
             outerPanel->SetSizer(outerPanelSizer);
             
             wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
-            wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
-            wxButton* closeButton = new wxButton(this, wxID_CLOSE, "Close");
+            wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             
             launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
