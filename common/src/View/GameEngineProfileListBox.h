@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig;
+        class GameEngineProfile;
     }
     
     namespace View {
@@ -34,6 +35,8 @@ namespace TrenchBroom {
         public:
             GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config);
             ~GameEngineProfileListBox();
+            
+            Model::GameEngineProfile* selectedProfile() const;
         private:
             void profilesDidChange();
         private:

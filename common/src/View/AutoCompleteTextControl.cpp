@@ -275,9 +275,9 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::OnChar(wxKeyEvent& event) {
             if (!IsAutoCompleting()) {
                 const size_t index = static_cast<size_t>(GetInsertionPoint());
-                m_currentStartIndex = m_helper->ShouldStartCompletionAfterInput(GetValue(), event.GetUnicodeKey(), index);
-                if (m_currentStartIndex <= GetValue().Length())
-                    StartAutoCompletion();
+                const size_t startIndex = m_helper->ShouldStartCompletionAfterInput(GetValue(), event.GetUnicodeKey(), index);
+                if (startIndex <= GetValue().Length())
+                    StartAutoCompletion(startIndex);
             }
             event.Skip();
         }
@@ -286,9 +286,9 @@ namespace TrenchBroom {
             if (event.GetKeyCode() == WXK_SPACE && event.RawControlDown()) {
                 if (!IsAutoCompleting()) {
                     const size_t index = static_cast<size_t>(GetInsertionPoint());
-                    m_currentStartIndex = m_helper->ShouldStartCompletionAfterRequest(GetValue(), index);
-                    if (m_currentStartIndex < GetValue().Length()) {
-                        StartAutoCompletion();
+                    const size_t startIndex = m_helper->ShouldStartCompletionAfterRequest(GetValue(), index);
+                    if (startIndex < GetValue().Length()) {
+                        StartAutoCompletion(startIndex);
                         UpdateAutoCompletion();
                     }
                 } else {
@@ -321,9 +321,10 @@ namespace TrenchBroom {
             return m_autoCompletionPopup != NULL && m_autoCompletionPopup->IsShown();
         }
 
-        void AutoCompleteTextControl::StartAutoCompletion() {
+        void AutoCompleteTextControl::StartAutoCompletion(const size_t startIndex) {
             wxASSERT(!IsAutoCompleting());
-            const wxString prefix = GetRange(0, GetInsertionPoint());
+            m_currentStartIndex = startIndex;
+            const wxString prefix = GetRange(0, static_cast<long>(m_currentStartIndex));
             const wxPoint offset = wxPoint(GetTextExtent(prefix).x, 0);
             const wxPoint relPos = GetRect().GetBottomLeft() + offset;
             const wxPoint absPos = GetParent()->ClientToScreen(relPos);

@@ -19,24 +19,143 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "View/AutoCompleteTextControl.h"
+#include "View/AutoCompleteVariablesHelper.h"
 #include "View/BorderLine.h"
+#include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
+#include "View/GameEngineProfileListBox.h"
+#include "View/MapDocument.h"
+#include "View/ViewConstants.h"
+#include "View/wxUtils.h"
+
+#include <wx/button.h>
+#include <wx/panel.h>
+#include <wx/sizer.h>
+#include <wx/stattext.h>
+#include <wx/utils.h>
 
 namespace TrenchBroom {
     namespace View {
-        LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, const String& gameName, const VariableTable& variables) :
-        wxDialog(parent, wxID_ANY, "Launch Game Engine", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
-        m_gameName(gameName),
-        m_variables(variables) {
+        LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
+        wxDialog(parent, wxID_ANY, "Launch Engine", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
+        m_document(document),
+        m_gameEngineList(NULL),
+        m_parameterText(NULL) {
             createGui();
         }
         
         void LaunchGameEngineDialog::createGui() {
-            CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
+            MapDocumentSPtr document = lock(m_document);
+            const String& gameName = document->game()->gameName();
+            CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, gameName);
+            
+            wxPanel* midPanel = new wxPanel(this);
             
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            Model::GameConfig& gameConfig = gameFactory.gameConfig(m_gameName);
+            const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
+            const Model::GameEngineConfig& gameEngineConfig = gameConfig.gameEngineConfig();
+            m_gameEngineList = new GameEngineProfileListBox(midPanel, gameEngineConfig);
+            
+            wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
+            header->SetFont(header->GetFont().Larger().Larger().Bold());
+            
+            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
+            message->Wrap(350);
+            
+            wxStaticText* parameterLabel = new wxStaticText(midPanel, wxID_ANY, "Parameters");
+            parameterLabel->SetFont(parameterLabel->GetFont().Bold());
+            
+            m_parameterText = new AutoCompleteTextControl(midPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+            m_parameterText->Bind(wxEVT_TEXT_ENTER, &LaunchGameEngineDialog::OnLaunch, this);
+            m_parameterText->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateParameterTextUI, this);
+            
+            m_parameterText->SetHelper(new AutoCompleteVariablesHelper(variables()));
+            
+            wxSizer* midLeftSizer = new wxBoxSizer(wxVERTICAL);
+            midLeftSizer->AddSpacer(20);
+            midLeftSizer->Add(header, wxSizerFlags().Expand());
+            midLeftSizer->AddSpacer(20);
+            midLeftSizer->Add(message, wxSizerFlags().Expand());
+            midLeftSizer->AddStretchSpacer();
+            midLeftSizer->Add(parameterLabel);
+            midLeftSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            midLeftSizer->Add(m_parameterText, wxSizerFlags().Expand());
+            midLeftSizer->AddSpacer(20);
+            
+            wxSizer* midSizer = new wxBoxSizer(wxHORIZONTAL);
+            midSizer->AddSpacer(20);
+            midSizer->Add(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
+            midSizer->AddSpacer(20);
+            midSizer->Add(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            midSizer->Add(m_gameEngineList, wxSizerFlags().Expand());
+            midSizer->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
+            midPanel->SetSizer(midSizer);
+            
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
+            closeButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnCloseButton, this);
+            closeButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateCloseButtonUI, this);
+
+            wxButton* launchButton = new wxButton(this, wxID_OK, "Launch");
+            launchButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnLaunch, this);
+            launchButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateLaunchButtonUI, this);
+            
+            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
+            buttonSizer->SetCancelButton(closeButton);
+            buttonSizer->SetAffirmativeButton(launchButton);
+            buttonSizer->Realize();
+
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            outerSizer->Add(midPanel, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
+            
+            SetSizerAndFit(outerSizer);
+        }
+
+        VariableTable LaunchGameEngineDialog::variables() const {
+            VariableTable variables = launchGameEngineVariables();
+            defineLaunchGameEngineVariables(variables, lock(m_document));
+            return variables;
+        }
+
+        void LaunchGameEngineDialog::OnUpdateParameterTextUI(wxUpdateUIEvent& event) {
+            event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
+        }
+
+        
+        void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
+            EndModal(wxCANCEL);
+        }
+        
+        void LaunchGameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(true);
+        }
+        
+        void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
+            const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
+            assert(profile != NULL);
+            
+            const IO::Path& path = profile->path();
+            const String parameters = variables().translate(m_parameterText->GetValue().ToStdString());
+            
+            wxString launchStr;
+#ifdef __APPLE__
+            // We have to launch apps via the 'open' command so that we can properly pass parameters.
+            launchStr << "/usr/bin/open " << path.asString() << " --args " << parameters;
+#else
+            launchStr << path.asString() << " " << parameters;
+#endif
+            
+            wxExecute(launchStr);
+            EndModal(wxOK);
+        }
+        
+        void LaunchGameEngineDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
         }
     }
 }

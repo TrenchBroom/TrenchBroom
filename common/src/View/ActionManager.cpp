@@ -284,6 +284,7 @@ namespace TrenchBroom {
             
             Menu* runMenu = m_menuBar->addMenu("Run");
             runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunLaunch, "Launch...");
 
 #ifndef NDEBUG
             Menu* debugMenu = m_menuBar->addMenu("Debug");

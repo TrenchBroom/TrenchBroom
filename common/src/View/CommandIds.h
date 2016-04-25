@@ -98,6 +98,7 @@ namespace TrenchBroom {
                 const int DebugCrash                         = Lowest + 130;
                 
                 const int RunCompile                         = Lowest + 131;
+                const int RunLaunch                          = Lowest + 132;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 

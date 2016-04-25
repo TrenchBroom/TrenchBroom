@@ -22,19 +22,33 @@
 
 #include "VariableHelper.h"
 #include "IO/Path.h"
+#include "View/ViewTypes.h"
 
 #include <wx/dialog.h>
 
 namespace TrenchBroom {
     namespace View {
+        class AutoCompleteTextControl;
+        class GameEngineProfileListBox;
+        
         class LaunchGameEngineDialog : public wxDialog {
         private:
-            const String m_gameName;
-            const VariableTable m_variables;
+            MapDocumentWPtr m_document;
+            GameEngineProfileListBox* m_gameEngineList;
+            AutoCompleteTextControl* m_parameterText;
         public:
-            LaunchGameEngineDialog(wxWindow* parent, const String& gameName, const VariableTable& variables);
+            LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document);
         private:
             void createGui();
+            VariableTable variables() const;
+            
+            void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
+            
+            void OnCloseButton(wxCommandEvent& event);
+            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
+            
+            void OnLaunch(wxCommandEvent& event);
+            void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
         };
     }
 }

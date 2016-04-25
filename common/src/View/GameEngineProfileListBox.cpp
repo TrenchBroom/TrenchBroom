@@ -40,6 +40,12 @@ namespace TrenchBroom {
             m_config.profilesDidChange.removeObserver(this, &GameEngineProfileListBox::profilesDidChange);
         }
         
+        Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const {
+            if (GetSelection() == wxNOT_FOUND)
+                return NULL;
+            return m_config.profile(static_cast<size_t>(GetSelection()));
+        }
+
         void GameEngineProfileListBox::profilesDidChange() {
             SetItemCount(m_config.profileCount());
         }

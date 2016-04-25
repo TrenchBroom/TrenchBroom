@@ -39,6 +39,7 @@
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
@@ -510,6 +511,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleInspector, this, CommandIds::Menu::ViewToggleInspector);
 
             Bind(wxEVT_MENU, &MapFrame::OnRunCompile, this, CommandIds::Menu::RunCompile);
+            Bind(wxEVT_MENU, &MapFrame::OnRunLaunch, this, CommandIds::Menu::RunLaunch);
             
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
@@ -999,6 +1001,13 @@ namespace TrenchBroom {
             m_compilationDialog = NULL;
         }
 
+        void MapFrame::OnRunLaunch(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            LaunchGameEngineDialog dialog(this, m_document);
+            dialog.ShowModal();
+        }
+        
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1289,6 +1298,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::RunCompile:
                     event.Enable(canCompile());
                     break;
+                case CommandIds::Menu::RunLaunch:
+                    event.Enable(canLaunch());
+                    break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
@@ -1428,6 +1440,10 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canCompile() const {
+            return m_document->persistent();
+        }
+
+        bool MapFrame::canLaunch() const {
             return m_document->persistent();
         }
 

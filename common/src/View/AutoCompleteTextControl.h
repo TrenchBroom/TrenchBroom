@@ -125,7 +125,7 @@ namespace TrenchBroom {
             void OnDelayedText(wxCommandEvent& event);
             
             bool IsAutoCompleting() const;
-            void StartAutoCompletion();
+            void StartAutoCompletion(size_t startIndex);
             void UpdateAutoCompletion();
             void EndAutoCompletion();
             

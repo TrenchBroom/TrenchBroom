@@ -83,6 +83,24 @@ namespace TrenchBroom {
             return result;
         }
         
+        VariableTable createLaunchGameEngineVariableTable();
+        const VariableTable& launchGameEngineVariables() {
+            static const VariableTable variables = createLaunchGameEngineVariableTable();
+            return variables;
+        }
+
+        VariableTable createLaunchGameEngineVariableTable() {
+            using namespace CompilationVariableNames;
+            
+            VariableTable result;
+            result.declare(MAP_BASE_NAME);
+            result.declare(GAME_DIR_PATH);
+            result.declare(MOD_NAME);
+            
+            return result;
+        }
+
+        void defineCommonVariables(VariableTable& variables, MapDocumentSPtr document);
         void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document);
 
         void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document) {
@@ -103,6 +121,22 @@ namespace TrenchBroom {
             defineCommonCompilationVariables(variables, document);
         }
 
+        void defineLaunchGameEngineVariables(VariableTable& variables, MapDocumentSPtr document) {
+            defineCommonVariables(variables, document);
+        }
+
+        void defineCommonVariables(VariableTable& variables, MapDocumentSPtr document) {
+            using namespace CompilationVariableNames;
+            
+            const IO::Path filename = document->path().lastComponent();
+            const IO::Path gamePath = document->game()->gamePath();
+            const String lastMod = document->mods().empty() ? "" : document->mods().back();
+            
+            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
+            variables.define(GAME_DIR_PATH, gamePath.asString());
+            variables.define(MOD_NAME, lastMod);
+        }
+
         void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document) {
             using namespace CompilationVariableNames;
             
@@ -112,12 +146,10 @@ namespace TrenchBroom {
             const IO::Path modPath = gamePath + IO::Path(lastMod);
             const IO::Path appPath = IO::SystemPaths::appDirectory();
             
-            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
             variables.define(MAP_FULL_NAME, filename.asString());
-            variables.define(GAME_DIR_PATH, gamePath.asString());
-            variables.define(MOD_DIR_PATH, lastMod);
             variables.define(MOD_DIR_PATH, modPath.asString());
             variables.define(APP_DIR_PATH, appPath.asString());
+            defineCommonVariables(variables, document);
         }
     }
 }

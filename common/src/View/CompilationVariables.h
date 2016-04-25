@@ -40,9 +40,11 @@ namespace TrenchBroom {
 
         const VariableTable& compilationWorkDirVariables();
         const VariableTable& compilationVariables();
+        const VariableTable& launchGameEngineVariables();
         
         void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
         void defineCompilationVariables(VariableTable& variables, MapDocumentSPtr document, const String& workDir);
+        void defineLaunchGameEngineVariables(VariableTable& variables, MapDocumentSPtr document);
     }
 }
 

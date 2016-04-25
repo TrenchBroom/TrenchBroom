@@ -196,6 +196,8 @@ namespace TrenchBroom {
         public:
             void compilationDialogWillClose();
         private:
+            void OnRunLaunch(wxCommandEvent& event);
+
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
@@ -236,6 +238,7 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousPoint() const;
             bool canFocusCamera() const;
             bool canCompile() const;
+            bool canLaunch() const;
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
