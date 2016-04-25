@@ -42,14 +42,15 @@ namespace TrenchBroom {
             wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
             
             wxBitmapType type = wxICON_DEFAULT_TYPE;
-            IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + imagePath;
 #if defined __APPLE__
-            fullPath.addExtension("icns");
+            fullPath = fullPath.addExtension("icns");
 #elif defined _WIN32
-            fullPath.addExtension("ico");
+			type = wxBITMAP_TYPE_ICO;
+            fullPath = fullPath.addExtension("ico");
 #else
             type = wxBITMAP_TYPE_PNG;
-            fullPath.addExtension("png");
+            fullPath = fullPath.addExtension("png");
 #endif
             if (!::wxFileExists(fullPath.asString()))
                 return wxNullIcon;
