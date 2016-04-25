@@ -247,8 +247,10 @@ namespace TrenchBroom {
         void ControlListBox::OnSize(wxSizeEvent& event) {
             wxWindowUpdateLocker lock(this);
 
-            if (m_emptyTextLabel != NULL && m_restrictToClientWidth)
+            if (m_emptyTextLabel != NULL && m_restrictToClientWidth) {
+				m_emptyTextLabel->SetLabel(m_emptyText);
                 m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
+			}
             event.Skip();
         }
 
