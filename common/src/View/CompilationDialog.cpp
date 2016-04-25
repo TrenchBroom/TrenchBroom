@@ -24,6 +24,7 @@
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/SplitterWindow2.h"
@@ -75,9 +76,12 @@ namespace TrenchBroom {
             outerPanelSizer->Add(splitter, 1, wxEXPAND);
             outerPanel->SetSizer(outerPanelSizer);
             
+            wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
             wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
             wxButton* closeButton = new wxButton(this, wxID_CLOSE, "Close");
             
+            launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
+            launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
             compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
 			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
@@ -87,25 +91,42 @@ namespace TrenchBroom {
 			buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
-            m_currentRunLabel = new wxStaticText(this, wxID_ANY, "");
+            m_currentRunLabel = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
             
             wxSizer* currentRunLabelSizer = new wxBoxSizer(wxVERTICAL);
             currentRunLabelSizer->AddStretchSpacer();
             currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
             currentRunLabelSizer->AddStretchSpacer();
             
-            wxSizer* controlLineSizer = new wxBoxSizer(wxHORIZONTAL);
-            controlLineSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxRIGHT, LayoutConstants::WideHMargin));
-            controlLineSizer->Add(buttonSizer);
+            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+            bottomSizer->Add(launchButton, wxSizerFlags().CenterVertical().Border(wxLEFT,
+#ifdef __APPLE__
+                                                                                  12
+#else
+                                                                                  6
+#endif
+                                                                                  ));
+            bottomSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
+            bottomSizer->Add(buttonSizer);
             
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
             dialogSizer->Add(outerPanel, 1, wxEXPAND);
-            dialogSizer->Add(wrapDialogButtonSizer(controlLineSizer, this), 0, wxEXPAND);
+            dialogSizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
             SetSizer(dialogSizer);
             
             m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);
             Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
         }
+
+        void CompilationDialog::OnLaunchClicked(wxCommandEvent& event) {
+            LaunchGameEngineDialog dialog(this, m_mapFrame->document());
+            dialog.ShowModal();
+        }
+        
+        void CompilationDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
+            event.Enable(!m_run.running());
+        }
+        
 
         void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
             if (m_run.running()) {

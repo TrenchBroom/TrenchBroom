@@ -182,7 +182,7 @@ namespace TrenchBroom {
             buttonSizer->SetCancelButton(closeButton);
             buttonSizer->Realize();
             
-            bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical().Border(wxLEFT, 18));
+            bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical().Border(wxLEFT, 12));
 			bottomSizer->AddStretchSpacer();
             bottomSizer->Add(buttonSizer, wxSizerFlags().CenterVertical());
 #endif
