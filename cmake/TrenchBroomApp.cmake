@@ -14,7 +14,7 @@ SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
-    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/graphics/icons/AppIcon.icns" "${APP_DIR}/resources/graphics/icons/DocIcon.icns")
+    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/mac/icons/AppIcon.icns" "${APP_DIR}/resources/mac/icons/DocIcon.icns")
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_ICON_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
@@ -129,8 +129,8 @@ ENDIF()
 IF(WIN32)
 	# Copy Windows icons to target dir
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
 	)
 
     # Copy DLLs to app directory

@@ -102,6 +102,8 @@ namespace TrenchBroom {
         }
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
+            setWindowIcon(this);
+
             TitledPanel* subjectPanel = new TitledPanel(this, "Find");
             m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);

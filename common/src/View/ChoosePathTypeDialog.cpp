@@ -52,6 +52,8 @@ namespace TrenchBroom {
         }
         
         bool ChoosePathTypeDialog::Create() {
+            setWindowIcon(this);
+
             wxPanel* panel = new wxPanel(this);
             
             wxStaticText* infoText = new wxStaticText(panel, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");

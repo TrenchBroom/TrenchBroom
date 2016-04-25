@@ -137,6 +137,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
+            setWindowIcon(this);
+
             const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");

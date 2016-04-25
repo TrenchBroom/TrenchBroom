@@ -37,5 +37,13 @@ namespace TrenchBroom {
                 return wxNullBitmap;
             return wxBitmap(fullPath.asString(), wxBITMAP_TYPE_PNG);
         }
+
+        wxIcon loadIconResource(const IO::Path& imagePath) {
+            wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            if (!::wxFileExists(fullPath.asString()))
+                return wxNullIcon;
+            return wxIcon(fullPath.asString(), wxBITMAP_TYPE_PNG, 32, 32);
+        }
     }
 }

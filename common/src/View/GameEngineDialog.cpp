@@ -47,6 +47,8 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::createGui() {
+            setWindowIcon(this);
+
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
             
             Model::GameFactory& gameFactory = Model::GameFactory::instance();

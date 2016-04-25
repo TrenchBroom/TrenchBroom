@@ -150,6 +150,11 @@ namespace TrenchBroom {
             return vSizer;
         }
 
+        void setWindowIcon(wxTopLevelWindow* window) {
+            assert(window != NULL);
+            window->SetIcon(IO::loadIconResource(IO::Path("AppIcon.png")));
+        }
+
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {
             wxArrayString result;
             for (size_t i = 0; i < strings.size(); ++i) {

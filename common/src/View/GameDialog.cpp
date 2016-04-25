@@ -126,6 +126,8 @@ namespace TrenchBroom {
         }
         
         void GameDialog::createGui(const wxString& title, const wxString& infoText) {
+            setWindowIcon(this);
+
             wxWindow* infoPanel = createInfoPanel(this, title, infoText);
             wxWindow* selectionPanel = createSelectionPanel(this);
 

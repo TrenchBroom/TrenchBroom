@@ -53,6 +53,8 @@ namespace TrenchBroom {
         }
         
         void CompilationDialog::createGui() {
+            setWindowIcon(this);
+
             MapDocumentSPtr document = m_mapFrame->document();
             Model::GamePtr game = document->game();
             Model::CompilationConfig& compilationConfig = game->compilationConfig();

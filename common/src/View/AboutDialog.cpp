@@ -21,6 +21,7 @@
 
 #include "StringUtils.h"
 #include "View/AppInfoPanel.h"
+#include "View/wxUtils.h"
 
 #include <wx/button.h>
 #include <wx/panel.h>
@@ -63,6 +64,8 @@ namespace TrenchBroom {
         }
         
         void AboutDialog::createGui() {
+            setWindowIcon(this);
+            
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");

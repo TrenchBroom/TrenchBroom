@@ -50,6 +50,8 @@ namespace TrenchBroom {
         }
         
         void LaunchGameEngineDialog::createGui() {
+            setWindowIcon(this);
+
             MapDocumentSPtr document = lock(m_document);
             const String& gameName = document->game()->gameName();
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, gameName);
