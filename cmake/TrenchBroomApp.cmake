@@ -137,6 +137,11 @@ IF(WIN32)
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
 	)
+
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
+    )
 ENDIF()
 
 # Properly link to OpenGL libraries on Unix-like systems
@@ -144,6 +149,13 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
     INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
+ENDIF()
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/linux/icons/icon_16.png" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.png"
+    )
 ENDIF()
 
 # Set up the resources and DLLs for the executable

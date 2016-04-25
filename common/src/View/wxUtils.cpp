@@ -152,7 +152,7 @@ namespace TrenchBroom {
 
         void setWindowIcon(wxTopLevelWindow* window) {
             assert(window != NULL);
-            window->SetIcon(IO::loadIconResource(IO::Path("AppIcon.png")));
+            window->SetIcon(IO::loadIconResource(IO::Path("AppIcon")));
         }
 
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {

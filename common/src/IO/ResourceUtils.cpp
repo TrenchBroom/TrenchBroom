@@ -40,10 +40,20 @@ namespace TrenchBroom {
 
         wxIcon loadIconResource(const IO::Path& imagePath) {
             wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+            
+            wxBitmapType type = wxICON_DEFAULT_TYPE;
+            IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
+#if defined __APPLE__
+            fullPath.addExtension("icns");
+#elif defined _WIN32
+            fullPath.addExtension("ico");
+#else
+            type = wxBITMAP_TYPE_PNG;
+            fullPath.addExtension("png");
+#endif
             if (!::wxFileExists(fullPath.asString()))
                 return wxNullIcon;
-            return wxIcon(fullPath.asString(), wxBITMAP_TYPE_PNG, 32, 32);
+            return wxIcon(fullPath.asString(), type, 16, 16);
         }
     }
 }
