@@ -43,6 +43,7 @@ namespace TrenchBroom {
             void createGui();
             wxStaticText* createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url);
             
+            void OnCancel(wxCommandEvent& event);
             void OnClose(wxCloseEvent& event);
         };
     }

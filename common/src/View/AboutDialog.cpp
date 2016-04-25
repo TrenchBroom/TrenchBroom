@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "View/AppInfoPanel.h"
 
+#include <wx/button.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/statline.h>
@@ -96,7 +97,12 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(50);
             
             SetSizerAndFit(outerSizer);
+
+            wxAcceleratorEntry entries[1];
+            entries[0] = wxAcceleratorEntry(wxACCEL_NORMAL, WXK_ESCAPE, wxID_CANCEL);
+            SetAcceleratorTable(wxAcceleratorTable(1, entries));
             
+            Bind(wxEVT_MENU, &AboutDialog::OnCancel, this, wxID_CANCEL);
             Bind(wxEVT_CLOSE_WINDOW, &AboutDialog::OnClose, this);
         }
 
@@ -108,6 +114,10 @@ namespace TrenchBroom {
             statText->SetCursor(wxCURSOR_HAND);
             statText->Bind(wxEVT_LEFT_UP, &AboutDialog::OnClickUrl, this, wxID_ANY, wxID_ANY, new wxVariant(url));
             return statText;
+        }
+
+        void AboutDialog::OnCancel(wxCommandEvent& event) {
+            Close();
         }
 
         void AboutDialog::OnClose(wxCloseEvent& event) {
