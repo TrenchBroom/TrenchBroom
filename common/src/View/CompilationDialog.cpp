@@ -143,8 +143,11 @@ namespace TrenchBroom {
                 else
                     m_run.terminate();
             }
-            if (!event.GetVeto())
+            if (!event.GetVeto()) {
                 m_mapFrame->compilationDialogWillClose();
+                if (GetParent() != NULL)
+                    GetParent()->Raise();
+            }
             event.Skip();
         }
 

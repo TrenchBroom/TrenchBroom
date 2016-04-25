@@ -106,6 +106,12 @@ namespace TrenchBroom {
             event.Enable(isOkEnabled());
         }
 
+        void GameDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
+        }
+
         GameDialog::GameDialog() :
         wxDialog(),
         m_gameListBox(NULL),
@@ -137,6 +143,8 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
+            
+            Bind(wxEVT_CLOSE_WINDOW, &GameDialog::OnClose, this);
         }
 
         wxWindow* GameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {

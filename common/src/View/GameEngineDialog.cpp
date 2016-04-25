@@ -67,6 +67,8 @@ namespace TrenchBroom {
             outerSizer->Add(m_profileManager, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(outerSizer);
+
+            Bind(wxEVT_CLOSE_WINDOW, &GameEngineDialog::OnClose, this);
         }
 
         void GameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
@@ -75,6 +77,12 @@ namespace TrenchBroom {
 
         void GameEngineDialog::OnCloseButtonClicked(wxCommandEvent& event) {
             EndModal(wxID_OK);
+        }
+
+        void GameEngineDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
         }
     }
 }

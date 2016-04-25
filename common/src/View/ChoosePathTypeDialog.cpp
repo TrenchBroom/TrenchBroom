@@ -122,6 +122,9 @@ namespace TrenchBroom {
             
             SetSizerAndFit(outerSizer);
             CentreOnParent();
+            
+            Bind(wxEVT_CLOSE_WINDOW, &ChoosePathTypeDialog::OnClose, this);
+            
             return true;
        }
 
@@ -133,6 +136,12 @@ namespace TrenchBroom {
             if (m_gameRelativeRadio->GetValue())
                 return m_gameRelativePath;
             return m_absPath;
+        }
+
+        void ChoosePathTypeDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
         }
 
         IO::Path ChoosePathTypeDialog::makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath) {

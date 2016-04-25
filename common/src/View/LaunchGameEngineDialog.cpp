@@ -121,6 +121,8 @@ namespace TrenchBroom {
             outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             
             SetSizerAndFit(outerSizer);
+
+            Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
         }
 
         VariableTable LaunchGameEngineDialog::variables() const {
@@ -169,6 +171,12 @@ namespace TrenchBroom {
         
         void LaunchGameEngineDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
             event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
+        }
+
+        void LaunchGameEngineDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
         }
     }
 }

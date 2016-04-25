@@ -47,7 +47,7 @@ namespace TrenchBroom {
         public:
             PreferenceDialog();
             bool Create();
-            
+        private:
             void OnToolClicked(wxCommandEvent& event);
             void OnOKClicked(wxCommandEvent& event);
             void OnApplyClicked(wxCommandEvent& event);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void OnResetClicked(wxCommandEvent& event);
             void OnUpdateReset(wxUpdateUIEvent& event);
             
-            DECLARE_DYNAMIC_CLASS(PreferenceDialog)
+            void OnClose(wxCloseEvent& event);
         private:
             void createGui();
             void bindEvents();
@@ -70,6 +70,8 @@ namespace TrenchBroom {
             PrefPane currentPaneId() const;
 
             void updateAcceleratorTable(const PrefPane pane);
+        public:
+            DECLARE_DYNAMIC_CLASS(PreferenceDialog)
         };
     }
 }

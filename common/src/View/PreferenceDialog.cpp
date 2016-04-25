@@ -130,6 +130,12 @@ namespace TrenchBroom {
             event.Enable(currentPane()->canResetToDefaults());
         }
 
+        void PreferenceDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
+        }
+
         void PreferenceDialog::createGui() {
             const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
@@ -192,6 +198,7 @@ namespace TrenchBroom {
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
+            Bind(wxEVT_CLOSE_WINDOW, &PreferenceDialog::OnClose, this);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
