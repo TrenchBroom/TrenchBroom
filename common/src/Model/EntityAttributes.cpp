@@ -32,6 +32,7 @@ namespace TrenchBroom {
             const AttributeName Wad               = "wad";
             const AttributeName Textures          = "_tb_textures";
             const AttributeName Mods              = "_tb_mod";
+            const AttributeName GameEngineParameterSpecs = "_tb_engines";
             const AttributeName Spawnflags        = "spawnflags";
             const AttributeName EntityDefinitions = "_tb_def";
             const AttributeName Angle             = "angle";

@@ -26,6 +26,18 @@
 namespace TrenchBroom {
     ConfigEntry::~ConfigEntry() {}
     
+    ConfigEntry* ConfigEntry::clone() const {
+        return doClone();
+    }
+
+    size_t ConfigEntry::line() const {
+        return m_line;
+    }
+    
+    size_t ConfigEntry::column() const {
+        return m_column;
+    }
+
     ConfigEntry::Type ConfigEntry::type() const {
         return m_type;
     }
@@ -51,22 +63,29 @@ namespace TrenchBroom {
     }
 
     void ConfigEntry::appendToStream(std::ostream& stream) const {
-        doAppendToStream(stream);
+        doAppendToStream(stream, "");
     }
 
     String ConfigEntry::asString() const {
         StringStream stream;
-        stream << this;
+        appendToStream(stream);
         return stream.str();
     }
 
-    ConfigEntry::ConfigEntry(const Type type) :
-    m_type(type) {}
-
-    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr& entry) {
-        entry->appendToStream(stream);
-        return stream;
+    void ConfigEntry::appendToStream(std::ostream& stream, const String& indent) const {
+        doAppendToStream(stream, indent);
     }
+
+    void swap(ConfigEntry& lhs, ConfigEntry& rhs) {
+        using std::swap;
+        swap(lhs.m_line, rhs.m_line);
+        swap(lhs.m_column, rhs.m_column);
+    }
+
+    ConfigEntry::ConfigEntry(const Type type, const size_t line, const size_t column) :
+    m_type(type),
+    m_line(line),
+    m_column(column) {}
 
     std::ostream& operator<<(std::ostream& stream, const ConfigEntry* entry) {
         entry->appendToStream(stream);
@@ -74,19 +93,55 @@ namespace TrenchBroom {
     }
     
     ConfigValue::ConfigValue(const String& value) :
-    ConfigEntry(Type_Value),
+    ConfigEntry(Type_Value, 0, 0),
+    m_value(value) {}
+    
+    ConfigValue::ConfigValue(const String& value, const size_t line, const size_t column) :
+    ConfigEntry(Type_Value, line, column),
     m_value(value) {}
     
     ConfigValue::operator const String&() const {
         return m_value;
     }
 
-    void ConfigValue::doAppendToStream(std::ostream& stream) const {
-        stream << "\"" << m_value << "\"";
+    ConfigEntry* ConfigValue::doClone() const {
+        return new ConfigValue(m_value, line(), column());
+    }
+
+    void ConfigValue::doAppendToStream(std::ostream& stream, const String& indent) const {
+        stream << "\"" << StringUtils::escape(m_value, "\"") << "\"";
     }
 
     ConfigList::ConfigList() :
-    ConfigEntry(Type_List) {}
+    ConfigEntry(Type_List, 0, 0) {}
+    
+    ConfigList::ConfigList(const size_t line, const size_t column) :
+    ConfigEntry(Type_List, line, column) {}
+
+    ConfigList::ConfigList(const ConfigList& other) :
+    ConfigEntry(Type_List, other.line(), other.column()) {
+        EntryList::const_iterator it, end;
+        for (it = other.m_entries.begin(), end = other.m_entries.end(); it != end; ++it) {
+            const ConfigEntry* original = *it;
+            m_entries.push_back(original->clone());
+        }
+    }
+    
+    ConfigList::~ConfigList() {
+        VectorUtils::clearAndDelete(m_entries);
+    }
+
+    ConfigList& ConfigList::operator=(ConfigList other) {
+        using std::swap;
+        swap(*this, other);
+        return *this;
+    }
+    
+    void swap(ConfigList& lhs, ConfigList& rhs) {
+        using std::swap;
+        swap(static_cast<ConfigEntry&>(lhs), static_cast<ConfigEntry&>(rhs));
+        swap(lhs.m_entries, rhs.m_entries);
+    }
 
     const ConfigEntry& ConfigList::operator[](const size_t index) const {
         assert(index < count());
@@ -97,22 +152,64 @@ namespace TrenchBroom {
         return m_entries.size();
     }
     
-    void ConfigList::addEntry(ConfigEntry::Ptr entry) {
+    void ConfigList::addEntry(ConfigEntry* entry) {
         m_entries.push_back(entry);
     }
 
-    void ConfigList::doAppendToStream(std::ostream& stream) const {
-        stream << "{";
-        if (!m_entries.empty()) {
-            for (size_t i = 0; i < m_entries.size() - 1; ++i)
-                stream << m_entries[i] << ",";
-            stream << m_entries.back();
+    ConfigEntry* ConfigList::doClone() const {
+        return new ConfigList(*this);
+    }
+
+    void ConfigList::doAppendToStream(std::ostream& stream, const String& indent) const {
+        if (m_entries.empty()) {
+            stream << "{}";
+        } else {
+            stream << "{\n";
+            const String childIndent = indent + "    ";
+            for (size_t i = 0; i < m_entries.size(); ++i) {
+                stream << childIndent;
+                m_entries[i]->appendToStream(stream, childIndent);
+                if (i < m_entries.size() - 1)
+                    stream << ",";
+                stream << "\n";
+            }
+            stream << indent << "}";
         }
-        stream << "}";
     }
 
     ConfigTable::ConfigTable() :
-    ConfigEntry(Type_Table) {}
+    ConfigEntry(Type_Table, 0, 0) {}
+
+    ConfigTable::ConfigTable(const size_t line, const size_t column) :
+    ConfigEntry(Type_Table, line, column) {}
+
+    ConfigTable::ConfigTable(const ConfigTable& other) :
+    ConfigEntry(Type_Table, other.line(), other.column()) {
+        EntryMap::const_iterator it, end;
+        for (it = other.m_entries.begin(), end = other.m_entries.end(); it != end; ++it) {
+            const String& key = it->first;
+            const ConfigEntry* original = it->second;
+            m_entries.insert(std::make_pair(key, original->clone()));
+            m_keys.insert(key);
+        }
+    }
+    
+    ConfigTable::~ConfigTable() {
+        MapUtils::clearAndDelete(m_entries);
+    }
+    
+    ConfigTable& ConfigTable::operator=(ConfigTable other) {
+        using std::swap;
+        swap(*this, other);
+        return *this;
+    }
+    
+    void swap(ConfigTable& lhs, ConfigTable& rhs) {
+        using std::swap;
+        swap(static_cast<ConfigEntry&>(lhs), static_cast<ConfigEntry&>(rhs));
+        swap(lhs.m_keys, rhs.m_keys);
+        swap(lhs.m_entries, rhs.m_entries);
+    }
 
     const StringSet& ConfigTable::keys() const {
         return m_keys;
@@ -132,23 +229,34 @@ namespace TrenchBroom {
         return m_keys.count(key) > 0;
     }
 
-    void ConfigTable::addEntry(const String& key, ConfigEntry::Ptr entry) {
+    void ConfigTable::addEntry(const String& key, ConfigEntry* entry) {
         if (MapUtils::insertOrReplace(m_entries, key, entry))
             m_keys.insert(key);
     }
 
-    void ConfigTable::doAppendToStream(std::ostream& stream) const {
-        stream << "{";
-        EntryMap::const_iterator it = m_entries.begin();
-        EntryMap::const_iterator end = m_entries.end();
-        while (it != end) {
-            const String& key = it->first;
-            const ConfigEntry::Ptr entry = it->second;
-            stream << key << "=" << entry;
-            ++it;
-            if (it != end)
-                stream << ",";
+    ConfigEntry* ConfigTable::doClone() const {
+        return new ConfigTable(*this);
+    }
+
+    void ConfigTable::doAppendToStream(std::ostream& stream, const String& indent) const {
+        if (m_entries.empty()) {
+            stream << indent << "{}";
+        } else {
+            const String childIndent = indent + "    ";
+            stream << "{\n";
+            EntryMap::const_iterator it = m_entries.begin();
+            EntryMap::const_iterator end = m_entries.end();
+            while (it != end) {
+                const String& key = it->first;
+                const ConfigEntry* entry = it->second;
+                stream << childIndent << key << " = ";
+                entry->appendToStream(stream, childIndent);
+                ++it;
+                if (it != end)
+                    stream << ",";
+                stream << "\n";
+            }
         }
-        stream << "}";
+        stream << indent << "}";
     }
 }

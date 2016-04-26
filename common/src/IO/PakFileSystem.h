@@ -61,6 +61,7 @@ namespace TrenchBroom {
         private:
             void readDirectory();
             
+            Path doMakeAbsolute(const Path& relPath) const;
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             

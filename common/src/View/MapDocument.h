@@ -186,8 +186,7 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            bool canLoadPointFile() const;
-            void loadPointFile();
+            void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             void unloadPointFile();
         public: // selection
@@ -312,7 +311,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(UndoableCommand::Ptr command);
+            bool submit(Command::Ptr command);
+            bool submitAndStore(UndoableCommand::Ptr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -327,7 +327,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(UndoableCommand::Ptr command) = 0;
+            virtual bool doSubmit(Command::Ptr command) = 0;
+            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -390,6 +391,9 @@ namespace TrenchBroom {
         public:
             StringList mods() const;
             void setMods(const StringList& mods);
+        public: // game engine parameter specs
+            ::StringMap gameEngineParameterSpecs() const;
+            void setGameEngineParameterSpec(const String& name, const String& spec);
         private: // issue management
             void registerIssueGenerators();
         public:
@@ -397,7 +401,8 @@ namespace TrenchBroom {
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // document path
-            const String filename() const;
+            bool persistent() const;
+            String filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);

@@ -22,9 +22,14 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "IO/CompilationConfigParser.h"
+#include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/GameConfigParser.h"
+#include "IO/GameEngineConfigParser.h"
+#include "IO/GameEngineConfigWriter.h"
 #include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
@@ -37,6 +42,11 @@
 
 namespace TrenchBroom {
     namespace Model {
+        GameFactory::~GameFactory() {
+            writeCompilationConfigs();
+            writeGameEngineConfigs();
+        }
+
         GameFactory& GameFactory::instance() {
             static GameFactory instance;
             return instance;
@@ -50,7 +60,7 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GamePtr GameFactory::createGame(const String& gameName) const {
+        GamePtr GameFactory::createGame(const String& gameName) {
             return GamePtr(new GameImpl(gameConfig(gameName), gamePath(gameName)));
         }
         
@@ -87,6 +97,20 @@ namespace TrenchBroom {
             Preference<IO::Path>& pref = it->second;
             return pref.path() == prefPath;
         }
+        
+        GameConfig& GameFactory::gameConfig(const String& name) {
+            ConfigMap::iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
+        }
+        
+        const GameConfig& GameFactory::gameConfig(const String& name) const {
+            ConfigMap::const_iterator cIt = m_configs.find(name);
+            if (cIt == m_configs.end())
+                throw GameException("Unknown game: " + name);
+            return cIt->second;
+        }
 
         std::pair<String, MapFormat::Type> GameFactory::detectGame(const IO::Path& path) const {
             if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
@@ -103,49 +127,102 @@ namespace TrenchBroom {
         }
 
         GameFactory::GameFactory() {
+            initializeFileSystem();
             loadGameConfigs();
         }
         
+        void GameFactory::initializeFileSystem() {
+            const IO::Path resourceGameDir = IO::SystemPaths::resourceDirectory() + IO::Path("games");
+            if (IO::Disk::directoryExists(resourceGameDir))
+                m_configFS.addReadableFileSystem(new IO::DiskFileSystem(resourceGameDir));
+
+            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            m_configFS.addWritableFileSystem(new IO::WritableDiskFileSystem(userGameDir, true));
+        }
+
         void GameFactory::loadGameConfigs() {
-            const IO::Path resourceDir = IO::SystemPaths::resourceDirectory();
-            if (!IO::Disk::directoryExists(resourceDir))
-                return;
-            
-            const IO::DiskFileSystem fs(resourceDir);
-            if (!fs.directoryExists(IO::Path("games")))
-                return;
-            
-            const IO::Path::List configFiles = fs.findItems(IO::Path("games"), IO::FileSystem::ExtensionMatcher("cfg"));
+            const IO::Path::List configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
             
             IO::Path::List::const_iterator it, end;
             for (it = configFiles.begin(), end = configFiles.end(); it != end; ++it) {
                 const IO::Path& configFilePath = *it;
-                loadGameConfig(fs, configFilePath);
+                loadGameConfig(configFilePath);
             }
             
             StringUtils::sortCaseSensitive(m_names);
         }
 
-        void GameFactory::loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path) {
+        void GameFactory::loadGameConfig(const IO::Path& path) {
             try {
-                const IO::MappedFile::Ptr configFile = fs.openFile(path);
-                IO::GameConfigParser parser(configFile->begin(), configFile->end(), fs.makeAbsolute(path));
+                const IO::MappedFile::Ptr configFile = m_configFS.openFile(path);
+                IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS.makeAbsolute(path));
                 GameConfig config = parser.parse();
+                loadCompilationConfig(config);
+                loadGameEngineConfig(config);
+
                 m_configs.insert(std::make_pair(config.name(), config));
                 m_names.push_back(config.name());
 
-                const IO::Path prefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
-                m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(prefPath, IO::Path(""))));
+                const IO::Path gamePathPrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
+                m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(gamePathPrefPath, IO::Path())));
+                
+                const IO::Path defaultEnginePrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Default Engine");
+                m_defaultEngines.insert(std::make_pair(config.name(), Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
             } catch (const Exception& e) {
                 throw GameException("Cannot load game configuration '" + path.asString() + "': " + String(e.what()));
             }
         }
 
-        const GameConfig& GameFactory::gameConfig(const String& name) const {
-            ConfigMap::const_iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
-                throw GameException("Unknown game: " + name);
-            return cIt->second;
+        void GameFactory::loadCompilationConfig(GameConfig& gameConfig) {
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            if (m_configFS.fileExists(profilesPath)) {
+                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                gameConfig.setCompilationConfig(parser.parse());
+            }
+        }
+        
+        void GameFactory::loadGameEngineConfig(GameConfig& gameConfig) {
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
+            if (m_configFS.fileExists(profilesPath)) {
+                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                gameConfig.setGameEngineConfig(parser.parse());
+            }
+        }
+
+        void GameFactory::writeCompilationConfigs() {
+            ConfigMap::const_iterator it, end;
+            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+                const GameConfig& gameConfig = it->second;
+                writeCompilationConfig(gameConfig);
+            }
+        }
+        
+        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig) {
+            StringStream stream;
+            IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
+            writer.writeConfig();
+            
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            m_configFS.createFile(profilesPath, stream.str());
+        }
+
+        void GameFactory::writeGameEngineConfigs() {
+            ConfigMap::const_iterator it, end;
+            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+                const GameConfig& gameConfig = it->second;
+                writeGameEngineConfig(gameConfig);
+            }
+        }
+        
+        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
+            StringStream stream;
+            IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
+            writer.writeConfig();
+            
+            const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
+            m_configFS.createFile(profilesPath, stream.str());
         }
     }
 }

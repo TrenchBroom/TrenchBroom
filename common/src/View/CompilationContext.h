@@ -17,39 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ReplaceTextureFrame
-#define TrenchBroom_ReplaceTextureFrame
+#ifndef CompilationContext_h
+#define CompilationContext_h
 
-#include "Model/ModelTypes.h"
+#include "Logger.h"
+#include "StringUtils.h"
+#include "VariableHelper.h"
+#include "View/TextCtrlOutputAdapter.h"
 #include "View/ViewTypes.h"
 
-#include <wx/frame.h>
+#include <wx/string.h>
+#include <wx/thread.h>
 
 namespace TrenchBroom {
     namespace View {
-        class GLContextManager;
-        class TextureBrowser;
-        
-        class ReplaceTextureFrame : public wxFrame {
+        class CompilationContext {
         private:
             MapDocumentWPtr m_document;
+            VariableTable m_variables;
             
-            TextureBrowser* m_subjectBrowser;
-            TextureBrowser* m_replacementBrowser;
+            TextCtrlOutputAdapter m_output;
         public:
-            ReplaceTextureFrame(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const TextCtrlOutputAdapter& output);
             
-            void OnReplace(wxCommandEvent& event);
-        private:
-            Model::BrushFaceList getApplicableFaces() const;
-        public:
-            void OnClose(wxCommandEvent& event);
+            MapDocumentSPtr document() const;
             
-            void OnUpdateReplaceButton(wxUpdateUIEvent& event);
-        private:
-            void createGui(GLContextManager& contextManager);
+            String translateVariables(const String& input) const;
+            String variableValue(const String& variableName) const;
+            
+            template <typename T>
+            CompilationContext& operator<<(const T& t) {
+                m_output << t;
+                return *this;
+            }
         };
     }
 }
 
-#endif /* defined(TrenchBroom_ReplaceTextureFrame) */
+
+#endif /* CompilationContext_h */

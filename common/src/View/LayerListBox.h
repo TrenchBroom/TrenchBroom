@@ -17,13 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayerListView
-#define TrenchBroom_LayerListView
+#ifndef TrenchBroom_LayerListBox
+#define TrenchBroom_LayerListBox
 
 #include "Model/ModelTypes.h"
+#include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
-
-#include <wx/panel.h>
 
 #include <vector>
 
@@ -66,29 +65,21 @@ namespace TrenchBroom {
             virtual wxEvent* Clone() const;
         };
 
-        class LayerListView : public wxPanel {
+        class LayerListBox : public ControlListBox {
         private:
-            class LayerEntry;
-
-            typedef std::vector<LayerEntry*> LayerEntryList;
+            class LayerItem;
 
             MapDocumentWPtr m_document;
-
-            wxScrolledWindow* m_scrollWindow;
-            LayerEntryList m_entries;
-
-            int m_selection;
         public:
-            LayerListView(wxWindow* parent, MapDocumentWPtr document);
-            ~LayerListView();
+            LayerListBox(wxWindow* parent, MapDocumentWPtr document);
+            ~LayerListBox();
 
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
 
-            void OnMouseEntryDown(wxMouseEvent& event);
-            void OnMouseEntryDClick(wxMouseEvent& event);
-            void OnMouseEntryRightUp(wxMouseEvent& event);
-            void OnMouseVoidDown(wxMouseEvent& event);
+            void OnSelectionChanged(wxCommandEvent& event);
+            void OnDoubleClick(wxCommandEvent& event);
+            void OnRightClick(wxCommandEvent& event);
         private:
             void bindObservers();
             void unbindObservers();
@@ -97,12 +88,11 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void currentLayerDidChange();
 
-            void createGui();
-
-            void reload();
-            void refresh();
+            void bindEvents();
+        private:
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_LayerListView) */
+#endif /* defined(TrenchBroom_LayerListBox) */

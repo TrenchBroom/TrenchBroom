@@ -34,4 +34,6 @@
 
 #define assertResult(funexp) if (!(funexp)) assert(false);
 
+#define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
+
 #endif

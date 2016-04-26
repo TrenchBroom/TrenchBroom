@@ -33,19 +33,22 @@
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
+#include "View/CompilationDialog.h"
 #include "View/Console.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
+#include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
 #include "View/OpenClipboard.h"
-#include "View/ReplaceTextureFrame.h"
+#include "View/ReplaceTextureDialog.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -69,7 +72,8 @@ namespace TrenchBroom {
         m_console(NULL),
         m_inspector(NULL),
         m_lastFocus(NULL),
-        m_gridChoice(NULL) {}
+        m_gridChoice(NULL),
+        m_compilationDialog(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "TrenchBroom"),
@@ -81,7 +85,8 @@ namespace TrenchBroom {
         m_console(NULL),
         m_inspector(NULL),
         m_lastFocus(NULL),
-        m_gridChoice(NULL)  {
+        m_gridChoice(NULL),
+        m_compilationDialog(NULL)  {
             Create(frameManager, document);
         }
 
@@ -186,8 +191,7 @@ namespace TrenchBroom {
 
         bool MapFrame::saveDocument() {
             try {
-                const IO::Path& path = m_document->path();
-                if (path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
+                if (m_document->persistent()) {
                     m_document->saveDocument();
                     logger()->info("Saved " + m_document->path().asString());
                     return true;
@@ -330,6 +334,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
+            setWindowIcon(this);
+
             m_hSplitter = new SplitterWindow2(this);
             m_hSplitter->setSashGravity(1.0);
             m_hSplitter->SetName("MapFrameHSplitter");
@@ -507,6 +513,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleInfoPanel, this, CommandIds::Menu::ViewToggleInfoPanel);
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleInspector, this, CommandIds::Menu::ViewToggleInspector);
 
+            Bind(wxEVT_MENU, &MapFrame::OnRunCompile, this, CommandIds::Menu::RunCompile);
+            Bind(wxEVT_MENU, &MapFrame::OnRunLaunch, this, CommandIds::Menu::RunLaunch);
+            
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
@@ -556,8 +565,14 @@ namespace TrenchBroom {
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            if (canLoadPointFile())
-                m_document->loadPointFile();
+            
+            wxString defaultDir;
+            if (!m_document->path().isEmpty())
+                defaultDir = m_document->path().deleteLastComponent().asString();
+            wxFileDialog browseDialog(this, "Load Point File", defaultDir, wxEmptyString, "Point files (*.pts)|*.pts|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+            if (browseDialog.ShowModal() == wxID_OK)
+                m_document->loadPointFile(IO::Path(browseDialog.GetPath().ToStdString()));
         }
 
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
@@ -763,7 +778,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
+            ReplaceTextureDialog* frame = new ReplaceTextureDialog(this, m_document, *m_contextManager);
             frame->CenterOnParent();
             frame->Show();
         }
@@ -974,6 +989,28 @@ namespace TrenchBroom {
                 m_hSplitter->maximize(m_vSplitter);
         }
 
+        void MapFrame::OnRunCompile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (m_compilationDialog == NULL) {
+                m_compilationDialog = new CompilationDialog(this);
+                m_compilationDialog->Show();
+            } else {
+                m_compilationDialog->Raise();
+            }
+        }
+
+        void MapFrame::compilationDialogWillClose() {
+            m_compilationDialog = NULL;
+        }
+
+        void MapFrame::OnRunLaunch(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            LaunchGameEngineDialog dialog(this, m_document);
+            dialog.ShowModal();
+        }
+        
         void MapFrame::OnDebugPrintVertices(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1060,7 +1097,7 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileLoadPointFile:
-                    event.Enable(canLoadPointFile());
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
@@ -1261,6 +1298,12 @@ namespace TrenchBroom {
                     event.Enable(true);
                     event.Check(m_hSplitter->isMaximized(m_vSplitter));
                     break;
+                case CommandIds::Menu::RunCompile:
+                    event.Enable(canCompile());
+                    break;
+                case CommandIds::Menu::RunLaunch:
+                    event.Enable(canLaunch());
+                    break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
@@ -1287,10 +1330,6 @@ namespace TrenchBroom {
             const size_t size = static_cast<size_t>(event.GetSelection());
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
-        }
-
-        bool MapFrame::canLoadPointFile() const {
-            return m_document->canLoadPointFile();
         }
 
         bool MapFrame::canUnloadPointFile() const {
@@ -1403,15 +1442,27 @@ namespace TrenchBroom {
             return m_document->hasSelectedNodes();
         }
 
+        bool MapFrame::canCompile() const {
+            return m_document->persistent();
+        }
+
+        bool MapFrame::canLaunch() const {
+            return m_document->persistent();
+        }
+
         void MapFrame::OnClose(wxCloseEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (!IsBeingDeleted()) {
-                assert(m_frameManager != NULL);
-                if (event.CanVeto() && !confirmOrDiscardChanges())
+                if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
                     event.Veto();
-                else
-                    m_frameManager->removeAndDestroyFrame(this);
+                } else {
+                    assert(m_frameManager != NULL);
+                    if (event.CanVeto() && !confirmOrDiscardChanges())
+                        event.Veto();
+                    else
+                        m_frameManager->removeAndDestroyFrame(this);
+                }
             }
         }
 

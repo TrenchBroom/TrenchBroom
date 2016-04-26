@@ -85,6 +85,7 @@ namespace TrenchBroom {
             
             bool canRemoveAttribute(const AttributeName& name) const;
             void removeAttribute(const AttributeName& name);
+            void removeNumberedAttribute(const AttributeName& prefix);
             
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;

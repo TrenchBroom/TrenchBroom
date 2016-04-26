@@ -24,6 +24,8 @@
 #include "StringUtils.h"
 #include "IO/Path.h"
 #include "Model/BrushContentType.h"
+#include "Model/CompilationConfig.h"
+#include "Model/GameEngineConfig.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -32,11 +34,18 @@ namespace TrenchBroom {
     namespace Model {
         class GameConfig {
         public:
+            struct PackageFormatConfig {
+                String extension;
+                String format;
+                
+                PackageFormatConfig(const String& i_extension, const String& i_format);
+            };
+            
             struct FileSystemConfig {
                 IO::Path searchPath;
-                String packageFormat;
+                PackageFormatConfig packageFormat;
                 
-                FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat);
+                FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
             };
             
             struct TextureConfig {
@@ -95,6 +104,9 @@ namespace TrenchBroom {
             EntityConfig m_entityConfig;
             FaceAttribsConfig m_faceAttribsConfig;
             BrushContentType::List m_brushContentTypes;
+            CompilationConfig m_compilationConfig;
+            GameEngineConfig m_gameEngineConfig;
+            size_t m_maxPropertyValueLength;
         public:
             GameConfig();
             GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
@@ -108,6 +120,17 @@ namespace TrenchBroom {
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
             const BrushContentType::List& brushContentTypes() const;
+            
+            CompilationConfig& compilationConfig();
+            const CompilationConfig& compilationConfig() const;
+            void setCompilationConfig(const CompilationConfig& compilationConfig);
+            
+            GameEngineConfig& gameEngineConfig();
+            const GameEngineConfig& gameEngineConfig() const;
+            void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
+            
+            size_t maxPropertyValueLength() const;
+            
             const IO::Path findConfigFile(const IO::Path& filePath) const;
             
             void addBrushContentType(const BrushContentType& contentType);

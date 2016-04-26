@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace View {
         class LayerCommand;
-        class LayerListView;
+        class LayerListBox;
         
         class LayerEditor : public wxPanel {
         private:
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             static const int RemoveLayerCommandId = 5;
 
             MapDocumentWPtr m_document;
-            LayerListView* m_layerList;
+            LayerListBox* m_layerList;
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document);
         private:

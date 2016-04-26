@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 
 #include <algorithm>
@@ -188,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
             
             const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(DiskFileSystemTest, directoryExists) {
@@ -250,7 +251,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
-            items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("TXT"));
+            items = fs.findItems(Path(""), FileExtensionMatcher("TXT"));
             ASSERT_EQ(1u, items.size());
             ASSERT_EQ(Path("test.txt"), items.front());
 
@@ -282,7 +283,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
             
-            items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("MAP"));
+            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP"));
             ASSERT_EQ(3u, items.size());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
@@ -326,7 +327,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
             
             const WritableDiskFileSystem fs(env.dir() + Path("anotherDir/.."), false);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(WritableDiskFileSystemTest, createDirectory) {
@@ -417,6 +418,46 @@ namespace TrenchBroom {
             fs.moveFile(Path("test2.map"),
                         Path("dir1/test2.map"), true);
             ASSERT_FALSE(fs.fileExists(Path("test2.map")));
+            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+        }
+        
+        TEST(WritableDiskFileSystemTest, copyFile) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.copyFile(Path("c:\\hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("C:\\dest.txt"), false), FileSystemException);
+#else
+            ASSERT_THROW(fs.copyFile(Path("/hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("/dest.txt"), false), FileSystemException);
+#endif
+            
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("test2.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/test3.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
+            
+            fs.copyFile(Path("test.txt"),
+                        Path("test2.txt"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            
+            fs.copyFile(Path("test2.txt"),
+                        Path("test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            // we're trusting that the file is actually overwritten (should really test the contents here...)
+            
+            fs.copyFile(Path("test2.map"),
+                        Path("dir1/test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
             ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
         }
     }

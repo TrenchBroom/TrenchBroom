@@ -128,7 +128,7 @@ namespace TrenchBroom {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
-	    // This causes some shortcuts such as "2" to not work on Windows.
+            // This causes some shortcuts such as "2" to not work on Windows.
             // But it's necessary to enable one key menu shortcuts to work on GTK.
             addMenuActions(context, view, tableEntries);
 #endif
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             exportMenu->addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
             
             fileMenu->addSeparator();
-            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
@@ -242,7 +242,6 @@ namespace TrenchBroom {
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
-
             
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
@@ -283,6 +282,9 @@ namespace TrenchBroom {
             viewMenu->addSeparator();
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
             
+            Menu* runMenu = m_menuBar->addMenu("Run");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunLaunch, "Launch...");
 
 #ifndef NDEBUG
             Menu* debugMenu = m_menuBar->addMenu("Debug");

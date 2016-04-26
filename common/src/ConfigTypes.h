@@ -21,7 +21,6 @@
 #define TrenchBroom_ConfigTypes_h
 
 #include "StringUtils.h"
-#include "SharedPointer.h"
 
 #include <map>
 #include <set>
@@ -39,12 +38,18 @@ namespace TrenchBroom {
             Type_List   = 1 << 1,
             Type_Table  = 1 << 2
         } Type;
-        
-        typedef std::tr1::shared_ptr<ConfigEntry> Ptr;
     private:
         Type m_type;
+        size_t m_line;
+        size_t m_column;
     public:
         virtual ~ConfigEntry();
+        
+        size_t line() const;
+        size_t column() const;
+        
+        ConfigEntry* clone() const;
+        
         Type type() const;
         
         operator const String&() const;
@@ -54,63 +59,77 @@ namespace TrenchBroom {
         
         void appendToStream(std::ostream& stream) const;
         String asString() const;
+    public:
+        void appendToStream(std::ostream& stream, const String& indent) const;
+    public:
+        friend void swap(ConfigEntry& lhs, ConfigEntry& rhs);
     private:
-        virtual void doAppendToStream(std::ostream& stream) const = 0;
+        virtual ConfigEntry* doClone() const = 0;
+        virtual void doAppendToStream(std::ostream& stream, const String& indent) const = 0;
     protected:
-        ConfigEntry(const Type type);
+        ConfigEntry(const Type type, size_t line, size_t column);
     };
     
-    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr& entry);
     std::ostream& operator<<(std::ostream& stream, const ConfigEntry* entry);
     
     class ConfigValue : public ConfigEntry {
-    public:
-        typedef std::tr1::shared_ptr<ConfigValue> Ptr;
     private:
         String m_value;
     public:
         ConfigValue(const String& value);
-
+        ConfigValue(const String& value, size_t line, size_t column);
+        
         operator const String&() const;
     private:
-        void doAppendToStream(std::ostream& stream) const;
+        ConfigEntry* doClone() const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
     
     class ConfigList : public ConfigEntry {
-    public:
-        typedef std::tr1::shared_ptr<ConfigList> Ptr;
     private:
-        typedef std::vector<ConfigEntry::Ptr> EntryList;
+        typedef std::vector<ConfigEntry*> EntryList;
         EntryList m_entries;
     public:
         ConfigList();
+        ConfigList(size_t line, size_t column);
+        ConfigList(const ConfigList& other);
+        ~ConfigList();
+        
+        ConfigList& operator=(ConfigList other);
+        friend void swap(ConfigList& lhs, ConfigList& rhs);
         
         const ConfigEntry& operator[](const size_t index) const;
         size_t count() const;
         
-        void addEntry(ConfigEntry::Ptr entry);
+        void addEntry(ConfigEntry* entry);
     private:
-        void doAppendToStream(std::ostream& stream) const;
+        ConfigEntry* doClone() const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
     
     class ConfigTable : public ConfigEntry {
-    public:
-        typedef std::tr1::shared_ptr<ConfigTable> Ptr;
     private:
-        typedef std::map<String, ConfigEntry::Ptr> EntryMap;
+        typedef std::map<String, ConfigEntry*> EntryMap;
         StringSet m_keys;
         EntryMap m_entries;
     public:
         ConfigTable();
+        ConfigTable(size_t line, size_t column);
+        ConfigTable(const ConfigTable& other);
+        ~ConfigTable();
+        
+        ConfigTable& operator=(ConfigTable other);
+        friend void swap(ConfigTable& lhs, ConfigTable& rhs);
         
         const StringSet& keys() const;
         const ConfigEntry& operator[](const String& key) const;
         size_t count() const;
         bool contains(const String& key) const;
         
-        void addEntry(const String& key, ConfigEntry::Ptr entry);
+        void addEntry(const String& key, ConfigEntry* entry);
     private:
-        void doAppendToStream(std::ostream& stream) const;
+        ConfigEntry* doClone() const;
+        void doAppendToStream(std::ostream& stream, const String& indent) const;
     };
 }
 

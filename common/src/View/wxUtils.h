@@ -32,6 +32,7 @@ class wxCursor;
 class wxFrame;
 class wxListCtrl;
 class wxSizer;
+class wxTopLevelWindow;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         wxFrame* findFrame(wxWindow* window);
         bool isNonOwned(wxWindow* window);
 
+        wxColor makeLighter(const wxColor& color);
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
 
@@ -49,9 +51,13 @@ namespace TrenchBroom {
         
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
         wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip);
+
+        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message);
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 
+        void setWindowIcon(wxTopLevelWindow* window);
+        
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
     }
 }

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ConfigParser
-#define TrenchBroom_ConfigParser
+#ifndef TrenchBroom_ConfigFileParser
+#define TrenchBroom_ConfigFileParser
 
 #include "ConfigTypes.h"
 #include "IO/Parser.h"
@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace ConfigToken {
+        namespace ConfigFileToken {
             typedef size_t Type;
             static const Type Identifier    = 1 <<  1; // string
             static const Type String        = 1 <<  2; // "string"
@@ -39,32 +39,32 @@ namespace TrenchBroom {
             static const Type Eof           = 1 <<  8; // end of file
         }
 
-        class ConfigTokenizer : public Tokenizer<ConfigToken::Type> {
+        class ConfigFileTokenizer : public Tokenizer<ConfigFileToken::Type> {
         public:
-            ConfigTokenizer(const char* begin, const char* end);
-            ConfigTokenizer(const String& str);
+            ConfigFileTokenizer(const char* begin, const char* end);
+            ConfigFileTokenizer(const String& str);
         private:
             Token emitToken();
         };
 
-        class ConfigParser :  public Parser<ConfigToken::Type> {
+        class ConfigFileParser :  public Parser<ConfigFileToken::Type> {
         private:
-            ConfigTokenizer m_tokenizer;
-            typedef ConfigTokenizer::Token Token;
+            ConfigFileTokenizer m_tokenizer;
+            typedef ConfigFileTokenizer::Token Token;
         public:
-            ConfigParser(const char* begin, const char* end);
-            ConfigParser(const String& str);
+            ConfigFileParser(const char* begin, const char* end);
+            ConfigFileParser(const String& str);
             
-            ConfigEntry::Ptr parse();
+            ConfigEntry* parse();
         private:
-            ConfigEntry::Ptr parseEntry();
+            ConfigEntry* parseEntry();
             ConfigEntry::Type detectEntryType();
-            ConfigEntry::Ptr parseValue();
-            ConfigEntry::Ptr parseList();
-            ConfigEntry::Ptr parseTable();
+            ConfigEntry* parseValue();
+            ConfigEntry* parseList();
+            ConfigEntry* parseTable();
             TokenNameMap tokenNames() const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_ConfigParser) */
+#endif /* defined(TrenchBroom_ConfigFileParser) */

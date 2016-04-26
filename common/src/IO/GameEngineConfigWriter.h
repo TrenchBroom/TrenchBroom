@@ -17,33 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AboutFrame
-#define TrenchBroom_AboutFrame
+#ifndef GameEngineConfigWriter_h
+#define GameEngineConfigWriter_h
 
-#include <wx/frame.h>
+#include "ConfigTypes.h"
+#include "Macros.h"
 
-#include "StringUtils.h"
-
-class wxStaticText;
-class wxWindow;
+#include <iostream>
 
 namespace TrenchBroom {
-    namespace View {
-        class AboutFrame : public wxFrame {
+    namespace Model {
+        class GameEngineConfig;
+        class GameEngineProfile;
+    }
+    
+    namespace IO {
+        class GameEngineConfigWriter {
         private:
-            static AboutFrame* instance;
+            const Model::GameEngineConfig& m_config;
+            std::ostream& m_stream;
         public:
-            static void showAboutFrame();
+            GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream);
             
-            ~AboutFrame();
-            
-            void OnClickUrl(wxMouseEvent& event);
+            void writeConfig();
         private:
-            AboutFrame();
-            void createGui();
-            wxStaticText* createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url);
+            ConfigList* writeProfiles(const Model::GameEngineConfig& config) const;
+            ConfigTable* writeProfile(const Model::GameEngineProfile* profile) const;
+            
+            deleteCopyAndAssignment(GameEngineConfigWriter)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_AboutFrame) */
+#endif /* GameEngineConfigWriter_h */

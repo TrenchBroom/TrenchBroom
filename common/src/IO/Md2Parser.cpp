@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystemHierarchy.h"
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystemHierarchy& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */

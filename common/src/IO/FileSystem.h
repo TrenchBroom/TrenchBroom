@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_FileSystem
 #define TrenchBroom_FileSystem
 
+#include "Functor.h"
 #include "StringUtils.h"
+#include "IO/DiskIO.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
 
@@ -32,22 +34,6 @@ namespace TrenchBroom {
         
         class FileSystem {
         public:
-            class TypeMatcher {
-            private:
-                bool m_files;
-                bool m_directories;
-            public:
-                TypeMatcher(const bool files = true, const bool directories = true);
-                bool operator()(const Path& path, const bool directory) const;
-            };
-
-            class ExtensionMatcher {
-            private:
-                String m_extension;
-            public:
-                ExtensionMatcher(const String& extension);
-                bool operator()(const Path& path, const bool directory) const;
-            };
         public:
             FileSystem();
             FileSystem(const FileSystem& other);
@@ -55,6 +41,8 @@ namespace TrenchBroom {
             
             FileSystem& operator=(const FileSystem& other);
 
+            Path makeAbsolute(const Path& relPath) const;
+            
             bool directoryExists(const Path& path) const;
             bool fileExists(const Path& path) const;
 
@@ -77,8 +65,8 @@ namespace TrenchBroom {
             Path::List getDirectoryContents(const Path& path) const;
             const MappedFile::Ptr openFile(const Path& path) const;
         private:
-            template <class Matcher>
-            void doFindItems(const Path& searchPath, const Matcher& matcher, const bool recurse, Path::List& result) const {
+            template <class M>
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
                 const Path::List contents = getDirectoryContents(searchPath);
                 Path::List::const_iterator it, end;
                 for (it = contents.begin(), end = contents.end(); it != end; ++it) {
@@ -90,7 +78,8 @@ namespace TrenchBroom {
                         result.push_back(searchPath + itemPath);
                 }
             }
-            
+
+            virtual Path doMakeAbsolute(const Path& relPath) const = 0;
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
             
@@ -99,7 +88,7 @@ namespace TrenchBroom {
             virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
         };
         
-        class WritableFileSystem {
+        class WritableFileSystem : public virtual FileSystem {
         public:
             WritableFileSystem();
             WritableFileSystem(const WritableFileSystem& other);
@@ -107,13 +96,17 @@ namespace TrenchBroom {
             
             WritableFileSystem& operator=(const WritableFileSystem& other);
             
+            void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
-            void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
+            void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         private:
+            virtual void doCreateFile(const Path& path, const String& contents) = 0;
             virtual void doCreateDirectory(const Path& path) = 0;
             virtual void doDeleteFile(const Path& path) = 0;
-            virtual void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) = 0;
+            virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+            virtual void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
         };
     }
 }
