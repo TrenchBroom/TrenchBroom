@@ -137,12 +137,22 @@ namespace TrenchBroom {
         }
 
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
-            sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogButtonSideMargin);
-            sizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
-            return sizer;
+            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+            hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
+            hSizer->Add(buttonSizer, wxSizerFlags().Expand().Proportion(1));
+            hSizer->AddSpacer(LayoutConstants::DialogButtonRightMargin);
+            
+            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            vSizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            vSizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
+            vSizer->Add(hSizer, wxSizerFlags().Expand());
+            vSizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
+            return vSizer;
+        }
+
+        void setWindowIcon(wxTopLevelWindow* window) {
+            assert(window != NULL);
+            window->SetIcon(IO::loadIconResource(IO::Path("AppIcon")));
         }
 
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {

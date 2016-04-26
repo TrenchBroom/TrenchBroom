@@ -42,7 +42,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
-        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX),
+        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
         m_mapFrame(mapFrame),
         m_currentRunLabel(NULL),
         m_output(NULL) {
@@ -53,6 +53,8 @@ namespace TrenchBroom {
         }
         
         void CompilationDialog::createGui() {
+            setWindowIcon(this);
+
             MapDocumentSPtr document = m_mapFrame->document();
             Model::GamePtr game = document->game();
             Model::CompilationConfig& compilationConfig = game->compilationConfig();
@@ -77,8 +79,8 @@ namespace TrenchBroom {
             outerPanel->SetSizer(outerPanelSizer);
             
             wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
-            wxButton* compileButton = new wxButton(this, wxID_ANY, "Compile");
-            wxButton* closeButton = new wxButton(this, wxID_CLOSE, "Close");
+            wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             
             launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
             launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
@@ -86,10 +88,10 @@ namespace TrenchBroom {
             compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
 			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
             
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetAffirmativeButton(compileButton);
-			buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
+            stdButtonSizer->SetAffirmativeButton(compileButton);
+			stdButtonSizer->SetCancelButton(closeButton);
+            stdButtonSizer->Realize();
             
             m_currentRunLabel = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
             
@@ -98,20 +100,14 @@ namespace TrenchBroom {
             currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
             currentRunLabelSizer->AddStretchSpacer();
             
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(launchButton, wxSizerFlags().CenterVertical().Border(wxLEFT,
-#ifdef __APPLE__
-                                                                                  12
-#else
-                                                                                  6
-#endif
-                                                                                  ));
-            bottomSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
-            bottomSizer->Add(buttonSizer);
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
+            buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
+            buttonSizer->Add(stdButtonSizer);
             
             wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
-            dialogSizer->Add(outerPanel, 1, wxEXPAND);
-            dialogSizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
+            dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
+            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizer(dialogSizer);
             
             m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);

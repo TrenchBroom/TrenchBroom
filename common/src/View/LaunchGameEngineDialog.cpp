@@ -41,7 +41,7 @@
 namespace TrenchBroom {
     namespace View {
         LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
-        wxDialog(parent, wxID_ANY, "Launch Engine", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
+        wxDialog(parent, wxID_ANY, "Launch Engine"),
         m_document(document),
         m_gameEngineList(NULL),
         m_parameterText(NULL),
@@ -50,6 +50,8 @@ namespace TrenchBroom {
         }
         
         void LaunchGameEngineDialog::createGui() {
+            setWindowIcon(this);
+
             MapDocumentSPtr document = lock(m_document);
             const String& gameName = document->game()->gameName();
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, gameName);
@@ -60,7 +62,7 @@ namespace TrenchBroom {
             const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
             const Model::GameEngineConfig& gameEngineConfig = gameConfig.gameEngineConfig();
             m_gameEngineList = new GameEngineProfileListBox(midPanel, gameEngineConfig);
-            m_gameEngineList->SetEmptyText("Click the 'Edit engines...' button to create a game engine profile.");
+            m_gameEngineList->SetEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
             
             wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
             header->SetFont(header->GetFont().Larger().Larger().Bold());
@@ -68,7 +70,7 @@ namespace TrenchBroom {
             wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values. Commandline parameters are stored in a worldspawn property, so the map document will be marked as modified if you change the parameters here.");
             message->Wrap(350);
             
-            wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Edit engines...");
+            wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Configure engines...");
             openPreferencesButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
             
             wxStaticText* parameterLabel = new wxStaticText(midPanel, wxID_ANY, "Parameters");

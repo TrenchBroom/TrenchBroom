@@ -17,33 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AboutFrame
-#define TrenchBroom_AboutFrame
-
-#include <wx/frame.h>
+#ifndef TrenchBroom_AboutDialog
+#define TrenchBroom_AboutDialog
 
 #include "StringUtils.h"
+
+#include <wx/dialog.h>
 
 class wxStaticText;
 class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class AboutFrame : public wxFrame {
+        class AboutDialog : public wxDialog {
         private:
-            static AboutFrame* instance;
+            static AboutDialog* instance;
         public:
-            static void showAboutFrame();
+            static void showAboutDialog();
             
-            ~AboutFrame();
+            ~AboutDialog();
             
             void OnClickUrl(wxMouseEvent& event);
         private:
-            AboutFrame();
+            AboutDialog();
             void createGui();
             wxStaticText* createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url);
+            
+            void OnCancel(wxCommandEvent& event);
+            void OnClose(wxCloseEvent& event);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_AboutFrame) */
+#endif /* defined(TrenchBroom_AboutDialog) */

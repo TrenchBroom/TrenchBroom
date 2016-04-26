@@ -38,7 +38,7 @@
 namespace TrenchBroom {
     namespace View {
         GameEngineDialog::GameEngineDialog(wxWindow* parent, const String& gameName) :
-        wxDialog(parent, wxID_ANY, "Game Engines", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX),
+        wxDialog(parent, wxID_ANY, "Game Engines"),
         m_gameName(gameName),
         m_profileManager(NULL) {
             createGui();
@@ -47,6 +47,8 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::createGui() {
+            setWindowIcon(this);
+
             CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
             
             Model::GameFactory& gameFactory = Model::GameFactory::instance();

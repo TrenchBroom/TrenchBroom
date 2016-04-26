@@ -44,10 +44,11 @@
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
 #include "View/OpenClipboard.h"
-#include "View/ReplaceTextureFrame.h"
+#include "View/ReplaceTextureDialog.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -333,6 +334,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
+            setWindowIcon(this);
+
             m_hSplitter = new SplitterWindow2(this);
             m_hSplitter->setSashGravity(1.0);
             m_hSplitter->SetName("MapFrameHSplitter");
@@ -775,7 +778,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
+            ReplaceTextureDialog* frame = new ReplaceTextureDialog(this, m_document, *m_contextManager);
             frame->CenterOnParent();
             frame->Show();
         }

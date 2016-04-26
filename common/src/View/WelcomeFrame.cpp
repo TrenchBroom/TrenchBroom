@@ -25,6 +25,7 @@
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
+#include "View/wxUtils.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -41,6 +42,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::createGui() {
+            setWindowIcon(this);
+
             wxPanel* container = new wxPanel(this);
             
             wxPanel* appPanel = createAppPanel(container);

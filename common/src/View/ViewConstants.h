@@ -29,7 +29,8 @@ namespace TrenchBroom {
 #if defined _WIN32
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonSideMargin             = 7;
+            static const int DialogButtonLeftMargin             = 7;
+            static const int DialogButtonRightMargin            = 7;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 6;
@@ -48,7 +49,8 @@ namespace TrenchBroom {
 #elif defined __APPLE__
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 0;
-            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonLeftMargin             = 12;
+            static const int DialogButtonRightMargin            = 0;
             static const int DialogButtonBottomMargin           = 3;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
@@ -67,7 +69,8 @@ namespace TrenchBroom {
 #elif defined __linux__ || defined __FreeBSD__
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonLeftMargin             = 8;
+            static const int DialogButtonRightMargin            = 0;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;

@@ -137,6 +137,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
+            setWindowIcon(this);
+
             const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");
@@ -168,26 +170,26 @@ namespace TrenchBroom {
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
 
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 #if !defined __APPLE__
-			bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical());
-			bottomSizer->AddStretchSpacer();
-            bottomSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
+			buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
+			buttonSizer->AddStretchSpacer();
+            buttonSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
 #else
             wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
             closeButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnFileClose, this);
             closeButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateFileClose, this);
             
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
+            stdButtonSizer->SetCancelButton(closeButton);
+            stdButtonSizer->Realize();
             
-            bottomSizer->Add(resetButton, wxSizerFlags().CenterVertical().Border(wxLEFT, 12));
-			bottomSizer->AddStretchSpacer();
-            bottomSizer->Add(buttonSizer, wxSizerFlags().CenterVertical());
+            buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
+			buttonSizer->AddStretchSpacer();
+            buttonSizer->Add(stdButtonSizer, wxSizerFlags().CenterVertical());
 #endif
 
-            sizer->Add(wrapDialogButtonSizer(bottomSizer, this), wxSizerFlags().Expand());
+            sizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             
             SetSizer(sizer);
         }

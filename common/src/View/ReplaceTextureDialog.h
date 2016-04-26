@@ -17,34 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ReplaceTextureFrame
-#define TrenchBroom_ReplaceTextureFrame
+#ifndef TrenchBroom_ReplaceTextureDialog
+#define TrenchBroom_ReplaceTextureDialog
 
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/frame.h>
+#include <wx/dialog.h>
 
 namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         class TextureBrowser;
         
-        class ReplaceTextureFrame : public wxFrame {
+        class ReplaceTextureDialog : public wxDialog {
         private:
             MapDocumentWPtr m_document;
             
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
         public:
-            ReplaceTextureFrame(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             
             void OnReplace(wxCommandEvent& event);
         private:
             Model::BrushFaceList getApplicableFaces() const;
         public:
-            void OnClose(wxCommandEvent& event);
-            
             void OnUpdateReplaceButton(wxUpdateUIEvent& event);
         private:
             void createGui(GLContextManager& contextManager);
@@ -52,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ReplaceTextureFrame) */
+#endif /* defined(TrenchBroom_ReplaceTextureDialog) */

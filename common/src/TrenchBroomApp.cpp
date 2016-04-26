@@ -29,7 +29,7 @@
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
-#include "View/AboutFrame.h"
+#include "View/AboutDialog.h"
 #include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/CrashDialog.h"
@@ -248,7 +248,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openAbout() {
-            AboutFrame::showAboutFrame();
+            AboutDialog::showAboutDialog();
         }
 
         bool TrenchBroomApp::OnInit() {

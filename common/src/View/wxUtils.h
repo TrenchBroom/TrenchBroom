@@ -32,6 +32,7 @@ class wxCursor;
 class wxFrame;
 class wxListCtrl;
 class wxSizer;
+class wxTopLevelWindow;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -55,6 +56,8 @@ namespace TrenchBroom {
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 
+        void setWindowIcon(wxTopLevelWindow* window);
+        
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
     }
 }
