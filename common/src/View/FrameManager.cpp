@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
+#include "View/AboutDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
@@ -115,6 +116,9 @@ namespace TrenchBroom {
             frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             // wxPersistenceManager::Get().SaveAndUnregister(frame);
             frame->Destroy();
+            
+            if (m_singleFrame && m_frames.empty())
+                AboutDialog::closeAboutDialog();
         }
     }
 }
