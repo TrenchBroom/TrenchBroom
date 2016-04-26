@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2016 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace View {
         FrameManager::FrameManager(const bool singleFrame) :
         m_singleFrame(singleFrame) {}
-        
+
         FrameManager::~FrameManager() {
             closeAllFrames(true);
         }
@@ -45,11 +45,11 @@ namespace TrenchBroom {
         MapFrame* FrameManager::newFrame() {
             return createOrReuseFrame();
         }
-        
+
         FrameList FrameManager::frames() const {
             return m_frames;
         }
-        
+
         MapFrame *FrameManager::topFrame() const {
             return m_frames.empty() ? NULL : m_frames.front();
         }
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         bool FrameManager::closeAllFrames() {
             return closeAllFrames(false);
         }
-        
+
         bool FrameManager::allFramesClosed() const {
             return m_frames.empty();
         }
@@ -65,9 +65,11 @@ namespace TrenchBroom {
         void FrameManager::OnFrameActivate(wxActivateEvent& event) {
             if (event.GetActive()) {
                 MapFrame* frame = static_cast<MapFrame*>(event.GetEventObject());
+
                 FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
                 assert(it != m_frames.end());
                 if (it != m_frames.begin()) {
+                    assert(topFrame() != frame);
                     m_frames.erase(it);
                     m_frames.push_front(frame);
                 }
@@ -89,14 +91,13 @@ namespace TrenchBroom {
             frame->SetName("MapFrame");
             if (m_frames.empty()) {
                 wxPersistenceManager::Get().RegisterAndRestore(frame);
-                wxPersistenceManager::Get().Unregister(frame);
-            }
-            else {
+            } else {
                 frame->positionOnScreen(topFrame());
+                wxPersistenceManager::Get().Register(frame);
             }
-            
+
             m_frames.push_front(frame);
-            
+
             frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Show();
             frame->Raise();
@@ -124,14 +125,9 @@ namespace TrenchBroom {
 
             m_frames.erase(it);
 
-            if (m_frames.empty()) {
-                wxPersistenceManager::Get().Register(frame);
-                wxPersistenceManager::Get().SaveAndUnregister(frame);
-                
-                if (wxTheApp->GetExitOnFrameDelete())
-                    AboutDialog::closeAboutDialog();
-            }
-            
+            if (m_frames.empty() || wxTheApp->GetExitOnFrameDelete())
+                AboutDialog::closeAboutDialog();
+
             frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Destroy();
         }
