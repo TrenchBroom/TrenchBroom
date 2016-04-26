@@ -284,7 +284,7 @@ namespace TrenchBroom {
             if (fm == NULL)
                 return MapDocumentSPtr();
             
-            MapFrame *frame = fm->singleOrTopFrame();
+            MapFrame *frame = fm->topFrame();
             if (frame == NULL)
                 return MapDocumentSPtr();
             

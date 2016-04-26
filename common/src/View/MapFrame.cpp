@@ -153,7 +153,7 @@ namespace TrenchBroom {
                     position = displaySize.GetTopLeft();
 
                 SetPosition(position);
-                SetSize(std::min(displaySize.GetRight() - position.x, 1024), std::min(displaySize.GetBottom() - position.y, 768));
+                SetSize(std::min(displaySize.GetRight() - position.x, reference->GetSize().x), std::min(displaySize.GetBottom() - position.y, reference->GetSize().y));
             }
         }
 

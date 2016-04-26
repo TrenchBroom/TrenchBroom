@@ -35,8 +35,7 @@
 namespace TrenchBroom {
     namespace View {
         FrameManager::FrameManager(const bool singleFrame) :
-        m_singleFrame(singleFrame),
-        m_topFrame(NULL) {}
+        m_singleFrame(singleFrame) {}
         
         FrameManager::~FrameManager() {
             closeAllFrames(true);
@@ -50,10 +49,8 @@ namespace TrenchBroom {
             return m_frames;
         }
         
-        MapFrame *FrameManager::singleOrTopFrame() const {
-            if (m_frames.size() == 1)
-                return m_frames[0];
-            return m_topFrame;
+        MapFrame *FrameManager::topFrame() const {
+            return m_frames.empty() ? NULL : m_frames.front();
         }
 
         bool FrameManager::closeAllFrames() {
@@ -65,8 +62,15 @@ namespace TrenchBroom {
         }
 
         void FrameManager::OnFrameActivate(wxActivateEvent& event) {
-            if (event.GetActive())
-                m_topFrame = static_cast<MapFrame*>(event.GetEventObject());
+            if (event.GetActive()) {
+                MapFrame* frame = static_cast<MapFrame*>(event.GetEventObject());
+                FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
+                assert(it != m_frames.end());
+                if (it != m_frames.begin()) {
+                    m_frames.erase(it);
+                    m_frames.push_front(frame);
+                }
+            }
             event.Skip();
         }
 
@@ -74,17 +78,23 @@ namespace TrenchBroom {
             assert(!m_singleFrame || m_frames.size() <= 1);
             if (!m_singleFrame || m_frames.empty()) {
                 MapDocumentSPtr document = MapDocumentCommandFacade::newMapDocument();
-                MapFrame* frame = createFrame(document);
-                m_frames.push_back(frame);
+                createFrame(document);
             }
-            return m_frames.back();
+            return topFrame();
         }
 
         MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
             MapFrame* frame = new MapFrame(this, document);
             frame->SetName("MapFrame");
-            if (!wxPersistenceManager::Get().RegisterAndRestore(frame))
-               frame->positionOnScreen(m_topFrame);
+            if (m_frames.empty()) {
+                wxPersistenceManager::Get().RegisterAndRestore(frame);
+                wxPersistenceManager::Get().Unregister(frame);
+            }
+            else {
+                frame->positionOnScreen(topFrame());
+            }
+            
+            m_frames.push_front(frame);
             
             frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Show();
@@ -92,11 +102,11 @@ namespace TrenchBroom {
             return frame;
         }
 
-        bool FrameManager::closeAllFrames(bool force) {
+        bool FrameManager::closeAllFrames(const bool force) {
             MapFrame* lastFrame = NULL;
             unused(lastFrame);
             while (!m_frames.empty()) {
-                MapFrame* frame = m_frames.front();
+                MapFrame* frame = m_frames.back();
                 assert(frame != lastFrame);
                 if (!frame->Close(force))
                     return false;
@@ -107,18 +117,22 @@ namespace TrenchBroom {
 
         void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
             FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
-            if (it != m_frames.end()) // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
-                m_frames.erase(it);
+            if (it == m_frames.end())
+                // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
+                return;
 
-            if (m_topFrame == frame)
-                m_topFrame = NULL;
+            m_frames.erase(it);
 
-            frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
-            // wxPersistenceManager::Get().SaveAndUnregister(frame);
-            frame->Destroy();
+            if (m_frames.empty()) {
+                wxPersistenceManager::Get().Register(frame);
+                wxPersistenceManager::Get().SaveAndUnregister(frame);
+                
+                if (m_singleFrame)
+                    AboutDialog::closeAboutDialog();
+            }
             
-            if (m_singleFrame && m_frames.empty())
-                AboutDialog::closeAboutDialog();
+            frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
+            frame->Destroy();
         }
     }
 }
