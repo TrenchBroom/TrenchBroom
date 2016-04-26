@@ -53,9 +53,9 @@ namespace TrenchBroom {
 
         wxColor makeLighter(const wxColor& color) {
             wxColor result = color.ChangeLightness(130);
-            if (std::abs(result.Red() - color.Red()) < 25 &&
-            std::abs(result.Green() - color.Green()) < 25 &&
-            std::abs(result.Blue() - color.Blue()) < 25)
+            if (std::abs(result.Red()   - color.Red())   < 25 &&
+                std::abs(result.Green() - color.Green()) < 25 &&
+                std::abs(result.Blue()  - color.Blue())  < 25)
                 result = color.ChangeLightness(70);
             return result;
         }
