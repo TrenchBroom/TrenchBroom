@@ -61,6 +61,10 @@ namespace TrenchBroom {
             return doCanClip();
         }
         
+        bool ClipTool::ClipStrategy::hasPoints() const {
+            return doHasPoints();
+        }
+
         bool ClipTool::ClipStrategy::canAddPoint(const Vec3& point) const {
             return doCanAddPoint(point);
         }
@@ -207,6 +211,10 @@ namespace TrenchBroom {
                 return true;
             }
             
+            bool doHasPoints() const {
+                return m_numPoints > 0;
+            }
+
             bool doCanAddPoint(const Vec3& point) const {
                 if (m_numPoints == 3)
                     return false;
@@ -415,6 +423,7 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(Vec3& point) const { return false; }
 
             bool doCanClip() const { return m_face != NULL; }
+            bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
             bool doRemoveLastPoint() { return false; }
@@ -582,6 +591,10 @@ namespace TrenchBroom {
             return m_strategy == NULL || m_strategy->canAddPoint(point);
         }
         
+        bool ClipTool::hasPoints() const {
+            return m_strategy != NULL && m_strategy->hasPoints();
+        }
+
         void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == NULL)

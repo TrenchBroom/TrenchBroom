@@ -223,7 +223,12 @@ namespace TrenchBroom {
         }
         
         bool ClipToolController::doCancel() {
-            return m_tool->removeLastPoint() || m_tool->reset();
+            if (m_tool->removeLastPoint()) {
+                if (!m_tool->hasPoints())
+                    m_tool->reset();
+                return true;
+            }
+            return false;
         }
 
         class ClipToolController2D::Callback2D : public Callback {
