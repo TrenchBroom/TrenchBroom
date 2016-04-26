@@ -28,6 +28,7 @@
 
 #include <cassert>
 
+#include <wx/app.h>
 #include <wx/display.h>
 #include <wx/persist.h>
 #include <wx/persist/toplevel.h>
@@ -127,7 +128,7 @@ namespace TrenchBroom {
                 wxPersistenceManager::Get().Register(frame);
                 wxPersistenceManager::Get().SaveAndUnregister(frame);
                 
-                if (m_singleFrame)
+                if (wxTheApp->GetExitOnFrameDelete())
                     AboutDialog::closeAboutDialog();
             }
             
