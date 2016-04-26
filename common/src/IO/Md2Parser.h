@@ -35,7 +35,7 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class GameFileSystem;
+        class FileSystemHierarchy;
         class Path;
         
         namespace Md2Layout {
@@ -98,9 +98,9 @@ namespace TrenchBroom {
             const char* m_begin;
             /* const char* m_end; */
             const Assets::Palette& m_palette;
-            const GameFileSystem& m_fs;
+            const FileSystemHierarchy& m_fs;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs);
+            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystemHierarchy& fs);
         private:
             Assets::EntityModel* doParseModel();
             Md2SkinList parseSkins(const char* begin, const size_t skinCount);

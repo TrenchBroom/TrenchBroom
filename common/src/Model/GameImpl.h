@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -38,20 +38,25 @@ namespace TrenchBroom {
         private:
             typedef std::tr1::shared_ptr<IO::MapWriter> MapWriterPtr;
             
-            GameConfig m_config;
+            GameConfig& m_config;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
             
-            IO::GameFileSystem m_fs;
+            IO::FileSystemHierarchy m_gameFS;
             Assets::Palette* m_palette;
         public:
-            GameImpl(const GameConfig& config, const IO::Path& gamePath);
+            GameImpl(GameConfig& config, const IO::Path& gamePath);
             ~GameImpl();
+        private:
+            void initializeFileSystem();
+            void addPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const;
             IO::Path doGamePath() const;
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
+
+            CompilationConfig& doCompilationConfig();
 
             World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
@@ -92,8 +97,15 @@ namespace TrenchBroom {
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const World* world) const;
             
+            ::StringMap doExtractGameEngineParameterSpecs(const World* world) const;
+            void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;
+
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
+            
+        private:
+            void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
+            String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;
         };
     }
 }

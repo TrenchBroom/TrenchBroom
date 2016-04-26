@@ -880,9 +880,15 @@ The preferences dialog allows you to set the game configurations, to change the 
 
 ## Game Configuration {#game_configuration}
 
-![Layer Configuration Dialog (Linux XFCE)](GamePreferences.png)
+![Game Configuration Dialog (Linux XFCE)](GamePreferences.png)
 
-The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "Choose..." button and selecting the folder in which the game is stored on your hard drive.
+The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(13) to apply the change.
+
+Additionally, you can configure the game engines for the selected game by clicking on the 'Configure engines...' button.
+
+![Game Engine Configuration Dialog (Mac OS X)](GameEngineDialog.png)
+
+In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(13) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
@@ -954,6 +960,94 @@ Every entry in the issue list provides you with to pieces of information: the li
 ![Issue Browser with Context Menu](IssueBrowserContextMenu.png)
 
 In addition to making you aware of issues, TrenchBroom can also fix them for you. To fix an issue, right click it and choose the appropriate fix from the "Fix" context menu. If you wish to ignore a particular issue, you can also tell TrenchBroom to hide it by choosing "Hide" in the context menu. If you wish to see all hidden issues, you can check the respective checkbox above the issue list. To make a hidden issue visible again, first show all hidden issues, then right click the issue and choose "Show" from the context menu.
+
+## Compiling Maps {#compiling_maps}
+
+TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu('Menu/Run/Compile...').
+
+![Compilation Dialog (Windows 7)](CompilationDialog.png)
+
+This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
+
+Name
+:	The name of this compilation profile. Need not be unique and can even be empty.
+
+Working directory
+:   A working directory for the compilation profile. This is optional, but very useful because it can be referred to as a variable when specifying the parameters of each task (see below). Variables are allowed (see below).
+
+Tasks
+:   A list of tasks which are executed sequentially when the compilation profile is run.
+
+There are three types of tasks, each with different parameters:
+
+Export Map
+:	Exports the map to a file. This file should be different from the actual file where the map is stored.
+
+    Parameter 	Description
+    ---------   -----------
+    Target 		The path of the exported file. Variables are allowed.
+
+Run Tool
+:	Runs an external tool and captures its output.
+
+    Parameter 	Description
+    ---------   -----------
+    Tool 		The absolute path to the executable of the tool that should be run. The working directory is set to the profile's working directory if configured. Variables are allowed.
+    Parameters 	The parameters that should be passed to the tool when it is executed. Variables are allowed.
+
+Copy Files
+:	Copies one or more files.
+
+    Parameter 	Description
+    ---------   -----------
+    Source 		The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
+    Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
+
+
+You can use some variables when specifying the working directory of a profile and also for the task parameters. The following table lists the variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list as soon as you type '$'. You can also request the autocompletion list by pressing #key(396)+#key(32).
+
+Variable 		Scope 			Description
+-------- 	    ----- 			-----------
+`WORK_DIR_PATH`	Tool 			The full path to the working directory.
+`MAP_DIR_PATH` 	Tool, Workdir 	The full path to the directory where the currently edited map is stored.
+`MAP_BASE_NAME`	Tool, Workdir 	The base name (without extension) of the currently edited map.
+`MAP_FULL_NAME`	Tool, Workdir 	The full name (with extension) of the currently edited map.
+`GAME_DIR_PATH`	Tool, Workdir 	The full path to the current game as specified in the game preferences.
+`MOD_DIR_PATH` 	Tool, Workdir 	The full path to the (last) mod sub directory if mods have been enabled for this map.
+`MOD_NAME` 		Tool, Workdir 	The name of the (last) mod if mods have been enabled for this map
+`APP_DIR_PATH` 	Tool, Workdir 	The full path to the directory containing the TrenchBroom application binary.
+`CPU_COUNT` 	Tool 			The number of CPUs in the current machine.
+
+It is recommended to use the following general process for compiling maps and to adapt it to your specified needs:
+
+1. Set the working directory to `${MAP_DIR_PATH}/compile`.
+2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_FULL_NAME}`.
+3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_FULL_NAME}` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
+4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${MOD_DIR_PATH}/maps`.
+
+The last step will copy the bsp file to the appropriate directory within the game path. Note that this example assumes that a mod has been enabled. If no mod has been enabled, you have to specify a differen path, e.g. `${GAME_DIR_PATH}/id1/maps` for Quake. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files).
+
+To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button. If you click on this button, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
+
+Once the compilation is done, you can launch a game engine and check out your map in the game. The following section explains how you can configure game engines and launch them from within the editor.
+
+## Launching Game Engines {#launching_game_engines}
+
+Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration]({#game_configuration).
+
+There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu('Menu/Run/Run...'). This brings up the launch dialog shown in the following screenshot.
+
+![Launch Dialog (Mac OS X)](LaunchGameEngineDialog.png)
+
+In this dialog, you can select the game engine of choice, edit its parameters, and launch the engine. To select an engine, click on it in the list on the right hand side of the dialog. If you wish to edit the list of engines, you can bring up the game engine profile dialog by clicking on the 'Configure engines...' button. You can then edit its parameters in the text box at the bottom of the left hand side of the dialog. Note that you can use the following variables in this text box:
+
+Variable 		Description
+-------- 	    -----------
+`MAP_BASE_NAME`	The base name (without extension) of the currently edited map.
+`GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
+`MOD_NAME` 		The name of the (last) mod if mods have been enabled for this map
+
+Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
 
 ## Solving Problems
 

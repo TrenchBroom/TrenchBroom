@@ -26,6 +26,7 @@
 #include "IO/DefParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
+#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
@@ -34,6 +35,7 @@
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
+#include "IO/PakFileSystem.h"
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
@@ -48,14 +50,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameImpl::GameImpl(const GameConfig& config, const IO::Path& gamePath) :
+        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath) :
         m_config(config),
         m_gamePath(gamePath),
-        m_fs(m_config.fileSystemConfig().packageFormat,
-             m_gamePath,
-             m_config.fileSystemConfig().searchPath,
-             m_additionalSearchPaths),
         m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
+            initializeFileSystem();
+            
             // sneak in the brush content type for tutorial brushes
             const BrushContentType::FlagType flag = 1 << brushContentTypes().size();
             m_config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
@@ -64,6 +64,41 @@ namespace TrenchBroom {
         GameImpl::~GameImpl() {
             delete m_palette;
             m_palette = NULL;
+        }
+
+        void GameImpl::initializeFileSystem() {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
+                addPackages(m_gamePath + fileSystemConfig.searchPath);
+                
+                IO::Path::List::const_iterator it, end;
+                for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
+                    const IO::Path& searchPath = *it;
+                    addPackages(m_gamePath + searchPath);
+                }
+            }
+        }
+
+        void GameImpl::addPackages(const IO::Path& searchPath) {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;
+            
+            const String& packageExtension = packageFormatConfig.extension;
+            const String& packageFormat = packageFormatConfig.format;
+            
+            if (IO::Disk::directoryExists(searchPath)) {
+                const IO::DiskFileSystem diskFS(searchPath);
+                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
+                IO::Path::List::const_iterator it, end;
+                for (it = packages.begin(), end = packages.end(); it != end; ++it) {
+                    const IO::Path& packagePath = *it;
+                    IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
+                    assert(packageFile.get() != NULL);
+                    
+                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
+                        m_gameFS.addFileSystem(new IO::PakFileSystem(packagePath, packageFile));
+                }
+            }
         }
 
         const String& GameImpl::doGameName() const {
@@ -76,18 +111,18 @@ namespace TrenchBroom {
 
         void GameImpl::doSetGamePath(const IO::Path& gamePath) {
             m_gamePath = gamePath;
-            m_fs = IO::GameFileSystem(m_config.fileSystemConfig().packageFormat,
-                                      m_gamePath,
-                                      m_config.fileSystemConfig().searchPath,
-                                      m_additionalSearchPaths);
+            m_gameFS.clear();
+            initializeFileSystem();
         }
         
         void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {
             m_additionalSearchPaths = searchPaths;
-            m_fs = IO::GameFileSystem(m_config.fileSystemConfig().packageFormat,
-                                      m_gamePath,
-                                      m_config.fileSystemConfig().searchPath,
-                                      m_additionalSearchPaths);
+            m_gameFS.clear();
+            initializeFileSystem();
+        }
+
+        CompilationConfig& GameImpl::doCompilationConfig() {
+            return m_config.compilationConfig();
         }
 
         World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
@@ -155,7 +190,7 @@ namespace TrenchBroom {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
                 if (!searchPath.isEmpty())
-                    return m_fs.findItems(searchPath, IO::FileSystem::TypeMatcher(false, true));
+                    return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
                 throw GameException("Cannot find builtin textures: " + String(e.what()));
@@ -269,7 +304,7 @@ namespace TrenchBroom {
 
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
-                const IO::MappedFile::Ptr file = m_fs.openFile(path);
+                const IO::MappedFile::Ptr file = m_gameFS.openFile(path);
                 assert(file.get() != NULL);
                 
                 const String modelName = path.lastComponent().asString();
@@ -305,7 +340,7 @@ namespace TrenchBroom {
                 const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
                 return loader.loadTextureCollection(newSpec);
             } else {
-                IO::WalTextureLoader loader(m_fs, *m_palette);
+                IO::WalTextureLoader loader(m_gameFS, *m_palette);
                 return loader.loadTextureCollection(spec);
             }
         }
@@ -327,7 +362,7 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
             assert(m_palette != NULL);
             
-            IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_fs);
+            IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_gameFS);
             return parser.parseModel();
         }
 
@@ -342,7 +377,7 @@ namespace TrenchBroom {
             
             const String& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
-            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileSystem::TypeMatcher(false, true));
+            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
                 if (!StringUtils::caseInsensitiveEqual(mod, defaultMod))
@@ -352,20 +387,87 @@ namespace TrenchBroom {
         }
 
         StringList GameImpl::doExtractEnabledMods(const World* world) const {
-            StringList mods;
+            StringList result;
             const AttributeValue& modStr = world->attribute(AttributeNames::Mods);
             if (modStr.empty())
-                return mods;
+                return result;
             
             return StringUtils::splitAndTrim(modStr, ';');
         }
         
+        ::StringMap GameImpl::doExtractGameEngineParameterSpecs(const World* world) const {
+            ::StringMap result;
+
+            const String specAttrValue = readLongAttribute(world, AttributeNames::GameEngineParameterSpecs);
+            const StringList specStrs = StringUtils::splitAndUnescape(specAttrValue, ';');
+            StringList::const_iterator specIt, specEnd;
+            for (specIt = specStrs.begin(), specEnd = specStrs.end(); specIt != specEnd; ++specIt) {
+                const String& specStr = *specIt;
+                const StringList specStrParts = StringUtils::splitAndUnescape(specStr, ':');
+                if (specStrParts.size() != 2)
+                    continue;
+
+                const String& name = specStrParts[0];
+                if (m_config.gameEngineConfig().hasProfile(name)) {
+                    const String& spec = specStrParts[1];
+                    if (!StringUtils::isBlank(spec))
+                        result[name] = spec;
+                }
+            }
+            
+            return result;
+        }
+
+        void GameImpl::doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {
+            StringList specList;
+            ::StringMap::const_iterator it, end;
+            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
+                const String& name = it->first;
+                if (m_config.gameEngineConfig().hasProfile(name)) {
+                    const String& spec = it->second;
+                    if (!StringUtils::isBlank(spec))
+                        specList.push_back(StringUtils::escapeAndJoin(StringUtils::makeList(2, name.c_str(), spec.c_str()), ':'));
+                }
+            }
+            
+            const String value = StringUtils::escapeAndJoin(specList, ';');
+            writeLongAttribute(world, AttributeNames::GameEngineParameterSpecs, value, m_config.maxPropertyValueLength());
+        }
+
         const GameConfig::FlagsConfig& GameImpl::doSurfaceFlags() const {
             return m_config.faceAttribsConfig().surfaceFlags;
         }
         
         const GameConfig::FlagsConfig& GameImpl::doContentFlags() const {
             return m_config.faceAttribsConfig().contentFlags;
+        }
+
+        void GameImpl::writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+            
+            node->removeNumberedAttribute(baseName);
+            
+            StringStream nameStr;
+            for (size_t i = 0; i <= value.size() / maxLength; ++i) {
+                nameStr.str("");
+                nameStr << baseName << i+1;
+                node->addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
+            }
+        }
+        
+        String GameImpl::readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const {
+            assert(node != NULL);
+            
+            size_t index = 1;
+            StringStream nameStr;
+            StringStream valueStr;
+            nameStr << baseName << index;
+            while (node->hasAttribute(nameStr.str())) {
+                valueStr << node->attribute(nameStr.str());
+                nameStr.str("");
+                nameStr << baseName << ++index;
+            }
+            
+            return valueStr.str();
         }
     }
 }

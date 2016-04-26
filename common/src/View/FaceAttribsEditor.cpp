@@ -42,6 +42,7 @@
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -378,6 +379,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::updateControls() {
+            wxWindowUpdateLocker lock(this);
+            
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
                 wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;

@@ -24,11 +24,12 @@
 
 #include "GLInit.h"
 #include "Macros.h"
+#include "TrenchBroomAppTraits.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
-#include "View/AboutFrame.h"
+#include "View/AboutDialog.h"
 #include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/CrashDialog.h"
@@ -160,6 +161,10 @@ namespace TrenchBroom {
 #endif
         }
 
+        wxAppTraits* TrenchBroomApp::CreateTraits() {
+            return new TrenchBroomAppTraits();
+        }
+
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
@@ -186,7 +191,7 @@ namespace TrenchBroom {
             if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                 return false;
 
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
             assert(game.get() != NULL);
 
@@ -202,7 +207,7 @@ namespace TrenchBroom {
                 String gameName = "";
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 
-                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
                 gameName = detected.first;
                 mapFormat = detected.second;
@@ -243,7 +248,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openAbout() {
-            AboutFrame::showAboutFrame();
+            AboutDialog::showAboutDialog();
         }
 
         bool TrenchBroomApp::OnInit() {

@@ -131,6 +131,8 @@ namespace TrenchBroom {
             void performMoveExternalTextureCollectionDown(const String& name);
         public: // mods management
             void performSetMods(const StringList& mods);
+        public: // game engine parameter specs
+            void performSetGameEngineParameterSpecs(const ::StringMap& specs);
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count
@@ -154,7 +156,8 @@ namespace TrenchBroom {
             void doEndTransaction();
             void doRollbackTransaction();
 
-            bool doSubmit(UndoableCommand::Ptr command);
+            bool doSubmit(Command::Ptr command);
+            bool doSubmitAndStore(UndoableCommand::Ptr command);
         };
     }
 }

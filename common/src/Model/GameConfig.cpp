@@ -27,7 +27,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const String& i_packageFormat) :
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
+        extension(i_extension),
+        format(i_format) {}
+
+        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
         
@@ -91,9 +95,10 @@ namespace TrenchBroom {
         GameConfig::GameConfig() :
         m_path(IO::Path("")),
         m_icon(IO::Path("")),
-        m_fileSystemConfig(IO::Path(""), ""),
+        m_fileSystemConfig(IO::Path(""), PackageFormatConfig("", "")),
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
-        m_entityConfig(IO::Path(""), StringSet(), Color()) {}
+        m_entityConfig(IO::Path(""), StringSet(), Color()),
+        m_maxPropertyValueLength(1023) {}
 
         GameConfig::GameConfig(const String& name,
                                const IO::Path& path,
@@ -112,7 +117,8 @@ namespace TrenchBroom {
         m_textureConfig(textureConfig),
         m_entityConfig(entityConfig),
         m_faceAttribsConfig(faceAttribsConfig),
-        m_brushContentTypes(brushContentTypes) {
+        m_brushContentTypes(brushContentTypes),
+        m_maxPropertyValueLength(1023) {
             assert(!StringUtils::trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -151,6 +157,34 @@ namespace TrenchBroom {
 
         const BrushContentType::List& GameConfig::brushContentTypes() const {
             return m_brushContentTypes;
+        }
+
+        CompilationConfig& GameConfig::compilationConfig() {
+            return m_compilationConfig;
+        }
+        
+        const CompilationConfig& GameConfig::compilationConfig() const {
+            return m_compilationConfig;
+        }
+
+        void GameConfig::setCompilationConfig(const CompilationConfig& compilationConfig) {
+            m_compilationConfig = compilationConfig;
+        }
+
+        GameEngineConfig& GameConfig::gameEngineConfig() {
+            return m_gameEngineConfig;
+        }
+        
+        const GameEngineConfig& GameConfig::gameEngineConfig() const {
+            return m_gameEngineConfig;
+        }
+        
+        void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
+            m_gameEngineConfig = gameEngineConfig;
+        }
+
+        size_t GameConfig::maxPropertyValueLength() const {
+            return m_maxPropertyValueLength;
         }
 
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {

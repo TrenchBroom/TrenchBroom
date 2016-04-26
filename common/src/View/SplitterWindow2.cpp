@@ -64,7 +64,6 @@ namespace TrenchBroom {
         
         void SplitterWindow2::setMinSize(wxWindow* window, const wxSize& minSize) {
             assert(m_splitMode != SplitMode_Unset);
-            assert(minSize.x >= 0 && minSize.y != 0);
             
             wxSize splitterMinSize;
             for (size_t i = 0; i < NumWindows; ++i) {

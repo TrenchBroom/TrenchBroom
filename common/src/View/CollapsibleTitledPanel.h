@@ -22,6 +22,8 @@
 
 #include "View/TitleBar.h"
 
+#include <wx/panel.h>
+
 class wxStaticText;
 
 wxDECLARE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);

@@ -25,6 +25,7 @@
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
+#include <wx/dialog.h>
 #include <wx/frame.h>
 
 class wxChoice;
@@ -65,6 +66,8 @@ namespace TrenchBroom {
             wxWindow* m_lastFocus;
 
             wxChoice* m_gridChoice;
+            
+            wxDialog* m_compilationDialog;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -189,6 +192,12 @@ namespace TrenchBroom {
             void OnViewToggleInfoPanel(wxCommandEvent& event);
             void OnViewToggleInspector(wxCommandEvent& event);
 
+            void OnRunCompile(wxCommandEvent& event);
+        public:
+            void compilationDialogWillClose();
+        private:
+            void OnRunLaunch(wxCommandEvent& event);
+
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
@@ -201,7 +210,6 @@ namespace TrenchBroom {
 
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
-            bool canLoadPointFile() const;
             bool canUnloadPointFile() const;
             bool canUndo() const;
             bool canRedo() const;
@@ -229,6 +237,8 @@ namespace TrenchBroom {
             bool canMoveCameraToNextPoint() const;
             bool canMoveCameraToPreviousPoint() const;
             bool canFocusCamera() const;
+            bool canCompile() const;
+            bool canLaunch() const;
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);

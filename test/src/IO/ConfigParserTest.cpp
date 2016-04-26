@@ -21,54 +21,58 @@
 
 #include "StringUtils.h"
 #include "ConfigTypes.h"
-#include "IO/ConfigParser.h"
+#include "IO/ConfigFileParser.h"
 #include "Model/GameConfig.h"
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ConfigParserTest, testParseEmptyConfig) {
+        TEST(ConfigFileParserTest, testParseEmptyConfig) {
             const String config = "";
 
-            ConfigParser parser(config);
-            ASSERT_EQ(ConfigEntry::Ptr(), parser.parse());
+            ConfigFileParser parser(config);
+            ASSERT_EQ(NULL, parser.parse());
         }
 
-        TEST(ConfigParserTest, testParseBlankConfig) {
+        TEST(ConfigFileParserTest, testParseBlankConfig) {
             const String config = "    \n  ";
             
-            ConfigParser parser(config);
-            ASSERT_EQ(ConfigEntry::Ptr(), parser.parse());
+            ConfigFileParser parser(config);
+            ASSERT_EQ(NULL, parser.parse());
         }
         
-        TEST(ConfigParserTest, testParseOneValue) {
+        TEST(ConfigFileParserTest, testParseOneValue) {
             const String config = "\"asdf\"";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr value = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* value = parser.parse();
             
             ASSERT_TRUE(value != NULL);
             ASSERT_TRUE(value->type() == ConfigEntry::Type_Value);
             ASSERT_EQ(String("asdf"), static_cast<const String&>(*value));
+            
+            delete value;
         }
         
-        TEST(ConfigParserTest, testParseEmptyList) {
+        TEST(ConfigFileParserTest, testParseEmptyList) {
             const String config = "  { } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_List);
             
             const ConfigList& list = *entry;
             ASSERT_EQ(0u, list.count());
+            
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseList) {
+        TEST(ConfigFileParserTest, testParseList) {
             const String config = "  { \"first\", \"\", \"third\" } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_List);
@@ -81,13 +85,15 @@ namespace TrenchBroom {
             ASSERT_EQ(String("first"), static_cast<const String&>(list[0]));
             ASSERT_EQ(String(""), static_cast<const String&>(list[1]));
             ASSERT_EQ(String("third"), static_cast<const String&>(list[2]));
+
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseTable) {
+        TEST(ConfigFileParserTest, testParseTable) {
             const String config = "  { first = \"firstValue\", second=\"secondValue\", third = \"\" } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_Table);
@@ -106,13 +112,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(keys.count("first") == 1);
             ASSERT_TRUE(keys.count("second") == 1);
             ASSERT_TRUE(keys.count("third") == 1);
+            
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseListNestedInList) {
+        TEST(ConfigFileParserTest, testParseListNestedInList) {
             const String config = "  { \"first\", {\"second\", \"third\"}, \"fourth\" } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_List);
@@ -131,13 +139,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested[1].type());
             ASSERT_EQ(String("second"), static_cast<const String&>(nested[0]));
             ASSERT_EQ(String("third"), static_cast<const String&>(nested[1]));
+            
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseTableNestedInList) {
+        TEST(ConfigFileParserTest, testParseTableNestedInList) {
             const String config = "  { \"first\", {second=\"second\", third=\"third\"}, \"fourth\" } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_List);
@@ -156,14 +166,16 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested["third"].type());
             ASSERT_EQ(String("second"), static_cast<const String&>(nested["second"]));
             ASSERT_EQ(String("third"), static_cast<const String&>(nested["third"]));
+            
+            delete entry;
         }
         
         
         TEST(GameConfigParserTest, testParseTablesNestedInList) {
             const String config = "  { {first = \"first\", second=\"second\"}, {third=\"third\", fourth = \"fourth\"} } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_List);
@@ -186,13 +198,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested2["fourth"].type());
             ASSERT_EQ(String("third"), static_cast<const String&>(nested2["third"]));
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested2["fourth"]));
+            
+            delete entry;
         }
 
-        TEST(ConfigParserTest, testParseListNestedInTable) {
+        TEST(ConfigFileParserTest, testParseListNestedInTable) {
             const String config = "  { first = \"firstValue\", second=\"secondValue\", third = {\"fourth\",\"fifth\"} } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_Table);
@@ -211,13 +225,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested[1].type());
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested[0]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested[1]));
+            
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseTableNestedInTable) {
+        TEST(ConfigFileParserTest, testParseTableNestedInTable) {
             const String config = "  { first = \"firstValue\", second=\"secondValue\", third = {fourth=\"fourth\",fifth=\"fifth\"} } ";
             
-            ConfigParser parser(config);
-            const ConfigEntry::Ptr entry = parser.parse();
+            ConfigFileParser parser(config);
+            const ConfigEntry* entry = parser.parse();
             
             ASSERT_TRUE(entry != NULL);
             ASSERT_TRUE(entry->type() == ConfigEntry::Type_Table);
@@ -236,12 +252,14 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested["fifth"].type());
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested["fourth"]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested["fifth"]));
+            
+            delete entry;
         }
         
-        TEST(ConfigParserTest, testParseSerializedConfig) {
-            const ConfigEntry::Ptr config = ConfigParser("  { first = \"firstValue\", second=\"secondValue\", third = {\"fourth\",\"fifth\"} } ").parse();
+        TEST(ConfigFileParserTest, testParseSerializedConfig) {
+            const ConfigEntry* config = ConfigFileParser("  { first = \"firstValue\", second=\"secondValue\", third = {\"fourth\",\"fifth\"} } ").parse();
             const String serialized = config->asString();
-            const ConfigEntry::Ptr deserialized = ConfigParser(serialized).parse();
+            const ConfigEntry* deserialized = ConfigFileParser(serialized).parse();
             
             ASSERT_TRUE(deserialized != NULL);
             ASSERT_TRUE(deserialized->type() == ConfigEntry::Type_Table);
@@ -260,6 +278,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(ConfigEntry::Type_Value == nested[1].type());
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested[0]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested[1]));
+            
+            delete deserialized;
         }
     }
 }

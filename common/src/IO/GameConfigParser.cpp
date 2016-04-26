@@ -25,22 +25,27 @@
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
-        m_parser(begin, end),
-        m_path(path) {}
+        ConfigParserBase(begin, end, path) {}
         
         GameConfigParser::GameConfigParser(const String& str, const Path& path) :
-        m_parser(str),
-        m_path(path) {}
+        ConfigParserBase(str, path) {}
         
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
-
-            const ConfigEntry::Ptr root = m_parser.parse();
+            
+            const ConfigPtr root = parseConfigFile();
             if (root.get() == NULL)
                 throw ParserException("Empty game config");
             
             expectEntry(ConfigEntry::Type_Table, *root);
             const ConfigTable& rootTable = *root;
+
+            expectTableEntries(rootTable,
+                               StringUtils::makeSet(6, "version", "name", "fileformats", "filesystem", "textures", "entities"),
+                               StringUtils::makeSet(3, "icon", "faceattribs", "brushtypes"));
+            
+            expectTableEntry("version", ConfigEntry::Type_Value, rootTable);
+            const String version = rootTable["version"];
             
             expectTableEntry("name", ConfigEntry::Type_Value, rootTable);
             const String name = rootTable["name"];
@@ -81,18 +86,42 @@ namespace TrenchBroom {
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
+            expectTableEntries(table,
+                               StringUtils::makeSet(2, "searchpath", "packageformat"),
+                               StringSet());
+
             expectTableEntry("searchpath", ConfigEntry::Type_Value, table);
             const String searchPath = table["searchpath"];
             
-            expectTableEntry("packageformat", ConfigEntry::Type_Value, table);
-            const String packageFormat = table["packageformat"];
+            expectTableEntry("packageformat", ConfigEntry::Type_Table, table);
+            const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(table["packageformat"]);
             
-            return GameConfig::FileSystemConfig(Path(searchPath), packageFormat);
+            return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
+        }
+
+        Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            expectTableEntries(table,
+                               StringUtils::makeSet(2, "extension", "format"),
+                               StringSet());
+
+            expectTableEntry("extension", ConfigEntry::Type_Value, table);
+            const String extension = table["extension"];
+            
+            expectTableEntry("format", ConfigEntry::Type_Value, table);
+            const String format = table["format"];
+            
+            return GameConfig::PackageFormatConfig(extension, format);
         }
 
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
+            expectTableEntries(table,
+                               StringUtils::makeSet(1, "type"),
+                               StringUtils::makeSet(3, "attribute", "palette", "builtin"));
+
             expectTableEntry("type", ConfigEntry::Type_Value, table);
             const String type = table["type"];
 
@@ -120,6 +149,10 @@ namespace TrenchBroom {
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
+            expectTableEntries(table,
+                               StringUtils::makeSet(3, "definitions", "modelformats", "defaultcolor"),
+                               StringSet());
+            
             Path::List defFilePaths;
             expectTableEntry("definitions", ConfigEntry::Type_Value | ConfigEntry::Type_List, table);
             if (table["definitions"].type() == ConfigEntry::Type_Value) {
@@ -143,6 +176,11 @@ namespace TrenchBroom {
         Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
+            expectTableEntries(table,
+                               StringSet(),
+                               StringUtils::makeSet(2, "surfaceflags", "contentflags"));
+            
+
             GameConfig::FlagConfigList surfaceFlags;
             if (table.contains("surfaceflags")) {
                 expectTableEntry("surfaceflags", ConfigEntry::Type_List, table);
@@ -167,6 +205,10 @@ namespace TrenchBroom {
                 expectEntry(ConfigEntry::Type_Table, entry);
                 const ConfigTable& table = static_cast<const ConfigTable&>(entry);
                 
+                expectTableEntries(table,
+                                   StringUtils::makeSet(1, "name"),
+                                   StringUtils::makeSet(1, "description"));
+                
                 expectTableEntry("name", ConfigEntry::Type_Value, table);
                 const String name = table["name"];
                 
@@ -189,6 +231,10 @@ namespace TrenchBroom {
                 expectEntry(ConfigEntry::Type_Table, entry);
                 const ConfigTable& table = static_cast<const ConfigTable&>(entry);
                 
+                expectTableEntries(table,
+                                   StringUtils::makeSet(2, "name", "match"),
+                                   StringUtils::makeSet(3, "attribs", "pattern", "flags"));
+
                 expectTableEntry("name", ConfigEntry::Type_Value, table);
                 const String name = table["name"];
                 
@@ -232,54 +278,6 @@ namespace TrenchBroom {
                 }
             }
             return contentTypes;
-        }
-
-        StringSet GameConfigParser::parseSet(const ConfigList& list) const {
-            StringSet result;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Value, entry);
-                result.insert(static_cast<const String&>(entry));
-            }
-            return result;
-        }
-
-        StringList GameConfigParser::parseList(const ConfigList& list) const {
-            StringList result;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Value, entry);
-                result.push_back(static_cast<const String&>(entry));
-            }
-            return result;
-        }
-        
-        void GameConfigParser::expectEntry(const int typeMask, const ConfigEntry& entry) const {
-            if ((typeMask & entry.type()) == 0)
-                throw ParserException("Expected " + typeNames(typeMask) + ", but got " + typeNames(entry.type()));
-        }
-
-        void GameConfigParser::expectTableEntry(const String& key, const int typeMask, const ConfigTable& parent) const {
-            if (!parent.contains(key))
-                throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask));
-            if ((parent[key].type() & typeMask) == 0)
-                throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask) + ", but got table entry with type '" + typeNames(parent[key].type()) + "'");
-        }
-        
-        String GameConfigParser::typeNames(const int typeMask) const {
-            StringList result;
-            if ((typeMask & ConfigEntry::Type_Value) != 0)
-                result.push_back("value");
-            if ((typeMask & ConfigEntry::Type_List) != 0)
-                result.push_back("list");
-            if ((typeMask & ConfigEntry::Type_Table) != 0)
-                result.push_back("table");
-            
-            if (result.empty())
-                return "none";
-            if (result.size() == 1)
-                return result.front();
-            return StringUtils::join(result, ", ", ", or ", " or ");
         }
     }
 }

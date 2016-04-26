@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
-        ImageListBox(parent, wxSize(32, 32), "No Recent Documents"),
+        ImageListBox(parent, "No Recent Documents"),
         m_documentIcon(IO::loadImageResource("DocIcon.png")) {
             assert(m_documentIcon.IsOk());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
@@ -73,8 +73,9 @@ namespace TrenchBroom {
             SetItemCount(recentDocuments.size());
         }
 
-        const wxBitmap& RecentDocumentListBox::image(const size_t n) const {
-            return m_documentIcon;
+        bool RecentDocumentListBox::image(size_t n, wxBitmap& result) const {
+            result = m_documentIcon;
+            return true;
         }
         
         wxString RecentDocumentListBox::title(const size_t n) const {

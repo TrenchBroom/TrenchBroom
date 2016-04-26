@@ -85,6 +85,7 @@
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetGameEngineParameterSpecsCommand.h"
 #include "View/SetLockStateCommand.h"
 #include "View/SetModsCommand.h"
 #include "View/SetVisibilityCommand.h"
@@ -342,19 +343,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        bool MapDocument::canLoadPointFile() const {
-            if (m_path.isEmpty())
-                return false;
-            const IO::Path pointFilePath = Model::PointFile::pointFilePath(m_path);
-            return pointFilePath.isAbsolute() && IO::Disk::fileExists(pointFilePath);
-        }
-        
-        void MapDocument::loadPointFile() {
-            assert(canLoadPointFile());
+        void MapDocument::loadPointFile(const IO::Path& path) {
             if (isPointFileLoaded())
                 unloadPointFile();
-            m_pointFile = new Model::PointFile(m_path);
-            info("Loaded point file");
+            m_pointFile = new Model::PointFile(path);
+            info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
         
@@ -556,7 +549,7 @@ namespace TrenchBroom {
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
             Transaction transaction(this, "Add Objects");
             AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
-            if (!submit(command))
+            if (!submitAndStore(command))
                 return Model::EmptyNodeList;
             
             const Model::NodeList& addedNodes = command->addedNodes();
@@ -566,7 +559,7 @@ namespace TrenchBroom {
         
         Model::NodeList MapDocument::addNodes(const Model::NodeList& nodes, Model::Node* parent) {
             AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(parent, nodes);
-            if (!submit(command))
+            if (!submitAndStore(command))
                 return Model::EmptyNodeList;
 
             const Model::NodeList& addedNodes = command->addedNodes();
@@ -575,26 +568,26 @@ namespace TrenchBroom {
         }
 
         void MapDocument::removeNodes(const Model::NodeList& nodes) {
-            submit(AddRemoveNodesCommand::remove(nodes));
+            submitAndStore(AddRemoveNodesCommand::remove(nodes));
         }
         
         void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
-            submit(ReparentNodesCommand::reparent(newParent, children));
+            submitAndStore(ReparentNodesCommand::reparent(newParent, children));
         }
         
         void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodes) {
-            submit(ReparentNodesCommand::reparent(nodes));
+            submitAndStore(ReparentNodesCommand::reparent(nodes));
         }
         
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete Objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();
             deselectAll();
-            return submit(AddRemoveNodesCommand::remove(nodes));
+            return submitAndStore(AddRemoveNodesCommand::remove(nodes));
         }
         
         bool MapDocument::duplicateObjects() {
-            if (submit(DuplicateNodesCommand::duplicate())) {
+            if (submitAndStore(DuplicateNodesCommand::duplicate())) {
                 m_viewEffectsService->flashSelection();
                 return true;
             }
@@ -638,7 +631,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::renameGroups(const String& name) {
-            submit(RenameGroupsCommand::rename(name));
+            submitAndStore(RenameGroupsCommand::rename(name));
         }
         
         void MapDocument::openGroup(Model::Group* group) {
@@ -651,7 +644,7 @@ namespace TrenchBroom {
             else
                 resetLock(Model::NodeList(1, previousGroup));
             unlock(Model::NodeList(1, group));
-            submit(CurrentGroupCommand::push(group));
+            submitAndStore(CurrentGroupCommand::push(group));
         }
         
         void MapDocument::closeGroup() {
@@ -660,7 +653,7 @@ namespace TrenchBroom {
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
             resetLock(Model::NodeList(1, previousGroup));
-            submit(CurrentGroupCommand::pop());
+            submitAndStore(CurrentGroupCommand::pop());
 
             Model::Group* currentGroup = m_editorContext->currentGroup();
             if (currentGroup != NULL)
@@ -1057,8 +1050,12 @@ namespace TrenchBroom {
             doEndTransaction();
         }
         
-        bool MapDocument::submit(UndoableCommand::Ptr command) {
+        bool MapDocument::submit(Command::Ptr command) {
             return doSubmit(command);
+        }
+
+        bool MapDocument::submitAndStore(UndoableCommand::Ptr command) {
+            return doSubmitAndStore(command);
         }
         
         void MapDocument::commitPendingAssets() {
@@ -1158,11 +1155,17 @@ namespace TrenchBroom {
         
         void MapDocument::loadEntityDefinitions() {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
-            const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-            SimpleParserStatus status(this);
-            
-            m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-            info("Loaded entity definition file " + path.lastComponent().asString());
+            try {
+                const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+                SimpleParserStatus status(this);
+                m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
+                info("Loaded entity definition file " + path.lastComponent().asString());
+            } catch (const Exception& e) {
+                if (spec.builtin())
+                    error("Unable to load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                else
+                    error("Unable to load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+            }
         }
         
         void MapDocument::unloadEntityDefinitions() {
@@ -1446,6 +1449,16 @@ namespace TrenchBroom {
             submit(SetModsCommand::set(mods));
         }
         
+        ::StringMap MapDocument::gameEngineParameterSpecs() const {
+            return m_game->extractGameEngineParameterSpecs(m_world);
+        }
+        
+        void MapDocument::setGameEngineParameterSpec(const String& name, const String& spec) {
+            ::StringMap specs = m_game->extractGameEngineParameterSpecs(m_world);
+            specs[name] = spec;
+            submit(SetGameEngineParameterSpecsCommand::set(specs));
+        }
+
         void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
             doSetIssueHidden(issue, hidden);
         }
@@ -1465,7 +1478,11 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
         }
         
-        const String MapDocument::filename() const {
+        bool MapDocument::persistent() const {
+            return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
+        }
+
+        String MapDocument::filename() const {
             if (m_path.isEmpty())
                 return EmptyString;
             return  m_path.lastComponent().asString();

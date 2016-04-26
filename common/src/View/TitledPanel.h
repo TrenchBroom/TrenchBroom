@@ -28,7 +28,7 @@ namespace TrenchBroom {
         private:
             wxWindow* m_panel;
         public:
-            TitledPanel(wxWindow* parent, const wxString& title, bool showDivider = true);
+            TitledPanel(wxWindow* parent, const wxString& title, bool showDivider = true, bool boldTitle = true);
             
             wxWindow* getPanel() const;
         };

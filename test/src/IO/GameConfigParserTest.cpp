@@ -42,11 +42,12 @@ namespace TrenchBroom {
         
         TEST(GameConfigParserTest, parseQuakeConfig) {
             const String config("{\n"
+                                "  version=\"1\",\n"
                                 "  name=\"Quake\",\n"
                                 "  fileformats={\"Quake 1\",\"Valve\"},\n"
                                 "  filesystem={\n"
                                 "    searchpath=\"id1\",\n"
-                                "    packageformat=\"pak\"\n"
+                                "    packageformat= {extension=\"pak\",format=\"idpak\"}\n"
                                 "  },\n"
                                 "  textures={\n"
                                 "    type=\"wad\",\n"
@@ -67,7 +68,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 1")));
             ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Valve")));
             ASSERT_EQ(Path("id1"), gameConfig.fileSystemConfig().searchPath);
-            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
+            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
+            ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().type);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().attribute);
             ASSERT_EQ(Path("palette.lmp"), gameConfig.textureConfig().palette);
@@ -82,12 +84,13 @@ namespace TrenchBroom {
 
         TEST(GameConfigParserTest, parseQuake2Config) {
             const String config("{\n"
+                                "   version=\"1\",\n"
                                 "	name = \"Quake 2\",\n"
                                 "	icon = \"Quake2/Icon.png\",\n"
                                 " 	fileformats = { \"Quake 2\" },\n"
                                 "	filesystem = {\n"
                                 "		searchpath = \"baseq2\",\n"
-                                "		packageformat = \"pak\"\n"
+                                "		packageformat = { extension = \"pak\", format = \"idpak\" }\n"
                                 "	},\n"
                                 "	textures = {\n"
                                 "		type = \"wal\",\n"
@@ -131,7 +134,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, gameConfig.fileFormats().size());
             ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 2")));
             ASSERT_EQ(Path("baseq2"), gameConfig.fileSystemConfig().searchPath);
-            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
+            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
+            ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
             ASSERT_EQ(String("wal"), gameConfig.textureConfig().type);
             ASSERT_EQ(String("_wal"), gameConfig.textureConfig().attribute);
             ASSERT_EQ(Path("Quake2/colormap.pcx"), gameConfig.textureConfig().palette);

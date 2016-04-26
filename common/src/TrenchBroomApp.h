@@ -48,7 +48,9 @@ namespace TrenchBroom {
             ~TrenchBroomApp();
             
             void detectAndSetupUbuntu();
-            
+        protected:
+            wxAppTraits* CreateTraits();
+        public:
             FrameManager* frameManager();
             
             const IO::Path::List& recentDocuments() const;

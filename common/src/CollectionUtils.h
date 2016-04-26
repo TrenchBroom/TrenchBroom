@@ -325,6 +325,15 @@ namespace VectorUtils {
         std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
     }
     
+    template <typename T>
+    void erase(std::vector<T>& vec, const size_t index) {
+        assert(index < vec.size());
+        typename std::vector<T>::iterator it = vec.begin();
+        std::advance(it, index);
+        vec.erase(it);
+    }
+    
+
     template <typename T1, typename T2>
     bool erase(std::vector<T1>& vec, const T2& item) {
         typename std::vector<T1>::iterator it = std::remove(vec.begin(), vec.end(), item);

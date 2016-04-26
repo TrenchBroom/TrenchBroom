@@ -23,11 +23,12 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
+#include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystemHierarchy.h"
 #include "IO/TextureLoader.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
@@ -57,6 +58,8 @@ namespace TrenchBroom {
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            
+            CompilationConfig& compilationConfig();
         public: // loading and writing map files
             World* newMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* loadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
@@ -84,6 +87,9 @@ namespace TrenchBroom {
         public: // mods
             StringList availableMods() const;
             StringList extractEnabledMods(const World* world) const;
+        public: // game engine parameter specs
+            ::StringMap extractGameEngineParameterSpecs(const World* world) const;
+            void setGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
             const GameConfig::FlagsConfig& contentFlags() const;
@@ -92,6 +98,8 @@ namespace TrenchBroom {
             virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
+            
+            virtual CompilationConfig& doCompilationConfig() = 0;
             
             virtual World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const = 0;
             virtual World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
@@ -117,6 +125,9 @@ namespace TrenchBroom {
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const World* world) const = 0;
+
+            virtual ::StringMap doExtractGameEngineParameterSpecs(const World* world) const = 0;
+            virtual void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
             virtual const GameConfig::FlagsConfig& doContentFlags() const = 0;

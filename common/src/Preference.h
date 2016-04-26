@@ -25,7 +25,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringUtils.h"
-#include "IO/ConfigParser.h"
+#include "IO/ConfigFileParser.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
@@ -198,18 +198,18 @@ namespace TrenchBroom {
     };
 
     template <>
-    class PreferenceSerializer<ConfigEntry::Ptr> {
+    class PreferenceSerializer<ConfigEntry*> {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, ConfigEntry::Ptr& result) const {
+        bool read(wxConfigBase* config, const IO::Path& path, ConfigEntry*& result) const {
             wxString string;
             if (config->Read(path.asString('/'), &string)) {
-                result = IO::ConfigParser(string.ToStdString()).parse();
+                result = IO::ConfigFileParser(string.ToStdString()).parse();
                 return true;
             }
             return false;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const ConfigEntry::Ptr& value) const {
+        bool write(wxConfigBase* config, const IO::Path& path, const ConfigEntry*& value) const {
             StringStream stream;
             stream << value;
             return config->Write(path.asString('/'), wxString(stream.str()));
