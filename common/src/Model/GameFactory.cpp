@@ -116,9 +116,9 @@ namespace TrenchBroom {
             if (path.isEmpty() || !IO::Disk::fileExists(IO::Disk::fixPath(path)))
                 return std::make_pair("", MapFormat::Unknown);
             
-            const IO::OpenFile file(path, false);
-            const String gameName = IO::readGameComment(file.file());
-            const String formatName = IO::readFormatComment(file.file());
+            IO::OpenStream open(path, false);
+            const String gameName = IO::readGameComment(open.stream);
+            const String formatName = IO::readFormatComment(open.stream);
             const MapFormat::Type format = mapFormat(formatName);
             if (gameName.empty() || format == MapFormat::Unknown)
                 return std::make_pair("", MapFormat::Unknown);
