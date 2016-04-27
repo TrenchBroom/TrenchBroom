@@ -144,15 +144,15 @@ namespace TrenchBroom {
         };
         
         void IssueBrowserView::updateSelection() {
+            MapDocumentSPtr document = lock(m_document);
             const IndexList selection = getSelection();
             
             Model::NodeList nodes;
             for (size_t i = 0; i < selection.size(); ++i) {
                 Model::Issue* issue = m_issues[selection[i]];
-                issue->addSelectableNodes(nodes);
+                issue->addSelectableNodes(document->editorContext(), nodes);
             }
             
-            MapDocumentSPtr document = lock(m_document);
             document->deselectAll();
             document->select(nodes);
         }

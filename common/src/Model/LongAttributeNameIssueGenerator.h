@@ -17,24 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MissingEntityDefinitionIssueGenerator
-#define TrenchBroom_MissingEntityDefinitionIssueGenerator
+#ifndef LongAttributeNameIssueGenerator_h
+#define LongAttributeNameIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class MissingEntityDefinitionIssueGenerator : public IssueGenerator {
+        class LongAttributeNameIssueGenerator : public IssueGenerator {
         private:
-            class MissingEntityDefinitionIssue;
-            class MissingEntityDefinitionIssueQuickFix;
+            class LongAttributeNameIssue;
+            class LongAttributeNameIssueQuickFix;
+        private:
+            size_t m_maxLength;
         public:
-            MissingEntityDefinitionIssueGenerator();
+            LongAttributeNameIssueGenerator(size_t maxLength);
         private:
-            void doGenerate(Entity* entity, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }
 }
-
-#endif /* defined(TrenchBroom_MissingEntityDefinitionIssueGenerator) */
+#endif /* LongAttributeNameIssueGenerator_h */

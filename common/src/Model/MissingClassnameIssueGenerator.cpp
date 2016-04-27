@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MissingEntityDefinitionIssueGenerator.h"
+#include "MissingClassnameIssueGenerator.h"
 
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
@@ -31,27 +31,27 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MissingEntityDefinitionIssueGenerator::MissingEntityDefinitionIssue : public EntityIssue {
+        class MissingClassnameIssueGenerator::MissingClassnameIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            MissingEntityDefinitionIssue(Entity* entity) :
-            EntityIssue(entity) {}
+            MissingClassnameIssue(AttributableNode* node) :
+            Issue(node) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return entity()->classname() + " not found in entity definitions";
+                return "Entity has no classname property";
             }
         };
         
-        const IssueType MissingEntityDefinitionIssueGenerator::MissingEntityDefinitionIssue::Type = Issue::freeType();
+        const IssueType MissingClassnameIssueGenerator::MissingClassnameIssue::Type = Issue::freeType();
         
-        class MissingEntityDefinitionIssueGenerator::MissingEntityDefinitionIssueQuickFix : public IssueQuickFix {
+        class MissingClassnameIssueGenerator::MissingClassnameIssueQuickFix : public IssueQuickFix {
         public:
-            MissingEntityDefinitionIssueQuickFix() :
+            MissingClassnameIssueQuickFix() :
             IssueQuickFix("Delete entities") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
@@ -59,14 +59,14 @@ namespace TrenchBroom {
             }
         };
         
-        MissingEntityDefinitionIssueGenerator::MissingEntityDefinitionIssueGenerator() :
-        IssueGenerator(MissingEntityDefinitionIssue::Type, "Missing entity definition") {
-            addQuickFix(new MissingEntityDefinitionIssueQuickFix());
+        MissingClassnameIssueGenerator::MissingClassnameIssueGenerator() :
+        IssueGenerator(MissingClassnameIssue::Type, "Missing entity classname") {
+            addQuickFix(new MissingClassnameIssueQuickFix());
         }
         
-        void MissingEntityDefinitionIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            if (entity->definition() == NULL)
-                issues.push_back(new MissingEntityDefinitionIssue(entity));
+        void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+            if (!node->hasAttribute(AttributeNames::Classname))
+                issues.push_back(new MissingClassnameIssue(node));
         }
     }
 }

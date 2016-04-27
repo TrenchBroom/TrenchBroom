@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EmptyBrushEntityIssueGenerator.h"
+#include "MissingDefinitionIssueGenerator.h"
 
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
@@ -31,28 +31,28 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public Issue {
+        class MissingDefinitionIssueGenerator::MissingDefinitionIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            EmptyBrushEntityIssue(Entity* entity) :
-            Issue(entity) {}
+            MissingDefinitionIssue(AttributableNode* node) :
+            Issue(node) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                const Entity* entity = static_cast<Entity*>(node());
-                return entity->classname() + " does not contain any brushes";
+                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                return attributableNode->classname() + " not found in entity definitions";
             }
         };
         
-        const IssueType EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue::Type = Issue::freeType();
+        const IssueType MissingDefinitionIssueGenerator::MissingDefinitionIssue::Type = Issue::freeType();
         
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
+        class MissingDefinitionIssueGenerator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
         public:
-            EmptyBrushEntityIssueQuickFix() :
+            MissingDefinitionIssueQuickFix() :
             IssueQuickFix("Delete entities") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
@@ -60,16 +60,14 @@ namespace TrenchBroom {
             }
         };
         
-        EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueGenerator() :
-        IssueGenerator(EmptyBrushEntityIssue::Type, "Empty brush entity") {
-            addQuickFix(new EmptyBrushEntityIssueQuickFix());
+        MissingDefinitionIssueGenerator::MissingDefinitionIssueGenerator() :
+        IssueGenerator(MissingDefinitionIssue::Type, "Missing entity definition") {
+            addQuickFix(new MissingDefinitionIssueQuickFix());
         }
         
-        void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            assert(entity != NULL);
-            const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
-                issues.push_back(new EmptyBrushEntityIssue(entity));
+        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+            if (node->definition() == NULL)
+                issues.push_back(new MissingDefinitionIssue(node));
         }
     }
 }

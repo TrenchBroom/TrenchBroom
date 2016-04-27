@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityLinkTargetIssueGenerator.h"
+#include "LinkTargetIssueGenerator.h"
 
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -30,16 +30,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityLinkTargetIssueGenerator::EntityLinkTargetIssue : public EntityIssue {
+        class LinkTargetIssueGenerator::LinkTargetIssue : public Issue {
         public:
-            friend class EntityLinkTargetIssueQuickFix;
+            friend class LinkTargetIssueQuickFix;
         private:
             const AttributeName m_name;
         public:
             static const IssueType Type;
         public:
-            EntityLinkTargetIssue(Entity* entity, const AttributeName& name) :
-            EntityIssue(entity),
+            LinkTargetIssue(AttributableNode* node, const AttributeName& name) :
+            Issue(node),
             m_name(name) {}
             
             IssueType doGetType() const {
@@ -47,17 +47,18 @@ namespace TrenchBroom {
             }
             
             const String doGetDescription() const {
-                return entity()->classname() + " has missing target for key '" + m_name + "'";
+                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                return attributableNode->classname() + " has missing target for key '" + m_name + "'";
             }
         };
         
-        const IssueType EntityLinkTargetIssueGenerator::EntityLinkTargetIssue::Type = Issue::freeType();
+        const IssueType LinkTargetIssueGenerator::LinkTargetIssue::Type = Issue::freeType();
 
-        class EntityLinkTargetIssueGenerator::EntityLinkTargetIssueQuickFix : public IssueQuickFix {
+        class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
         private:
             typedef std::map<AttributeName, NodeList> AttributeNameMap;
         public:
-            EntityLinkTargetIssueQuickFix() :
+            LinkTargetIssueQuickFix() :
             IssueQuickFix("Delete property") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
@@ -71,8 +72,8 @@ namespace TrenchBroom {
                 IssueList::const_iterator it, end;
                 for (it = issues.begin(), end = issues.end(); it != end; ++it) {
                     const Issue* issue = *it;
-                    assert(issue->type() == EntityLinkTargetIssue::Type);
-                    const EntityLinkTargetIssue* targetIssue = static_cast<const EntityLinkTargetIssue*>(issue);
+                    assert(issue->type() == LinkTargetIssue::Type);
+                    const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
                     
                     const AttributeName& attributeName = targetIssue->m_name;
                     result[attributeName].push_back(targetIssue->m_node);
@@ -94,21 +95,21 @@ namespace TrenchBroom {
             }
         };
         
-        EntityLinkTargetIssueGenerator::EntityLinkTargetIssueGenerator() :
-        IssueGenerator(EntityLinkTargetIssue::Type, "Missing entity link source") {
-            addQuickFix(new EntityLinkTargetIssueQuickFix());
+        LinkTargetIssueGenerator::LinkTargetIssueGenerator() :
+        IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
+            addQuickFix(new LinkTargetIssueQuickFix());
         }
 
-        void EntityLinkTargetIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            processKeys(entity, entity->findMissingLinkTargets(), issues);
-            processKeys(entity, entity->findMissingKillTargets(), issues);
+        void LinkTargetIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+            processKeys(node, node->findMissingLinkTargets(), issues);
+            processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void EntityLinkTargetIssueGenerator::processKeys(Entity* entity, const Model::AttributeNameList& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
             Model::AttributeNameList::const_iterator it, end;
             for (it = names.begin(), end = names.end(); it != end; ++it) {
                 const Model::AttributeName& name = *it;
-                issues.push_back(new EntityLinkTargetIssue(entity, name));
+                issues.push_back(new LinkTargetIssue(node, name));
             }
         }
     }

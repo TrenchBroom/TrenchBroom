@@ -17,12 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MissingEntityClassnameIssueGenerator.h"
+#include "LinkSourceIssueGenerator.h"
 
-#include "StringUtils.h"
-#include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -31,42 +29,43 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssue : public EntityIssue {
+        class LinkSourceIssueGenerator::LinkSourceIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            MissingEntityClassnameIssue(Entity* entity) :
-            EntityIssue(entity) {}
-        private:
+            LinkSourceIssue(AttributableNode* node) :
+            Issue(node) {}
+            
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return "Entity has no classname property";
+                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                return attributableNode->classname() + " has unused targetname key";
             }
         };
         
-        const IssueType MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssue::Type = Issue::freeType();
-        
-        class MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssueQuickFix : public IssueQuickFix {
+        const IssueType LinkSourceIssueGenerator::LinkSourceIssue::Type = Issue::freeType();
+
+        class LinkSourceIssueGenerator::LinkSourceIssueQuickFix : public IssueQuickFix {
         public:
-            MissingEntityClassnameIssueQuickFix() :
-            IssueQuickFix("Delete entities") {}
+            LinkSourceIssueQuickFix() :
+            IssueQuickFix("Delete property") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
-                facade->deleteObjects();
+                facade->removeAttribute(AttributeNames::Targetname);
             }
         };
         
-        MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssueGenerator() :
-        IssueGenerator(MissingEntityClassnameIssue::Type, "Missing entity classname") {
-            addQuickFix(new MissingEntityClassnameIssueQuickFix());
+        LinkSourceIssueGenerator::LinkSourceIssueGenerator() :
+        IssueGenerator(LinkSourceIssue::Type, "Missing entity link source") {
+            addQuickFix(new LinkSourceIssueQuickFix());
         }
-        
-        void MissingEntityClassnameIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            if (!entity->hasAttribute(AttributeNames::Classname))
-                issues.push_back(new MissingEntityClassnameIssue(entity));
+
+        void LinkSourceIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+            if (node->hasMissingSources())
+                issues.push_back(new LinkSourceIssue(node));
         }
     }
 }

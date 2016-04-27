@@ -48,15 +48,17 @@
 #include "Model/EditorContext.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/Entity.h"
-#include "Model/EntityLinkSourceIssueGenerator.h"
-#include "Model/EntityLinkTargetIssueGenerator.h"
+#include "Model/LinkSourceIssueGenerator.h"
+#include "Model/LinkTargetIssueGenerator.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
+#include "Model/LongAttributeNameIssueGenerator.h"
+#include "Model/LongAttributeValueIssueGenerator.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
-#include "Model/MissingEntityClassnameIssueGenerator.h"
-#include "Model/MissingEntityDefinitionIssueGenerator.h"
+#include "Model/MissingClassnameIssueGenerator.h"
+#include "Model/MissingDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
@@ -377,6 +379,9 @@ namespace TrenchBroom {
         }
         
         const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
+            if (!hasSelection())
+                return Model::AttributableNodeList(1, m_world);
+            
             Model::CollectAttributableNodesVisitor visitor;
             Model::Node::accept(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
             return visitor.nodes();
@@ -1465,17 +1470,20 @@ namespace TrenchBroom {
         
         void MapDocument::registerIssueGenerators() {
             assert(m_world != NULL);
+            assert(m_game.get() != NULL);
             
-            m_world->registerIssueGenerator(new Model::MissingEntityClassnameIssueGenerator());
-            m_world->registerIssueGenerator(new Model::MissingEntityDefinitionIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
-            m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
-            m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
+            m_world->registerIssueGenerator(new Model::LinkSourceIssueGenerator());
+            m_world->registerIssueGenerator(new Model::LinkTargetIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
+            m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
+            m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
         }
         
         bool MapDocument::persistent() const {

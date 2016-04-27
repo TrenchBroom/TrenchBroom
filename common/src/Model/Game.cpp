@@ -57,6 +57,10 @@ namespace TrenchBroom {
             return doCompilationConfig();
         }
 
+        size_t Game::maxPropertyLength() const {
+            return doMaxPropertyLength();
+        }
+
         World* Game::newMap(const MapFormat::Type format, const BBox3& worldBounds) const {
             return doNewMap(format, worldBounds);
         }

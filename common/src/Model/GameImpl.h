@@ -58,6 +58,8 @@ namespace TrenchBroom {
 
             CompilationConfig& doCompilationConfig();
 
+            size_t doMaxPropertyLength() const;
+
             World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
@@ -102,7 +104,6 @@ namespace TrenchBroom {
 
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
-            
         private:
             void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
             String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;

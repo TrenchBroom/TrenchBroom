@@ -24,6 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
         
         class Issue {
         private:
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             
             IssueType type() const;
             Node* node() const;
-            void addSelectableNodes(Model::NodeList& nodes) const;
+            void addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
             
             bool hidden() const;
             void setHidden(bool hidden);
@@ -50,16 +51,6 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual IssueType doGetType() const = 0;
             virtual const String doGetDescription() const = 0;
-            virtual void doAddSelectableNodes(Model::NodeList& nodes) const;
-        };
-        
-        class EntityIssue : public Issue {
-        protected:
-            EntityIssue(Node* node);
-        protected:
-            Entity* entity() const;
-        private:
-            void doAddSelectableNodes(Model::NodeList& nodes) const;
         };
     }
 }

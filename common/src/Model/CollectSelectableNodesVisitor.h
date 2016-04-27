@@ -30,7 +30,7 @@ namespace TrenchBroom {
         template <typename C>
         class CollectSelectableNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched> {
         public:
-            CollectSelectableNodesTemplate(const Model::EditorContext& editorContext) :
+            CollectSelectableNodesTemplate(const EditorContext& editorContext) :
             CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched>(MatchSelectableNodes(editorContext)) {}
         };
         

@@ -31,19 +31,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public EntityIssue {
+        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public Issue {
         public:
             static const IssueType Type;
         public:
             PointEntityWithBrushesIssue(Entity* entity) :
-            EntityIssue(entity) {}
+            Issue(entity) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return entity()->classname() + " contains brushes";
+                const Entity* entity = static_cast<Entity*>(node());
+                return entity->classname() + " contains brushes";
             }
         };
         
