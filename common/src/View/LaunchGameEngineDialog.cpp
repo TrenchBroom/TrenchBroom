@@ -126,6 +126,7 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
 
             m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
+            m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);
             Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
         }
 
