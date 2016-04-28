@@ -140,7 +140,7 @@ as instructed below.
   
 
 ####wxWidgets
->**Warning:** building/installing ***may*** cause future compile issues with other programs that rely on older versions of **wxWidgets**  
+>**Warning:** installing source built version ***may*** cause future compile issues with other programs that rely on older versions of **wxWidgets**  
 
 - You have two options here: Either install wxWidgets 3.1.0 using your package manager of choice, or download and build it yourself. For the latter, you may follow these instructions:
   - Get the latest source [wxWidgets-3.1.0.tar.bz2][tar.bz2 sourcecode] and unpack them.
