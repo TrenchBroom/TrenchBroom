@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Model/CollectSelectableNodesVisitor.h"
+#include "Model/EditorContext.h"
 #include "Model/Node.h"
 
 #include <cassert>
@@ -48,11 +49,16 @@ namespace TrenchBroom {
         Node* Issue::node() const {
             return m_node;
         }
-
-        void Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
+        
+        bool Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
+            if (m_node->parent() == NULL)
+                return false;
+            
             CollectSelectableNodesVisitor collect(editorContext);
             m_node->acceptAndRecurse(collect);
             VectorUtils::append(nodes, collect.nodes());
+            
+            return true;
         }
 
         bool Issue::hidden() const {

@@ -60,17 +60,19 @@ namespace TrenchBroom {
         private:
         public:
             LongAttributeNameIssueQuickFix() :
-            IssueQuickFix("Delete properties") {}
+            IssueQuickFix(LongAttributeNameIssue::Type, "Delete properties") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    const Issue* issue = *it;
-                    if (issue->type() == LongAttributeNameIssue::Type) {
-                        const LongAttributeNameIssue* attrIssue = static_cast<const LongAttributeNameIssue*>(issue);
-                        facade->removeAttribute(attrIssue->attributeName());
-                    }
-                }
+            void doApply(MapFacade* facade, const Issue* issue) const {
+                const PushSelection push(facade);
+                
+                const LongAttributeNameIssue* attrIssue = static_cast<const LongAttributeNameIssue*>(issue);
+
+                // If world node is affected, the selection will fail, but if nothing is selected,
+                // the removeAttribute call will correctly affect worldspawn either way.
+                
+                facade->deselectAll();
+                facade->select(issue->node());
+                facade->removeAttribute(attrIssue->attributeName());
             }
         };
         

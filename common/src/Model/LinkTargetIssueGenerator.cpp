@@ -59,39 +59,20 @@ namespace TrenchBroom {
             typedef std::map<AttributeName, NodeList> AttributeNameMap;
         public:
             LinkTargetIssueQuickFix() :
-            IssueQuickFix("Delete property") {}
+            IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
-                const PushSelection selection(facade);
-                removeAttributes(facade, collectEntities(issues));
-            }
-            
-            AttributeNameMap collectEntities(const IssueList& issues) const {
-                AttributeNameMap result;
+            void doApply(MapFacade* facade, const Issue* issue) const {
+                const PushSelection push(facade);
                 
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    const Issue* issue = *it;
-                    assert(issue->type() == LinkTargetIssue::Type);
-                    const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
-                    
-                    const AttributeName& attributeName = targetIssue->m_name;
-                    result[attributeName].push_back(targetIssue->m_node);
-                }
-                
-                return result;
-            }
-            
-            void removeAttributes(MapFacade* facade, const AttributeNameMap& namesToEntities) const {
-                AttributeNameMap::const_iterator it, end;
-                for (it = namesToEntities.begin(), end = namesToEntities.end(); it != end; ++it) {
-                    const AttributeName& name = it->first;
-                    const NodeList& nodes = it->second;
-                    
-                    facade->deselectAll();
-                    facade->select(nodes);
-                    facade->removeAttribute(name);
-                }
+                const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
+                const AttributeName& attributeName = targetIssue->m_name;
+
+                // If world node is affected, the selection will fail, but if nothing is selected,
+                // the removeAttribute call will correctly affect worldspawn either way.
+
+                facade->deselectAll();
+                facade->select(issue->node());
+                facade->removeAttribute(attributeName);
             }
         };
         

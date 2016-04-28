@@ -40,7 +40,7 @@ namespace TrenchBroom {
             
             IssueType type() const;
             Node* node() const;
-            void addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
+            bool addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
             
             bool hidden() const;
             void setHidden(bool hidden);

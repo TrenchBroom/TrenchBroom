@@ -65,17 +65,19 @@ namespace TrenchBroom {
         private:
         public:
             RemoveLongAttributeValueIssueQuickFix() :
-            IssueQuickFix("Delete properties") {}
+            IssueQuickFix(LongAttributeValueIssue::Type, "Delete properties") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    const Issue* issue = *it;
-                    if (issue->type() == LongAttributeValueIssue::Type) {
-                        const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                        facade->removeAttribute(attrIssue->attributeName());
-                    }
-                }
+            void doApply(MapFacade* facade, const Issue* issue) const {
+                const PushSelection push(facade);
+                
+                const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
+                
+                // If world node is affected, the selection will fail, but if nothing is selected,
+                // the removeAttribute call will correctly affect worldspawn either way.
+                
+                facade->deselectAll();
+                facade->select(issue->node());
+                facade->removeAttribute(attrIssue->attributeName());
             }
         };
         
@@ -84,26 +86,22 @@ namespace TrenchBroom {
             size_t m_maxLength;
         public:
             TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
-            IssueQuickFix("Truncate property values"),
+            IssueQuickFix(LongAttributeValueIssue::Type, "Truncate property values"),
             m_maxLength(maxLength) {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
-                const PushSelection pushSelection(facade);
-                facade->deselectAll();
+            void doApply(MapFacade* facade, const Issue* issue) const {
+                const PushSelection push(facade);
+                
+                const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
+                const AttributeName& attributeName = attrIssue->attributeName();
+                const AttributeValue& attributeValue = attrIssue->attributeValue();
 
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    const Issue* issue = *it;
-                    if (issue->type() == LongAttributeValueIssue::Type) {
-                        const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                        const AttributeName& attributeName = attrIssue->attributeName();
-                        const AttributeValue& attributeValue = attrIssue->attributeValue();
-                        
-                        facade->select(issue->node());
-                        facade->setAttribute(attributeName, attributeValue.substr(0, m_maxLength));
-                        facade->deselect(issue->node());
-                    }
-                }
+                // If world node is affected, the selection will fail, but if nothing is selected,
+                // the removeAttribute call will correctly affect worldspawn either way.
+                
+                facade->deselectAll();
+                facade->select(issue->node());
+                facade->setAttribute(attributeName, attributeValue.substr(0, m_maxLength));
             }
         };
         

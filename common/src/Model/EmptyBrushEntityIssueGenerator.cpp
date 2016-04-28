@@ -53,7 +53,7 @@ namespace TrenchBroom {
         class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
         public:
             EmptyBrushEntityIssueQuickFix() :
-            IssueQuickFix("Delete entities") {}
+            IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->deleteObjects();

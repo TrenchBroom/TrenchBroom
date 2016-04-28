@@ -53,7 +53,7 @@ namespace TrenchBroom {
         class NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueQuickFix : public IssueQuickFix {
         public:
             NonIntegerPlanePointsIssueQuickFix() :
-            IssueQuickFix("Convert plane points to integer") {}
+            IssueQuickFix(NonIntegerPlanePointsIssue::Type, "Convert plane points to integer") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->findPlanePoints();

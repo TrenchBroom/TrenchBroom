@@ -51,9 +51,16 @@ namespace TrenchBroom {
         class LinkSourceIssueGenerator::LinkSourceIssueQuickFix : public IssueQuickFix {
         public:
             LinkSourceIssueQuickFix() :
-            IssueQuickFix("Delete property") {}
+            IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const Issue* issue) const {
+                const PushSelection push(facade);
+                
+                // If world node is affected, the selection will fail, but if nothing is selected,
+                // the removeAttribute call will correctly affect worldspawn either way.
+                
+                facade->deselectAll();
+                facade->select(issue->node());
                 facade->removeAttribute(AttributeNames::Targetname);
             }
         };

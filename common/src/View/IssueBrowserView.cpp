@@ -150,7 +150,10 @@ namespace TrenchBroom {
             Model::NodeList nodes;
             for (size_t i = 0; i < selection.size(); ++i) {
                 Model::Issue* issue = m_issues[selection[i]];
-                issue->addSelectableNodes(document->editorContext(), nodes);
+                if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
+                    nodes.clear();
+                    break;
+                }
             }
             
             document->deselectAll();

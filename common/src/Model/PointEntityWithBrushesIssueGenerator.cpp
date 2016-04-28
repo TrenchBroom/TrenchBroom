@@ -53,7 +53,7 @@ namespace TrenchBroom {
         class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
         public:
             PointEntityWithBrushesIssueQuickFix() :
-            IssueQuickFix("Move brushes to world") {}
+            IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 NodeList affectedNodes;
