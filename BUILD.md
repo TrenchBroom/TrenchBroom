@@ -155,7 +155,7 @@ as instructed below.
 
 ```bash
 cd build-release
-../configure --disable-shared --with-opengl --with-gtk=2
+../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)/install
 make
 sudo make install
 ```  
@@ -164,7 +164,7 @@ sudo make install
 
 ```bash
 cd ../build-debug
-../configure --enable-debug --with-opengl --with-gtk=2
+../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)/install
 make
 sudo make install
 ```  
@@ -180,10 +180,12 @@ Make sure your terminal is open inside your **`<wxWidgets-3.1.0 directory>`** an
  **ARCH-BASED:** `sudo pacman -S cmake`  
   
 ####Build TrenchBroom  
+>make sure to replace `/your/wxWidgets/directory/build-release/install` with your **actual** directory path.  
+
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources  
 - Create a new directory, e.g. "`build`", and change into it. e.g.`mkdir build` `cd build`  
 - Run the following two commands  
-  `cmake .. -DCMAKE_BUILD_TYPE=Release`  
+  `cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install`  
   `cmake --build . --target TrenchBroom`  
   You can replace "`Release`" with "`Debug`" if you want to create a debug build. Also change the value of the wxWidgets_PREFIX variable to point to your wxWidgets build-debug directory in that case. 
 
