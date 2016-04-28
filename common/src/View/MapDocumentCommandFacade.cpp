@@ -686,7 +686,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map::const_iterator it, end;
             for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
                 Model::AttributableNode* node = it->first;
-                assert(node->selected() || node->descendantSelected());
+                assert(node->parent() == NULL || node->selected() || node->descendantSelected());
                 
                 const Model::EntityAttributeSnapshot& snapshot = it->second;
                 snapshot.restore(node);

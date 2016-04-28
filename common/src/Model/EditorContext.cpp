@@ -276,7 +276,7 @@ namespace TrenchBroom {
         public:
             NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world)   { setResult(false); }
+            void doVisit(const Model::World* world)   { setResult(m_this.selectable(world)); }
             void doVisit(const Model::Layer* layer)   { setResult(m_this.selectable(layer)); }
             void doVisit(const Model::Group* group)   { setResult(m_this.selectable(group)); }
             void doVisit(const Model::Entity* entity) { setResult(m_this.selectable(entity)); }
@@ -289,6 +289,10 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
+        bool EditorContext::selectable(const Model::World* world) const {
+            return false;
+        }
+
         bool EditorContext::selectable(const Model::Layer* layer) const {
             return false;
         }

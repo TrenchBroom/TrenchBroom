@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MissingEntityClassnameIssueGenerator.h"
+#include "MissingDefinitionIssueGenerator.h"
 
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
@@ -31,42 +31,43 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssue : public EntityIssue {
+        class MissingDefinitionIssueGenerator::MissingDefinitionIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            MissingEntityClassnameIssue(Entity* entity) :
-            EntityIssue(entity) {}
+            MissingDefinitionIssue(AttributableNode* node) :
+            Issue(node) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return "Entity has no classname property";
+                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                return attributableNode->classname() + " not found in entity definitions";
             }
         };
         
-        const IssueType MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssue::Type = Issue::freeType();
+        const IssueType MissingDefinitionIssueGenerator::MissingDefinitionIssue::Type = Issue::freeType();
         
-        class MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssueQuickFix : public IssueQuickFix {
+        class MissingDefinitionIssueGenerator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
         public:
-            MissingEntityClassnameIssueQuickFix() :
-            IssueQuickFix("Delete entities") {}
+            MissingDefinitionIssueQuickFix() :
+            IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->deleteObjects();
             }
         };
         
-        MissingEntityClassnameIssueGenerator::MissingEntityClassnameIssueGenerator() :
-        IssueGenerator(MissingEntityClassnameIssue::Type, "Missing entity classname") {
-            addQuickFix(new MissingEntityClassnameIssueQuickFix());
+        MissingDefinitionIssueGenerator::MissingDefinitionIssueGenerator() :
+        IssueGenerator(MissingDefinitionIssue::Type, "Missing entity definition") {
+            addQuickFix(new MissingDefinitionIssueQuickFix());
         }
         
-        void MissingEntityClassnameIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            if (!entity->hasAttribute(AttributeNames::Classname))
-                issues.push_back(new MissingEntityClassnameIssue(entity));
+        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+            if (node->definition() == NULL)
+                issues.push_back(new MissingDefinitionIssue(node));
         }
     }
 }

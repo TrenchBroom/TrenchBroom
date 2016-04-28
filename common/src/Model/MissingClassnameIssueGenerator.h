@@ -17,24 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityLinkSourceIssueGenerator
-#define TrenchBroom_EntityLinkSourceIssueGenerator
+#ifndef TrenchBroom_MissingClassnameIssueGenerator
+#define TrenchBroom_MissingClassnameIssueGenerator
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityLinkSourceIssueGenerator : public IssueGenerator {
+        class MissingClassnameIssueGenerator : public IssueGenerator {
         private:
-            class EntityLinkSourceIssue;
-            class EntityLinkSourceIssueQuickFix;
+            class MissingClassnameIssue;
+            class MissingClassnameIssueQuickFix;
         public:
-            EntityLinkSourceIssueGenerator();
+            MissingClassnameIssueGenerator();
         private:
-            void doGenerate(Entity* entity, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_EntityLinkSourceIssueGenerator) */
+#endif /* defined(TrenchBroom_MissingClassnameIssueGenerator) */

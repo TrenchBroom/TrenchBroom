@@ -17,25 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityLinkTargetIssueGenerator
-#define TrenchBroom_EntityLinkTargetIssueGenerator
+#ifndef TrenchBroom_LinkTargetIssueGenerator
+#define TrenchBroom_LinkTargetIssueGenerator
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityLinkTargetIssueGenerator : public IssueGenerator {
+        class LinkTargetIssueGenerator : public IssueGenerator {
         private:
-            class EntityLinkTargetIssue;
-            class EntityLinkTargetIssueQuickFix;
+            class LinkTargetIssue;
+            class LinkTargetIssueQuickFix;
         public:
-            EntityLinkTargetIssueGenerator();
+            LinkTargetIssueGenerator();
         private:
-            void doGenerate(Entity* entity, IssueList& issues) const;
-            void processKeys(Entity* entity, const Model::AttributeNameList& names, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const;
+            void processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_EntityLinkTargetIssueGenerator) */
+#endif /* defined(TrenchBroom_LinkTargetIssueGenerator) */

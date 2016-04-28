@@ -17,32 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IssueQuickFix
-#define TrenchBroom_IssueQuickFix
+#ifndef LongAttributeValueIssueGenerator_h
+#define LongAttributeValueIssueGenerator_h
 
+#include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class MapFacade;
-        
-        class IssueQuickFix {
+        class LongAttributeValueIssueGenerator : public IssueGenerator {
         private:
-            IssueType m_issueType;
-            String m_description;
-        protected:
-            IssueQuickFix(IssueType issueType, const String& description);
+            class LongAttributeValueIssue;
+            class RemoveLongAttributeValueIssueQuickFix;
+            class TruncateLongAttributeValueIssueQuickFix;
+        private:
+            size_t m_maxLength;
         public:
-            virtual ~IssueQuickFix();
-            
-            const String& description() const;
-            
-            void apply(MapFacade* facade, const IssueList& issues) const;
+            LongAttributeValueIssueGenerator(size_t maxLength);
         private:
-            virtual void doApply(MapFacade* facade, const IssueList& issues) const;
-            virtual void doApply(MapFacade* facade, const Issue* issue) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }
 }
-
-#endif /* defined(TrenchBroom_IssueQuickFix) */
+#endif /* LongAttributeValueIssueGenerator_h */

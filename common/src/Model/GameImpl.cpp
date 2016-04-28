@@ -125,6 +125,10 @@ namespace TrenchBroom {
             return m_config.compilationConfig();
         }
 
+        size_t GameImpl::doMaxPropertyLength() const {
+            return m_config.maxPropertyLength();
+        }
+
         World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
@@ -429,7 +433,7 @@ namespace TrenchBroom {
             }
             
             const String value = StringUtils::escapeAndJoin(specList, ';');
-            writeLongAttribute(world, AttributeNames::GameEngineParameterSpecs, value, m_config.maxPropertyValueLength());
+            writeLongAttribute(world, AttributeNames::GameEngineParameterSpecs, value, m_config.maxPropertyLength());
         }
 
         const GameConfig::FlagsConfig& GameImpl::doSurfaceFlags() const {

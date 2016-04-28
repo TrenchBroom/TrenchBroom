@@ -99,6 +99,7 @@ namespace TrenchBroom {
             bool pickable(const Model::BrushFace* face) const;
             
             bool selectable(const Model::Node* node) const;
+            bool selectable(const Model::World* world) const;
             bool selectable(const Model::Layer* layer) const;
             bool selectable(const Model::Group* group) const;
             bool selectable(const Model::Entity* entity) const;
