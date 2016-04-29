@@ -40,6 +40,7 @@ namespace TrenchBroom {
         }
         
         void CharArrayReader::read(char* val, const size_t size) {
+            assert(canRead(size));
             memcpy(val, m_current, size);
             m_current += size;
         }
@@ -50,6 +51,13 @@ namespace TrenchBroom {
         
         bool CharArrayReader::eof() const {
             return canRead(0);
+        }
+
+        String CharArrayReader::readString(const size_t size) {
+            char* buffer = new char[size+1];
+            buffer[size] = 0;
+            read(buffer, size);
+            return String(buffer);
         }
     }
 }

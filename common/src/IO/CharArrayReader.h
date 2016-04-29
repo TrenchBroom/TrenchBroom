@@ -55,8 +55,18 @@ namespace TrenchBroom {
             template <typename T, typename R>
             R read() {
                 T result;
-                read(reinterpret_cast<char*>(result), sizeof(T));
+                read(reinterpret_cast<char*>(&result), sizeof(T));
                 return static_cast<R>(result);
+            }
+            
+            template <typename T>
+            char readChar() {
+                return read<T, char>();
+            }
+            
+            template <typename T>
+            unsigned char readUnsignedChar() {
+                return read<T, unsigned char>();
             }
             
             template <typename T>
@@ -88,6 +98,8 @@ namespace TrenchBroom {
             double readDouble() {
                 return read<T, double>();
             }
+            
+            String readString(size_t size);
             
             template <typename R, size_t S, typename T = float>
             Vec<T,S> readVec() {
