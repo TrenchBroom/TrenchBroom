@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PakFileSystem
-#define TrenchBroom_PakFileSystem
+#ifndef PakFileSystemBase_h
+#define PakFileSystemBase_h
 
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
@@ -28,47 +28,70 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class PakFileSystem : public FileSystem {
-        private:
+        class PakFileSystemBase : public FileSystem {
+        protected:
+            class File {
+            public:
+                virtual ~File();
+                
+                MappedFile::Ptr open();
+            private:
+                virtual MappedFile::Ptr doOpen() = 0;
+            };
+            
+            class SimpleFile : public File {
+            private:
+                MappedFile::Ptr m_file;
+            public:
+                SimpleFile(const char* begin, const char* end);
+            private:
+                MappedFile::Ptr doOpen();
+            };
+            
             class Directory {
             private:
-                typedef std::map<String, Directory> DirMap;
-                typedef std::map<String, MappedFile::Ptr> FileMap;
+                typedef std::map<String, Directory*> DirMap;
+                typedef std::map<String, File*> FileMap;
                 
                 Path m_path;
                 DirMap m_directories;
                 FileMap m_files;
             public:
                 Directory(const Path& path);
+                ~Directory();
                 
-                void addFile(const Path& path, MappedFile::Ptr file);
+                void addFile(const Path& path, File* file);
                 
                 bool directoryExists(const Path& path) const;
                 bool fileExists(const Path& path) const;
-
+                
                 const Directory& findDirectory(const Path& path) const;
                 const MappedFile::Ptr findFile(const Path& path) const;
                 Path::List contents() const;
             private:
                 Directory& findOrCreateDirectory(const Path& path);
             };
-            
+        protected:
             Path m_path;
             MappedFile::Ptr m_file;
             Directory m_root;
+        protected:
+            PakFileSystemBase(const Path& path, MappedFile::Ptr file);
         public:
-            PakFileSystem(const Path& path, MappedFile::Ptr file);
+            virtual ~PakFileSystemBase();
+        protected:
+            void initialize();
         private:
-            void readDirectory();
-            
             Path doMakeAbsolute(const Path& relPath) const;
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             
             Path::List doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
+        private:
+            virtual void doReadDirectory() = 0;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_PakFileSystem) */
+#endif /* PakFileSystemBase_h */

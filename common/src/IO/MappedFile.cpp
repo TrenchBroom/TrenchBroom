@@ -35,18 +35,16 @@ namespace TrenchBroom {
     namespace IO {
         MappedFile::MappedFile() :
         m_begin(NULL),
-        m_end(NULL),
-        m_size(0) {
+        m_end(NULL) {
         }
         
         MappedFile::~MappedFile() {
             m_begin = NULL;
             m_end = NULL;
-            m_size = 0;
         }
 
         size_t MappedFile::size() const {
-            return m_size;
+            return static_cast<size_t>(m_end - m_begin);
         }
         
         const char* MappedFile::begin() const {
@@ -63,11 +61,18 @@ namespace TrenchBroom {
                 throw new FileSystemException("End of mapped file is before begin");
             m_begin = begin;
             m_end = end;
-            m_size = static_cast<size_t>(m_end - m_begin);
         }
 
         MappedFileView::MappedFileView(const char* begin, const char* end) {
             init(begin, end);
+        }
+
+        MappedFileBuffer::MappedFileBuffer(const char* begin, const size_t size) {
+            init(begin, begin + size);
+        }
+        
+        MappedFileBuffer::~MappedFileBuffer() {
+            delete [] m_begin;
         }
 
 #ifdef _WIN32

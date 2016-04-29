@@ -28,6 +28,7 @@
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
+#include "IO/IdPakFileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -35,7 +36,6 @@
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
-#include "IO/PakFileSystem.h"
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                     assert(packageFile.get() != NULL);
                     
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
-                        m_gameFS.addFileSystem(new IO::PakFileSystem(packagePath, packageFile));
+                        m_gameFS.addFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
                 }
             }
         }

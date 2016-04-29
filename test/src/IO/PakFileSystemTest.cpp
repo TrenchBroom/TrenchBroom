@@ -21,7 +21,7 @@
 
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
-#include "IO/PakFileSystem.h"
+#include "IO/IdPakFileSystem.h"
 #include "IO/MappedFile.h"
 
 #include <algorithm>
@@ -29,12 +29,12 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(PakFileSystemTest, directoryExists) {
+        TEST(IdPakFileSystemTest, directoryExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
 
-            const PakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
             ASSERT_THROW(fs.directoryExists(Path("/gfx")), FileSystemException);
             
@@ -43,12 +43,12 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
         }
         
-        TEST(PakFileSystemTest, fileExists) {
+        TEST(IdPakFileSystemTest, fileExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const PakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
             ASSERT_THROW(fs.fileExists(Path("/gfx/palette.lmp")), FileSystemException);
             
@@ -56,12 +56,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.fileExists(Path("GFX/Palette.LMP")));
         }
         
-        TEST(PakFileSystemTest, findItems) {
+        TEST(IdPakFileSystemTest, findItems) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const PakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
@@ -87,12 +87,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag2.pcx")) != items.end());
         }
         
-        TEST(PakFileSystemTest, findItemsRecursively) {
+        TEST(IdPakFileSystemTest, findItemsRecursively) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const PakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
@@ -137,12 +137,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
         }
         
-        TEST(PakFileSystemTest, openFile) {
+        TEST(IdPakFileSystemTest, openFile) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const PakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);

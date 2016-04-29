@@ -24,6 +24,7 @@
 
 #include "Exceptions.h"
 
+#include <istream>
 #include <vector>
 
 #ifdef _WIN32
@@ -39,10 +40,9 @@ namespace TrenchBroom {
         public:
             typedef std::tr1::shared_ptr<MappedFile> Ptr;
             typedef std::vector<Ptr> List;
-        private:
+        protected:
             const char* m_begin;
             const char* m_end;
-            size_t m_size;
         public:
             MappedFile();
             virtual ~MappedFile();
@@ -57,6 +57,12 @@ namespace TrenchBroom {
         class MappedFileView : public MappedFile {
         public:
             MappedFileView(const char* begin, const char* end);
+        };
+        
+        class MappedFileBuffer : public MappedFile {
+        public:
+            MappedFileBuffer(const char* begin, size_t size);
+            ~MappedFileBuffer();
         };
 
 #ifdef _WIN32
