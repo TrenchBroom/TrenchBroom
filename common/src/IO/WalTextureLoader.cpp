@@ -40,6 +40,8 @@ namespace TrenchBroom {
         m_fs(fs),
         m_palette(palette) {}
         
+        WalTextureLoader::~WalTextureLoader() {}
+        
         Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             Path::List texturePaths = m_fs.findItems(spec.path(), FileExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
@@ -51,7 +53,7 @@ namespace TrenchBroom {
                 Path::List::const_iterator it, end;
                 for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
                     const Path& texturePath = *it;
-                    Assets::Texture* texture = readTexture(texturePath);
+                    Assets::Texture* texture = doReadTexture(texturePath, m_fs.openFile(texturePath), m_palette);
                     textures.push_back(texture);
                 }
                 
@@ -60,34 +62,6 @@ namespace TrenchBroom {
                 VectorUtils::clearAndDelete(textures);
                 throw;
             }
-        }
-        
-        Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) const {
-            MappedFile::Ptr file = m_fs.openFile(path);
-            const char* cursor = file->begin();
-            
-            advance<char[32]>(cursor);
-            const size_t width = readSize<uint32_t>(cursor);
-            const size_t height = readSize<uint32_t>(cursor);
-            const String textureName = path.suffix(2).deleteExtension().asString('/');
-            
-            Color tempColor, averageColor;
-            Assets::TextureBuffer::List buffers(4);
-            Assets::setMipBufferSize(buffers, width, height);
-            
-            const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
-            for (size_t i = 0; i < 4; ++i) {
-                const size_t divisor = 1 << i;
-                const size_t offset = IO::readSize<int32_t>(offsetCursor);
-                const char* mipCursor = file->begin() + offset;
-                const size_t pixelCount = (width * height) / (divisor * divisor);
-                
-                m_palette.indexedToRgb(mipCursor, pixelCount, buffers[i], tempColor);
-                if (i == 0)
-                    averageColor = tempColor;
-            }
-            
-            return new Assets::Texture(textureName, width, height, averageColor, buffers);
         }
     }
 }

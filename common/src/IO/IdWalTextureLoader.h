@@ -17,32 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WalTextureLoader
-#define TrenchBroom_WalTextureLoader
+#ifndef IdWalTextureLoader_h
+#define IdWalTextureLoader_h
 
-#include "IO/TextureLoader.h"
-
+#include "IO/WalTextureLoader.h"
 #include "Assets/AssetTypes.h"
-#include "IO/MappedFile.h"
 
 namespace TrenchBroom {
     namespace IO {
         class FileSystem;
         class Path;
         
-        class WalTextureLoader : public TextureLoader {
-        private:
-            const FileSystem& m_fs;
-            const Assets::Palette& m_palette;
-        protected:
-            WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette);
+        class IdWalTextureLoader : public WalTextureLoader {
         public:
-            virtual ~WalTextureLoader();
+            IdWalTextureLoader(const FileSystem& fs, const Assets::Palette& palette);
         private:
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            virtual Assets::Texture* doReadTexture(const IO::Path& path, MappedFile::Ptr file, const Assets::Palette& palette) const = 0;
+            Assets::Texture* doReadTexture(const IO::Path& path, MappedFile::Ptr file, const Assets::Palette& palette) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_WalTextureLoader) */
+#endif /* IdWalTextureLoader_h */

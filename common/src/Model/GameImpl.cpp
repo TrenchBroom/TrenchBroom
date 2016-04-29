@@ -29,6 +29,7 @@
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IdPakFileSystem.h"
+#include "IO/IdWalTextureLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -39,7 +40,6 @@
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
-#include "IO/WalTextureLoader.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Tutorial.h"
 #include "Model/World.h"
@@ -356,11 +356,11 @@ namespace TrenchBroom {
             const IO::Path& path = spec.path();
             if (path.isAbsolute()) {
                 IO::DiskFileSystem diskFS(path.deleteLastComponent());
-                IO::WalTextureLoader loader(diskFS, *m_palette);
+                IO::IdWalTextureLoader loader(diskFS, *m_palette);
                 const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
                 return loader.loadTextureCollection(newSpec);
             } else {
-                IO::WalTextureLoader loader(m_gameFS, *m_palette);
+                IO::IdWalTextureLoader loader(m_gameFS, *m_palette);
                 return loader.loadTextureCollection(spec);
             }
         }
