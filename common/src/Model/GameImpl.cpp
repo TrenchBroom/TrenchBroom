@@ -180,12 +180,13 @@ namespace TrenchBroom {
         }
     
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
-            const String& type = m_config.textureConfig().type;
-            if (type == "wad")
-                return StringUtils::caseInsensitiveEqual(path.extension(), "wad");
-            if (type == "wal")
-                return IO::Disk::directoryExists(path);
-            return false;
+            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
+            switch (packageConfig.type) {
+                case GameConfig::TexturePackageConfig::PT_File:
+                    return StringUtils::caseInsensitiveEqual(path.extension(), packageConfig.format.extension);
+                case GameConfig::TexturePackageConfig::PT_Directory:
+                    return IO::Disk::directoryExists(path);
+            }
         }
 
         IO::Path::List GameImpl::doFindBuiltinTextureCollections() const {
@@ -225,12 +226,13 @@ namespace TrenchBroom {
         }
 
         Assets::TextureCollection* GameImpl::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            const String& type = m_config.textureConfig().type;
-            if (type == "wad")
-                return loadWadTextureCollection(spec);
-            if (type == "wal")
-                return loadWalTextureCollection(spec);
-            throw GameException("Unknown texture collection type '" + type + "'");
+            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
+            switch (packageConfig.type) {
+                case GameConfig::TexturePackageConfig::PT_File:
+                    return loadFileTextureCollection(spec);
+                case GameConfig::TexturePackageConfig::PT_Directory:
+                    return loadDirectoryTextureCollection(spec);
+            }
         }
         
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
@@ -325,6 +327,22 @@ namespace TrenchBroom {
             }
         }
         
+        Assets::TextureCollection* GameImpl::loadFileTextureCollection(const Assets::TextureCollectionSpec& spec) const {
+            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
+            const String& format = packageConfig.format.format;
+            if (format == "wad")
+                return loadWadTextureCollection(spec);
+            throw GameException("Unsupported texture collection type '" + spec.path().asString() + "'");
+        }
+        
+        Assets::TextureCollection* GameImpl::loadDirectoryTextureCollection(const Assets::TextureCollectionSpec& spec) const {
+            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
+            const String& format = packageConfig.format.format;
+            if (format == "idwal")
+                return loadWalTextureCollection(spec);
+            throw GameException("Unsupported texture collection type '" + spec.path().asString() + "'");
+        }
+
         Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             assert(m_palette != NULL);
             

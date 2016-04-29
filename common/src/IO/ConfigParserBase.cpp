@@ -95,8 +95,8 @@ namespace TrenchBroom {
             
             const StringSet unknown = SetUtils::minus(table.keys(), SetUtils::merge(mandatory, optional));
             if (!unknown.empty()) {
-                const String keyStr = StringUtils::join(missing.begin(), missing.end(), ", ", ", and ", " and ", StringUtils::StringToSingleQuotedString());
-                throw ParserException(table.line(), table.column(), "Unknown table keys " + keyStr);
+                const String keyStr = StringUtils::join(unknown.begin(), unknown.end(), ", ", ", and ", " and ", StringUtils::StringToSingleQuotedString());
+                throw ParserException(table.line(), table.column(), "Unexpected table keys " + keyStr);
             }
         }
         

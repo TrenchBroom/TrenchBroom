@@ -35,8 +35,12 @@ namespace TrenchBroom {
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
         
-        GameConfig::TextureConfig::TextureConfig(const String& i_type, const String& i_attribute, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath) :
+        GameConfig::TexturePackageConfig::TexturePackageConfig(const PackageType i_type, const PackageFormatConfig& i_format) :
         type(i_type),
+        format(i_format) {}
+
+        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const String& i_attribute, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath) :
+        package(i_package),
         attribute(i_attribute),
         palette(i_palette),
         builtinTexturesSearchPath(i_builtinTexturesSearchPath) {}
@@ -96,7 +100,7 @@ namespace TrenchBroom {
         m_path(IO::Path("")),
         m_icon(IO::Path("")),
         m_fileSystemConfig(IO::Path(""), PackageFormatConfig("", "")),
-        m_textureConfig("", "", IO::Path(""), IO::Path("")),
+        m_textureConfig(TexturePackageConfig(TexturePackageConfig::PT_File, PackageFormatConfig("", "")), "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()),
         m_maxPropertyLength(1023) {}
 

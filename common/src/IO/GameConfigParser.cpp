@@ -119,12 +119,12 @@ namespace TrenchBroom {
             using Model::GameConfig;
             
             expectTableEntries(table,
-                               StringUtils::makeSet(1, "type"),
+                               StringUtils::makeSet(1, "package"),
                                StringUtils::makeSet(3, "attribute", "palette", "builtin"));
 
-            expectTableEntry("type", ConfigEntry::Type_Value, table);
-            const String type = table["type"];
-
+            expectTableEntry("package", ConfigEntry::Type_Table, table);
+            const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(table["package"]);
+            
             String attribute("");
             if (table.contains("attribute")) {
                 expectTableEntry("attribute", ConfigEntry::Type_Value, table);
@@ -143,7 +143,30 @@ namespace TrenchBroom {
                 builtinTexturesSearchPath = IO::Path(table["builtin"]);
             }
             
-            return GameConfig::TextureConfig(type, attribute, IO::Path(palette), builtinTexturesSearchPath);
+            return GameConfig::TextureConfig(packageConfig, attribute, IO::Path(palette), builtinTexturesSearchPath);
+        }
+
+        Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+
+            expectTableEntries(table,
+                               StringUtils::makeSet(2, "type", "format"),
+                               StringSet());
+            
+            expectTableEntry("type", ConfigEntry::Type_Value, table);
+            const String typeStr = table["type"];
+            GameConfig::TexturePackageConfig::PackageType type;
+            if (typeStr == "file")
+                type = GameConfig::TexturePackageConfig::PT_File;
+            else if (typeStr == "directory")
+                type = GameConfig::TexturePackageConfig::PT_Directory;
+            else
+                throw ParserException(table.line(), table.column(), "Unexpected texture package type '" + typeStr + "'");
+            
+            expectTableEntry("format", ConfigEntry::Type_Table, table);
+            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["format"]);
+            
+            return GameConfig::TexturePackageConfig(type, formatConfig);
         }
 
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {
@@ -274,7 +297,7 @@ namespace TrenchBroom {
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::entityClassnameEvaluator(pattern);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else {
-                    throw ParserException("Unexpected brush content type '" + match + "'");
+                    throw ParserException(table.line(), table.column(), "Unexpected brush content type '" + match + "'");
                 }
             }
             return contentTypes;

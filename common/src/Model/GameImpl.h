@@ -87,6 +87,9 @@ namespace TrenchBroom {
 
             // MapWriterPtr mapWriter(MapFormat::Type format) const;
             
+            Assets::TextureCollection* loadFileTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            Assets::TextureCollection* loadDirectoryTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+
             Assets::TextureCollection* loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             Assets::TextureCollection* loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             

@@ -50,7 +50,7 @@ namespace TrenchBroom {
                                 "    packageformat= {extension=\"pak\",format=\"idpak\"}\n"
                                 "  },\n"
                                 "  textures={\n"
-                                "    type=\"wad\",\n"
+                                "    package = { type = \"file\", format = { extension = \"wad\", format = \"wad\" } },"
                                 "    attribute=\"wad\",\n"
                                 "    palette=\"palette.lmp\"\n"
                                 "  },\n"
@@ -70,7 +70,9 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("id1"), gameConfig.fileSystemConfig().searchPath);
             ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
             ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
-            ASSERT_EQ(String("wad"), gameConfig.textureConfig().type);
+            ASSERT_EQ(Model::GameConfig::TexturePackageConfig::PT_File, gameConfig.textureConfig().package.type);
+            ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.extension);
+            ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.format);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().attribute);
             ASSERT_EQ(Path("palette.lmp"), gameConfig.textureConfig().palette);
             ASSERT_TRUE(gameConfig.textureConfig().builtinTexturesSearchPath.isEmpty());
@@ -93,7 +95,7 @@ namespace TrenchBroom {
                                 "		packageformat = { extension = \"pak\", format = \"idpak\" }\n"
                                 "	},\n"
                                 "	textures = {\n"
-                                "		type = \"wal\",\n"
+                                "   package = { type = \"directory\", format = { extension = \"wal\", format = \"idwal\" } },\n"
                                 "    	attribute = \"_wal\",\n"
                                 "		palette = \"Quake2/colormap.pcx\",\n"
                                 "		builtin = \"textures\"\n"
@@ -136,7 +138,9 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("baseq2"), gameConfig.fileSystemConfig().searchPath);
             ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
             ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
-            ASSERT_EQ(String("wal"), gameConfig.textureConfig().type);
+            ASSERT_EQ(Model::GameConfig::TexturePackageConfig::PT_Directory, gameConfig.textureConfig().package.type);
+            ASSERT_EQ(String("wal"), gameConfig.textureConfig().package.format.extension);
+            ASSERT_EQ(String("idwal"), gameConfig.textureConfig().package.format.format);
             ASSERT_EQ(String("_wal"), gameConfig.textureConfig().attribute);
             ASSERT_EQ(Path("Quake2/colormap.pcx"), gameConfig.textureConfig().palette);
             ASSERT_EQ(Path("textures"), gameConfig.textureConfig().builtinTexturesSearchPath);

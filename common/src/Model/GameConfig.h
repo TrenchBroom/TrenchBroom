@@ -48,13 +48,25 @@ namespace TrenchBroom {
                 FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
             };
             
+            struct TexturePackageConfig {
+                typedef enum {
+                    PT_File,
+                    PT_Directory
+                } PackageType;
+                
+                PackageType type;
+                PackageFormatConfig format;
+                
+                TexturePackageConfig(PackageType i_type, const PackageFormatConfig& i_format);
+            };
+            
             struct TextureConfig {
-                String type;
+                TexturePackageConfig package;
                 String attribute;
                 IO::Path palette;
                 IO::Path builtinTexturesSearchPath;
                 
-                TextureConfig(const String& i_type, const String& i_attribute, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath);
+                TextureConfig(const TexturePackageConfig& i_package, const String& i_attribute, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath);
             };
             
             struct EntityConfig {
