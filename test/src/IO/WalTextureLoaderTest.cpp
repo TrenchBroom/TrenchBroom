@@ -25,8 +25,9 @@
 #include "Assets/TextureCollectionSpec.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/PaletteLoader.h"
 #include "IO/Path.h"
-#include "IO/WalTextureLoader.h"
+#include "IO/IdWalTextureLoader.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,9 +39,8 @@ namespace TrenchBroom {
         
         TEST(WalTextureLoaderTest, testLoadWalDir) {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            
-            const Assets::Palette palette(Path("data/colormap.pcx"));
-            WalTextureLoader loader(fs, palette);
+            FilePaletteLoader paletteLoader(fs, Path("data/colormap.pcx"));
+            IdWalTextureLoader loader(fs, &paletteLoader);
             
             const Assets::TextureCollectionSpec spec("rtz", IO::Path("data/IO/Wal/rtz"));
             Assets::TextureCollection* collection = loader.loadTextureCollection(spec);

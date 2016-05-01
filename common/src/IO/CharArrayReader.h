@@ -46,9 +46,12 @@ namespace TrenchBroom {
             CharArrayReader(const char* begin, const char* end);
 
             size_t size() const;
-            void seek(size_t offset);
+            void seekFromBegin(size_t offset);
+            void seekFromEnd(size_t offset);
+            void seekForward(size_t offset);
             
             void read(char* val, size_t size);
+            void read(unsigned char* val, size_t size);
             bool canRead(size_t size) const;
             bool eof() const;
             

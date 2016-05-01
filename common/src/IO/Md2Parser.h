@@ -35,8 +35,9 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class FileSystemHierarchy;
+        class FileSystem;
         class Path;
+        class PaletteLoader;
         
         namespace Md2Layout {
             static const int Ident = (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I');
@@ -97,10 +98,10 @@ namespace TrenchBroom {
             String m_name;
             const char* m_begin;
             /* const char* m_end; */
-            const Assets::Palette& m_palette;
-            const FileSystemHierarchy& m_fs;
+            const PaletteLoader* m_paletteLoader;
+            const FileSystem& m_fs;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystemHierarchy& fs);
+            Md2Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel();
             Md2SkinList parseSkins(const char* begin, const size_t skinCount);

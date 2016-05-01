@@ -17,27 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureLoader_h
-#define TrenchBroom_TextureLoader_h
+#ifndef WadFileSystem_h
+#define WadFileSystem_h
 
-#include "SharedPointer.h"
-#include "Assets/AssetTypes.h"
+#include "IO/ImageFileSystem.h"
+
+#include "IO/ImageFileSystem.h"
+#include "IO/Path.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-        
-        class TextureLoader {
+        class WadFileSystem : public ImageFileSystem {
         public:
-            virtual ~TextureLoader();
-            
-            Assets::TextureCollection* loadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            WadFileSystem(const Path& path);
+            WadFileSystem(const Path& path, MappedFile::Ptr file);
         private:
-            virtual Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const = 0;
-        public:
-            static size_t mipSize(size_t width, size_t height, size_t mipLevel);
+            void doReadDirectory();
         };
     }
 }
 
-#endif
+
+#endif /* WadFileSystem_h */

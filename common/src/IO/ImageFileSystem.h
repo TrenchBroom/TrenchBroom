@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PakFileSystemBase_h
-#define PakFileSystemBase_h
+#ifndef ImageFileSystem_h
+#define ImageFileSystem_h
 
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class PakFileSystemBase : public FileSystem {
+        class ImageFileSystem : public FileSystem {
         protected:
             class File {
             public:
@@ -50,8 +50,8 @@ namespace TrenchBroom {
             
             class Directory {
             private:
-                typedef std::map<String, Directory*> DirMap;
-                typedef std::map<String, File*> FileMap;
+                typedef std::map<String, Directory*, StringUtils::CaseInsensitiveStringLess> DirMap;
+                typedef std::map<String, File*, StringUtils::CaseInsensitiveStringLess> FileMap;
                 
                 Path m_path;
                 DirMap m_directories;
@@ -76,9 +76,9 @@ namespace TrenchBroom {
             MappedFile::Ptr m_file;
             Directory m_root;
         protected:
-            PakFileSystemBase(const Path& path, MappedFile::Ptr file);
+            ImageFileSystem(const Path& path, MappedFile::Ptr file);
         public:
-            virtual ~PakFileSystemBase();
+            virtual ~ImageFileSystem();
         protected:
             void initialize();
         private:
@@ -94,4 +94,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* PakFileSystemBase_h */
+#endif /* ImageFileSystem_h */

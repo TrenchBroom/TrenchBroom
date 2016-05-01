@@ -36,6 +36,8 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class PaletteLoader;
+        
         class MdlParser : public EntityModelParser {
         private:
             static const Vec3f Normals[162];
@@ -59,9 +61,9 @@ namespace TrenchBroom {
             String m_name;
             const char* m_begin;
             const char* m_end;
-            const Assets::Palette& m_palette;
+            const PaletteLoader* m_paletteLoader;
         public:
-            MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
+            MdlParser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader);
         private:
             Assets::EntityModel* doParseModel();
             

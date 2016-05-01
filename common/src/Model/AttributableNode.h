@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
@@ -48,9 +49,16 @@ namespace TrenchBroom {
             AttributeValue m_classname;
         public:
             virtual ~AttributableNode();
-            
+        public: // definition
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
+        public: // notification
+            typedef Notifier2<AttributableNode*, const AttributeName&> AttributeNotifier;
+            
+            AttributeNotifier attributeWasAddedNotifier;
+            AttributeNotifier attributeWillBeRemovedNotifier;
+            AttributeNotifier attributeWillChangeNotifier;
+            AttributeNotifier attributeDidChangeNotifier;
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
             

@@ -52,8 +52,7 @@ namespace TrenchBroom {
     namespace Model {
         GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath) :
         m_config(config),
-        m_gamePath(gamePath),
-        m_palette(new Assets::Palette(config.findConfigFile(config.textureConfig().palette))) {
+        m_gamePath(gamePath) {
             initializeFileSystem();
             
             // sneak in the brush content type for tutorial brushes
@@ -61,11 +60,6 @@ namespace TrenchBroom {
             m_config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
         }
         
-        GameImpl::~GameImpl() {
-            delete m_palette;
-            m_palette = NULL;
-        }
-
         void GameImpl::initializeFileSystem() {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
@@ -344,45 +338,45 @@ namespace TrenchBroom {
         }
 
         Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            assert(m_palette != NULL);
+            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
             
-            IO::WadTextureLoader loader(*m_palette);
+            IO::WadTextureLoader loader(paletteLoader.get());
             return loader.loadTextureCollection(spec);
         }
         
         Assets::TextureCollection* GameImpl::loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            assert(m_palette != NULL);
+            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
             
             const IO::Path& path = spec.path();
             if (path.isAbsolute()) {
                 IO::DiskFileSystem diskFS(path.deleteLastComponent());
-                IO::IdWalTextureLoader loader(diskFS, *m_palette);
+                IO::IdWalTextureLoader loader(diskFS, paletteLoader.get());
                 const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
                 return loader.loadTextureCollection(newSpec);
             } else {
-                IO::IdWalTextureLoader loader(m_gameFS, *m_palette);
+                IO::IdWalTextureLoader loader(m_gameFS, paletteLoader.get());
                 return loader.loadTextureCollection(spec);
             }
         }
         
         Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            assert(m_palette != NULL);
+            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
             
-            IO::Bsp29Parser parser(name, file->begin(), file->end(), *m_palette);
+            IO::Bsp29Parser parser(name, file->begin(), file->end(), paletteLoader.get());
             return parser.parseModel();
         }
         
         Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            assert(m_palette != NULL);
+            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
             
-            IO::MdlParser parser(name, file->begin(), file->end(), *m_palette);
+            IO::MdlParser parser(name, file->begin(), file->end(), paletteLoader.get());
             return parser.parseModel();
         }
         
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
-            assert(m_palette != NULL);
+            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
             
-            IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_gameFS);
+            IO::Md2Parser parser(name, file->begin(), file->end(), paletteLoader.get(), m_gameFS);
             return parser.parseModel();
         }
 
@@ -462,6 +456,15 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
+        IO::PaletteLoader::Ptr GameImpl::createPaletteLoader() const {
+            switch (m_config.textureConfig().palette.type) {
+                case GameConfig::PaletteConfig::LT_Builtin: {
+                    const IO::Path path(m_config.textureConfig().palette.path);
+                    return IO::PaletteLoader::Ptr(new IO::FilePaletteLoader(m_gameFS, path));
+                }
+            }
+        }
+        
         void GameImpl::writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
             
             node->removeNumberedAttribute(baseName);

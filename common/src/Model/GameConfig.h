@@ -60,13 +60,29 @@ namespace TrenchBroom {
                 TexturePackageConfig(PackageType i_type, const PackageFormatConfig& i_format);
             };
             
+            struct PaletteConfig {
+                typedef enum {
+                    LT_None,
+                    LT_Builtin,
+                    LT_Property
+                } LocationType;
+                
+                LocationType type;
+                String property;
+                String path;
+                
+                PaletteConfig();
+                PaletteConfig(const String& i_path);
+                PaletteConfig(const String& i_property, const String& i_path);
+            };
+            
             struct TextureConfig {
                 TexturePackageConfig package;
+                PaletteConfig palette;
                 String attribute;
-                IO::Path palette;
                 IO::Path builtinTexturesSearchPath;
                 
-                TextureConfig(const TexturePackageConfig& i_package, const String& i_attribute, const IO::Path& i_palette, const IO::Path& i_builtinTexturesSearchPath);
+                TextureConfig(const TexturePackageConfig& i_package, const PaletteConfig& i_palette, const String& i_attribute, const IO::Path& i_builtinTexturesSearchPath);
             };
             
             struct EntityConfig {

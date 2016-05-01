@@ -34,15 +34,29 @@ namespace TrenchBroom {
             return static_cast<size_t>(m_end - m_begin);
         }
 
-        void CharArrayReader::seek(const size_t offset) {
+        void CharArrayReader::seekFromBegin(const size_t offset) {
             assert(offset < size());
             m_current = m_begin + offset;
         }
         
+        void CharArrayReader::seekFromEnd(const size_t offset) {
+            assert(offset < size());
+            m_current = m_end - offset;
+        }
+
+        void CharArrayReader::seekForward(const size_t offset) {
+            assert(m_current + offset < m_end);
+            m_current += offset;
+        }
+
         void CharArrayReader::read(char* val, const size_t size) {
             assert(canRead(size));
             memcpy(val, m_current, size);
             m_current += size;
+        }
+        
+        void CharArrayReader::read(unsigned char* val, const size_t size) {
+            read(reinterpret_cast<char*>(val), size);
         }
         
         bool CharArrayReader::canRead(const size_t size) const {

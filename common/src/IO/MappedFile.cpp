@@ -67,6 +67,10 @@ namespace TrenchBroom {
             init(begin, end);
         }
 
+        MappedFileView::MappedFileView(const char* begin, const size_t size) {
+            init(begin, begin + size);
+        }
+
         MappedFileBuffer::MappedFileBuffer(const char* begin, const size_t size) {
             init(begin, begin + size);
         }

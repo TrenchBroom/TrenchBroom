@@ -117,10 +117,23 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
+            EntityAttribute::List::const_iterator it, end;
+            const EntityAttribute::List& oldAttributes = m_attributes.attributes();
+            for (it = oldAttributes.begin(), end = oldAttributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                attributeWillBeRemovedNotifier(this, attribute.name());
+            }
+            
             const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
+
+            const EntityAttribute::List& newAttributes = m_attributes.attributes();
+            for (it = newAttributes.begin(), end = newAttributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                attributeWasAddedNotifier(this, attribute.name());
+            }
         }
         
         bool AttributableNode::hasAttribute(const AttributeName& name) const {
@@ -164,6 +177,7 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != NULL) {
+                attributeWillChangeNotifier(this, name);
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
             }
@@ -171,6 +185,9 @@ namespace TrenchBroom {
             m_attributes.addOrUpdateAttribute(name, value, definition);
             addAttributeToIndex(name, value);
             addLinks(name, value);
+            
+            if (oldValue == NULL)
+                attributeWasAddedNotifier(this, name);
         }
         
         bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
@@ -189,10 +206,13 @@ namespace TrenchBroom {
 			const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
+            
+            attributeWillBeRemovedNotifier(this, name);
             m_attributes.renameAttribute(name, newName, newDefinition);
             
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
+            attributeWasAddedNotifier(this, newName);
         }
         
         bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
@@ -204,6 +224,7 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
 
+            attributeWillBeRemovedNotifier(this, name);
             const NotifyAttributeChange notifyChange(this);
 
             const AttributeValue value = *valuePtr;
@@ -223,6 +244,7 @@ namespace TrenchBroom {
                     const AttributeName& name = it->name();
                     const AttributeValue& value = it->value();
                     
+                    attributeWillBeRemovedNotifier(this, name);
                     m_attributes.removeAttribute(name);
                     removeAttributeFromIndex(name, value);
                     removeLinks(name, value);

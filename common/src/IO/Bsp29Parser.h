@@ -37,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class PaletteLoader;
+        
         class Bsp29Parser : public EntityModelParser {
         private:
             struct TextureInfo {
@@ -67,9 +69,9 @@ namespace TrenchBroom {
             String m_name;
             const char* m_begin;
             // const char* m_end;
-            const Assets::Palette& m_palette;
+            const PaletteLoader* m_paletteLoader;
         public:
-            Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
+            Bsp29Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader);
         private:
             Assets::EntityModel* doParseModel();
             Assets::TextureCollection* parseTextures();

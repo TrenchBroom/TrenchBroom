@@ -28,19 +28,20 @@
 namespace TrenchBroom {
     namespace IO {
         class FileSystem;
+        class PaletteLoader;
         class Path;
         
         class WalTextureLoader : public TextureLoader {
         private:
             const FileSystem& m_fs;
-            const Assets::Palette& m_palette;
+            const PaletteLoader* m_paletteLoader;
         protected:
-            WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette);
+            WalTextureLoader(const FileSystem& fs, const PaletteLoader* paletteLoader);
         public:
             virtual ~WalTextureLoader();
         private:
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            virtual Assets::Texture* doReadTexture(const IO::Path& path, MappedFile::Ptr file, const Assets::Palette& palette) const = 0;
+            virtual Assets::Texture* doReadTexture(const IO::Path& path, MappedFile::Ptr file, const PaletteLoader* paletteLoader) const = 0;
         };
     }
 }

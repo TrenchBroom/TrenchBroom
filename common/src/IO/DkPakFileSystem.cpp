@@ -92,19 +92,19 @@ namespace TrenchBroom {
         }
         
         DkPakFileSystem::DkPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        PakFileSystemBase(path, file) {
+        ImageFileSystem(path, file) {
             initialize();
         }
         
         void DkPakFileSystem::doReadDirectory() {
             CharArrayReader reader(m_file->begin(), m_file->end());
-            reader.seek(PakLayout::HeaderMagicLength);
+            reader.seekFromBegin(PakLayout::HeaderMagicLength);
 
             const size_t directoryAddress = reader.readSize<int32_t>();
             const size_t directorySize = reader.readSize<int32_t>();
             const size_t entryCount = directorySize / PakLayout::EntryLength;
             
-            reader.seek(directoryAddress);
+            reader.seekFromBegin(directoryAddress);
             
             for (size_t i = 0; i < entryCount; ++i) {
                 const String entryName = reader.readString(PakLayout::EntryNameLength);

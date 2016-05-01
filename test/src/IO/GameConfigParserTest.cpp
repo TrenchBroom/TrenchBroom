@@ -52,7 +52,7 @@ namespace TrenchBroom {
                                 "  textures={\n"
                                 "    package = { type = \"file\", format = { extension = \"wad\", format = \"wad\" } },"
                                 "    attribute=\"wad\",\n"
-                                "    palette=\"palette.lmp\"\n"
+                                "    palette = { type = \"builtin\", location = { path = \"Quake/palette.lmp\" } }\n"
                                 "  },\n"
                                 "  entities={\n"
                                 "    definitions={ \"Quake1.fgd\", \"Quoth2.fgd\" },\n"
@@ -74,7 +74,8 @@ namespace TrenchBroom {
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.extension);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.format);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().attribute);
-            ASSERT_EQ(Path("palette.lmp"), gameConfig.textureConfig().palette);
+            ASSERT_EQ(Model::GameConfig::PaletteConfig::LT_Builtin, gameConfig.textureConfig().palette.type);
+            ASSERT_EQ(String("Quake/palette.lmp"), gameConfig.textureConfig().palette.path);
             ASSERT_TRUE(gameConfig.textureConfig().builtinTexturesSearchPath.isEmpty());
             ASSERT_EQ(Path("Quake1.fgd"), gameConfig.entityConfig().defFilePaths[0]);
             ASSERT_EQ(Path("Quoth2.fgd"), gameConfig.entityConfig().defFilePaths[1]);
@@ -97,7 +98,7 @@ namespace TrenchBroom {
                                 "	textures = {\n"
                                 "   package = { type = \"directory\", format = { extension = \"wal\", format = \"idwal\" } },\n"
                                 "    	attribute = \"_wal\",\n"
-                                "		palette = \"Quake2/colormap.pcx\",\n"
+                                "       palette = { type = \"property\", location = { key = \"palette\", path = \"textures/${KEY}/colormap.bmp\" } },\n"
                                 "		builtin = \"textures\"\n"
                                 "	},\n"
                                 "  	entities = {\n"
@@ -142,7 +143,9 @@ namespace TrenchBroom {
             ASSERT_EQ(String("wal"), gameConfig.textureConfig().package.format.extension);
             ASSERT_EQ(String("idwal"), gameConfig.textureConfig().package.format.format);
             ASSERT_EQ(String("_wal"), gameConfig.textureConfig().attribute);
-            ASSERT_EQ(Path("Quake2/colormap.pcx"), gameConfig.textureConfig().palette);
+            ASSERT_EQ(Model::GameConfig::PaletteConfig::LT_Property, gameConfig.textureConfig().palette.type);
+            ASSERT_EQ(String("palette"), gameConfig.textureConfig().palette.property);
+            ASSERT_EQ(String("textures/${KEY}/colormap.bmp"), gameConfig.textureConfig().palette.path);
             ASSERT_EQ(Path("textures"), gameConfig.textureConfig().builtinTexturesSearchPath);
             ASSERT_EQ(Path("Quake2/Quake2.fgd"), gameConfig.entityConfig().defFilePaths[0]);
             ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.size());

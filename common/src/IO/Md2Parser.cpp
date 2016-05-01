@@ -23,10 +23,11 @@
 #include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
-#include "IO/FileSystemHierarchy.h"
+#include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
+#include "IO/PaletteLoader.h"
 #include "IO/Path.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -221,12 +222,14 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystemHierarchy& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
-        m_palette(palette),
-        m_fs(fs) {}
+        m_paletteLoader(paletteLoader),
+        m_fs(fs) {
+            assert(m_paletteLoader != NULL);
+        }
         
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* Md2Parser::doParseModel() {
@@ -330,13 +333,14 @@ namespace TrenchBroom {
         Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
             const Path skinPath(String(skin.name));
             MappedFile::Ptr file = m_fs.openFile(skinPath);
+            Assets::Palette::Ptr palette = m_paletteLoader->loadPalette(file);
             
             Color avgColor;
             const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
             
             const Buffer<unsigned char>& indices = image.indices();
             Buffer<unsigned char> rgbImage(indices.size() * 3);
-            m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
+            palette->indexedToRgb(indices, indices.size(), rgbImage, avgColor);
             
             return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
         }

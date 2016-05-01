@@ -26,5 +26,10 @@ namespace TrenchBroom {
         Assets::TextureCollection* TextureLoader::loadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             return doLoadTextureCollection(spec);
         }
+
+        size_t TextureLoader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
+            const size_t divisor = 1 << mipLevel;
+            return (width * height) / (divisor * divisor);
+        }
     }
 }

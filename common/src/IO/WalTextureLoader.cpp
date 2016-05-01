@@ -36,9 +36,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WalTextureLoader::WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette) :
+        WalTextureLoader::WalTextureLoader(const FileSystem& fs, const PaletteLoader* paletteLoader) :
         m_fs(fs),
-        m_palette(palette) {}
+        m_paletteLoader(paletteLoader) {
+            assert(m_paletteLoader != NULL);
+        }
         
         WalTextureLoader::~WalTextureLoader() {}
         
@@ -53,7 +55,7 @@ namespace TrenchBroom {
                 Path::List::const_iterator it, end;
                 for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
                     const Path& texturePath = *it;
-                    Assets::Texture* texture = doReadTexture(texturePath, m_fs.openFile(texturePath), m_palette);
+                    Assets::Texture* texture = doReadTexture(texturePath, m_fs.openFile(texturePath), m_paletteLoader);
                     textures.push_back(texture);
                 }
                 

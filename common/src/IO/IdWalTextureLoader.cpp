@@ -28,37 +28,46 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureCollectionSpec.h"
+#include "IO/CharArrayReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/IOUtils.h"
+#include "IO/PaletteLoader.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace IO {
-        IdWalTextureLoader::IdWalTextureLoader(const FileSystem& fs, const Assets::Palette& palette) :
-        WalTextureLoader(fs, palette) {}
+        IdWalTextureLoader::IdWalTextureLoader(const FileSystem& fs, const PaletteLoader* paletteLoader) :
+        WalTextureLoader(fs, paletteLoader) {}
         
-        Assets::Texture* IdWalTextureLoader::doReadTexture(const IO::Path& path, MappedFile::Ptr file, const Assets::Palette& palette) const {
-            const char* cursor = file->begin();
+        Assets::Texture* IdWalTextureLoader::doReadTexture(const IO::Path& path, MappedFile::Ptr file, const PaletteLoader* paletteLoader) const {
+            static const size_t MipLevels = 4;
+            static Color tempColor, averageColor;
+            static Assets::TextureBuffer::List buffers(MipLevels);
+            static size_t offset[MipLevels];
+
+            const Assets::Palette::Ptr palette = paletteLoader->loadPalette(file);
+
+            CharArrayReader reader(file->begin(), file->end());
+            reader.seekFromBegin(32);
             
-            advance<char[32]>(cursor);
-            const size_t width = readSize<uint32_t>(cursor);
-            const size_t height = readSize<uint32_t>(cursor);
+            const size_t width = reader.readSize<uint32_t>();
+            const size_t height = reader.readSize<uint32_t>();
             const String textureName = path.suffix(2).deleteExtension().asString('/');
             
-            Color tempColor, averageColor;
-            Assets::TextureBuffer::List buffers(4);
             Assets::setMipBufferSize(buffers, width, height);
+
+            reader.seekFromBegin(32 + 2 * sizeof(uint32_t));
+            for (size_t i = 0; i < MipLevels; ++i)
+                offset[i] = reader.readSize<int32_t>();
             
-            const char* offsetCursor = file->begin() + 32 + 2*sizeof(uint32_t);
-            for (size_t i = 0; i < 4; ++i) {
-                const size_t divisor = 1 << i;
-                const size_t offset = IO::readSize<int32_t>(offsetCursor);
-                const char* mipCursor = file->begin() + offset;
-                const size_t pixelCount = (width * height) / (divisor * divisor);
-                
-                palette.indexedToRgb(mipCursor, pixelCount, buffers[i], tempColor);
+            for (size_t i = 0; i < MipLevels; ++i) {
+                reader.seekFromBegin(offset[i]);
+                const size_t size = mipSize(width, height, i);
+                const char* data = file->begin() + offset[i];
+
+                palette->indexedToRgb(data, size, buffers[i], tempColor);
                 if (i == 0)
                     averageColor = tempColor;
             }

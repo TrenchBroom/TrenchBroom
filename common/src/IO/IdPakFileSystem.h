@@ -20,15 +20,12 @@
 #ifndef TrenchBroom_IdPakFileSystem
 #define TrenchBroom_IdPakFileSystem
 
-#include "StringUtils.h"
-#include "IO/PakFileSystemBase.h"
+#include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
-
-#include <map>
 
 namespace TrenchBroom {
     namespace IO {
-        class IdPakFileSystem : public PakFileSystemBase {
+        class IdPakFileSystem : public ImageFileSystem {
         public:
             IdPakFileSystem(const Path& path, MappedFile::Ptr file);
         private:

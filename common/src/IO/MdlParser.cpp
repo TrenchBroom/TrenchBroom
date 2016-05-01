@@ -25,6 +25,7 @@
 #include "Assets/MdlModel.h"
 #include "Assets/Palette.h"
 #include "IO/IOUtils.h"
+#include "IO/PaletteLoader.h"
 
 #include <cassert>
 
@@ -206,12 +207,13 @@ namespace TrenchBroom {
         };
 
         
-        MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        MdlParser::MdlParser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader) :
         m_name(name),
         m_begin(begin),
         m_end(end),
-        m_palette(palette) {
-            assert(begin < end);
+        m_paletteLoader(paletteLoader) {
+            assert(m_begin < m_end);
+            assert(m_paletteLoader != NULL);
             unused(m_end);
         }
 
@@ -244,12 +246,14 @@ namespace TrenchBroom {
             Color avgColor;
             StringStream textureName;
 
+            Assets::Palette::Ptr palette = m_paletteLoader->loadPalette(MappedFile::Ptr());
+            
             cursor = m_begin + MdlLayout::Skins;
             for (size_t i = 0; i < count; ++i) {
                 const size_t skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
                     Buffer<unsigned char> rgbImage(size * 3);
-                    m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                    palette->indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
                     
                     textureName.str();
@@ -270,7 +274,7 @@ namespace TrenchBroom {
                         
                         Buffer<unsigned char> rgbImage(size * 3);
                         cursor = base + pictureCount * 4 + j * size;
-                        m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                        palette->indexedToRgb(cursor, size, rgbImage, avgColor);
                         cursor += size;
 
                         textureName.str();

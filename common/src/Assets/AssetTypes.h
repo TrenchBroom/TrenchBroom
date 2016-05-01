@@ -29,6 +29,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class Palette;
+        class PaletteLoader;
         
         class Texture;
         typedef std::vector<Texture*> TextureList;

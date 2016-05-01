@@ -124,17 +124,17 @@ namespace TrenchBroom {
 
             expectTableEntry("package", ConfigEntry::Type_Table, table);
             const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(table["package"]);
+
+            GameConfig::PaletteConfig palette;
+            if (table.contains("palette")) {
+                expectTableEntry("palette", ConfigEntry::Type_Table, table);
+                palette = parsePaletteConfig(table["palette"]);
+            }
             
             String attribute("");
             if (table.contains("attribute")) {
                 expectTableEntry("attribute", ConfigEntry::Type_Value, table);
                 attribute = table["attribute"];
-            }
-            
-            IO::Path palette("");
-            if (table.contains("palette")) {
-                expectTableEntry("palette", ConfigEntry::Type_Value, table);
-                palette = IO::Path(table["palette"]);
             }
             
             IO::Path builtinTexturesSearchPath("");
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                 builtinTexturesSearchPath = IO::Path(table["builtin"]);
             }
             
-            return GameConfig::TextureConfig(packageConfig, attribute, IO::Path(palette), builtinTexturesSearchPath);
+            return GameConfig::TextureConfig(packageConfig, palette, attribute, builtinTexturesSearchPath);
         }
 
         Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const ConfigTable& table) const {
@@ -167,6 +167,49 @@ namespace TrenchBroom {
             const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["format"]);
             
             return GameConfig::TexturePackageConfig(type, formatConfig);
+        }
+
+        Model::GameConfig::PaletteConfig GameConfigParser::parsePaletteConfig(const ConfigTable& table) const {
+            using Model::GameConfig;
+            
+            expectTableEntries(table,
+                               StringUtils::makeSet(2, "type", "location"),
+                               StringSet());
+            
+            expectTableEntry("type", ConfigEntry::Type_Value, table);
+            const String typeStr = table["type"];
+            GameConfig::PaletteConfig::LocationType type;
+            if (typeStr == "builtin")
+                type = GameConfig::PaletteConfig::LT_Builtin;
+            else if (typeStr == "property")
+                type = GameConfig::PaletteConfig::LT_Property;
+            else
+                throw ParserException(table.line(), table.column(), "Unexpected palette location type '" + typeStr + "'");
+            
+            expectTableEntry("location", ConfigEntry::Type_Table, table);
+            const ConfigTable& locationTable = table["location"];
+
+            switch (type) {
+                case GameConfig::PaletteConfig::LT_Builtin: {
+                    expectTableEntries(locationTable,
+                                       StringUtils::makeSet(1, "path"),
+                                       StringSet());
+                    expectTableEntry("path", ConfigEntry::Type_Value, locationTable);
+                    return GameConfig::PaletteConfig(locationTable["path"]);
+                }
+                case GameConfig::PaletteConfig::LT_Property: {
+                    expectTableEntries(locationTable,
+                                       StringUtils::makeSet(2, "path", "key"),
+                                       StringSet());
+                    expectTableEntry("key", ConfigEntry::Type_Value, locationTable);
+                    expectTableEntry("path", ConfigEntry::Type_Value, locationTable);
+                    return GameConfig::PaletteConfig(locationTable["key"], locationTable["path"]);
+                }
+                case GameConfig::PaletteConfig::LT_None:
+                    break;
+            }
+
+            throw ParserException(table.line(), table.column(), "Should never happen.");
         }
 
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {

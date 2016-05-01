@@ -57,6 +57,7 @@ namespace TrenchBroom {
         class MappedFileView : public MappedFile {
         public:
             MappedFileView(const char* begin, const char* end);
+            MappedFileView(const char* begin, size_t size);
         };
         
         class MappedFileBuffer : public MappedFile {

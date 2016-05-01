@@ -25,6 +25,7 @@
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/FileSystemHierarchy.h"
+#include "IO/PaletteLoader.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -43,10 +44,8 @@ namespace TrenchBroom {
             IO::Path::List m_additionalSearchPaths;
             
             IO::FileSystemHierarchy m_gameFS;
-            Assets::Palette* m_palette;
         public:
             GameImpl(GameConfig& config, const IO::Path& gamePath);
-            ~GameImpl();
         private:
             void initializeFileSystem();
             void addPackages(const IO::Path& searchPath);
@@ -108,6 +107,7 @@ namespace TrenchBroom {
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
         private:
+            IO::PaletteLoader::Ptr createPaletteLoader() const;
             void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
             String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;
         };

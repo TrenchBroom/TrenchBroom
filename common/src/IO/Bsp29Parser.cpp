@@ -25,7 +25,9 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/Bsp29Model.h"
 #include "Assets/Palette.h"
+#include "IO/MappedFile.h"
 #include "IO/IOUtils.h"
+#include "IO/WadTextureLoader.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -61,11 +63,13 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
         
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader) :
         m_name(name),
         m_begin(begin),
         // m_end(end),
-        m_palette(palette) {}
+        m_paletteLoader(paletteLoader) {
+            assert(m_paletteLoader != NULL);
+        }
         
         Assets::EntityModel* Bsp29Parser::doParseModel() {
             const char* cursor = m_begin;
@@ -103,29 +107,14 @@ namespace TrenchBroom {
                 const size_t textureOffset = readSize<int32_t>(cursor);
                 cursor = base + textureOffset;
                 readBytes(cursor, textureName, BspLayout::TextureNameLength);
-                
                 const size_t width = readSize<int32_t>(cursor);
                 const size_t height = readSize<int32_t>(cursor);
-                const size_t mipOffsets[] = {readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor)};
+                const size_t mipFileSize = WadTextureLoader::mipFileSize(width, height, 4);
                 
-                size_t mipWidth = width;
-                size_t mipHeight = height;
-                Assets::TextureBuffer::List textureBuffers;
-                textureBuffers.reserve(4);
+                MappedFile::Ptr mipFile(new MappedFileView(base + textureOffset, mipFileSize));
                 
-                for (size_t j = 0; j < 4; ++j) {
-                    Assets::TextureBuffer textureBuffer(3 * mipWidth * mipHeight);
-                    cursor = base + textureOffset + mipOffsets[j];
-                    m_palette.indexedToRgb(cursor, mipWidth * mipHeight, textureBuffer, averageColor);
-                    mipWidth /= 2;
-                    mipHeight /= 2;
-                    textureBuffers.push_back(textureBuffer);
-                }
-                
-                textures.push_back(new Assets::Texture(textureName, width, height, averageColor, textureBuffers));
+                Assets::Texture* texture = WadTextureLoader::loadMipTexture(textureName, mipFile, m_paletteLoader);
+                textures.push_back(texture);
             }
             
             return new Assets::TextureCollection(m_name, textures);

@@ -23,8 +23,11 @@
 #include "CollectionUtils.h"
 #include "Color.h"
 #include "Exceptions.h"
+#include "Assets/Palette.h"
 #include "Renderer/GL.h"
-#include "IO/Wad.h"
+#include "IO/CharArrayReader.h"
+#include "IO/PaletteLoader.h"
+#include "IO/WadFileSystem.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -34,22 +37,28 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
-        m_palette(palette) {}
+        namespace MipLayout {
+            static const size_t WidthOffset = 16;
+        }
+        
+        WadTextureLoader::WadTextureLoader(const PaletteLoader* paletteLoader) :
+        m_paletteLoader(paletteLoader) {
+            assert(m_paletteLoader != NULL);
+        }
         
         Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            Wad wad(spec.path());
-            const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
-            const size_t textureCount = mipEntries.size();
+            const WadFileSystem fs(spec.path());
+            const IO::Path::List files = fs.findItems(Path(""));
+            const size_t textureCount = files.size();
             
             Assets::TextureList textures;
             textures.reserve(textureCount);
             
             try {
                 for (size_t i = 0; i < textureCount; ++i) {
-                    const WadEntry& entry = mipEntries[i];
-                    Assets::Texture* texture = loadTexture(wad, entry);
-                    textures.push_back(texture);
+                    const IO::Path& path = files[i];
+                    const MappedFile::Ptr file = fs.openFile(path);
+                    textures.push_back(loadMipTexture(path.asString(), file, m_paletteLoader));
                 }
                 return new Assets::TextureCollection(spec.name(), textures);
             } catch (...) {
@@ -58,22 +67,42 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* WadTextureLoader::loadTexture(const Wad& wad, const WadEntry& entry) const {
-            static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(4);
-
-            const MipSize mipSize = wad.mipSize(entry);
-            Assets::setMipBufferSize(buffers, mipSize.width, mipSize.height);
+        Assets::Texture* WadTextureLoader::loadMipTexture(const String& name, MappedFile::Ptr file, const PaletteLoader* paletteLoader) {
+            static const size_t MipLevels = 4;
             
-            for (size_t j = 0; j < 4; ++j) {
-                const MipData mipData = wad.mipData(entry, j);
-                const size_t size = static_cast<size_t>(std::distance(mipData.begin, mipData.end));
-                m_palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
-                if (j == 0)
+            static Color tempColor, averageColor;
+            static Assets::TextureBuffer::List buffers(MipLevels);
+            static size_t offset[MipLevels];
+
+            Assets::Palette::Ptr palette = paletteLoader->loadPalette(file);
+
+            CharArrayReader reader(file->begin(), file->end());
+            reader.seekFromBegin(MipLayout::WidthOffset);
+            const size_t width = reader.readSize<int32_t>();
+            const size_t height = reader.readSize<int32_t>();
+            for (size_t i = 0; i < MipLevels; ++i)
+                offset[i] = reader.readSize<int32_t>();
+            
+            Assets::setMipBufferSize(buffers, width, height);
+            
+            for (size_t i = 0; i < MipLevels; ++i) {
+                const char* data = file->begin() + offset[i];
+                const size_t size = mipSize(width, height, i);
+                
+                palette->indexedToRgb(data, size, buffers[i], tempColor);
+                if (i == 0)
                     averageColor = tempColor;
+                
             }
             
-            return new Assets::Texture(entry.name(), mipSize.width, mipSize.height, averageColor, buffers);
+            return new Assets::Texture(name, width, height, averageColor, buffers);
+        }
+
+        size_t WadTextureLoader::mipFileSize(const size_t width, const size_t height, const size_t mipLevels) {
+            size_t result = 0;
+            for (size_t i = 0; i < mipLevels; ++i)
+                result += mipSize(width, height, i);
+            return result;
         }
     }
 }

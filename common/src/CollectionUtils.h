@@ -917,23 +917,23 @@ namespace MapUtils {
         }
     };
 
-    template <typename K, typename V>
-    bool contains(const std::map<K, V>& map, const K& key) {
+    template <typename K, typename V, typename C>
+    bool contains(const std::map<K, V, C>& map, const K& key) {
         return map.find(key) != map.end();
     }
     
-    template <typename K, typename V, typename L>
-    const V& find(const std::map<K, V>& map, const L& key, const V& defaultValue) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C, typename L>
+    const V& find(const std::map<K, V, C>& map, const L& key, const V& defaultValue) {
+        typedef std::map<K, V, C> Map;
         typename Map::const_iterator it = map.find(key);
         if (it == map.end())
             return defaultValue;
         return it->second;
     }
     
-    template <typename K, typename V>
-    std::pair<bool, typename std::map<K, V>::iterator> findInsertPos(std::map<K, V>& map, const K& key) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C>
+    std::pair<bool, typename std::map<K, V, C>::iterator> findInsertPos(std::map<K, V, C>& map, const K& key) {
+        typedef std::map<K, V, C> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
@@ -944,9 +944,9 @@ namespace MapUtils {
         return std::make_pair(true, insertPos);
     }
     
-    template <typename K, typename V, typename W>
-    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key, const W& value) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C, typename W>
+    typename std::map<K, V, C>::iterator findOrInsert(std::map<K, V, C>& map, const K& key, const W& value) {
+        typedef std::map<K, V, C> Map;
         typedef std::pair<bool, typename Map::iterator> InsertPos;
         
         const InsertPos insertPos = findInsertPos(map, key);
@@ -955,9 +955,9 @@ namespace MapUtils {
         return insertPos.second;
     }
 
-    template <typename K, typename V>
-    typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C>
+    typename std::map<K, V, C>::iterator findOrInsert(std::map<K, V, C>& map, const K& key) {
+        typedef std::map<K, V, C> Map;
         typedef std::pair<bool, typename Map::iterator> InsertPos;
         
         const InsertPos insertPos = findInsertPos(map, key);
@@ -966,9 +966,9 @@ namespace MapUtils {
         return insertPos.second;
     }
     
-    template <typename K, typename V>
-    bool insertOrFail(std::map<K, V>& map, const K& key, const V& value) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C>
+    bool insertOrFail(std::map<K, V, C>& map, const K& key, const V& value) {
+        typedef std::map<K, V, C> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
@@ -984,9 +984,9 @@ namespace MapUtils {
         return false;
     }
 
-    template <typename K, typename V>
-    bool insertOrReplace(std::map<K, V>& map, const K& key, const V& value) {
-        typedef std::map<K, V> Map;
+    template <typename K, typename V, typename C>
+    bool insertOrReplace(std::map<K, V, C>& map, const K& key, const V& value) {
+        typedef std::map<K, V, C> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
@@ -1006,9 +1006,9 @@ namespace MapUtils {
         }
     }
 
-    template <typename K, typename V>
-    bool insertOrReplaceAndDelete(std::map<K, V*>& map, const K& key, V* value) {
-        typedef std::map<K, V*> Map;
+    template <typename K, typename V, typename C>
+    bool insertOrReplaceAndDelete(std::map<K, V*, C>& map, const K& key, V* value) {
+        typedef std::map<K, V*, C> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);
         if (insertPos == map.end() || compare(key, insertPos->first)) {
@@ -1036,9 +1036,9 @@ namespace MapUtils {
         return result;
     }
     
-    template <typename K, typename V>
-    bool removeAndDelete(std::map<K, V*>& map, const K& key) {
-        typedef std::map<K, V*> Map;
+    template <typename K, typename V, typename C>
+    bool removeAndDelete(std::map<K, V*, C>& map, const K& key) {
+        typedef std::map<K, V*, C> Map;
         typename Map::iterator it = map.find(key);
         if (it == map.end())
             return false;
@@ -1048,10 +1048,10 @@ namespace MapUtils {
         return true;
     }
     
-    template <typename K, typename V>
-    void merge(std::map<K, std::vector<V> >& map1, const std::map<K, std::vector<V> >& map2) {
+    template <typename K, typename V, typename C>
+    void merge(std::map<K, std::vector<V>, C>& map1, const std::map<K, std::vector<V>, C>& map2) {
         typedef std::vector<V> Vector;
-        typedef std::map<K, Vector> Map;
+        typedef std::map<K, Vector, C> Map;
         
         typename Map::const_iterator it, end;
         for (it = map2.begin(), end = map2.end(); it != end; ++it) {
@@ -1063,26 +1063,26 @@ namespace MapUtils {
         }
     }
     
-    template <typename K, typename V>
-    void clearAndDelete(std::map<K, V*>& map) {
+    template <typename K, typename V, typename C>
+    void clearAndDelete(std::map<K, V*, C>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);
         map.clear();
     }
 
-    template <typename K, typename V>
-    void clearAndDelete(std::map<K, std::vector<V*> >& map) {
+    template <typename K, typename V, typename C>
+    void clearAndDelete(std::map<K, std::vector<V*>, C>& map) {
         VectorDeleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);
         map.clear();
     }
     
-    template <typename K, typename V>
-    std::vector<K> keyList(const std::map<K,V>& map) {
+    template <typename K, typename V, typename C>
+    std::vector<K> keyList(const std::map<K,V,C>& map) {
         std::vector<K> result;
         result.reserve(map.size());
         
-        typename std::map<K,V>::const_iterator it, end;
+        typename std::map<K,V,C>::const_iterator it, end;
         for (it = map.begin(), end = map.end(); it != end; ++it)
             result.push_back(it->first);
         return result;

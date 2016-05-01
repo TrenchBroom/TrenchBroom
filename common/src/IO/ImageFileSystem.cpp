@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PakFileSystemBase.h"
+#include "ImageFileSystem.h"
 
 #include "CollectionUtils.h"
 #include "IO/DiskFileSystem.h"
@@ -27,28 +27,28 @@
 
 namespace TrenchBroom {
     namespace IO {
-        PakFileSystemBase::File::~File() {}
+        ImageFileSystem::File::~File() {}
         
-        MappedFile::Ptr PakFileSystemBase::File::open() {
+        MappedFile::Ptr ImageFileSystem::File::open() {
             return doOpen();
         }
         
-        PakFileSystemBase::SimpleFile::SimpleFile(const char* begin, const char* end) :
+        ImageFileSystem::SimpleFile::SimpleFile(const char* begin, const char* end) :
         m_file(new MappedFileView(begin, end)) {}
         
-        MappedFile::Ptr PakFileSystemBase::SimpleFile::doOpen() {
+        MappedFile::Ptr ImageFileSystem::SimpleFile::doOpen() {
             return m_file;
         }
         
-        PakFileSystemBase::Directory::Directory(const Path& path) :
+        ImageFileSystem::Directory::Directory(const Path& path) :
         m_path(path) {}
         
-        PakFileSystemBase::Directory::~Directory() {
+        ImageFileSystem::Directory::~Directory() {
             MapUtils::clearAndDelete(m_directories);
             MapUtils::clearAndDelete(m_files);
         }
         
-        void PakFileSystemBase::Directory::addFile(const Path& path, File* file) {
+        void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
             assert(file != NULL);
             const String filename = path.lastComponent().asString();
             if (path.length() == 1) {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool PakFileSystemBase::Directory::directoryExists(const Path& path) const {
+        bool ImageFileSystem::Directory::directoryExists(const Path& path) const {
             if (path.isEmpty())
                 return true;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return it->second->directoryExists(path.deleteFirstComponent());
         }
         
-        bool PakFileSystemBase::Directory::fileExists(const Path& path) const {
+        bool ImageFileSystem::Directory::fileExists(const Path& path) const {
             if (path.length() == 1)
                 return m_files.count(path.asString()) > 0;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return it->second->fileExists(path.deleteFirstComponent());
         }
         
-        const PakFileSystemBase::Directory& PakFileSystemBase::Directory::findDirectory(const Path& path) const {
+        const ImageFileSystem::Directory& ImageFileSystem::Directory::findDirectory(const Path& path) const {
             if (path.isEmpty())
                 return *this;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             return it->second->findDirectory(path.deleteFirstComponent());
         }
         
-        const MappedFile::Ptr PakFileSystemBase::Directory::findFile(const Path& path) const {
+        const MappedFile::Ptr ImageFileSystem::Directory::findFile(const Path& path) const {
             assert(!path.isEmpty());
             
             const String name = path.firstComponent().asString();
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             return it->second->findFile(path.deleteFirstComponent());
         }
         
-        Path::List PakFileSystemBase::Directory::contents() const {
+        Path::List ImageFileSystem::Directory::contents() const {
             Path::List contents;
             
             DirMap::const_iterator dIt, dEnd;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             return contents;
         }
         
-        PakFileSystemBase::Directory& PakFileSystemBase::Directory::findOrCreateDirectory(const Path& path) {
+        ImageFileSystem::Directory& ImageFileSystem::Directory::findOrCreateDirectory(const Path& path) {
             if (path.isEmpty())
                 return *this;
             const String name = path.firstComponent().asString();
@@ -127,39 +127,39 @@ namespace TrenchBroom {
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
         
-        PakFileSystemBase::PakFileSystemBase(const Path& path, MappedFile::Ptr file) :
+        ImageFileSystem::ImageFileSystem(const Path& path, MappedFile::Ptr file) :
         m_path(path),
         m_file(file),
         m_root(Path("")) {}
         
         
-        PakFileSystemBase::~PakFileSystemBase() {}
+        ImageFileSystem::~ImageFileSystem() {}
 
-        void PakFileSystemBase::initialize() {
+        void ImageFileSystem::initialize() {
             doReadDirectory();
         }
         
-        Path PakFileSystemBase::doMakeAbsolute(const Path& relPath) const {
+        Path ImageFileSystem::doMakeAbsolute(const Path& relPath) const {
             return m_path + relPath.makeCanonical();
         }
         
-        bool PakFileSystemBase::doDirectoryExists(const Path& path) const {
+        bool ImageFileSystem::doDirectoryExists(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             return m_root.directoryExists(searchPath);
         }
         
-        bool PakFileSystemBase::doFileExists(const Path& path) const {
+        bool ImageFileSystem::doFileExists(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             return m_root.fileExists(searchPath);
         }
         
-        Path::List PakFileSystemBase::doGetDirectoryContents(const Path& path) const {
+        Path::List ImageFileSystem::doGetDirectoryContents(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             const Directory& directory = m_root.findDirectory(path);
             return directory.contents();
         }
         
-        const MappedFile::Ptr PakFileSystemBase::doOpenFile(const Path& path) const {
+        const MappedFile::Ptr ImageFileSystem::doOpenFile(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             return m_root.findFile(path);
         }

@@ -22,23 +22,25 @@
 
 #include "IO/TextureLoader.h"
 #include "Assets/AssetTypes.h"
+#include "IO/MappedFile.h"
 
 namespace TrenchBroom {
     namespace IO {
+        class PaletteLoader;
         class Path;
-        class Wad;
-        class WadEntry;
         
         class WadTextureLoader : public TextureLoader {
         private:
-            const Assets::Palette& m_palette;
+            const PaletteLoader* m_paletteLoader;
         public:
-            WadTextureLoader(const Assets::Palette& palette);
+            WadTextureLoader(const PaletteLoader* paletteLoader);
         private:
             static const size_t InitialBufferSize = 3 * 512 * 512;
             
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            Assets::Texture* loadTexture(const Wad& wad, const WadEntry& entry) const;
+        public:
+            static Assets::Texture* loadMipTexture(const String& name, MappedFile::Ptr file, const PaletteLoader* paletteLoader);
+            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
         };
     }
 }

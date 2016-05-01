@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         IdPakFileSystem::IdPakFileSystem(const Path& path, MappedFile::Ptr file) :
-        PakFileSystemBase(path, file) {
+        ImageFileSystem(path, file) {
             initialize();
         }
 

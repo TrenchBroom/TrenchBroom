@@ -106,7 +106,7 @@ namespace StringUtils {
     };
     
     typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
-    typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
+    typedef StringLess<CaseInsensitiveCharCompare> CaseInsensitiveStringLess;
     
     template <typename T>
     const String& safePlural(const T count, const String& singular, const String& plural) {

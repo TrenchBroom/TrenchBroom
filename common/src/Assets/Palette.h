@@ -23,6 +23,8 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "ByteBuffer.h"
+#include "Macros.h"
+#include "SharedPointer.h"
 #include "IO/Path.h"
 
 #include <cassert>
@@ -30,16 +32,15 @@
 namespace TrenchBroom {
     namespace Assets {
         class Palette {
+        public:
+            typedef std::tr1::shared_ptr<Palette> Ptr;
         private:
             unsigned char* m_data;
             size_t m_size;
         public:
-            Palette(const IO::Path& path);
-            Palette(const Palette& other);
+            Palette(unsigned char* data, size_t size);
             ~Palette();
             
-            void operator=(Palette other);
-
             template <typename IndexT, typename ColorT>
             void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
                 indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
@@ -63,9 +64,8 @@ namespace TrenchBroom {
                     averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
                 averageColor[3] = 1.0f;
             }
-        private:
-            void loadLmpPalette(const IO::Path& path);
-            void loadPcxPalette(const IO::Path& path);
+            
+            deleteCopyAndAssignment(Palette)
         };
     }
 }
