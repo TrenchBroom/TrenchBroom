@@ -52,8 +52,10 @@ namespace TrenchBroom {
             assert(file != NULL);
             const String filename = path.lastComponent().asString();
             if (path.length() == 1) {
-                if (!MapUtils::insertOrFail(m_files, filename, file))
+                if (!MapUtils::insertOrFail(m_files, filename, file)) {
+                    MapUtils::insertOrFail(m_files, filename, file);
                     throw new FileSystemException("File '" + filename + "' already exists in directory '" + m_path.asString() + "'");
+                }
             } else {
                 Directory& dir = findOrCreateDirectory(path.deleteLastComponent());
                 dir.addFile(filename, file);

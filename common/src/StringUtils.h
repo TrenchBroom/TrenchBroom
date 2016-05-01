@@ -93,15 +93,7 @@ namespace StringUtils {
     template <typename Cmp>
     struct StringLess {
         bool operator()(const String& lhs, const String& rhs) const {
-            typedef String::iterator::difference_type StringDiff;
-            
-            String::const_iterator lhsEnd, rhsEnd;
-            const size_t minSize = std::min(lhs.size(), rhs.size());
-            StringDiff difference = static_cast<StringDiff>(minSize);
-            
-            std::advance(lhsEnd = lhs.begin(), difference);
-            std::advance(rhsEnd = rhs.begin(), difference);
-            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), CharLess<Cmp>());
         }
     };
     
