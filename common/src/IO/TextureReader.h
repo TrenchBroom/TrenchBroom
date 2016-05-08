@@ -59,8 +59,9 @@ namespace TrenchBroom {
             class PathSuffixNameStrategy : public NameStrategy {
             private:
                 size_t m_suffixLength;
+                bool m_deleteExtension;
             public:
-                PathSuffixNameStrategy(size_t suffixLength);
+                PathSuffixNameStrategy(size_t suffixLength, bool deleteExtension);
             private:
                 NameStrategy* doClone() const;
                 String doGetTextureName(const String& textureName, const Path& path) const;

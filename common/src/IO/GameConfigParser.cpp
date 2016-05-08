@@ -119,14 +119,14 @@ namespace TrenchBroom {
             using Model::GameConfig;
             
             expectTableEntries(table,
-                               StringUtils::makeSet(2, "package", "formats"),
+                               StringUtils::makeSet(2, "package", "format"),
                                StringUtils::makeSet(3, "attribute", "palette", "builtin"));
 
             expectTableEntry("package", ConfigEntry::Type_Table, table);
             const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(table["package"]);
 
-            expectTableEntry("formats", ConfigEntry::Type_List, table);
-            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["formats"]);
+            expectTableEntry("format", ConfigEntry::Type_Table, table);
+            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["format"]);
             
             Path palette;
             if (table.contains("palette")) {
@@ -147,8 +147,8 @@ namespace TrenchBroom {
             using Model::GameConfig;
 
             expectTableEntries(table,
-                               StringUtils::makeSet(2, "type", "format"),
-                               StringSet());
+                               StringUtils::makeSet(1, "type"),
+                               StringUtils::makeSet(2, "root", "format"));
             
             expectTableEntry("type", ConfigEntry::Type_Value, table);
             const String typeStr = table["type"];

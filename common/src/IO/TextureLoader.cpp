@@ -51,10 +51,10 @@ namespace TrenchBroom {
         
         TextureReader* TextureLoader::createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const {
             if (textureConfig.format.format == "idmip") {
-                TextureReader::PathSuffixNameStrategy nameStrategy(1);
+                TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return new IdMipTextureReader(nameStrategy, loadPalette(textureConfig));
             } else if (textureConfig.format.format == "idwal") {
-                TextureReader::PathSuffixNameStrategy nameStrategy(2);
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");

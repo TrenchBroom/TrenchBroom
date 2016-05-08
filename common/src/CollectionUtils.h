@@ -448,6 +448,14 @@ namespace VectorUtils {
             vec1.push_back(*(values + i));
     }
     
+    template <typename T, typename K, typename C>
+    void append(std::vector<T>& vec, const std::map<K,T,C>& map) {
+        vec.reserve(vec.size() + map.size());
+        typename std::map<K,T,C>::const_iterator it, end;
+        for (it = map.begin(), end = map.end(); it != end; ++it)
+            vec.push_back(it->second);
+    }
+    
     template <typename T>
     void sort(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end());

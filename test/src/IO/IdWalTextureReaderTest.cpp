@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace IO {
         inline void assertTexture(const Path& path, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& reader) {
             const Path filePath = Path("data/IO/Wal") + path;
-            Assets::Texture* texture = reader.readTexture(fs.openFile(path));
+            Assets::Texture* texture = reader.readTexture(fs.openFile(filePath));
             ASSERT_TRUE(texture != NULL);
             
             const String& name = path.suffix(2).deleteExtension().asString('/');
@@ -43,16 +43,16 @@ namespace TrenchBroom {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/colormap.pcx"));
             
-            TextureReader::PathSuffixNameStrategy nameStrategy(2);
+            TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
             IdWalTextureReader textureReader(nameStrategy, palette);
             
-            assertTexture(Path("rtz/b_pv_v1a1"),  128, 256, fs, textureReader);
-            assertTexture(Path("rtz/b_pv_v1a2"),  128, 256, fs, textureReader);
-            assertTexture(Path("rtz/b_pv_v1a3"),  128, 128, fs, textureReader);
-            assertTexture(Path("rtz/b_rc_v16"),   128, 128, fs, textureReader);
-            assertTexture(Path("rtz/b_rc_v16w"),  128, 128, fs, textureReader);
-            assertTexture(Path("rtz/b_rc_v28"),   128,  64, fs, textureReader);
-            assertTexture(Path("rtz/b_rc_v4"),    128, 128, fs, textureReader);
+            assertTexture(Path("rtz/b_pv_v1a1.wal"),  128, 256, fs, textureReader);
+            assertTexture(Path("rtz/b_pv_v1a2.wal"),  128, 256, fs, textureReader);
+            assertTexture(Path("rtz/b_pv_v1a3.wal"),  128, 128, fs, textureReader);
+            assertTexture(Path("rtz/b_rc_v16.wal"),   128, 128, fs, textureReader);
+            assertTexture(Path("rtz/b_rc_v16w.wal"),  128, 128, fs, textureReader);
+            assertTexture(Path("rtz/b_rc_v28.wal"),   128,  64, fs, textureReader);
+            assertTexture(Path("rtz/b_rc_v4.wal"),    128, 128, fs, textureReader);
         }
     }
 }

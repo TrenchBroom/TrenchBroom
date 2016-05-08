@@ -79,6 +79,8 @@ namespace TrenchBroom {
                 if (colIt != collections.end())
                     collections.erase(colIt);
             }
+            
+            VectorUtils::append(m_toRemove, collections);
         }
 
         TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
