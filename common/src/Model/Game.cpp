@@ -95,22 +95,26 @@ namespace TrenchBroom {
             doWriteBrushFacesToStream(world, faces, stream);
         }
     
+        void Game::loadTextureCollections(const World* world, Assets::TextureManager& textureManager) const {
+            doLoadTextureCollections(world, textureManager);
+        }
+
         bool Game::isTextureCollection(const IO::Path& path) const {
             return doIsTextureCollection(path);
         }
 
-        IO::Path::List Game::findBuiltinTextureCollections() const {
-            return doFindBuiltinTextureCollections();
+        IO::Path::List Game::findTextureCollections() const {
+            return doFindTextureCollections();
         }
         
-        StringList Game::extractExternalTextureCollections(const World* world) const {
+        IO::Path::List Game::extractTextureCollections(const World* world) const {
             assert(world != NULL);
-            return doExtractExternalTextureCollections(world);
+            return doExtractTextureCollections(world);
         }
         
-        void Game::updateExternalTextureCollections(World* world, const StringList& collections) const {
+        void Game::updateTextureCollections(World* world, const IO::Path::List& paths) const {
             assert(world != NULL);
-            doUpdateExternalTextureCollections(world, collections);
+            doUpdateTextureCollections(world, paths);
         }
 
         bool Game::isEntityDefinitionFile(const IO::Path& path) const {

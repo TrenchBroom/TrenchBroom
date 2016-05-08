@@ -344,11 +344,9 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             
-            const StringList externalTextureCollectionNames() const;
-            void addTextureCollection(const String& name);
-            void moveTextureCollectionUp(const String& name);
-            void moveTextureCollectionDown(const String& name);
-            void removeTextureCollections(const StringList& names);
+            IO::Path::List enabledTextureCollections() const;
+            IO::Path::List availableTextureCollections() const;
+            void setEnabledTextureCollections(const IO::Path::List& paths);
         private:
             void loadAssets();
             void unloadAssets();
@@ -358,15 +356,10 @@ namespace TrenchBroom {
             
             void loadEntityModels();
             void unloadEntityModels();
-            
+        protected:
             void loadTextures();
-            void loadBuiltinTextures();
-            void loadExternalTextures();
             void unloadTextures();
             void reloadTextures();
-        protected:
-            void addExternalTextureCollections(const StringList& names);
-            void updateExternalTextureCollectionProperty();
             
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);

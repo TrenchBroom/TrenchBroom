@@ -21,6 +21,8 @@
 
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "IO/CharArrayReader.h"
+#include "IO/FileSystem.h"
 
 #include <algorithm>
 #include <cstring>
@@ -28,15 +30,69 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Palette::Palette(unsigned char* data, const size_t size) :
-        m_data(data),
-        m_size(size) {
-            assert(m_data != NULL);
+        Palette::Palette(const size_t size, unsigned char* data) :
+        m_size(size),
+        m_data(data) {
             assert(m_size > 0);
+            assert(m_data != NULL);
+        }
+
+        Palette::Palette(const Palette& other) :
+        m_size(other.m_size),
+        m_data(new unsigned char[m_size]) {
+            std::memcpy(m_data, other.m_data, m_size);
         }
 
         Palette::~Palette() {
             delete[] m_data;
+        }
+
+        Palette& Palette::operator=(Palette other) {
+            using std::swap;
+            swap(other, *this);
+            return *this;
+        }
+        
+        void swap(Palette& lhs, Palette& rhs) {
+            using std::swap;
+            swap(lhs.m_size, rhs.m_size);
+            swap(lhs.m_data, rhs.m_data);
+        }
+
+        Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
+            try {
+                IO::MappedFile::Ptr file = fs.openFile(path);
+                const String extension = StringUtils::toLower(path.extension());
+                if (extension == "lmp")
+                    return loadLmp(file);
+                else if (extension == "pcx")
+                    return loadPcx(file);
+                else
+                    throw new AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
+            } catch (const FileSystemException& e) {
+                throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
+            }
+        }
+        
+        Palette Palette::loadLmp(IO::MappedFile::Ptr file) {
+            const size_t size = file->size();
+            unsigned char* data = new unsigned char[size];
+            
+            IO::CharArrayReader reader(file->begin(), file->end());
+            reader.read(data, size);
+            
+            return Palette(size, data);
+        }
+        
+        Palette Palette::loadPcx(IO::MappedFile::Ptr file) {
+            const size_t size = 768;
+            unsigned char* data = new unsigned char[size];
+            
+            IO::CharArrayReader reader(file->begin(), file->end());
+            reader.seekFromEnd(size);
+            reader.read(data, size);
+            
+            return Palette(size, data);
         }
     }
 }

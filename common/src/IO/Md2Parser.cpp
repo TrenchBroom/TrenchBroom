@@ -27,7 +27,6 @@
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
-#include "IO/PaletteLoader.h"
 #include "IO/Path.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -222,14 +221,12 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader, const FileSystem& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
-        m_paletteLoader(paletteLoader),
-        m_fs(fs) {
-            assert(m_paletteLoader != NULL);
-        }
+        m_palette(palette),
+        m_fs(fs) {}
         
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* Md2Parser::doParseModel() {
@@ -320,7 +317,7 @@ namespace TrenchBroom {
                 Md2SkinList::const_iterator it, end;
                 for (it = skins.begin(), end = skins.end(); it != end; ++it) {
                     const Md2Skin& skin = *it;
-                    Assets::Texture* texture = loadTexture(skin);
+                    Assets::Texture* texture = readTexture(skin);
                     textures.push_back(texture);
                 }
                 return textures;
@@ -330,17 +327,16 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
+        Assets::Texture* Md2Parser::readTexture(const Md2Skin& skin) {
             const Path skinPath(String(skin.name));
             MappedFile::Ptr file = m_fs.openFile(skinPath);
-            Assets::Palette::Ptr palette = m_paletteLoader->loadPalette(file);
             
             Color avgColor;
             const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
             
             const Buffer<unsigned char>& indices = image.indices();
             Buffer<unsigned char> rgbImage(indices.size() * 3);
-            palette->indexedToRgb(indices, indices.size(), rgbImage, avgColor);
+            m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
             
             return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
         }

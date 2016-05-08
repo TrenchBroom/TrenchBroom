@@ -315,6 +315,34 @@ namespace VectorUtils {
     }
     
     template <typename T>
+    void swapPred(std::vector<T>& vec, typename std::vector<T>::iterator i) {
+        assert(i > vec.begin() && i < vec.end());
+        std::iter_swap(i, i-1);
+    }
+
+    template <typename T>
+    void swapPred(std::vector<T>& vec, const size_t i) {
+        assert(i > 0 && i < vec.size());
+        typename std::vector<T>::iterator it = vec.begin();
+        std::advance(it, i);
+        swapPred(vec, it);
+    }
+    
+    template <typename T>
+    void swapSucc(std::vector<T>& vec, typename std::vector<T>::iterator i) {
+        assert(i >= vec.begin() && i < vec.end() - 1);
+        std::iter_swap(i, i+1);
+    }
+    
+    template <typename T>
+    void swapSucc(std::vector<T>& vec, const size_t i) {
+        assert(i > 0 && i < vec.size());
+        typename std::vector<T>::iterator it = vec.begin();
+        std::advance(it, i);
+        swapSucc(vec, it);
+    }
+    
+    template <typename T>
     void clearAndDelete(std::vector<T*>& vec) {
         std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
         vec.clear();
@@ -358,18 +386,18 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    void eraseAll(std::vector<T*>& vec, const std::vector<T*>& items) {
+    void eraseAll(std::vector<T>& vec, const std::vector<T>& items) {
         vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
     }
     
     template <typename T, typename I>
-    void eraseAll(std::vector<T*>& vec, I cur, I end) {
+    void eraseAll(std::vector<T>& vec, I cur, I end) {
         vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), cur, end), vec.end());
     }
     
     template <typename T>
-    std::vector<T*> eraseAll(const std::vector<T*>& vec, const std::vector<T*>& items) {
-        std::vector<T*> result(vec);
+    std::vector<T> eraseAll(const std::vector<T>& vec, const std::vector<T>& items) {
+        std::vector<T> result(vec);
         result.erase(CollectionUtils::removeAll(result.begin(), result.end(), items.begin(), items.end()), result.end());
         return result;
     }

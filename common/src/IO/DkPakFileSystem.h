@@ -32,11 +32,10 @@ namespace TrenchBroom {
         private:
             class CompressedFile : public File {
             private:
-                const char* const m_begin;
-                const char* const m_end;
+                MappedFile::Ptr m_file;
                 const size_t m_uncompressedSize;
             public:
-                CompressedFile(const char* begin, const char* end, size_t uncompressedSize);
+                CompressedFile(MappedFile::Ptr file, size_t uncompressedSize);
             private:
                 MappedFile::Ptr doOpen();
                 char* decompress() const;

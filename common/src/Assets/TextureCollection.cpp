@@ -24,19 +24,22 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        TextureCollection::TextureCollection(const String& name) :
-        m_loaded(false),
-        m_name(name) {}
+        TextureCollection::TextureCollection() :
+        m_loaded(false) {}
+        
+        TextureCollection::TextureCollection(const TextureList& textures) :
+        m_loaded(false) {
+            addTextures(textures);
+        }
 
-        TextureCollection::TextureCollection(const String& name, const TextureList& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path) :
+        m_loaded(false),
+        m_path(path) {}
+
+        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
         m_loaded(true),
-        m_name(name),
-        m_textures(textures.size()) {
-            for (size_t i = 0; i < textures.size(); ++i) {
-                Texture* texture = textures[i];
-                texture->setCollection(this);
-                m_textures[i] = texture;
-            }
+        m_path(path) {
+            addTextures(textures);
         }
 
         TextureCollection::~TextureCollection() {
@@ -48,12 +51,33 @@ namespace TrenchBroom {
             }
         }
 
+        void TextureCollection::addTextures(const TextureList& textures) {
+            TextureList::const_iterator it, end;
+            for (it = textures.begin(), end = textures.end(); it != end; ++it) {
+                Texture* texture = *it;
+                addTexture(texture);
+            }
+        }
+
+        void TextureCollection::addTexture(Texture* texture) {
+            assert(texture != NULL);
+            m_textures.push_back(texture);
+            texture->setCollection(this);
+            m_loaded = true;
+        }
+
         bool TextureCollection::loaded() const {
             return m_loaded;
         }
 
-        const String& TextureCollection::name() const {
-            return m_name;
+        const IO::Path& TextureCollection::path() const {
+            return m_path;
+        }
+
+        String TextureCollection::name() const {
+            if (m_path.isEmpty())
+                return "";
+            return m_path.lastComponent().asString();
         }
         
         const TextureList& TextureCollection::textures() const {

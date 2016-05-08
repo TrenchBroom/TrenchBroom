@@ -25,7 +25,6 @@
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/FileSystemHierarchy.h"
-#include "IO/PaletteLoader.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -70,11 +69,11 @@ namespace TrenchBroom {
             void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
             
+            void doLoadTextureCollections(const World* world, Assets::TextureManager& textureManager) const;
             bool doIsTextureCollection(const IO::Path& path) const;
-            IO::Path::List doFindBuiltinTextureCollections() const;
-            StringList doExtractExternalTextureCollections(const World* world) const;
-            void doUpdateExternalTextureCollections(World* world, const StringList& collections) const;
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            IO::Path::List doFindTextureCollections() const;
+            IO::Path::List doExtractTextureCollections(const World* world) const;
+            void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
@@ -84,17 +83,10 @@ namespace TrenchBroom {
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const;
 
-            // MapWriterPtr mapWriter(MapFormat::Type format) const;
-            
-            Assets::TextureCollection* loadFileTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            Assets::TextureCollection* loadDirectoryTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-
-            Assets::TextureCollection* loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            Assets::TextureCollection* loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            
             Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const;
+            Assets::Palette loadTexturePalette() const;
             
             const BrushContentType::List& doBrushContentTypes() const;
 
@@ -107,7 +99,6 @@ namespace TrenchBroom {
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
         private:
-            IO::PaletteLoader::Ptr createPaletteLoader() const;
             void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
             String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;
         };

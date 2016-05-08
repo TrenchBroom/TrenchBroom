@@ -60,6 +60,7 @@ namespace TrenchBroom {
             String asString(const char sep = separator()) const;
             String asString(const String& sep) const;
             static StringList asStrings(const Path::List& paths, const char sep = separator());
+            static List asPaths(const StringList& strs);
             
             size_t length() const;
             bool isEmpty() const;
@@ -70,7 +71,9 @@ namespace TrenchBroom {
             Path prefix(const size_t count) const;
             Path suffix(const size_t count) const;
             Path subPath(const size_t index, const size_t count) const;
-            const String extension() const;
+            String filename() const;
+            String basename() const;
+            String extension() const;
             Path deleteExtension() const;
             Path addExtension(const String& extension) const;
             Path replaceExtension(const String& extension) const;

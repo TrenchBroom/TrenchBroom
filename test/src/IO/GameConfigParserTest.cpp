@@ -41,128 +41,353 @@ namespace TrenchBroom {
         }
         
         TEST(GameConfigParserTest, parseQuakeConfig) {
-            const String config("{\n"
-                                "  version=\"1\",\n"
-                                "  name=\"Quake\",\n"
-                                "  fileformats={\"Quake 1\",\"Valve\"},\n"
-                                "  filesystem={\n"
-                                "    searchpath=\"id1\",\n"
-                                "    packageformat= {extension=\"pak\",format=\"idpak\"}\n"
-                                "  },\n"
-                                "  textures={\n"
-                                "    package = { type = \"file\", format = { extension = \"wad\", format = \"wad\" } },"
-                                "    attribute=\"wad\",\n"
-                                "    palette = { type = \"builtin\", location = { path = \"Quake/palette.lmp\" } }\n"
-                                "  },\n"
-                                "  entities={\n"
-                                "    definitions={ \"Quake1.fgd\", \"Quoth2.fgd\" },\n"
-                                "    defaultcolor=\"1.0 1.0 1.0 1.0\",\n"
-                                "    modelformats={\"bsp\", \"mdl\"}\n"
-                                "  }\n"
-                                "}\n");
+            const String config("{"
+                                "   version = \"1\","
+                                "	name = \"Quake\","
+                                "	icon = \"Quake/Icon.png\","
+                                " 	fileformats = { \"Standard\", \"Valve\" },"
+                                "	filesystem = {"
+                                "		searchpath = \"id1\","
+                                "        packageformat = { extension = \"pak\", format = \"idpak\" }"
+                                "	},"
+                                "	textures = { "
+                                "        package = { type = \"file\", format = { extension = \"wad\", format = \"wad2\" } },"
+                                "        format = { extension = \"D\", format = \"idmip\" },"
+                                "        palette = \"gfx/palette.lmp\","
+                                "    	attribute = \"wad\""
+                                "	},"
+                                "  	entities = {"
+                                "		definitions = { \"Quake/Quake.fgd\", \"Quake/Quoth2.fgd\", \"Quake/Rubicon2.def\" },"
+                                "    	defaultcolor = \"0.6 0.6 0.6 1.0\","
+                                "		modelformats = { \"mdl\", \"bsp\" }"
+                                "    },"
+                                "    brushtypes = {"
+                                "        {"
+                                "            name = \"Clip brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"clip\""
+                                "        },"
+                                "        {"
+                                "            name = \"Skip brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"skip\""
+                                "        },"
+                                "        {"
+                                "            name = \"Hint brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"hint\""
+                                "        },"
+                                "        {"
+                                "            name = \"Liquid brushes\","
+                                "            match = \"texture\","
+                                "            pattern = \"\\**\""
+                                "        },"
+                                "        {"
+                                "            name = \"Trigger brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"classname\","
+                                "            pattern = \"trigger*\""
+                                "        }"
+                                "    }"
+                                "}");
+            
             GameConfigParser parser(config);
             
-            const Model::GameConfig gameConfig = parser.parse();
-            ASSERT_EQ(String("Quake"), gameConfig.name());
-            ASSERT_EQ(2u, gameConfig.fileFormats().size());
-            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 1")));
-            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Valve")));
-            ASSERT_EQ(Path("id1"), gameConfig.fileSystemConfig().searchPath);
-            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
-            ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
-            ASSERT_EQ(Model::GameConfig::TexturePackageConfig::PT_File, gameConfig.textureConfig().package.type);
-            ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.extension);
-            ASSERT_EQ(String("wad"), gameConfig.textureConfig().package.format.format);
-            ASSERT_EQ(String("wad"), gameConfig.textureConfig().attribute);
-            ASSERT_EQ(Model::GameConfig::PaletteConfig::LT_Builtin, gameConfig.textureConfig().palette.type);
-            ASSERT_EQ(String("Quake/palette.lmp"), gameConfig.textureConfig().palette.path);
-            ASSERT_TRUE(gameConfig.textureConfig().builtinTexturesSearchPath.isEmpty());
-            ASSERT_EQ(Path("Quake1.fgd"), gameConfig.entityConfig().defFilePaths[0]);
-            ASSERT_EQ(Path("Quoth2.fgd"), gameConfig.entityConfig().defFilePaths[1]);
-            ASSERT_EQ(2u, gameConfig.entityConfig().modelFormats.size());
-            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("bsp"));
-            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("mdl"));
-            ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
+            using Model::GameConfig;
+            const GameConfig actual = parser.parse();
+            
+            using Model::BrushContentType;
+            const GameConfig expected("Quake",
+                                      Path(""),
+                                      Path("Quake/Icon.png"),
+                                      StringUtils::makeList(2, "Standard", "Valve"),
+                                      GameConfig::FileSystemConfig(Path("id1"), GameConfig::PackageFormatConfig("pak", "idpak")),
+                                      GameConfig::TextureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
+                                                                GameConfig::PackageFormatConfig("mip", "idmip"),
+                                                                Path("gfx/palette.lmp"),
+                                                                "wad"),
+                                      GameConfig::EntityConfig(VectorUtils::create<Path>(Path("Quake/Quake.fgd"), Path("Quake/Quoth2.fgd"), Path("Quake/Rubicon2.def")),
+                                                               StringUtils::makeSet(2, "mdl", "bsp"),
+                                                               Color(0.6f, 0.6f, 0.6f, 1.0f)),
+                                      GameConfig::FaceAttribsConfig(),
+                                      BrushContentType::List());
+            
+            ASSERT_EQ(expected.name(), actual.name());
+            ASSERT_EQ(expected.path(), actual.path());
+            ASSERT_EQ(expected.icon(), actual.icon());
+            ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
+            ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
+            ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
+            ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
+            ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
+            ASSERT_EQ(5u, actual.brushContentTypes().size());
         }
 
         TEST(GameConfigParserTest, parseQuake2Config) {
-            const String config("{\n"
-                                "   version=\"1\",\n"
-                                "	name = \"Quake 2\",\n"
-                                "	icon = \"Quake2/Icon.png\",\n"
-                                " 	fileformats = { \"Quake 2\" },\n"
-                                "	filesystem = {\n"
-                                "		searchpath = \"baseq2\",\n"
-                                "		packageformat = { extension = \"pak\", format = \"idpak\" }\n"
-                                "	},\n"
-                                "	textures = {\n"
-                                "   package = { type = \"directory\", format = { extension = \"wal\", format = \"idwal\" } },\n"
-                                "    	attribute = \"_wal\",\n"
-                                "       palette = { type = \"property\", location = { key = \"palette\", path = \"textures/${KEY}/colormap.bmp\" } },\n"
-                                "		builtin = \"textures\"\n"
-                                "	},\n"
-                                "  	entities = {\n"
-                                "		definitions = \"Quake2/Quake2.fgd\",\n"
-                                "    	defaultcolor = \"1.0 1.0 1.0 1.0\",\n"
-                                "		modelformats = { \"md2\" }\n"
-                                "    },\n"
-                                "    faceattribs = {\n"
-                                "        surfaceflags = {\n"
-                                "            {\n"
-                                "                name = \"light\",\n"
-                                "                description = \"Emit light from the surface, brightness is specified in the 'value' field\"\n"
-                                "            },\n"
-                                "            {\n"
-                                "                name = \"slick\",\n"
-                                "                description = \"The surface is slippery\"\n"
-                                "            }\n"
-                                "        },\n"
-                                "        contentflags = {\n"
-                                "            {\n"
-                                "                name = \"solid\",\n"
-                                "                description = \"Default for all brushes\"\n"
-                                "            },\n"
-                                "            {\n"
-                                "                name = \"window\",\n"
-                                "                description = \"Brush is a window (not really used)\"\n"
-                                "            }\n"
-                                "        }\n"
-                                "    }\n"
+            const String config("{"
+                                "    version = \"1\","
+                                "    name = \"Quake 2\","
+                                "    icon = \"Quake2/Icon.png\","
+                                "    fileformats = { \"Quake2\" },"
+                                "    filesystem = {"
+                                "        searchpath = \"baseq2\","
+                                "        packageformat = { extension = \"pak\", format = \"idpak\" }"
+                                "    },"
+                                "    textures = {"
+                                "        package = { type = \"directory\", root = \"textures\" },"
+                                "        format = { extension = \"wal\", format = \"idwal\" },"
+                                "        palette = \"pics/colormap.pcx\","
+                                "        attribute = \"_tb_textures\","
+                                "    },"
+                                "    entities = {"
+                                "        definitions = \"Quake2/Quake2.fgd\","
+                                "        defaultcolor = \"0.6 0.6 0.6 1.0\","
+                                "        modelformats = { \"md2\" }"
+                                "    },"
+                                "    brushtypes = {"
+                                "        {"
+                                "            name = \"Clip brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"clip\""
+                                "        },"
+                                "        {"
+                                "            name = \"Skip brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"skip\""
+                                "        },"
+                                "        {"
+                                "            name = \"Hint brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"texture\","
+                                "            pattern = \"hint\""
+                                "        },"
+                                "        {"
+                                "            name = \"Detail brushes\","
+                                "            match = \"contentflag\","
+                                "            flags = { \"detail\" }"
+                                "        },"
+                                "        {"
+                                "            name = \"Liquid brushes\","
+                                "            match = \"contentflag\","
+                                "            flags = { \"lava\", \"slime\", \"water\" }"
+                                "        },"
+                                "        {"
+                                "            name = \"Trigger brushes\","
+                                "            attribs = { \"transparent\" },"
+                                "            match = \"classname\","
+                                "            pattern = \"trigger*\""
+                                "        }"
+                                "    },"
+                                "    faceattribs = {"
+                                "        surfaceflags = {"
+                                "            {"
+                                "                name = \"light\","
+                                "                description = \"Emit light from the surface, brightness is specified in the 'value' field\""
+                                "            },"
+                                "            {"
+                                "                name = \"slick\","
+                                "                description = \"The surface is slippery\""
+                                "            },"
+                                "            {"
+                                "                name = \"sky\","
+                                "                description = \"The surface is sky, the texture will not be drawn, but the background sky box is used instead\""
+                                "            },"
+                                "            {"
+                                "                name = \"warp\","
+                                "                description = \"The surface warps (like water textures do)\""
+                                "            },"
+                                "            {"
+                                "                name = \"trans33\","
+                                "                description = \"The surface is 33% transparent\""
+                                "            },"
+                                "            {"
+                                "                name = \"trans66\","
+                                "                description = \"The surface is 66% transparent\""
+                                "            },"
+                                "            {"
+                                "                name = \"flowing\","
+                                "                description = \"The texture wraps in a downward 'flowing' pattern (warp must also be set)\""
+                                "            },"
+                                "            {"
+                                "                name = \"nodraw\","
+                                "                description = \"Used for non-fixed-size brush triggers and clip brushes\""
+                                "            }"
+                                "        },"
+                                "        contentflags = {"
+                                "            {"
+                                "                name = \"solid\","
+                                "                description = \"Default for all brushes\""
+                                "            }, // 1"
+                                "            {"
+                                "                name = \"window\","
+                                "                description = \"Brush is a window (not really used)\""
+                                "            }, // 2"
+                                "            {"
+                                "                name = \"aux\","
+                                "                description = \"Unused by the engine\""
+                                "            }, // 4"
+                                "            {"
+                                "                name = \"lava\","
+                                "                description = \"The brush is lava\""
+                                "            }, // 8"
+                                "            {"
+                                "                name = \"slime\","
+                                "                description = \"The brush is slime\""
+                                "            }, // 16"
+                                "            {"
+                                "                name = \"water\","
+                                "                description = \"The brush is water\""
+                                "            }, // 32"
+                                "            {"
+                                "                name = \"mist\","
+                                "                description = \"The brush is non-solid\""
+                                "            }, // 64"
+                                "            { name = \"unused\" }, // 128"
+                                "            { name = \"unused\" }, // 256"
+                                "            { name = \"unused\" }, // 512"
+                                "            { name = \"unused\" }, // 1024"
+                                "            { name = \"unused\" }, // 2048"
+                                "            { name = \"unused\" }, // 4096"
+                                "            { name = \"unused\" }, // 8192"
+                                "            { name = \"unused\" }, // 16384"
+                                "            { name = \"unused\" }, // 32768"
+                                "            {"
+                                "                name = \"playerclip\","
+                                "                description = \"Player cannot pass through the brush (other things can)\""
+                                "            }, // 65536"
+                                "            {"
+                                "                name = \"mosterclip\","
+                                "                description = \"Monster cannot pass through the brush (player and other things can)\""
+                                "            }, // 131072"
+                                "            {"
+                                "                name = \"current_0\","
+                                "                description = \"Brush has a current in direction of 0 degrees\""
+                                "            },"
+                                "            {"
+                                "                name = \"current_90\","
+                                "                description = \"Brush has a current in direction of 90 degrees\""
+                                "            },"
+                                "            {"
+                                "                name = \"current_180\","
+                                "                description = \"Brush has a current in direction of 180 degrees\""
+                                "            },"
+                                "            {"
+                                "                name = \"current_270\","
+                                "                description = \"Brush has a current in direction of 270 degrees\""
+                                "            },"
+                                "            {"
+                                "                name = \"current_up\","
+                                "                description = \"Brush has a current in the up direction\""
+                                "            },"
+                                "            {"
+                                "                name = \"current_dn\","
+                                "                description = \"Brush has a current in the down direction\""
+                                "            },"
+                                "            {"
+                                "                name = \"origin\","
+                                "                description = \"Special brush used for specifying origin of rotation for rotating brushes\""
+                                "            },"
+                                "            {"
+                                "                name = \"monster\","
+                                "                description = \"Purpose unknown\""
+                                "            },"
+                                "            {"
+                                "                name = \"corpse\","
+                                "                description = \"Purpose unknown\""
+                                "            },"
+                                "            {"
+                                "                name = \"detail\","
+                                "                description = \"Detail brush\""
+                                "            },"
+                                "            {"
+                                "                name = \"translucent\","
+                                "                description = \"Use for opaque water that does not block vis\""
+                                "            },"
+                                "            {"
+                                "                name = \"ladder\","
+                                "                description = \"Brushes with this flag allow a player to move up and down a vertical surface\""
+                                "            }"
+                                "        }"
+                                "    }"
                                 "}\n");
             GameConfigParser parser(config);
             
-            const Model::GameConfig gameConfig = parser.parse();
-            ASSERT_EQ(String("Quake 2"), gameConfig.name());
-            ASSERT_EQ(Path("Quake2/Icon.png"), gameConfig.icon());
-            ASSERT_EQ(1u, gameConfig.fileFormats().size());
-            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 2")));
-            ASSERT_EQ(Path("baseq2"), gameConfig.fileSystemConfig().searchPath);
-            ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat.extension);
-            ASSERT_EQ(String("idpak"), gameConfig.fileSystemConfig().packageFormat.format);
-            ASSERT_EQ(Model::GameConfig::TexturePackageConfig::PT_Directory, gameConfig.textureConfig().package.type);
-            ASSERT_EQ(String("wal"), gameConfig.textureConfig().package.format.extension);
-            ASSERT_EQ(String("idwal"), gameConfig.textureConfig().package.format.format);
-            ASSERT_EQ(String("_wal"), gameConfig.textureConfig().attribute);
-            ASSERT_EQ(Model::GameConfig::PaletteConfig::LT_Property, gameConfig.textureConfig().palette.type);
-            ASSERT_EQ(String("palette"), gameConfig.textureConfig().palette.property);
-            ASSERT_EQ(String("textures/${KEY}/colormap.bmp"), gameConfig.textureConfig().palette.path);
-            ASSERT_EQ(Path("textures"), gameConfig.textureConfig().builtinTexturesSearchPath);
-            ASSERT_EQ(Path("Quake2/Quake2.fgd"), gameConfig.entityConfig().defFilePaths[0]);
-            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.size());
-            ASSERT_EQ(1u, gameConfig.entityConfig().modelFormats.count("md2"));
-            ASSERT_EQ(Color(1.0f, 1.0f, 1.0f, 1.0f), gameConfig.entityConfig().defaultColor);
+            using Model::GameConfig;
+            const GameConfig actual = parser.parse();
             
-            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().surfaceFlags.flags.size());
-            ASSERT_EQ(String("light"), gameConfig.faceAttribsConfig().surfaceFlags.flags[0].name);
-            ASSERT_EQ(String("Emit light from the surface, brightness is specified in the 'value' field"), gameConfig.faceAttribsConfig().surfaceFlags.flags[0].description);
-            ASSERT_EQ(String("slick"), gameConfig.faceAttribsConfig().surfaceFlags.flags[1].name);
-            ASSERT_EQ(String("The surface is slippery"), gameConfig.faceAttribsConfig().surfaceFlags.flags[1].description);
+            GameConfig::FlagConfigList surfaceFlags;
+            surfaceFlags.push_back(GameConfig::FlagConfig("light", "Emit light from the surface, brightness is specified in the 'value' field"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("slick", "The surface is slippery"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("warp", "The surface warps (like water textures do)"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("trans33", "The surface is 33% transparent"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("trans66", "The surface is 66% transparent"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)"));
+            surfaceFlags.push_back(GameConfig::FlagConfig("nodraw", "Used for non-fixed-size brush triggers and clip brushes"));
+            
+            GameConfig::FlagConfigList contentFlags;
+            contentFlags.push_back(GameConfig::FlagConfig("solid", "Default for all brushes"));
+            contentFlags.push_back(GameConfig::FlagConfig("window", "Brush is a window (not really used)"));
+            contentFlags.push_back(GameConfig::FlagConfig("aux", "Unused by the engine"));
+            contentFlags.push_back(GameConfig::FlagConfig("lava", "The brush is lava"));
+            contentFlags.push_back(GameConfig::FlagConfig("slime", "The brush is slime"));
+            contentFlags.push_back(GameConfig::FlagConfig("water", "The brush is water"));
+            contentFlags.push_back(GameConfig::FlagConfig("mist", "The brush is non-solid"));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.push_back(GameConfig::FlagConfig("playerclip", "Player cannot pass through the brush (other things can)"));
+            contentFlags.push_back(GameConfig::FlagConfig("mosterclip", "Monster cannot pass through the brush (player and other things can)"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_0", "Brush has a current in direction of 0 degrees"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_90", "Brush has a current in direction of 90 degrees"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_180", "Brush has a current in direction of 180 degrees"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_270", "Brush has a current in direction of 270 degrees"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_up", "Brush has a current in the up direction"));
+            contentFlags.push_back(GameConfig::FlagConfig("current_dn", "Brush has a current in the down direction"));
+            contentFlags.push_back(GameConfig::FlagConfig("origin", "Special brush used for specifying origin of rotation for rotating brushes"));
+            contentFlags.push_back(GameConfig::FlagConfig("monster", "Purpose unknown"));
+            contentFlags.push_back(GameConfig::FlagConfig("corpse", "Purpose unknown"));
+            contentFlags.push_back(GameConfig::FlagConfig("detail", "Detail brush"));
+            contentFlags.push_back(GameConfig::FlagConfig("translucent", "Use for opaque water that does not block vis"));
+            contentFlags.push_back(GameConfig::FlagConfig("ladder", "Brushes with this flag allow a player to move up and down a vertical surface"));
 
-            ASSERT_EQ(2u, gameConfig.faceAttribsConfig().contentFlags.flags.size());
-            ASSERT_EQ(String("solid"), gameConfig.faceAttribsConfig().contentFlags.flags[0].name);
-            ASSERT_EQ(String("Default for all brushes"), gameConfig.faceAttribsConfig().contentFlags.flags[0].description);
-            ASSERT_EQ(String("window"), gameConfig.faceAttribsConfig().contentFlags.flags[1].name);
-            ASSERT_EQ(String("Brush is a window (not really used)"), gameConfig.faceAttribsConfig().contentFlags.flags[1].description);
+            using Model::BrushContentType;
+            const GameConfig expected("Quake 2",
+                                      Path(""),
+                                      Path("Quake2/Icon.png"),
+                                      StringUtils::makeList(2, "Quake2"),
+                                      GameConfig::FileSystemConfig(Path("baseq2"), GameConfig::PackageFormatConfig("pak", "idpak")),
+                                      GameConfig::TextureConfig(GameConfig::TexturePackageConfig(Path("textures")),
+                                                                GameConfig::PackageFormatConfig("wal", "idwal"),
+                                                                Path("pics/colormap.pcx"),
+                                                                "_tb_textures"),
+                                      GameConfig::EntityConfig(Path::List(1, Path("Quake2/Quake2.fgd")),
+                                                               StringUtils::makeSet(1, "md2"),
+                                                               Color(0.6f, 0.6f, 0.6f, 1.0f)),
+                                      GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags),
+                                      BrushContentType::List());
+            
+            ASSERT_EQ(expected.name(), actual.name());
+            ASSERT_EQ(expected.path(), actual.path());
+            ASSERT_EQ(expected.icon(), actual.icon());
+            ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
+            ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
+            ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
+            ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
+            ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
+            ASSERT_EQ(5u, actual.brushContentTypes().size());
+
         }
     }
 }

@@ -68,10 +68,11 @@ namespace TrenchBroom {
         }
 
         String CharArrayReader::readString(const size_t size) {
-            char* buffer = new char[size+1];
+            std::vector<char> buffer;
+            buffer.resize(size + 1);
             buffer[size] = 0;
-            read(buffer, size);
-            return String(buffer);
+            read(buffer.data(), size);
+            return String(buffer.data());
         }
     }
 }

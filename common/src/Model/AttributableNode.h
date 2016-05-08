@@ -21,6 +21,7 @@
 #define TrenchBroom_AttributableNode
 
 #include "Notifier.h"
+#include "VariableTable.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
@@ -97,6 +98,8 @@ namespace TrenchBroom {
             
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;
+            
+            VariableTable asVariableTable() const;
         private: // attribute management internals
             template <typename T>
             AttributeValue convertValue(const T& value) const {

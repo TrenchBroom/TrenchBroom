@@ -37,8 +37,6 @@ namespace TrenchBroom {
         class TextureCollection;
         typedef std::vector<TextureCollection*> TextureCollectionList;
         
-        class TextureCollectionSpec;
-        
         class EntityDefinition;
         class PointEntityDefinition;
         class BrushEntityDefinition;

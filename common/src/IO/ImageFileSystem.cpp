@@ -33,8 +33,8 @@ namespace TrenchBroom {
             return doOpen();
         }
         
-        ImageFileSystem::SimpleFile::SimpleFile(const char* begin, const char* end) :
-        m_file(new MappedFileView(begin, end)) {}
+        ImageFileSystem::SimpleFile::SimpleFile(MappedFile::Ptr file) :
+        m_file(file) {}
         
         MappedFile::Ptr ImageFileSystem::SimpleFile::doOpen() {
             return m_file;
@@ -48,6 +48,10 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_files);
         }
         
+        void ImageFileSystem::Directory::addFile(const Path& path, MappedFile::Ptr file) {
+            addFile(path, new SimpleFile(file));
+        }
+
         void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
             assert(file != NULL);
             const String filename = path.lastComponent().asString();

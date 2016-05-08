@@ -20,7 +20,7 @@
 #ifndef AutoCompleteVariablesHelper_h
 #define AutoCompleteVariablesHelper_h
 
-#include "VariableHelper.h"
+#include "VariableTable.h"
 #include "View/AutoCompleteTextControl.h"
 
 namespace TrenchBroom {

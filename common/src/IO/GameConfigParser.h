@@ -41,7 +41,6 @@ namespace TrenchBroom {
             Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const ConfigTable& table) const;
             Model::GameConfig::TextureConfig parseTextureConfig(const ConfigTable& table) const;
             Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const ConfigTable& table) const;
-            Model::GameConfig::PaletteConfig parsePaletteConfig(const ConfigTable& table) const;
             Model::GameConfig::EntityConfig parseEntityConfig(const ConfigTable& table) const;
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const ConfigTable& table) const;
             Model::GameConfig::FlagConfigList parseFlagConfig(const ConfigList& list) const;

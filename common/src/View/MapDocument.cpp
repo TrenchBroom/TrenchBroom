@@ -24,7 +24,6 @@
 #include "Polyhedron.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/TextureCollectionSpec.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
@@ -96,7 +95,7 @@
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
-#include "View/TextureCollectionCommand.h"
+#include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManager.h"
 #include "View/ViewEffectsService.h"
@@ -1123,26 +1122,18 @@ namespace TrenchBroom {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
         
-        const StringList MapDocument::externalTextureCollectionNames() const {
-            return m_textureManager->externalCollectionNames();
+        IO::Path::List MapDocument::enabledTextureCollections() const {
+            return m_game->extractTextureCollections(m_world);
         }
         
-        void MapDocument::addTextureCollection(const String& name) {
-            submitAndStore(TextureCollectionCommand::add(name));
+        IO::Path::List MapDocument::availableTextureCollections() const {
+            return m_game->findTextureCollections();
         }
         
-        void MapDocument::moveTextureCollectionUp(const String& name) {
-            submitAndStore(TextureCollectionCommand::moveUp(name));
+        void MapDocument::setEnabledTextureCollections(const IO::Path::List& paths) {
+            submitAndStore(SetTextureCollectionsCommand::set(paths));
         }
-        
-        void MapDocument::moveTextureCollectionDown(const String& name) {
-            submitAndStore(TextureCollectionCommand::moveDown(name));
-        }
-        
-        void MapDocument::removeTextureCollections(const StringList& names) {
-            submitAndStore(TextureCollectionCommand::remove(names));
-        }
-        
+
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();
@@ -1188,31 +1179,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadTextures() {
-            m_textureManager->setLoader(m_game.get());
-            loadBuiltinTextures();
-            loadExternalTextures();
-        }
-        
-        void MapDocument::loadBuiltinTextures() {
-            const IO::Path::List paths = m_game->findBuiltinTextureCollections();
-            const String names(StringUtils::join(IO::Path::asStrings(paths), ", "));
-            try {
-                m_textureManager->setBuiltinTextureCollections(paths);
-                info("Loaded builtin texture collections '%s'", names.c_str());
-            } catch (Exception e) {
-                error("Unable to load internal texture collections '%s': %s", names.c_str(), e.what());
-            }
-        }
-        
-        void MapDocument::loadExternalTextures() {
-            const StringList names = m_game->extractExternalTextureCollections(m_world);
-            addExternalTextureCollections(names);
+            m_game->loadTextureCollections(m_world, *m_textureManager);
         }
         
         void MapDocument::unloadTextures() {
             unsetTextures();
             m_textureManager->clear();
-            m_textureManager->setLoader(NULL);
         }
         
         void MapDocument::reloadTextures() {
@@ -1221,29 +1193,6 @@ namespace TrenchBroom {
             setTextures();
         }
 
-        void MapDocument::addExternalTextureCollections(const StringList& names) {
-            const IO::Path::List searchPaths = externalSearchPaths();
-            
-            StringList::const_iterator it, end;
-            for (it = names.begin(), end = names.end(); it != end; ++it) {
-                const String& name = *it;
-                const IO::Path texturePath(name);
-                const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
-                
-                try {
-                    const Assets::TextureCollectionSpec spec(name, absPath);
-                    m_textureManager->addExternalTextureCollection(spec);
-                    info("Loaded external texture collection '%s'", name.c_str());
-                } catch (std::exception& e) {
-                    error("Unable to load external texture collection '%s': %s", name.c_str(), e.what());
-                }
-            }
-        }
-        
-        void MapDocument::updateExternalTextureCollectionProperty() {
-            m_game->updateExternalTextureCollections(m_world, m_textureManager->externalCollectionNames());
-        }
-        
         class SetEntityDefinition : public Model::NodeVisitor {
         private:
             Assets::EntityDefinitionManager& m_manager;
@@ -1550,7 +1499,7 @@ namespace TrenchBroom {
                 setEntityModels();
                 
                 unsetTextures();
-                loadBuiltinTextures();
+                loadTextures();
                 setTextures();
                 
                 //reloadIssues();

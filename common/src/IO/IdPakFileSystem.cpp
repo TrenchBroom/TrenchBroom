@@ -65,8 +65,9 @@ namespace TrenchBroom {
                 const char* entryBegin = m_file->begin() + entryAddress;
                 const char* entryEnd = entryBegin + entryLength;
                 const Path filePath(StringUtils::toLower(entryName));
+                MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
 
-                m_root.addFile(filePath, new SimpleFile(entryBegin, entryEnd));
+                m_root.addFile(filePath, new SimpleFile(entryFile));
             }
         }
     }

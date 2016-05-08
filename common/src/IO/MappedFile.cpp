@@ -33,7 +33,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MappedFile::MappedFile() :
+        MappedFile::MappedFile(const Path& path) :
+        m_path(path),
         m_begin(NULL),
         m_end(NULL) {
         }
@@ -41,6 +42,10 @@ namespace TrenchBroom {
         MappedFile::~MappedFile() {
             m_begin = NULL;
             m_end = NULL;
+        }
+
+        const Path& MappedFile::path() const {
+            return m_path;
         }
 
         size_t MappedFile::size() const {
@@ -63,15 +68,20 @@ namespace TrenchBroom {
             m_end = end;
         }
 
-        MappedFileView::MappedFileView(const char* begin, const char* end) {
+        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const char* end) :
+        MappedFile(path),
+        m_container(container) {
             init(begin, end);
         }
 
-        MappedFileView::MappedFileView(const char* begin, const size_t size) {
+        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const size_t size) :
+        MappedFile(path),
+        m_container(container) {
             init(begin, begin + size);
         }
 
-        MappedFileBuffer::MappedFileBuffer(const char* begin, const size_t size) {
+        MappedFileBuffer::MappedFileBuffer(const Path& path, const char* begin, const size_t size) :
+        MappedFile(path) {
             init(begin, begin + size);
         }
         
@@ -81,6 +91,7 @@ namespace TrenchBroom {
 
 #ifdef _WIN32
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
+        MappedFile(path),
         m_fileHandle(INVALID_HANDLE_VALUE),
         m_mappingHandle(NULL),
         m_address(NULL) {
@@ -190,7 +201,7 @@ namespace TrenchBroom {
         }
 #else
         PosixMappedFile::PosixMappedFile(const Path& path, std::ios_base::openmode mode) :
-        MappedFile(),
+        MappedFile(path),
         m_address(NULL),
         m_size(0),
         m_filedesc(-1) {

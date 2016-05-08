@@ -260,6 +260,20 @@ namespace TrenchBroom {
             return doIsAttributeValueMutable(name);
         }
 
+        VariableTable AttributableNode::asVariableTable() const {
+            VariableTable result;
+            
+            const EntityAttribute::List& attributes = m_attributes.attributes();
+            EntityAttribute::List::const_iterator it, end;
+            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                result.declare(attribute.name());
+                result.define(attribute.name(), attribute.value());
+            }
+            
+            return result;
+        }
+
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node) {

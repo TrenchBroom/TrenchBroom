@@ -21,7 +21,7 @@
 #define CompilationVariables_h
 
 #include "StringUtils.h"
-#include "VariableHelper.h"
+#include "VariableTable.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

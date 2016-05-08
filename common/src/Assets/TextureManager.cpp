@@ -24,7 +24,6 @@
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Assets/TextureCollectionSpec.h"
 #include "IO/TextureLoader.h"
 
 namespace TrenchBroom {
@@ -48,7 +47,6 @@ namespace TrenchBroom {
         
         TextureManager::TextureManager(Logger* logger, int minFilter, int magFilter) :
         m_logger(logger),
-        m_loader(NULL),
         m_minFilter(minFilter),
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
@@ -57,90 +55,56 @@ namespace TrenchBroom {
             clear();
         }
         
-        void TextureManager::setBuiltinTextureCollections(const IO::Path::List& paths) {
-            clearBuiltinTextureCollections();
+        void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
+            TextureCollectionMap collections = collectionMap();
+            m_collections.clear();
+            clear();
             
-            TextureCollectionList newCollections;
-            TextureCollectionMap newCollectionsByName;
-            
-            try {
-                IO::Path::List::const_iterator it, end;
-                for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                    const IO::Path& path = *it;
-                    const TextureCollectionSpec spec(path.suffix(2).asString(), path);
-                    addTextureCollection(spec, newCollections, newCollectionsByName);
+            IO::Path::List::const_iterator pathIt, pathEnd;
+            for (pathIt = paths.begin(), pathEnd = paths.end(); pathIt != pathEnd; ++pathIt) {
+                const IO::Path& path = *pathIt;
+                const TextureCollectionMap::iterator colIt = collections.find(path);
+                if (colIt == collections.end() || !colIt->second->loaded()) {
+                    try {
+                        addTextureCollection(loader.loadTextureCollection(path));
+                        m_logger->info("Loaded texture collection '" + path.asString() + "'");
+                    } catch (const Exception& e) {
+                        addTextureCollection(new Assets::TextureCollection(path));
+                        if (colIt == collections.end())
+                            m_logger->error("Could not load texture collection '" + path.asString() + "': " + e.what());
+                    }
+                } else {
+                    addTextureCollection(colIt->second);
                 }
-                
-                using std::swap;
-                std::swap(m_builtinCollections, newCollections);
-                std::swap(m_builtinCollectionsByName, newCollectionsByName);
-                
-                updateTextures();
-            } catch (...) {
-                updateTextures();
-                VectorUtils::deleteAll(newCollections);
-                throw;
+                if (colIt != collections.end())
+                    collections.erase(colIt);
             }
         }
-        
-        void TextureManager::addExternalTextureCollection(const TextureCollectionSpec& spec) {
-            try {
-                addTextureCollection(spec, m_externalCollections, m_externalCollectionsByName);
-                updateTextures();
-            } catch (...) {
-                TextureCollection* dummy = new TextureCollection(spec.name());
-                m_externalCollections.push_back(dummy);
-                m_externalCollectionsByName[spec.name()] = dummy;
-                updateTextures();
-                
-                throw;
+
+        TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
+            TextureCollectionMap result;
+            TextureCollectionList::const_iterator it, end;
+            for (it = m_collections.begin(), end = m_collections.end(); it != end; ++it) {
+                Assets::TextureCollection* collection = *it;
+                result.insert(std::make_pair(collection->path(), collection));
             }
+            return result;
         }
-        
-        void TextureManager::removeExternalTextureCollection(const String& name) {
-            removeTextureCollection(name, m_externalCollections, m_externalCollectionsByName);
-            updateTextures();
+
+        void TextureManager::addTextureCollection(Assets::TextureCollection* collection) {
+            m_collections.push_back(collection);
+            if (collection->loaded())
+                m_toPrepare.push_back(collection);
+            
+            if (m_logger != NULL)
+                m_logger->debug("Added texture collection %s", collection->path().asString().c_str());
         }
-        
-        void TextureManager::moveExternalTextureCollectionUp(const String& name) {
-            TextureCollectionMap::iterator it = m_externalCollectionsByName.find(name);
-            if (it == m_externalCollectionsByName.end())
-                throw AssetException("Unknown external texture collection: '" + name + "'");
-            
-            TextureCollection* collection = it->second;
-            const size_t index = VectorUtils::indexOf(m_externalCollections, collection);
-            if (index == 0)
-                throw AssetException("Could not move texture collection");
-            
-            using std::swap;
-            swap(m_externalCollections[index-1], m_externalCollections[index]);
-            updateTextures();
-        }
-        
-        void TextureManager::moveExternalTextureCollectionDown(const String& name) {
-            TextureCollectionMap::iterator it = m_externalCollectionsByName.find(name);
-            if (it == m_externalCollectionsByName.end())
-                throw AssetException("Unknown external texture collection: '" + name + "'");
-            
-            TextureCollection* collection = it->second;
-            const size_t index = VectorUtils::indexOf(m_externalCollections, collection);
-            if (index == m_externalCollections.size() - 1)
-                throw AssetException("Could not move texture collection");
-            
-            using std::swap;
-            swap(m_externalCollections[index+1], m_externalCollections[index]);
-            updateTextures();
-        }
-        
+
         void TextureManager::clear() {
-            VectorUtils::clearAndDelete(m_builtinCollections);
-            VectorUtils::clearAndDelete(m_externalCollections);
-            MapUtils::clearAndDelete(m_toRemove);
+            VectorUtils::clearAndDelete(m_collections);
+            VectorUtils::clearAndDelete(m_toRemove);
             
             m_toPrepare.clear();
-            m_builtinCollectionsByName.clear();
-            m_externalCollectionsByName.clear();
-            m_allCollections.clear();
             m_texturesByName.clear();
             
             for (size_t i = 0; i < 2; ++i) {
@@ -157,17 +121,11 @@ namespace TrenchBroom {
             m_magFilter = magFilter;
             m_resetTextureMode = true;
         }
-        
-        void TextureManager::setLoader(const IO::TextureLoader* loader) {
-            clear();
-            m_loader = loader;
-            updateTextures();
-        }
 
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            MapUtils::clearAndDelete(m_toRemove);
+            VectorUtils::clearAndDelete(m_toRemove);
         }
         
         Texture* TextureManager::texture(const String& name) const {
@@ -186,15 +144,15 @@ namespace TrenchBroom {
         }
         
         const TextureCollectionList& TextureManager::collections() const {
-            return m_allCollections;
+            return m_collections;
         }
         
-        const StringList TextureManager::externalCollectionNames() const {
+        const StringList TextureManager::collectionNames() const {
             StringList names;
-            names.reserve(m_externalCollections.size());
+            names.reserve(m_collections.size());
             
             TextureCollectionList::const_iterator it, end;
-            for (it = m_externalCollections.begin(), end = m_externalCollections.end(); it != end; ++it) {
+            for (it = m_collections.begin(), end = m_collections.end(); it != end; ++it) {
                 const TextureCollection* collection = *it;
                 names.push_back(collection->name());
             }
@@ -202,47 +160,10 @@ namespace TrenchBroom {
             return names;
         }
         
-        void TextureManager::addTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName) {
-            
-            const String& name = spec.name();
-            if (collectionsByName.find(spec.name()) == collectionsByName.end()) {
-                TextureCollection* collection = loadTextureCollection(spec);
-                collections.push_back(collection);
-                collectionsByName.insert(std::make_pair(name, collection));
-                
-                m_toPrepare.insert(TextureCollectionMapEntry(name, collection));
-                m_toRemove.erase(name);
-                
-                if (m_logger != NULL)
-                    m_logger->debug("Added texture collection %s", name.c_str());
-            }
-        }
-        
-        void TextureManager::removeTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName) {
-            TextureCollectionMap::iterator it = collectionsByName.find(name);
-            if (it == collectionsByName.end())
-                throw AssetException("Unknown external texture collection: '" + name + "'");
-            
-            TextureCollection* collection = it->second;
-            VectorUtils::erase(collections, collection);
-            
-            collectionsByName.erase(it);
-            m_toPrepare.erase(name);
-            m_toRemove.insert(TextureCollectionMapEntry(name, collection));
-            
-            if (m_logger != NULL)
-                m_logger->debug("Removed texture collection '%s'", name.c_str());
-        }
-        
-        TextureCollection* TextureManager::loadTextureCollection(const TextureCollectionSpec& spec) const {
-            assert(m_loader != NULL);
-            return m_loader->loadTextureCollection(spec);
-        }
-
         void TextureManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 TextureCollectionList::const_iterator it, end;
-                for (it = m_allCollections.begin(), end = m_allCollections.end(); it != end; ++it) {
+                for (it = m_collections.begin(), end = m_collections.end(); it != end; ++it) {
                     TextureCollection* collection = *it;
                     collection->setTextureMode(m_minFilter, m_magFilter);
                 }
@@ -251,40 +172,21 @@ namespace TrenchBroom {
         }
         
         void TextureManager::prepare() {
-            TextureCollectionMap::const_iterator it, end;
+            TextureCollectionList::const_iterator it, end;
             for (it = m_toPrepare.begin(), end = m_toPrepare.end(); it != end; ++it) {
-                TextureCollection* collection = it->second;
+                TextureCollection* collection = *it;
                 collection->prepare(m_minFilter, m_magFilter);
             }
             m_toPrepare.clear();
         }
         
-        void TextureManager::clearBuiltinTextureCollections() {
-            m_toRemove.insert(m_builtinCollectionsByName.begin(), m_builtinCollectionsByName.end());
-            m_builtinCollections.clear();
-            m_builtinCollectionsByName.clear();
-            
-            if (m_logger != NULL)
-                m_logger->debug("Cleared builtin texture collections");
-        }
-        
-        void TextureManager::clearExternalTextureCollections() {
-            m_toRemove.insert(m_externalCollectionsByName.begin(), m_externalCollectionsByName.end());
-            m_externalCollections.clear();
-            m_externalCollectionsByName.clear();
-            
-            if (m_logger != NULL)
-                m_logger->debug("Cleared builtin texture collections");
-        }
-        
         void TextureManager::updateTextures() {
-            m_allCollections = VectorUtils::concatenate(m_builtinCollections, m_externalCollections);
             m_texturesByName.clear();
             m_sortedGroups[SortOrder_Name].clear();
             m_sortedGroups[SortOrder_Usage].clear();
             
             TextureCollectionList::iterator cIt, cEnd;
-            for (cIt = m_allCollections.begin(), cEnd = m_allCollections.end(); cIt != cEnd; ++cIt) {
+            for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
                 TextureCollection* collection = *cIt;
                 const TextureList textures = collection->textures();
                 
@@ -322,7 +224,7 @@ namespace TrenchBroom {
         TextureList TextureManager::textureList() const {
             TextureList result;
             TextureCollectionList::const_iterator cIt, cEnd;
-            for (cIt = m_allCollections.begin(), cEnd = m_allCollections.end(); cIt != cEnd; ++cIt) {
+            for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
                 const TextureCollection* collection = *cIt;
                 const TextureList textures = collection->textures();
                 

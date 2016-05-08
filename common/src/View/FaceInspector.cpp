@@ -28,7 +28,7 @@
 #include "View/MapDocument.h"
 #include "View/SplitterWindow2.h"
 #include "View/TextureBrowser.h"
-#include "View/TextureCollectionEditor.h"
+#include "View/FileTextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
 #include "View/TitledPanel.h"
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            m_textureCollectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
+            m_textureCollectionEditor = new FileTextureCollectionEditor(panel->getPanel(), document);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_textureCollectionEditor, 1, wxEXPAND);

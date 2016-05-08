@@ -31,35 +31,56 @@ namespace TrenchBroom {
         extension(i_extension),
         format(i_format) {}
 
+        GameConfig::PackageFormatConfig::PackageFormatConfig() {}
+
+        bool GameConfig::PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
+            return (extension == other.extension &&
+                    format == other.format);
+        }
+
         GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
         
-        GameConfig::TexturePackageConfig::TexturePackageConfig(const PackageType i_type, const PackageFormatConfig& i_format) :
-        type(i_type),
-        format(i_format) {}
-
-        GameConfig::PaletteConfig::PaletteConfig() :
-        type(LT_None),
-        property(""),
-        path("") {}
-
-        GameConfig::PaletteConfig::PaletteConfig(const String& i_path) :
-        type(LT_Builtin),
-        property(""),
-        path(i_path) {}
+        GameConfig::FileSystemConfig::FileSystemConfig() {}
         
-        GameConfig::PaletteConfig::PaletteConfig(const String& i_property, const String& i_path) :
-        type(LT_Property),
-        property(i_property),
-        path(i_path) {}
+        bool GameConfig::FileSystemConfig::operator==(const FileSystemConfig& other) const {
+            return (searchPath == other.searchPath &&
+                    packageFormat == other.packageFormat);
+        }
 
-        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PaletteConfig& i_palette, const String& i_attribute, const IO::Path& i_builtinTexturesSearchPath) :
+        GameConfig::TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
+        type(PT_File),
+        fileFormat(i_fileFormat) {}
+
+        GameConfig::TexturePackageConfig::TexturePackageConfig(const IO::Path& i_rootDirectory) :
+        type(PT_Directory),
+        rootDirectory(i_rootDirectory) {}
+        
+        GameConfig::TexturePackageConfig::TexturePackageConfig() :
+        type(PT_Unset) {}
+        
+        bool GameConfig::TexturePackageConfig::operator==(const TexturePackageConfig& other) const {
+            return (type == other.type &&
+                    fileFormat == other.fileFormat &&
+                    rootDirectory == other.rootDirectory);
+        }
+        
+        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute) :
         package(i_package),
+        format(i_format),
         palette(i_palette),
-        attribute(i_attribute),
-        builtinTexturesSearchPath(i_builtinTexturesSearchPath) {}
+        attribute(i_attribute) {}
 
+        GameConfig::TextureConfig::TextureConfig() {}
+
+        bool GameConfig::TextureConfig::operator==(const TextureConfig& other) const {
+            return (package == other.package &&
+                    format == other.format &&
+                    palette == other.palette &&
+                    attribute == other.attribute);
+        }
+        
         GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor) :
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {
@@ -71,10 +92,25 @@ namespace TrenchBroom {
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
 
+        GameConfig::EntityConfig::EntityConfig() {}
+
+        bool GameConfig::EntityConfig::operator==(const EntityConfig& other) const {
+            return (defFilePaths == other.defFilePaths &&
+                    modelFormats == other.modelFormats &&
+                    defaultColor == other.defaultColor);
+        }
+
         GameConfig::FlagConfig::FlagConfig(const String& i_name, const String& i_description) :
         name(i_name),
         description(i_description) {}
 
+        GameConfig::FlagConfig::FlagConfig() {}
+
+        bool GameConfig::FlagConfig::operator==(const FlagConfig& other) const {
+            return (name == other.name &&
+                    description == other.description);
+        }
+        
         GameConfig::FlagsConfig::FlagsConfig() {}
 
         GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
@@ -105,18 +141,22 @@ namespace TrenchBroom {
             return names;
         }
         
+        bool GameConfig::FlagsConfig::operator==(const FlagsConfig& other) const {
+            return flags == other.flags;
+        }
+
         GameConfig::FaceAttribsConfig::FaceAttribsConfig() {}
 
         GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :
         surfaceFlags(i_surfaceFlags),
         contentFlags(i_contentFlags) {}
 
+        bool GameConfig::FaceAttribsConfig::operator==(const FaceAttribsConfig& other) const {
+            return (surfaceFlags == other.surfaceFlags &&
+                    contentFlags == other.contentFlags);
+        }
+
         GameConfig::GameConfig() :
-        m_path(IO::Path("")),
-        m_icon(IO::Path("")),
-        m_fileSystemConfig(IO::Path(""), PackageFormatConfig("", "")),
-        m_textureConfig(TexturePackageConfig(TexturePackageConfig::PT_File, PackageFormatConfig("", "")), PaletteConfig(), "", IO::Path("")),
-        m_entityConfig(IO::Path(""), StringSet(), Color()),
         m_maxPropertyLength(1023) {}
 
         GameConfig::GameConfig(const String& name,

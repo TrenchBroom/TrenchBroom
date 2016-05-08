@@ -19,17 +19,72 @@
 
 #include "TextureLoader.h"
 
+#include "VariableTable.h"
+#include "Assets/Palette.h"
+#include "Assets/TextureManager.h"
+#include "IO/IdMipTextureReader.h"
+#include "IO/IdWalTextureReader.h"
+#include "IO/Path.h"
+#include "IO/TextureCollectionLoader.h"
+#include "Model/GameConfig.h"
+
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::~TextureLoader() {}
+        TextureLoader::TextureLoader(const VariableTable& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig) :
+        m_variables(variables),
+        m_gameFS(gameFS),
+        m_textureExtension(getTextureExtension(textureConfig)),
+        m_textureReader(createTextureReader(textureConfig)),
+        m_textureCollectionLoader(createTextureCollectionLoader(textureConfig)) {
+            assert(m_textureReader != NULL);
+            assert(m_textureCollectionLoader != NULL);
+        }
         
-        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            return doLoadTextureCollection(spec);
+        TextureLoader::~TextureLoader() {
+            delete m_textureCollectionLoader;
+            delete m_textureReader;
+        }
+        
+        String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const {
+            return textureConfig.format.extension;
+        }
+        
+        TextureReader* TextureLoader::createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const {
+            if (textureConfig.format.format == "idmip") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(1);
+                return new IdMipTextureReader(nameStrategy, loadPalette(textureConfig));
+            } else if (textureConfig.format.format == "idwal") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(2);
+                return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
+            } else {
+                throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
+            }
+        }
+        
+        Assets::Palette TextureLoader::loadPalette(const Model::GameConfig::TextureConfig& textureConfig) const {
+            const String pathSpec = textureConfig.palette.asString();
+            const Path path(m_variables.translate(pathSpec));
+            return Assets::Palette::loadFile(m_gameFS, path);
         }
 
-        size_t TextureLoader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
-            const size_t divisor = 1 << mipLevel;
-            return (width * height) / (divisor * divisor);
+        TextureCollectionLoader* TextureLoader::createTextureCollectionLoader(const Model::GameConfig::TextureConfig& textureConfig) const {
+            using Model::GameConfig;
+            switch (textureConfig.package.type) {
+                case GameConfig::TexturePackageConfig::PT_File:
+                    return new FileTextureCollectionLoader();
+                case GameConfig::TexturePackageConfig::PT_Directory:
+                    return new DirectoryTextureCollectionLoader(m_gameFS);
+                case GameConfig::TexturePackageConfig::PT_Unset:
+                    throw GameException("Texture package format is not set");
+            }
+        }
+
+        Assets::TextureCollection* TextureLoader::loadTextureCollection(const Path& path) {
+            return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtension, *m_textureReader);
+        }
+
+        void TextureLoader::loadTextures(const Path::List& paths, Assets::TextureManager& textureManager) {
+            textureManager.setTextureCollections(paths, *this);
         }
     }
 }

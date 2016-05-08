@@ -17,32 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WadTextureLoader
-#define TrenchBroom_WadTextureLoader
+#ifndef IdWalTextureReader_h
+#define IdWalTextureReader_h
 
-#include "IO/TextureLoader.h"
-#include "Assets/AssetTypes.h"
-#include "IO/MappedFile.h"
+#include "IO/TextureReader.h"
+#include "Assets/Palette.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class PaletteLoader;
         class Path;
         
-        class WadTextureLoader : public TextureLoader {
+        class IdWalTextureReader : public TextureReader {
         private:
-            const PaletteLoader* m_paletteLoader;
+            const Assets::Palette m_palette;
         public:
-            WadTextureLoader(const PaletteLoader* paletteLoader);
+            IdWalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
         private:
-            static const size_t InitialBufferSize = 3 * 512 * 512;
-            
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-        public:
-            static Assets::Texture* loadMipTexture(const String& name, MappedFile::Ptr file, const PaletteLoader* paletteLoader);
-            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_WadTextureLoader) */
+#endif /* IdWalTextureReader_h */

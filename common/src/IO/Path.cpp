@@ -143,6 +143,16 @@ namespace TrenchBroom {
             return result;
         }
 
+        Path::List Path::asPaths(const StringList& strs) {
+            Path::List result;
+            result.reserve(strs.size());
+            
+            StringList::const_iterator it, end;
+            for (it = strs.begin(), end = strs.end(); it != end; ++it)
+                result.push_back(Path(*it));
+            return result;
+        }
+
         size_t Path::length() const {
             return m_components.size();
         }
@@ -211,8 +221,6 @@ namespace TrenchBroom {
         }
         
         Path Path::subPath(const size_t index, const size_t count) const {
-            if (isEmpty())
-                throw PathException("Cannot get sub path of empty path");
             if (index + count > m_components.size())
                 throw PathException("Sub path out of bounds");
             if (count == 0)
@@ -227,7 +235,23 @@ namespace TrenchBroom {
             return Path(m_absolute && index == 0, newComponents);
         }
 
-        const String Path::extension() const {
+        String Path::filename() const {
+            if (isEmpty())
+                throw PathException("Cannot get filename of empty path");
+            return m_components.back();
+        }
+        
+        String Path::basename() const {
+            if (isEmpty())
+                throw PathException("Cannot get basename of empty path");
+            const String& lastComponent = m_components.back();
+            const size_t dotIndex = lastComponent.rfind('.');
+            if (dotIndex == String::npos)
+                return lastComponent;
+            return lastComponent.substr(0, dotIndex);
+        }
+
+        String Path::extension() const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
             const String& lastComponent = m_components.back();
@@ -238,13 +262,7 @@ namespace TrenchBroom {
         }
         
         Path Path::deleteExtension() const {
-            if (isEmpty())
-                throw PathException("Cannot get extension of empty path");
-            const String& lastComponent = m_components.back();
-            const size_t dotIndex = lastComponent.rfind('.');
-            if (dotIndex == String::npos)
-                return *this;
-            return deleteLastComponent() + Path(lastComponent.substr(0, dotIndex));
+            return deleteLastComponent() + Path(basename());
         }
 
         Path Path::addExtension(const String& extension) const {

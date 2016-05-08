@@ -22,7 +22,7 @@
 
 #include "Logger.h"
 #include "StringUtils.h"
-#include "VariableHelper.h"
+#include "VariableTable.h"
 #include "View/TextCtrlOutputAdapter.h"
 #include "View/ViewTypes.h"
 

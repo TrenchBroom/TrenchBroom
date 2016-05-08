@@ -35,10 +35,15 @@ namespace TrenchBroom {
         class GameConfig {
         public:
             struct PackageFormatConfig {
+                typedef std::vector<PackageFormatConfig> List;
+                
                 String extension;
                 String format;
                 
                 PackageFormatConfig(const String& i_extension, const String& i_format);
+                PackageFormatConfig();
+                
+                bool operator==(const PackageFormatConfig& other) const;
             };
             
             struct FileSystemConfig {
@@ -46,43 +51,39 @@ namespace TrenchBroom {
                 PackageFormatConfig packageFormat;
                 
                 FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
+                FileSystemConfig();
+
+                bool operator==(const FileSystemConfig& other) const;
             };
             
             struct TexturePackageConfig {
                 typedef enum {
                     PT_File,
-                    PT_Directory
+                    PT_Directory,
+                    PT_Unset
                 } PackageType;
                 
                 PackageType type;
-                PackageFormatConfig format;
+                PackageFormatConfig fileFormat;
+                IO::Path rootDirectory;
                 
-                TexturePackageConfig(PackageType i_type, const PackageFormatConfig& i_format);
-            };
-            
-            struct PaletteConfig {
-                typedef enum {
-                    LT_None,
-                    LT_Builtin,
-                    LT_Property
-                } LocationType;
-                
-                LocationType type;
-                String property;
-                String path;
-                
-                PaletteConfig();
-                PaletteConfig(const String& i_path);
-                PaletteConfig(const String& i_property, const String& i_path);
+                TexturePackageConfig(const PackageFormatConfig& i_format);
+                TexturePackageConfig(const IO::Path& directoryRoot);
+                TexturePackageConfig();
+
+                bool operator==(const TexturePackageConfig& other) const;
             };
             
             struct TextureConfig {
                 TexturePackageConfig package;
-                PaletteConfig palette;
+                PackageFormatConfig format;
+                IO::Path palette;
                 String attribute;
-                IO::Path builtinTexturesSearchPath;
                 
-                TextureConfig(const TexturePackageConfig& i_package, const PaletteConfig& i_palette, const String& i_attribute, const IO::Path& i_builtinTexturesSearchPath);
+                TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute);
+                TextureConfig();
+
+                bool operator==(const TextureConfig& other) const;
             };
             
             struct EntityConfig {
@@ -92,6 +93,9 @@ namespace TrenchBroom {
                 
                 EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig();
+
+                bool operator==(const EntityConfig& other) const;
             };
             
             struct FlagConfig {
@@ -99,6 +103,9 @@ namespace TrenchBroom {
                 String description;
                 
                 FlagConfig(const String& i_name, const String& i_description);
+                FlagConfig();
+
+                bool operator==(const FlagConfig& other) const;
             };
             
             typedef std::vector<FlagConfig> FlagConfigList;
@@ -112,6 +119,8 @@ namespace TrenchBroom {
                 int flagValue(const String& flagName) const;
                 String flagName(size_t index) const;
                 StringList flagNames(int mask = ~0) const;
+                
+                bool operator==(const FlagsConfig& other) const;
             };
             
             struct FaceAttribsConfig {
@@ -121,6 +130,7 @@ namespace TrenchBroom {
                 FaceAttribsConfig();
                 FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags);
                 
+                bool operator==(const FaceAttribsConfig& other) const;
             };
         private:
             String m_name;

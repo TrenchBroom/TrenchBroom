@@ -41,11 +41,9 @@ namespace TrenchBroom {
         size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
         
         bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        bool containsLoadableTextureCollections(MapDocumentWPtr i_document, const wxArrayString& wxPaths);
         size_t loadTextureCollections(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
         
         bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        bool containsLoadableEntityDefinitionFile(MapDocumentWPtr document, const wxArrayString& wxPaths);
         size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
         
         String queryGroupName(wxWindow* parent);

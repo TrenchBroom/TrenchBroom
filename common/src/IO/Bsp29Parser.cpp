@@ -27,7 +27,7 @@
 #include "Assets/Palette.h"
 #include "IO/MappedFile.h"
 #include "IO/IOUtils.h"
-#include "IO/WadTextureLoader.h"
+#include "IO/IdMipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -63,13 +63,11 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
         
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const PaletteLoader* paletteLoader) :
+        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         // m_end(end),
-        m_paletteLoader(paletteLoader) {
-            assert(m_paletteLoader != NULL);
-        }
+        m_palette(palette) {}
         
         Assets::EntityModel* Bsp29Parser::doParseModel() {
             const char* cursor = m_begin;
@@ -101,6 +99,9 @@ namespace TrenchBroom {
             Assets::TextureList textures;
             textures.reserve(textureCount);
             
+            const TextureReader::TextureNameStrategy nameStrategy;
+            IdMipTextureReader textureReader(nameStrategy, m_palette);
+
             const char* base = cursor;
             for (size_t i = 0; i < textureCount; ++i) {
                 cursor = base + (i + 1)*sizeof(int32_t);
@@ -109,11 +110,12 @@ namespace TrenchBroom {
                 readBytes(cursor, textureName, BspLayout::TextureNameLength);
                 const size_t width = readSize<int32_t>(cursor);
                 const size_t height = readSize<int32_t>(cursor);
-                const size_t mipFileSize = WadTextureLoader::mipFileSize(width, height, 4);
+                const size_t mipFileSize = IdMipTextureReader::mipFileSize(width, height, 4);
                 
-                MappedFile::Ptr mipFile(new MappedFileView(base + textureOffset, mipFileSize));
+                const char* const begin = base + textureOffset;
+                const char* const end = begin + mipFileSize;
                 
-                Assets::Texture* texture = WadTextureLoader::loadMipTexture(textureName, mipFile, m_paletteLoader);
+                Assets::Texture* texture = textureReader.readTexture(begin, end, Path(""));
                 textures.push_back(texture);
             }
             

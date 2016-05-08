@@ -20,7 +20,6 @@
 #include "GameImpl.h"
 
 #include "Assets/Palette.h"
-#include "Assets/TextureCollectionSpec.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
@@ -28,8 +27,9 @@
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
+#include "IO/IdMipTextureReader.h"
 #include "IO/IdPakFileSystem.h"
-#include "IO/IdWalTextureLoader.h"
+#include "IO/IdWalTextureReader.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -39,7 +39,7 @@
 #include "IO/ObjSerializer.h"
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
-#include "IO/WadTextureLoader.h"
+#include "IO/TextureLoader.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Tutorial.h"
 #include "Model/World.h"
@@ -173,62 +173,59 @@ namespace TrenchBroom {
             writer.writeBrushFaces(faces);
         }
     
+        void GameImpl::doLoadTextureCollections(const World* world, Assets::TextureManager& textureManager) const {
+            const VariableTable variables = world->asVariableTable();
+            const IO::Path::List paths = extractTextureCollections(world);
+            
+            IO::TextureLoader textureLoader(variables, m_gameFS, m_config.textureConfig());
+            textureLoader.loadTextures(paths, textureManager);
+        }
+
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
             const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return StringUtils::caseInsensitiveEqual(path.extension(), packageConfig.format.extension);
+                    return StringUtils::caseInsensitiveEqual(path.extension(), packageConfig.fileFormat.extension);
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return IO::Disk::directoryExists(path);
+                case GameConfig::TexturePackageConfig::PT_Unset:
+                    return false;
             }
         }
 
-        IO::Path::List GameImpl::doFindBuiltinTextureCollections() const {
+        IO::Path::List GameImpl::doFindTextureCollections() const {
             try {
-                const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
+                const IO::Path& searchPath = m_config.textureConfig().package.rootDirectory;
                 if (!searchPath.isEmpty())
                     return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
-                throw GameException("Cannot find builtin textures: " + String(e.what()));
+                throw GameException("Cannot find texture collections: " + String(e.what()));
             }
         }
         
-        StringList GameImpl::doExtractExternalTextureCollections(const World* world) const {
+        IO::Path::List GameImpl::doExtractTextureCollections(const World* world) const {
             assert(world != NULL);
             
             const String& property = m_config.textureConfig().attribute;
             if (property.empty())
-                return EmptyStringList;
+                return IO::Path::List(0);
             
             const AttributeValue& pathsValue = world->attribute(property);
             if (pathsValue.empty())
-                return EmptyStringList;
+                return IO::Path::List(0);
             
-            return StringUtils::splitAndTrim(pathsValue, ';');
+            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
         
-        void GameImpl::doUpdateExternalTextureCollections(World* world, const StringList& collections) const {
+        void GameImpl::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
             const String& attribute = m_config.textureConfig().attribute;
             if (attribute.empty())
                 return;
             
-            const String value = StringUtils::join(collections, ';');
-            // to avoid backslashes being misinterpreted as escape sequences
-            const String formatted = StringUtils::replaceAll(value, "\\", "/");
-            world->addOrUpdateAttribute(attribute, formatted);
+            const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            world->addOrUpdateAttribute(attribute, value);
         }
 
-        Assets::TextureCollection* GameImpl::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
-            switch (packageConfig.type) {
-                case GameConfig::TexturePackageConfig::PT_File:
-                    return loadFileTextureCollection(spec);
-                case GameConfig::TexturePackageConfig::PT_Directory:
-                    return loadDirectoryTextureCollection(spec);
-            }
-        }
-        
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const String extension = path.extension();
             if (StringUtils::caseInsensitiveEqual("fgd", extension))
@@ -321,65 +318,35 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::TextureCollection* GameImpl::loadFileTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
-            const String& format = packageConfig.format.format;
-            if (format == "wad")
-                return loadWadTextureCollection(spec);
-            throw GameException("Unsupported texture collection type '" + spec.path().asString() + "'");
-        }
-        
-        Assets::TextureCollection* GameImpl::loadDirectoryTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            const GameConfig::TexturePackageConfig packageConfig = m_config.textureConfig().package;
-            const String& format = packageConfig.format.format;
-            if (format == "idwal")
-                return loadWalTextureCollection(spec);
-            throw GameException("Unsupported texture collection type '" + spec.path().asString() + "'");
-        }
-
-        Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
-            
-            IO::WadTextureLoader loader(paletteLoader.get());
-            return loader.loadTextureCollection(spec);
-        }
-        
-        Assets::TextureCollection* GameImpl::loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const {
-            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
-            
-            const IO::Path& path = spec.path();
-            if (path.isAbsolute()) {
-                IO::DiskFileSystem diskFS(path.deleteLastComponent());
-                IO::IdWalTextureLoader loader(diskFS, paletteLoader.get());
-                const Assets::TextureCollectionSpec newSpec(spec.name(), path.lastComponent());
-                return loader.loadTextureCollection(newSpec);
-            } else {
-                IO::IdWalTextureLoader loader(m_gameFS, paletteLoader.get());
-                return loader.loadTextureCollection(spec);
-            }
-        }
-        
         Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
+            const Assets::Palette palette = loadTexturePalette();
             
-            IO::Bsp29Parser parser(name, file->begin(), file->end(), paletteLoader.get());
+            IO::Bsp29Parser parser(name, file->begin(), file->end(), palette);
             return parser.parseModel();
         }
         
         Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const {
-            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
+            const Assets::Palette palette = loadTexturePalette();
             
-            IO::MdlParser parser(name, file->begin(), file->end(), paletteLoader.get());
+            IO::MdlParser parser(name, file->begin(), file->end(), palette);
             return parser.parseModel();
         }
         
         Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
-            IO::PaletteLoader::Ptr paletteLoader = createPaletteLoader();
+            const Assets::Palette palette = loadTexturePalette();
             
-            IO::Md2Parser parser(name, file->begin(), file->end(), paletteLoader.get(), m_gameFS);
+            IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_gameFS);
             return parser.parseModel();
         }
 
+        Assets::Palette GameImpl::loadTexturePalette() const {
+            // Be aware that this function does not work when the palette path contains variables.
+            // However, since so far the only game that uses such variables is Daikatana, and the
+            // Daikatana models do not refer to the global palette, we can ignore this here.
+            const IO::Path& path = m_config.textureConfig().palette;
+            return Assets::Palette::loadFile(m_gameFS, path);
+        }
+        
         const BrushContentType::List& GameImpl::doBrushContentTypes() const {
             return m_config.brushContentTypes();
         }
@@ -456,15 +423,6 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
-        IO::PaletteLoader::Ptr GameImpl::createPaletteLoader() const {
-            switch (m_config.textureConfig().palette.type) {
-                case GameConfig::PaletteConfig::LT_Builtin: {
-                    const IO::Path path(m_config.textureConfig().palette.path);
-                    return IO::PaletteLoader::Ptr(new IO::FilePaletteLoader(m_gameFS, path));
-                }
-            }
-        }
-        
         void GameImpl::writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
             
             node->removeNumberedAttribute(baseName);

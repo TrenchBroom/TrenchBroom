@@ -29,13 +29,17 @@
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/FileSystemHierarchy.h"
-#include "IO/TextureLoader.h"
+#include "IO/TextureReader.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     class Logger;
+    
+    namespace Assets {
+        class TextureManager;
+    }
     
     namespace IO {
         class MapWriter;
@@ -44,7 +48,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
         
-        class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader, public IO::TextureLoader {
+        class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         private:
             mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
         protected:
@@ -74,10 +78,11 @@ namespace TrenchBroom {
             void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
+            void loadTextureCollections(const World* world, Assets::TextureManager& textureManager) const;
             bool isTextureCollection(const IO::Path& path) const;
-            IO::Path::List findBuiltinTextureCollections() const;
-            StringList extractExternalTextureCollections(const World* world) const;
-            void updateExternalTextureCollections(World* world, const StringList& collections) const;
+            IO::Path::List findTextureCollections() const;
+            IO::Path::List extractTextureCollections(const World* world) const;
+            void updateTextureCollections(World* world, const IO::Path::List& paths) const;
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
@@ -114,10 +119,11 @@ namespace TrenchBroom {
             virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
+            virtual void doLoadTextureCollections(const World* world, Assets::TextureManager& textureManager) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-            virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
-            virtual StringList doExtractExternalTextureCollections(const World* world) const = 0;
-            virtual void doUpdateExternalTextureCollections(World* world, const StringList& collections) const = 0;
+            virtual IO::Path::List doFindTextureCollections() const = 0;
+            virtual IO::Path::List doExtractTextureCollections(const World* world) const = 0;
+            virtual void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const = 0;
             
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureCollectionEditor
-#define TrenchBroom_TextureCollectionEditor
+#ifndef TrenchBroom_FileTextureCollectionEditor
+#define TrenchBroom_FileTextureCollectionEditor
 
 #include "View/ViewTypes.h"
 
@@ -33,14 +33,14 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class TextureCollectionEditor : public wxPanel {
+        class FileTextureCollectionEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             
             wxListBox* m_collections;
         public:
-            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~TextureCollectionEditor();
+            FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+            ~FileTextureCollectionEditor();
             
             void OnAddTextureCollectionsClicked(wxCommandEvent& event);
             void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
@@ -65,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TextureCollectionEditor) */
+#endif /* defined(TrenchBroom_FileTextureCollectionEditor) */

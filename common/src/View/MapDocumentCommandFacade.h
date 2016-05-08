@@ -125,10 +125,7 @@ namespace TrenchBroom {
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management
-            void performAddExternalTextureCollections(const StringList& names);
-            void performRemoveExternalTextureCollections(const StringList& names);
-            void performMoveExternalTextureCollectionUp(const String& name);
-            void performMoveExternalTextureCollectionDown(const String& name);
+            void performSetTextureCollections(const IO::Path::List& paths);
         public: // mods management
             void performSetMods(const StringList& mods);
         public: // game engine parameter specs

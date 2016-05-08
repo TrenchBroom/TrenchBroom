@@ -977,51 +977,15 @@ namespace TrenchBroom {
             reloadEntityDefinitions();
         }
 
-        void MapDocumentCommandFacade::performAddExternalTextureCollections(const StringList& names) {
+        void MapDocumentCommandFacade::performSetTextureCollections(const IO::Path::List& paths) {
             const Model::NodeList nodes(1, m_world);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
             
-            addExternalTextureCollections(names);
-            setTextures();
-            updateExternalTextureCollectionProperty();
-        }
-        
-        void MapDocumentCommandFacade::performRemoveExternalTextureCollections(const StringList& names) {
-            const Model::NodeList nodes(1, m_world);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
-
             unsetTextures();
-            
-            StringList::const_iterator it, end;
-            for (it = names.begin(), end = names.end(); it != end; ++it) {
-                const String& name = *it;
-                m_textureManager->removeExternalTextureCollection(name);
-            }
-            
+            m_game->updateTextureCollections(m_world, paths);
+            reloadTextures();
             setTextures();
-            updateExternalTextureCollectionProperty();
-        }
-        
-        void MapDocumentCommandFacade::performMoveExternalTextureCollectionUp(const String& name) {
-            const Model::NodeList nodes(1, m_world);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
-
-            m_textureManager->moveExternalTextureCollectionUp(name);
-            setTextures();
-            updateExternalTextureCollectionProperty();
-        }
-        
-        void MapDocumentCommandFacade::performMoveExternalTextureCollectionDown(const String& name) {
-            const Model::NodeList nodes(1, m_world);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
-
-            m_textureManager->moveExternalTextureCollectionDown(name);
-            setTextures();
-            updateExternalTextureCollectionProperty();
         }
 
         void MapDocumentCommandFacade::performSetMods(const StringList& mods) {

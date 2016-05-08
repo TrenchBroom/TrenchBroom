@@ -21,32 +21,23 @@
 #define TrenchBroom_TextureCollectionCommand
 
 #include "SharedPointer.h"
+#include "IO/Path.h"
 #include "View/DocumentCommand.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        class TextureCollectionCommand : public DocumentCommand {
+        class SetTextureCollectionsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;
+            typedef std::tr1::shared_ptr<SetTextureCollectionsCommand> Ptr;
         private:
-            typedef enum {
-                Action_Add,
-                Action_Remove,
-                Action_MoveUp,
-                Action_MoveDown
-            } Action;
-            
-            Action m_action;
-            StringList m_collectionNames;
+            IO::Path::List m_paths;
+            IO::Path::List m_oldPaths;
         public:
-            static Ptr add(const String& collectionName);
-            static Ptr remove(const StringList& collectionNames);
-            static Ptr moveUp(const String& collectionName);
-            static Ptr moveDown(const String& collectionName);
+            static Ptr set(const IO::Path::List& paths);
         private:
-            TextureCollectionCommand(const String& name, Action action, const StringList& collectionNames);
+            SetTextureCollectionsCommand(const IO::Path::List& paths);
 
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

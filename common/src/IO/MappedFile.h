@@ -21,8 +21,8 @@
 #define TrenchBroom_MappedFile
 
 #include "SharedPointer.h"
-
 #include "Exceptions.h"
+#include "IO/Path.h"
 
 #include <istream>
 #include <vector>
@@ -34,19 +34,20 @@ typedef void *HANDLE;
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-        
         class MappedFile {
         public:
             typedef std::tr1::shared_ptr<MappedFile> Ptr;
             typedef std::vector<Ptr> List;
+        private:
+            Path m_path;
         protected:
             const char* m_begin;
             const char* m_end;
         public:
-            MappedFile();
+            MappedFile(const Path& path);
             virtual ~MappedFile();
             
+            const Path& path() const;
             size_t size() const;
             const char* begin() const;
             const char* end() const;
@@ -55,14 +56,16 @@ namespace TrenchBroom {
         };
         
         class MappedFileView : public MappedFile {
+        private:
+            MappedFile::Ptr m_container;
         public:
-            MappedFileView(const char* begin, const char* end);
-            MappedFileView(const char* begin, size_t size);
+            MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const char* end);
+            MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, size_t size);
         };
         
         class MappedFileBuffer : public MappedFile {
         public:
-            MappedFileBuffer(const char* begin, size_t size);
+            MappedFileBuffer(const Path& path, const char* begin, size_t size);
             ~MappedFileBuffer();
         };
 

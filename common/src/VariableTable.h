@@ -17,26 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VariableHelper_h
-#define VariableHelper_h
+#ifndef VariableTable_h
+#define VariableTable_h
 
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    class GetVariableValue {
-    public:
-        virtual ~GetVariableValue();
-        
-        String operator()(const String& variableName) const;
-        String value(const String& variableName) const;
-    private:
-        virtual String doGetValue(const String& variableName) const = 0;
-    };
-    
     class VariableTable {
     private:
         StringSet m_variables;
-        StringMap m_values;
+        ::StringMap m_values;
         const String m_prefix;
         const String m_suffix;
     public:
@@ -60,4 +50,4 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* VariableHelper_h */
+#endif /* VariableTable_h */

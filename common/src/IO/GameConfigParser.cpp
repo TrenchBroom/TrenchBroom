@@ -119,16 +119,19 @@ namespace TrenchBroom {
             using Model::GameConfig;
             
             expectTableEntries(table,
-                               StringUtils::makeSet(1, "package"),
+                               StringUtils::makeSet(2, "package", "formats"),
                                StringUtils::makeSet(3, "attribute", "palette", "builtin"));
 
             expectTableEntry("package", ConfigEntry::Type_Table, table);
             const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(table["package"]);
 
-            GameConfig::PaletteConfig palette;
+            expectTableEntry("formats", ConfigEntry::Type_List, table);
+            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["formats"]);
+            
+            Path palette;
             if (table.contains("palette")) {
-                expectTableEntry("palette", ConfigEntry::Type_Table, table);
-                palette = parsePaletteConfig(table["palette"]);
+                expectTableEntry("palette", ConfigEntry::Type_Value, table);
+                palette = Path(table["palette"]);
             }
             
             String attribute("");
@@ -137,13 +140,7 @@ namespace TrenchBroom {
                 attribute = table["attribute"];
             }
             
-            IO::Path builtinTexturesSearchPath("");
-            if (table.contains("builtin")) {
-                expectTableEntry("builtin", ConfigEntry::Type_Value, table);
-                builtinTexturesSearchPath = IO::Path(table["builtin"]);
-            }
-            
-            return GameConfig::TextureConfig(packageConfig, palette, attribute, builtinTexturesSearchPath);
+            return GameConfig::TextureConfig(packageConfig, formatConfig, palette, attribute);
         }
 
         Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const ConfigTable& table) const {
@@ -155,61 +152,17 @@ namespace TrenchBroom {
             
             expectTableEntry("type", ConfigEntry::Type_Value, table);
             const String typeStr = table["type"];
-            GameConfig::TexturePackageConfig::PackageType type;
-            if (typeStr == "file")
-                type = GameConfig::TexturePackageConfig::PT_File;
-            else if (typeStr == "directory")
-                type = GameConfig::TexturePackageConfig::PT_Directory;
-            else
+            if (typeStr == "file") {
+                expectTableEntry("format", ConfigEntry::Type_Table, table);
+                const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["format"]);
+                return GameConfig::TexturePackageConfig(formatConfig);
+            } else if (typeStr == "directory") {
+                expectTableEntry("root", ConfigEntry::Type_Value, table);
+                const Path root = Path(table["root"]);
+                return GameConfig::TexturePackageConfig(root);
+            } else {
                 throw ParserException(table.line(), table.column(), "Unexpected texture package type '" + typeStr + "'");
-            
-            expectTableEntry("format", ConfigEntry::Type_Table, table);
-            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(table["format"]);
-            
-            return GameConfig::TexturePackageConfig(type, formatConfig);
-        }
-
-        Model::GameConfig::PaletteConfig GameConfigParser::parsePaletteConfig(const ConfigTable& table) const {
-            using Model::GameConfig;
-            
-            expectTableEntries(table,
-                               StringUtils::makeSet(2, "type", "location"),
-                               StringSet());
-            
-            expectTableEntry("type", ConfigEntry::Type_Value, table);
-            const String typeStr = table["type"];
-            GameConfig::PaletteConfig::LocationType type;
-            if (typeStr == "builtin")
-                type = GameConfig::PaletteConfig::LT_Builtin;
-            else if (typeStr == "property")
-                type = GameConfig::PaletteConfig::LT_Property;
-            else
-                throw ParserException(table.line(), table.column(), "Unexpected palette location type '" + typeStr + "'");
-            
-            expectTableEntry("location", ConfigEntry::Type_Table, table);
-            const ConfigTable& locationTable = table["location"];
-
-            switch (type) {
-                case GameConfig::PaletteConfig::LT_Builtin: {
-                    expectTableEntries(locationTable,
-                                       StringUtils::makeSet(1, "path"),
-                                       StringSet());
-                    expectTableEntry("path", ConfigEntry::Type_Value, locationTable);
-                    return GameConfig::PaletteConfig(locationTable["path"]);
-                }
-                case GameConfig::PaletteConfig::LT_Property: {
-                    expectTableEntries(locationTable,
-                                       StringUtils::makeSet(2, "path", "key"),
-                                       StringSet());
-                    expectTableEntry("key", ConfigEntry::Type_Value, locationTable);
-                    expectTableEntry("path", ConfigEntry::Type_Value, locationTable);
-                    return GameConfig::PaletteConfig(locationTable["key"], locationTable["path"]);
-                }
-                case GameConfig::PaletteConfig::LT_None:
-                    break;
             }
-
-            throw ParserException(table.line(), table.column(), "Should never happen.");
         }
 
         Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {

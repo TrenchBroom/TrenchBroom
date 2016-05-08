@@ -43,7 +43,7 @@ namespace TrenchBroom {
             private:
                 MappedFile::Ptr m_file;
             public:
-                SimpleFile(const char* begin, const char* end);
+                SimpleFile(MappedFile::Ptr file);
             private:
                 MappedFile::Ptr doOpen();
             };
@@ -60,6 +60,7 @@ namespace TrenchBroom {
                 Directory(const Path& path);
                 ~Directory();
                 
+                void addFile(const Path& path, MappedFile::Ptr file);
                 void addFile(const Path& path, File* file);
                 
                 bool directoryExists(const Path& path) const;

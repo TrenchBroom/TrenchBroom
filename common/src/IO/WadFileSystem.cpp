@@ -39,7 +39,7 @@ namespace TrenchBroom {
         namespace WadEntryType {
             // static const char WEStatus    = 'B';
             // static const char WEConsole   = 'C';
-            static const char WEMip       = 'D';
+            // static const char WEMip       = 'D';
             // static const char WEPalette   = '@';
         }
 
@@ -69,16 +69,16 @@ namespace TrenchBroom {
                 
                 reader.seekForward(WadLayout::DirEntryTypeOffset);
                 const char entryType = reader.readChar<char>();
-                if (entryType == WadEntryType::WEMip) {
-                    reader.seekForward(WadLayout::DirEntryNameOffset);
-                    const String entryName = reader.readString(WadLayout::DirEntryNameSize);
-                    
-                    const char* entryBegin = m_file->begin() + entryAddress;
-                    const char* entryEnd = entryBegin + entrySize;
-                    assert(entryEnd <= m_file->end());
-                    
-                    m_root.addFile(IO::Path(entryName), new SimpleFile(entryBegin, entryEnd));
-                }
+                reader.seekForward(WadLayout::DirEntryNameOffset);
+                const String entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
+                
+                const char* entryBegin = m_file->begin() + entryAddress;
+                const char* entryEnd = entryBegin + entrySize;
+                assert(entryEnd <= m_file->end());
+                
+                IO::Path path(entryName);
+                MappedFile::Ptr file(new MappedFileView(m_file, path, entryBegin, entryEnd));
+                m_root.addFile(path, file);
             }
         }
     }

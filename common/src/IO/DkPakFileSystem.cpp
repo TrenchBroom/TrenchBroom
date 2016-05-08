@@ -35,18 +35,17 @@ namespace TrenchBroom {
             static const String HeaderMagic       = "PACK";
         }
         
-        DkPakFileSystem::CompressedFile::CompressedFile(const char* begin, const char* end, size_t uncompressedSize) :
-        m_begin(begin),
-        m_end(end),
+        DkPakFileSystem::CompressedFile::CompressedFile(MappedFile::Ptr file, const size_t uncompressedSize) :
+        m_file(file),
         m_uncompressedSize(uncompressedSize) {}
 
         MappedFile::Ptr DkPakFileSystem::CompressedFile::doOpen() {
             const char* data = decompress();
-            return MappedFile::Ptr(new MappedFileBuffer(data, m_uncompressedSize));
+            return MappedFile::Ptr(new MappedFileBuffer(m_file->path(), data, m_uncompressedSize));
         }
 
         char* DkPakFileSystem::CompressedFile::decompress() const {
-            CharArrayReader reader(m_begin, m_end);
+            CharArrayReader reader(m_file->begin(), m_file->end());
             
             char* result = new char[m_uncompressedSize];
             char* curTarget = result;
@@ -116,11 +115,12 @@ namespace TrenchBroom {
                 const char* entryBegin = m_file->begin() + entryAddress;
                 const char* entryEnd = entryBegin + compressedSize;
                 const Path filePath(StringUtils::toLower(entryName));
+                MappedFile::Ptr entryFile(new MappedFileView(m_file, filePath, entryBegin, entryEnd));
                 
                 if (compressed)
-                    m_root.addFile(filePath, new SimpleFile(entryBegin, entryEnd));
+                    m_root.addFile(filePath, new SimpleFile(entryFile));
                 else
-                    m_root.addFile(filePath, new CompressedFile(entryBegin, entryEnd, uncompressedSize));
+                    m_root.addFile(filePath, new CompressedFile(entryFile, uncompressedSize));
             }
         }
     }

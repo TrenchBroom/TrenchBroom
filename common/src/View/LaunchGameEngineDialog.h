@@ -20,7 +20,7 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "VariableHelper.h"
+#include "VariableTable.h"
 #include "IO/Path.h"
 #include "View/ViewTypes.h"
 

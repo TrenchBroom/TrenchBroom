@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
+#include "IO/Path.h"
 #include "Renderer/GL.h"
 
 #include <vector>
@@ -33,16 +34,22 @@ namespace TrenchBroom {
             typedef std::vector<GLuint> TextureIdList;
             
             bool m_loaded;
-            String m_name;
+            IO::Path m_path;
             TextureList m_textures;
             TextureIdList m_textureIds;
         public:
-            TextureCollection(const String& name);
-            TextureCollection(const String& name, const TextureList& textures);
+            TextureCollection();
+            TextureCollection(const TextureList& textures);
+            TextureCollection(const IO::Path& path);
+            TextureCollection(const IO::Path& path, const TextureList& textures);
             virtual ~TextureCollection();
 
+            void addTextures(const TextureList& textures);
+            void addTexture(Texture* texture);
+            
             bool loaded() const;
-            const String& name() const;
+            const IO::Path& path() const;
+            String name() const;
             const TextureList& textures() const;
 
             void prepare(int minFilter, int magFilter);

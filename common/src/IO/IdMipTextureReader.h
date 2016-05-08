@@ -17,26 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TextureCollectionSpec.h"
+#ifndef IdMipTextureReader_h
+#define IdMipTextureReader_h
 
-#include <cassert>
+#include "IO/TextureReader.h"
+#include "Assets/Palette.h"
 
 namespace TrenchBroom {
-    namespace Assets {
-        TextureCollectionSpec::TextureCollectionSpec(const String& name, const IO::Path& path) :
-        m_name(name),
-        m_path(path) {}
+    namespace IO {
+        class Path;
         
-        bool TextureCollectionSpec::operator==(const TextureCollectionSpec& rhs) const {
-            return m_name == rhs.m_name && m_path == rhs.m_path;
-        }
-
-        const String& TextureCollectionSpec::name() const {
-            return m_name;
-        }
-        
-        const IO::Path& TextureCollectionSpec::path() const {
-            return m_path;
-        }
+        class IdMipTextureReader : public TextureReader {
+        private:
+            const Assets::Palette m_palette;
+        public:
+            IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
+            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
+        private:
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+        };
     }
 }
+
+#endif /* IdMipTextureReader_h */
