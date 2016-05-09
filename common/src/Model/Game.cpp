@@ -95,8 +95,12 @@ namespace TrenchBroom {
             doWriteBrushFacesToStream(world, faces, stream);
         }
     
-        void Game::loadTextureCollections(const World* world, Assets::TextureManager& textureManager) const {
-            doLoadTextureCollections(world, textureManager);
+        Game::TexturePackageType Game::texturePackageType() const {
+            return doTexturePackageType();
+        }
+
+        void Game::loadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            doLoadTextureCollections(world, documentPath, textureManager);
         }
 
         bool Game::isTextureCollection(const IO::Path& path) const {

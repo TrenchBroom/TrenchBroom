@@ -43,11 +43,12 @@ namespace TrenchBroom {
         private:
             const VariableTable& m_variables;
             const FileSystem& m_gameFS;
+            const IO::Path::List m_fileSearchPaths;
             String m_textureExtension;
             TextureReader* m_textureReader;
             TextureCollectionLoader* m_textureCollectionLoader;
         public:
-            TextureLoader(const VariableTable& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig);
+            TextureLoader(const VariableTable& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
             ~TextureLoader();
         private:
             String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const;

@@ -1179,7 +1179,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadTextures() {
-            m_game->loadTextureCollections(m_world, *m_textureManager);
+            const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
+            m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
         }
         
         void MapDocument::unloadTextures() {
@@ -1188,7 +1189,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::reloadTextures() {
-            unloadTextures();
+            unsetTextures();
             loadTextures();
             setTextures();
         }

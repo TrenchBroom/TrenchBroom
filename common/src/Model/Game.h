@@ -49,6 +49,11 @@ namespace TrenchBroom {
         class BrushContentTypeBuilder;
         
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
+        public:
+            typedef enum {
+                TP_File,
+                TP_Directory
+            } TexturePackageType;
         private:
             mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
         protected:
@@ -78,7 +83,8 @@ namespace TrenchBroom {
             void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
-            void loadTextureCollections(const World* world, Assets::TextureManager& textureManager) const;
+            TexturePackageType texturePackageType() const;
+            void loadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findTextureCollections() const;
             IO::Path::List extractTextureCollections(const World* world) const;
@@ -119,7 +125,8 @@ namespace TrenchBroom {
             virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
-            virtual void doLoadTextureCollections(const World* world, Assets::TextureManager& textureManager) const = 0;
+            virtual TexturePackageType doTexturePackageType() const = 0;
+            virtual void doLoadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindTextureCollections() const = 0;
             virtual IO::Path::List doExtractTextureCollections(const World* world) const = 0;

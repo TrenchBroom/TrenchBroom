@@ -54,8 +54,10 @@ namespace TrenchBroom {
         };
         
         class FileTextureCollectionLoader : public TextureCollectionLoader {
+        private:
+            const Path::List m_searchPaths;
         public:
-            FileTextureCollectionLoader();
+            FileTextureCollectionLoader(const Path::List& searchPaths);
         private:
             MappedFile::List doFindTextures(const Path& path, const String& extension);
         };

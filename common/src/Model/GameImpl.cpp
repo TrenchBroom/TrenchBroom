@@ -41,6 +41,7 @@
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
 #include "Model/EntityAttributes.h"
+#include "Model/GameConfig.h"
 #include "Model/Tutorial.h"
 #include "Model/World.h"
 
@@ -173,12 +174,33 @@ namespace TrenchBroom {
             writer.writeBrushFaces(faces);
         }
     
-        void GameImpl::doLoadTextureCollections(const World* world, Assets::TextureManager& textureManager) const {
+        Game::TexturePackageType GameImpl::doTexturePackageType() const {
+            using Model::GameConfig;
+            switch (m_config.textureConfig().package.type) {
+                case GameConfig::TexturePackageConfig::PT_File:
+                    return TP_File;
+                case GameConfig::TexturePackageConfig::PT_Directory:
+                    return TP_Directory;
+                case GameConfig::TexturePackageConfig::PT_Unset:
+                    throw GameException("Texture package type is not set in game configuration");
+            }
+        }
+
+        void GameImpl::doLoadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
             const VariableTable variables = world->asVariableTable();
             const IO::Path::List paths = extractTextureCollections(world);
             
-            IO::TextureLoader textureLoader(variables, m_gameFS, m_config.textureConfig());
+            const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
+            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
             textureLoader.loadTextures(paths, textureManager);
+        }
+
+        IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
+            IO::Path::List result;
+            result.push_back(documentPath);
+            result.push_back(m_gamePath);
+            result.push_back(IO::SystemPaths::appDirectory());
+            return result;
         }
 
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {

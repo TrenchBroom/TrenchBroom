@@ -52,6 +52,7 @@ namespace TrenchBroom {
             String name() const;
             const TextureList& textures() const;
 
+            bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
         };

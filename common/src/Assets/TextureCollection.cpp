@@ -84,8 +84,12 @@ namespace TrenchBroom {
             return m_textures;
         }
 
+        bool TextureCollection::prepared() const {
+            return !m_textureIds.empty();
+        }
+
         void TextureCollection::prepare(const int minFilter, const int magFilter) {
-            assert(m_textureIds.empty());
+            assert(!prepared());
             
             const size_t textureCount = m_textures.size();
             m_textureIds.resize(textureCount);

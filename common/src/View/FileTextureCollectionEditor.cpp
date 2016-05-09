@@ -43,6 +43,7 @@ namespace TrenchBroom {
         m_document(document) {
             createGui();
             bindObservers();
+            updateControls();
         }
         
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
@@ -167,14 +168,11 @@ namespace TrenchBroom {
             sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetSizerAndFit(sizer);
         }
         
         void FileTextureCollectionEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &FileTextureCollectionEditor::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &FileTextureCollectionEditor::documentWasLoaded);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -184,21 +182,11 @@ namespace TrenchBroom {
         void FileTextureCollectionEditor::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &FileTextureCollectionEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &FileTextureCollectionEditor::documentWasLoaded);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
-        }
-        
-        void FileTextureCollectionEditor::documentWasNewed(MapDocument* document) {
-            updateControls();
-        }
-        
-        void FileTextureCollectionEditor::documentWasLoaded(MapDocument* document) {
-            updateControls();
         }
         
         void FileTextureCollectionEditor::textureCollectionsDidChange() {

@@ -17,38 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FileTextureCollectionEditor
-#define TrenchBroom_FileTextureCollectionEditor
+#ifndef DirectoryTextureCollectionEditor_h
+#define DirectoryTextureCollectionEditor_h
 
+#include "IO/Path.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
-class wxBitmapButton;
 class wxListBox;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class FileTextureCollectionEditor : public wxPanel {
+        class DirectoryTextureCollectionEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             
-            wxListBox* m_collections;
-        public:
-            FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~FileTextureCollectionEditor();
+            wxListBox* m_availableCollectionsList;
+            wxListBox* m_enabledCollectionsList;
             
-            void OnAddTextureCollectionsClicked(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
+            bool m_ignoreNotifier;
+        public:
+            DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+        private:
+            void OnAddTextureCollections(wxCommandEvent& event);
+            void OnRemoveTextureCollections(wxCommandEvent& event);
+            void OnUpdateAddTextureCollections(wxUpdateUIEvent& event);
+            void OnUpdateRemoveTextureCollections(wxUpdateUIEvent& event);
         private:
             void createGui();
             
@@ -57,10 +52,14 @@ namespace TrenchBroom {
             
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
+
+            void update();
+            void updateAvailableTextureCollections();
+            void updateEnabledTextureCollections();
             
-            void updateControls();
+            void updateListBox(wxListBox* box, const IO::Path::List& paths);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_FileTextureCollectionEditor) */
+#endif /* DirectoryTextureCollectionEditor_h */

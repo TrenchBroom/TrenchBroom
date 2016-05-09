@@ -45,7 +45,6 @@ namespace TrenchBroom {
             
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
-            FileTextureCollectionEditor* m_textureCollectionEditor;
         public:
             FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 

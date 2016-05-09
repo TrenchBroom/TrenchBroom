@@ -66,8 +66,9 @@ namespace TrenchBroom {
                 const TextureCollectionMap::iterator colIt = collections.find(path);
                 if (colIt == collections.end() || !colIt->second->loaded()) {
                     try {
-                        addTextureCollection(loader.loadTextureCollection(path));
+                        Assets::TextureCollection* collection = loader.loadTextureCollection(path);
                         m_logger->info("Loaded texture collection '" + path.asString() + "'");
+                        addTextureCollection(collection);
                     } catch (const Exception& e) {
                         addTextureCollection(new Assets::TextureCollection(path));
                         if (colIt == collections.end())
@@ -80,6 +81,7 @@ namespace TrenchBroom {
                     collections.erase(colIt);
             }
             
+            updateTextures();
             VectorUtils::append(m_toRemove, collections);
         }
 
@@ -95,7 +97,7 @@ namespace TrenchBroom {
 
         void TextureManager::addTextureCollection(Assets::TextureCollection* collection) {
             m_collections.push_back(collection);
-            if (collection->loaded())
+            if (collection->loaded() && !collection->prepared())
                 m_toPrepare.push_back(collection);
             
             if (m_logger != NULL)

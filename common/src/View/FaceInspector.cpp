@@ -24,13 +24,13 @@
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SplitterWindow2.h"
 #include "View/TextureBrowser.h"
-#include "View/FileTextureCollectionEditor.h"
+#include "View/TextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
 #include "View/TitledPanel.h"
+#include "View/ViewConstants.h"
 
 #include <wx/notebook.h>
 #include <wx/persist.h>
@@ -92,10 +92,10 @@ namespace TrenchBroom {
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            m_textureCollectionEditor = new FileTextureCollectionEditor(panel->getPanel(), document);
+            wxWindow* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_textureCollectionEditor, 1, wxEXPAND);
+            sizer->Add(collectionEditor, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
             
             return panel;

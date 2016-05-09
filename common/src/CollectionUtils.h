@@ -322,7 +322,6 @@ namespace VectorUtils {
 
     template <typename T>
     void swapPred(std::vector<T>& vec, const size_t i) {
-        assert(i > 0 && i < vec.size());
         typename std::vector<T>::iterator it = vec.begin();
         std::advance(it, i);
         swapPred(vec, it);
@@ -336,7 +335,6 @@ namespace VectorUtils {
     
     template <typename T>
     void swapSucc(std::vector<T>& vec, const size_t i) {
-        assert(i > 0 && i < vec.size());
         typename std::vector<T>::iterator it = vec.begin();
         std::advance(it, i);
         swapSucc(vec, it);

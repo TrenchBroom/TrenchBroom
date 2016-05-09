@@ -22,6 +22,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
+#include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/TextureReader.h"
@@ -50,16 +51,19 @@ namespace TrenchBroom {
             return collection.release();
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader() {}
+        FileTextureCollectionLoader::FileTextureCollectionLoader(const IO::Path::List& searchPaths) :
+        m_searchPaths(searchPaths) {}
 
         MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
-            WadFileSystem fs(path);
-            const Path::List paths = fs.findItems(Path(""), FileExtensionMatcher(extension));
+            const Path wadPath = Disk::resolvePath(m_searchPaths, path);
+            
+            WadFileSystem wadFS(wadPath);
+            const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extension));
             
             MappedFile::List result;
             Path::List::const_iterator it, end;
             for (it = paths.begin(), end = paths.end(); it != end; ++it)
-                result.push_back(fs.openFile(*it));
+                result.push_back(wadFS.openFile(*it));
             
             return result;
         }
