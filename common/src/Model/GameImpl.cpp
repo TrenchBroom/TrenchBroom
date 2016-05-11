@@ -64,9 +64,15 @@ namespace TrenchBroom {
         void GameImpl::initializeFileSystem() {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                addPackages(m_gamePath + fileSystemConfig.searchPath);
-                
                 IO::Path::List::const_iterator it, end;
+                
+                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
+                for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
+                    const IO::Path& searchPath = *it;
+                    m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
+                }
+                
+                addPackages(m_gamePath + fileSystemConfig.searchPath);
                 for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
                     const IO::Path& searchPath = *it;
                     addPackages(m_gamePath + searchPath);

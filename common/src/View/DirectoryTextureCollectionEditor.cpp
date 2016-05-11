@@ -19,6 +19,7 @@
 
 #include "DirectoryTextureCollectionEditor.h"
 
+#include "PreferenceManager.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
@@ -49,10 +50,37 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
+            const IO::Path::List availableCollections = availableTextureCollections();
+            IO::Path::List enabledCollections = enabledTextureCollections();
+            
+            wxArrayInt selections;
+            m_availableCollectionsList->GetSelections(selections);
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const size_t index = static_cast<size_t>(selections[i]);
+                enabledCollections.push_back(availableCollections[index]);
+            }
+            
+            VectorUtils::sortAndRemoveDuplicates(enabledCollections);
+            
+            MapDocumentSPtr document = lock(m_document);
+            document->setEnabledTextureCollections(enabledCollections);
         }
         
         void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
+            const IO::Path::List availableCollections = availableTextureCollections();
+            IO::Path::List enabledCollections = enabledTextureCollections();
             
+            wxArrayInt selections;
+            m_availableCollectionsList->GetSelections(selections);
+            
+            for (size_t i = 0; i < selections.size(); ++i) {
+                const size_t index = static_cast<size_t>(selections[i]);
+                VectorUtils::erase(enabledCollections, availableCollections[index]);
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            document->setEnabledTextureCollections(enabledCollections);
         }
 
         void DirectoryTextureCollectionEditor::OnUpdateAddTextureCollections(wxUpdateUIEvent& event) {
@@ -115,19 +143,31 @@ namespace TrenchBroom {
         
         void DirectoryTextureCollectionEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange);
         }
 
         void DirectoryTextureCollectionEditor::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
             }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange);
         }
         
         void DirectoryTextureCollectionEditor::textureCollectionsDidChange() {
             if (!m_ignoreNotifier)
                 update();
+        }
+        
+        void DirectoryTextureCollectionEditor::modsDidChange() {
+            update();
         }
         
         void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
@@ -142,23 +182,34 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::updateAvailableTextureCollections() {
-            MapDocumentSPtr document = lock(m_document);
-            updateListBox(m_availableCollectionsList, document->availableTextureCollections());
+            updateListBox(m_availableCollectionsList, availableTextureCollections());
         }
         
         void DirectoryTextureCollectionEditor::updateEnabledTextureCollections() {
-            MapDocumentSPtr document = lock(m_document);
-            updateListBox(m_enabledCollectionsList, document->enabledTextureCollections());
+            updateListBox(m_enabledCollectionsList, enabledTextureCollections());
         }
 
         void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::List& paths) {
-            box->Clear();
-            
+            wxArrayString values;
             IO::Path::List::const_iterator it, end;
             for (it = paths.begin(), end = paths.end(); it != end; ++it) {
                 const IO::Path& path = *it;
-                box->Append(path.asString());
+                values.push_back(path.asString());
             }
+            
+            box->Set(values);
+        }
+        
+        IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
+            MapDocumentSPtr document = lock(m_document);
+            IO::Path::List availableCollections = document->availableTextureCollections();
+            VectorUtils::eraseAll(availableCollections, document->enabledTextureCollections());
+            return availableCollections;
+        }
+
+        IO::Path::List DirectoryTextureCollectionEditor::enabledTextureCollections() const {
+            MapDocumentSPtr document = lock(m_document);
+            return document->enabledTextureCollections();
         }
     }
 }

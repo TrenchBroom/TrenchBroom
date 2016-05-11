@@ -51,13 +51,16 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void textureCollectionsDidChange();
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
             void update();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
-            
             void updateListBox(wxListBox* box, const IO::Path::List& paths);
+            
+            IO::Path::List availableTextureCollections() const;
+            IO::Path::List enabledTextureCollections() const;
         };
     }
 }
