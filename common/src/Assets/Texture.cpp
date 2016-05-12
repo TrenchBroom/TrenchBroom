@@ -104,11 +104,15 @@ namespace TrenchBroom {
         
         void Texture::incUsageCount() {
             ++m_usageCount;
+            if (m_collection != NULL)
+                m_collection->incUsageCount();
         }
         
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
+            if (m_collection != NULL)
+                m_collection->decUsageCount();
         }
         
         bool Texture::overridden() const {

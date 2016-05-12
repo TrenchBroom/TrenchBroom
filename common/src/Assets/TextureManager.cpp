@@ -69,6 +69,7 @@ namespace TrenchBroom {
                         Assets::TextureCollection* collection = loader.loadTextureCollection(path);
                         m_logger->info("Loaded texture collection '" + path.asString() + "'");
                         addTextureCollection(collection);
+                        collection->usageCountDidChange.addObserver(usageCountDidChange);
                     } catch (const Exception& e) {
                         addTextureCollection(new Assets::TextureCollection(path));
                         if (colIt == collections.end())
@@ -110,11 +111,7 @@ namespace TrenchBroom {
             
             m_toPrepare.clear();
             m_texturesByName.clear();
-            
-            for (size_t i = 0; i < 2; ++i) {
-                m_sortedTextures[i].clear();
-                m_sortedGroups[i].clear();
-            }
+            m_textures.clear();
             
             if (m_logger != NULL)
                 m_logger->debug("Cleared texture collections");
@@ -139,12 +136,8 @@ namespace TrenchBroom {
             return it->second;
         }
         
-        const TextureList& TextureManager::textures(const SortOrder sortOrder) const {
-            return m_sortedTextures[sortOrder];
-        }
-        
-        const TextureManager::GroupList& TextureManager::groups(const SortOrder sortOrder) const {
-            return m_sortedGroups[sortOrder];
+        const TextureList& TextureManager::textures() const {
+            return m_textures;
         }
         
         const TextureCollectionList& TextureManager::collections() const {
@@ -186,8 +179,7 @@ namespace TrenchBroom {
         
         void TextureManager::updateTextures() {
             m_texturesByName.clear();
-            m_sortedGroups[SortOrder_Name].clear();
-            m_sortedGroups[SortOrder_Usage].clear();
+            m_textures.clear();
             
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_collections.begin(), cEnd = m_collections.end(); cIt != cEnd; ++cIt) {
@@ -208,21 +200,13 @@ namespace TrenchBroom {
                         m_texturesByName.insert(std::make_pair(key, texture));
                     }
                 }
-                
-                const Group group = std::make_pair(collection, textures);
-                m_sortedGroups[SortOrder_Name].push_back(group);
-                m_sortedGroups[SortOrder_Usage].push_back(group);
-                std::sort(m_sortedGroups[SortOrder_Name].back().second.begin(),
-                          m_sortedGroups[SortOrder_Name].back().second.end(),
-                          CompareByName());
-                std::sort(m_sortedGroups[SortOrder_Usage].back().second.begin(),
-                          m_sortedGroups[SortOrder_Usage].back().second.end(),
-                          CompareByUsage());
             }
             
-            m_sortedTextures[SortOrder_Name] = m_sortedTextures[SortOrder_Usage] = textureList();
-            std::sort(m_sortedTextures[SortOrder_Name].begin(), m_sortedTextures[SortOrder_Name].end(), CompareByName());
-            std::sort(m_sortedTextures[SortOrder_Usage].begin(), m_sortedTextures[SortOrder_Usage].end(), CompareByUsage());
+            TextureMap::const_iterator tIt, tEnd;
+            for (tIt = m_texturesByName.begin(), tEnd = m_texturesByName.end(); tIt != tEnd; ++tIt) {
+                Assets::Texture* texture = tIt->second;
+                m_textures.push_back(texture);
+            }
         }
         
         TextureList TextureManager::textureList() const {

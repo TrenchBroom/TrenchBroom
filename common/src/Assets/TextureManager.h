@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_TextureManager
 #define TrenchBroom_TextureManager
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
@@ -36,14 +37,6 @@ namespace TrenchBroom {
     
     namespace Assets {
         class TextureManager {
-        public:
-            typedef enum {
-                SortOrder_Name,
-                SortOrder_Usage
-            } SortOrder;
-            
-            typedef std::pair<TextureCollection*, TextureList> Group;
-            typedef std::vector<Group> GroupList;
         private:
             typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
             typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
@@ -56,14 +49,14 @@ namespace TrenchBroom {
             TextureCollectionList m_toPrepare;
             TextureCollectionList m_toRemove;
             
-            TextureList m_sortedTextures[2];
-            GroupList m_sortedGroups[2];
-            
             TextureMap m_texturesByName;
+            TextureList m_textures;
             
             int m_minFilter;
             int m_magFilter;
             bool m_resetTextureMode;
+        public:
+            Notifier0 usageCountDidChange;
         public:
             TextureManager(Logger* logger, int minFilter, int magFilter);
             ~TextureManager();
@@ -79,8 +72,7 @@ namespace TrenchBroom {
             void commitChanges();
             
             Texture* texture(const String& name) const;
-            const TextureList& textures(const SortOrder sortOrder) const;
-            const GroupList& groups(const SortOrder sortOrder) const;
+            const TextureList& textures() const;
             const TextureCollectionList& collections() const;
             const StringList collectionNames() const;
         private:

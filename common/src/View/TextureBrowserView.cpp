@@ -43,16 +43,20 @@ namespace TrenchBroom {
                                                Assets::TextureManager& textureManager) :
         CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
         m_textureManager(textureManager),
+        m_valid(false),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::TextureManager::SortOrder_Name),
-        m_selectedTexture(NULL) {}
+        m_sortOrder(SO_Name),
+        m_selectedTexture(NULL) {
+            m_textureManager.usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
+        }
         
         TextureBrowserView::~TextureBrowserView() {
+            m_textureManager.usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             clear();
         }
 
-        void TextureBrowserView::setSortOrder(const Assets::TextureManager::SortOrder sortOrder) {
+        void TextureBrowserView::setSortOrder(const SortOrder sortOrder) {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
@@ -95,6 +99,11 @@ namespace TrenchBroom {
             Refresh();
         }
 
+        void TextureBrowserView::usageCountDidChange() {
+            invalidate();
+            Refresh();
+        }
+
         void TextureBrowserView::doInitLayout(Layout& layout) {
             const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
             
@@ -115,14 +124,13 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                const Assets::TextureManager::GroupList& groups = m_textureManager.groups(m_sortOrder);
-                Assets::TextureManager::GroupList::const_iterator gIt, gEnd;
-                for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
-                    const Assets::TextureCollection* collection = gIt->first;
-                    const Assets::TextureList& textures = gIt->second;
-                    const IO::Path collectionPath(collection->name());
+                const Assets::TextureCollectionList collections = getCollections();
+                Assets::TextureCollectionList::const_iterator cIt, cEnd;
+                for (cIt = collections.begin(), cEnd = collections.end(); cIt != cEnd; ++cIt) {
+                    const Assets::TextureCollection* collection = *cIt;
+                    const Assets::TextureList textures = getTextures(collection);
                     
-                    layout.addGroup(collectionPath.lastComponent().asString(), fontSize + 2.0f);
+                    layout.addGroup(collection->name(), fontSize + 2.0f);
                     
                     Assets::TextureList::const_iterator tIt, tEnd;
                     for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
@@ -131,7 +139,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Assets::TextureList& textures = m_textureManager.textures(m_sortOrder);
+                const Assets::TextureList textures = getTextures();
                 Assets::TextureList::const_iterator it, end;
                 for (it = textures.begin(), end = textures.end(); it != end; ++it) {
                     Assets::Texture* texture = *it;
@@ -156,6 +164,80 @@ namespace TrenchBroom {
                                scaledTextureHeight,
                                actualSize.x(),
                                font.size() + 2.0f);
+            }
+        }
+
+        struct TextureBrowserView::CompareByUsageCount {
+            template <typename T>
+            bool operator()(const T* lhs, const T* rhs) const {
+                return lhs->usageCount() < rhs->usageCount();
+            }
+        };
+        
+        struct TextureBrowserView::CompareByName {
+            StringUtils::CaseInsensitiveStringLess m_less;
+            
+            template <typename T>
+            bool operator()(const T* lhs, const T* rhs) const {
+                return m_less(lhs->name(), rhs->name());
+            }
+        };
+
+        struct TextureBrowserView::MatchUsageCount {
+            template <typename T>
+            bool operator()(const T* t) const {
+                return t->usageCount() == 0;
+            }
+        };
+        
+        struct TextureBrowserView::MatchName {
+            String pattern;
+            
+            MatchName(const String& i_pattern) : pattern(i_pattern) {}
+            
+            bool operator()(const Assets::Texture* texture) const {
+                return StringUtils::containsCaseInsensitive(texture->name(), pattern);
+            }
+        };
+
+        Assets::TextureCollectionList TextureBrowserView::getCollections() const {
+            Assets::TextureCollectionList collections = m_textureManager.collections();
+            if (m_hideUnused)
+                VectorUtils::eraseIf(collections, MatchUsageCount());
+            if (m_sortOrder == SO_Usage)
+                VectorUtils::sort(collections, CompareByUsageCount());
+            return collections;
+        }
+        
+        Assets::TextureList TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            Assets::TextureList textures = collection->textures();
+            filterTextures(textures);
+            sortTextures(textures);
+            return textures;
+        }
+        
+        Assets::TextureList TextureBrowserView::getTextures() const {
+            Assets::TextureList textures = m_textureManager.textures();
+            filterTextures(textures);
+            sortTextures(textures);
+            return textures;
+        }
+
+        void TextureBrowserView::filterTextures(Assets::TextureList& textures) const {
+            if (m_hideUnused)
+                VectorUtils::eraseIf(textures, MatchUsageCount());
+            if (!m_filterText.empty())
+                VectorUtils::eraseIf(textures, MatchName(m_filterText));
+        }
+        
+        void TextureBrowserView::sortTextures(Assets::TextureList& textures) const {
+            switch (m_sortOrder) {
+                case SO_Name:
+                    VectorUtils::sort(textures, CompareByName());
+                    break;
+                case SO_Usage:
+                    VectorUtils::sort(textures, CompareByUsageCount());
+                    break;
             }
         }
 

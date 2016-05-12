@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_TextureCollection
 #define TrenchBroom_TextureCollection
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
@@ -36,7 +37,14 @@ namespace TrenchBroom {
             bool m_loaded;
             IO::Path m_path;
             TextureList m_textures;
+            
+            size_t m_usageCount;
+            
             TextureIdList m_textureIds;
+            
+            friend class Texture;
+        public:
+            Notifier0 usageCountDidChange;
         public:
             TextureCollection();
             TextureCollection(const TextureList& textures);
@@ -52,9 +60,14 @@ namespace TrenchBroom {
             String name() const;
             const TextureList& textures() const;
 
+            size_t usageCount() const;
+            
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
+        private:
+            void incUsageCount();
+            void decUsageCount();
         };
     }
 }

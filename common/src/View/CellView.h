@@ -45,6 +45,8 @@ namespace TrenchBroom {
             Layout m_layout;
             typename Layout::Group::Row::Cell* m_selectedCell;
             bool m_layoutInitialized;
+            
+            bool m_valid;
 
             wxScrollBar* m_scrollBar;
             wxPoint m_lastMousePos;
@@ -69,11 +71,19 @@ namespace TrenchBroom {
                 m_layout.clear();
                 doReloadLayout(m_layout);
                 updateScrollBar();
+
+                m_valid = true;
+            }
+            
+            void validate() {
+                if (!m_valid)
+                    reloadLayout();
             }
         public:
             CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = NULL) :
             RenderView(parent, contextManager, attribs),
             m_layoutInitialized(false),
+            m_valid(false),
             m_scrollBar(scrollBar) {
                 Bind(wxEVT_SIZE, &CellView::OnSize, this);
                 Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
@@ -96,6 +106,10 @@ namespace TrenchBroom {
                 }
             }
 
+            void invalidate() {
+                m_valid = false;
+            }
+            
             void reload() {
                 reloadLayout();
                 Refresh();
@@ -104,6 +118,7 @@ namespace TrenchBroom {
             void clear() {
                 m_layout.clear();
                 doClear();
+                m_valid = true;
             }
 
             void OnSize(wxSizeEvent& event) {
@@ -247,6 +262,8 @@ namespace TrenchBroom {
             }
         private:
             void doRender() {
+                if (!m_valid)
+                    validate();
                 if (!m_layoutInitialized)
                     initLayout();
 

@@ -57,7 +57,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList faces = getApplicableFaces();
             
             if (faces.empty()) {
-                wxMessageBox("None of the selected faces has the selected texture", "Replace Failed");
+                wxMessageBox("None of the selected faces has the selected texture", "Replace Failed", wxOK | wxCENTRE, this);
                 return;
             }
             
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             
             StringStream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
-            wxMessageBox(msg.str(), "Replace succeeded");
+            wxMessageBox(msg.str(), "Replace succeeded", wxOK | wxCENTRE, this);
         }
         
         Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {

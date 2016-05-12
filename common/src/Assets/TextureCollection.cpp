@@ -25,20 +25,24 @@
 namespace TrenchBroom {
     namespace Assets {
         TextureCollection::TextureCollection() :
-        m_loaded(false) {}
+        m_loaded(false),
+        m_usageCount(0) {}
         
         TextureCollection::TextureCollection(const TextureList& textures) :
-        m_loaded(false) {
+        m_loaded(false),
+        m_usageCount(0) {
             addTextures(textures);
         }
 
         TextureCollection::TextureCollection(const IO::Path& path) :
         m_loaded(false),
-        m_path(path) {}
+        m_path(path),
+        m_usageCount(0) {}
 
         TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
         m_loaded(true),
-        m_path(path) {
+        m_path(path),
+        m_usageCount(0) {
             addTextures(textures);
         }
 
@@ -84,6 +88,10 @@ namespace TrenchBroom {
             return m_textures;
         }
 
+        size_t TextureCollection::usageCount() const {
+            return m_usageCount;
+        }
+
         bool TextureCollection::prepared() const {
             return !m_textureIds.empty();
         }
@@ -107,6 +115,17 @@ namespace TrenchBroom {
                 Texture* texture = m_textures[i];
                 texture->setMode(minFilter, magFilter);
             }
+        }
+
+        void TextureCollection::incUsageCount() {
+            ++m_usageCount;
+            usageCountDidChange();
+        }
+        
+        void TextureCollection::decUsageCount() {
+            assert(m_usageCount > 0);
+            --m_usageCount;
+            usageCountDidChange();
         }
     }
 }
