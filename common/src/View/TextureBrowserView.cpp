@@ -43,7 +43,6 @@ namespace TrenchBroom {
                                                Assets::TextureManager& textureManager) :
         CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
         m_textureManager(textureManager),
-        m_valid(false),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(SO_Name),
@@ -60,7 +59,7 @@ namespace TrenchBroom {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -68,7 +67,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -84,7 +83,7 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
             Refresh();
         }
 
@@ -149,28 +148,32 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
-            if ((!m_hideUnused || texture->usageCount() > 0) &&
-                (m_filterText.empty() || StringUtils::containsCaseInsensitive(texture->name(), m_filterText))) {
-                const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
-                
-                const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
-                const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-                const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
-
-                layout.addItem(TextureCellData(texture, actualFont),
-                               scaledTextureWidth,
-                               scaledTextureHeight,
-                               actualSize.x(),
-                               font.size() + 2.0f);
-            }
+            const float maxCellWidth = layout.maxCellWidth();
+            const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
+            const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
+            
+            const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
+            const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
+            const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+            
+            layout.addItem(TextureCellData(texture, actualFont),
+                           scaledTextureWidth,
+                           scaledTextureHeight,
+                           actualSize.x(),
+                           font.size() + 2.0f);
         }
 
         struct TextureBrowserView::CompareByUsageCount {
+            StringUtils::CaseInsensitiveStringLess m_less;
+
             template <typename T>
             bool operator()(const T* lhs, const T* rhs) const {
-                return lhs->usageCount() < rhs->usageCount();
+                if (lhs->usageCount() > rhs->usageCount())
+                    return true;
+                if (lhs->usageCount() < rhs->usageCount())
+                    return false;
+                
+                return m_less(lhs->name(), rhs->name());
             }
         };
         
@@ -196,7 +199,7 @@ namespace TrenchBroom {
             MatchName(const String& i_pattern) : pattern(i_pattern) {}
             
             bool operator()(const Assets::Texture* texture) const {
-                return StringUtils::containsCaseInsensitive(texture->name(), pattern);
+                return !StringUtils::containsCaseInsensitive(texture->name(), pattern);
             }
         };
 

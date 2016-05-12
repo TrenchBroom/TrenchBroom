@@ -243,8 +243,8 @@ namespace TrenchBroom {
         
         void TextureBrowser::reload() {
             if (m_view != NULL) {
-                m_view->clear();
-                m_view->reload();
+                m_view->invalidate();
+                m_view->Refresh();
             }
         }
     }

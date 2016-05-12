@@ -110,11 +110,6 @@ namespace TrenchBroom {
                 m_valid = false;
             }
             
-            void reload() {
-                reloadLayout();
-                Refresh();
-            }
-
             void clear() {
                 m_layout.clear();
                 doClear();

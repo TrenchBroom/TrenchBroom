@@ -62,8 +62,6 @@ namespace TrenchBroom {
 
             Assets::TextureManager& m_textureManager;
 
-            bool m_valid;
-            
             bool m_group;
             bool m_hideUnused;
             SortOrder m_sortOrder;

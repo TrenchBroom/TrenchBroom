@@ -76,7 +76,7 @@ namespace TrenchBroom {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
             Refresh();
         }
 
