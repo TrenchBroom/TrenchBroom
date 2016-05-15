@@ -91,11 +91,13 @@ namespace TrenchBroom {
         
         void EntityDefinition::incUsageCount() {
             ++m_usageCount;
+            usageCountDidChangeNotifier();
         }
         
         void EntityDefinition::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
+            usageCountDidChangeNotifier();
         }
         
         struct FindSpawnflagsDefinition {

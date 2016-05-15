@@ -66,6 +66,8 @@ namespace TrenchBroom {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
+            
+            m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
         }
         
         EntityBrowserView::~EntityBrowserView() {
@@ -100,6 +102,11 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
+            invalidate();
+            Refresh();
+        }
+
+        void EntityBrowserView::usageCountDidChange() {
             invalidate();
             Refresh();
         }
