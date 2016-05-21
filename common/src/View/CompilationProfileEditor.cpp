@@ -159,7 +159,7 @@ namespace TrenchBroom {
             Model::CompilationTask* task = NULL;
             switch (result) {
                 case 1:
-                    task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_FULL_NAME}");
+                    task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
                     break;
                 case 2:
                     task = new Model::CompilationCopyFiles("", "");

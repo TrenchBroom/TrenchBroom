@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileManager::OnAddProfile(wxCommandEvent& event) {
-            m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}/compile"));
+            m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}"));
             m_profileList->SetSelection(static_cast<int>(m_config.profileCount() - 1));
         }
         

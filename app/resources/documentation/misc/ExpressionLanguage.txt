@@ -1,0 +1,21 @@
+Expression     = Term | "(" Term ")"
+Term           = Variable | Literal | Subscript | Addition | Subtraction | Multiplication | Division | Plus | Minus
+Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
+Literal        = String | Integer | Decimal | Array | Map
+Subscript      = Expression "[" Expression "]"
+Addition       = Expression "+" Expression
+Subtraction    = Expression "-" Expression
+Multiplication = Expression "*" Expression
+Division       = Expression "/" Expression
+Plus           = "+" Expression
+Minus          = "-" Expression
+
+String         = """ { Char } """
+Integer        = Numeric { Numeric }
+Decimal        = Integer "." Numeric { Numeric }
+Array          = "[" { Expression } "]"
+Map            = "{" { String ":" Expression } "}"
+
+Alpha          = "a-zA-Z"
+Numeric        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+Char           = Any ASCII character
