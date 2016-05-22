@@ -529,10 +529,37 @@ namespace TrenchBroom {
             throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
+        Expression::Expression() {}
         Expression::~Expression() {}
         
+        Expression* Expression::clone() const {
+            return doClone();
+        }
+
         Value Expression::evaluate(const EvaluationContext& context) const {
             return doEvaluate(context);
+        }
+
+        LiteralExpression::LiteralExpression(const Value& value) :
+        m_value(value) {}
+
+        Expression* LiteralExpression::doClone() const {
+            return new LiteralExpression(m_value);
+        }
+
+        Value LiteralExpression::doEvaluate(const EvaluationContext& context) const {
+            return m_value;
+        }
+
+        VariableExpression::VariableExpression(const String& variableName) :
+        m_variableName(variableName) {}
+
+        Expression* VariableExpression::doClone() const {
+            return new VariableExpression(m_variableName);
+        }
+
+        Value VariableExpression::doEvaluate(const EvaluationContext& context) const {
+            return context.variableValue(m_variableName);
         }
 
         UnaryOperator::UnaryOperator(const Expression* operand) :
@@ -547,17 +574,23 @@ namespace TrenchBroom {
         UnaryPlusOperator::UnaryPlusOperator(const Expression* operand) :
         UnaryOperator(operand) {}
 
+        Expression* UnaryPlusOperator::doClone() const {
+            return new UnaryPlusOperator(m_operand->clone());
+        }
+
         Value UnaryPlusOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value operandValue = m_operand->evaluate(context);
-            return operandValue.convertTo(Type_Number);
+            return +m_operand->evaluate(context);
         }
 
         UnaryMinusOperator::UnaryMinusOperator(const Expression* operand) :
         UnaryOperator(operand) {}
         
+        Expression* UnaryMinusOperator::doClone() const {
+            return new UnaryMinusOperator(m_operand->clone());
+        }
+
         Value UnaryMinusOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value operandValue = m_operand->evaluate(context);
-            return -operandValue.convertTo(Type_Number).numberValue();
+            return -m_operand->evaluate(context);
         }
         
         BinaryOperator::BinaryOperator(const Expression* leftOperand, const Expression* rightOperand) :
@@ -575,6 +608,10 @@ namespace TrenchBroom {
         SubscriptOperator::SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
+        Expression* SubscriptOperator::doClone() const {
+            return new SubscriptOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+
         Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
@@ -584,10 +621,66 @@ namespace TrenchBroom {
         AdditionOperator::AdditionOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
+        Expression* AdditionOperator::doClone() const {
+            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
         Value AdditionOperator::doEvaluate(const EvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue + rightValue;
+        }
+
+        SubtractionOperator::SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+
+        Expression* SubtractionOperator::doClone() const {
+            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value SubtractionOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value leftValue = m_leftOperand->evaluate(context);
+            const Value rightValue = m_rightOperand->evaluate(context);
+            return leftValue - rightValue;
+        }
+        
+        MultiplicationOperator::MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+        
+        Expression* MultiplicationOperator::doClone() const {
+            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value MultiplicationOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value leftValue = m_leftOperand->evaluate(context);
+            const Value rightValue = m_rightOperand->evaluate(context);
+            return leftValue * rightValue;
+        }
+        
+        DivisionOperator::DivisionOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+        
+        Expression* DivisionOperator::doClone() const {
+            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value DivisionOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value leftValue = m_leftOperand->evaluate(context);
+            const Value rightValue = m_rightOperand->evaluate(context);
+            return leftValue / rightValue;
+        }
+        
+        ModulusOperator::ModulusOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+        
+        Expression* ModulusOperator::doClone() const {
+            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value ModulusOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value leftValue = m_leftOperand->evaluate(context);
+            const Value rightValue = m_rightOperand->evaluate(context);
+            return leftValue % rightValue;
         }
     }
 }

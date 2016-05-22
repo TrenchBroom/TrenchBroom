@@ -21,6 +21,7 @@
 #define EL_h
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
 
@@ -75,7 +76,8 @@ namespace TrenchBroom {
         };
         
         class EvaluationContext {
-        
+        public:
+            Value variableValue(const String& name) const;
         };
         
         class ValueHolder {
@@ -230,11 +232,40 @@ namespace TrenchBroom {
         
         class Expression {
         public:
+            Expression();
             virtual ~Expression();
             
+            Expression* clone() const;
             Value evaluate(const EvaluationContext& context) const;
         private:
+            virtual Expression* doClone() const = 0;
             virtual Value doEvaluate(const EvaluationContext& context) const = 0;
+            
+            deleteCopyAndAssignment(Expression)
+        };
+        
+        class LiteralExpression : public Expression {
+        private:
+            Value m_value;
+        public:
+            LiteralExpression(const Value& value);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(LiteralExpression)
+        };
+        
+        class VariableExpression : public Expression {
+        private:
+            String m_variableName;
+        public:
+            VariableExpression(const String& variableName);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(VariableExpression)
         };
         
         class UnaryOperator : public Expression {
@@ -244,20 +275,28 @@ namespace TrenchBroom {
             UnaryOperator(const Expression* operand);
         public:
             virtual ~UnaryOperator();
+            
+            deleteCopyAndAssignment(UnaryOperator)
         };
 
         class UnaryPlusOperator : public UnaryOperator {
         public:
             UnaryPlusOperator(const Expression* operand);
         private:
+            Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(UnaryPlusOperator)
         };
         
         class UnaryMinusOperator : public UnaryOperator {
         public:
             UnaryMinusOperator(const Expression* operand);
         private:
+            Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(UnaryMinusOperator)
         };
         
         class BinaryOperator : public Expression {
@@ -268,20 +307,68 @@ namespace TrenchBroom {
             BinaryOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
             virtual ~BinaryOperator();
+            
+            deleteCopyAndAssignment(BinaryOperator)
         };
         
         class SubscriptOperator : public BinaryOperator {
         public:
             SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand);
         private:
+            Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(SubscriptOperator)
         };
         
         class AdditionOperator : public BinaryOperator {
         public:
             AdditionOperator(const Expression* leftOperand, const Expression* rightOperand);
         private:
+            Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(AdditionOperator)
+        };
+        
+        class SubtractionOperator : public BinaryOperator {
+        public:
+            SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(SubtractionOperator)
+        };
+        
+        class MultiplicationOperator : public BinaryOperator {
+        public:
+            MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(MultiplicationOperator)
+        };
+        
+        class DivisionOperator : public BinaryOperator {
+        public:
+            DivisionOperator(const Expression* leftOperand, const Expression* rightOperand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(DivisionOperator)
+        };
+        
+        class ModulusOperator : public BinaryOperator {
+        public:
+            ModulusOperator(const Expression* leftOperand, const Expression* rightOperand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(ModulusOperator)
         };
     }
 }
