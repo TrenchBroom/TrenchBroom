@@ -20,6 +20,7 @@
 #include "EL.h"
 
 #include <cassert>
+#include <cmath>
 
 namespace TrenchBroom {
     namespace EL {
@@ -222,24 +223,6 @@ namespace TrenchBroom {
         Value::Value(const MapType& value)     : m_value(new MapValueHolder(value)) {}
         Value::Value()                         : m_value(new NullValueHolder()) {}
 
-        Value::Value(const Value& other) :
-        m_value(other.m_value->clone()) {}
-        
-        Value::~Value() {
-            delete m_value;
-        }
-        
-        Value& Value::operator=(Value other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-        
-        void swap(Value& lhs, Value& rhs) {
-            using std::swap;
-            swap(lhs.m_value, rhs.m_value);
-        }
-
         ValueType Value::type() const {
             return m_value->type();
         }
@@ -350,9 +333,8 @@ namespace TrenchBroom {
                             return Value(lhs.convertTo(Type_String).stringValue() + rhs.stringValue());
                         case Type_Array:
                         case Type_Map:
-                            break;
                         case Type_Null:
-                            return Value::Null;
+                            break;
                     }
                     break;
                 case Type_String:
@@ -363,16 +345,14 @@ namespace TrenchBroom {
                             return Value(lhs.convertTo(Type_String).stringValue() + rhs.convertTo(Type_String).stringValue());
                         case Type_Array:
                         case Type_Map:
-                            break;
                         case Type_Null:
-                            return Value::Null;
+                            break;
                     }
                     break;
                 case Type_Array:
                 case Type_Map:
-                    break;
                 case Type_Null:
-                    return Value::Null;
+                    break;
             }
             
             throw EvaluationError("Cannot add value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " to value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
@@ -385,21 +365,94 @@ namespace TrenchBroom {
                     switch (rhs.type()) {
                         case Type_Boolean:
                         case Type_Number:
-                            return Value(lhs.convertTo(Type_Number).numberValue() + rhs.convertTo(Type_Number).numberValue());
+                            return Value(lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue());
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
-                            break;
                         case Type_Null:
-                            return Value::Null;
+                            break;
                     }
                     break;
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
-                    break;
                 case Type_Null:
-                    return Value::Null;
+                    break;
+            }
+            
+            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+        }
+
+        Value operator*(const Value& lhs, const Value& rhs) {
+            switch (lhs.type()) {
+                case Type_Boolean:
+                case Type_Number:
+                    switch (rhs.type()) {
+                        case Type_Boolean:
+                        case Type_Number:
+                            return Value(lhs.convertTo(Type_Number).numberValue() * rhs.convertTo(Type_Number).numberValue());
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Null:
+                    break;
+            }
+            
+            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+        }
+        
+        Value operator/(const Value& lhs, const Value& rhs) {
+            switch (lhs.type()) {
+                case Type_Boolean:
+                case Type_Number:
+                    switch (rhs.type()) {
+                        case Type_Boolean:
+                        case Type_Number:
+                            return Value(lhs.convertTo(Type_Number).numberValue() / rhs.convertTo(Type_Number).numberValue());
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Null:
+                    break;
+            }
+            
+            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+        }
+        
+        Value operator%(const Value& lhs, const Value& rhs) {
+            switch (lhs.type()) {
+                case Type_Boolean:
+                case Type_Number:
+                    switch (rhs.type()) {
+                        case Type_Boolean:
+                        case Type_Number:
+                            return Value(std::fmod(lhs.convertTo(Type_Number).numberValue(), rhs.convertTo(Type_Number).numberValue()));
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Null:
+                    break;
             }
             
             throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");

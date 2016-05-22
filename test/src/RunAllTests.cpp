@@ -34,9 +34,19 @@ int main(int argc, char **argv) {
 
     // use an empty file config so that we always use the default preferences
     wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
-    
-    ::testing::InitGoogleTest(&argc, argv);
 
+    const char* gtestarg = "--gtest_break_on_failure";
+    
+    int gargc = argc + 1;
+    char** gargv = new char*[gargc];
+    for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
+        gargv[i] = argv[i];
+    gargv[static_cast<size_t>(argc)] = new char[std::strlen(gtestarg)];
+    std::strcpy(gargv[static_cast<size_t>(argc)], gtestarg);
+    
+    ::testing::InitGoogleTest(&gargc, gargv);
+
+    
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();

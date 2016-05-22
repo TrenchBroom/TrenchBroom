@@ -21,6 +21,8 @@
 
 #include "EL.h"
 
+#include <limits>
+
 namespace TrenchBroom {
     namespace EL {
         TEST(ELTest, constructValues) {
@@ -67,6 +69,217 @@ namespace TrenchBroom {
             ASSERT_EQ(Value::Null, mapValue[Value("huu")]);
             ASSERT_EQ(Value::Null, mapValue[Value("")]);
             ASSERT_EQ(Value::Null, mapValue[Value("huu")]);
+        }
+        
+        TEST(ELTest, unaryPlusOperator) {
+            ASSERT_THROW(+Value("test"), EvaluationError);
+            ASSERT_THROW(+Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(+Value(MapType()), EvaluationError);
+            
+            ASSERT_EQ(Value(1.0), +Value(1.0));
+            ASSERT_EQ(Value(1.0), +Value(true));
+            ASSERT_EQ(Value(0.0), +Value(false));
+        }
+        
+        TEST(ELTest, unaryMinusOperator) {
+            ASSERT_THROW(-Value("test"), EvaluationError);
+            ASSERT_THROW(-Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(-Value(MapType()), EvaluationError);
+            
+            ASSERT_EQ(Value(-1.0), -Value(1.0));
+            ASSERT_EQ(Value(-1.0), -Value(true));
+            ASSERT_EQ(Value( 0.0), -Value(false));
+        }
+        
+        TEST(ELTest, binaryPlusOperator) {
+            ASSERT_EQ(Value(2.0),           Value(true)     + Value(true));
+            ASSERT_EQ(Value(3.0),           Value(false)    + Value(3.0));
+            ASSERT_EQ(Value("truetest"),    Value(true)     + Value("test"));
+            ASSERT_THROW(Value(true) + Value::Null,         EvaluationError);
+            ASSERT_THROW(Value(true) + Value(ArrayType()),  EvaluationError);
+            ASSERT_THROW(Value(true) + Value(MapType()),    EvaluationError);
+
+            ASSERT_EQ(Value(2.0),           Value(1.0)      + Value(true));
+            ASSERT_EQ(Value(2.0),           Value(3.0)      + Value(-1.0));
+            ASSERT_EQ(Value("1test"),       Value(1.0)      + Value("test"));
+            ASSERT_THROW(Value(1.0) + Value::Null,          EvaluationError);
+            ASSERT_THROW(Value(1.0) + Value(ArrayType()),   EvaluationError);
+            ASSERT_THROW(Value(1.0) + Value(MapType()),     EvaluationError);
+            
+            ASSERT_EQ(Value("tsttrue"),     Value("tst")      + Value(true));
+            ASSERT_EQ(Value("tst2"),        Value("tst")      + Value(2.0));
+            ASSERT_EQ(Value("tsttest"),     Value("tst")      + Value("test"));
+            ASSERT_THROW(Value("tst") + Value::Null,          EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(ArrayType()),   EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(MapType()),     EvaluationError);
+
+            ASSERT_THROW(Value(ArrayType()) + Value(true),          EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) + Value(1.0),           EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) + Value("test"),        EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) + Value::Null,          EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) + Value(ArrayType()),   EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) + Value(MapType()),     EvaluationError);
+            
+            ASSERT_THROW(Value(MapType()) + Value(true),          EvaluationError);
+            ASSERT_THROW(Value(MapType()) + Value(1.0),           EvaluationError);
+            ASSERT_THROW(Value(MapType()) + Value("test"),        EvaluationError);
+            ASSERT_THROW(Value(MapType()) + Value::Null,          EvaluationError);
+            ASSERT_THROW(Value(MapType()) + Value(ArrayType()),   EvaluationError);
+            ASSERT_THROW(Value(MapType()) + Value(MapType()),     EvaluationError);
+        }
+        
+        TEST(ELTest, binaryMinusOperator) {
+            ASSERT_EQ(Value(0.0),           Value(true)     - Value(true));
+            ASSERT_EQ(Value(-3.0),          Value(false)    - Value(3.0));
+            ASSERT_THROW(Value(true) - Value("test"),       EvaluationError);
+            ASSERT_THROW(Value(true) - Value::Null,         EvaluationError);
+            ASSERT_THROW(Value(true) - Value(ArrayType()),  EvaluationError);
+            ASSERT_THROW(Value(true) - Value(MapType()),    EvaluationError);
+            
+            ASSERT_EQ(Value(1.0),           Value(2.0)      - Value(true));
+            ASSERT_EQ(Value(-1.0),          Value(2.0)      - Value(3.0));
+            ASSERT_THROW(Value(1.0) - Value("test"),        EvaluationError);
+            ASSERT_THROW(Value(1.0) - Value::Null,          EvaluationError);
+            ASSERT_THROW(Value(1.0) - Value(ArrayType()),   EvaluationError);
+            ASSERT_THROW(Value(1.0) - Value(MapType()),     EvaluationError);
+            
+            ASSERT_THROW(Value("test") - Value(true),           EvaluationError);
+            ASSERT_THROW(Value("test") - Value(1.0),            EvaluationError);
+            ASSERT_THROW(Value("test") - Value("test"),         EvaluationError);
+            ASSERT_THROW(Value("test") - Value::Null,           EvaluationError);
+            ASSERT_THROW(Value("test") - Value(ArrayType()),    EvaluationError);
+            ASSERT_THROW(Value("test") - Value(MapType()),      EvaluationError);
+            
+            ASSERT_THROW(Value(ArrayType()) - Value(true),           EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) - Value(1.0),            EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) - Value("test"),         EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) - Value::Null,           EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) - Value(ArrayType()),    EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) - Value(MapType()),      EvaluationError);
+            
+            ASSERT_THROW(Value(MapType()) - Value(true),           EvaluationError);
+            ASSERT_THROW(Value(MapType()) - Value(1.0),            EvaluationError);
+            ASSERT_THROW(Value(MapType()) - Value("test"),         EvaluationError);
+            ASSERT_THROW(Value(MapType()) - Value::Null,           EvaluationError);
+            ASSERT_THROW(Value(MapType()) - Value(ArrayType()),    EvaluationError);
+            ASSERT_THROW(Value(MapType()) - Value(MapType()),      EvaluationError);
+        }
+        
+        TEST(ELTest, binaryTimesOperator) {
+            ASSERT_EQ(Value(0.0), Value(true) * Value(false));
+            ASSERT_EQ(Value(1.0), Value(true) * Value(true));
+            ASSERT_EQ(Value(-2.0), Value(true) * Value(-2.0));
+            ASSERT_THROW(Value(true) * Value("test"), EvaluationError);
+            ASSERT_THROW(Value(true) * Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(true) * Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(true) * Value::Null, EvaluationError);
+            
+            ASSERT_EQ(Value(0.0), Value(2.0) * Value(false));
+            ASSERT_EQ(Value(2.0), Value(2.0) * Value(true));
+            ASSERT_EQ(Value(-6.0), Value(3.0) * Value(-2.0));
+            ASSERT_THROW(Value(1.0) * Value("test"), EvaluationError);
+            ASSERT_THROW(Value(1.0) * Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) * Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) * Value::Null, EvaluationError);
+
+            ASSERT_THROW(Value("test") * Value(true), EvaluationError);
+            ASSERT_THROW(Value("test") * Value(1.0), EvaluationError);
+            ASSERT_THROW(Value("test") * Value("test"), EvaluationError);
+            ASSERT_THROW(Value("test") * Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value("test") * Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value("test") * Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(ArrayType()) * Value(true), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) * Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) * Value("test"), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) * Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) * Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) * Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(MapType()) * Value(true), EvaluationError);
+            ASSERT_THROW(Value(MapType()) * Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(MapType()) * Value("test"), EvaluationError);
+            ASSERT_THROW(Value(MapType()) * Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) * Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) * Value::Null, EvaluationError);
+        }
+        
+        TEST(ELTest, binaryOverOperator) {
+            ASSERT_EQ(Value(std::numeric_limits<NumberType>::infinity()), Value(true) / Value(false));
+            ASSERT_EQ(Value(1.0), Value(true) / Value(true));
+            ASSERT_EQ(Value(-0.5), Value(true) / Value(-2.0));
+            ASSERT_THROW(Value(true) / Value("test"), EvaluationError);
+            ASSERT_THROW(Value(true) / Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(true) / Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(true) / Value::Null, EvaluationError);
+            
+            ASSERT_EQ(Value(-std::numeric_limits<NumberType>::infinity()), Value(-2.0) / Value(false));
+            ASSERT_EQ(Value(2.0), Value(2.0) / Value(true));
+            ASSERT_EQ(Value(-1.5), Value(3.0) / Value(-2.0));
+            ASSERT_THROW(Value(1.0) / Value("test"), EvaluationError);
+            ASSERT_THROW(Value(1.0) / Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) / Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) / Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value("test") / Value(true), EvaluationError);
+            ASSERT_THROW(Value("test") / Value(1.0), EvaluationError);
+            ASSERT_THROW(Value("test") / Value("test"), EvaluationError);
+            ASSERT_THROW(Value("test") / Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value("test") / Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value("test") / Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(ArrayType()) / Value(true), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) / Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) / Value("test"), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) / Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) / Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) / Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(MapType()) / Value(true), EvaluationError);
+            ASSERT_THROW(Value(MapType()) / Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(MapType()) / Value("test"), EvaluationError);
+            ASSERT_THROW(Value(MapType()) / Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) / Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) / Value::Null, EvaluationError);
+        }
+        
+        TEST(ELTest, binaryModulusOperator) {
+            ASSERT_TRUE(std::isnan((Value(true) % Value(false)).numberValue()));
+            ASSERT_EQ(Value(0.0), Value(true) % Value(true));
+            ASSERT_EQ(Value(1.0), Value(true) % Value(-2.0));
+            ASSERT_THROW(Value(true) % Value("test"), EvaluationError);
+            ASSERT_THROW(Value(true) % Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(true) % Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(true) % Value::Null, EvaluationError);
+            
+            ASSERT_TRUE(std::isnan((Value(-2.0) % Value(false)).numberValue()));
+            ASSERT_EQ(Value(0.0), Value(2.0) % Value(true));
+            ASSERT_EQ(Value(1.0), Value(3.0) % Value(-2.0));
+            ASSERT_THROW(Value(1.0) % Value("test"), EvaluationError);
+            ASSERT_THROW(Value(1.0) % Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) % Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(1.0) % Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value("test") % Value(true), EvaluationError);
+            ASSERT_THROW(Value("test") % Value(1.0), EvaluationError);
+            ASSERT_THROW(Value("test") % Value("test"), EvaluationError);
+            ASSERT_THROW(Value("test") % Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value("test") % Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value("test") % Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(ArrayType()) % Value(true), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) % Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) % Value("test"), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) % Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) % Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(ArrayType()) % Value::Null, EvaluationError);
+            
+            ASSERT_THROW(Value(MapType()) % Value(true), EvaluationError);
+            ASSERT_THROW(Value(MapType()) % Value(1.0), EvaluationError);
+            ASSERT_THROW(Value(MapType()) % Value("test"), EvaluationError);
+            ASSERT_THROW(Value(MapType()) % Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) % Value(MapType()), EvaluationError);
+            ASSERT_THROW(Value(MapType()) % Value::Null, EvaluationError);
         }
     }
 }

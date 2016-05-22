@@ -22,6 +22,7 @@
 
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "SharedPointer.h"
 
 #include <cstdlib>
 #include <map>
@@ -177,7 +178,8 @@ namespace TrenchBroom {
         public:
             static const Value Null;
         private:
-            ValueHolder* m_value;
+            typedef std::tr1::shared_ptr<ValueHolder> ValuePtr;
+            ValuePtr m_value;
         private:
             Value(ValueHolder* holder);
         public:
@@ -191,12 +193,6 @@ namespace TrenchBroom {
             Value(const ArrayType& value);
             Value(const MapType& value);
             Value();
-            
-            Value(const Value& other);
-            ~Value();
-
-            Value& operator=(Value other);
-            friend void swap(Value& lhs, Value& rhs);
             
             ValueType type() const;
             String description() const;
@@ -218,6 +214,9 @@ namespace TrenchBroom {
             
             friend Value operator+(const Value& lhs, const Value& rhs);
             friend Value operator-(const Value& lhs, const Value& rhs);
+            friend Value operator*(const Value& lhs, const Value& rhs);
+            friend Value operator/(const Value& lhs, const Value& rhs);
+            friend Value operator%(const Value& lhs, const Value& rhs);
             
             friend bool operator==(const Value& lhs, const Value& rhs);
             friend bool operator!=(const Value& lhs, const Value& rhs);

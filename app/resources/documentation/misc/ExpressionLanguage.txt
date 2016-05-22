@@ -1,5 +1,5 @@
 Expression     = Term | "(" Term ")"
-Term           = Variable | Literal | Subscript | Addition | Subtraction | Multiplication | Division | Plus | Minus
+Term           = Variable | Literal | Subscript | Addition | Subtraction | Multiplication | Division | Plus | Minus | Modulus
 Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
 Literal        = String | Integer | Decimal | Array | Map
 Subscript      = Expression "[" Expression "]"
@@ -7,6 +7,7 @@ Addition       = Expression "+" Expression
 Subtraction    = Expression "-" Expression
 Multiplication = Expression "*" Expression
 Division       = Expression "/" Expression
+Modulus        = Expression "%" Expression
 Plus           = "+" Expression
 Minus          = "-" Expression
 
