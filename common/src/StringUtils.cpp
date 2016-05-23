@@ -125,10 +125,18 @@ namespace StringUtils {
         return isEqual(str1, str2, CaseSensitiveCharCompare());
     }
     
+    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2) {
+        return isEqual(s1, e1, str2, CaseSensitiveCharCompare());
+    }
+    
     bool caseInsensitiveEqual(const String& str1, const String& str2) {
         return isEqual(str1, str2, CaseInsensitiveCharCompare());
     }
     
+    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2) {
+        return isEqual(s1, e1, str2, CaseInsensitiveCharCompare());
+    }
+
     bool caseSensitivePrefix(const String& str, const String& prefix) {
         return isPrefix(str, prefix, CaseSensitiveCharCompare());
     }
@@ -253,6 +261,10 @@ namespace StringUtils {
         return std::atol(str.c_str());
     }
     
+    double stringToDouble(const String& str) {
+        return std::atof(str.c_str());
+    }
+
     size_t stringToSize(const String& str) {
         const long longValue = stringToLong(str);
         assert(longValue >= 0);

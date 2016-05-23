@@ -26,7 +26,9 @@
 #include "SharedPointer.h"
 
 #include <cstdlib>
+#include <list>
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -232,6 +234,10 @@ namespace TrenchBroom {
         
         class Expression {
         public:
+            typedef std::auto_ptr<Expression> Ptr;
+            typedef std::list<Expression*> List;
+            typedef std::map<String, Expression*> Map;
+        public:
             Expression();
             virtual ~Expression();
             
@@ -268,6 +274,32 @@ namespace TrenchBroom {
             deleteCopyAndAssignment(VariableExpression)
         };
         
+        class ArrayLiteralExpression : public Expression {
+        private:
+            Expression::List m_elements;
+        public:
+            ArrayLiteralExpression(const Expression::List& elements);
+            ~ArrayLiteralExpression();
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(ArrayLiteralExpression)
+        };
+        
+        class MapLiteralExpression : public Expression {
+        private:
+            Expression::Map m_elements;
+        public:
+            MapLiteralExpression(const Expression::Map& elements);
+            ~MapLiteralExpression();
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(MapLiteralExpression)
+        };
+        
         class UnaryOperator : public Expression {
         protected:
             const Expression* m_operand;
@@ -297,6 +329,16 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(UnaryMinusOperator)
+        };
+        
+        class GroupingOperator : public UnaryOperator {
+        public:
+            GroupingOperator(const Expression* operand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(GroupingOperator)
         };
         
         class BinaryOperator : public Expression {

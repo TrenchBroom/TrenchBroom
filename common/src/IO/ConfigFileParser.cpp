@@ -64,7 +64,7 @@ namespace TrenchBroom {
                         discardWhile(Whitespace());
                         break;
                     default: {
-                        const char* e = readString(Whitespace() + "=");
+                        const char* e = readUntil(Whitespace() + "=");
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(ConfigFileToken::Identifier, c, e, offset(c), startLine, startColumn);

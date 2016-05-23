@@ -102,7 +102,7 @@ namespace TrenchBroom {
                         if (e != NULL)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
-                        e = readString(Whitespace());
+                        e = readUntil(Whitespace());
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);

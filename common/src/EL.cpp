@@ -19,6 +19,8 @@
 
 #include "EL.h"
 
+#include "CollectionUtils.h"
+
 #include <cassert>
 #include <cmath>
 
@@ -39,6 +41,10 @@ namespace TrenchBroom {
                 case Type_Null:
                     return "Null";
             }
+        }
+
+        Value EvaluationContext::variableValue(const String& name) const {
+            return Value::Null;
         }
 
         ValueHolder::~ValueHolder() {}
@@ -248,6 +254,8 @@ namespace TrenchBroom {
         }
 
         Value Value::convertTo(const ValueType toType) const {
+            if (type() == toType)
+                return *this;
             return Value(m_value->convertTo(toType));
         }
 
@@ -523,6 +531,9 @@ namespace TrenchBroom {
                         return 0;
                     return -1;
                 case Type_Array:
+                    if (rhs.type() == Type_Array)
+                        return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
+                    break;
                 case Type_Map:
                     break;
             }
@@ -562,6 +573,66 @@ namespace TrenchBroom {
             return context.variableValue(m_variableName);
         }
 
+        ArrayLiteralExpression::ArrayLiteralExpression(const Expression::List& elements) :
+        m_elements(elements) {}
+        
+        ArrayLiteralExpression::~ArrayLiteralExpression() {
+            ListUtils::clearAndDelete(m_elements);
+        }
+
+        Expression* ArrayLiteralExpression::doClone() const {
+            Expression::List clones;
+            Expression::List::const_iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const Expression* element = *it;
+                clones.push_back(element->clone());
+            }
+            
+            return new ArrayLiteralExpression(clones);
+        }
+        
+        Value ArrayLiteralExpression::doEvaluate(const EvaluationContext& context) const {
+            ArrayType array;
+            Expression::List::const_iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const Expression* element = *it;
+                array.push_back(element->evaluate(context));
+            }
+            
+            return Value(array);
+        }
+
+        MapLiteralExpression::MapLiteralExpression(const Expression::Map& elements) :
+        m_elements(elements) {}
+        
+        MapLiteralExpression::~MapLiteralExpression() {
+            MapUtils::clearAndDelete(m_elements);
+        }
+
+        Expression* MapLiteralExpression::doClone() const {
+            Expression::Map clones;
+            Expression::Map::const_iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const String& key = it->first;
+                const Expression* value = it->second;
+                clones.insert(std::make_pair(key, value->clone()));
+            }
+            
+            return new MapLiteralExpression(clones);
+        }
+
+        Value MapLiteralExpression::doEvaluate(const EvaluationContext& context) const {
+            MapType map;
+            Expression::Map::const_iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const String& key = it->first;
+                const Expression* value = it->second;
+                map.insert(std::make_pair(key, value->evaluate(context)));
+            }
+            
+            return Value(map);
+        }
+
         UnaryOperator::UnaryOperator(const Expression* operand) :
         m_operand(operand) {
             assert(m_operand != NULL);
@@ -593,6 +664,17 @@ namespace TrenchBroom {
             return -m_operand->evaluate(context);
         }
         
+        GroupingOperator::GroupingOperator(const Expression* operand) :
+        UnaryOperator(operand) {}
+
+        Expression* GroupingOperator::doClone() const {
+            return new GroupingOperator(m_operand->clone());
+        }
+        
+        Value GroupingOperator::doEvaluate(const EvaluationContext& context) const {
+            return m_operand->evaluate(context);
+        }
+
         BinaryOperator::BinaryOperator(const Expression* leftOperand, const Expression* rightOperand) :
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {

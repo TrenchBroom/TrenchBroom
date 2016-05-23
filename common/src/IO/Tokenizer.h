@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 while (isWhitespace(curChar()))
                     advance();
                 const char* startPos = curPos();
-                const char* endPos = (curChar() == '"' ? readQuotedString() : readString(delims));
+                const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
             
@@ -209,8 +209,17 @@ namespace TrenchBroom {
                 --m_state.cur;
             }
             
+            void retreat(const size_t count) {
+                for (size_t i = 0; i < count; ++i)
+                    retreat();
+            }
+            
             bool isDigit(const char c) const {
                 return c >= '0' && c <= '9';
+            }
+            
+            bool isLetter(const char c) const {
+                return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
             }
             
             bool isWhitespace(const char c) const {
@@ -261,8 +270,14 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            const char* readString(const String& delims) {
+            const char* readUntil(const String& delims) {
                 while (!eof() && !isAnyOf(curChar(), delims))
+                    advance();
+                return curPos();
+            }
+            
+            const char* readWhile(const String& allow) {
+                while (!eof() && isAnyOf(curChar(), allow))
                     advance();
                 return curPos();
             }
@@ -289,6 +304,19 @@ namespace TrenchBroom {
                     advance();
             }
             
+            const char* discard(const String& str) {
+                for (size_t i = 0; i < str.size(); ++i) {
+                    if (eof() || curChar() != str[i]) {
+                        retreat(i);
+                        return NULL;
+                    }
+                    
+                    advance();
+                }
+                
+                return curPos();
+            }
+            
             void error(const char c) const {
                 ParserException e;
                 e << "Unexpected character '" << c << "'";
@@ -299,7 +327,7 @@ namespace TrenchBroom {
                 if (eof())
                     throw ParserException("Unexpected end of file");
             }
-        private:
+        protected:
             bool isAnyOf(const char c, const String& allow) const {
                 for (size_t i = 0; i < allow.size(); i++)
                     if (c == allow[i])

@@ -105,7 +105,7 @@ namespace TrenchBroom {
                         e = readDecimal(WordDelims);
                         if (e != NULL)
                             return Token(DefToken::Decimal, c, e, offset(c), startLine, startColumn);
-                        e = readString(WordDelims);
+                        e = readUntil(WordDelims);
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(DefToken::Word, c, e, offset(c), startLine, startColumn);

@@ -190,14 +190,37 @@ namespace VectorUtils {
         swap(vec, empty);
     }
     
+    template <typename T, typename C = std::less<T> >
+    int compare(const std::vector<T>& lhs, const std::vector<T>& rhs, const C& cmp = C()) {
+        typedef std::vector<T> Vec;
+        typename Vec::const_iterator lIt = lhs.begin();
+        typename Vec::const_iterator lEnd = lhs.end();
+        typename Vec::const_iterator rIt = rhs.begin();
+        typename Vec::const_iterator rEnd = rhs.end();
+        
+        while (lIt < lEnd && rIt < rEnd) {
+            const T& lElem = *lIt;
+            const T& rElem = *rIt;
+            
+            if (cmp(lElem, rElem))
+                return -1;
+            if (cmp(rElem, lElem))
+                return 1;
+            ++lIt; ++rIt;
+        }
+        
+        if (lIt < lEnd)
+            return 1;
+        if (rIt < rEnd)
+            return -1;
+        return 0;
+    }
+    
     template <typename T>
     bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs) {
         if (lhs.size() != rhs.size())
             return false;
-        for (size_t i = 0; i < lhs.size(); ++i)
-            if (lhs[i] != rhs[i])
-                return false;
-        return true;
+        return compare(lhs, rhs) == 0;
     }
     
     template <typename T>

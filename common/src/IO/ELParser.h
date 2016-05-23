@@ -25,13 +25,17 @@
 #include "IO/Tokenizer.h"
 
 namespace TrenchBroom {
+    namespace EL {
+        class Expression;
+    }
+    
     namespace IO {
         namespace ELToken {
             typedef size_t Type;
             static const Type Variable    = 1 <<  1;
             static const Type String = 1 << 2;
-            static const Type Integer = 1 << 3;
-            static const Type Decimal = 1 << 4;
+            static const Type Number = 1 << 3;
+            static const Type Boolean = 1 << 4;
             static const Type OBracket = 1 << 5;
             static const Type CBracket = 1 << 6;
             static const Type OBrace = 1 << 7;
@@ -42,8 +46,14 @@ namespace TrenchBroom {
             static const Type Minus = 1 << 12;
             static const Type Times = 1 << 13;
             static const Type Over = 1 << 14;
-            static const Type Colon = 1 << 15;
-            static const Type Eof = 1 << 16;
+            static const Type Modulus = 1 << 15;
+            static const Type Colon = 1 << 16;
+            static const Type Comma = 1 << 17;
+            static const Type Eof = 1 << 18;
+            static const Type Literal = String | Number | Boolean;
+            static const Type LeftHandTerm = Variable | Literal | OParen | OBracket | OBrace | Plus | Minus;
+            static const Type UnaryOperator = Plus | Minus;
+            static const Type BinaryOperator = Plus | Minus | Times | Over | Modulus | OBracket;
         }
         
         class ELTokenizer : public Tokenizer<ELToken::Type> {
@@ -54,6 +64,29 @@ namespace TrenchBroom {
             Token emitToken();
         };
         
+        class ELParser : public Parser<ELToken::Type> {
+        private:
+            ELTokenizer m_tokenizer;
+            typedef ELTokenizer::Token Token;
+        public:
+            ELParser(const char* begin, const char* end);
+            ELParser(const String& str);
+            
+            EL::Expression* parse();
+        private:
+            EL::Expression* parseExpression();
+            EL::Expression* parseGroupedTerm();
+            EL::Expression* parseTerm();
+            EL::Expression* parseLeftHandTerm();
+            EL::Expression* parseVariable();
+            EL::Expression* parseLiteral();
+            EL::Expression* parseArray();
+            EL::Expression* parseMap();
+            EL::Expression* parseUnaryOperator();
+            EL::Expression* parseBinaryOperator(EL::Expression* lhs);
+        private:
+            TokenNameMap tokenNames() const;
+        };
     }
 }
 

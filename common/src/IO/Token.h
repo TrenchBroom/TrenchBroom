@@ -60,6 +60,10 @@ namespace TrenchBroom {
                 return m_type;
             }
             
+            bool hasType(const Type typeMask) const {
+                return (m_type & typeMask) != 0;
+            }
+            
             const char* begin() const {
                 return m_begin;
             }

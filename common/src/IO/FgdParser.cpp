@@ -90,7 +90,7 @@ namespace TrenchBroom {
                         if (e != NULL)
                             return Token(FgdToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
-                        e = readString(WordDelims);
+                        e = readUntil(WordDelims);
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
                         return Token(FgdToken::Word, c, e, offset(c), startLine, startColumn);

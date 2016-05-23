@@ -60,9 +60,10 @@ namespace TrenchBroom {
             }
         private:
             String expectString(const String& expected, const Token& token) const {
-                const String data(token.begin(), token.end());
                 StringStream msg;
-                msg << " Expected " << expected << ", but got '" << data << "'";
+                msg << " Expected " << expected << ", but got " << tokenName(token.type());
+                if (!token.data().empty())
+                    msg << " (raw data: '" << token.data() << "'";
                 return msg.str();
             }
         protected:
