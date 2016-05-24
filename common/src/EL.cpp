@@ -44,7 +44,14 @@ namespace TrenchBroom {
         }
 
         Value EvaluationContext::variableValue(const String& name) const {
-            return Value::Null;
+            VariableTable::const_iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                throw EvaluationError("Unknown variable '" + name + "'");
+            return it->second;
+        }
+
+        void EvaluationContext::defineVariable(const String& name, const Value& value) {
+            m_variables.insert(std::make_pair(name, value));
         }
 
         ValueHolder::~ValueHolder() {}
@@ -199,7 +206,7 @@ namespace TrenchBroom {
             MapType::const_iterator it, end;
             size_t i = 0;
             for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
-                str << it->first << ":";
+                str << "\"" << it->first << "\"" << ":";
                 it->second.appendToStream(str);
                 if (i++ < m_value.size() - 1)
                     str << ",";
@@ -338,7 +345,6 @@ namespace TrenchBroom {
                         case Type_Number:
                             return Value(lhs.convertTo(Type_Number).numberValue() + rhs.convertTo(Type_Number).numberValue());
                         case Type_String:
-                            return Value(lhs.convertTo(Type_String).stringValue() + rhs.stringValue());
                         case Type_Array:
                         case Type_Map:
                         case Type_Null:
@@ -347,10 +353,10 @@ namespace TrenchBroom {
                     break;
                 case Type_String:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
                         case Type_String:
                             return Value(lhs.convertTo(Type_String).stringValue() + rhs.convertTo(Type_String).stringValue());
+                        case Type_Boolean:
+                        case Type_Number:
                         case Type_Array:
                         case Type_Map:
                         case Type_Null:
@@ -535,6 +541,8 @@ namespace TrenchBroom {
                         return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
                     break;
                 case Type_Map:
+                    if (rhs.type() == Type_Map)
+                        return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
                     break;
             }
             throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
@@ -553,6 +561,10 @@ namespace TrenchBroom {
 
         LiteralExpression::LiteralExpression(const Value& value) :
         m_value(value) {}
+        
+        Expression* LiteralExpression::create(const Value& value) {
+            return new LiteralExpression(value);
+        }
 
         Expression* LiteralExpression::doClone() const {
             return new LiteralExpression(m_value);
@@ -565,6 +577,10 @@ namespace TrenchBroom {
         VariableExpression::VariableExpression(const String& variableName) :
         m_variableName(variableName) {}
 
+        Expression* VariableExpression::create(const String& variableName) {
+            return new VariableExpression(variableName);
+        }
+        
         Expression* VariableExpression::doClone() const {
             return new VariableExpression(m_variableName);
         }
@@ -575,6 +591,10 @@ namespace TrenchBroom {
 
         ArrayLiteralExpression::ArrayLiteralExpression(const Expression::List& elements) :
         m_elements(elements) {}
+        
+        Expression* ArrayLiteralExpression::create(const Expression::List& elements) {
+            return new ArrayLiteralExpression(elements);
+        }
         
         ArrayLiteralExpression::~ArrayLiteralExpression() {
             ListUtils::clearAndDelete(m_elements);
@@ -604,6 +624,10 @@ namespace TrenchBroom {
 
         MapLiteralExpression::MapLiteralExpression(const Expression::Map& elements) :
         m_elements(elements) {}
+        
+        Expression* MapLiteralExpression::create(const Expression::Map& elements) {
+            return new MapLiteralExpression(elements);
+        }
         
         MapLiteralExpression::~MapLiteralExpression() {
             MapUtils::clearAndDelete(m_elements);
@@ -645,6 +669,10 @@ namespace TrenchBroom {
         UnaryPlusOperator::UnaryPlusOperator(const Expression* operand) :
         UnaryOperator(operand) {}
 
+        Expression* UnaryPlusOperator::create(const Expression* operand) {
+            return new UnaryPlusOperator(operand);
+        }
+
         Expression* UnaryPlusOperator::doClone() const {
             return new UnaryPlusOperator(m_operand->clone());
         }
@@ -656,6 +684,10 @@ namespace TrenchBroom {
         UnaryMinusOperator::UnaryMinusOperator(const Expression* operand) :
         UnaryOperator(operand) {}
         
+        Expression* UnaryMinusOperator::create(const Expression* operand) {
+            return new UnaryMinusOperator(operand);
+        }
+
         Expression* UnaryMinusOperator::doClone() const {
             return new UnaryMinusOperator(m_operand->clone());
         }
@@ -666,6 +698,10 @@ namespace TrenchBroom {
         
         GroupingOperator::GroupingOperator(const Expression* operand) :
         UnaryOperator(operand) {}
+
+        Expression* GroupingOperator::create(const Expression* operand) {
+            return new GroupingOperator(operand);
+        }
 
         Expression* GroupingOperator::doClone() const {
             return new GroupingOperator(m_operand->clone());
@@ -690,6 +726,10 @@ namespace TrenchBroom {
         SubscriptOperator::SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
+        Expression* SubscriptOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new SubscriptOperator(leftOperand, rightOperand);
+        }
+
         Expression* SubscriptOperator::doClone() const {
             return new SubscriptOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -702,6 +742,10 @@ namespace TrenchBroom {
 
         AdditionOperator::AdditionOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
+
+        Expression* AdditionOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new AdditionOperator(leftOperand, rightOperand);
+        }
 
         Expression* AdditionOperator::doClone() const {
             return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone());
@@ -716,6 +760,10 @@ namespace TrenchBroom {
         SubtractionOperator::SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
+        Expression* SubtractionOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new SubtractionOperator(leftOperand, rightOperand);
+        }
+
         Expression* SubtractionOperator::doClone() const {
             return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -729,6 +777,10 @@ namespace TrenchBroom {
         MultiplicationOperator::MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
+        Expression* MultiplicationOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new MultiplicationOperator(leftOperand, rightOperand);
+        }
+
         Expression* MultiplicationOperator::doClone() const {
             return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -742,6 +794,10 @@ namespace TrenchBroom {
         DivisionOperator::DivisionOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
+        Expression* DivisionOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new DivisionOperator(leftOperand, rightOperand);
+        }
+
         Expression* DivisionOperator::doClone() const {
             return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -755,6 +811,10 @@ namespace TrenchBroom {
         ModulusOperator::ModulusOperator(const Expression* leftOperand, const Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
+        Expression* ModulusOperator::create(const Expression* leftOperand, const Expression* rightOperand) {
+            return new ModulusOperator(leftOperand, rightOperand);
+        }
+
         Expression* ModulusOperator::doClone() const {
             return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }

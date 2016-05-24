@@ -67,5 +67,62 @@ namespace TrenchBroom {
             
             ASSERT_EQ(array, ELParser("[ 1.0 , \"test\",[ true] ]").parse()->evaluate(EL::EvaluationContext()));
         }
+        
+        TEST(ELParserTest, parseMapLiteral) {
+            ASSERT_EQ(EL::Value(EL::MapType()), ELParser("{}").parse()->evaluate(EL::EvaluationContext()));
+            
+            EL::MapType map, nestedMap;
+            map.insert(std::make_pair("testkey1", EL::Value(1.0)));
+            map.insert(std::make_pair("testkey2", EL::Value("asdf")));
+            nestedMap.insert(std::make_pair("nestedKey", EL::Value(true)));
+            map.insert(std::make_pair("testkey3", EL::Value(nestedMap)));
+            
+            ASSERT_EQ(map, ELParser(" { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseVariable) {
+            EL::EvaluationContext context;
+            context.defineVariable("test", EL::Value(1.0));
+            
+            ASSERT_EQ(EL::Value(1.0), ELParser("test").parse()->evaluate(context));
+        }
+        
+        TEST(ELParserTest, parseUnaryPlus) {
+            ASSERT_EQ(EL::Value(1.0), ELParser("+1.0").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseUnaryMinus) {
+            ASSERT_EQ(EL::Value(-1.0), ELParser("-1.0").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseAddition) {
+            ASSERT_EQ(EL::Value(5.0), ELParser("2 + 3").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value("asdf"), ELParser("\"as\"+\"df\"").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(9.0), ELParser("2 + 3 + 4").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseSubtraction) {
+            ASSERT_EQ(EL::Value(-1.0), ELParser("2 - 3.0").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(-5.0), ELParser("2 - 3 - 4").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(-7.0), ELParser("2 - 3 - 4 - 2").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseMultiplication) {
+            ASSERT_EQ(EL::Value(6.0), ELParser("2 * 3.0").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(24.0), ELParser("2 * 3 * 4").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(48.0), ELParser("2 * 3 * 4 * 2").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseDivision) {
+            ASSERT_EQ(EL::Value(6.0), ELParser("12 / 2.0").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(3.0), ELParser("12 / 2 / 2").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(1.0), ELParser("12 / 2 / 2 / 3").parse()->evaluate(EL::EvaluationContext()));
+        }
+        
+        TEST(ELParserTest, parseModulus) {
+            ASSERT_EQ(EL::Value(0.0), ELParser("12 % 2.0").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("12 % 5 % 3").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("12 % 5 % 3 % 3").parse()->evaluate(EL::EvaluationContext()));
+        }
     }
 }

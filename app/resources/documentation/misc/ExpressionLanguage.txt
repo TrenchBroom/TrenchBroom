@@ -1,7 +1,7 @@
 Expression     = GroupedTerm | Term
 GroupedTerm    = "(" Term ")"
-Term           = Variable | Literal | Subscript | Addition | Subtraction | Multiplication | Division | Plus | Minus | Modulus
-LeftHandTerm   = Variable | Literal | GroupedTerm | Plus | Minus | Subscript
+Term           = Variable | Literal | Subscript | Plus | Minus | Addition | Subtraction | Multiplication | Division | Modulus
+LeftHandTerm   = Variable | Literal | Subscript | Plus | Minus | GroupedTerm
 
 Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
 Literal        = String | Number | Boolean | Array | Map

@@ -78,8 +78,13 @@ namespace TrenchBroom {
         };
         
         class EvaluationContext {
+        private:
+            typedef std::map<String, Value> VariableTable;
+            VariableTable m_variables;
         public:
             Value variableValue(const String& name) const;
+            
+            void defineVariable(const String& name, const Value& value);
         };
         
         class ValueHolder {
@@ -253,8 +258,10 @@ namespace TrenchBroom {
         class LiteralExpression : public Expression {
         private:
             Value m_value;
-        public:
+        private:
             LiteralExpression(const Value& value);
+        public:
+            static Expression* create(const Value& value);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -265,8 +272,10 @@ namespace TrenchBroom {
         class VariableExpression : public Expression {
         private:
             String m_variableName;
-        public:
+        private:
             VariableExpression(const String& variableName);
+        public:
+            static Expression* create(const String& variableName);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -277,8 +286,10 @@ namespace TrenchBroom {
         class ArrayLiteralExpression : public Expression {
         private:
             Expression::List m_elements;
-        public:
+        private:
             ArrayLiteralExpression(const Expression::List& elements);
+        public:
+            static Expression* create(const Expression::List& elements);
             ~ArrayLiteralExpression();
         private:
             Expression* doClone() const;
@@ -290,8 +301,10 @@ namespace TrenchBroom {
         class MapLiteralExpression : public Expression {
         private:
             Expression::Map m_elements;
-        public:
+        private:
             MapLiteralExpression(const Expression::Map& elements);
+        public:
+            static Expression* create(const Expression::Map& elements);
             ~MapLiteralExpression();
         private:
             Expression* doClone() const;
@@ -312,8 +325,10 @@ namespace TrenchBroom {
         };
 
         class UnaryPlusOperator : public UnaryOperator {
-        public:
+        private:
             UnaryPlusOperator(const Expression* operand);
+        public:
+            static Expression* create(const Expression* operand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -322,8 +337,10 @@ namespace TrenchBroom {
         };
         
         class UnaryMinusOperator : public UnaryOperator {
-        public:
+        private:
             UnaryMinusOperator(const Expression* operand);
+        public:
+            static Expression* create(const Expression* operand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -332,8 +349,10 @@ namespace TrenchBroom {
         };
         
         class GroupingOperator : public UnaryOperator {
-        public:
+        private:
             GroupingOperator(const Expression* operand);
+        public:
+            static Expression* create(const Expression* operand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -354,8 +373,10 @@ namespace TrenchBroom {
         };
         
         class SubscriptOperator : public BinaryOperator {
-        public:
+        private:
             SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -364,8 +385,10 @@ namespace TrenchBroom {
         };
         
         class AdditionOperator : public BinaryOperator {
-        public:
+        private:
             AdditionOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -374,8 +397,10 @@ namespace TrenchBroom {
         };
         
         class SubtractionOperator : public BinaryOperator {
-        public:
+        private:
             SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -384,8 +409,10 @@ namespace TrenchBroom {
         };
         
         class MultiplicationOperator : public BinaryOperator {
-        public:
+        private:
             MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -394,8 +421,10 @@ namespace TrenchBroom {
         };
         
         class DivisionOperator : public BinaryOperator {
-        public:
+        private:
             DivisionOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
@@ -404,8 +433,10 @@ namespace TrenchBroom {
         };
         
         class ModulusOperator : public BinaryOperator {
-        public:
+        private:
             ModulusOperator(const Expression* leftOperand, const Expression* rightOperand);
+        public:
+            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;

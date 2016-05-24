@@ -51,12 +51,14 @@ namespace TrenchBroom {
             static const Type Comma = 1 << 17;
             static const Type Eof = 1 << 18;
             static const Type Literal = String | Number | Boolean;
-            static const Type LeftHandTerm = Variable | Literal | OParen | OBracket | OBrace | Plus | Minus;
+            static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | Plus | Minus;
+            static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus;
             static const Type UnaryOperator = Plus | Minus;
-            static const Type BinaryOperator = Plus | Minus | Times | Over | Modulus | OBracket;
         }
         
         class ELTokenizer : public Tokenizer<ELToken::Type> {
+        private:
+            const String& NumberDelim() const;
         public:
             ELTokenizer(const char* begin, const char* end);
             ELTokenizer(const String& str);
@@ -77,13 +79,13 @@ namespace TrenchBroom {
             EL::Expression* parseExpression();
             EL::Expression* parseGroupedTerm();
             EL::Expression* parseTerm();
-            EL::Expression* parseLeftHandTerm();
+            EL::Expression* parseSimpleTerm();
             EL::Expression* parseVariable();
             EL::Expression* parseLiteral();
             EL::Expression* parseArray();
             EL::Expression* parseMap();
             EL::Expression* parseUnaryOperator();
-            EL::Expression* parseBinaryOperator(EL::Expression* lhs);
+            EL::Expression* parseCompoundTerm(EL::Expression* lhs);
         private:
             TokenNameMap tokenNames() const;
         };

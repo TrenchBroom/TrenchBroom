@@ -974,6 +974,62 @@ namespace MapUtils {
         }
     };
 
+    template <typename K, typename V, typename C, typename D = std::less<V> >
+    int compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D()) {
+        typedef std::map<K, V, C> Map;
+        typename Map::const_iterator it1 = map1.begin();
+        typename Map::const_iterator end1 = map1.end();
+        typename Map::const_iterator it2 = map2.begin();
+        typename Map::const_iterator end2 = map2.end();
+        
+        while (it1 != end1 && it2 != end2) {
+            const K& key1 = it1->first;
+            const K& key2 = it2->first;
+            if (map1.key_comp()(key1, key2))
+                return -1;
+            if (map1.key_comp()(key2, key1))
+                return 1;
+            
+            const V& value1 = it1->second;
+            const V& value2 = it2->second;
+            if (valueCmp(value1, value2))
+                return -1;
+            if (valueCmp(value2, value1))
+                return 1;
+            
+            ++it1; ++it2;
+        }
+        
+        if (it1 != end1)
+            return 1;
+        if (it2 != end2)
+            return -1;
+        return 0;
+    }
+
+    template <typename K, typename V, typename C, typename D = std::less<V> >
+    bool equals(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D()) {
+        if (map1.size() != map2.size())
+            return false;
+        
+        typedef std::map<K, V, C> Map;
+        typename Map::const_iterator it1, end1, it2;
+        for (it1 = map1.begin(), end1 = map1.end(); it1 != end1; ++it1) {
+            const K& key = it1->first;
+            const V& value1 = it1->second;
+            
+            it2 = map2.find(key);
+            if (it2 == map2.end())
+                return false;
+            
+            const V& value2 = it2->second;
+            if (valueCmp(value1, value2) || valueCmp(value2, value1))
+                return false;
+        }
+        
+        return true;
+    }
+    
     template <typename K, typename V, typename C>
     bool contains(const std::map<K, V, C>& map, const K& key) {
         return map.find(key) != map.end();

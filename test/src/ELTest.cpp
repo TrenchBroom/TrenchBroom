@@ -94,24 +94,24 @@ namespace TrenchBroom {
         TEST(ELTest, binaryPlusOperator) {
             ASSERT_EQ(Value(2.0),           Value(true)     + Value(true));
             ASSERT_EQ(Value(3.0),           Value(false)    + Value(3.0));
-            ASSERT_EQ(Value("truetest"),    Value(true)     + Value("test"));
+            ASSERT_THROW(Value(true) + Value("test"),       EvaluationError);
             ASSERT_THROW(Value(true) + Value::Null,         EvaluationError);
             ASSERT_THROW(Value(true) + Value(ArrayType()),  EvaluationError);
             ASSERT_THROW(Value(true) + Value(MapType()),    EvaluationError);
 
             ASSERT_EQ(Value(2.0),           Value(1.0)      + Value(true));
             ASSERT_EQ(Value(2.0),           Value(3.0)      + Value(-1.0));
-            ASSERT_EQ(Value("1test"),       Value(1.0)      + Value("test"));
+            ASSERT_THROW(Value(1.0) + Value("test"),        EvaluationError);
             ASSERT_THROW(Value(1.0) + Value::Null,          EvaluationError);
             ASSERT_THROW(Value(1.0) + Value(ArrayType()),   EvaluationError);
             ASSERT_THROW(Value(1.0) + Value(MapType()),     EvaluationError);
             
-            ASSERT_EQ(Value("tsttrue"),     Value("tst")      + Value(true));
-            ASSERT_EQ(Value("tst2"),        Value("tst")      + Value(2.0));
-            ASSERT_EQ(Value("tsttest"),     Value("tst")      + Value("test"));
-            ASSERT_THROW(Value("tst") + Value::Null,          EvaluationError);
-            ASSERT_THROW(Value("tst") + Value(ArrayType()),   EvaluationError);
-            ASSERT_THROW(Value("tst") + Value(MapType()),     EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(true),        EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(2.0),         EvaluationError);
+            ASSERT_EQ(Value("tsttest"),     Value("tst")    + Value("test"));
+            ASSERT_THROW(Value("tst") + Value::Null,        EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(ArrayType()), EvaluationError);
+            ASSERT_THROW(Value("tst") + Value(MapType()),   EvaluationError);
 
             ASSERT_THROW(Value(ArrayType()) + Value(true),          EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value(1.0),           EvaluationError);
