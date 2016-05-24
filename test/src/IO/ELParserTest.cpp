@@ -124,5 +124,24 @@ namespace TrenchBroom {
             ASSERT_EQ(EL::Value(2.0), ELParser("12 % 5 % 3").parse()->evaluate(EL::EvaluationContext()));
             ASSERT_EQ(EL::Value(2.0), ELParser("12 % 5 % 3 % 3").parse()->evaluate(EL::EvaluationContext()));
         }
+        
+        TEST(ELParserTest, parseSubscript) {
+            ASSERT_EQ(EL::Value(1.0), ELParser("[ 1.0, 2.0, \"test\" ][0]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("[ 1.0, 2.0, \"test\" ][1]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value("test"), ELParser("[ 1.0, 2.0, \"test\" ][2]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value("test"), ELParser("[ 1.0, 2.0, \"test\" ][-1]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("[ 1.0, 2.0, \"test\" ][-2]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(1.0), ELParser("[ 1.0, 2.0, \"test\" ][-3]").parse()->evaluate(EL::EvaluationContext()));
+            
+            ASSERT_EQ(EL::Value(1.0), ELParser("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key1\"]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key2\"]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value("test"), ELParser("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key3\"]").parse()->evaluate(EL::EvaluationContext()));
+
+            ASSERT_EQ(EL::Value(1.0), ELParser("[ 1.0, [ 2.0, \"test\"] ][0]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(2.0), ELParser("[ 1.0, [ 2.0, \"test\"] ][1][0]").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value("test"), ELParser("[ 1.0, [ 2.0, \"test\"] ][1][1]").parse()->evaluate(EL::EvaluationContext()));
+
+            ASSERT_EQ(EL::Value(2.0), ELParser("{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]").parse()->evaluate(EL::EvaluationContext()));
+        }
     }
 }
