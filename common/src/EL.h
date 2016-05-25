@@ -366,8 +366,29 @@ namespace TrenchBroom {
             const Expression* m_rightOperand;
         protected:
             BinaryOperator(const Expression* leftOperand, const Expression* rightOperand);
+            
+            template <typename T>
+            static BinaryOperator* createAndReorderByPrecedence(BinaryOperator* leftOperand, Expression* rightOperand) {
+                BinaryOperator* newParent = T::create(static_cast<Expression*>(leftOperand), rightOperand);
+                if (newParent->precedence() > leftOperand->precedence())
+                    return newParent->rotateLeftUp(leftOperand);
+                return newParent;
+            }
         public:
             virtual ~BinaryOperator();
+        private:
+            BinaryOperator* rotateLeftUp(BinaryOperator* leftOperand);
+            BinaryOperator* rotateRightUp(BinaryOperator* rightOperand);
+        protected:
+            struct Traits;
+        private:
+            const Traits& traits() const;
+            virtual const Traits& doGetTraits() const = 0;
+        public:
+            size_t precedence() const;
+            bool associative() const;
+            bool commutative() const;
+        private:
             
             deleteCopyAndAssignment(BinaryOperator)
         };
@@ -376,10 +397,12 @@ namespace TrenchBroom {
         private:
             SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(SubscriptOperator)
         };
@@ -388,10 +411,12 @@ namespace TrenchBroom {
         private:
             AdditionOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(AdditionOperator)
         };
@@ -400,10 +425,12 @@ namespace TrenchBroom {
         private:
             SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(SubtractionOperator)
         };
@@ -412,10 +439,12 @@ namespace TrenchBroom {
         private:
             MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(MultiplicationOperator)
         };
@@ -424,10 +453,12 @@ namespace TrenchBroom {
         private:
             DivisionOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(DivisionOperator)
         };
@@ -436,10 +467,12 @@ namespace TrenchBroom {
         private:
             ModulusOperator(const Expression* leftOperand, const Expression* rightOperand);
         public:
-            static Expression* create(const Expression* leftOperand, const Expression* rightOperand);
+            static BinaryOperator* create(Expression* leftOperand, Expression* rightOperand);
+            static BinaryOperator* create(BinaryOperator* leftOperand, Expression* rightOperand);
         private:
             Expression* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(ModulusOperator)
         };

@@ -27,6 +27,7 @@
 namespace TrenchBroom {
     namespace EL {
         class Expression;
+        class BinaryOperator;
     }
     
     namespace IO {

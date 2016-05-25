@@ -143,5 +143,10 @@ namespace TrenchBroom {
 
             ASSERT_EQ(EL::Value(2.0), ELParser("{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]").parse()->evaluate(EL::EvaluationContext()));
         }
+        
+        TEST(ELParserTest, testOperatorPrecedence) {
+            ASSERT_EQ(EL::Value(13.0), ELParser("2 * 3 + 7").parse()->evaluate(EL::EvaluationContext()));
+            ASSERT_EQ(EL::Value(13.0), ELParser("7 + 2 * 3").parse()->evaluate(EL::EvaluationContext()));
+        }
     }
 }
