@@ -146,16 +146,17 @@ namespace TrenchBroom {
             EL::Expression* expression = parseTerm();
             expect(ELToken::CParen, m_tokenizer.nextToken());
             
-            return EL::GroupingOperator::create(expression);
+            EL::Expression* lhs = EL::GroupingOperator::create(expression);
+            if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
+                return parseCompoundTerm(lhs);
+            return lhs;
         }
 
         EL::Expression* ELParser::parseTerm() {
-            Token token = m_tokenizer.peekToken();
-            expect(ELToken::SimpleTerm, token);
+            expect(ELToken::SimpleTerm, m_tokenizer.peekToken());
             
             EL::Expression* lhs = parseSimpleTerm();
-            token = m_tokenizer.peekToken();
-            if (token.hasType(ELToken::CompoundTerm))
+            if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
                 return parseCompoundTerm(lhs);
             return lhs;
         }
@@ -256,42 +257,23 @@ namespace TrenchBroom {
         }
 
         EL::Expression* ELParser::parseCompoundTerm(EL::Expression* lhs) {
-            EL::BinaryOperator* op = NULL;
-            
-            {
-                Token token = m_tokenizer.nextToken();
-                expect(ELToken::Plus | ELToken::Minus | ELToken::Times | ELToken::Over | ELToken::Modulus, token);
-                
-                
-                if (token.hasType(ELToken::Plus))
-                    op = EL::AdditionOperator::create(lhs, parseSimpleTerm());
-                else if (token.hasType(ELToken::Minus))
-                    op = EL::SubtractionOperator::create(lhs, parseSimpleTerm());
-                else if (token.hasType(ELToken::Times))
-                    op = EL::MultiplicationOperator::create(lhs, parseSimpleTerm());
-                else if (token.hasType(ELToken::Over))
-                    op = EL::DivisionOperator::create(lhs, parseSimpleTerm());
-                else
-                    op = EL::ModulusOperator::create(lhs, parseSimpleTerm());
-            }
-            
             while (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm)) {
                 Token token = m_tokenizer.nextToken();
                 expect(ELToken::Plus | ELToken::Minus | ELToken::Times | ELToken::Over | ELToken::Modulus, token);
                 
                 if (token.hasType(ELToken::Plus))
-                    op = EL::AdditionOperator::create(op, parseSimpleTerm());
+                    lhs = EL::AdditionOperator::create(lhs, parseSimpleTerm());
                 else if (token.hasType(ELToken::Minus))
-                    op = EL::SubtractionOperator::create(op, parseSimpleTerm());
+                    lhs = EL::SubtractionOperator::create(lhs, parseSimpleTerm());
                 else if (token.hasType(ELToken::Times))
-                    op = EL::MultiplicationOperator::create(op, parseSimpleTerm());
+                    lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTerm());
                 else if (token.hasType(ELToken::Over))
-                    op = EL::DivisionOperator::create(op, parseSimpleTerm());
+                    lhs = EL::DivisionOperator::create(lhs, parseSimpleTerm());
                 else
-                    op = EL::ModulusOperator::create(op, parseSimpleTerm());
+                    lhs = EL::ModulusOperator::create(lhs, parseSimpleTerm());
             }
             
-            return op;
+            return lhs;
         }
 
         ELParser::TokenNameMap ELParser::tokenNames() const {

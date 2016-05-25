@@ -551,12 +551,28 @@ namespace TrenchBroom {
         Expression::Expression() {}
         Expression::~Expression() {}
         
+        Expression* Expression::reorderByPrecedence() {
+            return doReorderByPrecedence();
+        }
+        
+        Expression* Expression::reorderByPrecedence(BinaryOperator* parent) {
+            return doReorderByPrecedence(parent);
+        }
+
         Expression* Expression::clone() const {
             return doClone();
         }
 
         Value Expression::evaluate(const EvaluationContext& context) const {
             return doEvaluate(context);
+        }
+
+        Expression* Expression::doReorderByPrecedence() {
+            return this;
+        }
+        
+        Expression* Expression::doReorderByPrecedence(BinaryOperator* parent) {
+            return parent;
         }
 
         LiteralExpression::LiteralExpression(const Value& value) :
@@ -657,7 +673,7 @@ namespace TrenchBroom {
             return Value(map);
         }
 
-        UnaryOperator::UnaryOperator(const Expression* operand) :
+        UnaryOperator::UnaryOperator(Expression* operand) :
         m_operand(operand) {
             assert(m_operand != NULL);
         }
@@ -666,10 +682,10 @@ namespace TrenchBroom {
             delete m_operand;
         }
 
-        UnaryPlusOperator::UnaryPlusOperator(const Expression* operand) :
+        UnaryPlusOperator::UnaryPlusOperator(Expression* operand) :
         UnaryOperator(operand) {}
 
-        Expression* UnaryPlusOperator::create(const Expression* operand) {
+        Expression* UnaryPlusOperator::create(Expression* operand) {
             return new UnaryPlusOperator(operand);
         }
 
@@ -681,10 +697,10 @@ namespace TrenchBroom {
             return +m_operand->evaluate(context);
         }
 
-        UnaryMinusOperator::UnaryMinusOperator(const Expression* operand) :
+        UnaryMinusOperator::UnaryMinusOperator(Expression* operand) :
         UnaryOperator(operand) {}
         
-        Expression* UnaryMinusOperator::create(const Expression* operand) {
+        Expression* UnaryMinusOperator::create(Expression* operand) {
             return new UnaryMinusOperator(operand);
         }
 
@@ -696,10 +712,10 @@ namespace TrenchBroom {
             return -m_operand->evaluate(context);
         }
         
-        GroupingOperator::GroupingOperator(const Expression* operand) :
+        GroupingOperator::GroupingOperator(Expression* operand) :
         UnaryOperator(operand) {}
 
-        Expression* GroupingOperator::create(const Expression* operand) {
+        Expression* GroupingOperator::create(Expression* operand) {
             return new GroupingOperator(operand);
         }
 
@@ -711,7 +727,33 @@ namespace TrenchBroom {
             return m_operand->evaluate(context);
         }
 
-        BinaryOperator::BinaryOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        SubscriptOperator::SubscriptOperator(Expression* indexableOperand, Expression* indexOperand) :
+        m_indexableOperand(indexableOperand),
+        m_indexOperand(indexOperand) {
+            assert(m_indexableOperand != NULL);
+            assert(m_indexOperand != NULL);
+        }
+        
+        SubscriptOperator::~SubscriptOperator() {
+            delete m_indexableOperand;
+            delete m_indexOperand;
+        }
+
+        Expression* SubscriptOperator::create(Expression* indexableOperand, Expression* indexOperand) {
+            return (new SubscriptOperator(indexableOperand, indexOperand))->reorderByPrecedence();
+        }
+        
+        Expression* SubscriptOperator::doClone() const {
+            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone());
+        }
+        
+        Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value indexableValue = m_indexableOperand->evaluate(context);
+            const Value indexValue = m_indexOperand->evaluate(context);
+            return indexableValue[indexValue];
+        }
+
+        BinaryOperator::BinaryOperator(Expression* leftOperand, Expression* rightOperand) :
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {
             assert(m_leftOperand != NULL);
@@ -722,6 +764,23 @@ namespace TrenchBroom {
             delete m_leftOperand;
             delete m_rightOperand;
         }
+
+        Expression* BinaryOperator::doReorderByPrecedence() {
+            Expression* result = m_leftOperand->reorderByPrecedence(this);
+            if (result == this)
+                result = m_rightOperand->reorderByPrecedence(this);
+            return result;
+        }
+        
+        Expression* BinaryOperator::doReorderByPrecedence(BinaryOperator* parent) {
+            assert(parent->m_leftOperand == this || parent->m_rightOperand == this);
+            if (parent->m_leftOperand == this && precedence() < parent->precedence())
+                return parent->rotateLeftUp(this);
+            if (parent->m_rightOperand == this && precedence() < parent->precedence())
+                return parent->rotateRightUp(this);
+            return parent;
+        }
+        
 
         BinaryOperator* BinaryOperator::rotateLeftUp(BinaryOperator* leftOperand) {
             assert(m_leftOperand == leftOperand);
@@ -768,41 +827,11 @@ namespace TrenchBroom {
             return traits().commutative;
         }
 
-        SubscriptOperator::SubscriptOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        AdditionOperator::AdditionOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
-        BinaryOperator* SubscriptOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new SubscriptOperator(leftOperand, rightOperand);
-        }
-
-        BinaryOperator* SubscriptOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<SubscriptOperator>(leftOperand, rightOperand);
-        }
-
-        Expression* SubscriptOperator::doClone() const {
-            return new SubscriptOperator(m_leftOperand->clone(), m_rightOperand->clone());
-        }
-
-        Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue[rightValue];
-        }
-
-        const BinaryOperator::Traits& SubscriptOperator::doGetTraits() const {
-            static const Traits traits(2, false, false);
-            return traits;
-        }
-
-        AdditionOperator::AdditionOperator(const Expression* leftOperand, const Expression* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
-
-        BinaryOperator* AdditionOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new AdditionOperator(leftOperand, rightOperand);
-        }
-        
-        BinaryOperator* AdditionOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<AdditionOperator>(leftOperand, rightOperand);
+        Expression* AdditionOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new AdditionOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
 
         Expression* AdditionOperator::doClone() const {
@@ -820,15 +849,11 @@ namespace TrenchBroom {
             return traits;
         }
         
-        SubtractionOperator::SubtractionOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        SubtractionOperator::SubtractionOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
 
-        BinaryOperator* SubtractionOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new SubtractionOperator(leftOperand, rightOperand);
-        }
-        
-        BinaryOperator* SubtractionOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<SubtractionOperator>(leftOperand, rightOperand);
+        Expression* SubtractionOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new SubtractionOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
 
         Expression* SubtractionOperator::doClone() const {
@@ -846,15 +871,11 @@ namespace TrenchBroom {
             return traits;
         }
         
-        MultiplicationOperator::MultiplicationOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        MultiplicationOperator::MultiplicationOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
-        BinaryOperator* MultiplicationOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new MultiplicationOperator(leftOperand, rightOperand);
-        }
-        
-        BinaryOperator* MultiplicationOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<MultiplicationOperator>(leftOperand, rightOperand);
+        Expression* MultiplicationOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new MultiplicationOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
 
         Expression* MultiplicationOperator::doClone() const {
@@ -872,15 +893,11 @@ namespace TrenchBroom {
             return traits;
         }
 
-        DivisionOperator::DivisionOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        DivisionOperator::DivisionOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
-        BinaryOperator* DivisionOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new DivisionOperator(leftOperand, rightOperand);
-        }
-        
-        BinaryOperator* DivisionOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<DivisionOperator>(leftOperand, rightOperand);
+        Expression* DivisionOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new DivisionOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
 
         Expression* DivisionOperator::doClone() const {
@@ -898,15 +915,11 @@ namespace TrenchBroom {
             return traits;
         }
 
-        ModulusOperator::ModulusOperator(const Expression* leftOperand, const Expression* rightOperand) :
+        ModulusOperator::ModulusOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
-        BinaryOperator* ModulusOperator::create(Expression* leftOperand, Expression* rightOperand) {
-            return new ModulusOperator(leftOperand, rightOperand);
-        }
-        
-        BinaryOperator* ModulusOperator::create(BinaryOperator* leftOperand, Expression* rightOperand) {
-            return BinaryOperator::createAndReorderByPrecedence<ModulusOperator>(leftOperand, rightOperand);
+        Expression* ModulusOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new ModulusOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
 
         Expression* ModulusOperator::doClone() const {
