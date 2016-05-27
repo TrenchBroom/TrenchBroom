@@ -102,11 +102,11 @@ namespace TrenchBroom {
             virtual ValueType type() const = 0;
             virtual String description() const = 0;
             
-            virtual const BooleanType& boolValue()   const;
-            virtual const StringType&  stringValue() const;
-            virtual const NumberType&  numberValue() const;
-            virtual const ArrayType&   arrayValue()  const;
-            virtual const MapType&     mapValue()    const;
+            virtual const BooleanType& booleanValue() const;
+            virtual const StringType&  stringValue()  const;
+            virtual const NumberType&  numberValue()  const;
+            virtual const ArrayType&   arrayValue()   const;
+            virtual const MapType&     mapValue()     const;
 
             virtual size_t length() const = 0;
             virtual ValueHolder* convertTo(ValueType toType) const = 0;
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             BooleanValueHolder(const BooleanType& value);
             ValueType type() const;
             String description() const;
-            const BooleanType& boolValue() const;
+            const BooleanType& booleanValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
@@ -224,6 +224,7 @@ namespace TrenchBroom {
             String description() const;
             
             const StringType& stringValue() const;
+            const BooleanType& booleanValue() const;
             const NumberType& numberValue() const;
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
@@ -247,6 +248,9 @@ namespace TrenchBroom {
             friend Value operator*(const Value& lhs, const Value& rhs);
             friend Value operator/(const Value& lhs, const Value& rhs);
             friend Value operator%(const Value& lhs, const Value& rhs);
+
+            explicit operator bool() const;
+            Value operator!() const;
             
             friend bool operator==(const Value& lhs, const Value& rhs);
             friend bool operator!=(const Value& lhs, const Value& rhs);
@@ -396,6 +400,18 @@ namespace TrenchBroom {
             deleteCopyAndAssignment(UnaryMinusOperator)
         };
         
+        class NegationOperator : public UnaryOperator {
+        private:
+            NegationOperator(Expression* operand);
+        public:
+            static Expression* create(Expression* operand);
+        private:
+            Expression* doClone() const;
+            Value doEvaluate(InternalEvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(NegationOperator)
+        };
+        
         class GroupingOperator : public UnaryOperator {
         private:
             GroupingOperator(Expression* operand);
@@ -441,8 +457,8 @@ namespace TrenchBroom {
         protected:
             struct Traits;
         private:
-            const Traits& traits() const;
-            virtual const Traits& doGetTraits() const = 0;
+            Traits traits() const;
+            virtual Traits doGetTraits() const = 0;
         public:
             size_t precedence() const;
             bool associative() const;
@@ -460,7 +476,7 @@ namespace TrenchBroom {
         private:
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(AdditionOperator)
         };
@@ -473,7 +489,7 @@ namespace TrenchBroom {
         private:
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(SubtractionOperator)
         };
@@ -486,7 +502,7 @@ namespace TrenchBroom {
         private:
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(MultiplicationOperator)
         };
@@ -499,7 +515,7 @@ namespace TrenchBroom {
         private:
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(DivisionOperator)
         };
@@ -512,9 +528,66 @@ namespace TrenchBroom {
         private:
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ModulusOperator)
+        };
+        
+        class ConjunctionOperator : public BinaryOperator {
+        private:
+            ConjunctionOperator(Expression* leftOperand, Expression* rightOperand);
+        public:
+            static Expression* create(Expression* leftOperand, Expression* rightOperand);
+        private:
+            bool doIsRange() const;
+            Expression* doClone() const;
+            Value doEvaluate(InternalEvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(ConjunctionOperator)
+        };
+        
+        class DisjunctionOperator : public BinaryOperator {
+        private:
+            DisjunctionOperator(Expression* leftOperand, Expression* rightOperand);
+        public:
+            static Expression* create(Expression* leftOperand, Expression* rightOperand);
+        private:
+            bool doIsRange() const;
+            Expression* doClone() const;
+            Value doEvaluate(InternalEvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(DisjunctionOperator)
+        };
+        
+        class ComparisonOperator : public BinaryOperator {
+        private:
+            typedef enum {
+                Op_Less,
+                Op_LessOrEqual,
+                Op_Equal,
+                Op_Inequal,
+                Op_GreaterOrEqual,
+                Op_Greater
+            } Op;
+            Op m_op;
+        private:
+            ComparisonOperator(Expression* leftOperand, Expression* rightOperand, Op op);
+        public:
+            static Expression* createLess(Expression* leftOperand, Expression* rightOperand);
+            static Expression* createLessOrEqual(Expression* leftOperand, Expression* rightOperand);
+            static Expression* createEqual(Expression* leftOperand, Expression* rightOperand);
+            static Expression* createInequal(Expression* leftOperand, Expression* rightOperand);
+            static Expression* createGreaterOrEqual(Expression* leftOperand, Expression* rightOperand);
+            static Expression* createGreater(Expression* leftOperand, Expression* rightOperand);
+        private:
+            bool doIsRange() const;
+            Expression* doClone() const;
+            Value doEvaluate(InternalEvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(ComparisonOperator)
         };
         
         class RangeOperator : public BinaryOperator {
@@ -530,7 +603,7 @@ namespace TrenchBroom {
             bool doIsRange() const;
             Expression* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
-            const Traits& doGetTraits() const;
+            Traits doGetTraits() const;
             
             deleteCopyAndAssignment(RangeOperator)
         };

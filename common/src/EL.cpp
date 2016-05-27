@@ -82,11 +82,11 @@ namespace TrenchBroom {
 
         ValueHolder::~ValueHolder() {}
         
-        const BooleanType& ValueHolder::boolValue()   const { throw ValueError(description(), type(), Type_Boolean); }
-        const StringType&  ValueHolder::stringValue() const { throw ValueError(description(), type(), Type_String); }
-        const NumberType&  ValueHolder::numberValue() const { throw ValueError(description(), type(), Type_Number); }
-        const ArrayType&   ValueHolder::arrayValue()  const { throw ValueError(description(), type(), Type_Array); }
-        const MapType&     ValueHolder::mapValue()    const { throw ValueError(description(), type(), Type_Map); }
+        const BooleanType& ValueHolder::booleanValue() const { throw ValueError(description(), type(), Type_Boolean); }
+        const StringType&  ValueHolder::stringValue()  const { throw ValueError(description(), type(), Type_String); }
+        const NumberType&  ValueHolder::numberValue()  const { throw ValueError(description(), type(), Type_Number); }
+        const ArrayType&   ValueHolder::arrayValue()   const { throw ValueError(description(), type(), Type_Array); }
+        const MapType&     ValueHolder::mapValue()     const { throw ValueError(description(), type(), Type_Map); }
         
         String ValueHolder::asString() const {
             StringStream str;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         BooleanValueHolder::BooleanValueHolder(const BooleanType& value) : m_value(value) {}
         ValueType BooleanValueHolder::type() const { return Type_Boolean; }
         String BooleanValueHolder::description() const { return asString(); }
-        const BooleanType& BooleanValueHolder::boolValue() const { return m_value; }
+        const BooleanType& BooleanValueHolder::booleanValue() const { return m_value; }
         size_t BooleanValueHolder::length() const { return 1; }
 
         ValueHolder* BooleanValueHolder::convertTo(const ValueType toType) const {
@@ -249,7 +249,23 @@ namespace TrenchBroom {
         ValueType NullValueHolder::type() const { return Type_Null; }
         String NullValueHolder::description() const { return "null"; }
         size_t NullValueHolder::length() const { return 0; }
-        ValueHolder* NullValueHolder::convertTo(const ValueType toType) const { throw ConversionError(description(), type(), toType); }
+        
+        ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Boolean:
+                    return new BooleanValueHolder(false);
+                case Type_Null:
+                    return new NullValueHolder();
+                case Type_Number:
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                    break;
+            }
+            
+            throw ConversionError(description(), type(), toType);
+        }
+        
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
         void NullValueHolder::appendToStream(std::ostream& str) const { str << "null"; }
 
@@ -284,6 +300,10 @@ namespace TrenchBroom {
             return m_value->stringValue();
         }
         
+        const BooleanType& Value::booleanValue() const {
+            return m_value->booleanValue();
+        }
+
         const NumberType& Value::numberValue() const {
             return m_value->numberValue();
         }
@@ -599,6 +619,14 @@ namespace TrenchBroom {
             throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
         }
 
+        Value::operator bool() const {
+            return convertTo(Type_Boolean).booleanValue();
+        }
+
+        Value Value::operator!() const {
+            return !convertTo(Type_Boolean).booleanValue();
+        }
+
         bool operator==(const Value& lhs, const Value& rhs) {
             return compare(lhs, rhs) == 0;
         }
@@ -884,6 +912,21 @@ namespace TrenchBroom {
             return -m_operand->evaluate(context);
         }
         
+        NegationOperator::NegationOperator(Expression* operand) :
+        UnaryOperator(operand) {}
+
+        Expression* NegationOperator::create(Expression* operand) {
+            return new NegationOperator(operand);
+        }
+
+        Expression* NegationOperator::doClone() const  {
+            return new NegationOperator(m_operand->clone());
+        }
+        
+        Value NegationOperator::doEvaluate(InternalEvaluationContext& context) const {
+            return !m_operand->evaluate(context);
+        }
+
         GroupingOperator::GroupingOperator(Expression* operand) :
         UnaryOperator(operand) {}
 
@@ -985,7 +1028,7 @@ namespace TrenchBroom {
             commutative(i_commutative) {}
         };
         
-        const BinaryOperator::Traits& BinaryOperator::traits() const {
+        BinaryOperator::Traits BinaryOperator::traits() const {
             return doGetTraits();
         }
 
@@ -1018,9 +1061,8 @@ namespace TrenchBroom {
             return leftValue + rightValue;
         }
 
-        const BinaryOperator::Traits& AdditionOperator::doGetTraits() const {
-            static const Traits traits(0, true, true);
-            return traits;
+        BinaryOperator::Traits AdditionOperator::doGetTraits() const {
+            return Traits(4, true, true);
         }
         
         SubtractionOperator::SubtractionOperator(Expression* leftOperand, Expression* rightOperand) :
@@ -1040,9 +1082,8 @@ namespace TrenchBroom {
             return leftValue - rightValue;
         }
         
-        const BinaryOperator::Traits& SubtractionOperator::doGetTraits() const {
-            static const Traits traits(0, false, false);
-            return traits;
+        BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
+            return Traits(4, false, false);
         }
         
         MultiplicationOperator::MultiplicationOperator(Expression* leftOperand, Expression* rightOperand) :
@@ -1062,9 +1103,8 @@ namespace TrenchBroom {
             return leftValue * rightValue;
         }
         
-        const BinaryOperator::Traits& MultiplicationOperator::doGetTraits() const {
-            static const Traits traits(1, true, true);
-            return traits;
+        BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
+            return Traits(5, true, true);
         }
 
         DivisionOperator::DivisionOperator(Expression* leftOperand, Expression* rightOperand) :
@@ -1084,9 +1124,8 @@ namespace TrenchBroom {
             return leftValue / rightValue;
         }
         
-        const BinaryOperator::Traits& DivisionOperator::doGetTraits() const {
-            static const Traits traits(1, false, false);
-            return traits;
+        BinaryOperator::Traits DivisionOperator::doGetTraits() const {
+            return Traits(5, false, false);
         }
 
         ModulusOperator::ModulusOperator(Expression* leftOperand, Expression* rightOperand) :
@@ -1106,14 +1145,125 @@ namespace TrenchBroom {
             return leftValue % rightValue;
         }
         
-        const BinaryOperator::Traits& ModulusOperator::doGetTraits() const {
-            static const Traits traits(1, false, false);
-            return traits;
+        BinaryOperator::Traits ModulusOperator::doGetTraits() const {
+            return Traits(5, false, false);
         }
         
         const String& RangeOperator::AutoRangeParameterName() {
             static const String Name = "__AutoRangeParameter";
             return Name;
+        }
+
+        ConjunctionOperator::ConjunctionOperator(Expression* leftOperand, Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+
+        Expression* ConjunctionOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return new ConjunctionOperator(leftOperand, rightOperand);
+        }
+
+        bool ConjunctionOperator::doIsRange() const {
+            return false;
+        }
+        
+        Expression* ConjunctionOperator::doClone() const {
+            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value ConjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
+            return m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context);
+        }
+        
+        BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
+            return Traits(2, true, true);
+        }
+        
+        DisjunctionOperator::DisjunctionOperator(Expression* leftOperand, Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+        
+        Expression* DisjunctionOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return new DisjunctionOperator(leftOperand, rightOperand);
+        }
+        
+        bool DisjunctionOperator::doIsRange() const {
+            return false;
+        }
+        
+        Expression* DisjunctionOperator::doClone() const {
+            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value DisjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
+            return m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context);
+        }
+        
+        BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
+            return Traits(1, true, true);
+        }
+
+        ComparisonOperator::ComparisonOperator(Expression* leftOperand, Expression* rightOperand, const Op op) :
+        BinaryOperator(leftOperand, rightOperand),
+        m_op(op) {}
+
+        Expression* ComparisonOperator::createLess(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Less);
+        }
+        
+        Expression* ComparisonOperator::createLessOrEqual(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual);
+        }
+        
+        Expression* ComparisonOperator::createEqual(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal);
+        }
+        
+        Expression* ComparisonOperator::createInequal(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal);
+        }
+        
+        Expression* ComparisonOperator::createGreaterOrEqual(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual);
+        }
+        
+        Expression* ComparisonOperator::createGreater(Expression* leftOperand, Expression* rightOperand) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater);
+        }
+
+        bool ComparisonOperator::doIsRange() const {
+            return false;
+        }
+        
+        Expression* ComparisonOperator::doClone() const {
+            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op);
+        }
+        
+        Value ComparisonOperator::doEvaluate(InternalEvaluationContext& context) const {
+            switch (m_op) {
+                case Op_Less:
+                    return m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context);
+                case Op_LessOrEqual:
+                    return m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context);
+                case Op_Equal:
+                    return m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context);
+                case Op_Inequal:
+                    return m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context);
+                case Op_GreaterOrEqual:
+                    return m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context);
+                case Op_Greater:
+                    return m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context);
+            }
+        }
+        
+        BinaryOperator::Traits ComparisonOperator::doGetTraits() const {
+            switch (m_op) {
+                case Op_Less:
+                case Op_LessOrEqual:
+                case Op_Greater:
+                case Op_GreaterOrEqual:
+                    return Traits(3, false, false);
+                case Op_Equal:
+                case Op_Inequal:
+                    return Traits(3, true, false);
+            }
         }
 
         RangeOperator::RangeOperator(Expression* leftOperand, Expression* rightOperand) :
@@ -1165,9 +1315,8 @@ namespace TrenchBroom {
             return Value(array);
         }
         
-        const BinaryOperator::Traits& RangeOperator::doGetTraits() const {
-            static const Traits traits(0, false, false);
-            return traits;
+        BinaryOperator::Traits RangeOperator::doGetTraits() const {
+            return Traits(0, false, false);
         }
     }
 }

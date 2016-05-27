@@ -54,11 +54,20 @@ namespace TrenchBroom {
             static const Type Colon = 1 << 16;
             static const Type Comma = 1 << 17;
             static const Type Range = 1 << 18;
-            static const Type Eof = 1 << 19;
+            static const Type Not = 1 << 19;
+            static const Type And = 1 << 20;
+            static const Type Or = 1 << 21;
+            static const Type Less = 1 << 22;
+            static const Type LessOrEqual = 1 << 23;
+            static const Type Equal = 1 << 24;
+            static const Type Inequal = 1 << 25;
+            static const Type GreaterOrEqual = 1 << 26;
+            static const Type Greater = 1 << 27;
+            static const Type Eof = 1 << 28;
             static const Type Literal = String | Number | Boolean;
-            static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | Plus | Minus;
-            static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus;
-            static const Type UnaryOperator = Plus | Minus;
+            static const Type UnaryOperator = Plus | Minus | Not;
+            static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | UnaryOperator;
+            static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus | And | Or | Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater;
         }
         
         class ELTokenizer : public Tokenizer<ELToken::Type> {

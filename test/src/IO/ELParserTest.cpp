@@ -114,6 +114,13 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(-1.0, "-1.0");
         }
         
+        TEST(ELParserTest, parseNegation) {
+            ASSERT_EL_EQ(false, "!true");
+            ASSERT_EL_EQ(true, "!false");
+            ASSERT_EL_EQ(true, "!0");
+            ASSERT_EL_EQ(false, "!1");
+        }
+        
         TEST(ELParserTest, parseAddition) {
             ASSERT_EL_EQ(5.0, "2 + 3");
             ASSERT_EL_EQ("asdf", "\"as\"+\"df\"");
@@ -143,6 +150,20 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(0.0, "12 % 2.0");
             ASSERT_EL_EQ(2.0, "12 % 5 % 3");
             ASSERT_EL_EQ(2.0, "12 % 5 % 3 % 3");
+        }
+        
+        TEST(ELParserTest, parseConjunction) {
+            ASSERT_EL_EQ(true, "true && true");
+            ASSERT_EL_EQ(false, "false && true");
+            ASSERT_EL_EQ(false, "true && false");
+            ASSERT_EL_EQ(false, "false && false");
+        }
+        
+        TEST(ELParserTest, parseDisjunction) {
+            ASSERT_EL_EQ(true, "true || true");
+            ASSERT_EL_EQ(true, "false || true");
+            ASSERT_EL_EQ(true, "true || false");
+            ASSERT_EL_EQ(false, "false || false");
         }
         
         TEST(ELParserTest, parseSubscript) {
@@ -179,6 +200,25 @@ namespace TrenchBroom {
             ASSERT_EL_EQ("est", "\"test\"[1..]");
         }
         
+        TEST(ELParserTest, testComparisonOperators) {
+            ASSERT_EL_EQ(true, "1 < 2");
+            ASSERT_EL_EQ(false, "2 < 2");
+            ASSERT_EL_EQ(true, "1 <= 2");
+            ASSERT_EL_EQ(true, "2 <= 2");
+            ASSERT_EL_EQ(false, "3 <= 2");
+
+            ASSERT_EL_EQ(true, "\"test\" == \"test\"");
+            ASSERT_EL_EQ(false, "\"test1\" == \"test\"");
+            ASSERT_EL_EQ(false, "\"test\" != \"test\"");
+            ASSERT_EL_EQ(true, "\"test1\" != \"test\"");
+
+            ASSERT_EL_EQ(true, "2 > 1");
+            ASSERT_EL_EQ(false, "2 > 2");
+            ASSERT_EL_EQ(true, "2 >= 1");
+            ASSERT_EL_EQ(true, "2 >= 2");
+            ASSERT_EL_EQ(false, "2 >= 3");
+        }
+        
         TEST(ELParserTest, testOperatorPrecedence) {
             ASSERT_ELS_EQ("7 + 2 * 3", "2 * 3 + 7");
             ASSERT_ELS_EQ("7 + 2 * 3 + 2", "2 * 3 + 7 + 2");
@@ -191,6 +231,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(1.0, "(1)");
             ASSERT_EL_EQ(9.0, "(2+1)*3");
             ASSERT_EL_EQ(9.0, "(2+1)*(2+1)");
+            ASSERT_EL_EQ(12.0, "(2+1)*((1+1)*2)");
         }
     }
 }
