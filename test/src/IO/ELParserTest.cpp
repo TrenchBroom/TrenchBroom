@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "EL.h"
+#include "CollectionUtils.h"
 #include "IO/ELParser.h"
 
 #include <limits>
@@ -79,6 +80,12 @@ namespace TrenchBroom {
             
             ASSERT_EL_EQ(EL::ArrayType(), "[]");
             ASSERT_EL_EQ(array, "[ 1.0 , \"test\",[ true] ]");
+            
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value(3.0)), "[1..3]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(3.0), EL::Value(2.0), EL::Value(1.0)), "[3..1]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0)), "[1..1]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(0.0)), "[1..0]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0)), "[-2..1]");
         }
         
         TEST(ELParserTest, parseMapLiteral) {
@@ -157,6 +164,14 @@ namespace TrenchBroom {
             ASSERT_EL_EQ("test", "[ 1.0, [ 2.0, \"test\"] ][1][1]");
 
             ASSERT_EL_EQ(2.0, "{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]");
+
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0,1,2]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0..2]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value("test"), EL::Value(2.0), EL::Value(1.0)), "[ 1.0, 2.0, \"test\" ][2..0]");
+            
+            ASSERT_EL_EQ("tset", "\"test\"[3,2,1,0]");
+            ASSERT_EL_EQ("set", "\"test\"[2,1,0]");
+            ASSERT_EL_EQ("se", "\"test\"[2..1]");
         }
         
         TEST(ELParserTest, testOperatorPrecedence) {

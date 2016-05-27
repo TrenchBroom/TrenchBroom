@@ -73,11 +73,30 @@ namespace TrenchBroom {
             VariableTable::const_iterator it = m_variables.find(name);
             if (it == m_variables.end())
                 throw EvaluationError("Unknown variable '" + name + "'");
-            return it->second;
+            assert(!it->second.empty());
+            return it->second.back();
         }
 
         void EvaluationContext::defineVariable(const String& name, const Value& value) {
-            m_variables.insert(std::make_pair(name, value));
+            m_variables.insert(std::make_pair(name, ValueStack(1, value)));
+        }
+
+        void EvaluationContext::pushVariable(const String& name, const Value& value) {
+            VariableTable::iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                defineVariable(name, value);
+            else
+                it->second.push_back(value);
+        }
+        
+        void EvaluationContext::popVariable(const String& name) {
+            VariableTable::iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                throw EvaluationError("Unknown variable '" + name + "'");
+            assert(!it->second.empty());
+            it->second.pop_back();
+            if (it->second.empty())
+                m_variables.erase(it);
         }
 
         ValueHolder::~ValueHolder() {}
@@ -668,6 +687,10 @@ namespace TrenchBroom {
         Expression::Expression() {}
         Expression::~Expression() {}
         
+        bool Expression::range() const {
+            return doIsRange();
+        }
+
         Expression* Expression::reorderByPrecedence() {
             return doReorderByPrecedence();
         }
@@ -682,6 +705,10 @@ namespace TrenchBroom {
 
         Value Expression::evaluate(const EvaluationContext& context) const {
             return doEvaluate(context);
+        }
+
+        bool Expression::doIsRange() const {
+            return false;
         }
 
         Expression* Expression::doReorderByPrecedence() {
@@ -749,7 +776,10 @@ namespace TrenchBroom {
             Expression::List::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
                 const Expression* element = *it;
-                array.push_back(element->evaluate(context));
+                if (element->range())
+                    VectorUtils::append(array, element->evaluate(context).arrayValue());
+                else
+                    array.push_back(element->evaluate(context));
             }
             
             return Value(array);
@@ -1051,6 +1081,52 @@ namespace TrenchBroom {
         
         const BinaryOperator::Traits& ModulusOperator::doGetTraits() const {
             static const Traits traits(1, false, false);
+            return traits;
+        }
+        
+        RangeOperator::RangeOperator(Expression* leftOperand, Expression* rightOperand) :
+        BinaryOperator(leftOperand, rightOperand) {}
+        
+        Expression* RangeOperator::create(Expression* leftOperand, Expression* rightOperand) {
+            return (new RangeOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        }
+        
+        bool RangeOperator::doIsRange() const {
+            return true;
+        }
+
+        Expression* RangeOperator::doClone() const {
+            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone());
+        }
+        
+        Value RangeOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value leftValue = m_leftOperand->evaluate(context);
+            const Value rightValue = m_rightOperand->evaluate(context);
+
+            const long from = static_cast<long>(leftValue.convertTo(Type_Number).numberValue());
+            const long to = static_cast<long>(rightValue.convertTo(Type_Number).numberValue());
+            
+            ArrayType array;
+            if (from <= to) {
+                array.reserve(static_cast<size_t>(to - from + 1));
+                for (long i = from; i <= to; ++i) {
+                    assert(array.capacity() > array.size());
+                    array.push_back(Value(static_cast<double>(i)));
+                }
+            } else if (to < from) {
+                array.reserve(static_cast<size_t>(from - to + 1));
+                for (long i = from; i >= to; --i) {
+                    assert(array.capacity() > array.size());
+                    array.push_back(Value(static_cast<double>(i)));
+                }
+            }
+            assert(array.capacity() == array.size());
+
+            return Value(array);
+        }
+        
+        const BinaryOperator::Traits& RangeOperator::doGetTraits() const {
+            static const Traits traits(0, false, false);
             return traits;
         }
     }

@@ -247,24 +247,26 @@ namespace TrenchBroom {
                     return NULL;
                 
                 const State previous = m_state;
-                advance();
-                while (!eof() && isDigit(curChar()))
-                    advance();
-                if (curChar() == '.') {
+                if (curChar() != '.') {
                     advance();
                     while (!eof() && isDigit(curChar()))
                         advance();
                 }
-                if (curChar() == 'e') {
+                if (curChar() == '.') {
                     advance();
-                    if (curChar() == '+' || curChar() == '-' || isDigit(curChar())) {
+                    while (!eof() && isDigit(curChar()))
                         advance();
-                        while (!eof() && isDigit(curChar()))
+                    if (curChar() == 'e') {
+                        advance();
+                        if (curChar() == '+' || curChar() == '-' || isDigit(curChar())) {
                             advance();
+                            while (!eof() && isDigit(curChar()))
+                                advance();
+                        }
                     }
+                    if (eof() || isAnyOf(curChar(), delims))
+                        return curPos();
                 }
-                if (eof() || isAnyOf(curChar(), delims))
-                    return curPos();
                 
                 m_state = previous;
                 return NULL;

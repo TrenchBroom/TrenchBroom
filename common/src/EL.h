@@ -87,12 +87,15 @@ namespace TrenchBroom {
         
         class EvaluationContext {
         private:
-            typedef std::map<String, Value> VariableTable;
+            typedef std::list<Value> ValueStack;
+            typedef std::map<String, ValueStack> VariableTable;
             VariableTable m_variables;
         public:
             Value variableValue(const String& name) const;
             
             void defineVariable(const String& name, const Value& value);
+            void pushVariable(const String& name, const Value& value);
+            void popVariable(const String& name);
         };
         
         class ValueHolder {
@@ -261,12 +264,15 @@ namespace TrenchBroom {
             Expression();
             virtual ~Expression();
 
+            bool range() const;
+            
             Expression* reorderByPrecedence();
             Expression* reorderByPrecedence(BinaryOperator* parent);
             
             Expression* clone() const;
             Value evaluate(const EvaluationContext& context) const;
         private:
+            virtual bool doIsRange() const;
             virtual Expression* doReorderByPrecedence();
             virtual Expression* doReorderByPrecedence(BinaryOperator* parent);
             virtual Expression* doClone() const = 0;
@@ -487,6 +493,20 @@ namespace TrenchBroom {
             const Traits& doGetTraits() const;
             
             deleteCopyAndAssignment(ModulusOperator)
+        };
+        
+        class RangeOperator : public BinaryOperator {
+        private:
+            RangeOperator(Expression* leftOperand, Expression* rightOperand);
+        public:
+            static Expression* create(Expression* leftOperand, Expression* rightOperand);
+        private:
+            bool doIsRange() const;
+            Expression* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            const Traits& doGetTraits() const;
+            
+            deleteCopyAndAssignment(RangeOperator)
         };
     }
 }

@@ -29,6 +29,11 @@ namespace TrenchBroom {
             return Delim;
         }
 
+        const String& ELTokenizer::IntegerDelim() const {
+            static const String Delim = NumberDelim() + ".";
+            return Delim;
+        }
+        
         ELTokenizer::ELTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end) {}
         
@@ -82,6 +87,18 @@ namespace TrenchBroom {
                     case ',':
                         advance();
                         return Token(ELToken::Comma, c, c+1, offset(c), startLine, startColumn);
+                    case '.': {
+                        advance();
+                        if (curChar() == '.') {
+                            advance();
+                            return Token(ELToken::Range, c, c+2, offset(c), startLine, startColumn);
+                        }
+                        retreat();
+                        const char* e = readDecimal(NumberDelim());
+                        if (e == NULL)
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
+                    }
                     case '"': {
                         advance();
                         c = curPos();
@@ -96,12 +113,15 @@ namespace TrenchBroom {
                         break;
                     default: {
                         const char* e;
-                        if ((e = readInteger(NumberDelim())) != NULL)
+                        if ((e = readDecimal(NumberDelim())) != NULL) {
+                            if (!eof() && curChar() == '.' && lookAhead() != '.')
+                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
+                        }
+
+                        if ((e = readInteger(IntegerDelim())) != NULL)
                             return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
                         
-                        if ((e = readDecimal(NumberDelim())) != NULL)
-                            return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
-
                         if ((e = discard("true")) != NULL)
                             return Token(ELToken::Boolean, c, e, offset(c), startLine, startColumn);
                         if ((e = discard("false")) != NULL)
@@ -175,15 +195,22 @@ namespace TrenchBroom {
             else
                 term = parseLiteral();
             
-            while (m_tokenizer.peekToken().hasType(ELToken::OBracket)) {
-                m_tokenizer.nextToken();
-                term = EL::SubscriptOperator::create(term, parseExpression());
-                expect(ELToken::CBracket, m_tokenizer.nextToken());
-            }
+            while (m_tokenizer.peekToken().hasType(ELToken::OBracket))
+                term = parseSubscript(term);
             
             return term;
         }
         
+        EL::Expression* ELParser::parseSubscript(EL::Expression* lhs) {
+            expect(ELToken::OBracket, m_tokenizer.nextToken());
+            const EL::Expression::List elements = parseArraySpec();
+            expect(ELToken::CBracket, m_tokenizer.nextToken());
+            
+            if (elements.size() == 1)
+                return EL::SubscriptOperator::create(lhs, elements.front());
+            return EL::SubscriptOperator::create(lhs, EL::ArrayLiteralExpression::create(elements));
+        }
+
         EL::Expression* ELParser::parseVariable() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::Variable, token);
@@ -208,22 +235,39 @@ namespace TrenchBroom {
         }
 
         EL::Expression* ELParser::parseArray() {
-            EL::Expression::List elements;
             
             expect(ELToken::OBracket, m_tokenizer.nextToken());
+            const EL::Expression::List elements = parseArraySpec();
+            expect(ELToken::CBracket, m_tokenizer.nextToken());
+            
+            return EL::ArrayLiteralExpression::create(elements);
+        }
+        
+        EL::ExpressionList ELParser::parseArraySpec() {
+            EL::Expression::List elements;
             while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
-                elements.push_back(parseExpression());
+                elements.push_back(parseExpressionOrRange());
                 Token token = m_tokenizer.nextToken();
                 expect(ELToken::Comma | ELToken::CBracket, token);
                 if (token.hasType(ELToken::CBracket))
                     m_tokenizer.pushToken(token);
                 
             }
-            expect(ELToken::CBracket, m_tokenizer.nextToken());
-            
-            return EL::ArrayLiteralExpression::create(elements);
+            return elements;
         }
-        
+
+        EL::Expression* ELParser::parseExpressionOrRange() {
+            EL::Expression* expression = parseExpression();
+            Token token = m_tokenizer.nextToken();
+            if (token.hasType(ELToken::Range)) {
+                expression = EL::RangeOperator::create(expression, parseExpression());
+            } else {
+                m_tokenizer.pushToken(token);
+            }
+            
+            return expression;
+        }
+
         EL::Expression* ELParser::parseMap() {
             EL::Expression::Map elements;
             

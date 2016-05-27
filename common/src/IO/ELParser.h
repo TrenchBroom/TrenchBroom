@@ -24,9 +24,12 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
+#include <list>
+
 namespace TrenchBroom {
     namespace EL {
         class Expression;
+        typedef std::list<Expression*> ExpressionList;
         class BinaryOperator;
     }
     
@@ -50,7 +53,8 @@ namespace TrenchBroom {
             static const Type Modulus = 1 << 15;
             static const Type Colon = 1 << 16;
             static const Type Comma = 1 << 17;
-            static const Type Eof = 1 << 18;
+            static const Type Range = 1 << 18;
+            static const Type Eof = 1 << 19;
             static const Type Literal = String | Number | Boolean;
             static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | Plus | Minus;
             static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus;
@@ -60,6 +64,7 @@ namespace TrenchBroom {
         class ELTokenizer : public Tokenizer<ELToken::Type> {
         private:
             const String& NumberDelim() const;
+            const String& IntegerDelim() const;
         public:
             ELTokenizer(const char* begin, const char* end);
             ELTokenizer(const String& str);
@@ -81,9 +86,12 @@ namespace TrenchBroom {
             EL::Expression* parseGroupedTerm();
             EL::Expression* parseTerm();
             EL::Expression* parseSimpleTerm();
+            EL::Expression* parseSubscript(EL::Expression* lhs);
             EL::Expression* parseVariable();
             EL::Expression* parseLiteral();
             EL::Expression* parseArray();
+            EL::ExpressionList parseArraySpec();
+            EL::Expression* parseExpressionOrRange();
             EL::Expression* parseMap();
             EL::Expression* parseUnaryOperator();
             EL::Expression* parseCompoundTerm(EL::Expression* lhs);
