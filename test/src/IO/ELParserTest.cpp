@@ -224,6 +224,11 @@ namespace TrenchBroom {
             ASSERT_ELS_EQ("7 + 2 * 3 + 2", "2 * 3 + 7 + 2");
             ASSERT_ELS_EQ("7 + 2 * 3 + 2 * 2", "2 * 3 + 7 + 2 * 2");
             ASSERT_ELS_EQ("7 + 2 / 3 + 2 * 2", "2 / 3 + 7 + 2 * 2");
+            
+            ASSERT_ELS_EQ("3 + 2 < 3 + 3", "(3 + 2) < (3 + 3)");
+            ASSERT_ELS_EQ("3 + 2 < 3 + 3 + 0 && true", "((3 + 2) < (3 + 3 + 0)) && true");
+            ASSERT_EL_EQ(true, "false && false || true");
+            ASSERT_EL_EQ(false, "false && (false || true)");
         }
         
         TEST(ELParserTest, testParseGrouping) {
