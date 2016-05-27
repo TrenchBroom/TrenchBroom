@@ -37,9 +37,16 @@ namespace TrenchBroom {
         
         TEST(ELTest, subscriptOperator) {
             ASSERT_THROW(Value(true)[Value(0)], EvaluationError);
-            ASSERT_THROW(Value("test")[Value(0)], EvaluationError);
             ASSERT_THROW(Value(1.0)[Value(0)], EvaluationError);
             ASSERT_THROW(Value()[Value(0)], EvaluationError);
+            
+            ASSERT_EQ(Value("t"), Value("test")[Value(0)]);
+            ASSERT_EQ(Value("e"), Value("test")[Value(1)]);
+            ASSERT_EQ(Value("s"), Value("test")[Value(2)]);
+            ASSERT_EQ(Value("t"), Value("test")[Value(3)]);
+            ASSERT_EQ(Value("s"), Value("test")[Value(-2)]);
+            ASSERT_THROW(Value("test")[Value(4)], EvaluationError);
+            ASSERT_THROW(Value("test")[Value(5)], EvaluationError);
             
             ArrayType array;
             array.push_back(Value(1.0));

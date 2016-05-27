@@ -275,19 +275,27 @@ namespace TrenchBroom {
             return stream;
         }
 
-        const Value& Value::operator[](const Value& indexValue) const {
+        Value Value::operator[](const Value& indexValue) const {
             switch (type()) {
+                case Type_String:
+                    if (indexValue.type() == Type_Number ||
+                        indexValue.type() == Type_Boolean) {
+                        const StringType& str = stringValue();
+                        const size_t index = computeIndex(indexValue, str.length());
+                        if (index < str.size()) {
+                            StringStream resultStr;
+                            resultStr << str[index];
+                            return resultStr.str();
+                        }
+                    }
+                    break;
                 case Type_Array:
                     if (indexValue.type() == Type_Number ||
                         indexValue.type() == Type_Boolean) {
                         const ArrayType& array = arrayValue();
-                        const long value = static_cast<long>(indexValue.convertTo(Type_Number).numberValue());
-                        const long size  = static_cast<long>(array.size());
-                        if ((value >= 0 && value <   size) ||
-                            (value <  0 && value >= -size )) {
-                            const long index = (size + value % size) % size;
-                            return array[static_cast<size_t>(index)];
-                        }
+                        const size_t index = computeIndex(indexValue, array.size());
+                        if (index < array.size())
+                            return array[index];
                     }
                     break;
                 case Type_Map:
@@ -301,7 +309,6 @@ namespace TrenchBroom {
                     }
                     break;
                 case Type_Boolean:
-                case Type_String:
                 case Type_Number:
                 case Type_Null:
                     break;
@@ -310,6 +317,15 @@ namespace TrenchBroom {
             throw EvaluationError("Cannot index value '" + description() + "' of type '" + typeName(type()) + " with index '" + indexValue.description() + "' of type '" + typeName(indexValue.type()) + "'");
         }
         
+        size_t Value::computeIndex(const Value& indexValue, const size_t indexableSize) const {
+            const long value = static_cast<long>(indexValue.convertTo(Type_Number).numberValue());
+            const long size  = static_cast<long>(indexableSize);
+            if ((value >= 0 && value <   size) ||
+                (value <  0 && value >= -size ))
+                return static_cast<size_t>((size + value % size) % size);
+            return static_cast<size_t>(size);
+        }
+
         Value Value::operator+() const {
             switch (type()) {
                 case Type_Boolean:

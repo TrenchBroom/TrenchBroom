@@ -1,27 +1,32 @@
 Expression     = GroupedTerm | Term
 GroupedTerm    = "(" Term ")"
-Term           = Variable | Literal | Subscript | Plus | Minus | Addition | Subtraction | Multiplication | Division | Modulus
-LeftHandTerm   = Variable | Literal | Subscript | Plus | Minus | GroupedTerm
+Term           = SimpleTerm | CompoundTerm
+SimpleTerm     = Variable | Literal | Subscript | Plus | Minus | GroupedTerm
+CompoundTerm   = Addition | Subtraction | Multiplication | Division | Modulus
 
 Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
 Literal        = String | Number | Boolean | Array | Map
 
-Subscript      = LeftHandTerm "[" Expression "]"
-Addition       = LeftHandTerm "+" Expression
-Subtraction    = LeftHandTerm "-" Expression
-Multiplication = LeftHandTerm "*" Expression
-Division       = LeftHandTerm "/" Expression
-Modulus        = LeftHandTerm "%" Expression
+Subscript      = SimpleTerm "[" ArraySpec | AutoRange "]"
+Addition       = SimpleTerm "+" Expression
+Subtraction    = SimpleTerm "-" Expression
+Multiplication = SimpleTerm "*" Expression
+Division       = SimpleTerm "/" Expression
+Modulus        = SimpleTerm "%" Expression
 
-Plus           = "+" LeftHandTerm
-Minus          = "-" LeftHandTerm
+Plus           = "+" SimpleTerm
+Minus          = "-" SimpleTerm
 
 Boolean        = "true" | "false"
 String         = """ { Char } """
 Integer        = Numeric { Numeric }
 Number         = Integer "." Numeric { Numeric }
-Array          = "[" { Expression } "]"
-Map            = "{" { String ":" Expression } "}"
+Array          = "[" ArraySpec "]"
+ArraySpec      = [ Expression { "," Expression } ] | Range
+Map            = "{" [ KeyValuePair { "," KeyValuePair } ]  "}"
+Range 		   = Expression ".." Expression
+AutoRange      = Expression ".." | ".." Expression
+KeyValuePair   = String ":" Expression
 
 Alpha          = "a-zA-Z"
 Numeric        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"

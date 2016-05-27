@@ -216,8 +216,10 @@ namespace TrenchBroom {
             void appendToStream(std::ostream& str) const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
             
-            const Value& operator[](const Value& indexValue) const;
-            
+            Value operator[](const Value& indexValue) const;
+        private:
+            size_t computeIndex(const Value& indexValue, size_t indexableSize) const;
+        public:
             Value operator+() const;
             Value operator-() const;
             
