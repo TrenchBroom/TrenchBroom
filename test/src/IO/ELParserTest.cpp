@@ -168,10 +168,15 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0,1,2]");
             ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0..2]");
             ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value("test"), EL::Value(2.0), EL::Value(1.0)), "[ 1.0, 2.0, \"test\" ][2..0]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][1..]");
+            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value("test"), EL::Value(2.0)), "[ 1.0, 2.0, \"test\" ][..1]");
             
             ASSERT_EL_EQ("tset", "\"test\"[3,2,1,0]");
             ASSERT_EL_EQ("set", "\"test\"[2,1,0]");
             ASSERT_EL_EQ("se", "\"test\"[2..1]");
+
+            ASSERT_EL_EQ("tset", "\"test\"[..0]");
+            ASSERT_EL_EQ("est", "\"test\"[1..]");
         }
         
         TEST(ELParserTest, testOperatorPrecedence) {

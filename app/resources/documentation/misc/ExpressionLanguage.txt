@@ -7,7 +7,7 @@ CompoundTerm   = Addition | Subtraction | Multiplication | Division | Modulus
 Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
 Literal        = String | Number | Boolean | Array | Map
 
-Subscript      = SimpleTerm "[" ArraySpec "]"
+Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
 Addition       = SimpleTerm "+" Expression
 Subtraction    = SimpleTerm "-" Expression
 Multiplication = SimpleTerm "*" Expression
@@ -22,10 +22,11 @@ String         = """ { Char } """
 Integer        = Numeric { Numeric }
 Number         = Integer "." Numeric { Numeric }
 
-Array          = "[" [ ArraySpec ] "]"
-ArraySpec      = ExpOrRange { "," ExpOrRange }
-ExpOrRange     = ( Expression | Range )
+Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+ExpOrRange     = Expression | Range
+ExpOrAnyRange  = ExpOrRange | AutoRange
 Range 		   = Expression ".." Expression
+AutoRange      = ".." Expression | Expression ".."
 
 Map            = "{" [ KeyValuePair { "," KeyValuePair } ]  "}"
 KeyValuePair   = String ":" Expression

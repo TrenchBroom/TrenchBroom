@@ -90,8 +90,8 @@ namespace TrenchBroom {
             EL::Expression* parseVariable();
             EL::Expression* parseLiteral();
             EL::Expression* parseArray();
-            EL::ExpressionList parseArraySpec();
             EL::Expression* parseExpressionOrRange();
+            EL::Expression* parseExpressionOrAnyRange();
             EL::Expression* parseMap();
             EL::Expression* parseUnaryOperator();
             EL::Expression* parseCompoundTerm(EL::Expression* lhs);

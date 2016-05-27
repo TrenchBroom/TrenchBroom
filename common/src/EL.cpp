@@ -69,34 +69,15 @@ namespace TrenchBroom {
             *this << ": Key '" << outOfBoundsIndex << "' not found";
         }
 
-        Value EvaluationContext::variableValue(const String& name) const {
+        const Value& EvaluationContext::variableValue(const String& name) const {
             VariableTable::const_iterator it = m_variables.find(name);
             if (it == m_variables.end())
                 throw EvaluationError("Unknown variable '" + name + "'");
-            assert(!it->second.empty());
-            return it->second.back();
+            return it->second;
         }
 
         void EvaluationContext::defineVariable(const String& name, const Value& value) {
-            m_variables.insert(std::make_pair(name, ValueStack(1, value)));
-        }
-
-        void EvaluationContext::pushVariable(const String& name, const Value& value) {
-            VariableTable::iterator it = m_variables.find(name);
-            if (it == m_variables.end())
-                defineVariable(name, value);
-            else
-                it->second.push_back(value);
-        }
-        
-        void EvaluationContext::popVariable(const String& name) {
-            VariableTable::iterator it = m_variables.find(name);
-            if (it == m_variables.end())
-                throw EvaluationError("Unknown variable '" + name + "'");
-            assert(!it->second.empty());
-            it->second.pop_back();
-            if (it->second.empty())
-                m_variables.erase(it);
+            m_variables.insert(std::make_pair(name, value));
         }
 
         ValueHolder::~ValueHolder() {}
@@ -118,6 +99,7 @@ namespace TrenchBroom {
         ValueType BooleanValueHolder::type() const { return Type_Boolean; }
         String BooleanValueHolder::description() const { return asString(); }
         const BooleanType& BooleanValueHolder::boolValue() const { return m_value; }
+        size_t BooleanValueHolder::length() const { return 1; }
 
         ValueHolder* BooleanValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -141,6 +123,7 @@ namespace TrenchBroom {
         ValueType StringValueHolder::type() const { return Type_String; }
         String StringValueHolder::description() const { return m_value; }
         const StringType& StringValueHolder::stringValue() const { return m_value; }
+        size_t StringValueHolder::length() const { return m_value.length(); }
         
         ValueHolder* StringValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -174,6 +157,7 @@ namespace TrenchBroom {
         ValueType NumberValueHolder::type() const { return Type_Number; }
         String NumberValueHolder::description() const { return asString(); }
         const NumberType& NumberValueHolder::numberValue() const { return m_value; }
+        size_t NumberValueHolder::length() const { return 1; }
         
         ValueHolder* NumberValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -199,6 +183,7 @@ namespace TrenchBroom {
         ValueType ArrayValueHolder::type() const { return Type_Array; }
         String ArrayValueHolder::description() const { return asString(); }
         const ArrayType& ArrayValueHolder::arrayValue() const { return m_value; }
+        size_t ArrayValueHolder::length() const { return m_value.size(); }
         
         ValueHolder* ArrayValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -230,6 +215,7 @@ namespace TrenchBroom {
         ValueType MapValueHolder::type() const { return Type_Map; }
         String MapValueHolder::description() const { return asString(); }
         const MapType& MapValueHolder::mapValue() const { return m_value; }
+        size_t MapValueHolder::length() const { return m_value.size(); }
         
         ValueHolder* MapValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -262,6 +248,7 @@ namespace TrenchBroom {
         
         ValueType NullValueHolder::type() const { return Type_Null; }
         String NullValueHolder::description() const { return "null"; }
+        size_t NullValueHolder::length() const { return 0; }
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const { throw ConversionError(description(), type(), toType); }
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
         void NullValueHolder::appendToStream(std::ostream& str) const { str << "null"; }
@@ -307,6 +294,10 @@ namespace TrenchBroom {
         
         const MapType& Value::mapValue() const {
             return m_value->mapValue();
+        }
+
+        size_t Value::length() const {
+            return m_value->length();
         }
 
         Value Value::convertTo(const ValueType toType) const {
@@ -684,6 +675,35 @@ namespace TrenchBroom {
             throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
+        Expression::InternalEvaluationContext::InternalEvaluationContext(const EvaluationContext& context) :
+        m_context(context) {}
+        
+        const Value& Expression::InternalEvaluationContext::variableValue(const String& name) const {
+            VariableTable::const_iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                return m_context.variableValue(name);
+            assert(!it->second.empty());
+            return it->second.back();
+        }
+        
+        void Expression::InternalEvaluationContext::pushVariable(const String& name, const Value& value) {
+            VariableTable::iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                m_variables.insert(std::make_pair(name, ValueStack(1, value)));
+            else
+                it->second.push_back(value);
+        }
+        
+        void Expression::InternalEvaluationContext::popVariable(const String& name) {
+            VariableTable::iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                throw EvaluationError("Unknown variable '" + name + "'");
+            assert(!it->second.empty());
+            it->second.pop_back();
+            if (it->second.empty())
+                m_variables.erase(it);
+        }
+
         Expression::Expression() {}
         Expression::~Expression() {}
         
@@ -704,6 +724,11 @@ namespace TrenchBroom {
         }
 
         Value Expression::evaluate(const EvaluationContext& context) const {
+            InternalEvaluationContext internalContext(context);
+            return evaluate(internalContext);
+        }
+
+        Value Expression::evaluate(InternalEvaluationContext& context) const {
             return doEvaluate(context);
         }
 
@@ -730,7 +755,7 @@ namespace TrenchBroom {
             return new LiteralExpression(m_value);
         }
 
-        Value LiteralExpression::doEvaluate(const EvaluationContext& context) const {
+        Value LiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
             return m_value;
         }
 
@@ -745,7 +770,7 @@ namespace TrenchBroom {
             return new VariableExpression(m_variableName);
         }
 
-        Value VariableExpression::doEvaluate(const EvaluationContext& context) const {
+        Value VariableExpression::doEvaluate(InternalEvaluationContext& context) const {
             return context.variableValue(m_variableName);
         }
 
@@ -771,7 +796,7 @@ namespace TrenchBroom {
             return new ArrayLiteralExpression(clones);
         }
         
-        Value ArrayLiteralExpression::doEvaluate(const EvaluationContext& context) const {
+        Value ArrayLiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
             ArrayType array;
             Expression::List::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
@@ -808,7 +833,7 @@ namespace TrenchBroom {
             return new MapLiteralExpression(clones);
         }
 
-        Value MapLiteralExpression::doEvaluate(const EvaluationContext& context) const {
+        Value MapLiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
             MapType map;
             Expression::Map::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
@@ -840,7 +865,7 @@ namespace TrenchBroom {
             return new UnaryPlusOperator(m_operand->clone());
         }
 
-        Value UnaryPlusOperator::doEvaluate(const EvaluationContext& context) const {
+        Value UnaryPlusOperator::doEvaluate(InternalEvaluationContext& context) const {
             return +m_operand->evaluate(context);
         }
 
@@ -855,7 +880,7 @@ namespace TrenchBroom {
             return new UnaryMinusOperator(m_operand->clone());
         }
 
-        Value UnaryMinusOperator::doEvaluate(const EvaluationContext& context) const {
+        Value UnaryMinusOperator::doEvaluate(InternalEvaluationContext& context) const {
             return -m_operand->evaluate(context);
         }
         
@@ -870,7 +895,7 @@ namespace TrenchBroom {
             return new GroupingOperator(m_operand->clone());
         }
         
-        Value GroupingOperator::doEvaluate(const EvaluationContext& context) const {
+        Value GroupingOperator::doEvaluate(InternalEvaluationContext& context) const {
             return m_operand->evaluate(context);
         }
 
@@ -894,9 +919,11 @@ namespace TrenchBroom {
             return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone());
         }
         
-        Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
+        Value SubscriptOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value indexableValue = m_indexableOperand->evaluate(context);
+            context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1));
             const Value indexValue = m_indexOperand->evaluate(context);
+            context.popVariable(RangeOperator::AutoRangeParameterName());
             return indexableValue[indexValue];
         }
 
@@ -985,7 +1012,7 @@ namespace TrenchBroom {
             return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value AdditionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value AdditionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue + rightValue;
@@ -1007,7 +1034,7 @@ namespace TrenchBroom {
             return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value SubtractionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value SubtractionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue - rightValue;
@@ -1029,7 +1056,7 @@ namespace TrenchBroom {
             return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value MultiplicationOperator::doEvaluate(const EvaluationContext& context) const {
+        Value MultiplicationOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue * rightValue;
@@ -1051,7 +1078,7 @@ namespace TrenchBroom {
             return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value DivisionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value DivisionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue / rightValue;
@@ -1073,7 +1100,7 @@ namespace TrenchBroom {
             return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value ModulusOperator::doEvaluate(const EvaluationContext& context) const {
+        Value ModulusOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
             return leftValue % rightValue;
@@ -1084,6 +1111,11 @@ namespace TrenchBroom {
             return traits;
         }
         
+        const String& RangeOperator::AutoRangeParameterName() {
+            static const String Name = "__AutoRangeParameter";
+            return Name;
+        }
+
         RangeOperator::RangeOperator(Expression* leftOperand, Expression* rightOperand) :
         BinaryOperator(leftOperand, rightOperand) {}
         
@@ -1091,6 +1123,14 @@ namespace TrenchBroom {
             return (new RangeOperator(leftOperand, rightOperand))->reorderByPrecedence();
         }
         
+        Expression* RangeOperator::createAutoRangeWithLeftOperand(Expression* leftOperand) {
+            return create(leftOperand, VariableExpression::create(AutoRangeParameterName()));
+        }
+        
+        Expression* RangeOperator::createAutoRangeWithRightOperand(Expression* rightOperand) {
+            return create(VariableExpression::create(AutoRangeParameterName()), rightOperand);
+        }
+
         bool RangeOperator::doIsRange() const {
             return true;
         }
@@ -1099,7 +1139,7 @@ namespace TrenchBroom {
             return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
         
-        Value RangeOperator::doEvaluate(const EvaluationContext& context) const {
+        Value RangeOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
 

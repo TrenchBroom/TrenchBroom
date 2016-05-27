@@ -203,7 +203,15 @@ namespace TrenchBroom {
         
         EL::Expression* ELParser::parseSubscript(EL::Expression* lhs) {
             expect(ELToken::OBracket, m_tokenizer.nextToken());
-            const EL::Expression::List elements = parseArraySpec();
+            EL::Expression::List elements;
+            while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
+                elements.push_back(parseExpressionOrAnyRange());
+                Token token = m_tokenizer.nextToken();
+                expect(ELToken::Comma | ELToken::CBracket, token);
+                if (token.hasType(ELToken::CBracket))
+                    m_tokenizer.pushToken(token);
+                
+            }
             expect(ELToken::CBracket, m_tokenizer.nextToken());
             
             if (elements.size() == 1)
@@ -235,15 +243,7 @@ namespace TrenchBroom {
         }
 
         EL::Expression* ELParser::parseArray() {
-            
             expect(ELToken::OBracket, m_tokenizer.nextToken());
-            const EL::Expression::List elements = parseArraySpec();
-            expect(ELToken::CBracket, m_tokenizer.nextToken());
-            
-            return EL::ArrayLiteralExpression::create(elements);
-        }
-        
-        EL::ExpressionList ELParser::parseArraySpec() {
             EL::Expression::List elements;
             while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 elements.push_back(parseExpressionOrRange());
@@ -253,21 +253,40 @@ namespace TrenchBroom {
                     m_tokenizer.pushToken(token);
                 
             }
-            return elements;
+            expect(ELToken::CBracket, m_tokenizer.nextToken());
+            
+            return EL::ArrayLiteralExpression::create(elements);
         }
-
+        
         EL::Expression* ELParser::parseExpressionOrRange() {
             EL::Expression* expression = parseExpression();
-            Token token = m_tokenizer.nextToken();
-            if (token.hasType(ELToken::Range)) {
+            if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
+                m_tokenizer.nextToken();
                 expression = EL::RangeOperator::create(expression, parseExpression());
-            } else {
-                m_tokenizer.pushToken(token);
             }
             
             return expression;
         }
 
+        EL::Expression* ELParser::parseExpressionOrAnyRange() {
+            EL::Expression* expression = NULL;
+            if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
+                m_tokenizer.nextToken();
+                expression = EL::RangeOperator::createAutoRangeWithRightOperand(parseExpression());
+            } else {
+                expression = parseExpression();
+                if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
+                    m_tokenizer.nextToken();
+                    if (m_tokenizer.peekToken().hasType(ELToken::SimpleTerm))
+                        expression = EL::RangeOperator::create(expression, parseExpression());
+                    else
+                        expression = EL::RangeOperator::createAutoRangeWithLeftOperand(expression);
+                }
+            }
+            
+            return expression;
+        }
+        
         EL::Expression* ELParser::parseMap() {
             EL::Expression::Map elements;
             
