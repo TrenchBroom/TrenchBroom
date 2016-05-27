@@ -54,27 +54,35 @@ namespace TrenchBroom {
         
         class ELException : public ExceptionStream<ELException> {
         public:
-            ELException() throw() {}
-            ELException(const String& str) throw() : ExceptionStream(str) {}
-            ~ELException() throw() {}
+            ELException() throw();
+            ELException(const String& str) throw();
+            ~ELException() throw();
         };
         
         class ConversionError : public ELException {
         public:
-            ConversionError(const String& value, const ValueType from, const ValueType to) throw() :
-            ELException("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
+            ConversionError(const String& value, const ValueType from, const ValueType to) throw();
         };
         
         class ValueError : public ELException {
         public:
-            ValueError(const String& value, const ValueType from, const ValueType to) throw() :
-            ELException("Cannot dereference value '" + value + "' of type '" + typeName(from) + "' as type '" + typeName(to) + "'") {}
+            ValueError(const String& value, const ValueType from, const ValueType to) throw();
         };
         
         class EvaluationError : public ELException {
         public:
-            EvaluationError(const String& msg) throw() :
-            ELException(msg) {}
+            EvaluationError(const String& msg) throw();
+        };
+        
+        class IndexError : public EvaluationError {
+        public:
+            IndexError(const Value& indexableValue, const Value& indexValue) throw();
+        };
+        
+        class IndexOutOfBoundsError : public IndexError {
+        public:
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex) throw();
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) throw();
         };
         
         class EvaluationContext {
@@ -187,6 +195,7 @@ namespace TrenchBroom {
         public:
             static const Value Null;
         private:
+            typedef std::vector<size_t> IndexList;
             typedef std::tr1::shared_ptr<ValueHolder> ValuePtr;
             ValuePtr m_value;
         private:
@@ -204,6 +213,7 @@ namespace TrenchBroom {
             Value();
             
             ValueType type() const;
+            String typeName() const;
             String description() const;
             
             const StringType& stringValue() const;
@@ -218,6 +228,7 @@ namespace TrenchBroom {
             
             Value operator[](const Value& indexValue) const;
         private:
+            IndexList computeIndexArray(const Value& indexValue, size_t indexableSize) const;
             size_t computeIndex(const Value& indexValue, size_t indexableSize) const;
         public:
             Value operator+() const;

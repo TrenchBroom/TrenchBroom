@@ -43,6 +43,32 @@ namespace TrenchBroom {
             }
         }
 
+        ELException::ELException() throw() {}
+        ELException::ELException(const String& str) throw() : ExceptionStream(str) {}
+        ELException::~ELException() throw() {}
+        
+        ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) throw() :
+        ELException("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
+
+        ValueError::ValueError(const String& value, const ValueType from, const ValueType to) throw() :
+        ELException("Cannot dereference value '" + value + "' of type '" + typeName(from) + "' as type '" + typeName(to) + "'") {}
+
+        EvaluationError::EvaluationError(const String& msg) throw() :
+        ELException(msg) {}
+
+        IndexError::IndexError(const Value& indexableValue, const Value& indexValue) throw() :
+        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with '" + indexValue.description() + "' of type '" + typeName(indexValue.type()) + "'") {}
+
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) throw() :
+        IndexError(indexableValue, indexValue) {
+            *this << ": Index value " << outOfBoundsIndex << " is out of bounds";
+        }
+
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) throw() :
+        IndexError(indexableValue, indexValue) {
+            *this << ": Key '" << outOfBoundsIndex << "' not found";
+        }
+
         Value EvaluationContext::variableValue(const String& name) const {
             VariableTable::const_iterator it = m_variables.find(name);
             if (it == m_variables.end())
@@ -240,6 +266,10 @@ namespace TrenchBroom {
             return m_value->type();
         }
 
+        String Value::typeName() const {
+            return EL::typeName(type());
+        }
+
         String Value::description() const {
             return m_value->description();
         }
@@ -278,34 +308,95 @@ namespace TrenchBroom {
         Value Value::operator[](const Value& indexValue) const {
             switch (type()) {
                 case Type_String:
-                    if (indexValue.type() == Type_Number ||
-                        indexValue.type() == Type_Boolean) {
-                        const StringType& str = stringValue();
-                        const size_t index = computeIndex(indexValue, str.length());
-                        if (index < str.size()) {
-                            StringStream resultStr;
-                            resultStr << str[index];
-                            return resultStr.str();
+                    switch (indexValue.type()) {
+                        case Type_Boolean:
+                        case Type_Number: {
+                            const StringType& str = stringValue();
+                            const size_t index = computeIndex(indexValue, str.length());
+                            if (index >= str.length())
+                                throw IndexOutOfBoundsError(*this, indexValue, index);
+                            StringStream result;
+                            result << str[index];
+                            return Value(result.str());
                         }
+                        case Type_Array: {
+                            const StringType& str = stringValue();
+                            const IndexList indices = computeIndexArray(indexValue, str.length());
+                            StringStream result;
+                            for (size_t i = 0; i < indices.size(); ++i) {
+                                const size_t index = indices[i];
+                                if (index >= str.length())
+                                    throw IndexOutOfBoundsError(*this, indexValue, index);
+                                result << str[index];
+                            }
+                            return Value(result.str());
+                        }
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
                     }
                     break;
                 case Type_Array:
-                    if (indexValue.type() == Type_Number ||
-                        indexValue.type() == Type_Boolean) {
-                        const ArrayType& array = arrayValue();
-                        const size_t index = computeIndex(indexValue, array.size());
-                        if (index < array.size())
+                    switch (indexValue.type()) {
+                        case Type_Boolean:
+                        case Type_Number: {
+                            const ArrayType& array = arrayValue();
+                            const size_t index = computeIndex(indexValue, array.size());
+                            if (index >= array.size())
+                                throw IndexOutOfBoundsError(*this, indexValue, index);
                             return array[index];
+                        }
+                        case Type_Array: {
+                            const ArrayType& array = arrayValue();
+                            const IndexList indices = computeIndexArray(indexValue, array.size());
+                            ArrayType result;
+                            result.reserve(indices.size());
+                            for (size_t i = 0; i < indices.size(); ++i) {
+                                const size_t index = indices[i];
+                                if (index >= array.size())
+                                    throw IndexOutOfBoundsError(*this, indexValue, index);
+                                result.push_back(array[index]);
+                            }
+                            return Value(result);
+                        }
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
                     }
                     break;
                 case Type_Map:
-                    if (indexValue.type() == Type_String) {
-                        const MapType& map = mapValue();
-                        const String key = indexValue.convertTo(Type_String).stringValue();
-                        const MapType::const_iterator it = map.find(key);
-                        if (it == map.end())
-                            return Null;
-                        return it->second;
+                    switch (indexValue.type()) {
+                        case Type_String: {
+                            const MapType& map = mapValue();
+                            const String& key = indexValue.stringValue();
+                            const MapType::const_iterator it = map.find(key);
+                            if (it == map.end())
+                                throw IndexOutOfBoundsError(*this, indexValue, key);
+                            return it->second;
+                        }
+                        case Type_Array: {
+                            const MapType& map = mapValue();
+                            const ArrayType& keys = indexValue.arrayValue();
+                            MapType result;
+                            for (size_t i = 0; i < keys.size(); ++i) {
+                                const Value& keyValue = keys[i];
+                                if (keyValue.type() != Type_String)
+                                    throw ConversionError(keyValue.description(), keyValue.type(), Type_String);
+                                const String& key = keyValue.stringValue();
+                                const MapType::const_iterator it = map.find(key);
+                                if (it == map.end())
+                                    throw IndexOutOfBoundsError(*this, indexValue, key);
+                                result.insert(std::make_pair(key, it->second));
+                            }
+                            return result;
+                        }
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
                     }
                     break;
                 case Type_Boolean:
@@ -314,9 +405,19 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot index value '" + description() + "' of type '" + typeName(type()) + " with index '" + indexValue.description() + "' of type '" + typeName(indexValue.type()) + "'");
+            throw IndexError(*this, indexValue);
         }
         
+        Value::IndexList Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
+            assert(indexValue.type() == Type_Array);
+            IndexList result;
+            const ArrayType& indexArray = indexValue.arrayValue();
+            result.reserve(indexArray.size());
+            for (size_t i = 0; i < indexArray.size(); ++i)
+                result.push_back(computeIndex(indexArray[i], indexableSize));
+            return result;
+        }
+
         size_t Value::computeIndex(const Value& indexValue, const size_t indexableSize) const {
             const long value = static_cast<long>(indexValue.convertTo(Type_Number).numberValue());
             const long size  = static_cast<long>(indexableSize);
@@ -335,7 +436,7 @@ namespace TrenchBroom {
                 case Type_Array:
                 case Type_Map:
                 case Type_Null:
-                    throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName(type()));
+                    throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
             }
         }
         
@@ -348,7 +449,7 @@ namespace TrenchBroom {
                 case Type_Array:
                 case Type_Map:
                 case Type_Null:
-                    throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName(type()));
+                    throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
             }
         }
 
