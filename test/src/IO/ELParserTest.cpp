@@ -31,18 +31,15 @@ namespace TrenchBroom {
         
         template <typename Exp>
         void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
-            const EL::Expression* expression = ELParser(str).parse();
-            ASSERT_EQ(EL::Value(expected), expression->evaluate(context));
-            delete expression;
+            const EL::Expression expression = ELParser(str).parse();
+            ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
         }
         
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context) {
-            const EL::Expression* expression1 = ELParser(lhs).parse();
-            const EL::Expression* expression2 = ELParser(rhs).parse();
-            ASSERT_EQ(expression1->evaluate(context), expression2->evaluate(context));
-            delete expression1;
-            delete expression2;
+            const EL::Expression expression1 = ELParser(lhs).parse();
+            const EL::Expression expression2 = ELParser(rhs).parse();
+            ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
         }
 
         TEST(ELParserTest, parseEmptyExpression) {

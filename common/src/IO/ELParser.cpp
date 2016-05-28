@@ -195,11 +195,11 @@ namespace TrenchBroom {
         ELParser::ELParser(const String& str) :
         m_tokenizer(str) {}
         
-        EL::Expression* ELParser::parse() {
-            return parseExpression();
+        EL::Expression ELParser::parse() {
+            return EL::Expression(parseExpression());
         }
 
-        EL::Expression* ELParser::parseExpression() {
+        EL::ExpressionBase* ELParser::parseExpression() {
             if (m_tokenizer.peekToken().hasType(ELToken::OParen)) {
                 return parseGroupedTerm();
             } else {
@@ -207,31 +207,31 @@ namespace TrenchBroom {
             }
         }
 
-        EL::Expression* ELParser::parseGroupedTerm() {
+        EL::ExpressionBase* ELParser::parseGroupedTerm() {
             expect(ELToken::OParen, m_tokenizer.nextToken());
-            EL::Expression* expression = parseTerm();
+            EL::ExpressionBase* expression = parseTerm();
             expect(ELToken::CParen, m_tokenizer.nextToken());
             
-            EL::Expression* lhs = EL::GroupingOperator::create(expression);
+            EL::ExpressionBase* lhs = EL::GroupingOperator::create(expression);
             if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
                 return parseCompoundTerm(lhs);
             return lhs;
         }
 
-        EL::Expression* ELParser::parseTerm() {
+        EL::ExpressionBase* ELParser::parseTerm() {
             expect(ELToken::SimpleTerm, m_tokenizer.peekToken());
             
-            EL::Expression* lhs = parseSimpleTerm();
+            EL::ExpressionBase* lhs = parseSimpleTerm();
             if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
                 return parseCompoundTerm(lhs);
             return lhs;
         }
 
-        EL::Expression* ELParser::parseSimpleTerm() {
+        EL::ExpressionBase* ELParser::parseSimpleTerm() {
             Token token = m_tokenizer.peekToken();
             expect(ELToken::SimpleTerm, token);
             
-            EL::Expression* term = NULL;
+            EL::ExpressionBase* term = NULL;
             if (token.hasType(ELToken::UnaryOperator))
                 term = parseUnaryOperator();
             else if (token.hasType(ELToken::OParen))
@@ -247,9 +247,9 @@ namespace TrenchBroom {
             return term;
         }
         
-        EL::Expression* ELParser::parseSubscript(EL::Expression* lhs) {
+        EL::ExpressionBase* ELParser::parseSubscript(EL::ExpressionBase* lhs) {
             expect(ELToken::OBracket, m_tokenizer.nextToken());
-            EL::Expression::List elements;
+            EL::ExpressionBase::List elements;
             while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 elements.push_back(parseExpressionOrAnyRange());
                 Token token = m_tokenizer.nextToken();
@@ -265,13 +265,13 @@ namespace TrenchBroom {
             return EL::SubscriptOperator::create(lhs, EL::ArrayLiteralExpression::create(elements));
         }
 
-        EL::Expression* ELParser::parseVariable() {
+        EL::ExpressionBase* ELParser::parseVariable() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::Variable, token);
             return EL::VariableExpression::create(token.data());
         }
 
-        EL::Expression* ELParser::parseLiteral() {
+        EL::ExpressionBase* ELParser::parseLiteral() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::String | ELToken::Number | ELToken::Boolean | ELToken::OBracket | ELToken::OBrace, token);
             
@@ -288,9 +288,9 @@ namespace TrenchBroom {
             return parseMap();
         }
 
-        EL::Expression* ELParser::parseArray() {
+        EL::ExpressionBase* ELParser::parseArray() {
             expect(ELToken::OBracket, m_tokenizer.nextToken());
-            EL::Expression::List elements;
+            EL::ExpressionBase::List elements;
             while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 elements.push_back(parseExpressionOrRange());
                 Token token = m_tokenizer.nextToken();
@@ -304,8 +304,8 @@ namespace TrenchBroom {
             return EL::ArrayLiteralExpression::create(elements);
         }
         
-        EL::Expression* ELParser::parseExpressionOrRange() {
-            EL::Expression* expression = parseExpression();
+        EL::ExpressionBase* ELParser::parseExpressionOrRange() {
+            EL::ExpressionBase* expression = parseExpression();
             if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
                 m_tokenizer.nextToken();
                 expression = EL::RangeOperator::create(expression, parseExpression());
@@ -314,8 +314,8 @@ namespace TrenchBroom {
             return expression;
         }
 
-        EL::Expression* ELParser::parseExpressionOrAnyRange() {
-            EL::Expression* expression = NULL;
+        EL::ExpressionBase* ELParser::parseExpressionOrAnyRange() {
+            EL::ExpressionBase* expression = NULL;
             if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
                 m_tokenizer.nextToken();
                 expression = EL::RangeOperator::createAutoRangeWithRightOperand(parseExpression());
@@ -333,8 +333,8 @@ namespace TrenchBroom {
             return expression;
         }
         
-        EL::Expression* ELParser::parseMap() {
-            EL::Expression::Map elements;
+        EL::ExpressionBase* ELParser::parseMap() {
+            EL::ExpressionBase::Map elements;
             
             expect(ELToken::OBrace, m_tokenizer.nextToken());
             while (!m_tokenizer.peekToken().hasType(ELToken::CBrace)) {
@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 const String key = token.data();
                 
                 expect(ELToken::Colon, m_tokenizer.nextToken());
-                EL::Expression* value = parseExpression();
+                EL::ExpressionBase* value = parseExpression();
 
                 MapUtils::insertOrReplaceAndDelete(elements, key, value);
                 
@@ -356,7 +356,7 @@ namespace TrenchBroom {
             return EL::MapLiteralExpression::create(elements);
         }
 
-        EL::Expression* ELParser::parseUnaryOperator() {
+        EL::ExpressionBase* ELParser::parseUnaryOperator() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::UnaryOperator, token);
             
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             return EL::NegationOperator::create(parseSimpleTerm());
         }
 
-        EL::Expression* ELParser::parseCompoundTerm(EL::Expression* lhs) {
+        EL::ExpressionBase* ELParser::parseCompoundTerm(EL::ExpressionBase* lhs) {
             while (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm)) {
                 Token token = m_tokenizer.nextToken();
                 expect(ELToken::CompoundTerm, token);

@@ -20,6 +20,7 @@
 #ifndef ELParser_h
 #define ELParser_h
 
+#include "EL.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
@@ -27,12 +28,6 @@
 #include <list>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        typedef std::list<Expression*> ExpressionList;
-        class BinaryOperator;
-    }
-    
     namespace IO {
         namespace ELToken {
             typedef size_t Type;
@@ -89,21 +84,21 @@ namespace TrenchBroom {
             ELParser(const char* begin, const char* end);
             ELParser(const String& str);
             
-            EL::Expression* parse();
+            EL::Expression parse();
         private:
-            EL::Expression* parseExpression();
-            EL::Expression* parseGroupedTerm();
-            EL::Expression* parseTerm();
-            EL::Expression* parseSimpleTerm();
-            EL::Expression* parseSubscript(EL::Expression* lhs);
-            EL::Expression* parseVariable();
-            EL::Expression* parseLiteral();
-            EL::Expression* parseArray();
-            EL::Expression* parseExpressionOrRange();
-            EL::Expression* parseExpressionOrAnyRange();
-            EL::Expression* parseMap();
-            EL::Expression* parseUnaryOperator();
-            EL::Expression* parseCompoundTerm(EL::Expression* lhs);
+            EL::ExpressionBase* parseExpression();
+            EL::ExpressionBase* parseGroupedTerm();
+            EL::ExpressionBase* parseTerm();
+            EL::ExpressionBase* parseSimpleTerm();
+            EL::ExpressionBase* parseSubscript(EL::ExpressionBase* lhs);
+            EL::ExpressionBase* parseVariable();
+            EL::ExpressionBase* parseLiteral();
+            EL::ExpressionBase* parseArray();
+            EL::ExpressionBase* parseExpressionOrRange();
+            EL::ExpressionBase* parseExpressionOrAnyRange();
+            EL::ExpressionBase* parseMap();
+            EL::ExpressionBase* parseUnaryOperator();
+            EL::ExpressionBase* parseCompoundTerm(EL::ExpressionBase* lhs);
         private:
             TokenNameMap tokenNames() const;
         };
