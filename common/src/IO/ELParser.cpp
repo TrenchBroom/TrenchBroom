@@ -196,7 +196,9 @@ namespace TrenchBroom {
         m_tokenizer(str) {}
         
         EL::Expression ELParser::parse() {
-            return EL::Expression(parseExpression());
+            EL::Expression result(parseExpression());
+            result.optimize();
+            return result;
         }
 
         EL::ExpressionBase* ELParser::parseExpression() {
@@ -262,7 +264,7 @@ namespace TrenchBroom {
             
             if (elements.size() == 1)
                 return EL::SubscriptOperator::create(lhs, elements.front());
-            return EL::SubscriptOperator::create(lhs, EL::ArrayLiteralExpression::create(elements));
+            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(elements));
         }
 
         EL::ExpressionBase* ELParser::parseVariable() {
@@ -301,7 +303,7 @@ namespace TrenchBroom {
             }
             expect(ELToken::CBracket, m_tokenizer.nextToken());
             
-            return EL::ArrayLiteralExpression::create(elements);
+            return EL::ArrayExpression::create(elements);
         }
         
         EL::ExpressionBase* ELParser::parseExpressionOrRange() {
@@ -353,7 +355,7 @@ namespace TrenchBroom {
             }
             expect(ELToken::CBrace, m_tokenizer.nextToken());
             
-            return EL::MapLiteralExpression::create(elements);
+            return EL::MapExpression::create(elements);
         }
 
         EL::ExpressionBase* ELParser::parseUnaryOperator() {

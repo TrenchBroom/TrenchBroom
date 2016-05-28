@@ -40,6 +40,7 @@ namespace TrenchBroom {
         typedef double NumberType;
         typedef std::vector<Value> ArrayType;
         typedef std::map<String, Value> MapType;
+        typedef std::vector<long> RangeType;
         
         typedef enum {
             Type_Boolean,
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             Type_Number,
             Type_Array,
             Type_Map,
+            Type_Range,
             Type_Null
         } ValueType;
         
@@ -97,6 +99,7 @@ namespace TrenchBroom {
             virtual const NumberType&  numberValue()  const;
             virtual const ArrayType&   arrayValue()   const;
             virtual const MapType&     mapValue()     const;
+            virtual const RangeType&   rangeValue()   const;
 
             virtual size_t length() const = 0;
             virtual ValueHolder* convertTo(ValueType toType) const = 0;
@@ -177,6 +180,20 @@ namespace TrenchBroom {
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str) const;
         };
+        
+        class RangeValueHolder : public ValueHolder {
+        private:
+            RangeType m_value;
+        public:
+            RangeValueHolder(const RangeType& value);
+            ValueType type() const;
+            String description() const;
+            const RangeType& rangeValue() const;
+            size_t length() const;
+            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* clone() const;
+            void appendToStream(std::ostream& str) const;
+        };
 
         class NullValueHolder : public ValueHolder {
         public:
@@ -207,6 +224,7 @@ namespace TrenchBroom {
             Value(size_t value);
             Value(const ArrayType& value);
             Value(const MapType& value);
+            Value(const RangeType& value);
             Value();
             
             ValueType type() const;
@@ -218,6 +236,7 @@ namespace TrenchBroom {
             const NumberType& numberValue() const;
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
+            const RangeType& rangeValue() const;
 
             size_t length() const;
             Value convertTo(ValueType toType) const;
@@ -228,7 +247,9 @@ namespace TrenchBroom {
             Value operator[](const Value& indexValue) const;
         private:
             IndexList computeIndexArray(const Value& indexValue, size_t indexableSize) const;
+            void computeIndexArray(const Value& indexValue, size_t indexableSize, IndexList& result) const;
             size_t computeIndex(const Value& indexValue, size_t indexableSize) const;
+            size_t computeIndex(long index, size_t indexableSize) const;
         public:
             Value operator+() const;
             Value operator-() const;
@@ -286,6 +307,7 @@ namespace TrenchBroom {
         public:
             Expression(ExpressionBase* expression);
 
+            void optimize();
             Value evaluate(const EvaluationContext& context) const;
         };
         
@@ -297,22 +319,22 @@ namespace TrenchBroom {
             typedef std::list<ExpressionBase*> List;
             typedef std::map<String, ExpressionBase*> Map;
         protected:
+            static void replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression);
         public:
             ExpressionBase();
             virtual ~ExpressionBase();
 
-            bool range() const;
-            
             ExpressionBase* reorderByPrecedence();
             ExpressionBase* reorderByPrecedence(BinaryOperator* parent);
             
             ExpressionBase* clone() const;
+            ExpressionBase* optimize();
             Value evaluate(InternalEvaluationContext& context) const;
         private:
-            virtual bool doIsRange() const;
             virtual ExpressionBase* doReorderByPrecedence();
             virtual ExpressionBase* doReorderByPrecedence(BinaryOperator* parent);
             virtual ExpressionBase* doClone() const = 0;
+            virtual ExpressionBase* doOptimize() = 0;
             virtual Value doEvaluate(InternalEvaluationContext& context) const = 0;
             
             deleteCopyAndAssignment(ExpressionBase)
@@ -327,6 +349,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(const Value& value);
         private:
             ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
             Value doEvaluate(InternalEvaluationContext& context) const;
             
             deleteCopyAndAssignment(LiteralExpression)
@@ -341,39 +364,42 @@ namespace TrenchBroom {
             static ExpressionBase* create(const String& variableName);
         private:
             ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
             Value doEvaluate(InternalEvaluationContext& context) const;
             
             deleteCopyAndAssignment(VariableExpression)
         };
         
-        class ArrayLiteralExpression : public ExpressionBase {
+        class ArrayExpression : public ExpressionBase {
         private:
             ExpressionBase::List m_elements;
         private:
-            ArrayLiteralExpression(const ExpressionBase::List& elements);
+            ArrayExpression(const ExpressionBase::List& elements);
         public:
             static ExpressionBase* create(const ExpressionBase::List& elements);
-            ~ArrayLiteralExpression();
+            ~ArrayExpression();
         private:
             ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
             Value doEvaluate(InternalEvaluationContext& context) const;
             
-            deleteCopyAndAssignment(ArrayLiteralExpression)
+            deleteCopyAndAssignment(ArrayExpression)
         };
         
-        class MapLiteralExpression : public ExpressionBase {
+        class MapExpression : public ExpressionBase {
         private:
             ExpressionBase::Map m_elements;
         private:
-            MapLiteralExpression(const ExpressionBase::Map& elements);
+            MapExpression(const ExpressionBase::Map& elements);
         public:
             static ExpressionBase* create(const ExpressionBase::Map& elements);
-            ~MapLiteralExpression();
+            ~MapExpression();
         private:
             ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
             Value doEvaluate(InternalEvaluationContext& context) const;
             
-            deleteCopyAndAssignment(MapLiteralExpression)
+            deleteCopyAndAssignment(MapExpression)
         };
         
         class UnaryOperator : public ExpressionBase {
@@ -384,6 +410,7 @@ namespace TrenchBroom {
         public:
             virtual ~UnaryOperator();
         private:
+            ExpressionBase* doOptimize();
             deleteCopyAndAssignment(UnaryOperator)
         };
 
@@ -447,6 +474,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand);
         private:
             ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
             Value doEvaluate(InternalEvaluationContext& context) const;
             
             deleteCopyAndAssignment(SubscriptOperator)
@@ -465,6 +493,8 @@ namespace TrenchBroom {
             ExpressionBase* doReorderByPrecedence(BinaryOperator* parent);
             BinaryOperator* rotateLeftUp(BinaryOperator* leftOperand);
             BinaryOperator* rotateRightUp(BinaryOperator* rightOperand);
+        private:
+            ExpressionBase* doOptimize();
         protected:
             struct Traits;
         private:
@@ -550,7 +580,6 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
-            bool doIsRange() const;
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
             Traits doGetTraits() const;
@@ -564,7 +593,6 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
-            bool doIsRange() const;
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
             Traits doGetTraits() const;
@@ -593,7 +621,6 @@ namespace TrenchBroom {
             static ExpressionBase* createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
             static ExpressionBase* createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
-            bool doIsRange() const;
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
             Traits doGetTraits() const;
@@ -611,7 +638,6 @@ namespace TrenchBroom {
             static ExpressionBase* createAutoRangeWithLeftOperand(ExpressionBase* leftOperand);
             static ExpressionBase* createAutoRangeWithRightOperand(ExpressionBase* rightOperand);
         private:
-            bool doIsRange() const;
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
             Traits doGetTraits() const;

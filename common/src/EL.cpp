@@ -38,6 +38,8 @@ namespace TrenchBroom {
                     return "Array";
                 case Type_Map:
                     return "Map";
+                case Type_Range:
+                    return "Range";
                 case Type_Null:
                     return "Null";
             }
@@ -76,6 +78,7 @@ namespace TrenchBroom {
         const NumberType&  ValueHolder::numberValue()  const { throw ValueError(description(), type(), Type_Number); }
         const ArrayType&   ValueHolder::arrayValue()   const { throw ValueError(description(), type(), Type_Array); }
         const MapType&     ValueHolder::mapValue()     const { throw ValueError(description(), type(), Type_Map); }
+        const RangeType&   ValueHolder::rangeValue()   const { throw ValueError(description(), type(), Type_Range); }
         
         String ValueHolder::asString() const {
             StringStream str;
@@ -100,9 +103,12 @@ namespace TrenchBroom {
                     return new NumberValueHolder(m_value ? 1.0 : 0.0);
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
-                    throw ConversionError(description(), type(), toType);
+                    break;
             }
+            
+            throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
@@ -132,9 +138,12 @@ namespace TrenchBroom {
                 }
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
-                    throw ConversionError(description(), type(), toType);
+                    break;
             }
+            
+            throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
@@ -158,9 +167,12 @@ namespace TrenchBroom {
                     return new NumberValueHolder(m_value);
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
-                    throw ConversionError(description(), type(), toType);
+                    break;
             }
+            
+            throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
@@ -176,15 +188,18 @@ namespace TrenchBroom {
         
         ValueHolder* ArrayValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
+                case Type_Array:
+                    return new ArrayValueHolder(m_value);
                 case Type_Boolean:
                 case Type_String:
                 case Type_Number:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
-                    throw ConversionError(description(), type(), toType);
-                case Type_Array:
-                    return new ArrayValueHolder(m_value);
+                    break;
             }
+            
+            throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* ArrayValueHolder::clone() const { return new ArrayValueHolder(m_value); }
@@ -208,15 +223,18 @@ namespace TrenchBroom {
         
         ValueHolder* MapValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
+                case Type_Map:
+                    return new MapValueHolder(m_value);
                 case Type_Boolean:
                 case Type_String:
                 case Type_Number:
                 case Type_Array:
+                case Type_Range:
                 case Type_Null:
-                    throw ConversionError(description(), type(), toType);
-                case Type_Map:
-                    return new MapValueHolder(m_value);
+                    break;
             }
+            
+            throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* MapValueHolder::clone() const { return new MapValueHolder(m_value); }
@@ -235,6 +253,41 @@ namespace TrenchBroom {
         }
         
         
+        RangeValueHolder::RangeValueHolder(const RangeType& value) : m_value(value) {}
+        ValueType RangeValueHolder::type() const { return Type_Range; }
+        String RangeValueHolder::description() const { return asString(); }
+        const RangeType& RangeValueHolder::rangeValue() const { return m_value; }
+        size_t RangeValueHolder::length() const { return m_value.size(); }
+        
+        ValueHolder* RangeValueHolder::convertTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Range:
+                    return new RangeValueHolder(m_value);
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                case Type_Array:
+                case Type_Map:
+                case Type_Null:
+                    break;
+            }
+            
+            throw ConversionError(description(), type(), toType);
+        }
+        
+        ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
+        
+        void RangeValueHolder::appendToStream(std::ostream& str) const {
+            str << "[";
+            for (size_t i = 0; i < m_value.size(); ++i) {
+                str << m_value[i];
+                if (i < m_value.size() - 1)
+                    str << ",";
+            }
+            str << "]";
+        }
+        
+        
         ValueType NullValueHolder::type() const { return Type_Null; }
         String NullValueHolder::description() const { return "null"; }
         size_t NullValueHolder::length() const { return 0; }
@@ -249,6 +302,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                     break;
             }
             
@@ -271,6 +325,7 @@ namespace TrenchBroom {
         Value::Value(size_t value)             : m_value(new NumberValueHolder(static_cast<NumberType>(value))) {}
         Value::Value(const ArrayType& value)   : m_value(new ArrayValueHolder(value)) {}
         Value::Value(const MapType& value)     : m_value(new MapValueHolder(value)) {}
+        Value::Value(const RangeType& value)   : m_value(new RangeValueHolder(value)) {}
         Value::Value()                         : m_value(new NullValueHolder()) {}
 
         ValueType Value::type() const {
@@ -303,6 +358,10 @@ namespace TrenchBroom {
         
         const MapType& Value::mapValue() const {
             return m_value->mapValue();
+        }
+
+        const RangeType& Value::rangeValue() const {
+            return m_value->rangeValue();
         }
 
         size_t Value::length() const {
@@ -338,7 +397,8 @@ namespace TrenchBroom {
                             result << str[index];
                             return Value(result.str());
                         }
-                        case Type_Array: {
+                        case Type_Array:
+                        case Type_Range: {
                             const StringType& str = stringValue();
                             const IndexList indices = computeIndexArray(indexValue, str.length());
                             StringStream result;
@@ -366,7 +426,8 @@ namespace TrenchBroom {
                                 throw IndexOutOfBoundsError(*this, indexValue, index);
                             return array[index];
                         }
-                        case Type_Array: {
+                        case Type_Array:
+                        case Type_Range: {
                             const ArrayType& array = arrayValue();
                             const IndexList indices = computeIndexArray(indexValue, array.size());
                             ArrayType result;
@@ -414,12 +475,14 @@ namespace TrenchBroom {
                         case Type_Boolean:
                         case Type_Number:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
                     break;
                 case Type_Boolean:
                 case Type_Number:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -428,21 +491,46 @@ namespace TrenchBroom {
         }
         
         Value::IndexList Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
-            assert(indexValue.type() == Type_Array);
             IndexList result;
-            const ArrayType& indexArray = indexValue.arrayValue();
-            result.reserve(indexArray.size());
-            for (size_t i = 0; i < indexArray.size(); ++i)
-                result.push_back(computeIndex(indexArray[i], indexableSize));
+            computeIndexArray(indexValue, indexableSize, result);
             return result;
         }
 
+        void Value::computeIndexArray(const Value& indexValue, const size_t indexableSize, IndexList& result) const {
+            switch (indexValue.type()) {
+                case Type_Array: {
+                    const ArrayType& indexArray = indexValue.arrayValue();
+                    result.reserve(result.size() + indexArray.size());
+                    for (size_t i = 0; i < indexArray.size(); ++i)
+                        computeIndexArray(indexArray[i], indexableSize, result);
+                    break;
+                }
+                case Type_Range: {
+                    const RangeType& range = indexValue.rangeValue();
+                    result.reserve(result.size() + range.size());
+                    for (size_t i = 0; i < range.size(); ++i)
+                        result.push_back(computeIndex(range[i], indexableSize));
+                    break;
+                }
+                case Type_Boolean:
+                case Type_Number:
+                case Type_String:
+                case Type_Map:
+                case Type_Null:
+                    result.push_back(computeIndex(indexValue, indexableSize));
+                    break;
+            }
+        }
+
         size_t Value::computeIndex(const Value& indexValue, const size_t indexableSize) const {
-            const long value = static_cast<long>(indexValue.convertTo(Type_Number).numberValue());
+            return computeIndex(static_cast<long>(indexValue.convertTo(Type_Number).numberValue()), indexableSize);
+        }
+
+        size_t Value::computeIndex(const long index, const size_t indexableSize) const {
             const long size  = static_cast<long>(indexableSize);
-            if ((value >= 0 && value <   size) ||
-                (value <  0 && value >= -size ))
-                return static_cast<size_t>((size + value % size) % size);
+            if ((index >= 0 && index <   size) ||
+                (index <  0 && index >= -size ))
+                return static_cast<size_t>((size + index % size) % size);
             return static_cast<size_t>(size);
         }
 
@@ -454,6 +542,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
             }
@@ -467,6 +556,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
             }
@@ -483,6 +573,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
@@ -495,12 +586,14 @@ namespace TrenchBroom {
                         case Type_Number:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
                     break;
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -519,6 +612,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
@@ -526,6 +620,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -544,6 +639,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
@@ -551,6 +647,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -569,6 +666,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
@@ -576,6 +674,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -594,6 +693,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                         case Type_Null:
                             break;
                     }
@@ -601,6 +701,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
+                case Type_Range:
                 case Type_Null:
                     break;
             }
@@ -652,6 +753,7 @@ namespace TrenchBroom {
                             return 1;
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                             break;
                     }
                     break;
@@ -673,6 +775,7 @@ namespace TrenchBroom {
                             return 1;
                         case Type_Array:
                         case Type_Map:
+                        case Type_Range:
                             break;
                     }
                     break;
@@ -687,6 +790,10 @@ namespace TrenchBroom {
                 case Type_Map:
                     if (rhs.type() == Type_Map)
                         return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
+                    break;
+                case Type_Range:
+                    if (rhs.type() == Type_Range)
+                        return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
                     break;
             }
             throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
@@ -737,17 +844,26 @@ namespace TrenchBroom {
             assert(m_expression.get() != NULL);
         }
         
+        void Expression::optimize() {
+            ExpressionBase* optimized = m_expression->optimize();
+            if (optimized != NULL && optimized != m_expression.get())
+                m_expression.reset(optimized);
+        }
+
         Value Expression::evaluate(const EvaluationContext& context) const {
             InternalEvaluationContext internalContext(context);
             return m_expression->evaluate(internalContext);
         }
 
+        void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
+            if (newExpression != NULL && newExpression != oldExpression) {
+                delete oldExpression;
+                oldExpression = newExpression;
+            }
+        }
+        
         ExpressionBase::ExpressionBase() {}
         ExpressionBase::~ExpressionBase() {}
-        
-        bool ExpressionBase::range() const {
-            return doIsRange();
-        }
 
         ExpressionBase* ExpressionBase::reorderByPrecedence() {
             return doReorderByPrecedence();
@@ -761,12 +877,12 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        Value ExpressionBase::evaluate(InternalEvaluationContext& context) const {
-            return doEvaluate(context);
+        ExpressionBase* ExpressionBase::optimize() {
+            return doOptimize();
         }
 
-        bool ExpressionBase::doIsRange() const {
-            return false;
+        Value ExpressionBase::evaluate(InternalEvaluationContext& context) const {
+            return doEvaluate(context);
         }
 
         ExpressionBase* ExpressionBase::doReorderByPrecedence() {
@@ -788,6 +904,10 @@ namespace TrenchBroom {
             return new LiteralExpression(m_value);
         }
 
+        ExpressionBase* LiteralExpression::doOptimize() {
+            return this;
+        }
+
         Value LiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
             return m_value;
         }
@@ -803,22 +923,26 @@ namespace TrenchBroom {
             return new VariableExpression(m_variableName);
         }
 
+        ExpressionBase* VariableExpression::doOptimize() {
+            return NULL;
+        }
+
         Value VariableExpression::doEvaluate(InternalEvaluationContext& context) const {
             return context.variableValue(m_variableName);
         }
 
-        ArrayLiteralExpression::ArrayLiteralExpression(const ExpressionBase::List& elements) :
+        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements) :
         m_elements(elements) {}
         
-        ExpressionBase* ArrayLiteralExpression::create(const ExpressionBase::List& elements) {
-            return new ArrayLiteralExpression(elements);
+        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements) {
+            return new ArrayExpression(elements);
         }
         
-        ArrayLiteralExpression::~ArrayLiteralExpression() {
+        ArrayExpression::~ArrayExpression() {
             ListUtils::clearAndDelete(m_elements);
         }
 
-        ExpressionBase* ArrayLiteralExpression::doClone() const {
+        ExpressionBase* ArrayExpression::doClone() const {
             ExpressionBase::List clones;
             ExpressionBase::List::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
@@ -826,35 +950,59 @@ namespace TrenchBroom {
                 clones.push_back(element->clone());
             }
             
-            return new ArrayLiteralExpression(clones);
+            return new ArrayExpression(clones);
         }
         
-        Value ArrayLiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
+        ExpressionBase* ArrayExpression::doOptimize() {
+            bool allOptimized = true;
+            
+            ExpressionBase::List::iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                ExpressionBase*& expression = *it;
+                ExpressionBase* optimized = expression->optimize();
+                replaceExpression(expression, optimized);
+                allOptimized &= optimized != NULL;
+            }
+            
+            if (allOptimized) {
+                InternalEvaluationContext context((EvaluationContext()));
+                return LiteralExpression::create(evaluate(context));
+            }
+            
+            return NULL;
+        }
+
+        Value ArrayExpression::doEvaluate(InternalEvaluationContext& context) const {
             ArrayType array;
             ExpressionBase::List::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
                 const ExpressionBase* element = *it;
-                if (element->range())
-                    VectorUtils::append(array, element->evaluate(context).arrayValue());
-                else
-                    array.push_back(element->evaluate(context));
+                const Value value = element->evaluate(context);
+                if (value.type() == Type_Range) {
+                    const RangeType& range = value.rangeValue();
+                    array.reserve(array.size() + range.size());
+                    for (size_t i = 0; i < range.size(); ++i)
+                        array.push_back(Value(range[i]));
+                } else {
+                    array.push_back(value);
+                }
             }
             
             return Value(array);
         }
 
-        MapLiteralExpression::MapLiteralExpression(const ExpressionBase::Map& elements) :
+        MapExpression::MapExpression(const ExpressionBase::Map& elements) :
         m_elements(elements) {}
         
-        ExpressionBase* MapLiteralExpression::create(const ExpressionBase::Map& elements) {
-            return new MapLiteralExpression(elements);
+        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements) {
+            return new MapExpression(elements);
         }
         
-        MapLiteralExpression::~MapLiteralExpression() {
+        MapExpression::~MapExpression() {
             MapUtils::clearAndDelete(m_elements);
         }
 
-        ExpressionBase* MapLiteralExpression::doClone() const {
+        ExpressionBase* MapExpression::doClone() const {
             ExpressionBase::Map clones;
             ExpressionBase::Map::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
@@ -863,10 +1011,30 @@ namespace TrenchBroom {
                 clones.insert(std::make_pair(key, value->clone()));
             }
             
-            return new MapLiteralExpression(clones);
+            return new MapExpression(clones);
         }
 
-        Value MapLiteralExpression::doEvaluate(InternalEvaluationContext& context) const {
+        
+        ExpressionBase* MapExpression::doOptimize() {
+            bool allOptimized = true;
+            
+            ExpressionBase::Map::iterator it, end;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                ExpressionBase*& expression = it->second;
+                ExpressionBase* optimized = expression->optimize();
+                replaceExpression(expression, optimized);
+                allOptimized &= optimized != NULL;
+            }
+            
+            if (allOptimized) {
+                InternalEvaluationContext context((EvaluationContext()));
+                return LiteralExpression::create(evaluate(context));
+            }
+            
+            return NULL;
+        }
+        
+        Value MapExpression::doEvaluate(InternalEvaluationContext& context) const {
             MapType map;
             ExpressionBase::Map::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
@@ -885,6 +1053,18 @@ namespace TrenchBroom {
 
         UnaryOperator::~UnaryOperator() {
             delete m_operand;
+        }
+
+        ExpressionBase* UnaryOperator::doOptimize() {
+            ExpressionBase* optimized = m_operand->optimize();
+            replaceExpression(m_operand, optimized);
+            
+            if (optimized != NULL) {
+                InternalEvaluationContext context((EvaluationContext()));
+                return LiteralExpression::create(evaluate(context));
+            }
+            
+            return NULL;
         }
 
         UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand) :
@@ -967,6 +1147,21 @@ namespace TrenchBroom {
             return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone());
         }
         
+        ExpressionBase* SubscriptOperator::doOptimize() {
+            ExpressionBase* indexableOptimized = m_indexableOperand->optimize();
+            ExpressionBase* indexOptimized = m_indexOperand->optimize();
+            
+            replaceExpression(m_indexableOperand, indexableOptimized);
+            replaceExpression(m_indexOperand, indexOptimized);
+            
+            if (indexableOptimized != NULL && indexOptimized != NULL) {
+                InternalEvaluationContext context((EvaluationContext()));
+                return LiteralExpression::create(evaluate(context));
+            }
+            
+            return NULL;
+        }
+
         Value SubscriptOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value indexableValue = m_indexableOperand->evaluate(context);
             context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1));
@@ -1020,6 +1215,21 @@ namespace TrenchBroom {
             rightOperand->m_leftOperand = this;
             
             return rightOperand;
+        }
+        
+        ExpressionBase* BinaryOperator::doOptimize() {
+            ExpressionBase* leftOptimized = m_leftOperand->optimize();
+            ExpressionBase* rightOptimized = m_rightOperand->optimize();
+            
+            replaceExpression(m_leftOperand, leftOptimized);
+            replaceExpression(m_rightOperand, rightOptimized);
+            
+            if (leftOptimized != NULL && rightOptimized != NULL) {
+                InternalEvaluationContext context((EvaluationContext()));
+                return LiteralExpression::create(evaluate(context));
+            }
+            
+            return NULL;
         }
         
         struct BinaryOperator::Traits {
@@ -1166,10 +1376,6 @@ namespace TrenchBroom {
             return new ConjunctionOperator(leftOperand, rightOperand);
         }
 
-        bool ConjunctionOperator::doIsRange() const {
-            return false;
-        }
-        
         ExpressionBase* ConjunctionOperator::doClone() const {
             return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -1187,10 +1393,6 @@ namespace TrenchBroom {
         
         ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
             return new DisjunctionOperator(leftOperand, rightOperand);
-        }
-        
-        bool DisjunctionOperator::doIsRange() const {
-            return false;
         }
         
         ExpressionBase* DisjunctionOperator::doClone() const {
@@ -1231,10 +1433,6 @@ namespace TrenchBroom {
         
         ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
             return new ComparisonOperator(leftOperand, rightOperand, Op_Greater);
-        }
-
-        bool ComparisonOperator::doIsRange() const {
-            return false;
         }
         
         ExpressionBase* ComparisonOperator::doClone() const {
@@ -1286,10 +1484,6 @@ namespace TrenchBroom {
             return create(VariableExpression::create(AutoRangeParameterName()), rightOperand);
         }
 
-        bool RangeOperator::doIsRange() const {
-            return true;
-        }
-
         ExpressionBase* RangeOperator::doClone() const {
             return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone());
         }
@@ -1301,23 +1495,23 @@ namespace TrenchBroom {
             const long from = static_cast<long>(leftValue.convertTo(Type_Number).numberValue());
             const long to = static_cast<long>(rightValue.convertTo(Type_Number).numberValue());
             
-            ArrayType array;
+            RangeType range;
             if (from <= to) {
-                array.reserve(static_cast<size_t>(to - from + 1));
+                range.reserve(static_cast<size_t>(to - from + 1));
                 for (long i = from; i <= to; ++i) {
-                    assert(array.capacity() > array.size());
-                    array.push_back(Value(static_cast<double>(i)));
+                    assert(range.capacity() > range.size());
+                    range.push_back(i);
                 }
             } else if (to < from) {
-                array.reserve(static_cast<size_t>(from - to + 1));
+                range.reserve(static_cast<size_t>(from - to + 1));
                 for (long i = from; i >= to; --i) {
-                    assert(array.capacity() > array.size());
-                    array.push_back(Value(static_cast<double>(i)));
+                    assert(range.capacity() > range.size());
+                    range.push_back(i);
                 }
             }
-            assert(array.capacity() == array.size());
+            assert(range.capacity() == range.size());
 
-            return Value(array);
+            return Value(range);
         }
         
         BinaryOperator::Traits RangeOperator::doGetTraits() const {
