@@ -974,6 +974,15 @@ namespace MapUtils {
         }
     };
 
+    template <typename K, typename V, typename C>
+    std::set<K> keySet(const std::map<K, V, C>& map) {
+        std::set<K> result;
+        typename std::map<K, V, C>::const_iterator it, end;
+        for (it = map.begin(), end = map.end(); it != end; ++it)
+            result.insert(it->first);
+        return result;
+    }
+    
     template <typename K, typename V, typename C, typename D = std::less<V> >
     int compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D()) {
         typedef std::map<K, V, C> Map;

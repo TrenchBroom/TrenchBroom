@@ -45,6 +45,23 @@ namespace TrenchBroom {
             }
         }
 
+        ValueType typeForName(const String& type) {
+            if (type == "Boolean")
+                return Type_Boolean;
+            if (type == "String")
+                return Type_String;
+            if (type == "Number")
+                return Type_Number;
+            if (type == "Array")
+                return Type_Array;
+            if (type == "Map")
+                return Type_Map;
+            if (type == "Range")
+                return Type_Range;
+            assert(false);
+            return Type_Null;
+        }
+
         ELException::ELException() throw() {}
         ELException::ELException(const String& str) throw() : ExceptionStream(str) {}
         ELException::~ELException() throw() {}
@@ -52,7 +69,7 @@ namespace TrenchBroom {
         ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) throw() :
         ELException("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
 
-        ValueError::ValueError(const String& value, const ValueType from, const ValueType to) throw() :
+        DereferenceError::DereferenceError(const String& value, const ValueType from, const ValueType to) throw() :
         ELException("Cannot dereference value '" + value + "' of type '" + typeName(from) + "' as type '" + typeName(to) + "'") {}
 
         EvaluationError::EvaluationError(const String& msg) throw() :
@@ -61,6 +78,12 @@ namespace TrenchBroom {
         IndexError::IndexError(const Value& indexableValue, const Value& indexValue) throw() :
         EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with '" + indexValue.description() + "' of type '" + typeName(indexValue.type()) + "'") {}
 
+        IndexError::IndexError(const Value& indexableValue, const size_t index) throw() :
+        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with integral index") {}
+
+        IndexError::IndexError(const Value& indexableValue, const String& key) throw() :
+        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with string index") {}
+        
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) throw() :
         IndexError(indexableValue, indexValue) {
             *this << ": Index value " << outOfBoundsIndex << " is out of bounds";
@@ -70,15 +93,23 @@ namespace TrenchBroom {
         IndexError(indexableValue, indexValue) {
             *this << ": Key '" << outOfBoundsIndex << "' not found";
         }
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const size_t index) throw() :
+        IndexError(indexableValue, index) {
+            *this << ": Index value " << index << " is out of bounds";
+        }
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const String& key) throw() :
+        IndexError(indexableValue, key) {
+            *this << ": Key '" << key << "' not found";
+        }
 
         ValueHolder::~ValueHolder() {}
         
-        const BooleanType& ValueHolder::booleanValue() const { throw ValueError(description(), type(), Type_Boolean); }
-        const StringType&  ValueHolder::stringValue()  const { throw ValueError(description(), type(), Type_String); }
-        const NumberType&  ValueHolder::numberValue()  const { throw ValueError(description(), type(), Type_Number); }
-        const ArrayType&   ValueHolder::arrayValue()   const { throw ValueError(description(), type(), Type_Array); }
-        const MapType&     ValueHolder::mapValue()     const { throw ValueError(description(), type(), Type_Map); }
-        const RangeType&   ValueHolder::rangeValue()   const { throw ValueError(description(), type(), Type_Range); }
+        const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(description(), type(), Type_Boolean); }
+        const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(description(), type(), Type_String); }
+        const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(description(), type(), Type_Number); }
+        const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(description(), type(), Type_Array); }
+        const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(description(), type(), Type_Map); }
+        const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(description(), type(), Type_Range); }
         
         String ValueHolder::asString() const {
             StringStream str;
@@ -291,6 +322,12 @@ namespace TrenchBroom {
         ValueType NullValueHolder::type() const { return Type_Null; }
         String NullValueHolder::description() const { return "null"; }
         size_t NullValueHolder::length() const { return 0; }
+        const StringType& NullValueHolder::stringValue() const   { static const StringType result;         return result; }
+        const BooleanType& NullValueHolder::booleanValue() const { static const BooleanType result(false); return result; }
+        const NumberType& NullValueHolder::numberValue() const   { static const NumberType result(0.0);    return result; }
+        const ArrayType& NullValueHolder::arrayValue() const     { static const ArrayType result(0);       return result; }
+        const MapType& NullValueHolder::mapValue() const         { static const MapType result;            return result; }
+        const RangeType& NullValueHolder::rangeValue() const     { static const RangeType result(0);       return result; }
         
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -299,11 +336,15 @@ namespace TrenchBroom {
                 case Type_Null:
                     return new NullValueHolder();
                 case Type_Number:
+                    return new NumberValueHolder(0.0);
                 case Type_String:
+                    return new StringValueHolder("");
                 case Type_Array:
+                    return new ArrayValueHolder(ArrayType(0));
                 case Type_Map:
+                    return new MapValueHolder(MapType());
                 case Type_Range:
-                    break;
+                    return new RangeValueHolder(RangeType(0));
             }
             
             throw ConversionError(description(), type(), toType);
@@ -315,18 +356,42 @@ namespace TrenchBroom {
         
         const Value Value::Null = Value();
         
-        Value::Value(ValueHolder* holder)      : m_value(holder) {}
-        Value::Value(const BooleanType& value) : m_value(new BooleanValueHolder(value)) {}
-        Value::Value(const StringType& value)  : m_value(new StringValueHolder(value)) {}
-        Value::Value(const char* value)        : m_value(new StringValueHolder(String(value))) {}
-        Value::Value(const NumberType& value)  : m_value(new NumberValueHolder(value)) {}
-        Value::Value(int value)                : m_value(new NumberValueHolder(static_cast<NumberType>(value))) {}
-        Value::Value(long value)               : m_value(new NumberValueHolder(static_cast<NumberType>(value))) {}
-        Value::Value(size_t value)             : m_value(new NumberValueHolder(static_cast<NumberType>(value))) {}
-        Value::Value(const ArrayType& value)   : m_value(new ArrayValueHolder(value)) {}
-        Value::Value(const MapType& value)     : m_value(new MapValueHolder(value)) {}
-        Value::Value(const RangeType& value)   : m_value(new RangeValueHolder(value)) {}
-        Value::Value()                         : m_value(new NullValueHolder()) {}
+        Value::Value(ValueHolder* holder, const size_t line, const size_t column)      : m_value(holder), m_line(line), m_column(column) {}
+        
+        Value::Value(const BooleanType& value, const size_t line, const size_t column) : m_value(new BooleanValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const BooleanType& value)                                         : m_value(new BooleanValueHolder(value)), m_line(0), m_column(0) {}
+        
+        Value::Value(const StringType& value, const size_t line, const size_t column)  : m_value(new StringValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const StringType& value)                                          : m_value(new StringValueHolder(value)), m_line(0), m_column(0) {}
+
+        Value::Value(const char* value, const size_t line, const size_t column)        : m_value(new StringValueHolder(String(value))), m_line(line), m_column(column) {}
+        Value::Value(const char* value)                                                : m_value(new StringValueHolder(String(value))), m_line(0), m_column(0) {}
+
+        Value::Value(const NumberType& value, const size_t line, const size_t column)  : m_value(new NumberValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const NumberType& value)                                          : m_value(new NumberValueHolder(value)), m_line(0), m_column(0) {}
+
+        Value::Value(const int value, const size_t line, const size_t column)          : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
+        Value::Value(const int value)                                                  : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
+
+        Value::Value(const long value, const size_t line, const size_t column)         : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
+        Value::Value(const long value)                                                 : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
+
+        Value::Value(const size_t value, const size_t line, const size_t column)       : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(line), m_column(column) {}
+        Value::Value(const size_t value)                                               : m_value(new NumberValueHolder(static_cast<NumberType>(value))), m_line(0), m_column(0) {}
+
+        Value::Value(const ArrayType& value, const size_t line, const size_t column)   : m_value(new ArrayValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const ArrayType& value)                                           : m_value(new ArrayValueHolder(value)), m_line(0), m_column(0) {}
+
+        Value::Value(const MapType& value, const size_t line, const size_t column)     : m_value(new MapValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const MapType& value)                                             : m_value(new MapValueHolder(value)), m_line(0), m_column(0) {}
+
+        Value::Value(const RangeType& value, const size_t line, const size_t column)   : m_value(new RangeValueHolder(value)), m_line(line), m_column(column) {}
+        Value::Value(const RangeType& value)                                           : m_value(new RangeValueHolder(value)), m_line(0), m_column(0) {}
+
+        Value::Value(const Value& other, const size_t line, const size_t column)       : m_value(other.m_value), m_line(line), m_column(column) {}
+        Value::Value(const Value& other)                                               : m_value(other.m_value), m_line(other.m_line), m_column(other.m_column) {}
+
+        Value::Value()                                                                 : m_value(new NullValueHolder()), m_line(0), m_column(0) {}
 
         ValueType Value::type() const {
             return m_value->type();
@@ -340,6 +405,15 @@ namespace TrenchBroom {
             return m_value->description();
         }
 
+        size_t Value::line() const {
+            return m_line;
+        }
+        
+        size_t Value::column() const {
+            return m_column;
+        }
+
+        
         const StringType& Value::stringValue() const {
             return m_value->stringValue();
         }
@@ -364,6 +438,37 @@ namespace TrenchBroom {
             return m_value->rangeValue();
         }
 
+        bool Value::null() const {
+            return type() == Type_Null;
+        }
+
+        const StringList Value::asStringList() const {
+            const ArrayType& array = arrayValue();
+            StringList result;
+            result.reserve(array.size());
+            
+            ArrayType::const_iterator it, end;
+            for (it = array.begin(), end = array.end(); it != end; ++it) {
+                const Value& entry = *it;
+                result.push_back(entry.convertTo(Type_String).stringValue());
+            }
+            
+            return result;
+        }
+
+        const StringSet Value::asStringSet() const {
+            const ArrayType& array = arrayValue();
+            StringSet result;
+            
+            ArrayType::const_iterator it, end;
+            for (it = array.begin(), end = array.end(); it != end; ++it) {
+                const Value& entry = *it;
+                result.insert(entry.convertTo(Type_String).stringValue());
+            }
+            
+            return result;
+        }
+
         size_t Value::length() const {
             return m_value->length();
         }
@@ -371,7 +476,7 @@ namespace TrenchBroom {
         Value Value::convertTo(const ValueType toType) const {
             if (type() == toType)
                 return *this;
-            return Value(m_value->convertTo(toType));
+            return Value(m_value->convertTo(toType), m_line, m_column);
         }
 
         void Value::appendToStream(std::ostream& str) const {
@@ -383,6 +488,119 @@ namespace TrenchBroom {
             return stream;
         }
 
+        bool Value::contains(const Value& indexValue) const {
+            switch (type()) {
+                case Type_String: {
+                    switch (indexValue.type()) {
+                        case Type_Boolean:
+                        case Type_Number: {
+                            const size_t index = computeIndex(indexValue, length());
+                            return index < length();
+                        }
+                        case Type_Array:
+                        case Type_Range: {
+                            const IndexList indices = computeIndexArray(indexValue, length());
+                            for (size_t i = 0; i < indices.size(); ++i) {
+                                const size_t index = indices[i];
+                                if (index >= length())
+                                    return false;
+                            }
+                            return true;
+                        }
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                }
+                case Type_Array:
+                    switch (indexValue.type()) {
+                        case Type_Boolean:
+                        case Type_Number: {
+                            const size_t index = computeIndex(indexValue, length());
+                            return index < length();
+                        }
+                        case Type_Array:
+                        case Type_Range: {
+                            const IndexList indices = computeIndexArray(indexValue, length());
+                            for (size_t i = 0; i < indices.size(); ++i) {
+                                const size_t index = indices[i];
+                                if (index >= length())
+                                    return false;
+                            }
+                            return true;
+                        }
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                case Type_Map:
+                    switch (indexValue.type()) {
+                        case Type_String: {
+                            const MapType& map = mapValue();
+                            const String& key = indexValue.stringValue();
+                            const MapType::const_iterator it = map.find(key);
+                            return it != map.end();
+                        }
+                        case Type_Array: {
+                            const MapType& map = mapValue();
+                            const ArrayType& keys = indexValue.arrayValue();
+                            for (size_t i = 0; i < keys.size(); ++i) {
+                                const Value& keyValue = keys[i];
+                                if (keyValue.type() != Type_String)
+                                    throw ConversionError(keyValue.description(), keyValue.type(), Type_String);
+                                const String& key = keyValue.stringValue();
+                                const MapType::const_iterator it = map.find(key);
+                                if (it == map.end())
+                                    return false;
+                            }
+                            return true;
+                        }
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_Map:
+                        case Type_Range:
+                        case Type_Null:
+                            break;
+                    }
+                    break;
+                case Type_Boolean:
+                case Type_Number:
+                case Type_Range:
+                case Type_Null:
+                    break;
+            }
+            return false;
+        }
+
+        bool Value::contains(const size_t index) const {
+            switch (type()) {
+                case Type_String:
+                case Type_Array:
+                    return index < length();
+                case Type_Map:
+                case Type_Boolean:
+                case Type_Number:
+                case Type_Range:
+                case Type_Null:
+                    break;
+            }
+            return false;
+        }
+        
+        bool Value::contains(const String& key) const {
+            const MapType& map = mapValue();
+            const MapType::const_iterator it = map.find(key);
+            return it != map.end();
+        }
+
+        StringSet Value::keys() const {
+            return MapUtils::keySet(mapValue());
+        }
+
         Value Value::operator[](const Value& indexValue) const {
             switch (type()) {
                 case Type_String:
@@ -391,11 +609,10 @@ namespace TrenchBroom {
                         case Type_Number: {
                             const StringType& str = stringValue();
                             const size_t index = computeIndex(indexValue, str.length());
-                            if (index >= str.length())
-                                throw IndexOutOfBoundsError(*this, indexValue, index);
                             StringStream result;
-                            result << str[index];
-                            return Value(result.str());
+                            if (index < str.length())
+                                result << str[index];
+                            return Value(result.str(), m_line, m_column);
                         }
                         case Type_Array:
                         case Type_Range: {
@@ -404,11 +621,10 @@ namespace TrenchBroom {
                             StringStream result;
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
-                                if (index >= str.length())
-                                    throw IndexOutOfBoundsError(*this, indexValue, index);
-                                result << str[index];
+                                if (index < str.length())
+                                    result << str[index];
                             }
-                            return Value(result.str());
+                            return Value(result.str(), m_line, m_column);
                         }
                         case Type_String:
                         case Type_Map:
@@ -438,7 +654,7 @@ namespace TrenchBroom {
                                     throw IndexOutOfBoundsError(*this, indexValue, index);
                                 result.push_back(array[index]);
                             }
-                            return Value(result);
+                            return Value(result, m_line, m_column);
                         }
                         case Type_String:
                         case Type_Map:
@@ -453,7 +669,7 @@ namespace TrenchBroom {
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
                             if (it == map.end())
-                                throw IndexOutOfBoundsError(*this, indexValue, key);
+                                return Value::Null;
                             return it->second;
                         }
                         case Type_Array: {
@@ -466,11 +682,10 @@ namespace TrenchBroom {
                                     throw ConversionError(keyValue.description(), keyValue.type(), Type_String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
-                                if (it == map.end())
-                                    throw IndexOutOfBoundsError(*this, indexValue, key);
-                                result.insert(std::make_pair(key, it->second));
+                                if (it != map.end())
+                                    result.insert(std::make_pair(key, it->second));
                             }
-                            return result;
+                            return Value(result, m_line, m_column);
                         }
                         case Type_Boolean:
                         case Type_Number:
@@ -490,6 +705,53 @@ namespace TrenchBroom {
             throw IndexError(*this, indexValue);
         }
         
+        Value Value::operator[](const size_t index) const {
+            switch (type()) {
+                case Type_String: {
+                    const StringType& str = stringValue();
+                    StringStream result;
+                    if (index < str.length())
+                        result << str[index];
+                    return Value(result.str());
+                }
+                case Type_Array: {
+                    const ArrayType& array = arrayValue();
+                    if (index >= array.size())
+                        throw IndexOutOfBoundsError(*this, index);
+                    return array[index];
+                }
+                case Type_Map:
+                case Type_Boolean:
+                case Type_Number:
+                case Type_Range:
+                case Type_Null:
+                    break;
+            }
+            
+            throw IndexError(*this, index);
+        }
+        
+        Value Value::operator[](const String& key) const {
+            switch (type()) {
+                case Type_Map: {
+                    const MapType& map = mapValue();
+                    const MapType::const_iterator it = map.find(key);
+                    if (it == map.end())
+                        return Value::Null;
+                    return it->second;
+                }
+                case Type_String:
+                case Type_Array:
+                case Type_Boolean:
+                case Type_Number:
+                case Type_Range:
+                case Type_Null:
+                    break;
+            }
+            
+            throw IndexError(*this, key);
+        }
+
         Value::IndexList Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
             IndexList result;
             computeIndexArray(indexValue, indexableSize, result);
@@ -538,28 +800,30 @@ namespace TrenchBroom {
             switch (type()) {
                 case Type_Boolean:
                 case Type_Number:
-                    return convertTo(Type_Number).numberValue();
+                    return Value(convertTo(Type_Number).numberValue());
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
-                    throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
+                    break;
             }
+            throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
         }
         
         Value Value::operator-() const {
             switch (type()) {
                 case Type_Boolean:
                 case Type_Number:
-                    return -convertTo(Type_Number).numberValue();
+                    return Value(-convertTo(Type_Number).numberValue());
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
-                    throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
+                    break;
             }
+            throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
         }
 
         Value operator+(const Value& lhs, const Value& rhs) {
@@ -714,7 +978,7 @@ namespace TrenchBroom {
         }
 
         Value Value::operator!() const {
-            return !convertTo(Type_Boolean).booleanValue();
+            return Value(!convertTo(Type_Boolean).booleanValue());
         }
 
         bool operator==(const Value& lhs, const Value& rhs) {
@@ -862,7 +1126,7 @@ namespace TrenchBroom {
             }
         }
         
-        ExpressionBase::ExpressionBase() {}
+        ExpressionBase::ExpressionBase(const size_t line, const size_t column) : m_line(line), m_column(column) {}
         ExpressionBase::~ExpressionBase() {}
 
         ExpressionBase* ExpressionBase::reorderByPrecedence() {
@@ -893,15 +1157,16 @@ namespace TrenchBroom {
             return parent;
         }
 
-        LiteralExpression::LiteralExpression(const Value& value) :
-        m_value(value) {}
+        LiteralExpression::LiteralExpression(const Value& value, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
+        m_value(value, line, column) {}
         
-        ExpressionBase* LiteralExpression::create(const Value& value) {
-            return new LiteralExpression(value);
+        ExpressionBase* LiteralExpression::create(const Value& value, const size_t line, const size_t column) {
+            return new LiteralExpression(value, line, column);
         }
 
         ExpressionBase* LiteralExpression::doClone() const {
-            return new LiteralExpression(m_value);
+            return new LiteralExpression(m_value, m_line, m_column);
         }
 
         ExpressionBase* LiteralExpression::doOptimize() {
@@ -912,15 +1177,16 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        VariableExpression::VariableExpression(const String& variableName) :
+        VariableExpression::VariableExpression(const String& variableName, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_variableName(variableName) {}
 
-        ExpressionBase* VariableExpression::create(const String& variableName) {
-            return new VariableExpression(variableName);
+        ExpressionBase* VariableExpression::create(const String& variableName, const size_t line, const size_t column) {
+            return new VariableExpression(variableName, line, column);
         }
         
         ExpressionBase* VariableExpression::doClone() const {
-            return new VariableExpression(m_variableName);
+            return new VariableExpression(m_variableName, m_line, m_column);
         }
 
         ExpressionBase* VariableExpression::doOptimize() {
@@ -931,11 +1197,12 @@ namespace TrenchBroom {
             return context.variableValue(m_variableName);
         }
 
-        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements) :
+        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_elements(elements) {}
         
-        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements) {
-            return new ArrayExpression(elements);
+        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements, const size_t line, const size_t column) {
+            return new ArrayExpression(elements, line, column);
         }
         
         ArrayExpression::~ArrayExpression() {
@@ -950,7 +1217,7 @@ namespace TrenchBroom {
                 clones.push_back(element->clone());
             }
             
-            return new ArrayExpression(clones);
+            return new ArrayExpression(clones, m_line, m_column);
         }
         
         ExpressionBase* ArrayExpression::doOptimize() {
@@ -966,7 +1233,7 @@ namespace TrenchBroom {
             
             if (allOptimized) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context));
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -982,20 +1249,21 @@ namespace TrenchBroom {
                     const RangeType& range = value.rangeValue();
                     array.reserve(array.size() + range.size());
                     for (size_t i = 0; i < range.size(); ++i)
-                        array.push_back(Value(range[i]));
+                        array.push_back(Value(range[i], value.line(), value.column()));
                 } else {
                     array.push_back(value);
                 }
             }
             
-            return Value(array);
+            return Value(array, m_line, m_column);
         }
 
-        MapExpression::MapExpression(const ExpressionBase::Map& elements) :
+        MapExpression::MapExpression(const ExpressionBase::Map& elements, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_elements(elements) {}
         
-        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements) {
-            return new MapExpression(elements);
+        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements, const size_t line, const size_t column) {
+            return new MapExpression(elements, line, column);
         }
         
         MapExpression::~MapExpression() {
@@ -1011,7 +1279,7 @@ namespace TrenchBroom {
                 clones.insert(std::make_pair(key, value->clone()));
             }
             
-            return new MapExpression(clones);
+            return new MapExpression(clones, m_line, m_column);
         }
 
         
@@ -1028,7 +1296,7 @@ namespace TrenchBroom {
             
             if (allOptimized) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context));
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1039,14 +1307,15 @@ namespace TrenchBroom {
             ExpressionBase::Map::const_iterator it, end;
             for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
                 const String& key = it->first;
-                const ExpressionBase* value = it->second;
-                map.insert(std::make_pair(key, value->evaluate(context)));
+                const ExpressionBase* expression = it->second;
+                map.insert(std::make_pair(key, expression->evaluate(context)));
             }
             
-            return Value(map);
+            return Value(map, m_line, m_column);
         }
 
-        UnaryOperator::UnaryOperator(ExpressionBase* operand) :
+        UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_operand(operand) {
             assert(m_operand != NULL);
         }
@@ -1061,73 +1330,74 @@ namespace TrenchBroom {
             
             if (optimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context));
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
         }
 
-        UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand) :
-        UnaryOperator(operand) {}
+        UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* UnaryPlusOperator::create(ExpressionBase* operand) {
-            return new UnaryPlusOperator(operand);
+        ExpressionBase* UnaryPlusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new UnaryPlusOperator(operand, line, column);
         }
 
         ExpressionBase* UnaryPlusOperator::doClone() const {
-            return new UnaryPlusOperator(m_operand->clone());
+            return new UnaryPlusOperator(m_operand->clone(), m_line, m_column);
         }
 
         Value UnaryPlusOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return +m_operand->evaluate(context);
+            return Value(+m_operand->evaluate(context), m_line, m_column);
         }
 
-        UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand) :
-        UnaryOperator(operand) {}
+        UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
         
-        ExpressionBase* UnaryMinusOperator::create(ExpressionBase* operand) {
-            return new UnaryMinusOperator(operand);
+        ExpressionBase* UnaryMinusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new UnaryMinusOperator(operand, line, column);
         }
 
         ExpressionBase* UnaryMinusOperator::doClone() const {
-            return new UnaryMinusOperator(m_operand->clone());
+            return new UnaryMinusOperator(m_operand->clone(), m_line, m_column);
         }
 
         Value UnaryMinusOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return -m_operand->evaluate(context);
+            return Value(-m_operand->evaluate(context), m_line, m_column);
         }
         
-        NegationOperator::NegationOperator(ExpressionBase* operand) :
-        UnaryOperator(operand) {}
+        NegationOperator::NegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* NegationOperator::create(ExpressionBase* operand) {
-            return new NegationOperator(operand);
+        ExpressionBase* NegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new NegationOperator(operand, line, column);
         }
 
         ExpressionBase* NegationOperator::doClone() const  {
-            return new NegationOperator(m_operand->clone());
+            return new NegationOperator(m_operand->clone(), m_line, m_column);
         }
         
         Value NegationOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return !m_operand->evaluate(context);
+            return Value(!m_operand->evaluate(context), m_line, m_column);
         }
 
-        GroupingOperator::GroupingOperator(ExpressionBase* operand) :
-        UnaryOperator(operand) {}
+        GroupingOperator::GroupingOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* GroupingOperator::create(ExpressionBase* operand) {
-            return new GroupingOperator(operand);
+        ExpressionBase* GroupingOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new GroupingOperator(operand, line, column);
         }
 
         ExpressionBase* GroupingOperator::doClone() const {
-            return new GroupingOperator(m_operand->clone());
+            return new GroupingOperator(m_operand->clone(), m_line, m_column);
         }
         
         Value GroupingOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return m_operand->evaluate(context);
+            return Value(m_operand->evaluate(context), m_line, m_column);
         }
 
-        SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand) :
+        SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_indexableOperand(indexableOperand),
         m_indexOperand(indexOperand) {
             assert(m_indexableOperand != NULL);
@@ -1139,12 +1409,12 @@ namespace TrenchBroom {
             delete m_indexOperand;
         }
 
-        ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand) {
-            return (new SubscriptOperator(indexableOperand, indexOperand))->reorderByPrecedence();
+        ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) {
+            return (new SubscriptOperator(indexableOperand, indexOperand, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* SubscriptOperator::doClone() const {
-            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone());
+            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone(), m_line, m_column);
         }
         
         ExpressionBase* SubscriptOperator::doOptimize() {
@@ -1156,7 +1426,7 @@ namespace TrenchBroom {
             
             if (indexableOptimized != NULL && indexOptimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context));
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1164,13 +1434,14 @@ namespace TrenchBroom {
 
         Value SubscriptOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value indexableValue = m_indexableOperand->evaluate(context);
-            context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1));
+            context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1, m_line, m_column));
             const Value indexValue = m_indexOperand->evaluate(context);
             context.popVariable(RangeOperator::AutoRangeParameterName());
             return indexableValue[indexValue];
         }
 
-        BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
+        BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {
             assert(m_leftOperand != NULL);
@@ -1226,7 +1497,7 @@ namespace TrenchBroom {
             
             if (leftOptimized != NULL && rightOptimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context));
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1259,105 +1530,105 @@ namespace TrenchBroom {
             return traits().commutative;
         }
 
-        AdditionOperator::AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        AdditionOperator::AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* AdditionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new AdditionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* AdditionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new AdditionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* AdditionOperator::doClone() const {
-            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value AdditionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue + rightValue;
+            return Value(leftValue + rightValue, m_line, m_column);
         }
 
         BinaryOperator::Traits AdditionOperator::doGetTraits() const {
             return Traits(4, true, true);
         }
         
-        SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* SubtractionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new SubtractionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* SubtractionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new SubtractionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* SubtractionOperator::doClone() const {
-            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value SubtractionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue - rightValue;
+            return Value(leftValue - rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
             return Traits(4, false, false);
         }
         
-        MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* MultiplicationOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new MultiplicationOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* MultiplicationOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new MultiplicationOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* MultiplicationOperator::doClone() const {
-            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value MultiplicationOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue * rightValue;
+            return Value(leftValue * rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
             return Traits(5, true, true);
         }
 
-        DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DivisionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new DivisionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* DivisionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new DivisionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* DivisionOperator::doClone() const {
-            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value DivisionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue / rightValue;
+            return Value(leftValue / rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits DivisionOperator::doGetTraits() const {
             return Traits(5, false, false);
         }
 
-        ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* ModulusOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new ModulusOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* ModulusOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new ModulusOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* ModulusOperator::doClone() const {
-            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value ModulusOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return leftValue % rightValue;
+            return Value(leftValue % rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits ModulusOperator::doGetTraits() const {
@@ -1369,90 +1640,90 @@ namespace TrenchBroom {
             return Name;
         }
 
-        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ConjunctionOperator(leftOperand, rightOperand);
+        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ConjunctionOperator(leftOperand, rightOperand, line, column);
         }
 
         ExpressionBase* ConjunctionOperator::doClone() const {
-            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value ConjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context);
+            return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_line, m_column);
         }
         
         BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
             return Traits(2, true, true);
         }
         
-        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new DisjunctionOperator(leftOperand, rightOperand);
+        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new DisjunctionOperator(leftOperand, rightOperand, line, column);
         }
         
         ExpressionBase* DisjunctionOperator::doClone() const {
-            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value DisjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context);
+            return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_line, m_column);
         }
         
         BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
             return Traits(1, true, true);
         }
 
-        ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op) :
-        BinaryOperator(leftOperand, rightOperand),
+        ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column),
         m_op(op) {}
 
-        ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Less);
+        ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual);
+        ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal);
+        ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal);
+        ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual);
+        ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater);
+        ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column);
         }
         
         ExpressionBase* ComparisonOperator::doClone() const {
-            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op);
+            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op, m_line, m_column);
         }
         
         Value ComparisonOperator::doEvaluate(InternalEvaluationContext& context) const {
             switch (m_op) {
                 case Op_Less:
-                    return m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_LessOrEqual:
-                    return m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Equal:
-                    return m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Inequal:
-                    return m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_GreaterOrEqual:
-                    return m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Greater:
-                    return m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context);
+                    return Value(m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context), m_line, m_column);
             }
         }
         
@@ -1469,23 +1740,23 @@ namespace TrenchBroom {
             }
         }
 
-        RangeOperator::RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        RangeOperator::RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* RangeOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new RangeOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* RangeOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new RangeOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* RangeOperator::createAutoRangeWithLeftOperand(ExpressionBase* leftOperand) {
-            return create(leftOperand, VariableExpression::create(AutoRangeParameterName()));
+        ExpressionBase* RangeOperator::createAutoRangeWithLeftOperand(ExpressionBase* leftOperand, const size_t line, const size_t column) {
+            return create(leftOperand, VariableExpression::create(AutoRangeParameterName(), line, column), line, column);
         }
         
-        ExpressionBase* RangeOperator::createAutoRangeWithRightOperand(ExpressionBase* rightOperand) {
-            return create(VariableExpression::create(AutoRangeParameterName()), rightOperand);
+        ExpressionBase* RangeOperator::createAutoRangeWithRightOperand(ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return create(VariableExpression::create(AutoRangeParameterName(), line, column), rightOperand, line, column);
         }
 
         ExpressionBase* RangeOperator::doClone() const {
-            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value RangeOperator::doEvaluate(InternalEvaluationContext& context) const {
@@ -1511,7 +1782,7 @@ namespace TrenchBroom {
             }
             assert(range.capacity() == range.size());
 
-            return Value(range);
+            return Value(range, m_line, m_column);
         }
         
         BinaryOperator::Traits RangeOperator::doGetTraits() const {

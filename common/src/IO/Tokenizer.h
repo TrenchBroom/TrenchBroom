@@ -284,9 +284,9 @@ namespace TrenchBroom {
                 return curPos();
             }
             
-            const char* readQuotedString() {
+            const char* readQuotedString(const char delim = '"') {
                 char lastChar = 0;
-                while (!eof() && (curChar() != '"' || lastChar == '\\')) {
+                while (!eof() && (curChar() != delim || lastChar == '\\')) {
                     lastChar = curChar();
                     advance();
                 }

@@ -21,7 +21,7 @@
 #define TrenchBroom_GameConfigParser
 
 #include "StringUtils.h"
-#include "IO/ConfigParserBase.h"
+#include "IO/ELParser.h"
 #include "IO/Path.h"
 #include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
@@ -30,21 +30,28 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class GameConfigParser : public ConfigParserBase {
+        class GameConfigParser {
+        private:
+            ELParser m_elParser;
+            Path m_path;
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
             GameConfigParser(const String& str, const Path& path = Path(""));
             
             Model::GameConfig parse();
         private:
-            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const ConfigTable& table) const;
-            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const ConfigTable& table) const;
-            Model::GameConfig::TextureConfig parseTextureConfig(const ConfigTable& table) const;
-            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const ConfigTable& table) const;
-            Model::GameConfig::EntityConfig parseEntityConfig(const ConfigTable& table) const;
-            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const ConfigTable& table) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const ConfigList& list) const;
-            Model::BrushContentType::List parseBrushContentTypes(const ConfigList& list, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
+            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& value) const;
+            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value) const;
+            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& value) const;
+            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& value) const;
+            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& value) const;
+            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value) const;
+            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
+            Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
+            
+            void expectType(const EL::Value& value, EL::ValueType type) const;
+            void expectStructure(const EL::Value& value, const String& structure) const;
+            void expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const;
         };
     }
 }
