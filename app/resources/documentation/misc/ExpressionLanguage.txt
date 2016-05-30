@@ -33,7 +33,7 @@ Minus          = "-" SimpleTerm
 Not            = "!" SimpleTerm
 
 Boolean        = "true" | "false"
-String         = """ { Char } """
+String         = """ { Char } """ | "'" { Char } "'"
 Integer        = Numeric { Numeric }
 Number         = Integer "." Numeric { Numeric }
 

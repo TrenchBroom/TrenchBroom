@@ -41,19 +41,19 @@ namespace TrenchBroom {
         }
         
         TEST(CompilationConfigParserTest, parseMissingProfiles) {
-            const String config("  { version = \"1\" } ");
+            const String config("  { 'version' : 1 } ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
         
         TEST(CompilationConfigParserTest, parseMissingVersion) {
-            const String config("  { profiles = {} } ");
+            const String config("  { 'profiles': {} } ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
         
         TEST(CompilationConfigParserTest, parseEmptyProfiles) {
-            const String config("  { version = \"1\", profiles = {} } ");
+            const String config("  { 'version': 1, 'profiles': [] } ");
             CompilationConfigParser parser(config);
             
             Model::CompilationConfig result = parser.parse();
@@ -62,10 +62,10 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithMissingNameAndMissingTasks) {
             const String config("{"
-                                "    version = \"1\","
-                                "    profiles = {"
+                                "    'version': 1,"
+                                "    'profiles': ["
                                 "        {}"
-                                "    }"
+                                "    ]"
                                 "}");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -73,12 +73,12 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndMissingTasks) {
             const String config("{"
-                                "    version = \"1\","
-                                "    profiles = {"
+                                "    'version': 1,"
+                                "    'profiles': ["
                                 "        {"
-                                "             name = \"A profile\""
+                                "             'name': 'A profile'"
                                 "        }"
-                                "    }"
+                                "    ]"
                                 "}");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -86,12 +86,12 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithMissingNameAndEmptyTasks) {
             const String config("{"
-                                "    version = \"1\","
-                                "    profiles = {"
+                                "    'version': 1,"
+                                "    'profiles': ["
                                 "        {"
-                                "             tasks = {}"
+                                "             'tasks': []"
                                 "        }"
-                                "    }"
+                                "    ]"
                                 "}");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -99,14 +99,14 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndEmptyTasks) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {}\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': []\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             
@@ -120,18 +120,18 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneInvalidTask) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      asdf = \"asdf\""
+                                "                      'asdf': 'asdf'"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -139,18 +139,18 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneTaskWithUnknownType) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"unknown\""
+                                "                      'type': 'unknown'"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -158,19 +158,19 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTaskWithMissingSource) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"copy\",\n"
-                                "                      target = \"somewhere\"\n"
+                                "                      'type':'copy',\n"
+                                "                      'target': 'somewhere'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -178,19 +178,19 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTaskWithMissingTarget) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"copy\",\n"
-                                "                      source = \"somewhere\"\n"
+                                "                      'type':'copy',\n"
+                                "                      'source': 'somewhere'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -244,20 +244,20 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTask) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"copy\",\n"
-                                "                      source = \"the source\",\n"
-                                "                      target = \"the target\"\n"
+                                "                      'type':'copy',\n"
+                                "                      'source': 'the source',\n"
+                                "                      'target': 'the target'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             
@@ -273,19 +273,19 @@ namespace TrenchBroom {
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTaskWithMissingTool) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"tool\",\n"
-                                "                      parameters = \"this and that\"\n"
+                                "                      'type':'tool',\n"
+                                "                      'parameters': 'this and that'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -293,19 +293,19 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTaskWithMissingParameters) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"tool\",\n"
-                                "                      tool = \"tyrbsp.exe\"\n"
+                                "                      'type':'tool',\n"
+                                "                      'tool': 'tyrbsp.exe'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
@@ -313,20 +313,20 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTask) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"tool\",\n"
-                                "                      tool = \"tyrbsp.exe\",\n"
-                                "                      parameters = \"this and that\"\n"
+                                "                      'type':'tool',\n"
+                                "                      'tool': 'tyrbsp.exe',\n"
+                                "                      'parameters': 'this and that'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             
@@ -342,25 +342,25 @@ namespace TrenchBroom {
         
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndTwoTasks) {
             const String config("{\n"
-                                "    version = \"1\",\n"
-                                "    profiles = {\n"
+                                "    'version': 1,\n"
+                                "    'profiles': [\n"
                                 "        {\n"
-                                "             name = \"A profile\",\n"
-                                "             workdir = \"\",\n"
-                                "             tasks = {\n"
+                                "             'name': 'A profile',\n"
+                                "             'workdir': '',\n"
+                                "             'tasks': [\n"
                                 "                 {\n"
-                                "                      type = \"tool\",\n"
-                                "                      tool = \"tyrbsp.exe\",\n"
-                                "                      parameters = \"this and that\"\n"
+                                "                      'type':'tool',\n"
+                                "                      'tool': 'tyrbsp.exe',\n"
+                                "                      'parameters': 'this and that'\n"
                                 "                 },\n"
                                 "                 {\n"
-                                "                      type = \"copy\",\n"
-                                "                      source = \"the source\",\n"
-                                "                      target = \"the target\"\n"
+                                "                      'type':'copy',\n"
+                                "                      'source': 'the source',\n"
+                                "                      'target': 'the target'\n"
                                 "                 }\n"
-                                "             }\n"
+                                "             ]\n"
                                 "        }\n"
-                                "    }\n"
+                                "    ]\n"
                                 "}\n");
             CompilationConfigParser parser(config);
             

@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_GameConfigParser
 #define TrenchBroom_GameConfigParser
 
+#include "Macros.h"
 #include "StringUtils.h"
-#include "IO/ELParser.h"
-#include "IO/Path.h"
+#include "IO/ConfigParserBase.h"
 #include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
 
@@ -30,10 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class GameConfigParser {
-        private:
-            ELParser m_elParser;
-            Path m_path;
+        class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
             GameConfigParser(const String& str, const Path& path = Path(""));
@@ -49,9 +46,7 @@ namespace TrenchBroom {
             Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
             Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
             
-            void expectType(const EL::Value& value, EL::ValueType type) const;
-            void expectStructure(const EL::Value& value, const String& structure) const;
-            void expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const;
+            deleteCopyAndAssignment(GameConfigParser)
         };
     }
 }

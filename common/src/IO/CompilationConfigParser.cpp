@@ -31,33 +31,25 @@ namespace TrenchBroom {
         ConfigParserBase(str, path) {}
         
         Model::CompilationConfig CompilationConfigParser::parse() {
-            ConfigPtr root = parseConfigFile();
-            if (root.get() == NULL)
-                throw ParserException("Empty compilation config");
+            const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+            expectType(root, EL::Type_Map);
             
-            expectEntry(ConfigEntry::Type_Table, *root);
-            const ConfigTable& rootTable = *root;
+            expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
             
-            expectTableEntries(rootTable,
-                               StringUtils::makeSet(2, "version", "profiles"),
-                               StringSet());
+            const EL::NumberType version = root["version"].numberValue();
+            assert(version == 1.0);
             
-            expectTableEntry("version", ConfigEntry::Type_Value, rootTable);
-            const String version = rootTable["version"];
-            
-            expectTableEntry("profiles", ConfigEntry::Type_List, rootTable);
-            const Model::CompilationProfile::List profiles = parseProfiles(rootTable["profiles"]);
-            
+            const Model::CompilationProfile::List profiles = parseProfiles(root["profiles"]);
+
             return Model::CompilationConfig(profiles);
         }
 
-        Model::CompilationProfile::List CompilationConfigParser::parseProfiles(const ConfigList& list) const {
+        Model::CompilationProfile::List CompilationConfigParser::parseProfiles(const EL::Value& value) const {
             Model::CompilationProfile::List result;
             
             try {
-                for (size_t i = 0; i < list.count(); ++i) {
-                    expectListEntry(i, ConfigEntry::Type_Table, list);
-                    result.push_back(parseProfile(list[i]));
+                for (size_t i = 0; i < value.length(); ++i) {
+                    result.push_back(parseProfile(value[i]));
                 }
                 return result;
             } catch (...) {
@@ -66,30 +58,22 @@ namespace TrenchBroom {
             }
         }
 
-        Model::CompilationProfile* CompilationConfigParser::parseProfile(const ConfigTable& table) const {
-            expectTableEntries(table,
-                               StringUtils::makeSet(3, "name", "workdir", "tasks"),
-                               StringSet());
+        Model::CompilationProfile* CompilationConfigParser::parseProfile(const EL::Value& value) const {
+            expectStructure(value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
-            expectTableEntry("name", ConfigEntry::Type_Value, table);
-            const String name = table["name"];
-            
-            expectTableEntry("workdir", ConfigEntry::Type_Value, table);
-            const String workdir = table["workdir"];
-            
-            expectTableEntry("tasks", ConfigEntry::Type_List, table);
-            const Model::CompilationTask::List tasks = parseTasks(table["tasks"]);
+            const String& name = value["name"].stringValue();
+            const String& workdir = value["workdir"].stringValue();
+            const Model::CompilationTask::List tasks = parseTasks(value["tasks"]);
             
             return new Model::CompilationProfile(name, workdir, tasks);
         }
 
-        Model::CompilationTask::List CompilationConfigParser::parseTasks(const ConfigList& list) const {
+        Model::CompilationTask::List CompilationConfigParser::parseTasks(const EL::Value& value) const {
             Model::CompilationTask::List result;
             
             try {
-                for (size_t i = 0; i < list.count(); ++i) {
-                    expectListEntry(i, ConfigEntry::Type_Table, list);
-                    result.push_back(parseTask(list[i]));
+                for (size_t i = 0; i < value.length(); ++i) {
+                    result.push_back(parseTask(value[i]));
                 }
                 return result;
             } catch (...) {
@@ -98,55 +82,40 @@ namespace TrenchBroom {
             }
         }
         
-        Model::CompilationTask* CompilationConfigParser::parseTask(const ConfigTable& table) const {
-            expectTableEntry("type", ConfigEntry::Type_Value, table);
-            const String type = table["type"];
+        Model::CompilationTask* CompilationConfigParser::parseTask(const EL::Value& value) const {
+            expectMapEntry(value, "type", EL::Type_String);
+            const String& type = value["type"].stringValue();
             
             if (type == "export")
-                return parseExportTask(table);
+                return parseExportTask(value);
             else if (type == "copy")
-                return parseCopyTask(table);
+                return parseCopyTask(value);
             else if (type == "tool")
-                return parseToolTask(table);
+                return parseToolTask(value);
             else
                 throw ParserException("Unknown compilation task type '" + type + "'");
         }
         
-        Model::CompilationTask* CompilationConfigParser::parseExportTask(const ConfigTable& table) const {
-            expectTableEntries(table,
-                               StringUtils::makeSet(2, "type", "target"),
-                               StringSet());
-            
-            expectTableEntry("target", ConfigEntry::Type_Value, table);
-            const String target = table["target"];
-            
+        Model::CompilationTask* CompilationConfigParser::parseExportTask(const EL::Value& value) const {
+            expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
+            const String& target = value["target"].stringValue();
             return new Model::CompilationExportMap(target);
         }
 
-        Model::CompilationTask* CompilationConfigParser::parseCopyTask(const ConfigTable& table) const {
-            expectTableEntries(table,
-                               StringUtils::makeSet(3, "type", "source", "target"),
-                               StringSet());
-            
-            expectTableEntry("source", ConfigEntry::Type_Value, table);
-            const String source = table["source"];
+        Model::CompilationTask* CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
+            expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
 
-            expectTableEntry("target", ConfigEntry::Type_Value, table);
-            const String target = table["target"];
+            const String& source = value["source"].stringValue();
+            const String& target = value["target"].stringValue();
             
             return new Model::CompilationCopyFiles(source, target);
         }
         
-        Model::CompilationTask* CompilationConfigParser::parseToolTask(const ConfigTable& table) const {
-            expectTableEntries(table,
-                               StringUtils::makeSet(3, "type", "tool", "parameters"),
-                               StringSet());
-            
-            expectTableEntry("tool", ConfigEntry::Type_Value, table);
-            const String tool = table["tool"];
+        Model::CompilationTask* CompilationConfigParser::parseToolTask(const EL::Value& value) const {
+            expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, {} ]");
 
-            expectTableEntry("parameters", ConfigEntry::Type_Value, table);
-            const String parameters = table["parameters"];
+            const String& tool = value["tool"].stringValue();
+            const String& parameters = value["parameters"].stringValue();
             
             return new Model::CompilationRunTool(tool, parameters);
         }

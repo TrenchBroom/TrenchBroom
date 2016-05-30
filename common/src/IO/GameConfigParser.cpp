@@ -25,17 +25,15 @@
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
-        m_elParser(begin, end),
-        m_path(path) {}
+        ConfigParserBase(begin, end, path) {}
         
         GameConfigParser::GameConfigParser(const String& str, const Path& path) :
-        m_elParser(str),
-        m_path(path) {}
+        ConfigParserBase(str, path) {}
         
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
           
-            const EL::Value root = m_elParser.parse().evaluate(EL::EvaluationContext());
+            const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
             expectType(root, EL::Type_Map);
             
             expectStructure(root,
@@ -232,47 +230,6 @@ namespace TrenchBroom {
                 }
             }
             return contentTypes;
-        }
-
-        void GameConfigParser::expectType(const EL::Value& value, const EL::ValueType type) const {
-            if (value.type() != type)
-                throw ParserException(value.line(), value.column(), "Expected value of type '" + EL::typeName(type) + "', but got type '" + value.typeName() + "'");
-        }
-        
-        void GameConfigParser::expectStructure(const EL::Value& value, const String& structure) const {
-            ELParser parser(structure);
-            const EL::Value expected = parser.parse().evaluate(EL::EvaluationContext());
-            assert(expected.type() == EL::Type_Array);
-            
-            const EL::Value& mandatory = expected[0];
-            assert(mandatory.type() == EL::Type_Map);
-            
-            const EL::Value& optional = expected[1];
-            assert(optional.type() == EL::Type_Map);
-
-            const StringSet mandatoryKeys = mandatory.keys();
-            StringSet::const_iterator keyIt, keyEnd;
-            for (keyIt = mandatoryKeys.begin(), keyEnd = mandatoryKeys.end(); keyIt != keyEnd; ++keyIt) {
-                const String& key = *keyIt;
-                const String& typeName = mandatory[key].stringValue();
-                const EL::ValueType type = EL::typeForName(typeName);
-                expectMapEntry(value, key, type);
-            }
-            
-            const StringSet mapKeys = value.keys();
-            for (keyIt = mapKeys.begin(), keyEnd = mapKeys.end(); keyIt != keyEnd; ++keyIt) {
-                const String& key = *keyIt;
-                if (!mandatory.contains(key) && !optional.contains(key))
-                    throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
-            }
-        }
-
-        void GameConfigParser::expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const {
-            const EL::MapType& map = value.mapValue();
-            const EL::MapType::const_iterator it = map.find(key);
-            if (it == map.end())
-                throw ParserException(value.line(), value.column(), "Expected map entry '" + key + "'");
-            expectType(it->second, type);
         }
     }
 }

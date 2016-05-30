@@ -153,44 +153,54 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadGameConfig(const IO::Path& path) {
+            GameConfig config;
             try {
                 const IO::MappedFile::Ptr configFile = m_configFS.openFile(path);
                 IO::GameConfigParser parser(configFile->begin(), configFile->end(), m_configFS.makeAbsolute(path));
-                GameConfig config = parser.parse();
-                loadCompilationConfig(config);
-                loadGameEngineConfig(config);
-
-                m_configs.insert(std::make_pair(config.name(), config));
-                m_names.push_back(config.name());
-
-                const IO::Path gamePathPrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
-                m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(gamePathPrefPath, IO::Path())));
-                
-                const IO::Path defaultEnginePrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Default Engine");
-                m_defaultEngines.insert(std::make_pair(config.name(), Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
+                config = parser.parse();
             } catch (const Exception& e) {
                 throw GameException("Cannot load game configuration '" + path.asString() + "': " + String(e.what()));
             }
+
+            loadCompilationConfig(config);
+            loadGameEngineConfig(config);
+            
+            m_configs.insert(std::make_pair(config.name(), config));
+            m_names.push_back(config.name());
+            
+            const IO::Path gamePathPrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Path");
+            m_gamePaths.insert(std::make_pair(config.name(), Preference<IO::Path>(gamePathPrefPath, IO::Path())));
+            
+            const IO::Path defaultEnginePrefPath = IO::Path("Games") + IO::Path(config.name()) + IO::Path("Default Engine");
+            m_defaultEngines.insert(std::make_pair(config.name(), Preference<IO::Path>(defaultEnginePrefPath, IO::Path())));
         }
 
         void GameFactory::loadCompilationConfig(GameConfig& gameConfig) {
             const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
-            if (m_configFS.fileExists(profilesPath)) {
-                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
-                IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
-                gameConfig.setCompilationConfig(parser.parse());
+            try {
+                if (m_configFS.fileExists(profilesPath)) {
+                    const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                    IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                    gameConfig.setCompilationConfig(parser.parse());
+                }
+            } catch (const Exception& e) {
+                throw GameException("Cannot load compilation configuration '" + profilesPath.asString() + "': " + String(e.what()));
             }
         }
         
         void GameFactory::loadGameEngineConfig(GameConfig& gameConfig) {
             const IO::Path profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
-            if (m_configFS.fileExists(profilesPath)) {
-                const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
-                IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
-                gameConfig.setGameEngineConfig(parser.parse());
+            try {
+                if (m_configFS.fileExists(profilesPath)) {
+                    const IO::MappedFile::Ptr profilesFile = m_configFS.openFile(profilesPath);
+                    IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(profilesPath));
+                    gameConfig.setGameEngineConfig(parser.parse());
+                }
+            } catch (const Exception& e) {
+                throw GameException("Cannot load game engine configuration '" + profilesPath.asString() + "': " + String(e.what()));
             }
         }
-
+        
         void GameFactory::writeCompilationConfigs() {
             ConfigMap::const_iterator it, end;
             for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
