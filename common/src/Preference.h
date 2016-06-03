@@ -21,11 +21,9 @@
 #define TrenchBroom_Preference
 
 #include "Color.h"
-#include "ConfigTypes.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringUtils.h"
-#include "IO/ConfigFileParser.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
@@ -194,25 +192,6 @@ namespace TrenchBroom {
         
         bool write(wxConfigBase* config, const IO::Path& path, const IO::Path& value) const {
             return config->Write(path.asString('/'), wxString(value.asString()));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<ConfigEntry*> {
-    public:
-        bool read(wxConfigBase* config, const IO::Path& path, ConfigEntry*& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = IO::ConfigFileParser(string.ToStdString()).parse();
-                return true;
-            }
-            return false;
-        }
-        
-        bool write(wxConfigBase* config, const IO::Path& path, const ConfigEntry*& value) const {
-            StringStream stream;
-            stream << value;
-            return config->Write(path.asString('/'), wxString(stream.str()));
         }
     };
 

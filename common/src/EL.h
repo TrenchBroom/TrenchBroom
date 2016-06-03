@@ -111,7 +111,7 @@ namespace TrenchBroom {
             
             virtual ValueHolder* clone() const = 0;
             
-            virtual void appendToStream(std::ostream& str) const = 0;
+            virtual void appendToStream(std::ostream& str, const String& indent) const = 0;
         protected:
             String asString() const;
         };
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
         
         class StringValueHolder : public ValueHolder {
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
         
         class NumberValueHolder : public ValueHolder {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
         
         class ArrayValueHolder : public ValueHolder {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
 
         class MapValueHolder : public ValueHolder {
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
         
         class RangeValueHolder : public ValueHolder {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
 
         class NullValueHolder : public ValueHolder {
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent) const;
         };
         
         class Value {
@@ -285,7 +285,7 @@ namespace TrenchBroom {
             size_t length() const;
             Value convertTo(ValueType toType) const;
 
-            void appendToStream(std::ostream& str) const;
+            void appendToStream(std::ostream& str, const String& indent = "") const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
             
             bool contains(const Value& indexValue) const;

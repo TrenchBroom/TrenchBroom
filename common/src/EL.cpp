@@ -114,7 +114,7 @@ namespace TrenchBroom {
         String ValueHolder::asString() const {
             StringStream str;
             str.precision(17);
-            appendToStream(str);
+            appendToStream(str, "");
             return str.str();
         }
         
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
         
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
-        void BooleanValueHolder::appendToStream(std::ostream& str) const { str  << (m_value ? "true" : "false"); }
+        void BooleanValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << (m_value ? "true" : "false"); }
 
         StringValueHolder::StringValueHolder(const StringType& value) : m_value(value) {}
         ValueType StringValueHolder::type() const { return Type_String; }
@@ -178,7 +178,7 @@ namespace TrenchBroom {
         }
         
         ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
-        void StringValueHolder::appendToStream(std::ostream& str) const { str << "\"" << m_value << "\""; }
+        void StringValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << "\"" << m_value << "\""; }
 
 
         
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
-        void NumberValueHolder::appendToStream(std::ostream& str) const { str << m_value; }
+        void NumberValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << m_value; }
 
 
         
@@ -235,14 +235,21 @@ namespace TrenchBroom {
         
         ValueHolder* ArrayValueHolder::clone() const { return new ArrayValueHolder(m_value); }
         
-        void ArrayValueHolder::appendToStream(std::ostream& str) const {
-            str << "[";
-            for (size_t i = 0; i < m_value.size(); ++i) {
-                m_value[i].appendToStream(str);
-                if (i < m_value.size() - 1)
-                    str << ",";
+        void ArrayValueHolder::appendToStream(std::ostream& str, const String& indent) const {
+            if (m_value.empty()) {
+                str << "[]";
+            } else {
+                const String childIndent = indent + "\t";
+                str << "[\n";
+                for (size_t i = 0; i < m_value.size(); ++i) {
+                    str << childIndent;
+                    m_value[i].appendToStream(str, childIndent);
+                    if (i < m_value.size() - 1)
+                        str << ",";
+                    str << "\n";
+                }
+                str << indent << "]";
             }
-            str << "]";
         }
         
         
@@ -270,17 +277,23 @@ namespace TrenchBroom {
         
         ValueHolder* MapValueHolder::clone() const { return new MapValueHolder(m_value); }
 
-        void MapValueHolder::appendToStream(std::ostream& str) const {
-            str << "{";
-            MapType::const_iterator it, end;
-            size_t i = 0;
-            for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
-                str << "\"" << it->first << "\"" << ":";
-                it->second.appendToStream(str);
-                if (i++ < m_value.size() - 1)
-                    str << ",";
+        void MapValueHolder::appendToStream(std::ostream& str, const String& indent) const {
+            if (m_value.empty()) {
+                str << "{}";
+            } else {
+                const String childIndent = indent + "\t";
+                str << "{\n";
+                MapType::const_iterator it, end;
+                size_t i = 0;
+                for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
+                    str << childIndent << "\"" << it->first << "\"" << ": ";
+                    it->second.appendToStream(str, childIndent);
+                    if (i++ < m_value.size() - 1)
+                        str << ",";
+                    str << "\n";
+                }
+                str << indent << "}";
             }
-            str << "}";
         }
         
         
@@ -308,12 +321,13 @@ namespace TrenchBroom {
         
         ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
         
-        void RangeValueHolder::appendToStream(std::ostream& str) const {
-            str << "[";
+        void RangeValueHolder::appendToStream(std::ostream& str, const String& indent) const {
+            const String childIndent = indent + "\t";
+            str << "[\n";
             for (size_t i = 0; i < m_value.size(); ++i) {
-                str << m_value[i];
+                str << childIndent << m_value[i];
                 if (i < m_value.size() - 1)
-                    str << ",";
+                    str << ", ";
             }
             str << "]";
         }
@@ -351,7 +365,7 @@ namespace TrenchBroom {
         }
         
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
-        void NullValueHolder::appendToStream(std::ostream& str) const { str << "null"; }
+        void NullValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << "null"; }
 
         
         const Value Value::Null = Value();
@@ -479,8 +493,8 @@ namespace TrenchBroom {
             return Value(m_value->convertTo(toType), m_line, m_column);
         }
 
-        void Value::appendToStream(std::ostream& str) const {
-            m_value->appendToStream(str);
+        void Value::appendToStream(std::ostream& str, const String& indent) const {
+            m_value->appendToStream(str, indent);
         }
         
         std::ostream& operator<<(std::ostream& stream, const Value& value) {

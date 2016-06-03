@@ -33,65 +33,64 @@ namespace TrenchBroom {
         }
         
         void CompilationConfigWriter::writeConfig() {
-            ConfigTable table;
-            table.addEntry("version", new ConfigValue("1"));
-            table.addEntry("profiles", writeProfiles(m_config));
-            table.appendToStream(m_stream);
+            EL::MapType map;
+            map["version"] = EL::Value(1.0);
+            map["profiles"] = writeProfiles(m_config);
+            m_stream << EL::Value(map) << "\n";
         }
 
-        ConfigList* CompilationConfigWriter::writeProfiles(const Model::CompilationConfig& config) const {
-            ConfigList* result = new ConfigList();
+        EL::Value CompilationConfigWriter::writeProfiles(const Model::CompilationConfig& config) const {
+            EL::ArrayType array;
             for (size_t i = 0; i < config.profileCount(); ++i) {
                 const Model::CompilationProfile* profile = config.profile(i);
-                result->addEntry(writeProfile(profile));
+                array.push_back(writeProfile(profile));
             }
             
-            return result;
+            return EL::Value(array);
         }
 
-        ConfigTable* CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
-            ConfigTable* result = new ConfigTable();
-            result->addEntry("name", new ConfigValue(profile->name()));
-            result->addEntry("workdir", new ConfigValue(profile->workDirSpec()));
-            result->addEntry("tasks", writeTasks(profile));
-            return result;
+        EL::Value CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
+            EL::MapType map;
+            map["name"] = EL::Value(profile->name());
+            map["workdir"] = EL::Value(profile->workDirSpec());
+            map["tasks"] = writeTasks(profile);
+            return EL::Value(map);
         }
 
         class CompilationConfigWriter::WriteCompilationTaskVisitor : public Model::ConstCompilationTaskVisitor {
         private:
-            ConfigList* m_result;
+            EL::ArrayType m_array;
         public:
-            WriteCompilationTaskVisitor(ConfigList* result) : m_result(result) {}
+            EL::Value result() const { return EL::Value(m_array); }
         public:
             void visit(const Model::CompilationExportMap* task) {
-                ConfigTable* table = new ConfigTable();
-                table->addEntry("type", new ConfigValue("export"));
-                table->addEntry("target", new ConfigValue(task->targetSpec()));
-                m_result->addEntry(table);
+                EL::MapType map;
+                map["type"] = EL::Value("export");
+                map["target"] = EL::Value(task->targetSpec());
+                m_array.push_back(EL::Value(map));
             }
             
             void visit(const Model::CompilationCopyFiles* task) {
-                ConfigTable* table = new ConfigTable();
-                table->addEntry("type", new ConfigValue("copy"));
-                table->addEntry("source", new ConfigValue(task->sourceSpec()));
-                table->addEntry("target", new ConfigValue(task->targetSpec()));
-                m_result->addEntry(table);
+                EL::MapType map;
+                map["type"] = EL::Value("copy");
+                map["source"] = EL::Value(task->sourceSpec());
+                map["target"] = EL::Value(task->targetSpec());
+                m_array.push_back(EL::Value(map));
             }
             
             void visit(const Model::CompilationRunTool* task) {
-                ConfigTable* table = new ConfigTable();
-                table->addEntry("type", new ConfigValue("tool"));
-                table->addEntry("tool", new ConfigValue(task->toolSpec()));
-                table->addEntry("parameters", new ConfigValue(task->parameterSpec()));
-                m_result->addEntry(table);
+                EL::MapType map;
+                map["type"] = EL::Value("tool");
+                map["tool"] = EL::Value(task->toolSpec());
+                map["parameters"] = EL::Value(task->parameterSpec());
+                m_array.push_back(EL::Value(map));
             }
         };
 
-        ConfigList* CompilationConfigWriter::writeTasks(const Model::CompilationProfile* profile) const {
-            ConfigList* result = new ConfigList();
-            WriteCompilationTaskVisitor visitor(result);
+        EL::Value CompilationConfigWriter::writeTasks(const Model::CompilationProfile* profile) const {
+            WriteCompilationTaskVisitor visitor;
             profile->accept(visitor);
-            return result;
+            return visitor.result();
         }
     }
 }
