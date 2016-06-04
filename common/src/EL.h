@@ -355,29 +355,44 @@ namespace TrenchBroom {
         private:
             typedef std::tr1::shared_ptr<ExpressionBase> ExpressionPtr;
             ExpressionPtr m_expression;
+            size_t m_offset;
+            size_t m_length;
         public:
-            Expression(ExpressionBase* expression);
+            Expression(ExpressionBase* expression, size_t offset, size_t length);
 
+            size_t offset() const;
+            size_t length() const;
+            
             void optimize();
             Value evaluate(const EvaluationContext& context) const;
         };
         
         class BinaryOperator;
 
+        struct ExpressionPosition {
+            size_t line;
+            size_t column;
+            size_t offset;
+            size_t length;
+            
+            ExpressionPosition(size_t i_line, size_t i_column, size_t i_offset, size_t i_length);
+        };
+        
         class ExpressionBase {
         public:
             typedef std::auto_ptr<ExpressionBase> Ptr;
             typedef std::list<ExpressionBase*> List;
             typedef std::map<String, ExpressionBase*> Map;
         protected:
-            size_t m_line;
-            size_t m_column;
+            ExpressionPosition m_position;
         protected:
             static void replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression);
         public:
-            ExpressionBase(size_t line, size_t column);
+            ExpressionBase(const ExpressionPosition& position);
             virtual ~ExpressionBase();
 
+            const ExpressionPosition& position() const;
+            
             ExpressionBase* reorderByPrecedence();
             ExpressionBase* reorderByPrecedence(BinaryOperator* parent);
             
@@ -398,9 +413,9 @@ namespace TrenchBroom {
         private:
             Value m_value;
         private:
-            LiteralExpression(const Value& value, size_t line, size_t column);
+            LiteralExpression(const Value& value, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(const Value& value, size_t line, size_t column);
+            static ExpressionBase* create(const Value& value, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
@@ -413,9 +428,9 @@ namespace TrenchBroom {
         private:
             String m_variableName;
         private:
-            VariableExpression(const String& variableName, size_t line, size_t column);
+            VariableExpression(const String& variableName, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(const String& variableName, size_t line, size_t column);
+            static ExpressionBase* create(const String& variableName, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
@@ -428,9 +443,9 @@ namespace TrenchBroom {
         private:
             ExpressionBase::List m_elements;
         private:
-            ArrayExpression(const ExpressionBase::List& elements, size_t line, size_t column);
+            ArrayExpression(const ExpressionBase::List& elements, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(const ExpressionBase::List& elements, size_t line, size_t column);
+            static ExpressionBase* create(const ExpressionBase::List& elements, const ExpressionPosition& position);
             ~ArrayExpression();
         private:
             ExpressionBase* doClone() const;
@@ -444,9 +459,9 @@ namespace TrenchBroom {
         private:
             ExpressionBase::Map m_elements;
         private:
-            MapExpression(const ExpressionBase::Map& elements, size_t line, size_t column);
+            MapExpression(const ExpressionBase::Map& elements, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(const ExpressionBase::Map& elements, size_t line, size_t column);
+            static ExpressionBase* create(const ExpressionBase::Map& elements, const ExpressionPosition& position);
             ~MapExpression();
         private:
             ExpressionBase* doClone() const;
@@ -460,7 +475,7 @@ namespace TrenchBroom {
         protected:
             ExpressionBase* m_operand;
         protected:
-            UnaryOperator(ExpressionBase* operand, size_t line, size_t column);
+            UnaryOperator(ExpressionBase* operand, const ExpressionPosition& position);
         public:
             virtual ~UnaryOperator();
         private:
@@ -470,9 +485,9 @@ namespace TrenchBroom {
 
         class UnaryPlusOperator : public UnaryOperator {
         private:
-            UnaryPlusOperator(ExpressionBase* operand, size_t line, size_t column);
+            UnaryPlusOperator(ExpressionBase* operand, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* operand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -482,9 +497,9 @@ namespace TrenchBroom {
         
         class UnaryMinusOperator : public UnaryOperator {
         private:
-            UnaryMinusOperator(ExpressionBase* operand, size_t line, size_t column);
+            UnaryMinusOperator(ExpressionBase* operand, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* operand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -494,9 +509,9 @@ namespace TrenchBroom {
         
         class NegationOperator : public UnaryOperator {
         private:
-            NegationOperator(ExpressionBase* operand, size_t line, size_t column);
+            NegationOperator(ExpressionBase* operand, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* operand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -506,9 +521,9 @@ namespace TrenchBroom {
         
         class GroupingOperator : public UnaryOperator {
         private:
-            GroupingOperator(ExpressionBase* operand, size_t line, size_t column);
+            GroupingOperator(ExpressionBase* operand, const ExpressionPosition& position);
         public:
-            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* operand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -521,11 +536,11 @@ namespace TrenchBroom {
             ExpressionBase* m_indexableOperand;
             ExpressionBase* m_indexOperand;
         private:
-            SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
+            SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const ExpressionPosition& position);
         public:
             ~SubscriptOperator();
         public:
-            static ExpressionBase* create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
@@ -539,7 +554,7 @@ namespace TrenchBroom {
             ExpressionBase* m_leftOperand;
             ExpressionBase* m_rightOperand;
         protected:
-            BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
             virtual ~BinaryOperator();
         private:
@@ -565,9 +580,9 @@ namespace TrenchBroom {
         
         class AdditionOperator : public BinaryOperator {
         private:
-            AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -578,9 +593,9 @@ namespace TrenchBroom {
         
         class SubtractionOperator : public BinaryOperator {
         private:
-            SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -591,9 +606,9 @@ namespace TrenchBroom {
         
         class MultiplicationOperator : public BinaryOperator {
         private:
-            MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -604,9 +619,9 @@ namespace TrenchBroom {
         
         class DivisionOperator : public BinaryOperator {
         private:
-            DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -617,9 +632,9 @@ namespace TrenchBroom {
         
         class ModulusOperator : public BinaryOperator {
         private:
-            ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -630,9 +645,9 @@ namespace TrenchBroom {
         
         class ConjunctionOperator : public BinaryOperator {
         private:
-            ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -643,9 +658,9 @@ namespace TrenchBroom {
         
         class DisjunctionOperator : public BinaryOperator {
         private:
-            DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -666,14 +681,14 @@ namespace TrenchBroom {
             } Op;
             Op m_op;
         private:
-            ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, Op op, size_t line, size_t column);
+            ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, Op op);
         public:
-            static ExpressionBase* createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
@@ -686,11 +701,11 @@ namespace TrenchBroom {
         public:
             static const String& AutoRangeParameterName();
         private:
-            RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
         public:
-            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
-            static ExpressionBase* createAutoRangeWithLeftOperand(ExpressionBase* leftOperand, size_t line, size_t column);
-            static ExpressionBase* createAutoRangeWithRightOperand(ExpressionBase* rightOperand, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand);
+            static ExpressionBase* createAutoRangeWithLeftOperand(ExpressionBase* leftOperand);
+            static ExpressionBase* createAutoRangeWithRightOperand(ExpressionBase* rightOperand, const ExpressionPosition& position);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(InternalEvaluationContext& context) const;
