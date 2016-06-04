@@ -1117,21 +1117,11 @@ namespace TrenchBroom {
                 m_variables.erase(it);
         }
 
-        Expression::Expression(ExpressionBase* expression, const size_t offset, const size_t length) :
-        m_expression(expression),
-        m_offset(offset),
-        m_length(length) {
+        Expression::Expression(ExpressionBase* expression) :
+        m_expression(expression) {
             assert(m_expression.get() != NULL);
         }
         
-        size_t Expression::offset() const {
-            return m_offset;
-        }
-        
-        size_t Expression::length() const {
-            return m_length;
-        }
-
         void Expression::optimize() {
             ExpressionBase* optimized = m_expression->optimize();
             if (optimized != NULL && optimized != m_expression.get())
@@ -1143,12 +1133,6 @@ namespace TrenchBroom {
             return m_expression->evaluate(internalContext);
         }
 
-        ExpressionPosition::ExpressionPosition(const size_t i_line, const size_t i_column, const size_t i_offset, const size_t i_length) :
-        line(i_line),
-        column(i_column),
-        offset(i_offset),
-        length(i_length) {}
-
         void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
             if (newExpression != NULL && newExpression != oldExpression) {
                 delete oldExpression;
@@ -1156,12 +1140,8 @@ namespace TrenchBroom {
             }
         }
         
-        ExpressionBase::ExpressionBase(const ExpressionPosition& position) : m_position(position) {}
+        ExpressionBase::ExpressionBase(const size_t line, const size_t column) : m_line(line), m_column(column) {}
         ExpressionBase::~ExpressionBase() {}
-
-        const ExpressionPosition& ExpressionBase::position() const {
-            return m_position;
-        }
 
         ExpressionBase* ExpressionBase::reorderByPrecedence() {
             return doReorderByPrecedence();
@@ -1191,16 +1171,16 @@ namespace TrenchBroom {
             return parent;
         }
 
-        LiteralExpression::LiteralExpression(const Value& value, const ExpressionPosition& position) :
-        ExpressionBase(position),
-        m_value(value, position.line, position.column) {}
+        LiteralExpression::LiteralExpression(const Value& value, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
+        m_value(value, line, column) {}
         
-        ExpressionBase* LiteralExpression::create(const Value& value, const ExpressionPosition& position) {
-            return new LiteralExpression(value, position);
+        ExpressionBase* LiteralExpression::create(const Value& value, const size_t line, const size_t column) {
+            return new LiteralExpression(value, line, column);
         }
 
         ExpressionBase* LiteralExpression::doClone() const {
-            return new LiteralExpression(m_value, m_position);
+            return new LiteralExpression(m_value, m_line, m_column);
         }
 
         ExpressionBase* LiteralExpression::doOptimize() {
@@ -1211,16 +1191,16 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        VariableExpression::VariableExpression(const String& variableName, const ExpressionPosition& position) :
-        ExpressionBase(position),
+        VariableExpression::VariableExpression(const String& variableName, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_variableName(variableName) {}
 
-        ExpressionBase* VariableExpression::create(const String& variableName, const ExpressionPosition& position) {
-            return new VariableExpression(variableName, position);
+        ExpressionBase* VariableExpression::create(const String& variableName, const size_t line, const size_t column) {
+            return new VariableExpression(variableName, line, column);
         }
         
         ExpressionBase* VariableExpression::doClone() const {
-            return new VariableExpression(m_variableName, m_position);
+            return new VariableExpression(m_variableName, m_line, m_column);
         }
 
         ExpressionBase* VariableExpression::doOptimize() {
@@ -1231,12 +1211,12 @@ namespace TrenchBroom {
             return context.variableValue(m_variableName);
         }
 
-        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements, const ExpressionPosition& position) :
-        ExpressionBase(position),
+        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_elements(elements) {}
         
-        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements, const ExpressionPosition& position) {
-            return new ArrayExpression(elements, position);
+        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements, const size_t line, const size_t column) {
+            return new ArrayExpression(elements, line, column);
         }
         
         ArrayExpression::~ArrayExpression() {
@@ -1251,7 +1231,7 @@ namespace TrenchBroom {
                 clones.push_back(element->clone());
             }
             
-            return new ArrayExpression(clones, m_position);
+            return new ArrayExpression(clones, m_line, m_column);
         }
         
         ExpressionBase* ArrayExpression::doOptimize() {
@@ -1267,7 +1247,7 @@ namespace TrenchBroom {
             
             if (allOptimized) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context), m_position);
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1289,15 +1269,15 @@ namespace TrenchBroom {
                 }
             }
             
-            return Value(array, m_position.line, m_position.column);
+            return Value(array, m_line, m_column);
         }
 
-        MapExpression::MapExpression(const ExpressionBase::Map& elements, const ExpressionPosition& position) :
-        ExpressionBase(position),
+        MapExpression::MapExpression(const ExpressionBase::Map& elements, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_elements(elements) {}
         
-        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements, const ExpressionPosition& position) {
-            return new MapExpression(elements, position);
+        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements, const size_t line, const size_t column) {
+            return new MapExpression(elements, line, column);
         }
         
         MapExpression::~MapExpression() {
@@ -1313,7 +1293,7 @@ namespace TrenchBroom {
                 clones.insert(std::make_pair(key, value->clone()));
             }
             
-            return new MapExpression(clones, m_position);
+            return new MapExpression(clones, m_line, m_column);
         }
 
         
@@ -1330,7 +1310,7 @@ namespace TrenchBroom {
             
             if (allOptimized) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context), m_position);
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1345,14 +1325,11 @@ namespace TrenchBroom {
                 map.insert(std::make_pair(key, expression->evaluate(context)));
             }
             
-            return Value(map, m_position.line, m_position.column);
+            return Value(map, m_line, m_column);
         }
 
-        UnaryOperator::UnaryOperator(ExpressionBase* operand, const ExpressionPosition& position) :
-        ExpressionBase(ExpressionPosition(operand->position().line,
-                                          operand->position().column,
-                                          operand->position().offset,
-                                          position.offset + position.length - operand->position().offset)),
+        UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_operand(operand) {
             assert(m_operand != NULL);
         }
@@ -1367,74 +1344,74 @@ namespace TrenchBroom {
             
             if (optimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context), m_position);
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
         }
 
-        UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand, const ExpressionPosition& position) :
-        UnaryOperator(operand, position) {}
+        UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* UnaryPlusOperator::create(ExpressionBase* operand, const ExpressionPosition& position) {
-            return new UnaryPlusOperator(operand, position);
+        ExpressionBase* UnaryPlusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new UnaryPlusOperator(operand, line, column);
         }
 
         ExpressionBase* UnaryPlusOperator::doClone() const {
-            return new UnaryPlusOperator(m_operand->clone(), m_position);
+            return new UnaryPlusOperator(m_operand->clone(), m_line, m_column);
         }
 
         Value UnaryPlusOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(+m_operand->evaluate(context), m_position.line, m_position.column);
+            return Value(+m_operand->evaluate(context), m_line, m_column);
         }
 
-        UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand, const ExpressionPosition& position) :
-        UnaryOperator(operand, position) {}
+        UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
         
-        ExpressionBase* UnaryMinusOperator::create(ExpressionBase* operand, const ExpressionPosition& position) {
-            return new UnaryMinusOperator(operand, position);
+        ExpressionBase* UnaryMinusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new UnaryMinusOperator(operand, line, column);
         }
 
         ExpressionBase* UnaryMinusOperator::doClone() const {
-            return new UnaryMinusOperator(m_operand->clone(), m_position);
+            return new UnaryMinusOperator(m_operand->clone(), m_line, m_column);
         }
 
         Value UnaryMinusOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(-m_operand->evaluate(context), m_position.line, m_position.column);
+            return Value(-m_operand->evaluate(context), m_line, m_column);
         }
         
-        NegationOperator::NegationOperator(ExpressionBase* operand, const ExpressionPosition& position) :
-        UnaryOperator(operand, position) {}
+        NegationOperator::NegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* NegationOperator::create(ExpressionBase* operand, const ExpressionPosition& position) {
-            return new NegationOperator(operand, position);
+        ExpressionBase* NegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new NegationOperator(operand, line, column);
         }
 
         ExpressionBase* NegationOperator::doClone() const  {
-            return new NegationOperator(m_operand->clone(), m_position);
+            return new NegationOperator(m_operand->clone(), m_line, m_column);
         }
         
         Value NegationOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(!m_operand->evaluate(context), m_position.line, m_position.column);
+            return Value(!m_operand->evaluate(context), m_line, m_column);
         }
 
-        GroupingOperator::GroupingOperator(ExpressionBase* operand, const ExpressionPosition& position) :
-        UnaryOperator(operand, position) {}
+        GroupingOperator::GroupingOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
 
-        ExpressionBase* GroupingOperator::create(ExpressionBase* operand, const ExpressionPosition& position) {
-            return new GroupingOperator(operand, position);
+        ExpressionBase* GroupingOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new GroupingOperator(operand, line, column);
         }
 
         ExpressionBase* GroupingOperator::doClone() const {
-            return new GroupingOperator(m_operand->clone(), m_position);
+            return new GroupingOperator(m_operand->clone(), m_line, m_column);
         }
         
         Value GroupingOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(m_operand->evaluate(context), m_position.line, m_position.column);
+            return Value(m_operand->evaluate(context), m_line, m_column);
         }
 
-        SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const ExpressionPosition& position) :
-        ExpressionBase(position),
+        SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_indexableOperand(indexableOperand),
         m_indexOperand(indexOperand) {
             assert(m_indexableOperand != NULL);
@@ -1446,12 +1423,12 @@ namespace TrenchBroom {
             delete m_indexOperand;
         }
 
-        ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const ExpressionPosition& position) {
-            return (new SubscriptOperator(indexableOperand, indexOperand, position))->reorderByPrecedence();
+        ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) {
+            return (new SubscriptOperator(indexableOperand, indexOperand, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* SubscriptOperator::doClone() const {
-            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone(), m_position);
+            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone(), m_line, m_column);
         }
         
         ExpressionBase* SubscriptOperator::doOptimize() {
@@ -1463,7 +1440,7 @@ namespace TrenchBroom {
             
             if (indexableOptimized != NULL && indexOptimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context), m_position);
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1471,17 +1448,14 @@ namespace TrenchBroom {
 
         Value SubscriptOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value indexableValue = m_indexableOperand->evaluate(context);
-            context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1, m_position.line, m_position.column));
+            context.pushVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1, m_line, m_column));
             const Value indexValue = m_indexOperand->evaluate(context);
             context.popVariable(RangeOperator::AutoRangeParameterName());
             return indexableValue[indexValue];
         }
 
-        BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        ExpressionBase(ExpressionPosition(leftOperand->position().column,
-                                          leftOperand->position().line,
-                                          leftOperand->position().offset,
-                                          rightOperand->position().offset + rightOperand->position().length - leftOperand->position().offset)),
+        BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        ExpressionBase(line, column),
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {
             assert(m_leftOperand != NULL);
@@ -1537,7 +1511,7 @@ namespace TrenchBroom {
             
             if (leftOptimized != NULL && rightOptimized != NULL) {
                 InternalEvaluationContext context((EvaluationContext()));
-                return LiteralExpression::create(evaluate(context), m_position);
+                return LiteralExpression::create(evaluate(context), m_line, m_column);
             }
             
             return NULL;
@@ -1570,105 +1544,105 @@ namespace TrenchBroom {
             return traits().commutative;
         }
 
-        AdditionOperator::AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        AdditionOperator::AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* AdditionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new AdditionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* AdditionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new AdditionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* AdditionOperator::doClone() const {
-            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value AdditionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue + rightValue, m_position.line, m_position.column);
+            return Value(leftValue + rightValue, m_line, m_column);
         }
 
         BinaryOperator::Traits AdditionOperator::doGetTraits() const {
             return Traits(4, true, true);
         }
         
-        SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* SubtractionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new SubtractionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* SubtractionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new SubtractionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* SubtractionOperator::doClone() const {
-            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value SubtractionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue - rightValue, m_position.line, m_position.column);
+            return Value(leftValue - rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
             return Traits(4, false, false);
         }
         
-        MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* MultiplicationOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new MultiplicationOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* MultiplicationOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new MultiplicationOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* MultiplicationOperator::doClone() const {
-            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value MultiplicationOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue * rightValue, m_position.line, m_position.column);
+            return Value(leftValue * rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
             return Traits(5, true, true);
         }
 
-        DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DivisionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new DivisionOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* DivisionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new DivisionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* DivisionOperator::doClone() const {
-            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value DivisionOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue / rightValue, m_position.line, m_position.column);
+            return Value(leftValue / rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits DivisionOperator::doGetTraits() const {
             return Traits(5, false, false);
         }
 
-        ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* ModulusOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new ModulusOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* ModulusOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new ModulusOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* ModulusOperator::doClone() const {
-            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value ModulusOperator::doEvaluate(InternalEvaluationContext& context) const {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue % rightValue, m_position.line, m_position.column);
+            return Value(leftValue % rightValue, m_line, m_column);
         }
         
         BinaryOperator::Traits ModulusOperator::doGetTraits() const {
@@ -1680,90 +1654,90 @@ namespace TrenchBroom {
             return Name;
         }
 
-        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
 
-        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ConjunctionOperator(leftOperand, rightOperand);
+        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ConjunctionOperator(leftOperand, rightOperand, line, column);
         }
 
         ExpressionBase* ConjunctionOperator::doClone() const {
-            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value ConjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_position.line, m_position.column);
+            return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_line, m_column);
         }
         
         BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
             return Traits(2, true, true);
         }
         
-        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new DisjunctionOperator(leftOperand, rightOperand);
+        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new DisjunctionOperator(leftOperand, rightOperand, line, column);
         }
         
         ExpressionBase* DisjunctionOperator::doClone() const {
-            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value DisjunctionOperator::doEvaluate(InternalEvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_position.line, m_position.column);
+            return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_line, m_column);
         }
         
         BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
             return Traits(1, true, true);
         }
 
-        ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op) :
-        BinaryOperator(leftOperand, rightOperand),
+        ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column),
         m_op(op) {}
 
-        ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Less);
+        ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual);
+        ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal);
+        ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal);
+        ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual);
+        ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column);
         }
         
-        ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater);
+        ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column);
         }
         
         ExpressionBase* ComparisonOperator::doClone() const {
-            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op);
+            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op, m_line, m_column);
         }
         
         Value ComparisonOperator::doEvaluate(InternalEvaluationContext& context) const {
             switch (m_op) {
                 case Op_Less:
-                    return Value(m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_LessOrEqual:
-                    return Value(m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Equal:
-                    return Value(m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Inequal:
-                    return Value(m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_GreaterOrEqual:
-                    return Value(m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Greater:
-                    return Value(m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context), m_position.line, m_position.column);
+                    return Value(m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context), m_line, m_column);
             }
         }
         
@@ -1780,23 +1754,23 @@ namespace TrenchBroom {
             }
         }
 
-        RangeOperator::RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand) :
-        BinaryOperator(leftOperand, rightOperand) {}
+        RangeOperator::RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* RangeOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand) {
-            return (new RangeOperator(leftOperand, rightOperand))->reorderByPrecedence();
+        ExpressionBase* RangeOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new RangeOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* RangeOperator::createAutoRangeWithLeftOperand(ExpressionBase* leftOperand) {
-            return create(leftOperand, VariableExpression::create(AutoRangeParameterName(), leftOperand->position()));
+        ExpressionBase* RangeOperator::createAutoRangeWithLeftOperand(ExpressionBase* leftOperand, const size_t line, const size_t column) {
+            return create(leftOperand, VariableExpression::create(AutoRangeParameterName(), line, column), line, column);
         }
         
-        ExpressionBase* RangeOperator::createAutoRangeWithRightOperand(ExpressionBase* rightOperand, const ExpressionPosition& position) {
-            return create(VariableExpression::create(AutoRangeParameterName(), position), rightOperand);
+        ExpressionBase* RangeOperator::createAutoRangeWithRightOperand(ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return create(VariableExpression::create(AutoRangeParameterName(), line, column), rightOperand, line, column);
         }
 
         ExpressionBase* RangeOperator::doClone() const {
-            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone());
+            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
         Value RangeOperator::doEvaluate(InternalEvaluationContext& context) const {
@@ -1822,7 +1796,7 @@ namespace TrenchBroom {
             }
             assert(range.capacity() == range.size());
 
-            return Value(range, m_position.line, m_position.column);
+            return Value(range, m_line, m_column);
         }
         
         BinaryOperator::Traits RangeOperator::doGetTraits() const {

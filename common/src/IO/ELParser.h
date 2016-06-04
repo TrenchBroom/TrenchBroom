@@ -58,8 +58,7 @@ namespace TrenchBroom {
             static const Type Inequal = 1 << 25;
             static const Type GreaterOrEqual = 1 << 26;
             static const Type Greater = 1 << 27;
-            static const Type ELBegin = 1 << 28;
-            static const Type Eof = 1 << 29;
+            static const Type Eof = 1 << 28;
             static const Type Literal = String | Number | Boolean;
             static const Type UnaryOperator = Plus | Minus | Not;
             static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | UnaryOperator;
@@ -101,7 +100,6 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseUnaryOperator();
             EL::ExpressionBase* parseCompoundTerm(EL::ExpressionBase* lhs);
         private:
-            EL::ExpressionPosition position(const Token& token) const;
             TokenNameMap tokenNames() const;
         };
     }

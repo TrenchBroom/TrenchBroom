@@ -158,14 +158,6 @@ namespace TrenchBroom {
                                 }
                                 retreat();
                                 break;
-                            case '$':
-                                advance();
-                                if (curChar() == '{') {
-                                    advance();
-                                    return Token(ELToken::ELBegin, c, c+2, offset(c), startLine, startColumn);
-                                }
-                                retreat();
-                                break;
                             default:
                                 break;
                         }
@@ -208,23 +200,7 @@ namespace TrenchBroom {
         m_tokenizer(str) {}
         
         EL::Expression ELParser::parse() {
-            EL::ExpressionBase* expression;
-            size_t offset, length;
-            Token token = m_tokenizer.nextToken();
-            if (token.hasType(ELToken::ELBegin)) {
-                offset = token.position();
-                expression = parseExpression();
-                token = m_tokenizer.nextToken();
-                expect(ELToken::CBrace, token);
-                length = token.position() - offset + 1;
-            } else {
-                m_tokenizer.pushToken(token);
-                expression = parseExpression();
-                offset = expression->position().offset;
-                length = expression->position().length;
-            }
-            
-            EL::Expression result(expression, offset, length);
+            EL::Expression result(parseExpression());
             result.optimize();
             return result;
         }
@@ -240,15 +216,10 @@ namespace TrenchBroom {
         EL::ExpressionBase* ELParser::parseGroupedTerm() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::OParen, token);
-            const size_t line = token.line();
-            const size_t column = token.column();
-            const size_t offset = token.position();
-            
             EL::ExpressionBase* expression = parseTerm();
-            expect(ELToken::CParen, token = m_tokenizer.nextToken());
-            const size_t length = token.position() + token.length() - offset;
+            expect(ELToken::CParen, m_tokenizer.nextToken());
             
-            EL::ExpressionBase* lhs = EL::GroupingOperator::create(expression, EL::ExpressionPosition(line, column, offset, length));
+            EL::ExpressionBase* lhs = EL::GroupingOperator::create(expression, token.line(), token.column());
             if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
                 return parseCompoundTerm(lhs);
             return lhs;
@@ -285,9 +256,8 @@ namespace TrenchBroom {
         
         EL::ExpressionBase* ELParser::parseSubscript(EL::ExpressionBase* lhs) {
             Token token = m_tokenizer.nextToken();
-            const size_t sLine = token.line();
-            const size_t sColumn = token.column();
-            const size_t sOffset = token.position();
+            const size_t startLine = token.line();
+            const size_t startColumn = token.column();
             
             expect(ELToken::OBracket, token);
             EL::ExpressionBase::List elements;
@@ -299,25 +269,17 @@ namespace TrenchBroom {
                     m_tokenizer.pushToken(token);
                 
             }
-            token = m_tokenizer.nextToken();
-            expect(ELToken::CBracket, token);
-
-            const size_t length = token.position() + token.length() - lhs->position().offset;
-            const EL::ExpressionPosition position(lhs->position().line, lhs->position().column, lhs->position().offset, length);
+            expect(ELToken::CBracket, m_tokenizer.nextToken());
             
             if (elements.size() == 1)
-                return EL::SubscriptOperator::create(lhs, elements.front(), position);
-
-            const size_t sLength = token.position() + token.length() - sOffset;
-            const EL::ExpressionPosition sPosition(sLine, sColumn, sOffset, sLength);
-            
-            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(elements, sPosition), position);
+                return EL::SubscriptOperator::create(lhs, elements.front(), startLine, startColumn);
+            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(elements, startLine, startColumn), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseVariable() {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::Variable, token);
-            return EL::VariableExpression::create(token.data(), position(token));
+            return EL::VariableExpression::create(token.data(), token.line(), token.column());
         }
 
         EL::ExpressionBase* ELParser::parseLiteral() {
@@ -325,11 +287,11 @@ namespace TrenchBroom {
             expect(ELToken::String | ELToken::Number | ELToken::Boolean | ELToken::OBracket | ELToken::OBrace, token);
             
             if (token.hasType(ELToken::String))
-                return EL::LiteralExpression::create(EL::Value(token.data()), EL::ExpressionPosition(token.line(), token.column() - 1, token.position() - 1, token.length() + 2));
+                return EL::LiteralExpression::create(EL::Value(token.data()), token.line(), token.column());
             if (token.hasType(ELToken::Number))
-                return EL::LiteralExpression::create(EL::Value(token.toFloat<EL::NumberType>()), position(token));
+                return EL::LiteralExpression::create(EL::Value(token.toFloat<EL::NumberType>()), token.line(), token.column());
             if (token.hasType(ELToken::Boolean))
-                return EL::LiteralExpression::create(EL::Value(token.data() == "true"), position(token));
+                return EL::LiteralExpression::create(EL::Value(token.data() == "true"), token.line(), token.column());
             
             m_tokenizer.pushToken(token);
             if (token.hasType(ELToken::OBracket))
@@ -339,10 +301,8 @@ namespace TrenchBroom {
 
         EL::ExpressionBase* ELParser::parseArray() {
             Token token = m_tokenizer.nextToken();
-            const size_t line = token.line();
-            const size_t column = token.column();
-            const size_t offset = token.position();
-            
+            const size_t startLine = token.line();
+            const size_t startColumn = token.column();
             expect(ELToken::OBracket, token);
             EL::ExpressionBase::List elements;
             while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
@@ -353,18 +313,16 @@ namespace TrenchBroom {
                     m_tokenizer.pushToken(token);
                 
             }
-            token = m_tokenizer.nextToken();
-            expect(ELToken::CBracket, token);
-            const size_t length = token.position() + token.length() - offset;
+            expect(ELToken::CBracket, m_tokenizer.nextToken());
             
-            return EL::ArrayExpression::create(elements, EL::ExpressionPosition(line, column, offset, length));
+            return EL::ArrayExpression::create(elements, startLine, startColumn);
         }
         
         EL::ExpressionBase* ELParser::parseExpressionOrRange() {
             EL::ExpressionBase* expression = parseExpression();
             if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
-                m_tokenizer.nextToken();
-                expression = EL::RangeOperator::create(expression, parseExpression());
+                Token token = m_tokenizer.nextToken();
+                expression = EL::RangeOperator::create(expression, parseExpression(), token.line(), token.column());
             }
             
             return expression;
@@ -374,15 +332,15 @@ namespace TrenchBroom {
             EL::ExpressionBase* expression = NULL;
             if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
                 Token token = m_tokenizer.nextToken();
-                expression = EL::RangeOperator::createAutoRangeWithRightOperand(parseExpression(), position(token));
+                expression = EL::RangeOperator::createAutoRangeWithRightOperand(parseExpression(), token.line(), token.column());
             } else {
                 expression = parseExpression();
                 if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
-                    m_tokenizer.nextToken();
+                    Token token = m_tokenizer.nextToken();
                     if (m_tokenizer.peekToken().hasType(ELToken::SimpleTerm))
-                        expression = EL::RangeOperator::create(expression, parseExpression());
+                        expression = EL::RangeOperator::create(expression, parseExpression(), token.line(), token.column());
                     else
-                        expression = EL::RangeOperator::createAutoRangeWithLeftOperand(expression);
+                        expression = EL::RangeOperator::createAutoRangeWithLeftOperand(expression, token.line(), token.column());
                 }
             }
             
@@ -393,10 +351,8 @@ namespace TrenchBroom {
             EL::ExpressionBase::Map elements;
             
             Token token = m_tokenizer.nextToken();
-            const size_t line = token.line();
-            const size_t column = token.column();
-            const size_t offset = token.position();
-            
+            const size_t startLine = token.line();
+            const size_t startColumn = token.column();
             expect(ELToken::OBrace, token);
             while (!m_tokenizer.peekToken().hasType(ELToken::CBrace)) {
                 token = m_tokenizer.nextToken();
@@ -412,11 +368,9 @@ namespace TrenchBroom {
                 if (token.hasType(ELToken::CBrace))
                     m_tokenizer.pushToken(token);
             }
-            token = m_tokenizer.nextToken();
-            expect(ELToken::CBrace, token);
-            const size_t length = token.position() + token.length() - offset;
+            expect(ELToken::CBrace, m_tokenizer.nextToken());
             
-            return EL::MapExpression::create(elements, EL::ExpressionPosition(line, column, offset, length));
+            return EL::MapExpression::create(elements, startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseUnaryOperator() {
@@ -424,10 +378,10 @@ namespace TrenchBroom {
             expect(ELToken::UnaryOperator, token);
             
             if (token.hasType(ELToken::Plus))
-                return EL::UnaryPlusOperator::create(parseSimpleTerm(), position(token));
+                return EL::UnaryPlusOperator::create(parseSimpleTerm(), token.line(), token.column());
             else if (token.hasType(ELToken::Minus))
-                return EL::UnaryMinusOperator::create(parseSimpleTerm(), position(token));
-            return EL::NegationOperator::create(parseSimpleTerm(), position(token));
+                return EL::UnaryMinusOperator::create(parseSimpleTerm(), token.line(), token.column());
+            return EL::NegationOperator::create(parseSimpleTerm(), token.line(), token.column());
         }
 
         EL::ExpressionBase* ELParser::parseCompoundTerm(EL::ExpressionBase* lhs) {
@@ -436,71 +390,60 @@ namespace TrenchBroom {
                 expect(ELToken::CompoundTerm, token);
                 
                 if (token.hasType(ELToken::Plus))
-                    lhs = EL::AdditionOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::AdditionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Minus))
-                    lhs = EL::SubtractionOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::SubtractionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Times))
-                    lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Over))
-                    lhs = EL::DivisionOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::DivisionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Modulus))
-                    lhs = EL::ModulusOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::ModulusOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::And))
-                    lhs = EL::ConjunctionOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::ConjunctionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Or))
-                    lhs = EL::DisjunctionOperator::create(lhs, parseSimpleTerm());
+                    lhs = EL::DisjunctionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Less))
-                    lhs = EL::ComparisonOperator::createLess(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createLess(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::LessOrEqual))
-                    lhs = EL::ComparisonOperator::createLessOrEqual(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createLessOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Equal))
-                    lhs = EL::ComparisonOperator::createEqual(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createEqual(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Inequal))
-                    lhs = EL::ComparisonOperator::createInequal(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createInequal(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::GreaterOrEqual))
-                    lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Greater))
-                    lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTerm());
+                    lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTerm(), token.line(), token.column());
             }
             
             return lhs;
         }
 
-        EL::ExpressionPosition ELParser::position(const Token& token) const {
-            return EL::ExpressionPosition(token.line(), token.column(), token.position(), token.length());
-        }
-
         ELParser::TokenNameMap ELParser::tokenNames() const {
             TokenNameMap result;
-            result[ELToken::Variable]       = "variable";
-            result[ELToken::String]         = "string";
-            result[ELToken::Number]         = "number";
-            result[ELToken::Boolean]        = "boolean";
-            result[ELToken::OBracket]       = "'['";
-            result[ELToken::CBracket]       = "']'";
-            result[ELToken::OBrace]         = "'{'";
-            result[ELToken::CBrace]         = "'}'";
-            result[ELToken::OParen]         = "'('";
-            result[ELToken::CParen]         = "')'";
-            result[ELToken::Plus]           = "'+'";
-            result[ELToken::Minus]          = "'-'";
-            result[ELToken::Times]          = "'*'";
-            result[ELToken::Over]           = "'/'";
-            result[ELToken::Modulus]        = "'%'";
-            result[ELToken::Colon]          = "':'";
-            result[ELToken::Comma]          = "','";
-            result[ELToken::Range]          = "'..'";
-            result[ELToken::Not]            = "'!'";
-            result[ELToken::And]            = "'&&'";
-            result[ELToken::Or]             = "'||'";
-            result[ELToken::Less]           = "'<'";
-            result[ELToken::LessOrEqual]    = "'<='";
-            result[ELToken::Equal]          = "'=='";
-            result[ELToken::Inequal]        = "'!='";
-            result[ELToken::GreaterOrEqual] = "'>='";
-            result[ELToken::Greater]        = "'>'";
-            result[ELToken::ELBegin]        = "'${'";
-            result[ELToken::Eof]            = "end of file";
+            result[ELToken::Variable]   = "variable";
+            result[ELToken::String]     = "string";
+            result[ELToken::Number]     = "number";
+            result[ELToken::Boolean]    = "boolean";
+            result[ELToken::OBracket]   = "'['";
+            result[ELToken::CBracket]   = "']'";
+            result[ELToken::OBrace]     = "'{'";
+            result[ELToken::CBrace]     = "'}'";
+            result[ELToken::OParen]     = "'('";
+            result[ELToken::CParen]     = "')'";
+            result[ELToken::Plus]       = "'+'";
+            result[ELToken::Minus]      = "'-'";
+            result[ELToken::Times]      = "'*'";
+            result[ELToken::Over]       = "'/'";
+            result[ELToken::Modulus]    = "'%'";
+            result[ELToken::Colon]      = "':'";
+            result[ELToken::Comma]      = "','";
+            result[ELToken::Range]      = "'..'";
+            result[ELToken::Not]        = "'!'";
+            result[ELToken::And]        = "'&&'";
+            result[ELToken::Or]         = "'||'";
+            result[ELToken::Eof]        = "end of file";
             return result;
         }
     }

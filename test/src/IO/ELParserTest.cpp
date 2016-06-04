@@ -42,28 +42,6 @@ namespace TrenchBroom {
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
         }
 
-        TEST(ELParserTest, expressionOffsetAndLength) {
-            EL::Expression expression = ELParser("'asdf'").parse();
-            ASSERT_EQ(0u, expression.offset());
-            ASSERT_EQ(6u, expression.length());
-
-            expression = ELParser(" 1.002  ").parse();
-            ASSERT_EQ(1u, expression.offset());
-            ASSERT_EQ(5u, expression.length());
-            
-            expression = ELParser(" {}").parse();
-            ASSERT_EQ(1u, expression.offset());
-            ASSERT_EQ(2u, expression.length());
-            
-            expression = ELParser(" ${ {}}").parse();
-            ASSERT_EQ(1u, expression.offset());
-            ASSERT_EQ(6u, expression.length());
-            
-            expression = ELParser("  ${ 1.0 + 1.0}  ").parse();
-            ASSERT_EQ(2u, expression.offset());
-            ASSERT_EQ(13u, expression.length());
-        }
-        
         TEST(ELParserTest, parseEmptyExpression) {
             ASSERT_EL_THROW("", ParserException);
             ASSERT_EL_THROW("    ", ParserException);
