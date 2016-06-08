@@ -40,6 +40,14 @@ namespace TrenchBroom {
         ELTokenizer::ELTokenizer(const String& str) :
         Tokenizer(str) {}
         
+        void ELTokenizer::appendUntil(const String& pattern, StringStream& str) {
+            const char* begin = curPos();
+            const char* end = discardUntilPattern(pattern);
+            str << String(begin, end);
+            if (!eof())
+                discard("${");
+        }
+
         ELTokenizer::Token ELTokenizer::emitToken() {
             while (!eof()) {
                 size_t startLine = line();
@@ -106,57 +114,49 @@ namespace TrenchBroom {
                     default: {
                         switch (curChar()) {
                             case '.':
-                                advance();
-                                if (curChar() == '.') {
-                                    advance();
+                                if (lookAhead() == '.') {
+                                    advance(2);
                                     return Token(ELToken::Range, c, c+2, offset(c), startLine, startColumn);
                                 }
-                                retreat();
                                 break;
                             case '&':
-                                advance();
-                                if (curChar() == '&') {
-                                    advance();
+                                if (lookAhead() == '&') {
+                                    advance(2);
                                     return Token(ELToken::And, c, c+2, offset(c), startLine, startColumn);
                                 }
-                                retreat();
                                 break;
                             case '|':
-                                advance();
-                                if (curChar() == '|') {
-                                    advance();
+                                if (lookAhead() == '|') {
+                                    advance(2);
                                     return Token(ELToken::Or, c, c+2, offset(c), startLine, startColumn);
                                 }
-                                retreat();
                                 break;
                             case '<':
-                                advance();
-                                if (curChar() == '=') {
-                                    advance();
+                                if (lookAhead() == '=') {
+                                    advance(2);
                                     return Token(ELToken::LessOrEqual, c, c+2, offset(c), startLine, startColumn);
                                 }
+                                advance();
                                 return Token(ELToken::Less, c, c+1, offset(c), startLine, startColumn);
                             case '>':
-                                advance();
-                                if (curChar() == '=') {
-                                    advance();
+                                if (lookAhead() == '=') {
+                                    advance(2);
                                     return Token(ELToken::GreaterOrEqual, c, c+2, offset(c), startLine, startColumn);
                                 }
+                                advance();
                                 return Token(ELToken::Greater, c, c+1, offset(c), startLine, startColumn);
                             case '!':
-                                advance();
-                                if (curChar() == '=') {
-                                    advance();
+                                if (lookAhead() == '=') {
+                                    advance(2);
                                     return Token(ELToken::Inequal, c, c+2, offset(c), startLine, startColumn);
                                 }
+                                advance();
                                 return Token(ELToken::Not, c, c+1, offset(c), startLine, startColumn);
                             case '=':
-                                advance();
                                 if (curChar() == '=') {
-                                    advance();
+                                    advance(2);
                                     return Token(ELToken::Equal, c, c+2, offset(c), startLine, startColumn);
                                 }
-                                retreat();
                                 break;
                             default:
                                 break;

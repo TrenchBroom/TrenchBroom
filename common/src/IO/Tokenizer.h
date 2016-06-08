@@ -40,12 +40,14 @@ namespace TrenchBroom {
                 size_t line;
                 size_t column;
                 size_t lastColumn;
+                bool escaped;
                 
                 State(const char* i_cur) :
                 cur(i_cur),
                 line(1),
                 column(1),
-                lastColumn(0) {}
+                lastColumn(0),
+                escaped(false) {}
             };
             
             const char* m_begin;
@@ -134,6 +136,10 @@ namespace TrenchBroom {
                 const double len = static_cast<double>(length());
                 return cur / len;
             }
+            
+            bool eof() const {
+                return m_state.cur >= m_end;
+            }
         protected:
             size_t line() const {
                 return m_state.line;
@@ -141,10 +147,6 @@ namespace TrenchBroom {
             
             size_t column() const {
                 return m_state.column;
-            }
-            
-            bool eof() const {
-                return m_state.cur >= m_end;
             }
             
             size_t length() const {
@@ -167,51 +169,38 @@ namespace TrenchBroom {
                 return *curPos();
             }
             
-            char lookAhead(const size_t offset = 1) {
+            char lookAhead(const size_t offset = 1) const {
                 if (m_state.cur + offset >= m_end)
                     return 0;
                 return *(m_state.cur + offset);
+            }
+
+            void advance(const size_t offset) {
+                for (size_t i = 0; i < offset; ++i)
+                    advance();
             }
             
             void advance() {
                 errorIfEof();
                 
-                if (curChar() == '\n') {
-                    ++m_state.line;
-                    m_state.lastColumn = m_state.column;
-                    m_state.column = 1;
-                } else {
-                    ++m_state.column;
+                switch (curChar()) {
+                    case '\n':
+                        ++m_state.line;
+                        m_state.lastColumn = m_state.column;
+                        m_state.column = 1;
+                        m_state.escaped = false;
+                        break;
+                    case '\\':
+                        ++m_state.column;
+                        m_state.escaped = !m_state.escaped;
+                        break;
+                    default:
+                        ++m_state.column;
+                        m_state.escaped = false;
+                        break;
                 }
                 
                 ++m_state.cur;
-            }
-            
-            void retreat() {
-                if (curPos() == m_begin)
-                    throw ParserException("Cannot retreat beyond beginning of file");
-                if (curChar() == '\n') {
-                    --m_state.line;
-                    if (m_state.lastColumn > 0) {
-                        m_state.column = m_state.lastColumn;
-                        m_state.lastColumn = 0;
-                    } else {
-                        m_state.column = 1;
-                        const char* c = m_state.cur - 1;
-                        while (c > m_begin && *c != '\n') {
-                            --c;
-                            ++m_state.column;
-                        }
-                    }
-                } else {
-                    --m_state.column;
-                }
-                --m_state.cur;
-            }
-            
-            void retreat(const size_t count) {
-                for (size_t i = 0; i < count; ++i)
-                    retreat();
             }
             
             bool isDigit(const char c) const {
@@ -226,6 +215,10 @@ namespace TrenchBroom {
                 return isAnyOf(c, Whitespace());
             }
 
+            bool isEscaped() const {
+                return m_state.escaped;
+            }
+            
             const char* readInteger(const String& delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar()))
                     return NULL;
@@ -286,7 +279,7 @@ namespace TrenchBroom {
             
             const char* readQuotedString(const char delim = '"') {
                 char lastChar = 0;
-                while (!eof() && (curChar() != delim || lastChar == '\\')) {
+                while (!eof() && (curChar() != delim || isEscaped())) {
                     lastChar = curChar();
                     advance();
                 }
@@ -296,26 +289,50 @@ namespace TrenchBroom {
                 return end;
             }
             
-            void discardWhile(const String& allow) {
+            const char* discardWhile(const String& allow) {
                 while (!eof() && isAnyOf(curChar(), allow))
                     advance();
+                return curPos();
             }
             
-            void discardUntil(const String& delims) {
+            const char* discardUntil(const String& delims) {
                 while (!eof() && !isAnyOf(curChar(), delims))
                     advance();
+                return curPos();
+            }
+            
+            bool matchesPattern(const String& pattern) const {
+                if (pattern.empty() || isEscaped() || curChar() != pattern[0])
+                    return false;
+                for (size_t i = 1; i < pattern.size(); ++i) {
+                    if (lookAhead(i) != pattern[i])
+                        return false;
+                }
+                return true;
+            }
+            
+            const char* discardUntilPattern(const String& pattern) {
+                if (pattern.empty())
+                    return curPos();
+                
+                while (!eof() && !matchesPattern(pattern))
+                    advance();
+                
+                if (eof())
+                    return m_end;
+                
+                return curPos();
             }
             
             const char* discard(const String& str) {
                 for (size_t i = 0; i < str.size(); ++i) {
-                    if (eof() || curChar() != str[i]) {
-                        retreat(i);
+                    const char c = lookAhead(i);
+                    if (c == 0 || c != str[i])
                         return NULL;
-                    }
                     
-                    advance();
                 }
-                
+
+                advance(str.size());
                 return curPos();
             }
             

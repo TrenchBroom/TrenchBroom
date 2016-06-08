@@ -72,12 +72,14 @@ namespace TrenchBroom {
         public:
             ELTokenizer(const char* begin, const char* end);
             ELTokenizer(const String& str);
+        public:
+            void appendUntil(const String& pattern, StringStream& str);
         private:
             Token emitToken();
         };
         
         class ELParser : public Parser<ELToken::Type> {
-        private:
+        protected:
             ELTokenizer m_tokenizer;
             typedef ELTokenizer::Token Token;
         public:

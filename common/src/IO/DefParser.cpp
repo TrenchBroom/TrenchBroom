@@ -43,24 +43,22 @@ namespace TrenchBroom {
                 const char* c = curPos();
                 switch (*c) {
                     case '/': {
-                        advance();
-                        if (curChar() == '*') {
+                        if (lookAhead() == '*') {
                             // eat all chars immediately after the '*' because it's often followed by QUAKE
                             do { advance(); } while (!eof() && !isWhitespace(curChar()));
                             return Token(DefToken::ODefinition, c, curPos(), offset(c), startLine, startColumn);
-                        } else if (curChar() == '/') {
+                        } else if (lookAhead() == '/') {
                             discardUntil("\n\r");
                             break;
                         }
                         // fall through and try to read as word
-                        retreat();
                     }
                     case '*': {
-                        advance();
-                        if (curChar() == '/')
+                        if (lookAhead() == '/') {
+                            advance();
                             return Token(DefToken::CDefinition, c, curPos(), offset(c), startLine, startColumn);
+                        }
                         // fall through and try to read as word
-                        retreat();
                     }
                     case '(':
                         advance();
