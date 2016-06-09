@@ -42,6 +42,8 @@ namespace TrenchBroom {
                     return "Range";
                 case Type_Null:
                     return "Null";
+                case Type_Undefined:
+                    return "Undefined";
             }
         }
 
@@ -58,6 +60,8 @@ namespace TrenchBroom {
                 return Type_Map;
             if (type == "Range")
                 return Type_Range;
+            if (type == "Undefined")
+                return Type_Undefined;
             assert(false);
             return Type_Null;
         }
@@ -135,6 +139,7 @@ namespace TrenchBroom {
                 case Type_Array:
                 case Type_Map:
                 case Type_Range:
+                case Type_Undefined:
                 case Type_Null:
                     break;
             }
@@ -171,6 +176,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -200,6 +206,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -227,6 +234,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -269,6 +277,7 @@ namespace TrenchBroom {
                 case Type_Array:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -313,6 +322,7 @@ namespace TrenchBroom {
                 case Type_Array:
                 case Type_Map:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -359,16 +369,27 @@ namespace TrenchBroom {
                     return new MapValueHolder(MapType());
                 case Type_Range:
                     return new RangeValueHolder(RangeType(0));
+                case Type_Undefined:
+                    break;
             }
             
             throw ConversionError(description(), type(), toType);
         }
         
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
-        void NullValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << "null"; }
+        void NullValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << description(); }
 
         
-        const Value Value::Null = Value();
+        ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
+        String UndefinedValueHolder::description() const { return "undefined"; }
+        size_t UndefinedValueHolder::length() const { return 0; }
+        ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(description(), type(), toType); }
+        ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
+        void UndefinedValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << description(); }
+
+        
+        const Value Value::Null = Value(new NullValueHolder(), 0, 0);
+        const Value Value::Undefined = Value(new UndefinedValueHolder(), 0, 0);
         
         Value::Value(ValueHolder* holder, const size_t line, const size_t column)      : m_value(holder), m_line(line), m_column(column) {}
         
@@ -524,6 +545,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Map:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -548,6 +570,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Map:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -578,6 +601,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -585,6 +609,7 @@ namespace TrenchBroom {
                 case Type_Number:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             return false;
@@ -600,6 +625,7 @@ namespace TrenchBroom {
                 case Type_Number:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             return false;
@@ -643,6 +669,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Map:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -673,6 +700,7 @@ namespace TrenchBroom {
                         case Type_String:
                         case Type_Map:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -683,7 +711,7 @@ namespace TrenchBroom {
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
                             if (it == map.end())
-                                return Value::Null;
+                                return Value::Undefined;
                             return it->second;
                         }
                         case Type_Array: {
@@ -706,6 +734,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -713,6 +742,7 @@ namespace TrenchBroom {
                 case Type_Number:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -739,6 +769,7 @@ namespace TrenchBroom {
                 case Type_Number:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -760,6 +791,7 @@ namespace TrenchBroom {
                 case Type_Number:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -793,6 +825,7 @@ namespace TrenchBroom {
                 case Type_String:
                 case Type_Map:
                 case Type_Null:
+                case Type_Undefined:
                     result.push_back(computeIndex(indexValue, indexableSize));
                     break;
             }
@@ -820,6 +853,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
@@ -835,6 +869,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
@@ -853,6 +888,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -866,6 +902,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -873,6 +910,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -892,6 +930,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -900,6 +939,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -919,6 +959,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -927,6 +968,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -946,6 +988,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -954,6 +997,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -973,6 +1017,7 @@ namespace TrenchBroom {
                         case Type_Map:
                         case Type_Range:
                         case Type_Null:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -981,6 +1026,7 @@ namespace TrenchBroom {
                 case Type_Map:
                 case Type_Range:
                 case Type_Null:
+                case Type_Undefined:
                     break;
             }
             
@@ -1032,6 +1078,7 @@ namespace TrenchBroom {
                         case Type_Array:
                         case Type_Map:
                         case Type_Range:
+                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -1054,11 +1101,16 @@ namespace TrenchBroom {
                         case Type_Array:
                         case Type_Map:
                         case Type_Range:
+                        case Type_Undefined:
                             break;
                     }
                     break;
                 case Type_Null:
                     if (rhs.type() == Type_Null)
+                        return 0;
+                    return -1;
+                case Type_Undefined:
+                    if (rhs.type() == Type_Undefined)
                         return 0;
                     return -1;
                 case Type_Array:

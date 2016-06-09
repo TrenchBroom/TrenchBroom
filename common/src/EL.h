@@ -49,7 +49,8 @@ namespace TrenchBroom {
             Type_Array,
             Type_Map,
             Type_Range,
-            Type_Null
+            Type_Null,
+            Type_Undefined
         } ValueType;
         
         String typeName(ValueType type);
@@ -216,9 +217,20 @@ namespace TrenchBroom {
             void appendToStream(std::ostream& str, const String& indent) const;
         };
         
+        class UndefinedValueHolder : public ValueHolder {
+        public:
+            ValueType type() const;
+            String description() const;
+            size_t length() const;
+            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* clone() const;
+            void appendToStream(std::ostream& str, const String& indent) const;
+        };
+        
         class Value {
         public:
             static const Value Null;
+            static const Value Undefined;
             typedef std::set<Value> Set;
         private:
             typedef std::vector<size_t> IndexList;
@@ -253,9 +265,33 @@ namespace TrenchBroom {
             Value(const ArrayType& value, size_t line, size_t column);
             explicit Value(const ArrayType& value);
             
+            template <typename T>
+            Value(const std::vector<T>& value, size_t line, size_t column) :
+            m_value(new ArrayValueHolder(makeArray(value))),
+            m_line(line),
+            m_column(column){}
+            
+            template <typename T>
+            explicit Value(const std::vector<T>& value) :
+            m_value(new ArrayValueHolder(makeArray(value))),
+            m_line(0),
+            m_column(0) {}
+            
             Value(const MapType& value, size_t line, size_t column);
             explicit Value(const MapType& value);
 
+            template <typename T, typename C>
+            Value(const std::map<String, T, C>& value, size_t line, size_t column) :
+            m_value(new MapValueHolder(makeMap(value))),
+            m_line(line),
+            m_column(column) {}
+            
+            template <typename T, typename C>
+            explicit Value(const std::map<String, T, C>& value) :
+            m_value(new MapValueHolder(makeMap(value))),
+            m_line(0),
+            m_column(0) {}
+            
             Value(const RangeType& value, size_t line, size_t column);
             explicit Value(const RangeType& value);
 
@@ -263,7 +299,26 @@ namespace TrenchBroom {
             Value(const Value& other);
 
             Value();
+        private:
+            template <typename T>
+            ArrayType makeArray(const std::vector<T>& value) {
+                ArrayType result;
+                result.reserve(value.size());
+                typename std::vector<T>::const_iterator it, end;
+                for (it = value.begin(), end = value.end(); it != end; ++it)
+                    result.push_back(EL::Value(*it));
+                return result;
+            }
             
+            template <typename T, typename C>
+            MapType makeMap(const std::map<String, T, C>& value) {
+                MapType result;
+                typename std::map<String, T, C>::const_iterator it, end;
+                for (it = value.begin(), end = value.end(); it != end; ++it)
+                    result.insert(std::make_pair(it->first, EL::Value(it->second)));
+                return result;
+            }
+        public:
             ValueType type() const;
             String typeName() const;
             String description() const;
