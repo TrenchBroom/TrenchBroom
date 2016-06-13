@@ -98,7 +98,7 @@ namespace TrenchBroom {
         
         TEST(ELParserTest, parseVariable) {
             EL::EvaluationContext context;
-            context.defineVariable("test", EL::Value(1.0));
+            context.declareVariable("test", EL::Value(1.0));
 
             ASSERT_EL_EQ(1.0, "test", context);
         }

@@ -86,8 +86,8 @@ namespace TrenchBroom {
             
             ASSERT_EQ(Value(1.0), mapValue[Value("test")]);
             ASSERT_EQ(Value("yeah"), mapValue[Value("huhu")]);
-            ASSERT_EQ(Value::Null, mapValue[Value("huu")]);
-            ASSERT_EQ(Value::Null, mapValue[Value("")]);
+            ASSERT_EQ(Value::Undefined, mapValue[Value("huu")]);
+            ASSERT_EQ(Value::Undefined, mapValue[Value("")]);
             
             MapType exp1;
             exp1["test"] = map["test"];

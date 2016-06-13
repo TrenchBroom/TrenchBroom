@@ -46,5 +46,9 @@ namespace TrenchBroom {
             ASSERT_EL(" true ", " ${ true } ");
             ASSERT_EL(" this and that ", " ${ 'this'+' and ' }${'that'} ");
         }
+        
+        TEST(ELInterpolatorTest, interpolateStringWithNestedExpression) {
+            ASSERT_EL(" asdfasdf nested ${TEST} expression  sdf ", " asdfasdf ${ 'nested ${TEST} expression' }  sdf ");
+        }
     }
 }

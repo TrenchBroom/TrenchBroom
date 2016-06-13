@@ -380,28 +380,23 @@ namespace TrenchBroom {
         };
         
         class EvaluationContext {
-        private:
+        protected:
             typedef std::map<String, Value> VariableTable;
             VariableTable m_variables;
         public:
-            const Value& variableValue(const String& name) const;
-            void defineVariable(const String& name, const Value& value);
+            virtual ~EvaluationContext();
+            
+            virtual const Value& variableValue(const String& name) const;
+            virtual void declareVariable(const String& name, const Value& value = Value::Undefined);
         };
         
-        class InternalEvaluationContext {
+        class EvaluationStack : public EvaluationContext {
         private:
-            typedef std::list<Value> ValueStack;
-            typedef std::map<String, ValueStack> VariableTable;
-            VariableTable m_variables;
-            
-            const EvaluationContext& m_context;
+            const EvaluationContext& m_next;
         public:
-            InternalEvaluationContext(const EvaluationContext& context);
+            EvaluationStack(const EvaluationContext& next);
             
             const Value& variableValue(const String& name) const;
-            
-            void pushVariable(const String& name, const Value& value);
-            void popVariable(const String& name);
         };
 
         class ExpressionBase;
@@ -438,13 +433,13 @@ namespace TrenchBroom {
             
             ExpressionBase* clone() const;
             ExpressionBase* optimize();
-            Value evaluate(InternalEvaluationContext& context) const;
+            Value evaluate(const EvaluationContext& context) const;
         private:
             virtual ExpressionBase* doReorderByPrecedence();
             virtual ExpressionBase* doReorderByPrecedence(BinaryOperator* parent);
             virtual ExpressionBase* doClone() const = 0;
             virtual ExpressionBase* doOptimize() = 0;
-            virtual Value doEvaluate(InternalEvaluationContext& context) const = 0;
+            virtual Value doEvaluate(const EvaluationContext& context) const = 0;
             
             deleteCopyAndAssignment(ExpressionBase)
         };
@@ -459,7 +454,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(LiteralExpression)
         };
@@ -474,7 +469,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(VariableExpression)
         };
@@ -490,7 +485,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(ArrayExpression)
         };
@@ -506,7 +501,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(MapExpression)
         };
@@ -530,7 +525,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(UnaryPlusOperator)
         };
@@ -542,7 +537,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(UnaryMinusOperator)
         };
@@ -554,7 +549,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(NegationOperator)
         };
@@ -566,7 +561,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(GroupingOperator)
         };
@@ -584,7 +579,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             
             deleteCopyAndAssignment(SubscriptOperator)
         };
@@ -625,7 +620,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(AdditionOperator)
@@ -638,7 +633,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(SubtractionOperator)
@@ -651,7 +646,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(MultiplicationOperator)
@@ -664,7 +659,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(DivisionOperator)
@@ -677,7 +672,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ModulusOperator)
@@ -690,7 +685,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ConjunctionOperator)
@@ -703,7 +698,7 @@ namespace TrenchBroom {
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(DisjunctionOperator)
@@ -731,7 +726,7 @@ namespace TrenchBroom {
             static ExpressionBase* createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ComparisonOperator)
@@ -748,7 +743,7 @@ namespace TrenchBroom {
             static ExpressionBase* createAutoRangeWithRightOperand(ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
-            Value doEvaluate(InternalEvaluationContext& context) const;
+            Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(RangeOperator)
