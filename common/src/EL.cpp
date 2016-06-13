@@ -1074,11 +1074,11 @@ namespace TrenchBroom {
                         case Type_String:
                             return lhs.stringValue().compare(rhs.convertTo(Type_String).stringValue());
                         case Type_Null:
+                        case Type_Undefined:
                             return 1;
                         case Type_Array:
                         case Type_Map:
                         case Type_Range:
-                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -1097,11 +1097,11 @@ namespace TrenchBroom {
                         case Type_String:
                             return lhs.convertTo(Type_String).stringValue().compare(rhs.stringValue());
                         case Type_Null:
+                        case Type_Undefined:
                             return 1;
                         case Type_Array:
                         case Type_Map:
                         case Type_Range:
-                        case Type_Undefined:
                             break;
                     }
                     break;
@@ -1129,27 +1129,77 @@ namespace TrenchBroom {
             throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
-        EvaluationContext::~EvaluationContext() {}
+        VariableStore::~VariableStore() {}
+
+        VariableStore* VariableStore::clone() const {
+            return doClone();
+        }
+
+        const Value& VariableStore::value(const String& name) const {
+            return doGetValue(name);
+        }
+
+        void VariableStore::declare(const String& name, const Value& value) {
+            doDeclare(name, value);
+        }
         
-        const Value& EvaluationContext::variableValue(const String& name) const {
-            VariableTable::const_iterator it = m_variables.find(name);
+        void VariableStore::assign(const String& name, const Value& value) {
+            doAssign(name, value);
+        }
+
+        VariableTable::VariableTable() {}
+
+        VariableTable::VariableTable(const Table& variables) :
+        m_variables(variables) {}
+
+        VariableStore* VariableTable::doClone() const {
+            return new VariableTable(m_variables);
+        }
+
+        const Value& VariableTable::doGetValue(const String& name) const {
+            Table::const_iterator it = m_variables.find(name);
             if (it != m_variables.end())
                 return it->second;
             return Value::Undefined;
         }
+
+        void VariableTable::doDeclare(const String& name, const Value& value) {
+            if (!MapUtils::insertOrFail(m_variables, name, value))
+                throw EvaluationError("Variable '" + name + "' already declared");
+        }
+        
+        void VariableTable::doAssign(const String& name, const Value& value) {
+            Table::iterator it = m_variables.find(name);
+            if (it == m_variables.end())
+                throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
+            it->second = value;
+        }
+
+        EvaluationContext::EvaluationContext() :
+        m_store(new VariableTable()) {}
+        
+        EvaluationContext::EvaluationContext(const VariableStore& store) :
+        m_store(store.clone()) {}
+
+        EvaluationContext::~EvaluationContext() {
+            delete m_store;
+        }
+        
+        const Value& EvaluationContext::variableValue(const String& name) const {
+            return m_store->value(name);
+        }
         
         void EvaluationContext::declareVariable(const String& name, const Value& value) {
-            if (!MapUtils::insertOrFail(m_variables, name, value))
-                throw EvaluationError("Cannot redeclare variable '" + name + "'");
+            m_store->declare(name, value);
         }
         
         EvaluationStack::EvaluationStack(const EvaluationContext& next) :
         m_next(next) {}
         
         const Value& EvaluationStack::variableValue(const String& name) const {
-            VariableTable::const_iterator it = m_variables.find(name);
-            if (it != m_variables.end())
-                return it->second;
+            const Value& value = EvaluationContext::variableValue(name);
+            if (value != Value::Undefined)
+                return value;
             return m_next.variableValue(name);
         }
 

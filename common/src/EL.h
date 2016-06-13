@@ -379,11 +379,41 @@ namespace TrenchBroom {
             friend int compare(const Value& lhs, const Value& rhs);
         };
         
-        class EvaluationContext {
-        protected:
-            typedef std::map<String, Value> VariableTable;
-            VariableTable m_variables;
+        class VariableStore {
         public:
+            virtual ~VariableStore();
+            
+            VariableStore* clone() const;
+            const Value& value(const String& name) const;
+            void declare(const String& name, const Value& value = Value::Undefined);
+            void assign(const String& name, const Value& value);
+        private:
+            virtual VariableStore* doClone() const = 0;
+            virtual const Value& doGetValue(const String& name) const = 0;
+            virtual void doDeclare(const String& name, const Value& value) = 0;
+            virtual void doAssign(const String& name, const Value& value) = 0;
+        };
+        
+        class VariableTable : public VariableStore {
+        private:
+            typedef std::map<String, Value> Table;
+            Table m_variables;
+        public:
+            VariableTable();
+            VariableTable(const Table& variables);
+        private:
+            VariableStore* doClone() const;
+            const Value& doGetValue(const String& name) const;
+            void doDeclare(const String& name, const Value& value);
+            void doAssign(const String& name, const Value& value);
+        };
+        
+        class EvaluationContext {
+        private:
+            VariableStore* m_store;
+        public:
+            EvaluationContext();
+            EvaluationContext(const VariableStore& store);
             virtual ~EvaluationContext();
             
             virtual const Value& variableValue(const String& name) const;
