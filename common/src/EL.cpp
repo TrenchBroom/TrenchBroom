@@ -1139,6 +1139,10 @@ namespace TrenchBroom {
             return doGetValue(name);
         }
 
+        const StringSet VariableStore::names() const {
+            return doGetNames();
+        }
+
         void VariableStore::declare(const String& name, const Value& value) {
             doDeclare(name, value);
         }
@@ -1161,6 +1165,10 @@ namespace TrenchBroom {
             if (it != m_variables.end())
                 return it->second;
             return Value::Undefined;
+        }
+
+        StringSet VariableTable::doGetNames() const {
+            return MapUtils::keySet(m_variables);
         }
 
         void VariableTable::doDeclare(const String& name, const Value& value) {

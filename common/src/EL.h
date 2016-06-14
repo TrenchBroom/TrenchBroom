@@ -385,11 +385,13 @@ namespace TrenchBroom {
             
             VariableStore* clone() const;
             const Value& value(const String& name) const;
+            const StringSet names() const;
             void declare(const String& name, const Value& value = Value::Undefined);
             void assign(const String& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;
             virtual const Value& doGetValue(const String& name) const = 0;
+            virtual StringSet doGetNames() const = 0;
             virtual void doDeclare(const String& name, const Value& value) = 0;
             virtual void doAssign(const String& name, const Value& value) = 0;
         };
@@ -404,6 +406,7 @@ namespace TrenchBroom {
         private:
             VariableStore* doClone() const;
             const Value& doGetValue(const String& name) const;
+            StringSet doGetNames() const;
             void doDeclare(const String& name, const Value& value);
             void doAssign(const String& name, const Value& value);
         };

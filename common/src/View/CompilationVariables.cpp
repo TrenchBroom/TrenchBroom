@@ -39,117 +39,43 @@ namespace TrenchBroom {
             const String APP_DIR_PATH   = "APP_DIR_PATH";
         }
 
-        VariableTable createCompilationWorkDirVariableTable();
-        
-        const VariableTable& compilationWorkDirVariables() {
-            static const VariableTable variables = createCompilationWorkDirVariableTable();
-            return variables;
-        }
-        
-        VariableTable createCompilationWorkDirVariableTable() {
-            using namespace CompilationVariableNames;
-            
-            VariableTable result;
-            result.declare(MAP_BASE_NAME);
-            result.declare(MAP_FULL_NAME);
-            result.declare(GAME_DIR_PATH);
-            result.declare(MOD_DIR_PATH);
-            result.declare(MOD_NAME);
-            result.declare(APP_DIR_PATH);
-
-            result.declare(MAP_DIR_PATH);
-            return result;
-        }
-
-        VariableTable createCompilationVariableTable();
-        const VariableTable& compilationVariables() {
-            static const VariableTable variables = createCompilationVariableTable();
-            return variables;
-        }
-
-        VariableTable createCompilationVariableTable() {
-            using namespace CompilationVariableNames;
-            
-            VariableTable result;
-            result.declare(MAP_BASE_NAME);
-            result.declare(MAP_FULL_NAME);
-            result.declare(GAME_DIR_PATH);
-            result.declare(MOD_DIR_PATH);
-            result.declare(MOD_NAME);
-            result.declare(APP_DIR_PATH);
-            
-            result.declare(WORK_DIR_PATH);
-            result.declare(CPU_COUNT);
-            return result;
-        }
-        
-        VariableTable createLaunchGameEngineVariableTable();
-        const VariableTable& launchGameEngineVariables() {
-            static const VariableTable variables = createLaunchGameEngineVariableTable();
-            return variables;
-        }
-
-        VariableTable createLaunchGameEngineVariableTable() {
-            using namespace CompilationVariableNames;
-            
-            VariableTable result;
-            result.declare(MAP_BASE_NAME);
-            result.declare(GAME_DIR_PATH);
-            result.declare(MOD_NAME);
-            
-            return result;
-        }
-
-        void defineCommonVariables(VariableTable& variables, MapDocumentSPtr document);
-        void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document);
-
-        void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-            
-            variables.define(MAP_DIR_PATH, document->path().deleteLastComponent().asString());
-            defineCommonCompilationVariables(variables, document);
-        }
-        
-        void defineCompilationVariables(VariableTable& variables, MapDocumentSPtr document, const String& workDir) {
-            using namespace CompilationVariableNames;
-            
-            wxString cpuCount;
-            cpuCount << wxThread::GetCPUCount();
-            
-            variables.define(WORK_DIR_PATH, workDir);
-            variables.define(CPU_COUNT, cpuCount.ToStdString());
-            defineCommonCompilationVariables(variables, document);
-        }
-
-        void defineLaunchGameEngineVariables(VariableTable& variables, MapDocumentSPtr document) {
-            defineCommonVariables(variables, document);
-        }
-
-        void defineCommonVariables(VariableTable& variables, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-            
+        CommonVariables::CommonVariables(MapDocumentSPtr document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
-            const String lastMod = document->mods().empty() ? "" : document->mods().back();
-            
-            variables.define(MAP_BASE_NAME, filename.deleteExtension().asString());
-            variables.define(GAME_DIR_PATH, gamePath.asString());
-            variables.define(MOD_NAME, lastMod);
+            const StringList mods = document->mods();
+ 
+            using namespace CompilationVariableNames;
+            declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
+            declare(GAME_DIR_PATH, EL::Value(gamePath.asString()));
+            declare(MODS, EL::Value(mods));
         }
 
-        void defineCommonCompilationVariables(VariableTable& variables, MapDocumentSPtr document) {
-            using namespace CompilationVariableNames;
-            
+        CommonCompilationVariables::CommonCompilationVariables(MapDocumentSPtr document) :
+        CommonVariables(document) {
             const IO::Path filename = document->path().lastComponent();
-            const IO::Path gamePath = document->game()->gamePath();
-            const String lastMod = document->mods().empty() ? "" : document->mods().back();
-            const IO::Path modPath = gamePath + IO::Path(lastMod);
             const IO::Path appPath = IO::SystemPaths::appDirectory();
-            
-            variables.define(MAP_FULL_NAME, filename.asString());
-            variables.define(MOD_DIR_PATH, modPath.asString());
-            variables.define(APP_DIR_PATH, appPath.asString());
-            defineCommonVariables(variables, document);
+
+            using namespace CompilationVariableNames;
+            declare(MAP_FULL_NAME, EL::Value(filename.asString()));
+            declare(APP_DIR_PATH, EL::Value(appPath.asString()));
         }
+        
+        CompilationWorkDirVariables::CompilationWorkDirVariables(MapDocumentSPtr document) :
+        CommonCompilationVariables(document) {
+            const IO::Path filePath = document->path().deleteLastComponent();
+            
+            using namespace CompilationVariableNames;
+            declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
+        }
+
+        CompilationVariables::CompilationVariables(MapDocumentSPtr document, const String& workDir) :
+        CommonCompilationVariables(document) {
+            using namespace CompilationVariableNames;
+            declare(CPU_COUNT, EL::Value(wxThread::GetCPUCount()));
+            declare(WORK_DIR_PATH, EL::Value(workDir));
+        }
+
+        LaunchGameEngineVariables::LaunchGameEngineVariables(MapDocumentSPtr document) :
+        CommonVariables(document) {}
     }
 }

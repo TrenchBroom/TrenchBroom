@@ -19,6 +19,7 @@
 
 #include "CompilationTaskList.h"
 
+#include "ELInterpolator.h"
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
 #include "View/AutoCompleteVariablesHelper.h"
@@ -103,9 +104,8 @@ namespace TrenchBroom {
             }
         private:
             void updateAutoComplete(AutoCompleteTextControl* control) {
-                VariableTable workDirVariables = compilationWorkDirVariables();
-                defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
-                const String workDir = workDirVariables.translate(m_profile->workDirSpec());
+                const String workDir = EL::Interpolator::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(m_document));
+                
                 
                 VariableTable variables = compilationVariables();
                 defineCompilationVariables(variables, lock(m_document), workDir);
