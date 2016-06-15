@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
             
             TexturePackageType doTexturePackageType() const;
-            void doLoadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
             
             bool doIsTextureCollection(const IO::Path& path) const;

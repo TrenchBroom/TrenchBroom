@@ -41,6 +41,7 @@
 #include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
+#include "Model/AttributableNodeVariableStore.h"
 #include "Model/EntityAttributes.h"
 #include "Model/GameConfig.h"
 #include "Model/Tutorial.h"
@@ -194,8 +195,8 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
-            const VariableTable variables = world->asVariableTable();
+        void GameImpl::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            const AttributableNodeVariableStore variables(world);
             const IO::Path::List paths = extractTextureCollections(world);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);

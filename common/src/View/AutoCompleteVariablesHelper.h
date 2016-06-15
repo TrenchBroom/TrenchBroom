@@ -20,16 +20,18 @@
 #ifndef AutoCompleteVariablesHelper_h
 #define AutoCompleteVariablesHelper_h
 
-#include "VariableTable.h"
+#include "EL.h"
+#include "SharedPointer.h"
 #include "View/AutoCompleteTextControl.h"
 
 namespace TrenchBroom {
     namespace View {
         class AutoCompleteVariablesHelper : public AutoCompleteTextControl::Helper {
         private:
-            const VariableTable m_variableTable;
+            typedef std::tr1::shared_ptr<EL::VariableStore> VariableStorePtr;
+            VariableStorePtr m_variables;
         public:
-            AutoCompleteVariablesHelper(const VariableTable& variableTable);
+            AutoCompleteVariablesHelper(const EL::VariableStore& variables);
         private:
             size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
             size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;

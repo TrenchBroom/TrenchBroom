@@ -21,6 +21,7 @@
 #define TextureLoader_h
 
 #include "Macros.h"
+#include "EL.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
@@ -41,14 +42,14 @@ namespace TrenchBroom {
         
         class TextureLoader {
         private:
-            const VariableTable& m_variables;
+            const EL::VariableStore* m_variables;
             const FileSystem& m_gameFS;
             const IO::Path::List m_fileSearchPaths;
             String m_textureExtension;
             TextureReader* m_textureReader;
             TextureCollectionLoader* m_textureCollectionLoader;
         public:
-            TextureLoader(const VariableTable& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
+            TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
             ~TextureLoader();
         private:
             String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const;

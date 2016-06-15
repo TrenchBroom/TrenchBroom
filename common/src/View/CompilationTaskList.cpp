@@ -104,11 +104,8 @@ namespace TrenchBroom {
             }
         private:
             void updateAutoComplete(AutoCompleteTextControl* control) {
-                const String workDir = EL::Interpolator::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(m_document));
-                
-                
-                VariableTable variables = compilationVariables();
-                defineCompilationVariables(variables, lock(m_document), workDir);
+                const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
+                const CompilationVariables variables(lock(m_document), workDir);
                 
                 control->SetHelper(new AutoCompleteVariablesHelper(variables));
             }

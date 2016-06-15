@@ -19,9 +19,9 @@
 
 #include "TextureLoader.h"
 
-#include "VariableTable.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureManager.h"
+#include "ELInterpolator.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdWalTextureReader.h"
 #include "IO/Path.h"
@@ -30,8 +30,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const VariableTable& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) :
-        m_variables(variables),
+        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) :
+        m_variables(variables.clone()),
         m_gameFS(gameFS),
         m_fileSearchPaths(fileSearchPaths),
         m_textureExtension(getTextureExtension(textureConfig)),
@@ -44,6 +44,7 @@ namespace TrenchBroom {
         TextureLoader::~TextureLoader() {
             delete m_textureCollectionLoader;
             delete m_textureReader;
+            delete m_variables;
         }
         
         String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const {
@@ -64,7 +65,8 @@ namespace TrenchBroom {
         
         Assets::Palette TextureLoader::loadPalette(const Model::GameConfig::TextureConfig& textureConfig) const {
             const String pathSpec = textureConfig.palette.asString();
-            const Path path(m_variables.translate(pathSpec));
+            const String pathStr = EL::interpolate(pathSpec, EL::EvaluationContext(*m_variables));
+            const Path path(pathStr);
             return Assets::Palette::loadFile(m_gameFS, path);
         }
 

@@ -31,8 +31,9 @@ namespace TrenchBroom {
             Interpolator(const String& str);
             
             String interpolate(const EvaluationContext& context);
-            static String interpolate(const String& str, const EvaluationContext& context);
         };
+
+        String interpolate(const String& str, const EvaluationContext& context);
     }
 }
 

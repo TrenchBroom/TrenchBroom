@@ -19,6 +19,7 @@
 
 #include "CompilationRun.h"
 
+#include "ELInterpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "View/CompilationContext.h"
@@ -58,8 +59,7 @@ namespace TrenchBroom {
                 m_currentRun = NULL;
             }
 
-            VariableTable variables = compilationVariables();
-            defineCompilationVariables(variables, document, buildWorkDir(profile, document));
+            CompilationVariables variables(document, buildWorkDir(profile, document));
             
             m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput)), profile);
             m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
@@ -78,9 +78,7 @@ namespace TrenchBroom {
         }
 
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
-            VariableTable variables = compilationWorkDirVariables();
-            defineCompilationWorkDirVariables(variables, document);
-            return variables.translate(profile->workDirSpec());
+            return EL::interpolate(profile->workDirSpec(), CompilationWorkDirVariables(document));
         }
 
         void CompilationRun::OnCompilationStart(wxEvent& event) {

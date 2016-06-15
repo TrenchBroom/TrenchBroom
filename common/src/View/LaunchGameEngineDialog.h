@@ -20,8 +20,8 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "VariableTable.h"
 #include "IO/Path.h"
+#include "View/CompilationVariables.h"
 #include "View/ViewTypes.h"
 
 #include <wx/dialog.h>
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document);
         private:
             void createGui();
-            VariableTable variables() const;
+            LaunchGameEngineVariables variables() const;
             
             void OnSelectGameEngineProfile(wxCommandEvent& event);
             

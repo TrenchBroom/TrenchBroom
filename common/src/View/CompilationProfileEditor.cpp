@@ -78,8 +78,7 @@ namespace TrenchBroom {
             m_nameTxt = new wxTextCtrl(upperPanel, wxID_ANY);
             m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
             
-            VariableTable workDirVariables = compilationWorkDirVariables();
-            defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
+            CompilationWorkDirVariables workDirVariables(lock(m_document));
             m_workDirTxt->SetHelper(new AutoCompleteVariablesHelper(workDirVariables));
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);

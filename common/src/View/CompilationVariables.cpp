@@ -34,8 +34,7 @@ namespace TrenchBroom {
             const String MAP_FULL_NAME  = "MAP_FULL_NAME";
             const String CPU_COUNT      = "CPU_COUNT";
             const String GAME_DIR_PATH  = "GAME_DIR_PATH";
-            const String MOD_DIR_PATH   = "MOD_DIR_PATH";
-            const String MOD_NAME       = "MOD_NAME";
+            const String MODS           = "MODS";
             const String APP_DIR_PATH   = "APP_DIR_PATH";
         }
 

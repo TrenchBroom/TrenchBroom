@@ -136,6 +136,17 @@ namespace TrenchBroom {
             }
         }
         
+        AttributeNameSet AttributableNode::attributeNames() const {
+            AttributeNameSet result;
+            EntityAttribute::List::const_iterator it, end;
+            const EntityAttribute::List& oldAttributes = m_attributes.attributes();
+            for (it = oldAttributes.begin(), end = oldAttributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                result.insert(attribute.name());
+            }
+            return result;
+        }
+
         bool AttributableNode::hasAttribute(const AttributeName& name) const {
             return m_attributes.hasAttribute(name);
         }
@@ -171,7 +182,7 @@ namespace TrenchBroom {
             return isAttributeValueMutable(name);
         }
         
-        void AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
+        bool AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
             const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
@@ -188,6 +199,7 @@ namespace TrenchBroom {
             
             if (oldValue == NULL)
                 attributeWasAddedNotifier(this, name);
+            return oldValue == NULL;
         }
         
         bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
@@ -258,20 +270,6 @@ namespace TrenchBroom {
         
         bool AttributableNode::isAttributeValueMutable(const AttributeName& name) const {
             return doIsAttributeValueMutable(name);
-        }
-
-        VariableTable AttributableNode::asVariableTable() const {
-            VariableTable result;
-            
-            const EntityAttribute::List& attributes = m_attributes.attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
-                result.declare(attribute.name());
-                result.define(attribute.name(), attribute.value());
-            }
-            
-            return result;
         }
 
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :

@@ -91,7 +91,7 @@ namespace TrenchBroom {
             void doExecute() {
                 notifyStart();
                 
-                const IO::Path targetPath(m_context.translateVariables(m_task->targetSpec()));
+                const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
                 try {
                     m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
                     
@@ -129,8 +129,8 @@ namespace TrenchBroom {
             void doExecute() {
                 notifyStart();
                 
-                const IO::Path sourcePath(m_context.translateVariables(m_task->sourceSpec()));
-                const IO::Path targetPath(m_context.translateVariables(m_task->targetSpec()));
+                const IO::Path sourcePath(m_context.interpolate(m_task->sourceSpec()));
+                const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
                 
                 const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
                 const String sourcePattern = sourcePath.lastComponent().asString();
@@ -214,8 +214,8 @@ namespace TrenchBroom {
                 assert(m_process == NULL);
                 assert(m_timer == NULL);
                 
-                const IO::Path toolPath(m_context.translateVariables(m_task->toolSpec()));
-                const String parameters(m_context.translateVariables(m_task->parameterSpec()));
+                const IO::Path toolPath(m_context.interpolate(m_task->toolSpec()));
+                const String parameters(m_context.interpolate(m_task->parameterSpec()));
                 const String cmd = toolPath.asString() + " " + parameters;
 
                 m_process = new wxProcess(this);

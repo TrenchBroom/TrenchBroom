@@ -1135,7 +1135,7 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        const Value& VariableStore::value(const String& name) const {
+        Value VariableStore::value(const String& name) const {
             return doGetValue(name);
         }
 
@@ -1160,7 +1160,7 @@ namespace TrenchBroom {
             return new VariableTable(m_variables);
         }
 
-        const Value& VariableTable::doGetValue(const String& name) const {
+        Value VariableTable::doGetValue(const String& name) const {
             Table::const_iterator it = m_variables.find(name);
             if (it != m_variables.end())
                 return it->second;
@@ -1193,7 +1193,7 @@ namespace TrenchBroom {
             delete m_store;
         }
         
-        const Value& EvaluationContext::variableValue(const String& name) const {
+        Value EvaluationContext::variableValue(const String& name) const {
             return m_store->value(name);
         }
         
@@ -1204,7 +1204,7 @@ namespace TrenchBroom {
         EvaluationStack::EvaluationStack(const EvaluationContext& next) :
         m_next(next) {}
         
-        const Value& EvaluationStack::variableValue(const String& name) const {
+        Value EvaluationStack::variableValue(const String& name) const {
             const Value& value = EvaluationContext::variableValue(name);
             if (value != Value::Undefined)
                 return value;

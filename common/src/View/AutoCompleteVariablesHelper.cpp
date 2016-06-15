@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        AutoCompleteVariablesHelper::AutoCompleteVariablesHelper(const VariableTable& variableTable) :
-        m_variableTable(variableTable) {}
+        AutoCompleteVariablesHelper::AutoCompleteVariablesHelper(const EL::VariableStore& variables) :
+        m_variables(variables.clone()) {}
 
         size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
             if (c == '$')
@@ -37,6 +37,7 @@ namespace TrenchBroom {
         AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
             AutoCompleteTextControl::CompletionResult result;
             
+            /*
             const wxString prefix = str.Mid(startIndex, count);
             const StringSet variables = m_variableTable.declaredVariables(prefix.ToStdString(), false);
             StringSet::const_iterator it, end;
@@ -46,7 +47,7 @@ namespace TrenchBroom {
                 const String& variableValue = m_variableTable.value(variableName);
                 result.Add(variableStr, variableValue);
             }
-            
+            */
             return result;
         }
 

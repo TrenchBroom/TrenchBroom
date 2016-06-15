@@ -22,7 +22,6 @@
 
 #include "EL.h"
 #include "StringUtils.h"
-#include "VariableTable.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

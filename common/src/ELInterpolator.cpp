@@ -38,7 +38,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        String Interpolator::interpolate(const String& str, const EvaluationContext& context) {
+        String interpolate(const String& str, const EvaluationContext& context) {
             Interpolator interpolator(str);
             return interpolator.interpolate(context);
         }

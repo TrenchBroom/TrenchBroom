@@ -21,7 +21,6 @@
 #define TrenchBroom_AttributableNode
 
 #include "Notifier.h"
-#include "VariableTable.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
@@ -66,6 +65,8 @@ namespace TrenchBroom {
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
+            AttributeNameSet attributeNames() const;
+            
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
@@ -87,7 +88,7 @@ namespace TrenchBroom {
             }
             
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
-            void addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
+            bool addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
             
             bool canRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             void renameAttribute(const AttributeName& name, const AttributeName& newName);
@@ -98,8 +99,6 @@ namespace TrenchBroom {
             
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;
-            
-            VariableTable asVariableTable() const;
         private: // attribute management internals
             template <typename T>
             AttributeValue convertValue(const T& value) const {

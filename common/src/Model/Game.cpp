@@ -99,7 +99,7 @@ namespace TrenchBroom {
             return doTexturePackageType();
         }
 
-        void Game::loadTextureCollections(const World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+        void Game::loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
             doLoadTextureCollections(world, documentPath, textureManager);
         }
 

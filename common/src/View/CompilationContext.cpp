@@ -19,9 +19,11 @@
 
 #include "CompilationContext.h"
 
+#include "ELInterpolator.h"
+
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const TextCtrlOutputAdapter& output) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output) :
         m_document(document),
         m_variables(variables),
         m_output(output) {}
@@ -30,12 +32,12 @@ namespace TrenchBroom {
             return lock(m_document);
         }
 
-        String CompilationContext::translateVariables(const String& input) const {
-            return m_variables.translate(input);
+        String CompilationContext::interpolate(const String& input) const {
+            return EL::interpolate(input, EL::EvaluationContext(m_variables));
         }
 
         String CompilationContext::variableValue(const String& variableName) const {
-            return m_variables.value(variableName);
+            return m_variables.value(variableName).convertTo(EL::Type_String).stringValue();
         }
     }
 }

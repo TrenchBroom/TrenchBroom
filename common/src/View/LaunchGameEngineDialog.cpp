@@ -19,6 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "ELInterpolator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/AutoCompleteTextControl.h"
@@ -130,10 +131,8 @@ namespace TrenchBroom {
             Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
         }
 
-        VariableTable LaunchGameEngineDialog::variables() const {
-            VariableTable variables = launchGameEngineVariables();
-            defineLaunchGameEngineVariables(variables, lock(m_document));
-            return variables;
+        LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
+            return LaunchGameEngineVariables(lock(m_document));
         }
 
         void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
@@ -174,7 +173,7 @@ namespace TrenchBroom {
             
             const IO::Path& path = profile->path();
             const String parameterSpec = m_parameterText->GetValue().ToStdString();
-            const String parameters = variables().translate(parameterSpec);
+            const String parameters = EL::interpolate(parameterSpec, variables());
 
             wxString launchStr;
 #ifdef __APPLE__
