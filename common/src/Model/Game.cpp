@@ -157,6 +157,10 @@ namespace TrenchBroom {
             return doExtractEnabledMods(world);
         }
         
+        String Game::defaultMod() const {
+            return doDefaultMod();
+        }
+
         ::StringMap Game::extractGameEngineParameterSpecs(const World* world) const {
             assert(world != NULL);
             return doExtractGameEngineParameterSpecs(world);

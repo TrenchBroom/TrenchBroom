@@ -408,6 +408,10 @@ namespace TrenchBroom {
             return StringUtils::splitAndTrim(modStr, ';');
         }
 
+        String GameImpl::doDefaultMod() const {
+            return m_config.fileSystemConfig().searchPath.asString();
+        }
+
         ::StringMap GameImpl::doExtractGameEngineParameterSpecs(const World* world) const {
             ::StringMap result;
 

@@ -41,7 +41,10 @@ namespace TrenchBroom {
         CommonVariables::CommonVariables(MapDocumentSPtr document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
-            const StringList mods = document->mods();
+            
+            StringList mods;
+            mods.push_back(document->defaultMod());
+            VectorUtils::append(mods, document->mods());
  
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));

@@ -25,17 +25,30 @@ namespace TrenchBroom {
         m_variables(variables.clone()) {}
 
         size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+            /*
             if (c == '$')
                 return insertPos;
+            return str.Length() + 1;
+             */
+            
             return str.Length() + 1;
         }
         
         size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
-            return findLastDollar(str, insertPos);
+            // return findLastDollar(str, insertPos);
+            return insertPos;
         }
 
         AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
             AutoCompleteTextControl::CompletionResult result;
+            
+            const StringSet variables = m_variables->names();
+            StringSet::const_iterator it, end;
+            for (it = variables.begin(), end = variables.end(); it != end; ++it) {
+                const String& variableName = *it;
+                const String variableValue = m_variables->value(variableName).description();
+                result.Add(variableName, variableValue);
+            }
             
             /*
             const wxString prefix = str.Mid(startIndex, count);
@@ -48,6 +61,7 @@ namespace TrenchBroom {
                 result.Add(variableStr, variableValue);
             }
             */
+            
             return result;
         }
 

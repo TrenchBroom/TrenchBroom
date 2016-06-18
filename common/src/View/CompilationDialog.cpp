@@ -164,8 +164,8 @@ namespace TrenchBroom {
                 m_mapFrame->compilationDialogWillClose();
                 if (GetParent() != NULL)
                     GetParent()->Raise();
+                Destroy();
             }
-            event.Skip();
         }
 
         void CompilationDialog::OnCompilationEnd(wxEvent& event) {

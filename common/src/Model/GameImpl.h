@@ -95,6 +95,7 @@ namespace TrenchBroom {
 
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const World* world) const;
+            String doDefaultMod() const;
             
             ::StringMap doExtractGameEngineParameterSpecs(const World* world) const;
             void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;

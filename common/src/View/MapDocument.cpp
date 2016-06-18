@@ -1404,6 +1404,10 @@ namespace TrenchBroom {
             submitAndStore(SetModsCommand::set(mods));
         }
         
+        String MapDocument::defaultMod() const {
+            return m_game->defaultMod();
+        }
+
         ::StringMap MapDocument::gameEngineParameterSpecs() const {
             return m_game->extractGameEngineParameterSpecs(m_world);
         }
