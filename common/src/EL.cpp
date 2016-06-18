@@ -80,13 +80,13 @@ namespace TrenchBroom {
         ELException(msg) {}
 
         IndexError::IndexError(const Value& indexableValue, const Value& indexValue) throw() :
-        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with '" + indexValue.description() + "' of type '" + typeName(indexValue.type()) + "'") {}
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "'") {}
 
         IndexError::IndexError(const Value& indexableValue, const size_t index) throw() :
-        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with integral index") {}
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with integral index") {}
 
         IndexError::IndexError(const Value& indexableValue, const String& key) throw() :
-        EvaluationError("Cannot index value '" + indexableValue.description() + "' of type '" + indexableValue.typeName() + " with string index") {}
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with string index") {}
         
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) throw() :
         IndexError(indexableValue, indexValue) {
@@ -108,23 +108,21 @@ namespace TrenchBroom {
 
         ValueHolder::~ValueHolder() {}
         
-        const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(description(), type(), Type_Boolean); }
-        const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(description(), type(), Type_String); }
-        const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(description(), type(), Type_Number); }
-        const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(description(), type(), Type_Array); }
-        const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(description(), type(), Type_Map); }
-        const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(description(), type(), Type_Range); }
-        
-        String ValueHolder::asString() const {
+        String ValueHolder::describe() const {
             StringStream str;
-            str.precision(17);
-            appendToStream(str, "");
+            appendToStream(str, false, "");
             return str.str();
         }
+
+        const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(describe(), type(), Type_Boolean); }
+        const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(describe(), type(), Type_String); }
+        const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(describe(), type(), Type_Number); }
+        const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(describe(), type(), Type_Array); }
+        const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(describe(), type(), Type_Map); }
+        const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(describe(), type(), Type_Range); }
         
         BooleanValueHolder::BooleanValueHolder(const BooleanType& value) : m_value(value) {}
         ValueType BooleanValueHolder::type() const { return Type_Boolean; }
-        String BooleanValueHolder::description() const { return asString(); }
         const BooleanType& BooleanValueHolder::booleanValue() const { return m_value; }
         size_t BooleanValueHolder::length() const { return 1; }
 
@@ -144,15 +142,14 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
-        void BooleanValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << (m_value ? "true" : "false"); }
+        void BooleanValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << (m_value ? "true" : "false"); }
 
         StringValueHolder::StringValueHolder(const StringType& value) : m_value(value) {}
         ValueType StringValueHolder::type() const { return Type_String; }
-        String StringValueHolder::description() const { return m_value; }
         const StringType& StringValueHolder::stringValue() const { return m_value; }
         size_t StringValueHolder::length() const { return m_value.length(); }
         
@@ -164,12 +161,12 @@ namespace TrenchBroom {
                     return new StringValueHolder(m_value);
                 case Type_Number: {
                     if (m_value.empty())
-                        throw ConversionError(description(), type(), toType);
+                        throw ConversionError(describe(), type(), toType);
                     const char* begin = m_value.c_str();
                     char* end;
                     const NumberType value = std::strtod(begin, &end);
                     if (value == 0.0 && end == begin)
-                        throw ConversionError(description(), type(), toType);
+                        throw ConversionError(describe(), type(), toType);
                     return new NumberValueHolder(value);
                 }
                 case Type_Array:
@@ -180,17 +177,16 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
-        void StringValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << "\"" << m_value << "\""; }
+        void StringValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "\"" << m_value << "\""; }
 
 
         
         NumberValueHolder::NumberValueHolder(const NumberType& value) : m_value(value) {}
         ValueType NumberValueHolder::type() const { return Type_Number; }
-        String NumberValueHolder::description() const { return asString(); }
         const NumberType& NumberValueHolder::numberValue() const { return m_value; }
         size_t NumberValueHolder::length() const { return 1; }
         
@@ -199,7 +195,7 @@ namespace TrenchBroom {
                 case Type_Boolean:
                     return new BooleanValueHolder(m_value != 0.0);
                 case Type_String:
-                    return new StringValueHolder(asString());
+                    return new StringValueHolder(describe());
                 case Type_Number:
                     return new NumberValueHolder(m_value);
                 case Type_Array:
@@ -210,17 +206,19 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
-        void NumberValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << m_value; }
+        void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+            str.precision(17);
+            str << m_value;
+        }
 
 
         
         ArrayValueHolder::ArrayValueHolder(const ArrayType& value) : m_value(value) {}
         ValueType ArrayValueHolder::type() const { return Type_Array; }
-        String ArrayValueHolder::description() const { return asString(); }
         const ArrayType& ArrayValueHolder::arrayValue() const { return m_value; }
         size_t ArrayValueHolder::length() const { return m_value.size(); }
         
@@ -238,23 +236,29 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* ArrayValueHolder::clone() const { return new ArrayValueHolder(m_value); }
         
-        void ArrayValueHolder::appendToStream(std::ostream& str, const String& indent) const {
+        void ArrayValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             if (m_value.empty()) {
                 str << "[]";
             } else {
-                const String childIndent = indent + "\t";
-                str << "[\n";
+                const String childIndent = multiline ? indent + "\t" : "";
+                str << "[";
+                if (multiline)
+                    str << "\n";
                 for (size_t i = 0; i < m_value.size(); ++i) {
                     str << childIndent;
-                    m_value[i].appendToStream(str, childIndent);
-                    if (i < m_value.size() - 1)
+                    m_value[i].appendToStream(str, multiline, childIndent);
+                    if (i < m_value.size() - 1) {
                         str << ",";
-                    str << "\n";
+                        if (!multiline)
+                            str << " ";
+                    }
+                    if (multiline)
+                        str << "\n";
                 }
                 str << indent << "]";
             }
@@ -263,7 +267,6 @@ namespace TrenchBroom {
         
         MapValueHolder::MapValueHolder(const MapType& value) : m_value(value) {}
         ValueType MapValueHolder::type() const { return Type_Map; }
-        String MapValueHolder::description() const { return asString(); }
         const MapType& MapValueHolder::mapValue() const { return m_value; }
         size_t MapValueHolder::length() const { return m_value.size(); }
         
@@ -281,25 +284,31 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* MapValueHolder::clone() const { return new MapValueHolder(m_value); }
 
-        void MapValueHolder::appendToStream(std::ostream& str, const String& indent) const {
+        void MapValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             if (m_value.empty()) {
                 str << "{}";
             } else {
-                const String childIndent = indent + "\t";
-                str << "{\n";
+                const String childIndent = multiline ? indent + "\t" : "";
+                str << "{";
+                if (multiline)
+                    str << "\n";
                 MapType::const_iterator it, end;
                 size_t i = 0;
                 for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
                     str << childIndent << "\"" << it->first << "\"" << ": ";
-                    it->second.appendToStream(str, childIndent);
-                    if (i++ < m_value.size() - 1)
+                    it->second.appendToStream(str, multiline, childIndent);
+                    if (i++ < m_value.size() - 1) {
                         str << ",";
-                    str << "\n";
+                        if (!multiline)
+                            str << " ";
+                    }
+                    if (multiline)
+                        str << "\n";
                 }
                 str << indent << "}";
             }
@@ -308,7 +317,6 @@ namespace TrenchBroom {
         
         RangeValueHolder::RangeValueHolder(const RangeType& value) : m_value(value) {}
         ValueType RangeValueHolder::type() const { return Type_Range; }
-        String RangeValueHolder::description() const { return asString(); }
         const RangeType& RangeValueHolder::rangeValue() const { return m_value; }
         size_t RangeValueHolder::length() const { return m_value.size(); }
         
@@ -326,16 +334,15 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
         
-        void RangeValueHolder::appendToStream(std::ostream& str, const String& indent) const {
-            const String childIndent = indent + "\t";
-            str << "[\n";
+        void RangeValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+            str << "[";
             for (size_t i = 0; i < m_value.size(); ++i) {
-                str << childIndent << m_value[i];
+                str << m_value[i];
                 if (i < m_value.size() - 1)
                     str << ", ";
             }
@@ -344,7 +351,6 @@ namespace TrenchBroom {
         
         
         ValueType NullValueHolder::type() const { return Type_Null; }
-        String NullValueHolder::description() const { return "null"; }
         size_t NullValueHolder::length() const { return 0; }
         const StringType& NullValueHolder::stringValue() const   { static const StringType result;         return result; }
         const BooleanType& NullValueHolder::booleanValue() const { static const BooleanType result(false); return result; }
@@ -373,19 +379,18 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw ConversionError(description(), type(), toType);
+            throw ConversionError(describe(), type(), toType);
         }
         
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
-        void NullValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << description(); }
+        void NullValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "null"; }
 
         
         ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
-        String UndefinedValueHolder::description() const { return "undefined"; }
         size_t UndefinedValueHolder::length() const { return 0; }
-        ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(description(), type(), toType); }
+        ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
         ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
-        void UndefinedValueHolder::appendToStream(std::ostream& str, const String& indent) const { str << description(); }
+        void UndefinedValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "undefined"; }
 
         
         const Value Value::Null = Value(new NullValueHolder(), 0, 0);
@@ -436,8 +441,8 @@ namespace TrenchBroom {
             return EL::typeName(type());
         }
 
-        String Value::description() const {
-            return m_value->description();
+        String Value::describe() const {
+            return m_value->describe();
         }
 
         size_t Value::line() const {
@@ -514,8 +519,8 @@ namespace TrenchBroom {
             return Value(m_value->convertTo(toType), m_line, m_column);
         }
 
-        void Value::appendToStream(std::ostream& str, const String& indent) const {
-            m_value->appendToStream(str, indent);
+        void Value::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+            m_value->appendToStream(str, multiline, indent);
         }
         
         std::ostream& operator<<(std::ostream& stream, const Value& value) {
@@ -588,7 +593,7 @@ namespace TrenchBroom {
                             for (size_t i = 0; i < keys.size(); ++i) {
                                 const Value& keyValue = keys[i];
                                 if (keyValue.type() != Type_String)
-                                    throw ConversionError(keyValue.description(), keyValue.type(), Type_String);
+                                    throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it == map.end())
@@ -721,7 +726,7 @@ namespace TrenchBroom {
                             for (size_t i = 0; i < keys.size(); ++i) {
                                 const Value& keyValue = keys[i];
                                 if (keyValue.type() != Type_String)
-                                    throw ConversionError(keyValue.description(), keyValue.type(), Type_String);
+                                    throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it != map.end())
@@ -856,7 +861,7 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            throw EvaluationError("Cannot apply unary plus to value '" + description() + "' of type '" + typeName());
+            throw EvaluationError("Cannot apply unary plus to value '" + describe() + "' of type '" + typeName());
         }
         
         Value Value::operator-() const {
@@ -872,7 +877,7 @@ namespace TrenchBroom {
                 case Type_Undefined:
                     break;
             }
-            throw EvaluationError("Cannot negate value '" + description() + "' of type '" + typeName());
+            throw EvaluationError("Cannot negate value '" + describe() + "' of type '" + typeName());
         }
 
         Value operator+(const Value& lhs, const Value& rhs) {
@@ -914,7 +919,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot add value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " to value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot add value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " to value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
         
         Value operator-(const Value& lhs, const Value& rhs) {
@@ -943,7 +948,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
 
         Value operator*(const Value& lhs, const Value& rhs) {
@@ -972,7 +977,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
         
         Value operator/(const Value& lhs, const Value& rhs) {
@@ -1001,7 +1006,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
         
         Value operator%(const Value& lhs, const Value& rhs) {
@@ -1030,7 +1035,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot subtract value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
         }
 
         Value::operator bool() const {
@@ -1126,7 +1131,7 @@ namespace TrenchBroom {
                         return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
                     break;
             }
-            throw EvaluationError("Cannot compare value '" + lhs.description() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.description() + "' of type '" + typeName(rhs.type()) + "'");
+            throw EvaluationError("Cannot compare value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
         VariableStore::~VariableStore() {}

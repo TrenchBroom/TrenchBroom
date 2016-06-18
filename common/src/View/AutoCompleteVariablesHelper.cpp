@@ -46,7 +46,7 @@ namespace TrenchBroom {
             StringSet::const_iterator it, end;
             for (it = variables.begin(), end = variables.end(); it != end; ++it) {
                 const String& variableName = *it;
-                const String variableValue = m_variables->value(variableName).description();
+                const String variableValue = m_variables->value(variableName).describe();
                 result.Add(variableName, variableValue);
             }
             

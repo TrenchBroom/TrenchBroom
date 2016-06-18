@@ -14,6 +14,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Unlimited Undo and Redo
 	- Macro-like command repetition
 	- Issue browser with automatic quick fixes
+	- Run external compilers and launch game engines
 	- Point file support
 	- Automatic backups
 	- Free and cross platform
@@ -1004,7 +1005,7 @@ Copy Files
     Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
 
-You can use some variables when specifying the working directory of a profile and also for the task parameters. The following table lists the variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list as soon as you type '$'. You can also request the autocompletion list by pressing #key(396)+#key(32).
+You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list if you press #key(396)+#key(32).
 
 Variable 		Scope 			Description
 -------- 	    ----- 			-----------
@@ -1013,8 +1014,7 @@ Variable 		Scope 			Description
 `MAP_BASE_NAME`	Tool, Workdir 	The base name (without extension) of the currently edited map.
 `MAP_FULL_NAME`	Tool, Workdir 	The full name (with extension) of the currently edited map.
 `GAME_DIR_PATH`	Tool, Workdir 	The full path to the current game as specified in the game preferences.
-`MOD_DIR_PATH` 	Tool, Workdir 	The full path to the (last) mod sub directory if mods have been enabled for this map.
-`MOD_NAME` 		Tool, Workdir 	The name of the (last) mod if mods have been enabled for this map
+`MODS` 			Tool, Workdir 	An array containing all enabled mods for the current map.
 `APP_DIR_PATH` 	Tool, Workdir 	The full path to the directory containing the TrenchBroom application binary.
 `CPU_COUNT` 	Tool 			The number of CPUs in the current machine.
 
@@ -1023,9 +1023,9 @@ It is recommended to use the following general process for compiling maps and to
 1. Set the working directory to `${MAP_DIR_PATH}/compile`.
 2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_FULL_NAME}`.
 3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_FULL_NAME}` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
-4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${MOD_DIR_PATH}/maps`.
+4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${MOD[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
 
-The last step will copy the bsp file to the appropriate directory within the game path. Note that this example assumes that a mod has been enabled. If no mod has been enabled, you have to specify a differen path, e.g. `${GAME_DIR_PATH}/id1/maps` for Quake. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files).
+The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files).
 
 To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button. If you click on this button, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
 
@@ -1045,7 +1045,7 @@ Variable 		Description
 -------- 	    -----------
 `MAP_BASE_NAME`	The base name (without extension) of the currently edited map.
 `GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
-`MOD_NAME` 		The name of the (last) mod if mods have been enabled for this map
+`MODS` 			An array containing all enabled mods for the current map.
 
 Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
 

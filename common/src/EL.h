@@ -98,7 +98,7 @@ namespace TrenchBroom {
             virtual ~ValueHolder();
             
             virtual ValueType type() const = 0;
-            virtual String description() const = 0;
+            String describe() const;
             
             virtual const BooleanType& booleanValue() const;
             virtual const StringType&  stringValue()  const;
@@ -112,9 +112,7 @@ namespace TrenchBroom {
             
             virtual ValueHolder* clone() const = 0;
             
-            virtual void appendToStream(std::ostream& str, const String& indent) const = 0;
-        protected:
-            String asString() const;
+            virtual void appendToStream(std::ostream& str, bool multiline, const String& indent) const = 0;
         };
         
         class BooleanValueHolder : public ValueHolder {
@@ -123,12 +121,11 @@ namespace TrenchBroom {
         public:
             BooleanValueHolder(const BooleanType& value);
             ValueType type() const;
-            String description() const;
             const BooleanType& booleanValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class StringValueHolder : public ValueHolder {
@@ -137,12 +134,11 @@ namespace TrenchBroom {
         public:
             StringValueHolder(const StringType& value);
             ValueType type() const;
-            String description() const;
             const StringType& stringValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class NumberValueHolder : public ValueHolder {
@@ -151,12 +147,11 @@ namespace TrenchBroom {
         public:
             NumberValueHolder(const NumberType& value);
             ValueType type() const;
-            String description() const;
             const NumberType& numberValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class ArrayValueHolder : public ValueHolder {
@@ -165,12 +160,11 @@ namespace TrenchBroom {
         public:
             ArrayValueHolder(const ArrayType& value);
             ValueType type() const;
-            String description() const;
             const ArrayType& arrayValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
 
         class MapValueHolder : public ValueHolder {
@@ -179,12 +173,11 @@ namespace TrenchBroom {
         public:
             MapValueHolder(const MapType& value);
             ValueType type() const;
-            String description() const;
             const MapType& mapValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class RangeValueHolder : public ValueHolder {
@@ -193,18 +186,16 @@ namespace TrenchBroom {
         public:
             RangeValueHolder(const RangeType& value);
             ValueType type() const;
-            String description() const;
             const RangeType& rangeValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
 
         class NullValueHolder : public ValueHolder {
         public:
             ValueType type() const;
-            String description() const;
             const StringType& stringValue() const;
             const BooleanType& booleanValue() const;
             const NumberType& numberValue() const;
@@ -214,17 +205,16 @@ namespace TrenchBroom {
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class UndefinedValueHolder : public ValueHolder {
         public:
             ValueType type() const;
-            String description() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, const String& indent) const;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
         
         class Value {
@@ -321,7 +311,7 @@ namespace TrenchBroom {
         public:
             ValueType type() const;
             String typeName() const;
-            String description() const;
+            String describe() const;
             
             size_t line() const;
             size_t column() const;
@@ -340,7 +330,7 @@ namespace TrenchBroom {
             size_t length() const;
             Value convertTo(ValueType toType) const;
 
-            void appendToStream(std::ostream& str, const String& indent = "") const;
+            void appendToStream(std::ostream& str, bool multiline = true, const String& indent = "") const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
             
             bool contains(const Value& indexValue) const;
