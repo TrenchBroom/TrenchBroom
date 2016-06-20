@@ -22,7 +22,7 @@
 #include "ELInterpolator.h"
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/TitledPanel.h"
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
                 const CompilationVariables variables(lock(m_document), workDir);
                 
-                control->SetHelper(new AutoCompleteVariablesHelper(variables));
+                control->SetHelper(new ELAutoCompleteHelper(variables));
             }
         private:
             void taskWillBeRemoved() {

@@ -34,8 +34,7 @@ Not            = "!" SimpleTerm
 
 Boolean        = "true" | "false"
 String         = """ { Char } """ | "'" { Char } "'"
-Integer        = Numeric { Numeric }
-Number         = Integer "." Numeric { Numeric }
+Number         = Numeric { Numeric } "." Numeric { Numeric }
 
 Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
 ExpOrRange     = Expression | Range
@@ -43,7 +42,7 @@ ExpOrAnyRange  = ExpOrRange | AutoRange
 Range 		   = Expression ".." Expression
 AutoRange      = ".." Expression | Expression ".."
 
-Map            = "{" [ KeyValuePair { "," KeyValuePair } ]  "}"
+Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
 KeyValuePair   = String ":" Expression
 
 Alpha          = "a-zA-Z"

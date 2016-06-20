@@ -67,7 +67,6 @@ namespace TrenchBroom {
                 return msg.str();
             }
         protected:
-
             String tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();

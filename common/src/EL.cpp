@@ -20,6 +20,7 @@
 #include "EL.h"
 
 #include "CollectionUtils.h"
+#include "MathUtils.h"
 
 #include <cassert>
 #include <cmath>
@@ -211,7 +212,10 @@ namespace TrenchBroom {
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
         void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
-            str.precision(17);
+            if (Math::isInteger(m_value))
+                str.precision(0);
+            else
+                str.precision(17);
             str << m_value;
         }
 
@@ -357,7 +361,6 @@ namespace TrenchBroom {
         const NumberType& NullValueHolder::numberValue() const   { static const NumberType result(0.0);    return result; }
         const ArrayType& NullValueHolder::arrayValue() const     { static const ArrayType result(0);       return result; }
         const MapType& NullValueHolder::mapValue() const         { static const MapType result;            return result; }
-        const RangeType& NullValueHolder::rangeValue() const     { static const RangeType result(0);       return result; }
         
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -374,7 +377,6 @@ namespace TrenchBroom {
                 case Type_Map:
                     return new MapValueHolder(MapType());
                 case Type_Range:
-                    return new RangeValueHolder(RangeType(0));
                 case Type_Undefined:
                     break;
             }

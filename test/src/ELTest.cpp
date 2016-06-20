@@ -36,6 +36,90 @@ namespace TrenchBroom {
             ASSERT_EQ(Type_Null,    Value().type());
         }
         
+        TEST(ELTest, typeConversions) {
+            ASSERT_EQ(Value(true), Value(true).convertTo(Type_Boolean));
+            ASSERT_EQ(Value(false), Value(false).convertTo(Type_Boolean));
+            ASSERT_EQ(Value("true"), Value(true).convertTo(Type_String));
+            ASSERT_EQ(Value("false"), Value(false).convertTo(Type_String));
+            ASSERT_EQ(Value(1), Value(true).convertTo(Type_Number));
+            ASSERT_EQ(Value(0), Value(false).convertTo(Type_Number));
+            ASSERT_THROW(Value(true).convertTo(Type_Array), ConversionError);
+            ASSERT_THROW(Value(false).convertTo(Type_Array), ConversionError);
+            ASSERT_THROW(Value(true).convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value(false).convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value(true).convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value(false).convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value(true).convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value(false).convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value(true).convertTo(Type_Undefined), ConversionError);
+            ASSERT_THROW(Value(false).convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_EQ(Value(true), Value("asdf").convertTo(Type_Boolean));
+            ASSERT_EQ(Value(false), Value("false").convertTo(Type_Boolean));
+            ASSERT_EQ(Value(false), Value("").convertTo(Type_Boolean));
+            ASSERT_EQ(Value("asdf"), Value("asdf").convertTo(Type_String));
+            ASSERT_EQ(Value(2), Value("2").convertTo(Type_Number));
+            ASSERT_EQ(Value(-2), Value("-2.0").convertTo(Type_Number));
+            ASSERT_THROW(Value("asdf").convertTo(Type_Number), ConversionError);
+            ASSERT_THROW(Value("asdf").convertTo(Type_Array), ConversionError);
+            ASSERT_THROW(Value("asfd").convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value("asdf").convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value("asdf").convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value("asdf").convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_EQ(Value(true), Value(1).convertTo(Type_Boolean));
+            ASSERT_EQ(Value(true), Value(2).convertTo(Type_Boolean));
+            ASSERT_EQ(Value(true), Value(-2).convertTo(Type_Boolean));
+            ASSERT_EQ(Value(false), Value(0).convertTo(Type_Boolean));
+            ASSERT_EQ(Value("1"), Value(1.0).convertTo(Type_String));
+            ASSERT_EQ(Value("-1"), Value(-1.0).convertTo(Type_String));
+            ASSERT_EQ(Value("1.1000000000000001"), Value(1.1).convertTo(Type_String));
+            ASSERT_EQ(Value("-1.1000000000000001"), Value(-1.1).convertTo(Type_String));
+            ASSERT_EQ(Value(1), Value(1.0).convertTo(Type_Number));
+            ASSERT_EQ(Value(-1), Value(-1.0).convertTo(Type_Number));
+            ASSERT_THROW(Value(1).convertTo(Type_Array), ConversionError);
+            ASSERT_THROW(Value(2).convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value(3).convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value(4).convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value(5).convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Boolean), ConversionError);
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_String), ConversionError);
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Number), ConversionError);
+            ASSERT_EQ(Value(ArrayType()), Value(ArrayType()).convertTo(Type_Array));
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value(ArrayType()).convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Boolean), ConversionError);
+            ASSERT_THROW(Value(MapType()).convertTo(Type_String), ConversionError);
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Number), ConversionError);
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Array), ConversionError);
+            ASSERT_EQ(Value(MapType()), Value(MapType()).convertTo(Type_Map));
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Null), ConversionError);
+            ASSERT_THROW(Value(MapType()).convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_EQ(Value(false), Value::Null.convertTo(Type_Boolean));
+            ASSERT_EQ(Value(""), Value::Null.convertTo(Type_String));
+            ASSERT_EQ(Value(0), Value::Null.convertTo(Type_Number));
+            ASSERT_EQ(Value(ArrayType()), Value::Null.convertTo(Type_Array));
+            ASSERT_EQ(Value(MapType()), Value::Null.convertTo(Type_Map));
+            ASSERT_THROW(Value::Null.convertTo(Type_Range), ConversionError);
+            ASSERT_EQ(Value::Null, Value::Null.convertTo(Type_Null));
+            ASSERT_THROW(Value::Null.convertTo(Type_Undefined), ConversionError);
+            
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Boolean), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_String), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Number), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Array), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Map), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Range), ConversionError);
+            ASSERT_THROW(Value::Undefined.convertTo(Type_Null), ConversionError);
+            ASSERT_EQ(Value::Undefined, Value::Undefined.convertTo(Type_Undefined));
+        }
+        
         TEST(ELTest, subscriptOperator) {
             ASSERT_THROW(Value(true)[Value(0)], EvaluationError);
             ASSERT_THROW(Value(1.0)[Value(0)], EvaluationError);

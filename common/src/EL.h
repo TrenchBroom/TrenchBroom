@@ -201,7 +201,6 @@ namespace TrenchBroom {
             const NumberType& numberValue() const;
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
-            const RangeType& rangeValue() const;
             size_t length() const;
             ValueHolder* convertTo(const ValueType toType) const;
             ValueHolder* clone() const;

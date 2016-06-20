@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AutoCompleteVariablesHelper.h"
+#include "ELAutoCompleteHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        AutoCompleteVariablesHelper::AutoCompleteVariablesHelper(const EL::VariableStore& variables) :
+        ELAutoCompleteHelper::ELAutoCompleteHelper(const EL::VariableStore& variables) :
         m_variables(variables.clone()) {}
 
-        size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
+        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
             /*
             if (c == '$')
                 return insertPos;
@@ -34,12 +34,12 @@ namespace TrenchBroom {
             return str.Length() + 1;
         }
         
-        size_t AutoCompleteVariablesHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
+        size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
             // return findLastDollar(str, insertPos);
             return insertPos;
         }
 
-        AutoCompleteTextControl::CompletionResult AutoCompleteVariablesHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
+        AutoCompleteTextControl::CompletionResult ELAutoCompleteHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
             AutoCompleteTextControl::CompletionResult result;
             
             const StringSet variables = m_variables->names();
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        size_t AutoCompleteVariablesHelper::findLastDollar(const wxString& str, const size_t startIndex) const {
+        size_t ELAutoCompleteHelper::findLastDollar(const wxString& str, const size_t startIndex) const {
             size_t curIndex = startIndex;
             do {
                 --curIndex;

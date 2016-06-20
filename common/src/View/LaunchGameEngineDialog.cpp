@@ -23,7 +23,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_parameterText->Bind(wxEVT_TEXT_ENTER, &LaunchGameEngineDialog::OnLaunch, this);
             m_parameterText->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateParameterTextUI, this);
             
-            m_parameterText->SetHelper(new AutoCompleteVariablesHelper(variables()));
+            m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
             
             wxSizer* midLeftSizer = new wxBoxSizer(wxVERTICAL);
             midLeftSizer->AddSpacer(20);

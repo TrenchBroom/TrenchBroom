@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AutoCompleteVariablesHelper_h
-#define AutoCompleteVariablesHelper_h
+#ifndef ELAutoCompleteHelper_h
+#define ELAutoCompleteHelper_h
 
 #include "EL.h"
 #include "SharedPointer.h"
@@ -26,12 +26,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        class AutoCompleteVariablesHelper : public AutoCompleteTextControl::Helper {
+        class ELAutoCompleteHelper : public AutoCompleteTextControl::Helper {
         private:
             typedef std::tr1::shared_ptr<EL::VariableStore> VariableStorePtr;
             VariableStorePtr m_variables;
         public:
-            AutoCompleteVariablesHelper(const EL::VariableStore& variables);
+            ELAutoCompleteHelper(const EL::VariableStore& variables);
         private:
             size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
             size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
@@ -42,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* AutoCompleteVariablesHelper_h */
+#endif /* ELAutoCompleteHelper_h */

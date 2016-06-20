@@ -1049,6 +1049,209 @@ Variable 		Description
 
 Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
 
+## Expression Language {#expression_language}
+
+TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog and the Launch Engine dialog. In the following, we will introduce the syntax and the semantics of the expression language.
+
+### Evaluation
+
+Every expression can be evaluated to a value. For example, the string `"This is a string."` is a valid expression that will be evaluated to a value of type `String` containing the string `This is a string.`. The expression language defines the following types.
+
+Type 		Description
+---- 	    -----------
+Boolean 	A value of this type can either be true or false.
+String 		A string of characters.
+Number 		A floating point number.
+Array 		An array is a list of values.
+Map 		A map is a list of key-value pairs. Synonyms: dictionary, table.
+Range 		The range type is only used internally.
+Null 		The type of `null` values.
+Undefined	The type of undefined values.
+
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are missing because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+
+-----------------------------------------------------------------------------------------------------------------------------
+            `Boolean`                     `String`               `Number`                      `Array`     `Map`
+----        ----------------------------- ---------------------- ----------------------------- ----------- ---------
+`Boolean`   _trivial_                     `"true"` or `"false"`  `1.0` or `0.0`                error       error
+
+`String`    `false` if value is `"false"` _trivial_              number representation if      error       error
+            or `""`, `true` otherwise                            possible, error otherwise
+
+`Number`    `false` if value is `0.0`,    string representation, _trivial_                     error       error
+            `true` otherwise              e.g. "1.0"
+
+`Array`     error                         error                  error                         _trivial_   error
+
+`Map`       error                         error                  error                         error       _trivial_
+
+`Range`     error                         error                  error                         error       error
+
+`Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
+
+`Undefined` error                         error                  error                         error       error
+-----------------------------------------------------------------------------------------------------------------------------
+
+A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
+
+### Expressions and Terms
+
+Every expression is made of one single term. A term is something that can be evaluated, such as an addition (`7.0 + 3.0`) or a variable (which is then evaluated to its value).
+
+	Expression     = GroupedTerm | Term
+	GroupedTerm    = "(" Term ")"
+	Term           = SimpleTerm | CompoundTerm
+
+	SimpleTerm     = Variable | Literal | Subscript | UnaryTerm | GroupedTerm
+	CompoundTerm   = AlgebraicTerm | BooleanTerm | ComparisonTerm
+
+	UnaryTerm      = Plus | Minus | Not
+	AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
+	BooleanTerm    = Conjunction | Disjunction
+	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
+
+### Variables and Literals
+
+A variable name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
+
+	Variable       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+
+`MODS`, `_var1`, `_123` are all valid variable names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
+
+A literal is either a string, a number, a boolean, an array, or a map literal. 
+
+	Literal        = String | Number | Boolean | Array | Map
+
+	Boolean        = "true" | "false"
+	String         = """ { Char } """ | "'" { Char } "'"
+	Number         = Numeric { Numeric } [ "." Numeric { Numeric } ]
+
+Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
+
+Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
+
+Array literals can be specified by giving a comma-separated list of expressions or ranges enclosed in brackets.
+
+	Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+	ExpOrRange     = Expression | Range
+	Range 		   = Expression ".." Expression
+
+An array literal is a possibly empty comma-separated list of expressions or ranges. A range is a special type that represents a range of integer values. Ranges are specified by two expressions separated by two dots. A range denotes a list of number values, so both expressions must evaluate to a value that is convertible to type `Number`. The first expression denotes the starting value of the range, and the second expression denotes the ending value of the range, both of which are inclusive. The range `1.0..3.0` therefore denotes the list `1.0`, `2.0`, `3.0`. Note that the starting value may also be greater than the ending value, e.g. `3.0..1.0`, which denotes the same list as `1.0..3.0`, but in the opposite order.
+
+The following table gives some examples of valid array literal expressions.
+
+Expression Value
+---------- -----
+[]         An empty array.
+[1,2,3]    An array containing the values `1.0`, `2.0`, and `3.0`.
+[1..3]     An array containing the values `1.0`, `2.0`, and `3.0`.
+[1,2,4..6] An array containing the values `1.0`, `2.0`, `4.0`, `5.0`, and `6.0`.
+[1+1,3.0]  An array containing the values `2.0` and `3.0`.
+[-5,-1]    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
+
+A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
+
+	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
+	KeyValuePair   = String ":" Expression
+
+An example of a valid map expression looks as follows:
+
+    {
+    	"some_key"   : "a string",
+    	"other_key"  : 1+2,
+    	"another_key": [1..3]
+    }
+
+This expression evaluates to a map containing the value `"a string"` under the key `some_key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
+
+### Subscript
+
+Certain values such as strings, arrays, or maps can be subscripted to access some of their elements.
+
+	Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
+	ExpOrAnyRange  = ExpOrRange | AutoRange
+	AutoRange      = ".." Expression | Expression ".."
+
+A subscript expression comprises of two parts: The expression that is being indexed and the indexing expression. The former can be any expression that evaluates to a value of type `String`, `Array` or `Map`, while the latter is a list of expressions or ranges. Depending of the type of the expression being subscripted, only certain values are allows as indices. The following sections explain which types of indexing values are permissible for the three subscriptable types.
+
+#### Subscripting Strings
+
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`Number` Returns a string containing the character at the specified index or the empty string if the index is out of bounds. Negative indices are allowed.
+`Array`  Returns a string containing the characters at the specified indizes. Assumes that all elements of the array are convertible to `Number`. Indizes that are out of bounds are ignored, but negative indices are allowed.
+
+String subscripts are very powerful because they allow multiple subscript index values and even negative indices. Here are some examples for using string subscripts.
+
+    "This is a test."[0]  // "T"
+    "This is a test."[1]  // "h"
+
+Multiple indices, or array indices, can be used to extract substrings. Range expressions are a shorter way of extracting substrings.
+
+    "This is a test,"[0, 1, 2, 3] // "This"
+    "This is a test."[0..3] // "This"
+    "This is a test."[5..6] // "is"
+
+You can even use multiple range expressions in a subscript, and you can combine range expressions and single indices, too.
+
+    "This is a test."[0..3, 5..6] // "Thisis"
+    "This is a test."[0..3, 5..6, 8] // "Thisisa"
+
+Negative indices can be used to extract a string suffix. Note that the index value `-1` accesses the last character of the array, the value `-2` accesses the last but one character, and so on. Assuming that the string that is being subscripted has a length of `7`, then the value `-7` accesses the string's first character.
+
+    "This is a test."[-1] // "."
+    "This is a test."[-5..-2] // "test"
+
+You can even reverse strings using subscripts and ranges.
+
+    "This is a test."[14..0] // .tset a si sihT
+
+Auto ranges are special constructs that are only permissible in subscript expressions. An auto range is a range where the start or end is unspecified. The unspecified side of an auto range is automatically replaced by the length of the string minus one.
+
+    "This is a test."[..0] // .tset a si sihT
+    "This is a test."[5..] // "is a test."
+
+#### Subscripting Arrays
+
+#### Subscripting Maps
+
+### Unary Operators
+
+	Plus           = "+" SimpleTerm
+	Minus          = "-" SimpleTerm
+	Not            = "!" SimpleTerm
+
+### Algebraic Terms
+
+	Addition       = SimpleTerm "+" Expression
+	Subtraction    = SimpleTerm "-" Expression
+	Multiplication = SimpleTerm "*" Expression
+	Division       = SimpleTerm "/" Expression
+	Modulus        = SimpleTerm "%" Expression
+
+### Boolean Terms
+
+	Conjunction    = SimpleTerm "&&" Expression
+	Disjunction    = SimpleTerm "||" Expression
+
+#### Comparison Terms
+
+	Less           = SimpleTerm "<" Expression
+	LessOrEqual    = SimpleTerm "<=" Expression
+	Equal          = SimpleTerm "==" Expression
+	InEqual        = SimpleTerm "!=" Expression
+	GreaterOrEqual = SimpleTerm ">=" Expression
+	Greater        = SimpleTerm ">" Expression
+
+### Terminals
+
+	Alpha          = "a-zA-Z"
+	Numeric        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+	Char           = Any ASCII character
+
+
 ## Solving Problems
 
 This section contains some information about what you can do if you run into problems when using TrenchBroom.

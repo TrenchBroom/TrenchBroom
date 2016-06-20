@@ -21,7 +21,7 @@
 
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskList.h"
 #include "View/CompilationVariables.h"
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
             
             CompilationWorkDirVariables workDirVariables(lock(m_document));
-            m_workDirTxt->SetHelper(new AutoCompleteVariablesHelper(workDirVariables));
+            m_workDirTxt->SetHelper(new ELAutoCompleteHelper(workDirVariables));
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);
