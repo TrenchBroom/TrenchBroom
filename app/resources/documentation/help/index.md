@@ -1183,25 +1183,25 @@ Index    Effect
 `Number` Returns a string containing the character at the specified index or the empty string if the index is out of bounds. Negative indices are allowed.
 `Array`  Returns a string containing the characters at the specified indizes. Assumes that all elements of the array are convertible to `Number`. Indizes that are out of bounds are ignored, but negative indices are allowed.
 
-String subscripts are very powerful because they allow multiple subscript index values and even negative indices. Here are some examples for using string subscripts.
+If an index value is of type `Number`, it is rounded towards the closest integer towards `0`, that is, the value `1.7` is rounded down to `1`, while the value `-2.3` is rounded up to `-2`. String subscripts are very powerful because they allow multiple subscript index values and even negative indices. Here are some examples for using string subscripts.
 
     "This is a test."[0]  // "T"
     "This is a test."[1]  // "h"
 
 Multiple indices, or array indices, can be used to extract substrings. Range expressions are a shorter way of extracting substrings.
 
-    "This is a test,"[0, 1, 2, 3] // "This"
-    "This is a test."[0..3] // "This"
-    "This is a test."[5..6] // "is"
+    "This is a test."[0, 1, 2, 3] // "This"
+    "This is a test."[0..3]       // "This"
+    "This is a test."[5..6]       // "is"
 
 You can even use multiple range expressions in a subscript, and you can combine range expressions and single indices, too.
 
-    "This is a test."[0..3, 5..6] // "Thisis"
+    "This is a test."[0..3, 5..6]    // "Thisis"
     "This is a test."[0..3, 5..6, 8] // "Thisisa"
 
 Negative indices can be used to extract a string suffix. Note that the index value `-1` accesses the last character of the array, the value `-2` accesses the last but one character, and so on. Assuming that the string that is being subscripted has a length of `7`, then the value `-7` accesses the string's first character.
 
-    "This is a test."[-1] // "."
+    "This is a test."[-1]     // "."
     "This is a test."[-5..-2] // "test"
 
 You can even reverse strings using subscripts and ranges.
@@ -1215,7 +1215,83 @@ Auto ranges are special constructs that are only permissible in subscript expres
 
 #### Subscripting Arrays
 
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`Number` Returns the value at the specified index. An error is thrown if an the index is out of bounds. Negative indices are allowed. The same rounding rules as for string subscripts are applied.
+`Array`  Returns an array containing the values at the specified indizes. Assumes that all elements of the indexing array are convertible to `Number`. If the indexing array contains an index that is out of bounds, an error is thrown. Negative indices are allowed.
+
+Just like string subscripts, array subscripts are very powerful because they allow multiple subscript index values and even negative indices. For the following example, assume that the value of variable `arr` is the array `[ 7, 8, 9, "test", [ 10, 11, 12 ] ]`.
+
+	arr[0] // 7
+    arr[3] // "test"
+    arr[4] // [10, 11, 12]
+
+Multiple indices, or array indices, can be used to extract sub arrays. Range expressions are a shorter way of extracting sub arrays.
+
+    arr[0, 1, 2, 3] // [ 7, 9, 9, "test" ]
+    arr[0..3]       // [ 7, 9, 9, "test" ]
+    arr[3..4]       // [ "test", [ 10, 11, 12 ] ]
+
+You can even use multiple range expressions in a subscript, and you can combine range expressions and single indices, too.
+
+    arr[0..1, 3..4] // [ 7, 8, "test", [ 10, 11, 12 ] ]
+    arr[0..3, 4]    // [ 7, 8, 9, "test", [ 10, 11, 12 ] ]
+
+Negative indices can be used to extract an array suffix. Note that the index value `-1` accesses the last element of the array, the value `-2` accesses the last but one element, and so on. Assuming that the array that is being subscripted has a length of `7`, then the value `-7` accesses the arrays's first element.
+
+    arr[-2]     // "test"
+    arr[-2..-1] // [ "test", [ 10, 11, 12 ] ]
+
+You can even reverse arrays using subscripts and ranges.
+
+    arr[4..0] // [ [ 10, 11, 12 ], "test", 9, 8, 7 ]
+
+Auto ranges are special constructs that are only permissible in subscript expressions. An auto range is a range where the start or end is unspecified. The unspecified side of an auto range is automatically replaced by the length of the array minus one.
+
+    arr[..0] // [ [ 10, 11, 12 ], "test", 9, 8, 7 ]
+    arr[3..] // [ "test", [ 10, 11, 12 ] ]
+
+Since arrays can contain other subscriptable values such as strings, arrays, and maps, you can use multiple subscript expressions to access nested elements.
+
+    arr[3][2..3] // "st"
+    arr[4][1]    // 11
+
 #### Subscripting Maps
+
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`String` Returns the value under the given key or the special value `undefined` if the map being indexed does not contain the given key.
+`Array`  Returns a map containing the key-value pairs with the given keys. Assumes that all elements of the indexing array are of type `String`. Keys that are not contained in the map being indexed are ignored.
+
+For the following example, assume that the value of variable `map` is the following map:
+
+    {
+    	"some number": 1.0,
+    	"some string": "test",
+    	"some array" : [ 1, 2, 3, 4 ],
+    	"some map"   : { "key1": 5, "key2": "asdf" }
+    }
+
+We begin with simple indexing using strings:
+
+    map["some number"] // 1.0
+    map["some array"]  // [ 1, 2, 3, 4 ]
+    map["missing key"] // undefined
+
+Multiple indices, or array indices, can be used to extract sub maps. Range expressions are not available for map subscripts because the generate lists of numbers and maps require the indexing values to be of type `String`. Indexing values that are not present in the map are ignored.
+
+    map["some number", "some string"] // { "some number": 1.0, "some string": "test" }
+    map["some number", "missing"]     // { "some number": 1.0 }
+
+Like arrays, maps can contain other subscriptable values such as strings, arrays, and maps. You can use multiple subscript expressions to access nested elements.
+
+    map["some array"][1]          // 2
+    map["some map"]["key2"]       // "asdf"
+    map["some map"]["key2"][1..3] // "ey2"
 
 ### Unary Operators
 
