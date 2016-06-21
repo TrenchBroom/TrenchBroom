@@ -157,7 +157,7 @@ namespace TrenchBroom {
         ValueHolder* StringValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
-                    return new BooleanValueHolder(!StringUtils::caseInsensitiveEqual(m_value, "false") && !m_value.empty());
+                    return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(m_value, "false") && !m_value.empty());
                 case Type_String:
                     return new StringValueHolder(m_value);
                 case Type_Number: {
@@ -914,7 +914,33 @@ namespace TrenchBroom {
                     }
                     break;
                 case Type_Array:
+                    switch (rhs.type()) {
+                        case Type_Array:
+                            return Value(VectorUtils::concatenate(lhs.arrayValue(), rhs.arrayValue()));
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_String:
+                        case Type_Map:
+                        case Type_Range:
+                        case Type_Null:
+                        case Type_Undefined:
+                            break;
+                    }
+                    break;
                 case Type_Map:
+                    switch (rhs.type()) {
+                        case Type_Map:
+                            return Value(MapUtils::concatenate(lhs.mapValue(), rhs.mapValue()));
+                        case Type_Boolean:
+                        case Type_Number:
+                        case Type_String:
+                        case Type_Array:
+                        case Type_Range:
+                        case Type_Null:
+                        case Type_Undefined:
+                            break;
+                    }
+                    break;
                 case Type_Range:
                 case Type_Null:
                 case Type_Undefined:
@@ -1041,11 +1067,35 @@ namespace TrenchBroom {
         }
 
         Value::operator bool() const {
-            return convertTo(Type_Boolean).booleanValue();
+            switch (type()) {
+                case Type_Boolean:
+                    return booleanValue();
+                case Type_Number:
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+            throw ConversionError(describe(), type(), Type_Boolean);
         }
 
         Value Value::operator!() const {
-            return Value(!convertTo(Type_Boolean).booleanValue());
+            switch (type()) {
+                case Type_Boolean:
+                    return Value(!booleanValue());
+                case Type_Number:
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+            throw ConversionError(describe(), type(), Type_Boolean);
         }
 
         bool operator==(const Value& lhs, const Value& rhs) {
@@ -1074,12 +1124,12 @@ namespace TrenchBroom {
 
         int compare(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_String:
+                case Type_Boolean:
                     switch (rhs.type()) {
                         case Type_Boolean:
                         case Type_Number:
                         case Type_String:
-                            return lhs.stringValue().compare(rhs.convertTo(Type_String).stringValue());
+                            return compareAsBooleans(lhs, rhs);
                         case Type_Null:
                         case Type_Undefined:
                             return 1;
@@ -1089,20 +1139,30 @@ namespace TrenchBroom {
                             break;
                     }
                     break;
-                case Type_Boolean:
                 case Type_Number:
                     switch (rhs.type()) {
                         case Type_Boolean:
-                        case Type_Number: {
-                            const NumberType diff = lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue();
-                            if (diff < 0.0)
-                                return -1;
-                            else if (diff > 0.0)
-                                return 1;
-                            return 0;
-                        }
+                            return compareAsBooleans(lhs, rhs);
+                        case Type_Number:
                         case Type_String:
-                            return lhs.convertTo(Type_String).stringValue().compare(rhs.stringValue());
+                            return compareAsNumbers(lhs, rhs);
+                        case Type_Null:
+                        case Type_Undefined:
+                            return 1;
+                        case Type_Array:
+                        case Type_Map:
+                        case Type_Range:
+                            break;
+                    }
+                    break;
+                case Type_String:
+                    switch (rhs.type()) {
+                        case Type_Boolean:
+                            return compareAsBooleans(lhs, rhs);
+                        case Type_Number:
+                            return compareAsNumbers(lhs, rhs);
+                        case Type_String:
+                            return lhs.stringValue().compare(rhs.convertTo(Type_String).stringValue());
                         case Type_Null:
                         case Type_Undefined:
                             return 1;
@@ -1134,6 +1194,25 @@ namespace TrenchBroom {
                     break;
             }
             throw EvaluationError("Cannot compare value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " to value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
+        }
+
+        int compareAsBooleans(const Value& lhs, const Value& rhs) {
+            const bool lhsValue = lhs.convertTo(Type_Boolean).booleanValue();
+            const bool rhsValue = rhs.convertTo(Type_Boolean).booleanValue();
+            if (lhsValue == rhsValue)
+                return 0;
+            if (lhsValue)
+                return 1;
+            return -1;
+        }
+
+        int compareAsNumbers(const Value& lhs, const Value& rhs) {
+            const NumberType diff = lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue();
+            if (diff < 0.0)
+                return -1;
+            else if (diff > 0.0)
+                return 1;
+            return 0;
         }
 
         VariableStore::~VariableStore() {}

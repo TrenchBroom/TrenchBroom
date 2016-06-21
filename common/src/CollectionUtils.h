@@ -1206,6 +1206,20 @@ namespace MapUtils {
     }
 
     template <typename K, typename V, typename C>
+    void concatenate(const std::map<K,V,C>& map1, const std::map<K,V,C>& map2, std::map<K,V,C>& result) {
+        result.clear();
+        result.insert(map2.begin(), map2.end());
+        result.insert(map1.begin(), map1.end());
+    }
+    
+    template <typename K, typename V, typename C>
+    std::map<K,V,C> concatenate(const std::map<K,V,C>& map1, const std::map<K,V,C>& map2) {
+        std::map<K,V,C> result;
+        concatenate(map1, map2, result);
+        return result;
+    }
+    
+    template <typename K, typename V, typename C>
     void clearAndDelete(std::map<K, V*, C>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);

@@ -366,6 +366,8 @@ namespace TrenchBroom {
             friend bool operator>=(const Value& lhs, const Value& rhs);
         private:
             friend int compare(const Value& lhs, const Value& rhs);
+            friend int compareAsBooleans(const Value& lhs, const Value& rhs);
+            friend int compareAsNumbers(const Value& lhs, const Value& rhs);
         };
         
         class VariableStore {

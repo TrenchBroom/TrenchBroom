@@ -114,8 +114,9 @@ namespace TrenchBroom {
         TEST(ELParserTest, parseNegation) {
             ASSERT_EL_EQ(false, "!true");
             ASSERT_EL_EQ(true, "!false");
-            ASSERT_EL_EQ(true, "!0");
-            ASSERT_EL_EQ(false, "!1");
+            ASSERT_EL_THROW("!0", EL::ConversionError);
+            ASSERT_EL_THROW("!1", EL::ConversionError);
+            ASSERT_EL_THROW("!'true'", EL::ConversionError);
         }
         
         TEST(ELParserTest, parseAddition) {

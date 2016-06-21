@@ -1293,13 +1293,43 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
     map["some map"]["key2"]       // "asdf"
     map["some map"]["key2"][1..3] // "ey2"
 
-### Unary Operators
+### Unary Operator Terms
+
+A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are three unary operators: unary plus, unary minus, and unary negation (not).
 
 	Plus           = "+" SimpleTerm
 	Minus          = "-" SimpleTerm
 	Not            = "!" SimpleTerm
 
-### Algebraic Terms
+The following table explains the effects of applying the unary operators to values depending on the type of the values.
+
+--------------------------------------------------------------------------------------------
+Operator `Boolean`         `String` `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+-------- ----              ----     ----         ----    ----    ----    ----    ----
+`Plus`   convert to number error    no effect    error   error   error   error   error
+
+`Minus`  convert to number error    negate value error   error   error   error   error
+         and negate value
+
+`Not`    invert value      error    error        error   error   error   error   error
+--------------------------------------------------------------------------------------------
+
+Some examples of using unary operators follow.
+
+    +1.0   //  1.0
+    -1.0   // -1.0
+    +true  //  1.0
+    -true  // -1.0
+    !true  // false
+    !false // true
+
+### Binary Operator Terms
+
+A binary operator is an operator that takes two operands. Binary operators are specified in infix notation, that is, the first operator is specified first, then the operator symbol, and finally the second operator. Note that in the following EBNF notation for binary operators, the second operator is always an expression.
+
+#### Algebraic Terms
+
+Algebraic terms are terms that use the binary operators `+`, `-`, `*`, `/`, or `%`.
 
 	Addition       = SimpleTerm "+" Expression
 	Subtraction    = SimpleTerm "-" Expression
@@ -1307,26 +1337,167 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
 	Division       = SimpleTerm "/" Expression
 	Modulus        = SimpleTerm "%" Expression
 
-### Boolean Terms
+All of these operators can be applied to operands of type `Boolean` or `Number`. If an operand is of type `Boolean`, it is converted to type `Number` before the operation is applied.
+
+In addition, the `+` operator can be applied if both operands are of type `String`, if both are of type `Array`, or if both are of type `Map`.
+
+    "This is" + " " + "test." // "This is a test."
+    [ 1, 2, 3 ] + [ 3, 4, 5 ] // [ 1, 2, 3, 3, 4, 5 ]
+
+In the previous two examples, the operands are simply concatenated. If both operands are of type `Map` however, the two maps are merged, that is, duplicate keys are overwritten by the values in the second operand:
+
+    { 'k1': 1, 'k2': 2, 'k3': 3 } + { 'k3': 4, 'k4': 5 } // { 'k1': 1, 'k2': 2, 'k3': 4, 'k4': 5 }
+
+Note that the value under key `'k3'` is `4` and not `3`!
+
+#### Boolean Terms
+
+Boolean terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
 
 	Conjunction    = SimpleTerm "&&" Expression
 	Disjunction    = SimpleTerm "||" Expression
 
+The following table shows the effects of applying the boolean operators.
+
+  Left    Right   &&      ||
+-------- ------- ----    ----
+`true`   `true`  `true`  `true`
+`true`   `false` `false` `true`
+`false`  `true`  `false` `true`
+`false`  `false` `false` `false`
+
 #### Comparison Terms
 
-	Less           = SimpleTerm "<" Expression
+Comparison operators always return a boolean value depending on the result of the comparison.
+
+	Less           = SimpleTerm "<"  Expression
 	LessOrEqual    = SimpleTerm "<=" Expression
 	Equal          = SimpleTerm "==" Expression
 	InEqual        = SimpleTerm "!=" Expression
 	GreaterOrEqual = SimpleTerm ">=" Expression
-	Greater        = SimpleTerm ">" Expression
+	Greater        = SimpleTerm ">"  Expression
+
+ Left        Right      Effect
+------      -------     ------
+`Boolean`   `Boolean`   `true` is greater than `false`
+`Boolean`   `Number`    Convert right to `Boolean` and compare.
+`Boolean`   `String`    Convert right to `Boolean` and compare.
+`Boolean`   `Array`     error
+`Boolean`   `Map`       error
+`Boolean`   `Range`     error
+`Boolean`   `Null`      Left is greater than right.
+`Boolean`   `Undefined` Left is greater than right.
+`Number`    `Boolean`   Convert left to `Boolean` and compare.
+`Number`    `Number`    Compare as numbers.
+`Number`    `String`    Convert right to `Number` and compare.
+`Number`    `Array`     error
+`Number`    `Map`       error
+`Number`    `Range`     error
+`Number`    `Null`      Left is greater than right.
+`Number`    `Undefined` Left is greater than right.
+`String`    `Boolean`   Convert left to `Boolean` and compare.
+`String`    `Number`    Convert left to `Number` and compare.
+`String`    `String`    Compare lexicographically (case sensitive).
+`String`    `Array`     error
+`String`    `Map`       error
+`String`    `Range`     error
+`String`    `Null`      Left is greater than right.
+`String`    `Undefined` Left is greater than right.
+`Array`     `Boolean`   error
+`Array`     `Number`    error
+`Array`     `String`    error
+`Array`     `Array`     Compare lexicographically.
+`Array`     `Map`       error
+`Array`     `Range`     error
+`Array`     `Null`      Left is greater than right.
+`Array`     `Undefined` Left is greater than right.
+`Map`       `Boolean`   error
+`Map`       `Number`    error
+`Map`       `String`    error
+`Map`       `Array`     error
+`Map`       `Map`       Compare key-value pairs lexicographically (key first, then value).
+`Map`       `Range`     error
+`Map`       `Null`      Left is greater than right.
+`Map`       `Undefined` Left is greater than right.
+`Range`     Any type    error
+`Null`      `Null`      Both are equal.
+`Null`      `Undefined` Both are equal
+`Null`      Any type    Right is greater than left.
+`Undefined` `Null`      Both are equal.
+`Undefined` `Undefined` Both are equal
+`Undefined` Any type    Right is greater than left.
+
+The following examples show the comparison operators in action with different operand types. Assume that all expressions evaluate to `true` unless otherwise stated in comments.
+
+    true > false
+    true == true
+    false == false
+
+    true == "true"
+    true == "True"
+    true == "asdf"
+    true != ""
+    true != "false"
+    true == "False"
+    true == 1
+    true == 2
+    true != 0
+
+    1 == "1"
+    1 == "1.0"
+    1 < "2"
+    1 == "asdf" // throws an error because "asdf" cannot be converted to Number
+
+    "asdf" == "asdf"
+    "asdf" < "bsdf"
+
+    null == null
+    null == undefined
+    null < -1
+    null < "asdf"
+
+    [ 1, 2, 3 ] == [ 1, 2, 3 ]
+    [ 1, 2, 3 ] <  [ 2, 2, 3 ]
+    [ 1, 2 ]    <  [ 1, 2, 3 ]
+
+#### Binary Operator Precedence
+
+Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators.
+
+Operator Precedence
+----     ----
+`*`      5
+`/`      5
+`%`      5
+`+`      4
+`-`      4
+`<`      3
+`<=`     3
+`==`     3
+`!=`     3
+`>`      3
+`>=`     3
+`&&`     2
+`||`     1
+
+Some examples:
+
+    2 * 3 + 4       // 10 because * has a higher precedence than +
+    7 < 10 && 8 < 3 // comparisons are evaluated before the conjunction operator
+
+If the builtin precedence does not reflect your intention, you can use parentheses to force an operator to be evaluated first.
+
+    2 * (3 + 4) // 14
 
 ### Terminals
 
-	Alpha          = "a-zA-Z"
-	Numeric        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+In EBNF, terminal rules are those which only contain terminal symbols on the right hand side. A symbol is terminal if it is enclosed in double quotes. Note that for the `Char` rule, we have chosen to not enumate all actual ASCII characters and have used a placeholder string instead.
+
+	Alpha          = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
+	Numeric        = "0" | "1" | ... "9"
 	Char           = Any ASCII character
 
+This concludes the manual for TrenchBroom's expression language.
 
 ## Solving Problems
 

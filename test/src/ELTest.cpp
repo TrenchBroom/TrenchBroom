@@ -231,19 +231,38 @@ namespace TrenchBroom {
             ASSERT_THROW(Value("tst") + Value(ArrayType()), EvaluationError);
             ASSERT_THROW(Value("tst") + Value(MapType()),   EvaluationError);
 
+            ASSERT_EQ(Value(VectorUtils::create<Value>(Value(1), Value(2), Value(2), Value(3))),
+                      Value(VectorUtils::create<Value>(Value(1), Value(2))) +
+                      Value(VectorUtils::create<Value>(Value(2), Value(3))));
+            
             ASSERT_THROW(Value(ArrayType()) + Value(true),          EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value(1.0),           EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value("test"),        EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value::Null,          EvaluationError);
-            ASSERT_THROW(Value(ArrayType()) + Value(ArrayType()),   EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value(MapType()),     EvaluationError);
+            
+            MapType map1;
+            map1["k1"] = Value(1);
+            map1["k2"] = Value(2);
+            map1["k3"] = Value(3);
+            
+            MapType map2;
+            map2["k3"] = Value(4);
+            map2["k4"] = Value(5);
+            
+            MapType map3;
+            map3["k1"] = Value(1);
+            map3["k2"] = Value(2);
+            map3["k3"] = Value(4);
+            map3["k4"] = Value(5);
+            
+            ASSERT_EQ(Value(map3), Value(map1) + Value(map2));
             
             ASSERT_THROW(Value(MapType()) + Value(true),          EvaluationError);
             ASSERT_THROW(Value(MapType()) + Value(1.0),           EvaluationError);
             ASSERT_THROW(Value(MapType()) + Value("test"),        EvaluationError);
             ASSERT_THROW(Value(MapType()) + Value::Null,          EvaluationError);
             ASSERT_THROW(Value(MapType()) + Value(ArrayType()),   EvaluationError);
-            ASSERT_THROW(Value(MapType()) + Value(MapType()),     EvaluationError);
         }
         
         TEST(ELTest, binaryMinusOperator) {
