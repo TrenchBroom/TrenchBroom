@@ -21,7 +21,7 @@
 
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
-#include "IO/DkPakFileSystem.h"
+#include "IO/IdPakFileSystem.h"
 #include "IO/MappedFile.h"
 
 #include <algorithm>
@@ -29,39 +29,39 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(DkPakFileSystemTest, directoryExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
+        TEST(IdPakFileSystemTest, directoryExists) {
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
 
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
-            ASSERT_THROW(fs.directoryExists(Path("/pics")), FileSystemException);
+            ASSERT_THROW(fs.directoryExists(Path("/gfx")), FileSystemException);
             
-            ASSERT_TRUE(fs.directoryExists(Path("pics")));
-            ASSERT_TRUE(fs.directoryExists(Path("PICS")));
-            ASSERT_FALSE(fs.directoryExists(Path("pics/tag1.pcx")));
+            ASSERT_TRUE(fs.directoryExists(Path("gfx")));
+            ASSERT_TRUE(fs.directoryExists(Path("GFX")));
+            ASSERT_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
         }
         
-        TEST(DkPakFileSystemTest, fileExists) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
+        TEST(IdPakFileSystemTest, fileExists) {
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak3.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
-            ASSERT_THROW(fs.fileExists(Path("/pics/tag1.pcx")), FileSystemException);
+            ASSERT_THROW(fs.fileExists(Path("/gfx/palette.lmp")), FileSystemException);
             
-            ASSERT_TRUE(fs.fileExists(Path("pics/tag1.pcx")));
-            ASSERT_TRUE(fs.fileExists(Path("PICS/TAG1.pcX")));
+            ASSERT_TRUE(fs.fileExists(Path("gfx/palette.lmp")));
+            ASSERT_TRUE(fs.fileExists(Path("GFX/Palette.LMP")));
         }
         
-        TEST(DkPakFileSystemTest, findItems) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
+        TEST(IdPakFileSystemTest, findItems) {
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
@@ -87,12 +87,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag2.pcx")) != items.end());
         }
         
-        TEST(DkPakFileSystemTest, findItemsRecursively) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
+        TEST(IdPakFileSystemTest, findItemsRecursively) {
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
@@ -137,12 +137,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
         }
         
-        TEST(DkPakFileSystemTest, openFile) {
-            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
+        TEST(IdPakFileSystemTest, openFile) {
+            const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/pak1.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
             assert(pakFile != NULL);
             
-            const DkPakFileSystem fs(pakPath, pakFile);
+            const IdPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);
