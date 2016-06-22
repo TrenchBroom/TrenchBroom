@@ -355,7 +355,7 @@ namespace TrenchBroom {
             friend Value operator/(const Value& lhs, const Value& rhs);
             friend Value operator%(const Value& lhs, const Value& rhs);
 
-            explicit operator bool() const;
+            operator bool() const;
             Value operator!() const;
             
             friend bool operator==(const Value& lhs, const Value& rhs);
