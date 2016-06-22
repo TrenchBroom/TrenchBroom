@@ -95,12 +95,14 @@ namespace TrenchBroom {
                 try {
                     m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
                     
-                    const IO::Path directoryPath = targetPath.deleteLastComponent();
-                    if (!IO::Disk::directoryExists(directoryPath))
-                        IO::Disk::createDirectory(directoryPath);
-                    
-                    const MapDocumentSPtr document = m_context.document();
-                    document->saveDocumentTo(targetPath);
+                    if (!m_context.test()) {
+                        const IO::Path directoryPath = targetPath.deleteLastComponent();
+                        if (!IO::Disk::directoryExists(directoryPath))
+                            IO::Disk::createDirectory(directoryPath);
+                        
+                        const MapDocumentSPtr document = m_context.document();
+                        document->saveDocumentTo(targetPath);
+                    }
                 } catch (const Exception& e) {
                     m_context << "#### Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
@@ -136,8 +138,9 @@ namespace TrenchBroom {
                 const String sourcePattern = sourcePath.lastComponent().asString();
                 
                 try {
-                    m_context << "#### Copying '" << sourcePath.asString() << "'\nTo '" << targetPath.asString() << "'\n";
-                    IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
+                    m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
+                    if (!m_context.test())
+                        IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
                 } catch (const Exception& e) {
                     m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
                 }
@@ -218,20 +221,25 @@ namespace TrenchBroom {
                 const String parameters(m_context.interpolate(m_task->parameterSpec()));
                 const String cmd = toolPath.asString() + " " + parameters;
 
-                m_process = new wxProcess(this);
-                m_process->Redirect();
-                m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
-                Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
-                
-                m_timer = new wxTimer();
-                m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
-                
-                wxExecuteEnv* env = new wxExecuteEnv();
-                env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
-                
                 m_context << "#### Executing '" << cmd << "'\n";
-                ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
-                m_timer->Start(50);
+                
+                if (!m_context.test()) {
+                    m_process = new wxProcess(this);
+                    m_process->Redirect();
+                    m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
+                    Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
+                    
+                    m_timer = new wxTimer();
+                    m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
+                    
+                    wxExecuteEnv* env = new wxExecuteEnv();
+                    env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
+                    
+                    ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
+                    m_timer->Start(50);
+                } else {
+                    notifyEnd();
+                }
             }
             
             void end() {

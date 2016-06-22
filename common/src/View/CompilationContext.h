@@ -37,10 +37,12 @@ namespace TrenchBroom {
             EL::VariableTable m_variables;
             
             TextCtrlOutputAdapter m_output;
+            bool m_test;
         public:
-            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output);
+            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test);
             
             MapDocumentSPtr document() const;
+            bool test() const;
             
             String interpolate(const String& input) const;
             String variableValue(const String& variableName) const;

@@ -55,6 +55,8 @@ namespace TrenchBroom {
             void OnClose(wxCloseEvent& event);
 
             void OnCompilationEnd(wxEvent& event);
+            
+            bool testRun() const;
         };
     }
 }

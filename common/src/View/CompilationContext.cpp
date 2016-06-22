@@ -23,13 +23,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output) :
+        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test) :
         m_document(document),
         m_variables(variables),
-        m_output(output) {}
+        m_output(output),
+        m_test(test) {}
         
         MapDocumentSPtr CompilationContext::document() const {
             return lock(m_document);
+        }
+
+        bool CompilationContext::test() const {
+            return m_test;
         }
 
         String CompilationContext::interpolate(const String& input) const {
