@@ -19,6 +19,7 @@
 
 #include "GameEngineConfigParser.h"
 
+#include "Macros.h"
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
             const EL::NumberType version = root["version"].numberValue();
+            unused(version);
             assert(version == 1.0);
 
             const Model::GameEngineProfile::List profiles = parseProfiles(root["profiles"]);

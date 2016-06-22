@@ -43,6 +43,7 @@ namespace TrenchBroom {
                             "]");
 
             const EL::NumberType version = root["version"].numberValue();
+            unused(version);
             assert(version == 1.0);
 
             const String& name = root["name"].stringValue();
