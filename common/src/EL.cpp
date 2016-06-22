@@ -783,7 +783,16 @@ namespace TrenchBroom {
             throw IndexError(*this, index);
         }
         
+        Value Value::operator[](const int index) const {
+            assert(index >= 0);
+            return this->operator[](static_cast<size_t>(index));
+        }
+
         Value Value::operator[](const String& key) const {
+            return this->operator[](key.c_str());
+        }
+
+        Value Value::operator[](const char* key) const {
             switch (type()) {
                 case Type_Map: {
                     const MapType& map = mapValue();

@@ -339,7 +339,9 @@ namespace TrenchBroom {
             
             Value operator[](const Value& indexValue) const;
             Value operator[](size_t index) const;
+            Value operator[](int index) const;
             Value operator[](const String& key) const;
+            Value operator[](const char* key) const;
         private:
             IndexList computeIndexArray(const Value& indexValue, size_t indexableSize) const;
             void computeIndexArray(const Value& indexValue, size_t indexableSize, IndexList& result) const;
