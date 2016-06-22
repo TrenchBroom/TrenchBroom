@@ -21,6 +21,7 @@
 
 #include "EL.h"
 #include "CollectionUtils.h"
+#include "MathUtils.h"
 
 #include <limits>
 
@@ -381,7 +382,7 @@ namespace TrenchBroom {
         }
         
         TEST(ELTest, binaryModulusOperator) {
-            ASSERT_TRUE(std::isnan((Value(true) % Value(false)).numberValue()));
+            ASSERT_TRUE(Math::isnan((Value(true) % Value(false)).numberValue()));
             ASSERT_EQ(Value(0.0), Value(true) % Value(true));
             ASSERT_EQ(Value(1.0), Value(true) % Value(-2.0));
             ASSERT_THROW(Value(true) % Value("test"), EvaluationError);
@@ -389,7 +390,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Value(true) % Value(MapType()), EvaluationError);
             ASSERT_THROW(Value(true) % Value::Null, EvaluationError);
             
-            ASSERT_TRUE(std::isnan((Value(-2.0) % Value(false)).numberValue()));
+            ASSERT_TRUE(Math::isnan((Value(-2.0) % Value(false)).numberValue()));
             ASSERT_EQ(Value(0.0), Value(2.0) % Value(true));
             ASSERT_EQ(Value(1.0), Value(3.0) % Value(-2.0));
             ASSERT_THROW(Value(1.0) % Value("test"), EvaluationError);

@@ -123,7 +123,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const BooleanType& booleanValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const StringType& stringValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const NumberType& numberValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const ArrayType& arrayValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const MapType& mapValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             ValueType type() const;
             const RangeType& rangeValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         public:
             ValueType type() const;
             size_t length() const;
-            ValueHolder* convertTo(const ValueType toType) const;
+            ValueHolder* convertTo(ValueType toType) const;
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };

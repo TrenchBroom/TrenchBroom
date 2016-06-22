@@ -19,6 +19,7 @@
 
 #include "EL.h"
 
+#include "Macros.h"
 #include "CollectionUtils.h"
 #include "MathUtils.h"
 
@@ -45,6 +46,7 @@ namespace TrenchBroom {
                     return "Null";
                 case Type_Undefined:
                     return "Undefined";
+				switchDefault()
             }
         }
 
@@ -1918,6 +1920,7 @@ namespace TrenchBroom {
                     return Value(m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context), m_line, m_column);
                 case Op_Greater:
                     return Value(m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context), m_line, m_column);
+				switchDefault()
             }
         }
         
@@ -1931,6 +1934,7 @@ namespace TrenchBroom {
                 case Op_Equal:
                 case Op_Inequal:
                     return Traits(3, true, false);
+				switchDefault()
             }
         }
 

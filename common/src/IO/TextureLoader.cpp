@@ -79,6 +79,7 @@ namespace TrenchBroom {
                     return new DirectoryTextureCollectionLoader(m_gameFS);
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
+				switchDefault()
             }
         }
 
