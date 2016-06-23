@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "EL.h"
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 
 namespace TrenchBroom {
     namespace EL {

@@ -19,7 +19,7 @@
 
 #include "CompilationRun.h"
 
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "View/CompilationContext.h"

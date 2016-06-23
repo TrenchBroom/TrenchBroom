@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ELInterpolator.h"
+#include "Interpolator.h"
 
 namespace TrenchBroom {
     namespace EL {

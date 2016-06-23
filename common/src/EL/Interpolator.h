@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ELInterpolator_h
-#define ELInterpolator_h
+#ifndef Interpolator_h
+#define Interpolator_h
 
 #include "IO/ELParser.h"
 
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ELInterpolator_h */
+#endif /* Interpolator_h */

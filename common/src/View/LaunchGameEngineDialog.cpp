@@ -19,7 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/AutoCompleteTextControl.h"

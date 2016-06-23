@@ -19,7 +19,7 @@
 
 #include "CompilationContext.h"
 
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 
 namespace TrenchBroom {
     namespace View {

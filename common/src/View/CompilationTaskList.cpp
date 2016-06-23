@@ -19,7 +19,7 @@
 
 #include "CompilationTaskList.h"
 
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
 #include "View/ELAutoCompleteHelper.h"

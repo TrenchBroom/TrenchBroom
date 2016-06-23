@@ -21,7 +21,7 @@
 
 #include "Assets/Palette.h"
 #include "Assets/TextureManager.h"
-#include "ELInterpolator.h"
+#include "EL/Interpolator.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdWalTextureReader.h"
 #include "IO/Path.h"
