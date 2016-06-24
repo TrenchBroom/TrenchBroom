@@ -870,6 +870,31 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MapDocument::clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3) {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            Model::ParentChildrenMap clippedBrushes;
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                const Model::Brush* originalBrush = *it;
+                
+                Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
+                Model::Brush* clippedBrush = originalBrush->clone(m_worldBounds);
+                if (clippedBrush->clip(m_worldBounds, clipFace))
+                    clippedBrushes[originalBrush->parent()].push_back(clippedBrush);
+                else
+                    delete clippedBrush;
+            }
+            
+            Transaction transaction(this, "Clip Brushes");
+            const Model::NodeList toRemove(brushes.begin(), brushes.end());
+            deselectAll();
+            removeNodes(toRemove);
+            select(addNodes(clippedBrushes));
+            
+            return true;
+        }
+
         bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
             return submitAndStore(ChangeEntityAttributesCommand::set(name, value));
         }
