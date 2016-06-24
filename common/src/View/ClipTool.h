@@ -127,7 +127,6 @@ namespace TrenchBroom {
             const Grid& grid() const;
             
             void toggleSide();
-            void resetSide();
             
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             

@@ -492,11 +492,6 @@ namespace TrenchBroom {
             update();
         }
         
-        void ClipTool::resetSide() {
-            m_clipSide = ClipSide_Front;
-            update();
-        }
-        
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             if (m_strategy != NULL)
                 m_strategy->pick(pickRay, camera, pickResult);
@@ -578,7 +573,7 @@ namespace TrenchBroom {
                 }
             }
             
-            reset();
+            resetStrategy();
             return result;
         }
         
@@ -654,16 +649,17 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::reset() {
-            const bool result = (m_strategy != NULL);
-            if (m_strategy != NULL)
+            if (m_strategy != NULL) {
                 resetStrategy();
-            resetSide();
-            return result;
+                return true;
+            }
+            return false;
         }
         
         void ClipTool::resetStrategy() {
             delete m_strategy;
             m_strategy = NULL;
+            update();
         }
         
         void ClipTool::update() {
@@ -797,13 +793,13 @@ namespace TrenchBroom {
             if (!document->selectedNodes().hasOnlyBrushes())
                 return false;
             bindObservers();
-            reset();
+            resetStrategy();
             return true;
         }
         
         bool ClipTool::doDeactivate() {
-            reset();
             unbindObservers();
+            resetStrategy();
             return true;
         }
         
