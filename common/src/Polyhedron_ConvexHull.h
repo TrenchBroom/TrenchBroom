@@ -75,11 +75,15 @@ public:
         m_edges.clear();
     }
 private:
+    // Check whether the given edge is connected to the last edge
+    // of the current seam with a vertex.
     bool checkEdge(Edge* edge) const {
         if (m_edges.empty())
             return true;
         Edge* last = m_edges.back();
-        return last->firstVertex() == edge->secondVertex();
+        if (last->firstVertex() == edge->secondVertex())
+            return true;
+        return false;
     }
 };
 

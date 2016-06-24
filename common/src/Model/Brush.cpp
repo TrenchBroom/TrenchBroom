@@ -105,19 +105,22 @@ namespace TrenchBroom {
             AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false),
-            m_brushValid(false) {
+            m_brushValid(true) {
+                HealEdgesCallback healCallback;
+
                 BrushFaceList::const_iterator it, end;
-                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
+                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     BrushFace* face = *it;
-                    AddFaceToGeometryCallback callback(face);
-                    const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
+                    AddFaceToGeometryCallback addCallback(face);
+                    const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), addCallback);
                     if (result.empty())
                         m_brushEmpty = true;
+                    m_brushValid = m_geometry.healEdges(healCallback);
                 }
-                m_geometry.correctVertexPositions();
-                
-                HealEdgesCallback callback;
-                m_brushValid = m_geometry.healEdges(callback);
+                if (!m_brushEmpty && m_brushValid) {
+                    m_geometry.correctVertexPositions();
+                    m_brushValid = m_geometry.healEdges(healCallback);
+                }
             }
             
             bool brushEmpty() const {
