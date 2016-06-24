@@ -200,6 +200,8 @@ namespace TrenchBroom {
 
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
+            void OnDebugCreateCube(wxCommandEvent& event);
+            void OnDebugClipBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
             void OnDebugCrash(wxCommandEvent& event);
             
