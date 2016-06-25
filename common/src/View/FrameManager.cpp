@@ -89,12 +89,12 @@ namespace TrenchBroom {
         MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
             MapFrame* frame = new MapFrame(this, document);
             frame->SetName("MapFrame");
-            if (m_frames.empty()) {
+            frame->positionOnScreen(topFrame());
+
+            if (m_frames.empty())
                 wxPersistenceManager::Get().RegisterAndRestore(frame);
-            } else {
-                frame->positionOnScreen(topFrame());
+            else
                 wxPersistenceManager::Get().Register(frame);
-            }
 
             m_frames.push_front(frame);
 
