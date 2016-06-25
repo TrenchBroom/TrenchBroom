@@ -911,8 +911,8 @@ namespace TrenchBroom {
             return submitAndStore(ConvertEntityColorCommand::convert(name, range));
         }
         
-        bool MapDocument::resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta) {
-            return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
+        bool MapDocument::resizeBrushes(const Vec3& normal, const Vec3& delta) {
+            return submitAndStore(ResizeBrushesCommand::resize(normal, delta));
         }
         
         bool MapDocument::setTexture(Assets::Texture* texture) {

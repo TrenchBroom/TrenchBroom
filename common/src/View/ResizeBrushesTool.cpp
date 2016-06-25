@@ -163,7 +163,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && face->boundary().equals(m_reference->boundary());
+                return face != m_reference && face->boundary().normal.equals(m_reference->boundary().normal);
             }
         };
         
@@ -177,9 +177,8 @@ namespace TrenchBroom {
                 assert(!faces.empty());
                 VectorUtils::append(result, faces);
                 VectorUtils::append(result, collectDragFaces(faces[0]));
-                if (faces.size() > 1) {
+                if (faces.size() > 1)
                     VectorUtils::append(result, collectDragFaces(faces[1]));
-                }
             } else {
                 Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
@@ -240,7 +239,8 @@ namespace TrenchBroom {
                     m_splitBrushes = false;
                 }
             } else {
-                if (document->resizeBrushes(m_dragFaces, faceDelta)) {
+                const Vec3 normal = m_dragFaces.front()->boundary().normal;
+                if (document->resizeBrushes(normal, faceDelta)) {
                     m_totalDelta += faceDelta;
                     m_dragOrigin += faceDelta;
                 }

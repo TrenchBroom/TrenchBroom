@@ -695,28 +695,33 @@ namespace TrenchBroom {
             setEntityDefinitions(nodes);
         }
 
-        bool MapDocumentCommandFacade::performResizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta) {
-            Model::NodeList nodes;
+        bool MapDocumentCommandFacade::performResizeBrushes(const Vec3& normal, const Vec3& delta) {
+            const Model::BrushList& selectedBrushes = m_selectedNodes.brushes();
+            Model::NodeList changedNodes;
+            Model::BrushFaceList faces;
             
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                Model::Brush* brush = face->brush();
-                assert(brush->selected());
-                
-                if (!brush->canMoveBoundary(m_worldBounds, face, delta))
-                    return false;
-                
-                nodes.push_back(brush);
+            Model::BrushList::const_iterator bIt, bEnd;
+            for (bIt = selectedBrushes.begin(), bEnd = selectedBrushes.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = *bIt;
+                Model::BrushFace* face = brush->findFace(normal);
+                if (face != NULL) {
+                    if (!brush->canMoveBoundary(m_worldBounds, face, delta))
+                        return false;
+                    
+                    changedNodes.push_back(brush);
+                    faces.push_back(face);
+                }
             }
             
-            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            const Model::NodeList parents = collectParents(changedNodes.begin(), changedNodes.end());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
             
-            for (it = faces.begin(), faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            Model::BrushFaceList::iterator fIt, fEnd;
+            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                Model::BrushFace* face = *fIt;
                 Model::Brush* brush = face->brush();
+                assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, textureLock());
             }
             

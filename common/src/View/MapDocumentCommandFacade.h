@@ -104,7 +104,7 @@ namespace TrenchBroom {
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
-            bool performResizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
+            bool performResizeBrushes(const Vec3& normal, const Vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);

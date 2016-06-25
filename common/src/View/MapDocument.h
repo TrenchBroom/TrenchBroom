@@ -274,7 +274,7 @@ namespace TrenchBroom {
             
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
+            bool resizeBrushes(const Vec3& normal, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
