@@ -275,9 +275,26 @@ The path of an external entity definition file is stored in a worldspawn propert
 
 ### Managing Textures {#texture_management}
 
-![Texture collection editor](TextureCollectionEditor.png) [Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. Alternatively, you can load a texture collection by dragging and dropping it onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
+[Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. There are two types of texture collections: file archives such as WAD files and directories containing loose textures such as WAL files. Depending on whether the game you are editing comes with internal textures or not, the texture collection editor looks and works differently.
+
+#### Texture Archive Management
+
+![Texture collection editor](TextureCollectionArchiveEditor.png) Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. Alternatively, you can load a texture collection archive by dragging and dropping it onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
 
 It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
+
+#### Texture Directory Management
+
+![Texture collection editor](TextureCollectionDirectoryEditor.png) If the game you are currently editing comes with builtin textures, then these textures are usually stored in the game's assets at a particular path. For example in the case of Quake 2, the textures are stored in the PAK files in subdirectories under the path `textures`. TrenchBroom will find these texture collections and allow you to load them selectively in the texture collection editor. On the left side, TrenchBroom presents you with a list of all the texture collections it has found for the game, and on the right side, it shows a list of all texture collections that have been loaded. You can load a texture collection by selecting it on the left and clicking the "+" button below the list on the right. To remove a texture collection, select it on the right and click the "-" button.
+
+If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the baseq2 directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there.
+
+The following table lists the texture directories for all supported games.
+
+Game      Texture Directory Default
+----      ----------------- -------
+Quake 2   `<MOD>/textures`  `baseq2/textures`
+Daikatana `<MOD>/textures`  `data/textures`
 
 ## Interacting With the Editor
 
