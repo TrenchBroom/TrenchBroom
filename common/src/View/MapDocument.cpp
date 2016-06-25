@@ -800,8 +800,8 @@ namespace TrenchBroom {
             
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
-            removeNodes(toRemove);
             addNode(brush, currentParent());
+            removeNodes(toRemove);
             select(brush);
             return true;
         }
@@ -830,8 +830,10 @@ namespace TrenchBroom {
             
             Transaction transaction(this, "CSG Subtract");
             deselectAll();
+            const Model::NodeList added = addNodes(toAdd);
+            addNodes(toAdd);
             removeNodes(toRemove);
-            select(addNodes(toAdd));
+            select(added);
             
             return true;
         }
@@ -858,12 +860,13 @@ namespace TrenchBroom {
             
             Transaction transaction(this, "CSG Intersect");
             deselect(toRemove);
-            removeNodes(toRemove);
             
             if (valid) {
                 addNode(result, currentParent());
+                removeNodes(toRemove);
                 select(result);
             } else {
+                removeNodes(toRemove);
                 delete result;
             }
             
