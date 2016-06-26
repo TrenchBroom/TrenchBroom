@@ -231,8 +231,16 @@ namespace TrenchBroom {
 
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
             Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
+            
             void removeNodes(const Model::NodeList& nodes);
-
+        private:
+            Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
+            
+            struct CompareByAncestry;
+            Model::NodeList removeImplicitelyRemovedNodes(Model::NodeList nodes) const;
+            
+            void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
+        public:
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
             void reparentNodes(const Model::ParentChildrenMap& nodes);
             bool deleteObjects();

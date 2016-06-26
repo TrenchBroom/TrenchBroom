@@ -32,7 +32,7 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<DuplicateNodesCommand> Ptr;
         private:
             Model::NodeList m_previouslySelectedNodes;
-            Model::NodeList m_addedNodes;
+            Model::ParentChildrenMap m_addedNodes;
         public:
             static Ptr duplicate();
         private:

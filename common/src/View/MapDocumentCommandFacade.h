@@ -59,27 +59,8 @@ namespace TrenchBroom {
             void deselectAllNodes();
             void deselectAllBrushFaces();
         public: // adding and removing nodes
-            Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
-            Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
-        private:
-            void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
-            Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
-            void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
-        public: // reparenting nodes
-            struct ReparentResult {
-                Model::ParentChildrenMap movedNodes;
-                Model::ParentChildrenMap removedNodes;
-                ReparentResult(const Model::ParentChildrenMap& i_movedNodes, const Model::ParentChildrenMap& i_removedNodes);
-            };
-            
-            typedef enum {
-                RemoveEmptyNodes,
-                KeepEmptyNodes
-            } EmptyNodePolicy;
-            
-            ReparentResult performReparentNodes(const Model::ParentChildrenMap& nodes, EmptyNodePolicy emptyNodePolicy);
-        private:
-            Model::NodeList findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const;
+            void performAddNodes(const Model::ParentChildrenMap& nodes);
+            void performRemoveNodes(const Model::ParentChildrenMap& nodes);
         public: // Node Visibility
             Model::VisibilityMap setVisibilityState(const Model::NodeList& nodes, Model::VisibilityState visibilityState);
             Model::VisibilityMap setVisibilityEnsured(const Model::NodeList& nodes);

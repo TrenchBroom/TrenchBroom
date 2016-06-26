@@ -258,7 +258,7 @@ namespace TrenchBroom {
             selectionDidChangeNotifier(selection);
         }
 
-        Model::NodeList MapDocumentCommandFacade::performAddNodes(const Model::ParentChildrenMap& nodes) {
+        void MapDocumentCommandFacade::performAddNodes(const Model::ParentChildrenMap& nodes) {
             const Model::NodeList parents = collectParents(nodes);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             
@@ -277,21 +277,17 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
 
             nodesWereAddedNotifier(addedNodes);
-            return addedNodes;
         }
         
-        Model::ParentChildrenMap MapDocumentCommandFacade::performRemoveNodes(const Model::NodeList& nodes) {
-            Model::ParentChildrenMap removedNodes = parentChildrenMap(nodes);
-            addEmptyNodes(removedNodes);
-            
-            const Model::NodeList parents = collectParents(removedNodes);
+        void MapDocumentCommandFacade::performRemoveNodes(const Model::ParentChildrenMap& nodes) {
+            const Model::NodeList parents = collectParents(nodes);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             
-            const Model::NodeList allChildren = collectChildren(removedNodes);
+            const Model::NodeList allChildren = collectChildren(nodes);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
             
             Model::ParentChildrenMap::const_iterator it, end;
-            for (it = removedNodes.begin(), end = removedNodes.end(); it != end; ++it) {
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* parent = it->first;
                 const Model::NodeList& children = it->second;
                 unsetEntityDefinitions(children);
@@ -300,120 +296,6 @@ namespace TrenchBroom {
             }
             
             invalidateSelectionBounds();
-
-            return removedNodes;
-        }
-        
-        void MapDocumentCommandFacade::addEmptyNodes(Model::ParentChildrenMap& nodes) const {
-            Model::NodeList emptyNodes = collectEmptyNodes(nodes);
-            while (!emptyNodes.empty()) {
-                removeEmptyNodes(nodes, emptyNodes);
-                emptyNodes = collectEmptyNodes(nodes);
-            }
-        }
-        
-        Model::NodeList MapDocumentCommandFacade::collectEmptyNodes(const Model::ParentChildrenMap& nodes) const {
-            Model::NodeList result;
-            
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = it->first;
-                const Model::NodeList& children = it->second;
-                if (node->removeIfEmpty() && node->childCount() == children.size())
-                    result.push_back(node);
-            }
-            
-            return result;
-        }
-        
-        void MapDocumentCommandFacade::removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const {
-            Model::NodeList::const_iterator it, end;
-            for (it = emptyNodes.begin(), end = emptyNodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
-                Model::Node* parent = node->parent();
-                nodes.erase(node);
-                assert(!VectorUtils::contains(nodes[parent], node));
-                nodes[parent].push_back(node);
-            }
-        }
-
-        MapDocumentCommandFacade::ReparentResult::ReparentResult(const Model::ParentChildrenMap& i_movedNodes, const Model::ParentChildrenMap& i_removedNodes) :
-        movedNodes(i_movedNodes),
-        removedNodes(i_removedNodes) {}
-
-        MapDocumentCommandFacade::ReparentResult MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes, const EmptyNodePolicy emptyNodePolicy) {
-            const Model::NodeList emptyParents = emptyNodePolicy == RemoveEmptyNodes ? findRemovableEmptyParentNodes(nodes) : Model::EmptyNodeList;
-            
-            const Model::NodeList nodesToNotify = Model::collectChildren(nodes);
-            const Model::NodeList parentsToNotify = VectorUtils::eraseAll(Model::collectParents(nodes), emptyParents);
-            
-            Model::NodeList nodesWithChangedLockState;
-            Model::NodeList nodesWithChangedVisibilityState;
-            
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNotify);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
-
-            Model::ParentChildrenMap movedNodes;
-            
-            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
-            Model::NodeList::const_iterator nIt, nEnd;
-            
-            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
-                Model::Node* newParent = pcIt->first;
-                const Model::NodeList& children = pcIt->second;
-                
-                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
-                    Model::Node* child = *nIt;
-                    Model::Node* oldParent = child->parent();
-                    assert(oldParent != NULL);
-                    
-                    const bool wasLocked = child->locked();
-                    const bool wasHidden = child->hidden();
-                    
-                    movedNodes[oldParent].push_back(child);
-                    oldParent->removeChild(child);
-                    newParent->addChild(child);
-                    
-                    if (wasLocked != child->locked())
-                        nodesWithChangedLockState.push_back(child);
-                    if (wasHidden != child->hidden())
-                        nodesWithChangedVisibilityState.push_back(child);
-                }
-            }
-            
-            nodeLockingDidChangeNotifier(nodesWithChangedLockState);
-            nodeVisibilityDidChangeNotifier(nodesWithChangedVisibilityState);
-            
-            const Model::ParentChildrenMap removedNodes = performRemoveNodes(emptyParents);
-            return ReparentResult(movedNodes, removedNodes);
-        }
-
-        Model::NodeList MapDocumentCommandFacade::findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const {
-            Model::NodeList emptyParents;
-            
-            typedef std::map<Model::Node*, size_t> RemoveCounts;
-            RemoveCounts counts;
-
-            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
-            Model::NodeList::const_iterator nIt, nEnd;
-            
-            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
-                const Model::NodeList& children = pcIt->second;
-                
-                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
-                    Model::Node* child = *nIt;
-                    Model::Node* oldParent = child->parent();
-                    assert(oldParent != NULL);
-
-                    const size_t count = MapUtils::find(counts, oldParent, size_t(0)) + 1;
-                    MapUtils::insertOrReplace(counts, oldParent, count);
-
-                    if (oldParent->removeIfEmpty() && oldParent->childCount() == count)
-                        emptyParents.push_back(oldParent);
-                }
-            }
-            
-            return emptyParents;
         }
         
         Model::VisibilityMap MapDocumentCommandFacade::setVisibilityState(const Model::NodeList& nodes, const Model::VisibilityState visibilityState) {

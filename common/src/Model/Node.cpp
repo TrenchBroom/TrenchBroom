@@ -99,6 +99,16 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
+        bool Node::isAncestorOf(const NodeList& nodes) const {
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (isAncestorOf(node))
+                    return true;
+            }
+            return false;
+        }
+
         bool Node::isDescendantOf(const Node* node) const {
             Node* parent = m_parent;
             while (parent != NULL) {
@@ -107,6 +117,27 @@ namespace TrenchBroom {
                 parent = parent->parent();
             }
             return false;
+        }
+
+        bool Node::isDescendantOf(const NodeList& nodes) const {
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (isDescendantOf(node))
+                    return true;
+            }
+            return false;
+        }
+
+        NodeList Node::findDescendants(const NodeList& nodes) const {
+            NodeList result;
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (node->isDescendantOf(this))
+                    result.push_back(node);
+            }
+            return result;
         }
 
         bool Node::removeIfEmpty() const {

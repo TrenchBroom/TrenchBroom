@@ -87,7 +87,11 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
+            bool isAncestorOf(const NodeList& nodes) const;
             bool isDescendantOf(const Node* node) const;
+            bool isDescendantOf(const NodeList& nodes) const;
+            NodeList findDescendants(const NodeList& nodes) const;
+            
             bool removeIfEmpty() const;
             
             bool hasChildren() const;

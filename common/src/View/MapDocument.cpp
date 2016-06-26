@@ -59,6 +59,7 @@
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
+#include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
@@ -82,7 +83,6 @@
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
 #include "View/RenameGroupsCommand.h"
-#include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
@@ -556,8 +556,8 @@ namespace TrenchBroom {
             if (!submitAndStore(command))
                 return Model::EmptyNodeList;
             
-            const Model::NodeList& addedNodes = command->addedNodes();
-            ensureVisible(addedNodes);
+            const Model::NodeList addedNodes = collectChildren(nodes);
+            ensureVisible(collectChildren(nodes));
             return addedNodes;
         }
         
@@ -566,28 +566,93 @@ namespace TrenchBroom {
             if (!submitAndStore(command))
                 return Model::EmptyNodeList;
 
-            const Model::NodeList& addedNodes = command->addedNodes();
-            ensureVisible(addedNodes);
-            return addedNodes;
+            ensureVisible(nodes);
+            return nodes;
         }
 
         void MapDocument::removeNodes(const Model::NodeList& nodes) {
-            submitAndStore(AddRemoveNodesCommand::remove(nodes));
+            Model::ParentChildrenMap removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
+            
+            Transaction transaction(this);
+            while (!removableNodes.empty()) {
+                closeRemovedGroups(removableNodes);
+                submitAndStore(AddRemoveNodesCommand::remove(removableNodes));
+                
+                removableNodes = collectRemovableParents(removableNodes);
+            }
         }
         
+        Model::ParentChildrenMap MapDocument::collectRemovableParents(const Model::ParentChildrenMap& nodes) const {
+            Model::ParentChildrenMap result;
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                if (node->removeIfEmpty() && !node->hasChildren()) {
+                    Model::Node* parent = node->parent();
+                    assert(parent != NULL);
+                    result[parent].push_back(node);
+                }
+            }
+            return result;
+        }
+
+        struct MapDocument::CompareByAncestry {
+            bool operator()(const Model::Node* lhs, const Model::Node* rhs) const {
+                return lhs->isAncestorOf(rhs);
+            }
+        };
+        
+        Model::NodeList MapDocument::removeImplicitelyRemovedNodes(Model::NodeList nodes) const {
+            assert(!nodes.empty());
+            VectorUtils::sort(nodes, CompareByAncestry());
+            
+            Model::NodeList result;
+            result.reserve(nodes.size());
+            result.push_back(nodes.front());
+            
+            for (size_t i = 1; i < nodes.size(); ++i) {
+                Model::Node* node = nodes[i];
+                if (!node->isDescendantOf(result))
+                    result.push_back(node);
+            }
+            
+            return result;
+        }
+        
+        void MapDocument::closeRemovedGroups(const Model::ParentChildrenMap& toRemove) {
+            Model::ParentChildrenMap::const_iterator mIt, mEnd;
+            Model::NodeList::const_iterator nIt, nEnd;
+            for (mIt = toRemove.begin(), mEnd = toRemove.end(); mIt != mEnd; ++mIt) {
+                const Model::NodeList& nodes = mIt->second;
+                for (nIt = nodes.begin(), nEnd = nodes.end(); nIt != nEnd; ++nIt) {
+                    const Model::Node* node = *nIt;
+                    if (node == currentGroup()) {
+                        closeGroup();
+                        closeRemovedGroups(toRemove);
+                        return;
+                    }
+                }
+            }
+        }
+
         void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
-            submitAndStore(ReparentNodesCommand::reparent(newParent, children));
+            Transaction transaction(this, "Reparent Objects");
+            removeNodes(children);
+            addNodes(children, newParent);
         }
         
         void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodes) {
-            submitAndStore(ReparentNodesCommand::reparent(nodes));
+            Transaction transaction(this, "Reparent Objects");
+            removeNodes(Model::collectChildren(nodes));
+            addNodes(nodes);
         }
         
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete Objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();
             deselectAll();
-            return submitAndStore(AddRemoveNodesCommand::remove(nodes));
+            removeNodes(nodes);
+            return true;
         }
         
         bool MapDocument::duplicateObjects() {
