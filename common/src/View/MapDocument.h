@@ -242,7 +242,7 @@ namespace TrenchBroom {
             void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
         public:
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
-            void reparentNodes(const Model::ParentChildrenMap& nodes);
+            void reparentNodes(const Model::ParentChildrenMap& nodesToAdd);
             bool deleteObjects();
             bool duplicateObjects();
         public: // group management

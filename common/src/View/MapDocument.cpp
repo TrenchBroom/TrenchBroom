@@ -83,6 +83,7 @@
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
 #include "View/RenameGroupsCommand.h"
+#include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
@@ -636,15 +637,29 @@ namespace TrenchBroom {
         }
 
         void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
-            Transaction transaction(this, "Reparent Objects");
-            removeNodes(children);
-            addNodes(children, newParent);
+            Model::ParentChildrenMap nodes;
+            nodes.insert(std::make_pair(newParent, children));
+            reparentNodes(nodes);
         }
         
-        void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodes) {
+        void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodesToAdd) {
+            Model::ParentChildrenMap nodesToRemove;
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodesToAdd.begin(), end = nodesToAdd.end(); it != end; ++it) {
+                const Model::NodeList& children = it->second;
+                MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
+            }
+
             Transaction transaction(this, "Reparent Objects");
-            removeNodes(Model::collectChildren(nodes));
-            addNodes(nodes);
+            submitAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+
+            Model::ParentChildrenMap removableNodes = collectRemovableParents(nodesToRemove);
+            while (!removableNodes.empty()) {
+                closeRemovedGroups(removableNodes);
+                submitAndStore(AddRemoveNodesCommand::remove(removableNodes));
+                
+                removableNodes = collectRemovableParents(removableNodes);
+            }
         }
         
         bool MapDocument::deleteObjects() {
