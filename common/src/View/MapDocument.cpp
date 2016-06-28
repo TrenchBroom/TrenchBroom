@@ -46,6 +46,7 @@
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
+#include "Model/EmptyGroupIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/LinkSourceIssueGenerator.h"
 #include "Model/LinkTargetIssueGenerator.h"
@@ -604,7 +605,9 @@ namespace TrenchBroom {
         };
         
         Model::NodeList MapDocument::removeImplicitelyRemovedNodes(Model::NodeList nodes) const {
-            assert(!nodes.empty());
+            if (nodes.empty())
+                return nodes;
+            
             VectorUtils::sort(nodes, CompareByAncestry());
             
             Model::NodeList result;
@@ -1552,6 +1555,7 @@ namespace TrenchBroom {
             
             m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
             m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyGroupIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
             m_world->registerIssueGenerator(new Model::LinkSourceIssueGenerator());

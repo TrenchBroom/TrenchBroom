@@ -50,11 +50,22 @@ namespace TrenchBroom {
             return m_node;
         }
         
+        class Issue::MatchSelectableIssueNodes {
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true; }
+            bool operator()(const Model::Entity* entity) const { return !entity->hasChildren(); }
+            bool operator()(const Model::Brush* brush) const   { return true; }
+        };
+        
         bool Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
             if (m_node->parent() == NULL)
                 return false;
             
-            CollectSelectableNodesVisitor collect(editorContext);
+            typedef CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableIssueNodesVisitor;
+            
+            CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);
             VectorUtils::append(nodes, collect.nodes());
             

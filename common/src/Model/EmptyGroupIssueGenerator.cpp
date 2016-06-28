@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EmptyBrushEntityIssueGenerator.h"
+#include "EmptyGroupIssueGenerator.h"
 
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -31,45 +30,44 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public Issue {
+        class EmptyGroupIssueGenerator::EmptyGroupIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            EmptyBrushEntityIssue(Entity* entity) :
-            Issue(entity) {}
+            EmptyGroupIssue(Group* group) :
+            Issue(group) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                const Entity* entity = static_cast<Entity*>(node());
-                return "Entity '" + entity->classname() + "' does not contain any brushes";
+                const Group* group = static_cast<Group*>(node());
+                return "Group '" + group->name() + "' does not contain any objects";
             }
         };
         
-        const IssueType EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue::Type = Issue::freeType();
+        const IssueType EmptyGroupIssueGenerator::EmptyGroupIssue::Type = Issue::freeType();
         
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
+        class EmptyGroupIssueGenerator::EmptyGroupIssueQuickFix : public IssueQuickFix {
         public:
-            EmptyBrushEntityIssueQuickFix() :
-            IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
+            EmptyGroupIssueQuickFix() :
+            IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->deleteObjects();
             }
         };
         
-        EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueGenerator() :
-        IssueGenerator(EmptyBrushEntityIssue::Type, "Empty brush entity") {
-            addQuickFix(new EmptyBrushEntityIssueQuickFix());
+        EmptyGroupIssueGenerator::EmptyGroupIssueGenerator() :
+        IssueGenerator(EmptyGroupIssue::Type, "Empty group") {
+            addQuickFix(new EmptyGroupIssueQuickFix());
         }
         
-        void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            assert(entity != NULL);
-            const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
-                issues.push_back(new EmptyBrushEntityIssue(entity));
+        void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueList& issues) const {
+            assert(group != NULL);
+            if (!group->hasChildren())
+                issues.push_back(new EmptyGroupIssue(group));
         }
     }
 }

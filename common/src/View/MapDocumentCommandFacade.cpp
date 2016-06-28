@@ -64,7 +64,7 @@ namespace TrenchBroom {
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
-                if (!node->selected() && m_editorContext->selectable(node)) {
+                if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
                     node->escalate(ancestors);
                     node->recurse(descendants);
                     node->select();
