@@ -284,13 +284,24 @@ private:
     FaceList m_faces;
     Polyhedron& m_destination;
 public:
-    Copy(const FaceList& originalFaces, const EdgeList& originalEdges, Polyhedron& destination) :
+    Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination) :
     m_destination(destination) {
+        copyVertices(originalVertices);
         copyFaces(originalFaces);
         copyEdges(originalEdges);
         swapContents();
     }
 private:
+    void copyVertices(const VertexList& originalVertices) {
+        typename VertexList::const_iterator vIt, vEnd;
+        for (vIt = originalVertices.begin(), vEnd = originalVertices.end(); vIt != vEnd; ++vIt) {
+            const Vertex* original = *vIt;
+            Vertex* copy = new Vertex(original->position());
+            assertResult(MapUtils::insertOrFail(m_vertexMap, original, copy));
+            m_vertices.append(copy, 1);
+        }
+    }
+    
     void copyFaces(const FaceList& originalFaces) {
         typename FaceList::const_iterator fIt, fEnd;
         for (fIt = originalFaces.begin(), fEnd = originalFaces.end(); fIt != fEnd; ++fIt) {
@@ -315,23 +326,16 @@ private:
     HalfEdge* copyHalfEdge(const HalfEdge* original) {
         const Vertex* originalOrigin = original->origin();
         
-        Vertex* myOrigin = findOrCopyVertex(originalOrigin);
+        Vertex* myOrigin = findVertex(originalOrigin);
         HalfEdge* copy = new HalfEdge(myOrigin);
         m_halfEdgeMap.insert(std::make_pair(original, copy));
         return copy;
     }
 
-    Vertex* findOrCopyVertex(const Vertex* original) {
-        typedef std::pair<bool, typename VertexMap::iterator> InsertPos;
-        
-        InsertPos insertPos = MapUtils::findInsertPos(m_vertexMap, original);
-        if (!insertPos.first) {
-            Vertex* copy = new Vertex(original->position());
-            m_vertices.append(copy, 1);
-            m_vertexMap.insert(insertPos.second, std::make_pair(original, copy));
-            return copy;
-        }
-        return insertPos.second->second;
+    Vertex* findVertex(const Vertex* original) {
+        typename VertexMap::iterator it = m_vertexMap.find(original);
+        assert(it != m_vertexMap.end());
+        return it->second;
     }
     
     void copyEdges(const EdgeList& originalEdges) {
@@ -343,19 +347,27 @@ private:
         }
     }
     
-    Edge* copyEdge(const Edge* original) const {
-        HalfEdge* myFirst = findHalfEdge(original->firstEdge());
+    Edge* copyEdge(const Edge* original) {
+        HalfEdge* myFirst = findOrCopyHalfEdge(original->firstEdge());
         if (!original->fullySpecified())
             return new Edge(myFirst);
 
-        HalfEdge* mySecond = findHalfEdge(original->secondEdge());
+        HalfEdge* mySecond = findOrCopyHalfEdge(original->secondEdge());
         return new Edge(myFirst, mySecond);
     }
     
-    HalfEdge* findHalfEdge(const HalfEdge* original) const {
-        HalfEdge* result = MapUtils::find(m_halfEdgeMap, original, static_cast<HalfEdge*>(NULL));
-        assert(result != NULL);
-        return result;
+    HalfEdge* findOrCopyHalfEdge(const HalfEdge* original) {
+        typedef std::pair<bool, typename HalfEdgeMap::iterator> InsertPos;
+        
+        InsertPos insertPos = MapUtils::findInsertPos(m_halfEdgeMap, original);
+        if (!insertPos.first) {
+            const Vertex* originalOrigin = original->origin();
+            Vertex* myOrigin = findVertex(originalOrigin);
+            HalfEdge* copy = new HalfEdge(myOrigin);
+            m_halfEdgeMap.insert(insertPos.second, std::make_pair(original, copy));
+            return copy;
+        }
+        return insertPos.second->second;
     }
 
     void swapContents() {
@@ -369,7 +381,7 @@ private:
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
-    Copy copy(other.faces(), other.edges(), *this);
+    Copy copy(other.faces(), other.edges(), other.vertices(), *this);
 }
 
 template <typename T, typename FP, typename VP>
