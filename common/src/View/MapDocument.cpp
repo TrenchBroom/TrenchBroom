@@ -636,13 +636,16 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
+        bool MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
             Model::ParentChildrenMap nodes;
             nodes.insert(std::make_pair(newParent, children));
-            reparentNodes(nodes);
+            return reparentNodes(nodes);
         }
         
-        void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodesToAdd) {
+        bool MapDocument::reparentNodes(const Model::ParentChildrenMap& nodesToAdd) {
+            if (!checkReparenting(nodesToAdd))
+                return false;
+            
             Model::ParentChildrenMap nodesToRemove;
             Model::ParentChildrenMap::const_iterator it, end;
             for (it = nodesToAdd.begin(), end = nodesToAdd.end(); it != end; ++it) {
@@ -660,8 +663,21 @@ namespace TrenchBroom {
                 
                 removableNodes = collectRemovableParents(removableNodes);
             }
+            
+            return true;
         }
         
+        bool MapDocument::checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const {
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodesToAdd.begin(), end = nodesToAdd.end(); it != end; ++it) {
+                const Model::Node* newParent = it->first;
+                const Model::NodeList& children = it->second;
+                if (!newParent->canAddChildren(children.begin(), children.end()))
+                    return false;
+            }
+            return true;
+        }
+
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete Objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();

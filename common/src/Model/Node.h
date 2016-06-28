@@ -131,8 +131,26 @@ namespace TrenchBroom {
             
             void removeChild(Node* child);
 
-            bool canAddChild(Node* child) const;
-            bool canRemoveChild(Node* child) const;
+            bool canAddChild(const Node* child) const;
+            bool canRemoveChild(const Node* child) const;
+
+            template <typename I>
+            bool canAddChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canAddChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
+            
+            template <typename I>
+            bool canRemoveChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canRemoveChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
         private:
             void doAddChild(Node* child);
             void doRemoveChild(Node* child);

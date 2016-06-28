@@ -182,11 +182,13 @@ namespace TrenchBroom {
             decDescendantSelectionCount(child->descendantSelectionCount());
         }
 
-        bool Node::canAddChild(Node* child) const {
+        bool Node::canAddChild(const Node* child) const {
+            if (child == this || isDescendantOf(child))
+                return false;
             return doCanAddChild(child);
         }
 
-        bool Node::canRemoveChild(Node* child) const {
+        bool Node::canRemoveChild(const Node* child) const {
             return doCanRemoveChild(child);
         }
 
