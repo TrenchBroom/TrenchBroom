@@ -129,6 +129,9 @@ namespace TrenchBroom {
             m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
             m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);
             Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
+            
+            if (m_gameEngineList->GetItemCount() > 0)
+                m_gameEngineList->SetSelection(0);
         }
 
         LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
@@ -154,9 +157,14 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+
+            const bool wasEmpty = m_gameEngineList->GetItemCount() == 0;
             
             GameEngineDialog dialog(this, lock(m_document)->game()->gameName());
             dialog.ShowModal();
+
+            if (wasEmpty && m_gameEngineList->GetItemCount() > 0)
+                m_gameEngineList->SetSelection(0);
         }
         
         void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
