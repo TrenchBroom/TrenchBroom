@@ -57,10 +57,6 @@ namespace TrenchBroom {
         m_config(config),
         m_gamePath(gamePath) {
             initializeFileSystem();
-
-            // sneak in the brush content type for tutorial brushes
-            const BrushContentType::FlagType flag = 1 << brushContentTypes().size();
-            m_config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
         }
 
         void GameImpl::initializeFileSystem() {

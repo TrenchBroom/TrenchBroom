@@ -35,6 +35,7 @@
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
 #include "Model/GameImpl.h"
+#include "Model/Tutorial.h"
 
 #include "Exceptions.h"
 
@@ -164,6 +165,10 @@ namespace TrenchBroom {
 
             loadCompilationConfig(config);
             loadGameEngineConfig(config);
+            
+            // sneak in the brush content type for tutorial brushes
+            const BrushContentType::FlagType flag = 1 << config.brushContentTypes().size();
+            config.addBrushContentType(Tutorial::createTutorialBrushContentType(flag));
             
             m_configs.insert(std::make_pair(config.name(), config));
             m_names.push_back(config.name());
