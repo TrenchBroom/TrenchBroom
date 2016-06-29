@@ -96,6 +96,9 @@ namespace TrenchBroom {
             BBox3 bounds(m_initialPoint, m_initialPoint);
             bounds.mergeWith(currentPoint);
             snapBounds(inputState, bounds);
+
+            MapDocumentSPtr document = lock(m_document);
+            bounds.intersectWith(document->worldBounds());
             
             if (bounds.empty() || bounds == m_bounds)
                 return false;
