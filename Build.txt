@@ -75,6 +75,8 @@ wxWidgets
   - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
+  - Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
   - Create two directories: build-release and build-debug (don't rename those!)
   - Change into wxwidgets/build-release
   - Run 
@@ -122,7 +124,9 @@ Build environment
 - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
-- Apply the patches in TrenchBroom/patches/wxWidgets
+- Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+  patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 
