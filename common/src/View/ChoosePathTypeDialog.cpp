@@ -68,19 +68,19 @@ namespace TrenchBroom {
             m_docRelativeRadio->SetFont(m_docRelativeRadio->GetFont().MakeBold());
             if (m_docRelativePath.isEmpty())
                 m_docRelativeRadio->Enable(false);
-            wxStaticText* mapRelativePathText = new wxStaticText(panel, wxID_ANY, m_docRelativePath.isEmpty() ? "Unable to build a path." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* mapRelativePathText = new wxStaticText(panel, wxID_ANY, m_docRelativePath.isEmpty() ? "Could not build a path." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
             m_appRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to application executable");
             m_appRelativeRadio->SetFont(m_appRelativeRadio->GetFont().MakeBold());
             if (m_appRelativePath.isEmpty())
                 m_appRelativeRadio->Enable(false);
-            wxStaticText* appRelativePathText = new wxStaticText(panel, wxID_ANY, m_appRelativePath.isEmpty() ? "Unable to build a path." : m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* appRelativePathText = new wxStaticText(panel, wxID_ANY, m_appRelativePath.isEmpty() ? "Could not build a path." : m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
             m_gameRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to game directory");
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->Enable(false);
             m_gameRelativeRadio->SetFont(m_gameRelativeRadio->GetFont().MakeBold());
-            wxStaticText* gameRelativePathText = new wxStaticText(panel, wxID_ANY, m_gameRelativePath.isEmpty() ? "Unable to build a path." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* gameRelativePathText = new wxStaticText(panel, wxID_ANY, m_gameRelativePath.isEmpty() ? "Could not build a path." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
 #if defined __APPLE__
             absolutePathText->SetFont(*wxSMALL_FONT);

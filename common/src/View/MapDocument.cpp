@@ -313,7 +313,7 @@ namespace TrenchBroom {
                     if (!faces.empty() && pasteBrushFaces(faces))
                         return PT_BrushFace;
                 } catch (const ParserException&) {
-                    error("Unable to parse clipboard contents: %s", e.what());
+                    error("Could not parse clipboard contents: %s", e.what());
                 }
             }
             return PT_Failed;
@@ -1285,9 +1285,9 @@ namespace TrenchBroom {
                 info("Loaded entity definition file " + path.lastComponent().asString());
             } catch (const Exception& e) {
                 if (spec.builtin())
-                    error("Unable to load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error("Could not load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
                 else
-                    error("Unable to load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error("Could not load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
             }
         }
         
@@ -1306,8 +1306,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::loadTextures() {
-            const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-            m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
+            try {
+                const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
+                m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
+            } catch (const Exception& e) {
+                error(e.what());
+            }
         }
         
         void MapDocument::unloadTextures() {
