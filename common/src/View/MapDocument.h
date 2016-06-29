@@ -249,7 +249,7 @@ namespace TrenchBroom {
             bool deleteObjects();
             bool duplicateObjects();
         public: // group management
-            void groupSelection(const String& name);
+            Model::Group* groupSelection(const String& name);
         private:
             class MatchGroupableNodes;
             Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;

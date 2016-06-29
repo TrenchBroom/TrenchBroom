@@ -696,20 +696,23 @@ namespace TrenchBroom {
             return false;
         }
         
-        void MapDocument::groupSelection(const String& name) {
+        Model::Group* MapDocument::groupSelection(const String& name) {
             if (!hasSelectedNodes())
-                return;
+                return NULL;
             
             const Model::NodeList nodes = collectGroupableNodes(selectedNodes().nodes());
-            if (!nodes.empty()) {
-                Model::Group* group = new Model::Group(name);
-                
-                const Transaction transaction(this, "Group Selected Objects");
-                deselectAll();
-                addNode(group, currentParent());
-                reparentNodes(group, nodes);
-                select(group);
-            }
+            if (nodes.empty())
+                return NULL;
+
+            Model::Group* group = new Model::Group(name);
+            
+            const Transaction transaction(this, "Group Selected Objects");
+            deselectAll();
+            addNode(group, currentParent());
+            reparentNodes(group, nodes);
+            select(group);
+            
+            return group;
         }
 
         class MapDocument::MatchGroupableNodes {
