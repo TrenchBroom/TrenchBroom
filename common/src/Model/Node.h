@@ -276,13 +276,15 @@ namespace TrenchBroom {
             template <class V>
             void acceptAndEscalate(V& visitor) {
                 accept(visitor);
-                escalate(visitor);
+                if (!visitor.recursionStopped())
+                    escalate(visitor);
             }
             
             template <class V>
             void acceptAndEscalate(V& visitor) const {
                 accept(visitor);
-                escalate(visitor);
+                if (!visitor.recursionStopped())
+                    escalate(visitor);
             }
             
             template <typename I, typename V>

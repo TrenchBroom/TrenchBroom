@@ -250,6 +250,10 @@ namespace TrenchBroom {
             bool duplicateObjects();
         public: // group management
             void groupSelection(const String& name);
+        private:
+            class MatchGroupableNodes;
+            Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;
+        public:
             void ungroupSelection();
             void renameGroups(const String& name);
             

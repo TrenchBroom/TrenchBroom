@@ -700,16 +700,39 @@ namespace TrenchBroom {
             if (!hasSelectedNodes())
                 return;
             
-            const Model::NodeList nodes = m_selectedNodes.nodes();
-            Model::Group* group = new Model::Group(name);
-            
-            const Transaction transaction(this, "Group Selected Objects");
-            deselectAll();
-            addNode(group, currentParent());
-            reparentNodes(group, nodes);
-            select(group);
+            const Model::NodeList nodes = collectGroupableNodes(selectedNodes().nodes());
+            if (!nodes.empty()) {
+                Model::Group* group = new Model::Group(name);
+                
+                const Transaction transaction(this, "Group Selected Objects");
+                deselectAll();
+                addNode(group, currentParent());
+                reparentNodes(group, nodes);
+                select(group);
+            }
         }
+
+        class MapDocument::MatchGroupableNodes {
+        private:
+            const Model::World* m_world;
+        public:
+            MatchGroupableNodes(const Model::World* world) : m_world(world) {}
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true;  }
+            bool operator()(const Model::Entity* entity) const { return true; }
+            bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
+        };
         
+        Model::NodeList MapDocument::collectGroupableNodes(const Model::NodeList& selectedNodes) const {
+            typedef Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched> CollectGroupableNodesVisitor;
+            
+            CollectGroupableNodesVisitor collect(world());
+            Model::Node::acceptAndEscalate(selectedNodes.begin(), selectedNodes.end(), collect);
+            return collect.nodes();
+        }
+
         void MapDocument::ungroupSelection() {
             if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
                 return;
