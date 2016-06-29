@@ -21,12 +21,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameEngineProfile::GameEngineProfile(const String& name, const IO::Path& path) :
+        GameEngineProfile::GameEngineProfile(const String& name, const IO::Path& path, const String& parameterSpec) :
         m_name(name),
-        m_path(path) {}
+        m_path(path),
+        m_parameterSpec(parameterSpec) {}
         
         GameEngineProfile* GameEngineProfile::clone() const {
-            return new GameEngineProfile(m_name, m_path);
+            return new GameEngineProfile(m_name, m_path, m_parameterSpec);
         }
 
         const String& GameEngineProfile::name() const {
@@ -37,6 +38,10 @@ namespace TrenchBroom {
             return m_path;
         }
         
+        const String& GameEngineProfile::parameterSpec() const {
+            return m_parameterSpec;
+        }
+
         void GameEngineProfile::setName(const String& name) {
             m_name = name;
             profileDidChange();
@@ -44,6 +49,11 @@ namespace TrenchBroom {
         
         void GameEngineProfile::setPath(const IO::Path& path) {
             m_path = path;
+            profileDidChange();
+        }
+
+        void GameEngineProfile::setParameterSpec(const String& parameterSpec) {
+            m_parameterSpec = parameterSpec;
             profileDidChange();
         }
     }

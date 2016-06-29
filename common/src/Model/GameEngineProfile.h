@@ -35,19 +35,22 @@ namespace TrenchBroom {
         private:
             String m_name;
             IO::Path m_path;
+            String m_parameterSpec;
         public:
             Notifier0 profileWillBeRemoved;
             Notifier0 profileDidChange;
         public:
-            GameEngineProfile(const String& name, const IO::Path& path);
+            GameEngineProfile(const String& name, const IO::Path& path, const String& parameterSpec);
             
             GameEngineProfile* clone() const;
             
             const String& name() const;
             const IO::Path& path() const;
+            const String& parameterSpec() const;
             
             void setName(const String& name);
             void setPath(const IO::Path& path);
+            void setParameterSpec(const String& parameterSpec);
 
             deleteCopyAndAssignment(GameEngineProfile)
         };

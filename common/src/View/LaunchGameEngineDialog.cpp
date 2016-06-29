@@ -68,7 +68,7 @@ namespace TrenchBroom {
             wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
             header->SetFont(header->GetFont().Larger().Larger().Bold());
             
-            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values. Commandline parameters are stored in a worldspawn property, so the map document will be marked as modified if you change the parameters here.");
+            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
             message->Wrap(350);
             
             wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Configure engines...");
@@ -79,6 +79,7 @@ namespace TrenchBroom {
             
             m_parameterText = new AutoCompleteTextControl(midPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_parameterText->Bind(wxEVT_TEXT_ENTER, &LaunchGameEngineDialog::OnLaunch, this);
+            m_parameterText->Bind(wxEVT_TEXT, &LaunchGameEngineDialog::OnParameterTextChanged, this);
             m_parameterText->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateParameterTextUI, this);
             
             m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
@@ -139,13 +140,9 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
-            saveCurrentParameterSpec(m_lastProfile);
-
             m_lastProfile = m_gameEngineList->selectedProfile();
             if (m_lastProfile != NULL) {
-                ::StringMap specs = lock(m_document)->gameEngineParameterSpecs();
-                const String spec = specs[m_lastProfile->name()];
-                m_parameterText->ChangeValue(spec);
+                m_parameterText->ChangeValue(m_lastProfile->parameterSpec());
             } else {
                 m_parameterText->ChangeValue("");
             }
@@ -153,6 +150,12 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::OnUpdateParameterTextUI(wxUpdateUIEvent& event) {
             event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
+        }
+
+        void LaunchGameEngineDialog::OnParameterTextChanged(wxCommandEvent& event) {
+            Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
+            if (profile != NULL)
+                profile->setParameterSpec(m_parameterText->GetValue().ToStdString());
         }
 
         void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
@@ -180,7 +183,7 @@ namespace TrenchBroom {
             assert(profile != NULL);
             
             const IO::Path& path = profile->path();
-            const String parameterSpec = m_parameterText->GetValue().ToStdString();
+            const String& parameterSpec = profile->parameterSpec();
             const String parameters = EL::interpolate(parameterSpec, variables());
 
             wxString launchStr;
@@ -200,20 +203,9 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::OnClose(wxCloseEvent& event) {
-            saveCurrentParameterSpec(m_gameEngineList->selectedProfile());
-            
             if (GetParent() != NULL)
                 GetParent()->Raise();
             event.Skip();
-        }
-
-        void LaunchGameEngineDialog::saveCurrentParameterSpec(const Model::GameEngineProfile* profile) {
-            if (profile != NULL && m_parameterText->IsModified()) {
-                const String parameterSpec = m_parameterText->GetValue().ToStdString();
-                MapDocumentSPtr document = lock(m_document);
-                document->setGameEngineParameterSpec(profile->name(), parameterSpec);
-                m_parameterText->SetModified(false);
-            }
         }
     }
 }

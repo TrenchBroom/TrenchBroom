@@ -412,45 +412,6 @@ namespace TrenchBroom {
             return m_config.fileSystemConfig().searchPath.asString();
         }
 
-        ::StringMap GameImpl::doExtractGameEngineParameterSpecs(const World* world) const {
-            ::StringMap result;
-
-            const String specAttrValue = readLongAttribute(world, AttributeNames::GameEngineParameterSpecs);
-            const StringList specStrs = StringUtils::splitAndUnescape(specAttrValue, ';');
-            StringList::const_iterator specIt, specEnd;
-            for (specIt = specStrs.begin(), specEnd = specStrs.end(); specIt != specEnd; ++specIt) {
-                const String& specStr = *specIt;
-                const StringList specStrParts = StringUtils::splitAndUnescape(specStr, ':');
-                if (specStrParts.size() != 2)
-                    continue;
-
-                const String& name = specStrParts[0];
-                if (m_config.gameEngineConfig().hasProfile(name)) {
-                    const String& spec = specStrParts[1];
-                    if (!StringUtils::isBlank(spec))
-                        result[name] = spec;
-                }
-            }
-
-            return result;
-        }
-
-        void GameImpl::doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {
-            StringList specList;
-            ::StringMap::const_iterator it, end;
-            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
-                const String& name = it->first;
-                if (m_config.gameEngineConfig().hasProfile(name)) {
-                    const String& spec = it->second;
-                    if (!StringUtils::isBlank(spec))
-                        specList.push_back(StringUtils::escapeAndJoin(StringUtils::makeList(2, name.c_str(), spec.c_str()), ':'));
-                }
-            }
-
-            const String value = StringUtils::escapeAndJoin(specList, ';');
-            writeLongAttribute(world, AttributeNames::GameEngineParameterSpecs, value, m_config.maxPropertyLength());
-        }
-
         const GameConfig::FlagsConfig& GameImpl::doSurfaceFlags() const {
             return m_config.faceAttribsConfig().surfaceFlags;
         }

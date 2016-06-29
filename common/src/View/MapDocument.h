@@ -398,9 +398,6 @@ namespace TrenchBroom {
             StringList mods() const;
             void setMods(const StringList& mods);
             String defaultMod() const;
-        public: // game engine parameter specs
-            ::StringMap gameEngineParameterSpecs() const;
-            void setGameEngineParameterSpec(const String& name, const String& spec);
         private: // issue management
             void registerIssueGenerators();
         public:

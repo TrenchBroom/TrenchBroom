@@ -51,6 +51,7 @@ namespace TrenchBroom {
             EL::MapType map;
             map["name"] = EL::Value(profile->name());
             map["path"] = EL::Value(profile->path().asString());
+            map["parameters"] = EL::Value(profile->parameterSpec());
             return EL::Value(map);
         }
     }

@@ -109,8 +109,6 @@ namespace TrenchBroom {
             void performSetTextureCollections(const IO::Path::List& paths);
         public: // mods management
             void performSetMods(const StringList& mods);
-        public: // game engine parameter specs
-            void performSetGameEngineParameterSpecs(const ::StringMap& specs);
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count

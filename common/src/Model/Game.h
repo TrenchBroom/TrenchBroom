@@ -101,9 +101,6 @@ namespace TrenchBroom {
             StringList availableMods() const;
             StringList extractEnabledMods(const World* world) const;
             String defaultMod() const;
-        public: // game engine parameter specs
-            ::StringMap extractGameEngineParameterSpecs(const World* world) const;
-            void setGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
             const GameConfig::FlagsConfig& contentFlags() const;
@@ -143,9 +140,6 @@ namespace TrenchBroom {
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const World* world) const = 0;
             virtual String doDefaultMod() const = 0;
-
-            virtual ::StringMap doExtractGameEngineParameterSpecs(const World* world) const = 0;
-            virtual void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
             virtual const GameConfig::FlagsConfig& doContentFlags() const = 0;

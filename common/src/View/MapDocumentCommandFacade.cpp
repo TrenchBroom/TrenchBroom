@@ -888,13 +888,6 @@ namespace TrenchBroom {
             setEntityModels();
         }
 
-        void MapDocumentCommandFacade::performSetGameEngineParameterSpecs(const ::StringMap& specs) {
-            const Model::NodeList nodes(1, m_world);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            m_game->setGameEngineParameterSpecs(m_world, specs);
-        }
-
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
             if (issue->hidden() != hidden) {
                 issue->setHidden(hidden);

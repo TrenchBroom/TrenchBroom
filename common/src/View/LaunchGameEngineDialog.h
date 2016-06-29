@@ -50,6 +50,7 @@ namespace TrenchBroom {
             void OnSelectGameEngineProfile(wxCommandEvent& event);
             
             void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
+            void OnParameterTextChanged(wxCommandEvent& event);
             
             void OnEditGameEnginesButton(wxCommandEvent& event);
             
@@ -60,8 +61,6 @@ namespace TrenchBroom {
             void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
             
             void OnClose(wxCloseEvent& event);
-            
-            void saveCurrentParameterSpec(const Model::GameEngineProfile* profile);
         };
     }
 }

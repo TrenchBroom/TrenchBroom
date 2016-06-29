@@ -60,12 +60,13 @@ namespace TrenchBroom {
         }
         
         Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const EL::Value& value) const {
-            expectStructure(value, "[ {'name': 'String', 'path': 'String'}, {} ]");
+            expectStructure(value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
             const String& name = value["name"].stringValue();
             const String& path = value["path"].stringValue();
+            const String& parameterSpec = value["parameters"].stringValue();
             
-            return new Model::GameEngineProfile(name, path);
+            return new Model::GameEngineProfile(name, path, parameterSpec);
         }
     }
 }

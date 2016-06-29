@@ -88,7 +88,6 @@
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
-#include "View/SetGameEngineParameterSpecsCommand.h"
 #include "View/SetLockStateCommand.h"
 #include "View/SetModsCommand.h"
 #include "View/SetVisibilityCommand.h"
@@ -1537,16 +1536,6 @@ namespace TrenchBroom {
         
         String MapDocument::defaultMod() const {
             return m_game->defaultMod();
-        }
-
-        ::StringMap MapDocument::gameEngineParameterSpecs() const {
-            return m_game->extractGameEngineParameterSpecs(m_world);
-        }
-        
-        void MapDocument::setGameEngineParameterSpec(const String& name, const String& spec) {
-            ::StringMap specs = m_game->extractGameEngineParameterSpecs(m_world);
-            specs[name] = spec;
-            submit(SetGameEngineParameterSpecsCommand::set(specs));
         }
 
         void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
