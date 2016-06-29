@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_FileSystemHierarchy
 #define TrenchBroom_FileSystemHierarchy
 
+#include "Macros.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/FileSystem.h"
@@ -49,9 +50,8 @@ namespace TrenchBroom {
             
             Path::List doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
-        private:
-            FileSystemHierarchy(const FileSystemHierarchy& other);
-            FileSystemHierarchy& operator=(FileSystemHierarchy other);
+
+            deleteCopyAndAssignment(FileSystemHierarchy)
         };
         
 #ifdef _MSC_VER
@@ -74,9 +74,8 @@ namespace TrenchBroom {
             void doDeleteFile(const Path& path);
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-        private:
-            WritableFileSystemHierarchy(const WritableFileSystemHierarchy& other);
-            WritableFileSystemHierarchy& operator=(WritableFileSystemHierarchy other);
+            
+            deleteCopyAndAssignment(WritableFileSystemHierarchy)
         };
 #ifdef _MSC_VER
 #pragma warning(pop)

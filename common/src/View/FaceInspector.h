@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class FaceAttribsEditor;
         class GLContextManager;
         class TextureBrowser;
-        class TextureCollectionEditor;
+        class FileTextureCollectionEditor;
         class TextureSelectedCommand;
         
         class FaceInspector : public TabBookPage {
@@ -45,7 +45,6 @@ namespace TrenchBroom {
             
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
-            TextureCollectionEditor* m_textureCollectionEditor;
         public:
             FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 

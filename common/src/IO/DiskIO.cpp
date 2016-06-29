@@ -227,8 +227,9 @@ namespace TrenchBroom {
                 } else {
                     for (size_t j = 0; j < searchPaths.size(); ++j) {
                         const Path& searchPath = searchPaths[j];
-                        if (fileExists(searchPath + path) || directoryExists(searchPath + path))
-                            return searchPath + path;
+                        const Path fullPath = searchPath + path;
+                        if (fileExists(fullPath) || directoryExists(fullPath))
+                            return fullPath;
                     }
                 }
                 return Path("");

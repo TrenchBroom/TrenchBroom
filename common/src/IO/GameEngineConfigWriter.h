@@ -20,7 +20,7 @@
 #ifndef GameEngineConfigWriter_h
 #define GameEngineConfigWriter_h
 
-#include "ConfigTypes.h"
+#include "EL.h"
 #include "Macros.h"
 
 #include <iostream>
@@ -41,8 +41,8 @@ namespace TrenchBroom {
             
             void writeConfig();
         private:
-            ConfigList* writeProfiles(const Model::GameEngineConfig& config) const;
-            ConfigTable* writeProfile(const Model::GameEngineProfile* profile) const;
+            EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
+            EL::Value writeProfile(const Model::GameEngineProfile* profile) const;
             
             deleteCopyAndAssignment(GameEngineConfigWriter)
         };

@@ -193,7 +193,7 @@ namespace TrenchBroom {
             m_availableModList = new wxListBox(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
-            availableModContainerSizer->Add(m_availableModList, 1, wxEXPAND);
+            availableModContainerSizer->Add(m_availableModList, wxSizerFlags().Expand().Proportion(1));
             availableModContainer->getPanel()->SetSizer(availableModContainerSizer);
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             
             wxSizer* filterBoxSizer = new wxBoxSizer(wxVERTICAL);
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            filterBoxSizer->Add(m_filterBox, 0, wxEXPAND);
+            filterBoxSizer->Add(m_filterBox, wxSizerFlags().Expand());
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
             TitledPanel* enabledModContainer = new TitledPanel(this, "Enabled", false);
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             m_enabledModList = new wxListBox(enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxSizer* enabledModContainerSizer = new wxBoxSizer(wxVERTICAL);
-            enabledModContainerSizer->Add(m_enabledModList, 1, wxEXPAND);
+            enabledModContainerSizer->Add(m_enabledModList, wxSizerFlags().Expand().Proportion(1));
             enabledModContainer->getPanel()->SetSizer(enabledModContainerSizer);
 
             wxWindow* addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
@@ -219,11 +219,11 @@ namespace TrenchBroom {
             wxWindow* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(addModsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->Add(removeModsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveModUpButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->Add(moveModDownButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddStretchSpacer();
             
             wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);

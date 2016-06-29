@@ -211,7 +211,7 @@ namespace TrenchBroom {
         m_begin(begin),
         m_end(end),
         m_palette(palette) {
-            assert(begin < end);
+            assert(m_begin < m_end);
             unused(m_end);
         }
 

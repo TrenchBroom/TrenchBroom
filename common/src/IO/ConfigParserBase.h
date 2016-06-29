@@ -21,7 +21,8 @@
 #define ConfigParserBase_h
 
 #include "StringUtils.h"
-#include "IO/ConfigFileParser.h"
+#include "EL.h"
+#include "IO/ELParser.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -29,10 +30,8 @@
 namespace TrenchBroom {
     namespace IO {
         class ConfigParserBase {
-        protected:
-            typedef std::auto_ptr<ConfigEntry> ConfigPtr;
         private:
-            ConfigFileParser m_parser;
+            ELParser m_parser;
         protected:
             Path m_path;
         protected:
@@ -41,16 +40,11 @@ namespace TrenchBroom {
         public:
             virtual ~ConfigParserBase();
         protected:
-            ConfigPtr parseConfigFile();
-
-            StringSet parseSet(const ConfigList& list) const;
-            StringList parseList(const ConfigList& list) const;
-
-            void expectEntry(int typeMask, const ConfigEntry& entry) const;
-            void expectListEntry(size_t index, int typeMask, const ConfigList& list) const;
-            void expectTableEntry(const String& key, int typeMask, const ConfigTable& table) const;
-            void expectTableEntries(const ConfigTable& table, const StringSet& mandatory, const StringSet& optional) const;
-            String typeNames(int typeMask) const;
+            EL::Expression parseConfigFile();
+            
+            void expectType(const EL::Value& value, EL::ValueType type) const;
+            void expectStructure(const EL::Value& value, const String& structure) const;
+            void expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const;
         };
     }
 }

@@ -80,7 +80,9 @@ namespace TrenchBroom {
         ParserException() throw() {}
         ParserException(const String& str) throw() : ExceptionStream(str) {}
         ParserException(const size_t line, const size_t column, const String& str = "") throw() : ExceptionStream() {
-            *this << str << " (line " << line << ", column " << column << ")";
+            if (!str.empty())
+                *this << str << " ";
+            *this << "[line " << line << ", column " << column << "]";
         }
         ~ParserException() throw() {}
     };

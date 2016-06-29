@@ -34,9 +34,9 @@ int main(int argc, char **argv) {
 
     // use an empty file config so that we always use the default preferences
     wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
-    
-    ::testing::InitGoogleTest(&argc, argv);
 
+    ::testing::InitGoogleTest(&argc, argv);
+    
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();

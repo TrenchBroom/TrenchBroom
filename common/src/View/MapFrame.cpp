@@ -153,7 +153,7 @@ namespace TrenchBroom {
                     position = displaySize.GetTopLeft();
 
                 SetPosition(position);
-                SetSize(std::min(displaySize.GetRight() - position.x, 1024), std::min(displaySize.GetBottom() - position.y, 768));
+                SetSize(std::min(displaySize.GetRight() - position.x, reference->GetSize().x), std::min(displaySize.GetBottom() - position.y, reference->GetSize().y));
             }
         }
 
@@ -518,6 +518,8 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MENU, &MapFrame::OnDebugPrintVertices, this, CommandIds::Menu::DebugPrintVertices);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCreateBrush, this, CommandIds::Menu::DebugCreateBrush);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugCreateCube, this, CommandIds::Menu::DebugCreateCube);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugClipBrush, this, CommandIds::Menu::DebugClipWithFace);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCrash, this, CommandIds::Menu::DebugCrash);
 
@@ -1028,6 +1030,31 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnDebugCreateCube(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxTextEntryDialog dialog(this, "Enter bounding box size", "Create Cube", "");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                double size; str.ToDouble(&size);
+                const BBox3 bounds(size / 2.0);
+                const Vec3::List positions = bBoxVertices(bounds);
+                m_document->createBrush(positions);
+            }
+        }
+        
+        void MapFrame::OnDebugClipBrush(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                const Vec3::List points = Vec3::parseList(str.ToStdString());
+                assert(points.size() == 3);
+                m_document->clipBrushes(points[0], points[1], points[2]);
+            }
+        }
+
         void MapFrame::OnDebugCopyJSShortcutMap(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1306,9 +1333,13 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::DebugPrintVertices:
                 case CommandIds::Menu::DebugCreateBrush:
+                case CommandIds::Menu::DebugCreateCube:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
                 case CommandIds::Menu::DebugCrash:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::DebugClipWithFace:
+                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
                     break;
                 case CommandIds::Actions::FlipObjectsHorizontally:
                 case CommandIds::Actions::FlipObjectsVertically:

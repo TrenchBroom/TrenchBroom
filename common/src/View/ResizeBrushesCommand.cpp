@@ -27,23 +27,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Model::BrushFaceList& faces, const Vec3& delta) {
-            return Ptr(new ResizeBrushesCommand(faces, delta));
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Vec3& normal, const Vec3& delta) {
+            return Ptr(new ResizeBrushesCommand(normal, delta));
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta) :
+        ResizeBrushesCommand::ResizeBrushesCommand(const Vec3& normal, const Vec3& delta) :
         DocumentCommand(Type, "Resize Brushes"),
-        m_faces(faces),
-        m_delta(delta) {
-            assert(!m_faces.empty());
-        }
+        m_normal(normal),
+        m_delta(delta) {}
         
         bool ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performResizeBrushes(m_faces, m_delta);
+            return document->performResizeBrushes(m_normal, m_delta);
         }
         
         bool ResizeBrushesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            return document->performResizeBrushes(m_faces, -m_delta);
+            return document->performResizeBrushes(m_normal, -m_delta);
         }
         
         bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
@@ -52,7 +50,7 @@ namespace TrenchBroom {
         
         bool ResizeBrushesCommand::doCollateWith(UndoableCommand::Ptr command) {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
-            if (m_faces != other->m_faces)
+            if (!m_normal.equals(other->m_normal))
                 return false;
             
             m_delta += other->m_delta;

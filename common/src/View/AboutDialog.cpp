@@ -45,6 +45,11 @@ namespace TrenchBroom {
             }
         }
         
+        void AboutDialog::closeAboutDialog() {
+            if (AboutDialog::instance != NULL)
+                AboutDialog::instance->Close();
+        }
+
         AboutDialog::~AboutDialog() {
             instance = NULL;
         }

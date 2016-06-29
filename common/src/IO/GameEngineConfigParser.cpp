@@ -19,6 +19,7 @@
 
 #include "GameEngineConfigParser.h"
 
+#include "Macros.h"
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 
@@ -31,33 +32,25 @@ namespace TrenchBroom {
         ConfigParserBase(str, path) {}
         
         Model::GameEngineConfig GameEngineConfigParser::parse() {
-            ConfigPtr root = parseConfigFile();
-            if (root.get() == NULL)
-                throw ParserException("Empty game engine config");
-            
-            expectEntry(ConfigEntry::Type_Table, *root);
-            const ConfigTable& rootTable = *root;
-            
-            expectTableEntries(rootTable,
-                               StringUtils::makeSet(2, "version", "profiles"),
-                               StringSet());
-            
-            expectTableEntry("version", ConfigEntry::Type_Value, rootTable);
-            const String version = rootTable["version"];
-            
-            expectTableEntry("profiles", ConfigEntry::Type_List, rootTable);
-            const Model::GameEngineProfile::List profiles = parseProfiles(rootTable["profiles"]);
+            const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+
+            expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+
+            const EL::NumberType version = root["version"].numberValue();
+            unused(version);
+            assert(version == 1.0);
+
+            const Model::GameEngineProfile::List profiles = parseProfiles(root["profiles"]);
             
             return Model::GameEngineConfig(profiles);
         }
 
-        Model::GameEngineProfile::List GameEngineConfigParser::parseProfiles(const ConfigList& list) const {
+        Model::GameEngineProfile::List GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
             Model::GameEngineProfile::List result;
             
             try {
-                for (size_t i = 0; i < list.count(); ++i) {
-                    expectListEntry(i, ConfigEntry::Type_Table, list);
-                    result.push_back(parseProfile(list[i]));
+                for (size_t i = 0; i < value.length(); ++i) {
+                    result.push_back(parseProfile(value[i]));
                 }
                 return result;
             } catch (...) {
@@ -66,16 +59,11 @@ namespace TrenchBroom {
             }
         }
         
-        Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const ConfigTable& table) const {
-            expectTableEntries(table,
-                               StringUtils::makeSet(2, "name", "path"),
-                               StringSet());
-            
-            expectTableEntry("name", ConfigEntry::Type_Value, table);
-            const String name = table["name"];
-            
-            expectTableEntry("path", ConfigEntry::Type_Value, table);
-            const String path = table["path"];
+        Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const EL::Value& value) const {
+            expectStructure(value, "[ {'name': 'String', 'path': 'String'}, {} ]");
+
+            const String& name = value["name"].stringValue();
+            const String& path = value["path"].stringValue();
             
             return new Model::GameEngineProfile(name, path);
         }

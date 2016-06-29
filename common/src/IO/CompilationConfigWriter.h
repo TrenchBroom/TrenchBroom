@@ -20,7 +20,7 @@
 #ifndef CompilationConfigWriter_h
 #define CompilationConfigWriter_h
 
-#include "ConfigTypes.h"
+#include "EL.h"
 #include "Macros.h"
 
 #include <iostream>
@@ -41,11 +41,11 @@ namespace TrenchBroom {
             
             void writeConfig();
         private:
-            ConfigList* writeProfiles(const Model::CompilationConfig& config) const;
-            ConfigTable* writeProfile(const Model::CompilationProfile* profile) const;
+            EL::Value writeProfiles(const Model::CompilationConfig& config) const;
+            EL::Value writeProfile(const Model::CompilationProfile* profile) const;
             
             class WriteCompilationTaskVisitor;
-            ConfigList* writeTasks(const Model::CompilationProfile* profile) const;
+            EL::Value writeTasks(const Model::CompilationProfile* profile) const;
             
             deleteCopyAndAssignment(CompilationConfigWriter)
         };

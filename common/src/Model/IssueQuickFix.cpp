@@ -19,9 +19,12 @@
 
 #include "IssueQuickFix.h"
 
+#include "Model/Issue.h"
+
 namespace TrenchBroom {
     namespace Model {
-        IssueQuickFix::IssueQuickFix(const String& description) :
+        IssueQuickFix::IssueQuickFix(const IssueType issueType, const String& description) :
+        m_issueType(issueType),
         m_description(description) {}
 
         IssueQuickFix::~IssueQuickFix() {}
@@ -32,6 +35,19 @@ namespace TrenchBroom {
         
         void IssueQuickFix::apply(MapFacade* facade, const IssueList& issues) const {
             doApply(facade, issues);
+        }
+
+        void IssueQuickFix::doApply(MapFacade* facade, const IssueList& issues) const {
+            IssueList::const_iterator it, end;
+            for (it = issues.begin(), end = issues.end(); it != end; ++it) {
+                const Issue* issue = *it;
+                if (issue->type() == m_issueType)
+                    doApply(facade, issue);
+            }
+        }
+        
+        void IssueQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+            assert(false);
         }
     }
 }

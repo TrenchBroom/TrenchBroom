@@ -290,6 +290,8 @@ namespace TrenchBroom {
             Menu* debugMenu = m_menuBar->addMenu("Debug");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateCube, "Create Cube...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrash, "Crash...");
 #endif

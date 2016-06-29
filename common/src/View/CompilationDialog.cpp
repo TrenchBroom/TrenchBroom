@@ -131,7 +131,11 @@ namespace TrenchBroom {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
                 assert(profile != NULL);
                 m_output->Clear();
-                m_run.run(profile, m_mapFrame->document(), m_output);
+                
+                if (testRun())
+                    m_run.test(profile, m_mapFrame->document(), m_output);
+                else
+                    m_run.run(profile, m_mapFrame->document(), m_output);
                 
                 m_currentRunLabel->SetLabel("Running " + profile->name());
                 Layout();
@@ -143,7 +147,10 @@ namespace TrenchBroom {
                 event.SetText("Stop");
                 event.Enable(true);
             } else {
-                event.SetText("Run");
+                if (testRun())
+                    event.SetText("Test");
+                else
+                    event.SetText("Run");
                 event.Enable(m_profileManager->selectedProfile() != NULL);
             }
         }
@@ -164,12 +171,16 @@ namespace TrenchBroom {
                 m_mapFrame->compilationDialogWillClose();
                 if (GetParent() != NULL)
                     GetParent()->Raise();
+                Destroy();
             }
-            event.Skip();
         }
 
         void CompilationDialog::OnCompilationEnd(wxEvent& event) {
             m_currentRunLabel->SetLabel("");
+        }
+        
+        bool CompilationDialog::testRun() const {
+            return wxGetKeyState(WXK_ALT);
         }
     }
 }

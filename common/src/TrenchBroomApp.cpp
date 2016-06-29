@@ -284,7 +284,7 @@ namespace TrenchBroom {
             if (fm == NULL)
                 return MapDocumentSPtr();
             
-            MapFrame *frame = fm->singleOrTopFrame();
+            MapFrame *frame = fm->topFrame();
             if (frame == NULL)
                 return MapDocumentSPtr();
             
@@ -418,7 +418,13 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
-            const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
+            const wxString pathStr = ::wxLoadFileSelector("",
+#ifdef __WXGTK20__
+                                                          "",
+#else
+                                                          "map",
+#endif
+                                                          "", NULL);
             if (!pathStr.empty())
                 openDocument(pathStr.ToStdString());
         }

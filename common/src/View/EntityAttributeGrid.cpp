@@ -147,7 +147,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
 
         void EntityAttributeGrid::OnAddAttributeButton(wxCommandEvent& event) {
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
         
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {

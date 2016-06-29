@@ -43,6 +43,7 @@ namespace TrenchBroom {
             updateIndices();
             updateGroups();
             updateCache();
+            bindObservers();
         }
 
         void EntityDefinitionManager::clear() {
@@ -105,6 +106,14 @@ namespace TrenchBroom {
             }
         }
         
+        void EntityDefinitionManager::bindObservers() {
+            EntityDefinitionList::const_iterator it, end;
+            for (it = m_definitions.begin(), end = m_definitions.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
+            }
+        }
+
         void EntityDefinitionManager::clearCache() {
             m_cache.clear();
         }

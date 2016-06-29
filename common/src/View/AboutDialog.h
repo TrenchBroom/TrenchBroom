@@ -34,6 +34,7 @@ namespace TrenchBroom {
             static AboutDialog* instance;
         public:
             static void showAboutDialog();
+            static void closeAboutDialog();
             
             ~AboutDialog();
             

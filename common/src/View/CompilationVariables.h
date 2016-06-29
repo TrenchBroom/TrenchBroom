@@ -20,8 +20,8 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
+#include "EL.h"
 #include "StringUtils.h"
-#include "VariableHelper.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -33,18 +33,34 @@ namespace TrenchBroom {
             extern const String MAP_FULL_NAME;
             extern const String CPU_COUNT;
             extern const String GAME_DIR_PATH;
-            extern const String MOD_DIR_PATH;
-            extern const String MOD_NAME;
+            extern const String MODS;
             extern const String APP_DIR_PATH;
         }
 
-        const VariableTable& compilationWorkDirVariables();
-        const VariableTable& compilationVariables();
-        const VariableTable& launchGameEngineVariables();
+        class CommonVariables : public EL::VariableTable {
+        protected:
+            CommonVariables(MapDocumentSPtr document);
+        };
         
-        void defineCompilationWorkDirVariables(VariableTable& variables, MapDocumentSPtr document);
-        void defineCompilationVariables(VariableTable& variables, MapDocumentSPtr document, const String& workDir);
-        void defineLaunchGameEngineVariables(VariableTable& variables, MapDocumentSPtr document);
+        class CommonCompilationVariables : public CommonVariables {
+        protected:
+            CommonCompilationVariables(MapDocumentSPtr document);
+        };
+        
+        class CompilationWorkDirVariables : public CommonCompilationVariables {
+        public:
+            CompilationWorkDirVariables(MapDocumentSPtr document);
+        };
+        
+        class CompilationVariables : public CommonCompilationVariables {
+        public:
+            CompilationVariables(MapDocumentSPtr document, const String& workDir);
+        };
+        
+        class LaunchGameEngineVariables : public CommonVariables {
+        public:
+            LaunchGameEngineVariables(MapDocumentSPtr document);
+        };
     }
 }
 

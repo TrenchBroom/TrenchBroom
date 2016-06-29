@@ -31,27 +31,27 @@ namespace TrenchBroom {
         }
         
         void GameEngineConfigWriter::writeConfig() {
-            ConfigTable table;
-            table.addEntry("version", new ConfigValue("1"));
-            table.addEntry("profiles", writeProfiles(m_config));
-            table.appendToStream(m_stream);
+            EL::MapType map;
+            map["version"] = EL::Value(1.0);
+            map["profiles"] = writeProfiles(m_config);
+            m_stream << EL::Value(map) << "\n";
         }
 
-        ConfigList* GameEngineConfigWriter::writeProfiles(const Model::GameEngineConfig& config) const {
-            ConfigList* result = new ConfigList();
+        EL::Value GameEngineConfigWriter::writeProfiles(const Model::GameEngineConfig& config) const {
+            EL::ArrayType array;
             for (size_t i = 0; i < config.profileCount(); ++i) {
                 const Model::GameEngineProfile* profile = config.profile(i);
-                result->addEntry(writeProfile(profile));
+                array.push_back(writeProfile(profile));
             }
             
-            return result;
+            return EL::Value(array);
         }
         
-        ConfigTable* GameEngineConfigWriter::writeProfile(const Model::GameEngineProfile* profile) const {
-            ConfigTable* result = new ConfigTable();
-            result->addEntry("name", new ConfigValue(profile->name()));
-            result->addEntry("path", new ConfigValue(profile->path().asString()));
-            return result;
+        EL::Value GameEngineConfigWriter::writeProfile(const Model::GameEngineProfile* profile) const {
+            EL::MapType map;
+            map["name"] = EL::Value(profile->name());
+            map["path"] = EL::Value(profile->path().asString());
+            return EL::Value(map);
         }
     }
 }

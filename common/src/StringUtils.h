@@ -93,20 +93,12 @@ namespace StringUtils {
     template <typename Cmp>
     struct StringLess {
         bool operator()(const String& lhs, const String& rhs) const {
-            typedef String::iterator::difference_type StringDiff;
-            
-            String::const_iterator lhsEnd, rhsEnd;
-            const size_t minSize = std::min(lhs.size(), rhs.size());
-            StringDiff difference = static_cast<StringDiff>(minSize);
-            
-            std::advance(lhsEnd = lhs.begin(), difference);
-            std::advance(rhsEnd = rhs.begin(), difference);
-            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), CharLess<Cmp>());
         }
     };
     
     typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
-    typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
+    typedef StringLess<CaseInsensitiveCharCompare> CaseInsensitiveStringLess;
     
     template <typename T>
     const String& safePlural(const T count, const String& singular, const String& plural) {
@@ -157,8 +149,23 @@ namespace StringUtils {
         return true;
     }
     
+    template <typename Cmp>
+    bool isEqual(const char* s1, const char* e1, const String& str2, const Cmp& cmp) {
+        const size_t l1 = static_cast<size_t>(e1 - s1);
+        if (l1 != str2.length())
+            return false;
+        
+        for (size_t i = 0; i < str2.length(); ++i) {
+            if (cmp(s1[i], str2[i]) != 0)
+                return false;
+        }
+        return true;
+    }
+    
     bool caseSensitiveEqual(const String& str1, const String& str2);
+    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2);
     bool caseInsensitiveEqual(const String& str1, const String& str2);
+    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2);
 
     template <class Cmp>
     bool isPrefix(const String& str, const String& prefix, const Cmp& cmp) {
@@ -256,6 +263,7 @@ namespace StringUtils {
 
     int stringToInt(const String& str);
     long stringToLong(const String& str);
+    double stringToDouble(const String& str);
     size_t stringToSize(const String& str);
     
     template <typename D>

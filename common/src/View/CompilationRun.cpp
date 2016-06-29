@@ -19,6 +19,7 @@
 
 #include "CompilationRun.h"
 
+#include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "View/CompilationContext.h"
@@ -47,26 +48,13 @@ namespace TrenchBroom {
         }
         
         void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
-            assert(profile != NULL);
-            assert(document.get() != NULL);
-            assert(currentOutput != NULL);
-            
-            wxCriticalSectionLocker lock(m_currentRunSection);
-            assert(!doIsRunning());
-            if (m_currentRun != NULL) {
-                delete m_currentRun;
-                m_currentRun = NULL;
-            }
-
-            VariableTable variables = compilationVariables();
-            defineCompilationVariables(variables, document, buildWorkDir(profile, document));
-            
-            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput)), profile);
-            m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
-            m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
-            m_currentRun->execute();
+            run(profile, document, currentOutput, false);
         }
         
+        void CompilationRun::test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
+            run(profile, document, currentOutput, true);
+        }
+
         void CompilationRun::terminate() {
             wxCriticalSectionLocker lock(m_currentRunSection);
             if (doIsRunning())
@@ -77,10 +65,28 @@ namespace TrenchBroom {
             return m_currentRun != NULL && m_currentRun->running();
         }
 
+        void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, const bool test) {
+            assert(profile != NULL);
+            assert(document.get() != NULL);
+            assert(currentOutput != NULL);
+            
+            wxCriticalSectionLocker lock(m_currentRunSection);
+            assert(!doIsRunning());
+            if (m_currentRun != NULL) {
+                delete m_currentRun;
+                m_currentRun = NULL;
+            }
+            
+            CompilationVariables variables(document, buildWorkDir(profile, document));
+            
+            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput), test), profile);
+            m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
+            m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
+            m_currentRun->execute();
+        }
+
         String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
-            VariableTable variables = compilationWorkDirVariables();
-            defineCompilationWorkDirVariables(variables, document);
-            return variables.translate(profile->workDirSpec());
+            return EL::interpolate(profile->workDirSpec(), CompilationWorkDirVariables(document));
         }
 
         void CompilationRun::OnCompilationStart(wxEvent& event) {

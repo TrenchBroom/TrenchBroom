@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 }
             }
             
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
+            Path resolvePath(const Path::List& searchPaths, const Path& path);
         }
     }
 }

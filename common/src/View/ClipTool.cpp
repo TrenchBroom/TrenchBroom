@@ -61,6 +61,10 @@ namespace TrenchBroom {
             return doCanClip();
         }
         
+        bool ClipTool::ClipStrategy::hasPoints() const {
+            return doHasPoints();
+        }
+
         bool ClipTool::ClipStrategy::canAddPoint(const Vec3& point) const {
             return doCanAddPoint(point);
         }
@@ -207,6 +211,10 @@ namespace TrenchBroom {
                 return true;
             }
             
+            bool doHasPoints() const {
+                return m_numPoints > 0;
+            }
+
             bool doCanAddPoint(const Vec3& point) const {
                 if (m_numPoints == 3)
                     return false;
@@ -415,6 +423,7 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(Vec3& point) const { return false; }
 
             bool doCanClip() const { return m_face != NULL; }
+            bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
             bool doRemoveLastPoint() { return false; }
@@ -480,11 +489,6 @@ namespace TrenchBroom {
                     m_clipSide = ClipSide_Front;
                     break;
             }
-            update();
-        }
-        
-        void ClipTool::resetSide() {
-            m_clipSide = ClipSide_Front;
             update();
         }
         
@@ -569,7 +573,7 @@ namespace TrenchBroom {
                 }
             }
             
-            reset();
+            resetStrategy();
             return result;
         }
         
@@ -582,6 +586,10 @@ namespace TrenchBroom {
             return m_strategy == NULL || m_strategy->canAddPoint(point);
         }
         
+        bool ClipTool::hasPoints() const {
+            return m_strategy != NULL && m_strategy->hasPoints();
+        }
+
         void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == NULL)
@@ -641,16 +649,17 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::reset() {
-            const bool result = (m_strategy != NULL);
-            if (m_strategy != NULL)
+            if (m_strategy != NULL) {
                 resetStrategy();
-            resetSide();
-            return result;
+                return true;
+            }
+            return false;
         }
         
         void ClipTool::resetStrategy() {
             delete m_strategy;
             m_strategy = NULL;
+            update();
         }
         
         void ClipTool::update() {
@@ -784,13 +793,13 @@ namespace TrenchBroom {
             if (!document->selectedNodes().hasOnlyBrushes())
                 return false;
             bindObservers();
-            reset();
+            resetStrategy();
             return true;
         }
         
         bool ClipTool::doDeactivate() {
-            reset();
             unbindObservers();
+            resetStrategy();
             return true;
         }
         

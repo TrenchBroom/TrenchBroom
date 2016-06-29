@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             void expect(const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
-                    throw ParserException(token.line(), token.column()) << expectString(tokenName(typeMask), token);
+                    throw ParserException(token.line(), token.column(), expectString(tokenName(typeMask), token));
             }
             
             void expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
@@ -60,13 +60,13 @@ namespace TrenchBroom {
             }
         private:
             String expectString(const String& expected, const Token& token) const {
-                const String data(token.begin(), token.end());
                 StringStream msg;
-                msg << " Expected " << expected << ", but got '" << data << "'";
+                msg << "Expected " << expected << ", but got " << tokenName(token.type());
+                if (!token.data().empty())
+                    msg << " (raw data: '" << token.data() << "')";
                 return msg.str();
             }
         protected:
-
             String tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();

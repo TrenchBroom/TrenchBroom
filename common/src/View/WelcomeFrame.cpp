@@ -78,7 +78,13 @@ namespace TrenchBroom {
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
+            const wxString pathStr = ::wxLoadFileSelector("",
+#ifdef __WXGTK20__
+                                                          "",
+#else
+                                                          "map",
+#endif
+                                                          "", NULL);
             if (!pathStr.empty()) {
                 Hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();

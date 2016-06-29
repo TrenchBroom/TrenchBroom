@@ -21,7 +21,7 @@
 
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskList.h"
 #include "View/CompilationVariables.h"
@@ -78,9 +78,8 @@ namespace TrenchBroom {
             m_nameTxt = new wxTextCtrl(upperPanel, wxID_ANY);
             m_workDirTxt = new AutoCompleteTextControl(upperPanel, wxID_ANY);
             
-            VariableTable workDirVariables = compilationWorkDirVariables();
-            defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
-            m_workDirTxt->SetHelper(new AutoCompleteVariablesHelper(workDirVariables));
+            CompilationWorkDirVariables workDirVariables(lock(m_document));
+            m_workDirTxt->SetHelper(new ELAutoCompleteHelper(workDirVariables));
             
             m_nameTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnNameChanged, this);
             m_workDirTxt->Bind(wxEVT_TEXT, &CompilationProfileEditor::OnWorkDirChanged, this);
@@ -159,7 +158,7 @@ namespace TrenchBroom {
             Model::CompilationTask* task = NULL;
             switch (result) {
                 case 1:
-                    task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_FULL_NAME}");
+                    task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
                     break;
                 case 2:
                     task = new Model::CompilationCopyFiles("", "");

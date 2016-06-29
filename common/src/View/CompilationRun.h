@@ -49,9 +49,11 @@ namespace TrenchBroom {
             
             bool running() const;
             void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
+            void test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
             void terminate();
         private:
             bool doIsRunning() const;
+            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, bool test);
         private:
             String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
 

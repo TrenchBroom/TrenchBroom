@@ -70,8 +70,8 @@ namespace TrenchBroom {
             virtual NodeList addNodes(const ParentChildrenMap& nodes) = 0;
             virtual void removeNodes(const NodeList& nodes) = 0;
             
-            virtual void reparentNodes(Node* newParent, const NodeList& children) = 0;
-            virtual void reparentNodes(const ParentChildrenMap& nodes) = 0;
+            virtual bool reparentNodes(Node* newParent, const NodeList& children) = 0;
+            virtual bool reparentNodes(const ParentChildrenMap& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // modifying transient node attributes
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             
             virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
         public: // brush resizing
-            virtual bool resizeBrushes(const BrushFaceList& faces, const Vec3& delta) = 0;
+            virtual bool resizeBrushes(const Vec3& normal, const Vec3& delta) = 0;
         public: // modifying face attributes
             virtual bool setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;

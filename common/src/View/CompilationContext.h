@@ -20,9 +20,9 @@
 #ifndef CompilationContext_h
 #define CompilationContext_h
 
+#include "EL.h"
 #include "Logger.h"
 #include "StringUtils.h"
-#include "VariableHelper.h"
 #include "View/TextCtrlOutputAdapter.h"
 #include "View/ViewTypes.h"
 
@@ -34,15 +34,17 @@ namespace TrenchBroom {
         class CompilationContext {
         private:
             MapDocumentWPtr m_document;
-            VariableTable m_variables;
+            EL::VariableTable m_variables;
             
             TextCtrlOutputAdapter m_output;
+            bool m_test;
         public:
-            CompilationContext(MapDocumentWPtr document, const VariableTable& variables, const TextCtrlOutputAdapter& output);
+            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test);
             
             MapDocumentSPtr document() const;
+            bool test() const;
             
-            String translateVariables(const String& input) const;
+            String interpolate(const String& input) const;
             String variableValue(const String& variableName) const;
             
             template <typename T>

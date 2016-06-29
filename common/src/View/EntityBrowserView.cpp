@@ -66,6 +66,8 @@ namespace TrenchBroom {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
+            
+            m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
         }
         
         EntityBrowserView::~EntityBrowserView() {
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -92,7 +94,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -100,7 +102,12 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
+            Refresh();
+        }
+
+        void EntityBrowserView::usageCountDidChange() {
+            invalidate();
             Refresh();
         }
 

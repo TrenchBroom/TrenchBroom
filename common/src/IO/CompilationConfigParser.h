@@ -38,14 +38,14 @@ namespace TrenchBroom {
             
             Model::CompilationConfig parse();
         private:
-            Model::CompilationProfile::List parseProfiles(const ConfigList& list) const;
-            Model::CompilationProfile* parseProfile(const ConfigTable& table) const;
+            Model::CompilationProfile::List parseProfiles(const EL::Value& value) const;
+            Model::CompilationProfile* parseProfile(const EL::Value& value) const;
             
-            Model::CompilationTask::List parseTasks(const ConfigList& list) const;
-            Model::CompilationTask* parseTask(const ConfigTable& table) const;
-            Model::CompilationTask* parseExportTask(const ConfigTable& table) const;
-            Model::CompilationTask* parseCopyTask(const ConfigTable& table) const;
-            Model::CompilationTask* parseToolTask(const ConfigTable& table) const;
+            Model::CompilationTask::List parseTasks(const EL::Value& value) const;
+            Model::CompilationTask* parseTask(const EL::Value& value) const;
+            Model::CompilationTask* parseExportTask(const EL::Value& value) const;
+            Model::CompilationTask* parseCopyTask(const EL::Value& value) const;
+            Model::CompilationTask* parseToolTask(const EL::Value& value) const;
 
             deleteCopyAndAssignment(CompilationConfigParser)
         };

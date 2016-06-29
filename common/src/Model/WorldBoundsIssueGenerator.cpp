@@ -50,7 +50,7 @@ namespace TrenchBroom {
         class WorldBoundsIssueGenerator::WorldBoundsIssueQuickFix : public IssueQuickFix {
         public:
             WorldBoundsIssueQuickFix() :
-            IssueQuickFix("Delete objects") {}
+            IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->deleteObjects();

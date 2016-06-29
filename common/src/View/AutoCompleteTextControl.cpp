@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 if (!IsAutoCompleting()) {
                     const size_t index = static_cast<size_t>(GetInsertionPoint());
                     const size_t startIndex = m_helper->ShouldStartCompletionAfterRequest(GetValue(), index);
-                    if (startIndex < GetValue().Length()) {
+                    if (startIndex <= GetValue().Length()) {
                         StartAutoCompletion(startIndex);
                         UpdateAutoCompletion();
                     }

@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
-#include "IO/PakFileSystem.h"
+#include "IO/IdPakFileSystem.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -19,9 +19,10 @@
 
 #include "CompilationTaskList.h"
 
+#include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/TitledPanel.h"
@@ -103,14 +104,10 @@ namespace TrenchBroom {
             }
         private:
             void updateAutoComplete(AutoCompleteTextControl* control) {
-                VariableTable workDirVariables = compilationWorkDirVariables();
-                defineCompilationWorkDirVariables(workDirVariables, lock(m_document));
-                const String workDir = workDirVariables.translate(m_profile->workDirSpec());
+                const String workDir = EL::interpolate(m_profile->workDirSpec(), CompilationWorkDirVariables(lock(m_document)));
+                const CompilationVariables variables(lock(m_document), workDir);
                 
-                VariableTable variables = compilationVariables();
-                defineCompilationVariables(variables, lock(m_document), workDir);
-                
-                control->SetHelper(new AutoCompleteVariablesHelper(variables));
+                control->SetHelper(new ELAutoCompleteHelper(variables));
             }
         private:
             void taskWillBeRemoved() {

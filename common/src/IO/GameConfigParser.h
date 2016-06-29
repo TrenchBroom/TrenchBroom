@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_GameConfigParser
 #define TrenchBroom_GameConfigParser
 
+#include "Macros.h"
 #include "StringUtils.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/Path.h"
 #include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
 
@@ -37,13 +37,16 @@ namespace TrenchBroom {
             
             Model::GameConfig parse();
         private:
-            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const ConfigTable& table) const;
-            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const ConfigTable& table) const;
-            Model::GameConfig::TextureConfig parseTextureConfig(const ConfigTable& table) const;
-            Model::GameConfig::EntityConfig parseEntityConfig(const ConfigTable& table) const;
-            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const ConfigTable& table) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const ConfigList& list) const;
-            Model::BrushContentType::List parseBrushContentTypes(const ConfigList& list, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
+            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& value) const;
+            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value) const;
+            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& value) const;
+            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& value) const;
+            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& value) const;
+            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value) const;
+            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
+            Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
+            
+            deleteCopyAndAssignment(GameConfigParser)
         };
     }
 }

@@ -19,10 +19,11 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "EL/Interpolator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/AutoCompleteTextControl.h"
-#include "View/AutoCompleteVariablesHelper.h"
+#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             m_parameterText->Bind(wxEVT_TEXT_ENTER, &LaunchGameEngineDialog::OnLaunch, this);
             m_parameterText->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateParameterTextUI, this);
             
-            m_parameterText->SetHelper(new AutoCompleteVariablesHelper(variables()));
+            m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
             
             wxSizer* midLeftSizer = new wxBoxSizer(wxVERTICAL);
             midLeftSizer->AddSpacer(20);
@@ -126,13 +127,15 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
 
             m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
+            m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);
             Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
+            
+            if (m_gameEngineList->GetItemCount() > 0)
+                m_gameEngineList->SetSelection(0);
         }
 
-        VariableTable LaunchGameEngineDialog::variables() const {
-            VariableTable variables = launchGameEngineVariables();
-            defineLaunchGameEngineVariables(variables, lock(m_document));
-            return variables;
+        LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
+            return LaunchGameEngineVariables(lock(m_document));
         }
 
         void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
@@ -154,9 +157,14 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+
+            const bool wasEmpty = m_gameEngineList->GetItemCount() == 0;
             
             GameEngineDialog dialog(this, lock(m_document)->game()->gameName());
             dialog.ShowModal();
+
+            if (wasEmpty && m_gameEngineList->GetItemCount() > 0)
+                m_gameEngineList->SetSelection(0);
         }
         
         void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
@@ -173,7 +181,7 @@ namespace TrenchBroom {
             
             const IO::Path& path = profile->path();
             const String parameterSpec = m_parameterText->GetValue().ToStdString();
-            const String parameters = variables().translate(parameterSpec);
+            const String parameters = EL::interpolate(parameterSpec, variables());
 
             wxString launchStr;
 #ifdef __APPLE__

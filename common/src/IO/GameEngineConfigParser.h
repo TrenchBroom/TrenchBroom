@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "StringUtils.h"
+#include "EL.h"
 #include "IO/ConfigParserBase.h"
 #include "IO/Path.h"
 #include "Model/GameEngineConfig.h"
@@ -38,8 +39,8 @@ namespace TrenchBroom {
             
             Model::GameEngineConfig parse();
         private:
-            Model::GameEngineProfile::List parseProfiles(const ConfigList& list) const;
-            Model::GameEngineProfile* parseProfile(const ConfigTable& table) const;
+            Model::GameEngineProfile::List parseProfiles(const EL::Value& value) const;
+            Model::GameEngineProfile* parseProfile(const EL::Value& value) const;
             
             deleteCopyAndAssignment(GameEngineConfigParser)
         };
