@@ -377,9 +377,9 @@ namespace TrenchBroom {
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
             sizer->Add(createEntityDefinitionsPanel(this), wxGBPosition(0,0), wxGBSpan(3,1), wxEXPAND);
-            sizer->Add(createEntitiesPanel(this), wxGBPosition(0,1), wxDefaultSpan);
-            sizer->Add(createBrushesPanel(this), wxGBPosition(1,1), wxDefaultSpan);
-            sizer->Add(createRendererPanel(this), wxGBPosition(2,1), wxDefaultSpan);
+            sizer->Add(createEntitiesPanel(this),          wxGBPosition(0,1), wxDefaultSpan);
+            sizer->Add(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
+            sizer->Add(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
             SetSizer(sizer);
             GetParent()->GetParent()->Fit();
