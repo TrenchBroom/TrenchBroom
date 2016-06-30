@@ -172,7 +172,7 @@ namespace TrenchBroom {
             scrollWindow->SetScrollRate(1, checkBoxHeight);
 
             wxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
-            borderSizer->Add(scrollWindow, wxSizerFlags().Border(wxALL, 1));
+            borderSizer->Add(scrollWindow, wxSizerFlags().Border(wxALL, 1).Expand().Proportion(1));
             border->SetSizer(borderSizer);
 
             wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             buttonSizer->Add(hideAllButton);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(border);
+            outerSizer->Add(border, wxSizerFlags().Expand().Proportion(1));
             outerSizer->Add(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1));
 
             SetSizer(outerSizer);
@@ -374,19 +374,16 @@ namespace TrenchBroom {
         void ViewEditor::createGui() {
             DestroyChildren();
 
-            wxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
-            rightSizer->Add(createEntitiesPanel());
-            rightSizer->AddSpacer(LayoutConstants::WideVMargin);
-            rightSizer->Add(createBrushesPanel());
-            rightSizer->AddSpacer(LayoutConstants::WideVMargin);
-            rightSizer->Add(createRendererPanel());
-
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(createEntityDefinitionsPanel(), wxSizerFlags().Expand().Proportion(1));
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
-            outerSizer->Add(rightSizer);
+            outerSizer->Add(createFilterPanel());
 
             SetSizerAndFit(outerSizer);
+            Layout();
+            
+            GetParent()->Fit();
+            GetParent()->GetParent()->Fit();
         }
 
         wxWindow* ViewEditor::createEntityDefinitionsPanel() {
@@ -399,15 +396,29 @@ namespace TrenchBroom {
             m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
 
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-            panelSizer->Add(m_entityDefinitionCheckBoxList);
+            panelSizer->Add(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
             panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 200, wxDefaultCoord);
 
-            panel->getPanel()->SetSizerAndFit(panelSizer);
+            panel->getPanel()->SetSizer(panelSizer);
             return panel;
         }
 
-        wxWindow* ViewEditor::createEntitiesPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Entities", false);
+        wxWindow* ViewEditor::createFilterPanel() {
+            wxPanel* panel = new wxPanel(this);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(createEntitiesPanel(panel));
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->Add(createBrushesPanel(panel));
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->Add(createRendererPanel(panel));
+            
+            panel->SetSizerAndFit(sizer);
+            return panel;
+        }
+        
+        wxWindow* ViewEditor::createEntitiesPanel(wxWindow* parent) {
+            TitledPanel* panel = new TitledPanel(parent, "Entities", false);
 
             m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
             m_showEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity bounds");
@@ -429,8 +440,8 @@ namespace TrenchBroom {
             return panel;
         }
 
-        wxWindow* ViewEditor::createBrushesPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Brushes", false);
+        wxWindow* ViewEditor::createBrushesPanel(wxWindow* parent) {
+            TitledPanel* panel = new TitledPanel(parent, "Brushes", false);
             wxWindow* inner = panel->getPanel();
             createBrushContentTypeFilter(inner);
 
@@ -491,8 +502,8 @@ namespace TrenchBroom {
             parent->SetSizerAndFit(sizer);
         }
 
-        wxWindow* ViewEditor::createRendererPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Renderer", false);
+        wxWindow* ViewEditor::createRendererPanel(wxWindow* parent) {
+            TitledPanel* panel = new TitledPanel(parent, "Renderer", false);
             wxWindow* inner = panel->getPanel();
 
             static const wxString FaceRenderModes[] = { "Textured", "Flat", "Hidden" };
@@ -602,11 +613,11 @@ namespace TrenchBroom {
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_editor, wxSizerFlags().Border(wxALL, LayoutConstants::DialogOuterMargin));
-            editorContainer->SetSizerAndFit(containerSizer);
+            editorContainer->SetSizer(containerSizer);
 
             wxSizer* popupSizer = new wxBoxSizer(wxVERTICAL);
             popupSizer->Add(editorContainer, wxSizerFlags());
-            m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
+            m_button->GetPopupWindow()->SetSizer(popupSizer);
 
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_button, wxSizerFlags().CenterVertical());
