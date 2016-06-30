@@ -113,8 +113,7 @@ namespace TrenchBroom {
             
             void createGui();
             
-            wxWindow* createEntityDefinitionsPanel();
-            wxWindow* createFilterPanel();
+            wxWindow* createEntityDefinitionsPanel(wxWindow* parent);
             wxWindow* createEntitiesPanel(wxWindow* parent);
             wxWindow* createBrushesPanel(wxWindow* parent);
             void createBrushContentTypeFilter(wxWindow* parent);

@@ -36,6 +36,7 @@
 #include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/choice.h>
+#include <wx/gbsizer.h>
 #include <wx/scrolwin.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
@@ -374,20 +375,21 @@ namespace TrenchBroom {
         void ViewEditor::createGui() {
             DestroyChildren();
 
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(createEntityDefinitionsPanel(), wxSizerFlags().Expand().Proportion(1));
-            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
-            outerSizer->Add(createFilterPanel());
-
-            SetSizerAndFit(outerSizer);
+            wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
+            sizer->Add(createEntityDefinitionsPanel(this), wxGBPosition(0,0), wxGBSpan(3,1), wxEXPAND);
+            sizer->Add(createEntitiesPanel(this), wxGBPosition(0,1), wxDefaultSpan);
+            sizer->Add(createBrushesPanel(this), wxGBPosition(1,1), wxDefaultSpan);
+            sizer->Add(createRendererPanel(this), wxGBPosition(2,1), wxDefaultSpan);
+            
+            SetSizerAndFit(sizer);
             Layout();
             
             GetParent()->Fit();
             GetParent()->GetParent()->Fit();
         }
 
-        wxWindow* ViewEditor::createEntityDefinitionsPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Entity Definitions", false);
+        wxWindow* ViewEditor::createEntityDefinitionsPanel(wxWindow* parent) {
+            TitledPanel* panel = new TitledPanel(parent, "Entity Definitions", false);
 
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
@@ -403,20 +405,6 @@ namespace TrenchBroom {
             return panel;
         }
 
-        wxWindow* ViewEditor::createFilterPanel() {
-            wxPanel* panel = new wxPanel(this);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(createEntitiesPanel(panel));
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(createBrushesPanel(panel));
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(createRendererPanel(panel));
-            
-            panel->SetSizerAndFit(sizer);
-            return panel;
-        }
-        
         wxWindow* ViewEditor::createEntitiesPanel(wxWindow* parent) {
             TitledPanel* panel = new TitledPanel(parent, "Entities", false);
 
