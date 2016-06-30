@@ -380,11 +380,8 @@ namespace TrenchBroom {
             sizer->Add(createEntitiesPanel(this), wxGBPosition(0,1), wxDefaultSpan);
             sizer->Add(createBrushesPanel(this), wxGBPosition(1,1), wxDefaultSpan);
             sizer->Add(createRendererPanel(this), wxGBPosition(2,1), wxDefaultSpan);
-            
-            SetSizerAndFit(sizer);
-            Layout();
-            
-            GetParent()->Fit();
+
+            SetSizer(sizer);
             GetParent()->GetParent()->Fit();
         }
 
