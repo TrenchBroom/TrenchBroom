@@ -45,7 +45,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x, m_button->GetSize().y + 1);
 #endif
-#ifdef __linux__
+#ifdef __WXGTK20__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x + 3, m_button->GetSize().y);
 #endif
             SetSizerAndFit(sizer);

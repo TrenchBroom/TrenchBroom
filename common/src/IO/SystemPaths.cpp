@@ -28,7 +28,7 @@
 #include "CoreFoundation/CoreFoundation.h"
 #elif defined _WIN32
 #include <Windows.h>
-#elif defined __linux__
+#elif defined __WXGTK20__
 #include <unistd.h>
 #endif
 

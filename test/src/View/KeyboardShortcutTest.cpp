@@ -81,7 +81,7 @@ namespace TrenchBroom {
 #endif
         }
         
-#ifdef __linux__
+#ifdef __WXGTK20__
         TEST(KeyboardShortcutTest, isShortcutValid) {
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB));
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB, WXK_CONTROL));

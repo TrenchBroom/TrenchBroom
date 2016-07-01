@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     TrenchBroomAppTraits::~TrenchBroomAppTraits() {}
 
-#if defined __linux__ || defined __FreeBSD__
+#ifdef __WXGTK20__
     wxConfigBase* TrenchBroomAppTraits::CreateConfig() {
         wxFileName configFile(wxStandardPaths::Get().GetUserDataDir(), "", "preferences");
         return new wxFileConfig(wxTheApp->GetAppName(), wxTheApp->GetVendorName(), configFile.GetFullPath());

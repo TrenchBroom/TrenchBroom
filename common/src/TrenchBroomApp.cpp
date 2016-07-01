@@ -151,7 +151,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::detectAndSetupUbuntu() {
             // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
-#ifdef __linux__
+#ifdef __WXGTK20__
             static const wxString varName("UBUNTU_MENUPROXY");
             if (!wxGetEnv(varName, NULL)) {
                 const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
