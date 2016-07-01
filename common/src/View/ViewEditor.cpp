@@ -185,14 +185,17 @@ namespace TrenchBroom {
             hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
 
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->AddStretchSpacer();
             buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             buttonSizer->Add(showAllButton);
             buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             buttonSizer->Add(hideAllButton);
+            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->AddStretchSpacer();
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(border, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1));
+            outerSizer->Add(buttonSizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, 1).Expand());
 
             SetSizer(outerSizer);
         }
@@ -381,8 +384,15 @@ namespace TrenchBroom {
             sizer->Add(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
             sizer->Add(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
-            SetSizer(sizer);
+            SetSizerAndFit(sizer);
             GetParent()->GetParent()->Fit();
+
+#ifdef __WXGTK20__
+            // For some reason, the popup window is too small on GTK, so we add a few pixels.
+            wxSize size = GetParent()->GetParent()->GetSize();
+            size.IncBy(0, 25);
+            GetParent()->GetParent()->SetSize(size);
+#endif
         }
 
         wxWindow* ViewEditor::createEntityDefinitionsPanel(wxWindow* parent) {
@@ -396,9 +406,9 @@ namespace TrenchBroom {
 
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
             panelSizer->Add(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
-            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 200, wxDefaultCoord);
-
+            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 250, wxDefaultCoord);
             panel->getPanel()->SetSizer(panelSizer);
+
             return panel;
         }
 

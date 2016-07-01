@@ -51,6 +51,16 @@ namespace TrenchBroom {
             return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
         }
 
+        void fitAll(wxWindow* window) {
+            const wxWindowList& children = window->GetChildren();
+            wxWindowList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                wxWindow* child = *it;
+                fitAll(child);
+            }
+            window->Fit();
+        }
+
         wxColor makeLighter(const wxColor& color) {
             wxColor result = color.ChangeLightness(130);
             if (std::abs(result.Red()   - color.Red())   < 25 &&
@@ -141,7 +151,7 @@ namespace TrenchBroom {
             hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
             hSizer->Add(buttonSizer, wxSizerFlags().Expand().Proportion(1));
             hSizer->AddSpacer(LayoutConstants::DialogButtonRightMargin);
-            
+
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
             vSizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             vSizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
