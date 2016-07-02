@@ -183,7 +183,8 @@ namespace TrenchBroom {
             float rad = preferX ? radX : radY;
             
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            if (newIndex == 4)
+            const size_t planeNormIndex = (newIndex / 2) * 6;
+            if (planeNormIndex == 12)
                 rad *= -1.0f;
             
             const float newRotation = Math::correct(Math::normalizeDegrees(Math::degrees(rad)), 4);
