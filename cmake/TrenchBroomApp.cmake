@@ -88,7 +88,14 @@ IF(WIN32)
     ENDIF()
 ENDIF()
 
-ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
+IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
+ELSE()
+    # OBJECT libraries are broken on Xcode, so just compile the COMMON source directly in
+    # see: https://github.com/kduske/TrenchBroom/issues/1373
+    ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} ${COMMON_SOURCE} ${COMMON_HEADER})
+ENDIF()
+
 
 TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 IF (COMPILER_IS_MSVC)
