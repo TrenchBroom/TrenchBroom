@@ -1450,7 +1450,7 @@ namespace TrenchBroom {
         
         void MapDocument::setEntityModels(const Model::NodeList& nodes) {
             SetEntityModel visitor(*m_entityModelManager, *this);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
         }
         
         void MapDocument::clearEntityModels() {
