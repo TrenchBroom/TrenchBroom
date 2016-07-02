@@ -29,13 +29,13 @@
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
 #include "View/PopupButton.h"
+#include "View/RadioGroup.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
 #include <wx/checkbox.h>
-#include <wx/choice.h>
 #include <wx/gbsizer.h>
 #include <wx/scrolwin.h>
 #include <wx/settings.h>
@@ -501,43 +501,28 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel(parent, "Renderer", false);
             wxWindow* inner = panel->getPanel();
 
-            static const wxString FaceRenderModes[] = { "Textured", "Flat", "Hidden" };
-            m_faceRenderModeChoice = new wxChoice(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, FaceRenderModes);
+            static const wxString FaceRenderModes[] = { "Show textures", "Hide textures", "Hide faces" };
+            m_renderModeRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, FaceRenderModes);
+
             m_shadeFacesCheckBox = new wxCheckBox(inner, wxID_ANY, "Shade faces");
             m_showFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
             m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
 
-            static const wxString EntityLinkModes[] = { "All", "Transitive selected", "Direct selected", "No" };
-            m_entityLinkModeChoice = new wxChoice(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 4, EntityLinkModes);
+            static const wxString EntityLinkModes[] = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
+            m_entityLinkRadioGroup = new RadioGroup(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 4, EntityLinkModes);
 
-            m_faceRenderModeChoice->Bind(wxEVT_CHOICE, &ViewEditor::OnFaceRenderModeChanged, this);
+            m_renderModeRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnFaceRenderModeChanged, this);
             m_shadeFacesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShadeFacesChanged, this);
             m_showFogCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowFogChanged, this);
             m_showEdgesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEdgesChanged, this);
-            m_entityLinkModeChoice->Bind(wxEVT_CHOICE, &ViewEditor::OnEntityLinkModeChanged, this);
-
-            wxSizer* faceRenderModeSizer = new wxBoxSizer(wxHORIZONTAL);
-            faceRenderModeSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            faceRenderModeSizer->Add(m_faceRenderModeChoice);
-            faceRenderModeSizer->Add(new wxStaticText(inner, wxID_ANY, "faces"), wxSizerFlags().CenterVertical());
-
-            wxSizer* entityLinkModeSizer = new wxBoxSizer(wxHORIZONTAL);
-            entityLinkModeSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            entityLinkModeSizer->Add(m_entityLinkModeChoice);
-            entityLinkModeSizer->Add(new wxStaticText(inner, wxID_ANY, "entity links"), wxSizerFlags().CenterVertical());
+            m_entityLinkRadioGroup->Bind(wxEVT_RADIOGROUP, &ViewEditor::OnEntityLinkModeChanged, this);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->AddSpacer(LayoutConstants::ChoiceTopMargin);
-            sizer->Add(faceRenderModeSizer);
-            sizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            sizer->Add(m_renderModeRadioGroup);
             sizer->Add(m_shadeFacesCheckBox);
             sizer->Add(m_showFogCheckBox);
             sizer->Add(m_showEdgesCheckBox);
-            sizer->AddSpacer(LayoutConstants::ChoiceTopMargin);
-            sizer->Add(entityLinkModeSizer);
-            sizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            sizer->Add(m_entityLinkRadioGroup);
 
             inner->SetSizerAndFit(sizer);
             return panel;
@@ -589,11 +574,11 @@ namespace TrenchBroom {
             const MapViewConfig& config = document->mapViewConfig();
             Model::EditorContext& editorContext = document->editorContext();
 
-            m_faceRenderModeChoice->SetSelection(config.faceRenderMode());
+            m_renderModeRadioGroup->SetSelection(config.faceRenderMode());
             m_shadeFacesCheckBox->SetValue(config.shadeFaces());
             m_showFogCheckBox->SetValue(config.showFog());
             m_showEdgesCheckBox->SetValue(config.showEdges());
-            m_entityLinkModeChoice->SetSelection(editorContext.entityLinkMode());
+            m_entityLinkRadioGroup->SetSelection(editorContext.entityLinkMode());
         }
 
         ViewPopupEditor::ViewPopupEditor(wxWindow* parent, MapDocumentWPtr document) :

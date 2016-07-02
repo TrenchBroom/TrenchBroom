@@ -203,7 +203,7 @@ namespace TrenchBroom {
     void glCheckError(const String& msg);
     String glGetErrorMessage(GLenum code);
 
-// #define GL_DEBUG 1
+#define GL_DEBUG 1
 // #define GL_LOG 1
     
 #if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
