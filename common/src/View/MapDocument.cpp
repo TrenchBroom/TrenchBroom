@@ -955,7 +955,6 @@ namespace TrenchBroom {
             Transaction transaction(this, "CSG Subtract");
             deselectAll();
             const Model::NodeList added = addNodes(toAdd);
-            addNodes(toAdd);
             removeNodes(toRemove);
             select(added);
             
