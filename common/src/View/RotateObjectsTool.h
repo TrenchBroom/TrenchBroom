@@ -42,7 +42,6 @@ namespace TrenchBroom {
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
-            bool m_firstActivation;
             Vec3::List m_recentlyUsedCenters;
         public:
             RotateObjectsTool(MapDocumentWPtr document);

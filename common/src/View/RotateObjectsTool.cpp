@@ -31,14 +31,10 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(NULL),
         m_handle(),
-        m_angle(Math::radians(15.0)),
-        m_firstActivation(true) {}
+        m_angle(Math::radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
-            if (m_firstActivation) {
-                resetRotationCenter();
-                m_firstActivation = false;
-            }
+            resetRotationCenter();
             return true;
         }
 
