@@ -57,12 +57,12 @@ namespace TrenchBroom {
                     } else {
                         newParent = parent->clone(worldBounds);
                         newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
-                        m_addedNodes[parent->parent()].push_back(newParent);
+                        m_addedNodes[document->currentParent()].push_back(newParent);
                     }
                     
                     newParent->addChild(clone);
                 } else {
-                    m_addedNodes[parent].push_back(clone);
+                    m_addedNodes[document->currentParent()].push_back(clone);
                 }
                 
                 nodesToSelect.push_back(clone);
