@@ -37,7 +37,6 @@ namespace TrenchBroom {
         m_showBrushes(true),
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
-        m_textureLock(false),
         m_blockSelection(false),
         m_currentGroup(NULL) {}
         
@@ -101,15 +100,6 @@ namespace TrenchBroom {
             if (entityLinkMode == m_entityLinkMode)
                 return;
             m_entityLinkMode = entityLinkMode;
-            editorContextDidChangeNotifier();
-        }
-
-        bool EditorContext::textureLock() const {
-            return m_textureLock;
-        }
-        
-        void EditorContext::setTextureLock(const bool textureLock) {
-            m_textureLock = textureLock;
             editorContextDidChangeNotifier();
         }
 

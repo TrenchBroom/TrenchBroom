@@ -188,14 +188,6 @@ namespace TrenchBroom {
             return *m_editorContext;
         }
         
-        bool MapDocument::textureLock() {
-            return m_editorContext->textureLock();
-        }
-        
-        void MapDocument::setTextureLock(const bool textureLock) {
-            m_editorContext->setTextureLock(textureLock);
-        }
-        
         Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
             return *m_entityDefinitionManager;
         }
@@ -854,15 +846,15 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::translateObjects(const Vec3& delta) {
-            return submitAndStore(TransformObjectsCommand::translate(delta, textureLock()));
+            return submitAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::rotateObjects(const Vec3& center, const Vec3& axis, const FloatType angle) {
-            return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, textureLock()));
+            return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
-            return submitAndStore(TransformObjectsCommand::flip(center, axis, textureLock()));
+            return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::createBrush(const Vec3::List& points) {

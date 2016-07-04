@@ -45,7 +45,6 @@ namespace TrenchBroom {
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
             
-            bool m_textureLock;
             bool m_blockSelection;
             
             Model::Group* m_currentGroup;
@@ -69,9 +68,6 @@ namespace TrenchBroom {
             
             EntityLinkMode entityLinkMode() const;
             void setEntityLinkMode(EntityLinkMode entityLinkMode);
-            
-            bool textureLock() const;
-            void setTextureLock(bool textureLock);
             
             bool blockSelection() const;
             void setBlockSelection(bool blockSelection);

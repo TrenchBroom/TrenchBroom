@@ -19,6 +19,8 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -276,7 +278,7 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
-            const bool lockTextures = document->textureLock();
+            const bool lockTextures = pref(Preferences::TextureLock);
             
             Model::BrushFaceList::const_iterator fIt, fEnd;
             

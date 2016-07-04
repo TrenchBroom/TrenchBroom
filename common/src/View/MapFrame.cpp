@@ -839,12 +839,14 @@ namespace TrenchBroom {
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_document->setTextureLock(!m_document->textureLock());
+            PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
+            PreferenceManager::instance().saveChanges();
+            
             GetToolBar()->SetToolNormalBitmap(CommandIds::Menu::EditToggleTextureLock, textureLockBitmap());
         }
 
         wxBitmap MapFrame::textureLockBitmap() {
-            if (m_document->textureLock())
+            if (pref(Preferences::TextureLock))
                 return IO::loadImageResource("TextureLockOn.png");
             return IO::loadImageResource("TextureLockOff.png");
         }
@@ -1235,7 +1237,7 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
-                    event.Check(m_document->textureLock());
+                    event.Check(pref(Preferences::TextureLock));
                     break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);

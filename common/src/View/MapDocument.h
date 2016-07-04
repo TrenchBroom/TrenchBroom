@@ -154,8 +154,6 @@ namespace TrenchBroom {
             Model::Node* currentParent() const;
             
             Model::EditorContext& editorContext() const;
-            bool textureLock();
-            void setTextureLock(bool textureLock);
             
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();

@@ -20,6 +20,8 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "CollectionUtils.h"
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"
@@ -604,7 +606,7 @@ namespace TrenchBroom {
                 Model::BrushFace* face = *fIt;
                 Model::Brush* brush = face->brush();
                 assert(brush->selected());
-                brush->moveBoundary(m_worldBounds, face, delta, textureLock());
+                brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
             }
             
             invalidateSelectionBounds();
