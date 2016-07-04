@@ -85,9 +85,10 @@ namespace TrenchBroom {
                 const IO::Path absPath(wxPath.ToStdString());
                 if (game->isTextureCollection(absPath)) {
                     ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                    if (pathDialog.ShowModal() == wxID_CANCEL) {
+                    const int result = pathDialog.ShowModal();
+                    if (result == wxID_CANCEL) {
                         return 0;
-                    } else if (pathDialog.ShowModal() == wxID_OK) {
+                    } else if (result == wxID_OK) {
                         collections.push_back(pathDialog.path());
                         ++count;
                     }
