@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-#define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser(str).parse(), exception)
+#define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser(str).parse().evaluate(EL::EvaluationContext()), exception)
         
         template <typename Exp>
         void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
