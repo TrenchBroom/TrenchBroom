@@ -58,7 +58,11 @@ namespace TrenchBroom {
             void terminate();
             bool running() const;
         private:
-            void OnTaskEnded(wxEvent& event);
+            void OnTaskError(wxEvent& event);
+            void OnTaskEnd(wxEvent& event);
+
+            void bindEvents(TaskRunner* runner);
+            void unbindEvents(TaskRunner* runner);
         private:
             CompilationRunner(const CompilationRunner& other);
             CompilationRunner& operator=(const CompilationRunner& other);

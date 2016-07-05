@@ -34,9 +34,11 @@
 #include <wx/timer.h>
 
 wxDECLARE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
+wxDECLARE_EVENT(wxEVT_TASK_ERROR, wxNotifyEvent);
 wxDECLARE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
 
 wxDEFINE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
+wxDEFINE_EVENT(wxEVT_TASK_ERROR, wxNotifyEvent);
 wxDEFINE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
 
 wxDEFINE_EVENT(wxEVT_COMPILATION_START, wxNotifyEvent);
@@ -65,8 +67,21 @@ namespace TrenchBroom {
                 QueueEvent(new wxNotifyEvent(wxEVT_TASK_START));
             }
             
+            void notifyError() {
+                QueueEvent(new wxNotifyEvent(wxEVT_TASK_ERROR));
+            }
+            
             void notifyEnd() {
                 QueueEvent(new wxNotifyEvent(wxEVT_TASK_END));
+            }
+            
+            String interpolate(const String& spec) {
+                try {
+                    return m_context.interpolate(spec);
+                } catch (const Exception& e) {
+                    m_context << "#### Could not interpolate expression '" << spec << "': " << e.what() << "\n";
+                    throw;
+                }
             }
         private:
             virtual void doExecute() = 0;
@@ -91,23 +106,28 @@ namespace TrenchBroom {
             void doExecute() {
                 notifyStart();
                 
-                const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
                 try {
-                    m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
-                    
-                    if (!m_context.test()) {
-                        const IO::Path directoryPath = targetPath.deleteLastComponent();
-                        if (!IO::Disk::directoryExists(directoryPath))
-                            IO::Disk::createDirectory(directoryPath);
+                    const IO::Path targetPath(interpolate(m_task->targetSpec()));
+                    try {
+                        m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
                         
-                        const MapDocumentSPtr document = m_context.document();
-                        document->saveDocumentTo(targetPath);
+                        if (!m_context.test()) {
+                            const IO::Path directoryPath = targetPath.deleteLastComponent();
+                            if (!IO::Disk::directoryExists(directoryPath))
+                                IO::Disk::createDirectory(directoryPath);
+                            
+                            const MapDocumentSPtr document = m_context.document();
+                            document->saveDocumentTo(targetPath);
+                        }
+                        notifyEnd();
+                    } catch (const Exception& e) {
+                        m_context << "#### Could not export map file '" << targetPath.asString() << "': " << e.what() << "\n";
+                        throw;
                     }
-                } catch (const Exception& e) {
-                    m_context << "#### Could export map file '" << targetPath.asString() << "': " << e.what() << "\n";
+                } catch (const Exception&) {
+                    notifyError();
                 }
                 
-                notifyEnd();
             }
             
             void doTerminate() {}
@@ -131,21 +151,25 @@ namespace TrenchBroom {
             void doExecute() {
                 notifyStart();
                 
-                const IO::Path sourcePath(m_context.interpolate(m_task->sourceSpec()));
-                const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
-                
-                const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
-                const String sourcePattern = sourcePath.lastComponent().asString();
-                
                 try {
-                    m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
-                    if (!m_context.test())
-                        IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
-                } catch (const Exception& e) {
-                    m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
+                    const IO::Path sourcePath(m_context.interpolate(m_task->sourceSpec()));
+                    const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
+                    
+                    const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
+                    const String sourcePattern = sourcePath.lastComponent().asString();
+                    
+                    try {
+                        m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
+                        if (!m_context.test())
+                            IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
+                        notifyEnd();
+                    } catch (const Exception& e) {
+                        m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
+                        throw;
+                    }
+                } catch (const Exception&) {
+                    notifyError();
                 }
-                
-                notifyEnd();
             }
             
             void doTerminate() {}
@@ -217,28 +241,32 @@ namespace TrenchBroom {
                 assert(m_process == NULL);
                 assert(m_timer == NULL);
                 
-                const IO::Path toolPath(m_context.interpolate(m_task->toolSpec()));
-                const String parameters(m_context.interpolate(m_task->parameterSpec()));
-                const String cmd = toolPath.asString() + " " + parameters;
-
-                m_context << "#### Executing '" << cmd << "'\n";
-                
-                if (!m_context.test()) {
-                    m_process = new wxProcess(this);
-                    m_process->Redirect();
-                    m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
-                    Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
+                try {
+                    const IO::Path toolPath(m_context.interpolate(m_task->toolSpec()));
+                    const String parameters(m_context.interpolate(m_task->parameterSpec()));
+                    const String cmd = toolPath.asString() + " " + parameters;
                     
-                    m_timer = new wxTimer();
-                    m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
+                    m_context << "#### Executing '" << cmd << "'\n";
                     
-                    wxExecuteEnv* env = new wxExecuteEnv();
-                    env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
-                    
-                    ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
-                    m_timer->Start(50);
-                } else {
-                    notifyEnd();
+                    if (!m_context.test()) {
+                        m_process = new wxProcess(this);
+                        m_process->Redirect();
+                        m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
+                        Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
+                        
+                        m_timer = new wxTimer();
+                        m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
+                        
+                        wxExecuteEnv* env = new wxExecuteEnv();
+                        env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
+                        
+                        ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
+                        m_timer->Start(50);
+                    } else {
+                        notifyEnd();
+                    }
+                } catch (const Exception&) {
+                    notifyError();
                 }
             }
             
@@ -365,7 +393,7 @@ namespace TrenchBroom {
         void CompilationRunner::execute() {
             assert(!running());
             m_currentTask = m_taskRunners.begin();
-            (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+            bindEvents(*m_currentTask);
             (*m_currentTask)->execute();
             
             wxNotifyEvent event(wxEVT_COMPILATION_START);
@@ -374,7 +402,7 @@ namespace TrenchBroom {
         
         void CompilationRunner::terminate() {
             assert(running());
-            (*m_currentTask)->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+            unbindEvents(*m_currentTask);
             (*m_currentTask)->terminate();
             m_currentTask = m_taskRunners.end();
             
@@ -386,18 +414,37 @@ namespace TrenchBroom {
             return m_currentTask != m_taskRunners.end();
         }
         
-        void CompilationRunner::OnTaskEnded(wxEvent& event) {
+        void CompilationRunner::OnTaskError(wxEvent& event) {
             if (running()) {
-                (*m_currentTask)->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+                unbindEvents(*m_currentTask);
+                m_currentTask = m_taskRunners.end();
+                wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
+                ProcessEvent(endEvent);
+            }
+        }
+
+        void CompilationRunner::OnTaskEnd(wxEvent& event) {
+            if (running()) {
+                unbindEvents(*m_currentTask);
                 ++m_currentTask;
                 if (m_currentTask != m_taskRunners.end()) {
-                    (*m_currentTask)->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnded, this);
+                    bindEvents(*m_currentTask);
                     (*m_currentTask)->execute();
                 } else {
                     wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
                     ProcessEvent(endEvent);
                 }
             }
+        }
+
+        void CompilationRunner::bindEvents(TaskRunner* runner) {
+            runner->Bind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
+            runner->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);
+        }
+        
+        void CompilationRunner::unbindEvents(TaskRunner* runner) {
+            runner->Unbind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
+            runner->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);
         }
     }
 }

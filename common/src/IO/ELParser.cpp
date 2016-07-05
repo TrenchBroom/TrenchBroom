@@ -200,9 +200,7 @@ namespace TrenchBroom {
         m_tokenizer(str) {}
         
         EL::Expression ELParser::parse() {
-            EL::Expression result(parseExpression());
-            result.optimize();
-            return result;
+            return EL::Expression(parseExpression());
         }
 
         EL::ExpressionBase* ELParser::parseExpression() {
