@@ -93,7 +93,7 @@ namespace TrenchBroom {
             
             virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
         public: // brush resizing
-            virtual bool resizeBrushes(const Vec3& normal, const Vec3& delta) = 0;
+            virtual bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta) = 0;
         public: // modifying face attributes
             virtual bool setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;

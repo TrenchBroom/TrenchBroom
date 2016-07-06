@@ -83,6 +83,18 @@ const typename Polyhedron<T,FP,VP>::HalfEdgeList& Polyhedron<T,FP,VP>::Face::bou
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const typename Polyhedron<T,FP,VP>::V& origin) const {
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        if (currentEdge->origin()->position().equals(origin))
+            return currentEdge;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return currentEdge;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::printBoundary() const {
     const HalfEdge* firstEdge = m_boundary.front();
     const HalfEdge* currentEdge = firstEdge;

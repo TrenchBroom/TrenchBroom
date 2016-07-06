@@ -201,6 +201,7 @@ public:
         Face* previous() const;
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
+        HalfEdge* findHalfEdge(const V& origin) const;
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
@@ -209,10 +210,10 @@ public:
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
-    private:
+
         template <typename O>
         void getVertexPositions(O output) const;
-
+    private:
         bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const Plane<T,3>& plane) const;

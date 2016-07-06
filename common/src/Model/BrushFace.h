@@ -180,6 +180,9 @@ namespace TrenchBroom {
             EdgeList edges() const;
             VertexList vertices() const;
             
+            bool hasVertices(const Polygon3& vertices) const;
+            Polygon3 polygon() const;
+        public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();

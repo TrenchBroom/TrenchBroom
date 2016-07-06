@@ -579,7 +579,9 @@ namespace TrenchBroom {
             setEntityDefinitions(nodes);
         }
 
-        bool MapDocumentCommandFacade::performResizeBrushes(const Vec3& normal, const Vec3& delta) {
+        Polygon3::List MapDocumentCommandFacade::performResizeBrushes(const Polygon3::List& polygons, const Vec3& delta) {
+            Polygon3::List result;
+            
             const Model::BrushList& selectedBrushes = m_selectedNodes.brushes();
             Model::NodeList changedNodes;
             Model::BrushFaceList faces;
@@ -587,10 +589,10 @@ namespace TrenchBroom {
             Model::BrushList::const_iterator bIt, bEnd;
             for (bIt = selectedBrushes.begin(), bEnd = selectedBrushes.end(); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
-                Model::BrushFace* face = brush->findFace(normal);
+                Model::BrushFace* face = brush->findFace(polygons);
                 if (face != NULL) {
                     if (!brush->canMoveBoundary(m_worldBounds, face, delta))
-                        return false;
+                        return result;
                     
                     changedNodes.push_back(brush);
                     faces.push_back(face);
@@ -607,11 +609,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = face->brush();
                 assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
+                result.push_back(face->polygon());
             }
             
             invalidateSelectionBounds();
 
-            return true;
+            return result;
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {

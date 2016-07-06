@@ -79,10 +79,12 @@ namespace TrenchBroom {
             AttributableNode* entity() const;
         public: // face management:
             BrushFace* findFace(const Vec3& normal) const;
+            BrushFace* findFace(const Plane3& boundary) const;
+            BrushFace* findFace(const Polygon3& vertices) const;
+            BrushFace* findFace(const Polygon3::List& candidates) const;
+            
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
-
-            BrushFace* findFaceByNormal(const Vec3& normal) const;
             
             bool fullySpecified() const;
             

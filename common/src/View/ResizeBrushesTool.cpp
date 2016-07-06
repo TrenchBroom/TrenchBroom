@@ -165,7 +165,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && face->boundary().normal.equals(m_reference->boundary().normal);
+                return face != m_reference && face->boundary().equals(m_reference->boundary());
             }
         };
         
@@ -241,8 +241,7 @@ namespace TrenchBroom {
                     m_splitBrushes = false;
                 }
             } else {
-                const Vec3 normal = m_dragFaces.front()->boundary().normal;
-                if (document->resizeBrushes(normal, faceDelta)) {
+                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     m_totalDelta += faceDelta;
                     m_dragOrigin += faceDelta;
                 }
@@ -323,6 +322,19 @@ namespace TrenchBroom {
             if (!visitor.hasResult())
                 return NULL;
             return visitor.result();
+        }
+
+        Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
+            Polygon3::List result;
+            result.reserve(m_dragFaces.size());
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = m_dragFaces.begin(), end = m_dragFaces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                result.push_back(face->polygon());
+            }
+            
+            return result;
         }
     }
 }

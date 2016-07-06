@@ -76,6 +76,7 @@ namespace TrenchBroom {
         private:
             bool splitBrushes(const Vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
+            Polygon3::List dragFaceDescriptors() const;
         };
     }
 }

@@ -61,6 +61,11 @@ namespace TrenchBroom {
         }
         
         int compare(const Polygon<T,S>& other) const {
+            if (m_vertices.size() < other.m_vertices.size())
+                return -1;
+            if (m_vertices.size() > other.m_vertices.size())
+                return 1;
+
             const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
             for (size_t i = 0; i < count; ++i) {
                 const int cmp = m_vertices[i].compare(other.m_vertices[i]);
@@ -69,16 +74,15 @@ namespace TrenchBroom {
                 if (cmp > 0)
                     return 1;
             }
-            
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
             return 0;
         }
         
         bool contains(const Vec<T,S>& vertex) const {
             return std::find(m_vertices.begin(), m_vertices.end(), vertex) != m_vertices.end();
+        }
+        
+        size_t vertexCount() const {
+            return m_vertices.size();
         }
         
         const typename Vec<T,S>::List& vertices() const {

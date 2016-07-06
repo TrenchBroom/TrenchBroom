@@ -308,6 +308,37 @@ namespace TrenchBroom {
             return NULL;
         }
 
+        BrushFace* Brush::findFace(const Plane3& boundary) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->boundary().equals(boundary))
+                    return face;
+            }
+            return NULL;
+        }
+
+        BrushFace* Brush::findFace(const Polygon3& vertices) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->hasVertices(vertices))
+                    return face;
+            }
+            return NULL;
+        }
+
+        BrushFace* Brush::findFace(const Polygon3::List& candidates) const {
+            Polygon3::List::const_iterator it, end;
+            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+                const Polygon3& vertices = *it;
+                BrushFace* face = findFace(vertices);
+                if (face != NULL)
+                    return face;
+            }
+            return NULL;
+        }
+
         const BrushFaceList& Brush::faces() const {
             return m_faces;
         }
@@ -318,16 +349,6 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             addFaces(faces);
             rebuildGeometry(worldBounds);
-        }
-        
-        BrushFace* Brush::findFaceByNormal(const Vec3& normal) const {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                if (face->boundary().normal.equals(normal))
-                    return face;
-            }
-            return NULL;
         }
 
         bool Brush::fullySpecified() const {

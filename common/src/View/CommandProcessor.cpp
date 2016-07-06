@@ -239,7 +239,7 @@ namespace TrenchBroom {
             m_nextCommandStack.clear();
             m_lastCommandTimestamp = 0;
         }
-
+        
         CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command, const bool collate) {
             SubmitAndStoreResult result;
             result.submitted = doCommand(command);
@@ -254,15 +254,12 @@ namespace TrenchBroom {
         
         bool CommandProcessor::doCommand(Command::Ptr command) {
             try {
-                if (command->type() != CommandGroup::Type)
-                    commandDoNotifier(command);
+                commandDoNotifier(command);
                 if (command->performDo(m_document)) {
-                    if (command->type() != CommandGroup::Type)
-                        commandDoneNotifier(command);
+                    commandDoneNotifier(command);
                     return true;
                 }
-                if (command->type() != CommandGroup::Type)
-                    commandDoFailedNotifier(command);
+                commandDoFailedNotifier(command);
             } catch (const Exception& e) {
                 m_document->error(e.what());
             }
@@ -271,15 +268,12 @@ namespace TrenchBroom {
         
         bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
             try {
-                if (command->type() != CommandGroup::Type)
-                    commandUndoNotifier(command);
+                commandUndoNotifier(command);
                 if (command->performUndo(m_document)) {
-                    if (command->type() != CommandGroup::Type)
-                        commandUndoneNotifier(command);
+                    commandUndoneNotifier(command);
                     return true;
                 }
-                if (command->type() != CommandGroup::Type)
-                    commandUndoFailedNotifier(command);
+                commandUndoFailedNotifier(command);
             } catch (const Exception& e) {
                 m_document->error(e.what());
             }
@@ -329,10 +323,10 @@ namespace TrenchBroom {
         
         UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
             return UndoableCommand::Ptr(new CommandGroup(name, commands,
-                                               commandDoNotifier,
-                                               commandDoneNotifier,
-                                               commandUndoNotifier,
-                                               commandUndoneNotifier));
+                                                         commandDoNotifier,
+                                                         commandDoneNotifier,
+                                                         commandUndoNotifier,
+                                                         commandUndoneNotifier));
         }
         
         bool CommandProcessor::pushLastCommand(UndoableCommand::Ptr command, const bool collate) {
