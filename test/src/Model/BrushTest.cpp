@@ -903,39 +903,39 @@ namespace TrenchBroom {
             BrushList::const_iterator it, end;
             for (it = result.begin(), end = result.end(); it != end; ++it) {
                 Brush* brush = *it;
-                if (brush->findFaceByNormal(Vec3::PosZ) != NULL)
+                if (brush->findFace(Vec3::PosZ) != NULL)
                     top = brush;
-                else if (brush->findFaceByNormal(leftTopNormal) != NULL)
+                else if (brush->findFace(leftTopNormal) != NULL)
                     left = brush;
-                else if (brush->findFaceByNormal(rightTopNormal) != NULL)
+                else if (brush->findFace(rightTopNormal) != NULL)
                     right = brush;
             }
             
             ASSERT_TRUE(left != NULL && top != NULL && right != NULL);
             
             // left brush
-            ASSERT_EQ(subtrahendTexture, left->findFaceByNormal(Vec3::PosX)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegX)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(defaultTexture,    left->findFaceByNormal(leftTopNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegZ)->textureName());
+            ASSERT_EQ(subtrahendTexture, left->findFace(Vec3::PosX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    left->findFace(leftTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegZ)->textureName());
             
             // top brush
-            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topLeftNormal)->textureName());
-            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topRightNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosZ)->textureName());
-            ASSERT_EQ(subtrahendTexture, top->findFaceByNormal(Vec3::NegZ)->textureName());
+            ASSERT_EQ(defaultTexture,    top->findFace(topLeftNormal)->textureName());
+            ASSERT_EQ(defaultTexture,    top->findFace(topRightNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosZ)->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(Vec3::NegZ)->textureName());
             
             // right brush
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosX)->textureName());
-            ASSERT_EQ(subtrahendTexture, right->findFaceByNormal(Vec3::NegX)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(defaultTexture,    right->findFaceByNormal(rightTopNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegZ)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosX)->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    right->findFace(rightTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::NegZ)->textureName());
         }
         
         TEST(BrushTest, testAlmostDegenerateBrush) {
