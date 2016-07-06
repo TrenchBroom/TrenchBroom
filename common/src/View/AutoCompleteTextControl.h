@@ -134,7 +134,7 @@ namespace TrenchBroom {
             void OnKillFocus(wxFocusEvent& event);
             void OnDelayedEventBinding(wxIdleEvent& event);
         public:
-            DECLARE_DYNAMIC_CLASS(AutoCompleteTextControl)
+            wxDECLARE_DYNAMIC_CLASS(AutoCompleteTextControl);
         };
     }
 }

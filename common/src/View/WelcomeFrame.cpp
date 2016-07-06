@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
+        wxIMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
 
         WelcomeFrame::WelcomeFrame() :
         wxFrame(NULL, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {

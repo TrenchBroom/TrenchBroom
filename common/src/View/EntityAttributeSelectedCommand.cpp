@@ -23,7 +23,7 @@ wxDEFINE_EVENT(ENTITY_ATTRIBUTE_SELECTED_EVENT, TrenchBroom::View::EntityAttribu
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(EntityAttributeSelectedCommand, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(EntityAttributeSelectedCommand, wxNotifyEvent)
         
         EntityAttributeSelectedCommand::EntityAttributeSelectedCommand() :
         wxNotifyEvent(ENTITY_ATTRIBUTE_SELECTED_EVENT, wxID_ANY) {}

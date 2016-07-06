@@ -26,7 +26,7 @@ wxDEFINE_EVENT(wxEVT_RADIOGROUP, wxCommandEvent);
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(RadioGroup, wxControl);
+        wxIMPLEMENT_DYNAMIC_CLASS(RadioGroup, wxControl)
 
         RadioGroup::RadioGroup() :
         wxControl() {}

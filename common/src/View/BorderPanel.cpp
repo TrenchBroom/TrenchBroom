@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
+        wxIMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
 
         BorderPanel::BorderPanel() :
         wxPanel(),

@@ -210,10 +210,11 @@ public:
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
-
+    private:
+        // Template methods must remain private!
         template <typename O>
         void getVertexPositions(O output) const;
-    private:
+        
         bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const Plane<T,3>& plane) const;

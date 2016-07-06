@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
             void updateAcceleratorTable(const PrefPane pane);
         public:
-            DECLARE_DYNAMIC_CLASS(PreferenceDialog)
+            wxDECLARE_DYNAMIC_CLASS(PreferenceDialog);
         };
     }
 }

@@ -23,7 +23,7 @@ wxDEFINE_EVENT(TEXTURE_SELECTED_EVENT, TrenchBroom::View::TextureSelectedCommand
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
         TextureSelectedCommand::TextureSelectedCommand() :
         wxNotifyEvent(TEXTURE_SELECTED_EVENT, wxID_ANY),
         m_texture(NULL) {}

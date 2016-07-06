@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(ChoosePathTypeDialog, wxDialog)
+        wxIMPLEMENT_DYNAMIC_CLASS(ChoosePathTypeDialog, wxDialog)
         
         ChoosePathTypeDialog::ChoosePathTypeDialog() :
         wxDialog(NULL, wxID_ANY, "Path Type"),

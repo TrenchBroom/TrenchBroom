@@ -32,7 +32,7 @@ wxDEFINE_EVENT(wxEVT_DELAYED_TEXT, wxCommandEvent);
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(AutoCompleteTextControl, wxTextCtrl)
+        wxIMPLEMENT_DYNAMIC_CLASS(AutoCompleteTextControl, wxTextCtrl)
 
         AutoCompleteTextControl::CompletionResult::SingleResult::SingleResult(const wxString& i_value, const wxString& i_description) :
         value(i_value),

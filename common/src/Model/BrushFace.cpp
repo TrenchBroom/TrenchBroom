@@ -529,12 +529,7 @@ namespace TrenchBroom {
 
         Polygon3 BrushFace::polygon() const {
             assert(m_geometry != NULL);
-            
-            Vec3::List positions;
-            positions.reserve(vertexCount());
-            m_geometry->getVertexPositions(std::back_inserter(positions));
-            
-            return Polygon3(positions);
+            return Polygon3(m_geometry->vertexPositions());
         }
 
         BrushFaceGeometry* BrushFace::geometry() const {

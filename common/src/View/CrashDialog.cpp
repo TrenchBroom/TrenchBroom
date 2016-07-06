@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(CrashDialog, wxDialog)
+        wxIMPLEMENT_DYNAMIC_CLASS(CrashDialog, wxDialog)
 
         CrashDialog::CrashDialog() {}
         

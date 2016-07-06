@@ -38,7 +38,7 @@ namespace TrenchBroom {
             };
         private:
             Executable::Ptr m_executable;
-            DECLARE_DYNAMIC_CLASS(ExecutableEvent)
+            wxDECLARE_DYNAMIC_CLASS(ExecutableEvent);
         public:
             ExecutableEvent();
             ExecutableEvent(Executable* executable);

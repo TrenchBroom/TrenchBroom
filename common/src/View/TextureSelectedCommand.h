@@ -39,7 +39,7 @@ namespace TrenchBroom {
             
             virtual wxEvent* Clone() const;
             
-            DECLARE_DYNAMIC_CLASS(TextureSelectedCommand)
+            wxDECLARE_DYNAMIC_CLASS(TextureSelectedCommand);
         };
     }
 }

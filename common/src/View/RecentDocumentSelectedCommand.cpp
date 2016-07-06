@@ -23,7 +23,7 @@ wxDEFINE_EVENT(RECENT_DOCUMENT_SELECTED_EVENT, TrenchBroom::View::RecentDocument
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(RecentDocumentSelectedCommand, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(RecentDocumentSelectedCommand, wxNotifyEvent)
         RecentDocumentSelectedCommand::RecentDocumentSelectedCommand() :
         wxNotifyEvent(RECENT_DOCUMENT_SELECTED_EVENT, wxID_ANY),
         m_documentPath("") {}

@@ -51,7 +51,7 @@ namespace TrenchBroom {
         private:
             static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
         public:
-            DECLARE_DYNAMIC_CLASS(ChoosePathTypeDialog)
+            wxDECLARE_DYNAMIC_CLASS(ChoosePathTypeDialog);
         };
     }
 }

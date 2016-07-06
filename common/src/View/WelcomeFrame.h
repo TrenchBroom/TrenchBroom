@@ -44,7 +44,7 @@ namespace TrenchBroom {
             void OnOpenOtherDocumentClicked(wxCommandEvent& event);
             void OnRecentDocumentSelected(RecentDocumentSelectedCommand& event);
 
-            DECLARE_DYNAMIC_CLASS(WelcomeFrame)
+            wxDECLARE_DYNAMIC_CLASS(WelcomeFrame);
         private:
             void createGui();
             wxPanel* createAppPanel(wxWindow* parent);

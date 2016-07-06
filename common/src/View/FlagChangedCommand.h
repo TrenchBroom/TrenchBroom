@@ -47,7 +47,7 @@ namespace TrenchBroom {
             
             virtual wxEvent* Clone() const;
             
-            DECLARE_DYNAMIC_CLASS(FlagChangedCommand)
+            wxDECLARE_DYNAMIC_CLASS(FlagChangedCommand);
         };
     }
 }

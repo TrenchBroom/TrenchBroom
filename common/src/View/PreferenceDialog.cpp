@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
+        wxIMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
 
         PreferenceDialog::PreferenceDialog() :
         m_toolBar(NULL),
