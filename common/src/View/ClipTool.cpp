@@ -799,7 +799,12 @@ namespace TrenchBroom {
         
         bool ClipTool::doDeactivate() {
             unbindObservers();
-            resetStrategy();
+
+            delete m_strategy;
+            m_strategy = NULL;
+            clearRenderers();
+            clearBrushes();
+            
             return true;
         }
         

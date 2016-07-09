@@ -119,6 +119,8 @@ namespace TrenchBroom {
         }
 
         MapFrame::~MapFrame() {
+            m_mapView->deactivateTool();
+            
             unbindObservers();
             removeRecentDocumentsMenu(GetMenuBar());
 
@@ -1544,8 +1546,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
-            if (IsBeingDeleted()) return;
-
             if (!IsBeingDeleted()) {
                 if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
                     event.Veto();
