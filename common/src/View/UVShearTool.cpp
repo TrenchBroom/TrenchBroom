@@ -67,6 +67,14 @@ namespace TrenchBroom {
             m_xAxis = face->textureXAxis();
             m_yAxis = face->textureYAxis();
             m_initialHit = m_lastHit = getHit(inputState.pickRay());
+
+            std::cout << m_initialHit.asString() << std::endl;
+            
+            // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
+            // the shear handle to be dragged is very close to one of the texture axes.
+            if (Math::zero(m_initialHit.x(), 6.0f) ||
+                Math::zero(m_initialHit.y(), 6.0f))
+                return false;
             
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Texture");
