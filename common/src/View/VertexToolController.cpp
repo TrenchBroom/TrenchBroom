@@ -174,7 +174,8 @@ namespace TrenchBroom {
             MoveInfo doStartMove(const InputState& inputState) {
                 if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                       (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt))))
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKShift))))
                     return MoveInfo();
                 
                 static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
@@ -206,6 +207,12 @@ namespace TrenchBroom {
             
             void doCancelMove() {
                 m_tool->cancelMove();
+            }
+            
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+                    return new AbsoluteDragSnapper(m_tool->grid());
+                return new DeltaDragSnapper(m_tool->grid());
             }
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
