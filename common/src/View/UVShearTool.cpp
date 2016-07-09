@@ -98,9 +98,6 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);
             document->setFaceAttributes(request);
-
-            const Vec3 newOrigin = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true) * origin;
-            m_helper.setOrigin(newOrigin);
             
             m_lastHit = currentHit;
             return true;

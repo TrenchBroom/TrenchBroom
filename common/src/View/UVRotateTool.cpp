@@ -133,10 +133,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
             
-            // Correct the offsets and the position of the rotation center.
+            // Correct the offsets.
             const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
-            m_helper.setOrigin(newCenterInFaceCoords);
 
             const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
             const Vec2f newOffset = (face->offset() + delta).corrected(4, 0.0f);

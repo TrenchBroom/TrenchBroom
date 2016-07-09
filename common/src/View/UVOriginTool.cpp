@@ -137,7 +137,7 @@ namespace TrenchBroom {
             if (snapped.null())
                 return true;
             
-            m_helper.setOrigin(m_helper.originInFaceCoords() + snapped);
+            m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
             m_lastPoint += snapped;
             
             return true;
