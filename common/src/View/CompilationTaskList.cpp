@@ -68,12 +68,12 @@ namespace TrenchBroom {
 
                 wxSizer* editorSizer = new wxBoxSizer(wxVERTICAL);
                 editorSizer->AddSpacer(m_margins.y);
-                editorSizer->Add(editor, 0, wxEXPAND | wxLEFT | wxRIGHT, m_margins.x);
+                editorSizer->Add(editor, wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, m_margins.x));
                 editorSizer->AddSpacer(m_margins.y);
                 m_panel->getPanel()->SetSizer(editorSizer);
 
                 wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-                panelSizer->Add(m_panel, 0, wxEXPAND);
+                panelSizer->Add(m_panel, wxSizerFlags().Expand());
                 SetSizer(panelSizer);
 
                 refresh();
