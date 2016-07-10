@@ -223,7 +223,7 @@ namespace TrenchBroom {
         IO::Path::List GameImpl::doFindTextureCollections() const {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().package.rootDirectory;
-                if (!searchPath.isEmpty())
+                if (!searchPath.isEmpty() && m_gameFS.directoryExists(searchPath))
                     return m_gameFS.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 return IO::Path::List();
             } catch (FileSystemException& e) {
