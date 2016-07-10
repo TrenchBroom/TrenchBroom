@@ -325,22 +325,15 @@ namespace TrenchBroom {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
-            Model::Layer* newCurrentLayer = findVisibleAndUnlockedLayer(layer);
-            assert(newCurrentLayer != NULL);
-
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();
             
-            Model::CollectSelectableNodesVisitor collectSelectableNodes(document->editorContext());
-            layer->recurse(collectSelectableNodes);
-            
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
-            document->select(collectSelectableNodes.nodes());
             if (layer->hasChildren())
                 document->reparentNodes(defaultLayer, layer->children());
             if (document->currentLayer() == layer)
-                document->setCurrentLayer(newCurrentLayer);
+                document->setCurrentLayer(defaultLayer);
             document->removeNode(layer);
         }
         
