@@ -52,6 +52,37 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
+### TrenchBroom 2.0.0 a6d2341
+- In-editor compilation support.
+- Support for launching game engines.
+- Add issue generator for long entity properties.
+- Add issue generator for empty groups.
+- Improve texture loading in Quake 2.
+- Don't allow drawing brushes outside of world bounds.
+- Reset the rotation handle position and keep a list of previously used positions.
+- Store texture lock state in the preferences and default to on.
+- Allow Shift+Drag to snap vertices to the grid.
+- Fix crash when closing the editor while the clip tool is active.
+- Fix skew bugs in UV editor.
+- Fix duplicated objects not being added to the current layer or group.
+- Fix rendering problems when duplicating entities within groups.
+- Fix handling of brush entities when grouping.
+- Fix initial point placement in the complex brush tool.
+- Fix crash when undoing CSG operations.
+- Fix crash when undoing brush resizing.
+- Fix usage indicators in entity and texture browsers.
+- Fix layout problem in game path preferences.
+- Fix ESC key behavior in preference and About dialog.
+- Fix window position and size restoration problems.
+- Fix ESC key behavior when in clip mode.
+- Fix case sensitivity problems in open file dialog on Linux.
+- Fix layout of view dropdown window on Linux.
+- Fix texture lock for faces having +Y as their normal.
+- Show correct window icons.
+- Better support for dark UI themes.
+- Performance improvements.
+- Cosmetic changes.
+
 ### TrenchBroom 2.0.0 Beta e439e68
 - Fix keyboard shortcuts not working after cycling an editing viewport
 
