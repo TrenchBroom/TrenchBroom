@@ -22,8 +22,6 @@
 
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
-#include "View/Command.h"
-#include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
@@ -43,6 +41,7 @@ namespace TrenchBroom {
 
     namespace View {
         class Autosaver;
+        class CommandWindowUpdateLocker;
         class Console;
         class FrameManager;
         class GLContextManager;
@@ -70,8 +69,8 @@ namespace TrenchBroom {
             wxChoice* m_gridChoice;
             
             wxDialog* m_compilationDialog;
-
-            size_t m_commandDepth;
+            
+            CommandWindowUpdateLocker* m_updateLocker;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -117,14 +116,6 @@ namespace TrenchBroom {
             void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
-            
-            void commandDo(Command::Ptr command);
-            void commandDone(Command::Ptr command);
-            void commandDoFailed(Command::Ptr command);
-            
-            void commandUndo(UndoableCommand::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
-            void commandUndoFailed(UndoableCommand::Ptr command);
         private: // menu event handlers
             void bindEvents();
 

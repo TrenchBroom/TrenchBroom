@@ -33,6 +33,7 @@
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
+#include "View/CommandWindowUpdateLocker.h"
 #include "View/CompilationDialog.h"
 #include "View/Console.h"
 #include "View/GLContextManager.h"
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         m_lastFocus(NULL),
         m_gridChoice(NULL),
         m_compilationDialog(NULL),
-        m_commandDepth(0) {}
+        m_updateLocker(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "TrenchBroom"),
@@ -88,7 +89,7 @@ namespace TrenchBroom {
         m_lastFocus(NULL),
         m_gridChoice(NULL),
         m_compilationDialog(NULL),
-        m_commandDepth(0)  {
+        m_updateLocker(NULL) {
             Create(frameManager, document);
         }
 
@@ -116,6 +117,11 @@ namespace TrenchBroom {
             bindEvents();
 
             clearDropTarget();
+            
+            m_updateLocker = new CommandWindowUpdateLocker(this, m_document);
+#ifdef __APPLE__
+            m_updateLocker->Start();
+#endif
         }
 
         MapFrame::~MapFrame() {
@@ -124,6 +130,9 @@ namespace TrenchBroom {
             unbindObservers();
             removeRecentDocumentsMenu(GetMenuBar());
 
+            delete m_updateLocker;
+            m_updateLocker = NULL;
+            
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
 
@@ -404,14 +413,6 @@ namespace TrenchBroom {
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
 
-            m_document->commandDoNotifier.addObserver(this, &MapFrame::commandDo);
-            m_document->commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
-            m_document->commandDoFailedNotifier.addObserver(this, &MapFrame::commandDoFailed);
-
-            m_document->commandUndoNotifier.addObserver(this, &MapFrame::commandUndo);
-            m_document->commandUndoneNotifier.addObserver(this, &MapFrame::commandUndone);
-            m_document->commandUndoFailedNotifier.addObserver(this, &MapFrame::commandUndoFailed);
-            
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
         }
@@ -425,14 +426,6 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
-
-            m_document->commandDoNotifier.removeObserver(this, &MapFrame::commandDo);
-            m_document->commandDoneNotifier.removeObserver(this, &MapFrame::commandDone);
-            m_document->commandDoFailedNotifier.removeObserver(this, &MapFrame::commandDoFailed);
-            
-            m_document->commandUndoNotifier.removeObserver(this, &MapFrame::commandUndo);
-            m_document->commandUndoneNotifier.removeObserver(this, &MapFrame::commandUndone);
-            m_document->commandUndoFailedNotifier.removeObserver(this, &MapFrame::commandUndoFailed);
 
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
@@ -462,48 +455,6 @@ namespace TrenchBroom {
         void MapFrame::gridDidChange() {
             const Grid& grid = m_document->grid();
             m_gridChoice->SetSelection(static_cast<int>(grid.size()));
-        }
-
-        
-        void MapFrame::commandDo(Command::Ptr command) {
-            if (m_commandDepth == 0)
-                Freeze();
-            ++m_commandDepth;
-        }
-        
-        void MapFrame::commandDone(Command::Ptr command) {
-            assert(m_commandDepth > 0);
-            --m_commandDepth;
-            if (m_commandDepth == 0)
-                Thaw();
-        }
-        
-        void MapFrame::commandDoFailed(Command::Ptr command) {
-            if (m_commandDepth > 0) {
-                Thaw();
-                m_commandDepth = 0;
-            }
-        }
-
-        
-        void MapFrame::commandUndo(UndoableCommand::Ptr command) {
-            if (m_commandDepth == 0)
-                Freeze();
-            ++m_commandDepth;
-        }
-        
-        void MapFrame::commandUndone(UndoableCommand::Ptr command) {
-            assert(m_commandDepth > 0);
-            --m_commandDepth;
-            if (m_commandDepth == 0)
-                Thaw();
-        }
-        
-        void MapFrame::commandUndoFailed(UndoableCommand::Ptr command) {
-            if (m_commandDepth > 0) {
-                Thaw();
-                m_commandDepth = 0;
-            }
         }
 
         void MapFrame::bindEvents() {
