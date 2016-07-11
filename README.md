@@ -52,6 +52,10 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
+### TrenchBroom 2.0.0 Beta 31439f2
+- Fix rendering views flashing on Windows (#1389).
+- Don't crash when Quake 2 game path is not set or cannot be found (#1388).
+
 ### TrenchBroom 2.0.0 Beta a6d2341
 - In-editor compilation support.
 - Support for launching game engines.
