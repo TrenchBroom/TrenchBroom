@@ -32,45 +32,54 @@ namespace TrenchBroom {
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
-        DocumentCommand(Type, "Duplicate Objects") {}
+        DocumentCommand(Type, "Duplicate Objects"),
+        m_firstExecution(true) {}
         
+        DuplicateNodesCommand::~DuplicateNodesCommand() {
+            if (state() == CommandState_Default)
+                MapUtils::clearAndDelete(m_addedNodes);
+        }
+
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
-            
-            Model::NodeMap newParentMap;
-            Model::NodeList nodesToSelect;
-
-            const BBox3& worldBounds = document->worldBounds();
-            m_previouslySelectedNodes = document->selectedNodes().nodes();
-            
-            Model::NodeList::const_iterator it, end;
-            for (it = m_previouslySelectedNodes.begin(), end = m_previouslySelectedNodes.end(); it != end; ++it) {
-                const Model::Node* original = *it;
-                Model::Node* clone = original->cloneRecursively(worldBounds);
-
-                Model::Node* parent = original->parent();
-                if (cloneParent(parent)) {
-                    NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
-                    Model::Node* newParent = NULL;
-                    if (insertPos.first) {
-                        newParent = (insertPos.second)->second;
+            if (m_firstExecution) {
+                typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
+                
+                Model::NodeMap newParentMap;
+                
+                const BBox3& worldBounds = document->worldBounds();
+                m_previouslySelectedNodes = document->selectedNodes().nodes();
+                
+                Model::NodeList::const_iterator it, end;
+                for (it = m_previouslySelectedNodes.begin(), end = m_previouslySelectedNodes.end(); it != end; ++it) {
+                    const Model::Node* original = *it;
+                    Model::Node* clone = original->cloneRecursively(worldBounds);
+                    
+                    Model::Node* parent = original->parent();
+                    if (cloneParent(parent)) {
+                        NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
+                        Model::Node* newParent = NULL;
+                        if (insertPos.first) {
+                            newParent = (insertPos.second)->second;
+                        } else {
+                            newParent = parent->clone(worldBounds);
+                            newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
+                            m_addedNodes[document->currentParent()].push_back(newParent);
+                        }
+                        
+                        newParent->addChild(clone);
                     } else {
-                        newParent = parent->clone(worldBounds);
-                        newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
-                        m_addedNodes[document->currentParent()].push_back(newParent);
+                        m_addedNodes[document->currentParent()].push_back(clone);
                     }
                     
-                    newParent->addChild(clone);
-                } else {
-                    m_addedNodes[document->currentParent()].push_back(clone);
+                    m_nodesToSelect.push_back(clone);
                 }
                 
-                nodesToSelect.push_back(clone);
+                m_firstExecution = false;
             }
             
             document->performAddNodes(m_addedNodes);
             document->performDeselectAll();
-            document->performSelect(nodesToSelect);
+            document->performSelect(m_nodesToSelect);
             return true;
         }
         
@@ -78,9 +87,6 @@ namespace TrenchBroom {
             document->performDeselectAll();
             document->performRemoveNodes(m_addedNodes);
             document->performSelect(m_previouslySelectedNodes);
-            
-            m_previouslySelectedNodes.clear();
-            MapUtils::clearAndDelete(m_addedNodes);
             return true;
         }
         

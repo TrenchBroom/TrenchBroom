@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 CommandState_Default,
                 CommandState_Doing,
                 CommandState_Done,
-                CommandState_Undoing
+                CommandState_Undoing,
             } CommandState;
         protected:
             CommandType m_type;
