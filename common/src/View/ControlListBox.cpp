@@ -90,14 +90,16 @@ namespace TrenchBroom {
         m_emptyText(emptyText),
         m_emptyTextLabel(NULL),
         m_showLastDivider(true),
+        m_valid(true),
+        m_newItemCount(0),
         m_selectionIndex(0) {
             SetSizer(new Sizer(wxVERTICAL, m_restrictToClientWidth));
             SetScrollRate(5, 5);
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
+            Bind(wxEVT_IDLE, &ControlListBox::OnIdle, this);
             Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickVoid, this);
             Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
-            SetItemCount(0);
         }
 
         size_t ControlListBox::GetItemCount() const {
@@ -115,11 +117,8 @@ namespace TrenchBroom {
                 m_selectionIndex = itemCount;
             else
                 m_selectionIndex = wxMin(itemCount, m_selectionIndex);
-
-            wxWindowUpdateLocker lock(this);
-            refresh(itemCount);
-            setSelection(m_selectionIndex);
-            Refresh();
+            m_newItemCount = itemCount;
+            m_valid = false;
         }
 
         void ControlListBox::SetSelection(const int index) {
@@ -165,14 +164,14 @@ namespace TrenchBroom {
             if (m_itemMargin == margin)
                 return;
             m_itemMargin = margin;
-            refresh(m_items.size());
+            m_valid = false;
         }
 
         void ControlListBox::SetShowLastDivider(const bool showLastDivider) {
             if (m_showLastDivider == showLastDivider)
                 return;
             m_showLastDivider = showLastDivider;
-            refresh(m_items.size());
+            m_valid = false;
         }
 
         void ControlListBox::SetEmptyText(const wxString& emptyText) {
@@ -181,9 +180,24 @@ namespace TrenchBroom {
             
             m_emptyText = emptyText;
             if (GetItemCount() == 0)
-                refresh(0);
+                m_valid = false;
         }
 
+        void ControlListBox::invalidate() {
+            m_valid = false;
+        }
+        
+        void ControlListBox::validate() {
+            if (!m_valid) {
+                wxWindowUpdateLocker lock(this);
+                refresh(m_newItemCount);
+                setSelection(m_selectionIndex);
+                Refresh();
+                
+                m_valid = true;
+            }
+        }
+        
         void ControlListBox::refresh(const size_t itemCount) {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
@@ -242,6 +256,10 @@ namespace TrenchBroom {
                 wxWindow* child = *it;
                 bindEvents(child, itemIndex);
             }
+        }
+
+        void ControlListBox::OnIdle(wxIdleEvent& event) {
+            validate();
         }
 
         void ControlListBox::OnSize(wxSizeEvent& event) {

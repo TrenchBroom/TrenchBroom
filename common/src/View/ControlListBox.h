@@ -53,6 +53,8 @@ namespace TrenchBroom {
             wxString m_emptyText;
             wxStaticText* m_emptyTextLabel;
             bool m_showLastDivider;
+            bool m_valid;
+            size_t m_newItemCount;
         protected:
             ItemList m_items;
             size_t m_selectionIndex;
@@ -75,9 +77,12 @@ namespace TrenchBroom {
             
             void SetEmptyText(const wxString& emptyText);
         private:
+            void invalidate();
+            void validate();
             void refresh(size_t itemCount);
             void bindEvents(wxWindow* window, size_t itemIndex);
             
+            void OnIdle(wxIdleEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnFocusChild(wxFocusEvent& event);
             void OnLeftClickChild(wxMouseEvent& event);
