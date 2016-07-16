@@ -27,7 +27,6 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
-#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
@@ -172,7 +171,6 @@ namespace TrenchBroom {
             else if (event.LeftUp() && dragging())
                 m_sash->ReleaseMouse();
 			setSashCursor();
-            Refresh();
         }
         
         void SplitterWindow2::OnMouseMotion(wxMouseEvent& event) {
@@ -267,11 +265,10 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::sizeWindows() {
+			
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                const wxWindowUpdateLocker lockUpdates(this);
-                
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                     m_sash->SetSize(wxRect(wxPoint(0, 0),wxPoint(0, 0)));

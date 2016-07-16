@@ -27,7 +27,6 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
-#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
@@ -342,8 +341,6 @@ namespace TrenchBroom {
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                 } else {
-                    const wxWindowUpdateLocker lockUpdates(this);
-                    
                     const wxPoint origin = GetClientAreaOrigin();
                     const wxSize size = GetClientSize();
                     const wxPoint sash = currentSashPosition();
