@@ -103,17 +103,19 @@ namespace TrenchBroom {
         }
 
         size_t ControlListBox::GetItemCount() const {
+            if (!m_valid)
+                return m_newItemCount;
             return m_items.size();
         }
 
         int ControlListBox::GetSelection() const {
-            if (m_selectionIndex == m_items.size())
+            if (m_selectionIndex == GetItemCount())
                 return  wxNOT_FOUND;
             return static_cast<int>(m_selectionIndex);
         }
 
         void ControlListBox::SetItemCount(const size_t itemCount) {
-            if (m_selectionIndex == m_items.size())
+            if (m_selectionIndex == GetItemCount())
                 m_selectionIndex = itemCount;
             else
                 m_selectionIndex = wxMin(itemCount, m_selectionIndex);
@@ -124,8 +126,8 @@ namespace TrenchBroom {
         void ControlListBox::SetSelection(const int index) {
             wxWindowUpdateLocker lock(this);
 
-            if (index < 0 || static_cast<size_t>(index) > m_items.size()) {
-                setSelection(m_items.size());
+            if (index < 0 || static_cast<size_t>(index) > GetItemCount()) {
+                setSelection(GetItemCount());
             } else {
                 setSelection(static_cast<size_t>(index));
             }
@@ -133,6 +135,7 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::MakeVisible(const size_t index) {
+            validate();
             assert(index < m_items.size());
             MakeVisible(m_items[index]);
         }
@@ -189,12 +192,13 @@ namespace TrenchBroom {
         
         void ControlListBox::validate() {
             if (!m_valid) {
+                m_valid = true;
+
                 wxWindowUpdateLocker lock(this);
                 refresh(m_newItemCount);
                 setSelection(m_selectionIndex);
                 Refresh();
                 
-                m_valid = true;
             }
         }
         
@@ -303,7 +307,7 @@ namespace TrenchBroom {
 
         void ControlListBox::OnLeftClickVoid(wxMouseEvent& event) {
             wxWindowUpdateLocker lock(this);
-            setSelection(m_items.size());
+            setSelection(GetItemCount());
         }
 
         void ControlListBox::setSelection(const wxEvent& event) {
@@ -313,6 +317,7 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::setSelection(const size_t index) {
+            validate();
             assert(index <= m_items.size());
             const bool changed = m_selectionIndex != index;
             m_selectionIndex = index;
