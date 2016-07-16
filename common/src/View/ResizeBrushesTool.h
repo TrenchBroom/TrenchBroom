@@ -47,8 +47,10 @@ namespace TrenchBroom {
             Vec3 m_dragOrigin;
             Vec3 m_totalDelta;
             bool m_splitBrushes;
+            bool m_resizing;
         public:
             ResizeBrushesTool(MapDocumentWPtr document);
+            ~ResizeBrushesTool();
             
             bool applies() const;
             
@@ -77,6 +79,10 @@ namespace TrenchBroom {
             bool splitBrushes(const Vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             Polygon3::List dragFaceDescriptors() const;
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void nodesDidChange(const Model::NodeList& nodes);
         };
     }
 }

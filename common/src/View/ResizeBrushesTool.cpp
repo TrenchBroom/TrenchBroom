@@ -42,8 +42,15 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
         Tool(true),
         m_document(document),
-        m_splitBrushes(false) {}
+        m_splitBrushes(false),
+        m_resizing(false) {
+            bindObservers();
+        }
         
+        ResizeBrushesTool::~ResizeBrushesTool() {
+            unbindObservers();
+        }
+
         bool ResizeBrushesTool::applies() const {
             MapDocumentSPtr document = lock(m_document);
             return document->selectedNodes().hasBrushes();
@@ -210,6 +217,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Resize Brushes");
+            m_resizing = true;
             return true;
         }
         
@@ -266,12 +274,14 @@ namespace TrenchBroom {
             else
                 document->commitTransaction();
             m_dragFaces.clear();
+            m_resizing = false;
         }
         
         void ResizeBrushesTool::cancelResize() {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
             m_dragFaces.clear();
+            m_resizing = false;
         }
 
         bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
@@ -335,6 +345,27 @@ namespace TrenchBroom {
             }
             
             return result;
+        }
+
+        void ResizeBrushesTool::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->nodesWereAddedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+            document->nodesWillChangeNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+            document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+        }
+        
+        void ResizeBrushesTool::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->nodesWereAddedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+                document->nodesWillChangeNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+                document->nodesWillBeRemovedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+            }
+        }
+
+        void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
+            if (!m_resizing)
+                m_dragFaces.clear();
         }
     }
 }
