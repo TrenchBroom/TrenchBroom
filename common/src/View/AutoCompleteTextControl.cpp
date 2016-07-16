@@ -358,6 +358,7 @@ namespace TrenchBroom {
         void AutoCompleteTextControl::OnKillFocus(wxFocusEvent& event) {
             if (IsAutoCompleting())
                 EndAutoCompletion();
+            event.Skip();
         }
 
         void AutoCompleteTextControl::OnDelayedEventBinding(wxIdleEvent& event) {
