@@ -99,8 +99,6 @@ namespace TrenchBroom {
             bool handleSelected(const Vec3& position) const;
             bool hasSelectedHandles() const;
             void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);
-            bool canSnapVertices() const;
-            void snapVertices(size_t snapTo);
         private:
             void selectVertex(const Model::Hit::List& hits, bool addToSelection);
             void selectEdge(const Model::Hit::List& hits, bool addToSelection);

@@ -423,6 +423,14 @@ bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() const {
+    typename V::List result;
+    result.reserve(vertexCount());
+    getVertexPositions(std::back_inserter(result));
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::printVertices() const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;

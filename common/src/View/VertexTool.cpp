@@ -235,20 +235,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool VertexTool::canSnapVertices() const {
-            if (m_handleManager.selectedEdgeCount() > 0 ||
-                m_handleManager.selectedFaceCount() > 0)
-                return false;
-            MapDocumentSPtr document = lock(m_document);
-            return m_handleManager.selectedVertexCount() > 0 || document->selectedNodes().hasOnlyBrushes();
-        }
-        
-        void VertexTool::snapVertices(const size_t snapTo) {
-            assert(canSnapVertices());
-            MapDocumentSPtr document = lock(m_document);
-            document->snapVertices(m_handleManager.selectedVertexHandles(), snapTo);
-        }
-
         void VertexTool::selectVertex(const Model::Hit::List& hits, const bool addToSelection) {
             m_handleManager.deselectAllEdgeHandles();
             m_handleManager.deselectAllFaceHandles();

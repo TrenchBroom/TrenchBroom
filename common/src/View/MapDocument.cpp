@@ -1082,12 +1082,9 @@ namespace TrenchBroom {
             performRebuildBrushGeometry(brushes);
         }
         
-        bool MapDocument::snapVertices(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
-            if (vertices.empty()) {
-                assert(m_selectedNodes.hasOnlyBrushes());
-                return submitAndStore(SnapBrushVerticesCommand::snap(m_selectedNodes.brushes(), snapTo));
-            }
-            return submitAndStore(SnapBrushVerticesCommand::snap(vertices, snapTo));
+        bool MapDocument::snapVertices(const size_t snapTo) {
+            assert(m_selectedNodes.hasOnlyBrushes());
+            return submitAndStore(SnapBrushVerticesCommand::snap(snapTo));
         }
         
         bool MapDocument::findPlanePoints() {

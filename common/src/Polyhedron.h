@@ -295,6 +295,7 @@ public: // Accessors
     const VertexList& vertices() const;
     bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
     bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    typename V::List vertexPositions() const;
     void printVertices() const;
     
     size_t edgeCount() const;

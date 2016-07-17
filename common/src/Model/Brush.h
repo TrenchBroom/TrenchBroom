@@ -122,7 +122,6 @@ namespace TrenchBroom {
             void cloneFaceAttributesFrom(const Brush* brush);
             void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
-            BrushFace* findFaceWithBoundary(const Plane3& boundary) const;
         public: // clipping
             bool clip(const BBox3& worldBounds, BrushFace* face);
         public: // move face along normal
@@ -144,8 +143,8 @@ namespace TrenchBroom {
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             
-            bool canSnapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
-            Vec3::List snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
+            bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
+            void snapVertices(const BBox3& worldBounds, size_t snapTo);
 
             // edge operations
             bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);

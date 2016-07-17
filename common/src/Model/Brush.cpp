@@ -425,7 +425,7 @@ namespace TrenchBroom {
             BrushFaceList::iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
-                const BrushFace* source = brush->findFaceWithBoundary(destination->boundary());
+                const BrushFace* source = brush->findFace(destination->boundary());
                 if (source != NULL) {
                     destination->setAttribs(source->attribs());
                 }
@@ -444,22 +444,12 @@ namespace TrenchBroom {
             BrushFaceList::iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
-                const BrushFace* source = brush->findFaceWithBoundary(destination->boundary().flipped());
+                const BrushFace* source = brush->findFace(destination->boundary().flipped());
                 if (source != NULL) {
                     // Todo: invert the face attributes?
                     destination->setAttribs(source->attribs());
                 }
             }
-        }
-
-        BrushFace* Brush::findFaceWithBoundary(const Plane3& boundary) const {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                if (face->boundary().equals(boundary))
-                    return face;
-            }
-            return NULL;
         }
 
         bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
@@ -582,9 +572,29 @@ namespace TrenchBroom {
             return result.newVertexPositions;
         }
         
-        bool Brush::canSnapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+        bool Brush::canSnapVertices(const BBox3& worldBounds, const size_t snapTo) {
+            Brush* clone = this->clone(worldBounds);
+            try {
+                clone->snapVertices(worldBounds, snapTo);
+                
+                const VertexList& vertices = clone->vertices();
+                VertexList::const_iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                    const BrushGeometry::Vertex* vertex = *it;
+                    const Vec3& position = vertex->position();
+                    if (!position.isInteger())
+                        return false;
+                }
+                
+                delete clone;
+                return true;
+            } catch (...) {
+                delete clone;
+                return false;
+            }
+            
+            /*
             assert(m_geometry != NULL);
-            assert(!vertexPositions.empty());
             
             const FloatType snapToF = static_cast<FloatType>(snapTo);
 
@@ -603,16 +613,18 @@ namespace TrenchBroom {
                 }
             }
             
+            // Might still fail if, after updating the face points and rebuilding the brush geometry, the vertices become
+            // non-integer again due to precision problems. There's really not much to do about that.
+            
             return true;
+             */
         }
 
-        Vec3::List Brush::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+        void Brush::snapVertices(const BBox3& worldBounds, const size_t snapTo) {
             assert(m_geometry != NULL);
-            assert(!vertexPositions.empty());
-            assert(canSnapVertices(worldBounds, vertexPositions, snapTo));
-            
+
             const FloatType snapToF = static_cast<FloatType>(snapTo);
-            Vec3::Set newVertexPositions;
+            const Vec3::List vertexPositions = m_geometry->vertexPositions();
             
             const NotifyNodeChange nodeChange(this);
             MoveVerticesCallback callback;
@@ -620,20 +632,18 @@ namespace TrenchBroom {
             Vec3::List::const_iterator it, end;
             for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
                 const Vec3 origin = *it;
-                const Vec3 destination = snapToF * (origin / snapToF).rounded();
-                if (!origin.equals(destination)) {
-                    const Vec3 delta = destination - origin;
-                    const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(Vec3::List(1, origin), delta, true, callback);
-                    if (!result.hasUnknownVertices() && !result.hasDeletedVertices())
-                        newVertexPositions.insert(result.newVertexPositions.front());
+                if (m_geometry->hasVertex(origin)) {
+                    const Vec3 destination = snapToF * (origin / snapToF).rounded();
+                    if (!origin.equals(destination)) {
+                        const Vec3 delta = destination - origin;
+                        m_geometry->moveVertices(Vec3::List(1, origin), delta, true, callback);
+                    }
                 }
             }
 
             updateFacesFromGeometry(worldBounds);
             updatePointsFromVertices(worldBounds);
             nodeBoundsDidChange();
-            
-            return Vec3::List(newVertexPositions.begin(), newVertexPositions.end());
         }
 
         bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {

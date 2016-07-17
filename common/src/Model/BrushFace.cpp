@@ -425,36 +425,11 @@ namespace TrenchBroom {
         void BrushFace::updatePointsFromVertices() {
             assert(m_geometry != NULL);
 
-            // Find a triple of consecutive vertices s.t. the (normalized) vectors from the mid vertex to the other two
-            // have the smallest dot value of all such triples. This is to have better precision when computing the
-            // boundary plane normal from these vectors.
-            FloatType bestDot = 1.0;
-            const BrushHalfEdge* best = NULL;
-            
             const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-            
-            do {
-                m_points[2] = current->next()->origin()->position();
-                m_points[0] = current->origin()->position();
-                m_points[1] = current->previous()->origin()->position();
-
-                const Vec3 v1 = (m_points[2] - m_points[0]).normalized();
-                const Vec3 v2 = (m_points[1] - m_points[0]).normalized();
-                const FloatType dot = std::abs(v1.dot(v2));
-                if (dot < bestDot) {
-                    bestDot = dot;
-                    best = current;
-                }
-
-                current = current->next();
-            } while (current != first && bestDot > 0.0);
-
-            assert(best != NULL);
             const Vec3 oldNormal = m_boundary.normal;
-            setPoints(best->origin()->position(),
-                      best->previous()->origin()->position(),
-                      best->next()->origin()->position());
+            setPoints(first->next()->origin()->position(),
+                      first->origin()->position(),
+                      first->previous()->origin()->position());
 
             m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
         }

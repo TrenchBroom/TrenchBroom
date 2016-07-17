@@ -957,17 +957,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0, nodes.size());
         }
         
-        static Vec3::List vertexPositions(Brush *brush) {
-            Vec3::List initialPositions;
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                initialPositions.push_back((*it)->position());
-            }
-            return initialPositions;
-        }
-        
-        static void assertSnapToInteger(const String &data) {
+        static void assertCannotSnap(const String& data) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
@@ -975,19 +965,29 @@ namespace TrenchBroom {
             ASSERT_EQ(1, nodes.size());
             
             Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
-
-            ASSERT_TRUE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            ASSERT_FALSE(brush->canSnapVertices(worldBounds, 1));
+        }
+        
+        static void assertSnapToInteger(const String& data) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds);
+            ASSERT_EQ(1, nodes.size());
             
-            Vec3::List newPositions = brush->snapVertices(worldBounds, initialPositions, 1);
+            Brush* brush = static_cast<Brush*>(nodes.front());
+            ASSERT_TRUE(brush->canSnapVertices(worldBounds, 1));
+            
+            brush->snapVertices(worldBounds, 1);
             
             // Ensure they were actually snapped
             {
                 const Brush::VertexList vertices = brush->vertices();
+                size_t i = 0;
                 Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it, ++i) {
                     Vec3 pos = (*it)->position();
-                    ASSERT_TRUE(pos.isInteger());
+                    ASSERT_TRUE(pos.isInteger()) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
                 }
             }
         }
@@ -1093,17 +1093,7 @@ namespace TrenchBroom {
                               "}\n");
 
             // This case is expected to fail to snap
-            
-            const BBox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
-            IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
-            ASSERT_EQ(1, nodes.size());
-            
-            Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
-            
-            ASSERT_FALSE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            assertCannotSnap(data);
         }
         
         TEST(BrushTest, snapIssue1232) {
@@ -1130,17 +1120,26 @@ namespace TrenchBroom {
                               " }\n");
 
             // This case is expected to fail to snap
-            
-            const BBox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
-            IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
-            ASSERT_EQ(1, nodes.size());
-            
-            Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
-            
-            ASSERT_FALSE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            assertCannotSnap(data);
+        }
+        
+        TEST(BrushTest, snapIssue1395_24202) {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const String data("{\n"
+                              "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 0.943603 1.06043\n"
+                              "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
+                              "( -135.7427978515625 -370.1265869140625 739.753173828125 ) ( -15.768181800842285 -257.6954345703125 985.42547607421875 ) ( -449.98324584960937 -364.254638671875 589.064697265625 ) rock3_8 -26.8653 -10.137 25.6205 1.15394 -1\n"
+                              "( -399.50726318359375 -406.7877197265625 677.47894287109375 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( -451.79229736328125 -370.0692138671875 592.6083984375 ) rock3_8 26.1202 -7.68527 81.5004 0.875611 -1\n"
+                              "( -280.1622314453125 -291.92608642578125 924.623779296875 ) ( -18.227519989013672 -261.07952880859375 990.43829345703125 ) ( -227.88420104980469 -328.64483642578125 1009.49853515625 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "( -195.9036865234375 -282.3568115234375 876.8590087890625 ) ( -143.6192626953125 -319.08740234375 961.7213134765625 ) ( -368.19818115234375 -358.08740234375 546.27716064453125 ) rock3_8 -25.9692 -19.1265 113.395 0.943603 1.06043\n"
+                              "( -276.88287353515625 -332.21014404296875 930.47674560546875 ) ( -449.17929077148437 -407.92318725585937 599.90850830078125 ) ( -14.952971458435059 -301.37832641601562 996.28533935546875 ) rock3_8 -20.4888 -8.56413 -87.0938 1.30373 1.02112\n"
+                              "( 37.161830902099609 -335.35406494140625 1080.605712890625 ) ( -135.12174987792969 -411.084716796875 750.062744140625 ) ( -224.79318237304687 -366.23345947265625 1014.8262329101562 ) rock3_8 8.91101 4.43578 -87.0938 1.30373 1.02112\n"
+                              "( -290.354736328125 -397.304931640625 703.53790283203125 ) ( -470.618896484375 -265.4686279296875 632.53790283203125 ) ( -400.5767822265625 -391.6395263671875 703.53790283203125 ) rock3_8 8.25781 -11.1122 -165 0.865994 1\n"
+                              "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "}\n");
+
+            // This case is expected to fail to snap
+            assertCannotSnap(data);
         }
         
         TEST(BrushTest, invalidBrush1332) {

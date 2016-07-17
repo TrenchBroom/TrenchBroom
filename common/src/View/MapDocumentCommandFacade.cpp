@@ -670,8 +670,11 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        Vec3::List MapDocumentCommandFacade::performSnapVertices(const Model::BrushVerticesMap& vertices, const size_t snapTo) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
+        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const size_t snapTo) {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            Model::Snapshot* snapshot = new Model::Snapshot(brushes.begin(), brushes.end());
+
+            const Model::NodeList nodes(brushes.begin(), brushes.end());
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -679,37 +682,32 @@ namespace TrenchBroom {
 
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
-            size_t failedVertexCount = 0;
-            
-            Vec3::List newVertexPositions;
-            Model::BrushVerticesMap::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Vec3::List& oldPositions = it->second;
-                if (brush->canSnapVertices(m_worldBounds, oldPositions, snapTo)) {
-                    const Vec3::List newPositions = brush->snapVertices(m_worldBounds, oldPositions, snapTo);
-                    VectorUtils::append(newVertexPositions, newPositions);
+
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                if (brush->canSnapVertices(m_worldBounds, snapTo)) {
+                    brush->snapVertices(m_worldBounds, snapTo);
                     succeededBrushCount += 1;
                 } else {
                     failedBrushCount += 1;
-                    failedVertexCount += oldPositions.size();
                 }
             }
             
             invalidateSelectionBounds();
 
-            if (!newVertexPositions.empty()) {
+            if (succeededBrushCount > 0) {
                 StringStream msg;
-                msg << "Snapped " << newVertexPositions.size() << " " << StringUtils::safePlural(newVertexPositions.size(), "vertex", "vertices") << " of " << succeededBrushCount << " " << StringUtils::safePlural(succeededBrushCount, "brush", "brushes");
+                msg << "Snapped vertices of " << succeededBrushCount << " " << StringUtils::safePlural(succeededBrushCount, "brush", "brushes");
                 info(msg.str());
             }
-            if (failedVertexCount > 0) {
+            if (failedBrushCount > 0) {
                 StringStream msg;
-                msg << "Failed to snap " << failedVertexCount << " " << StringUtils::safePlural(failedVertexCount, "vertex", "vertices") << " of " << failedBrushCount << " " << StringUtils::safePlural(failedBrushCount, "brush", "brushes");
+                msg << "Failed to snap vertices of " << failedBrushCount << " " << StringUtils::safePlural(failedBrushCount, "brush", "brushes");
                 info(msg.str());
             }
             
-            return newVertexPositions;
+            return snapshot;
         }
 
         Vec3::List MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta) {
