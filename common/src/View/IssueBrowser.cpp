@@ -110,7 +110,7 @@ namespace TrenchBroom {
         
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
             updateFilterFlags();
-            m_view->reset();
+            m_view->reload();
         }
 
         void IssueBrowser::documentWasSaved(MapDocument* document) {
@@ -118,19 +118,19 @@ namespace TrenchBroom {
         }
         
         void IssueBrowser::nodesWereAdded(const Model::NodeList& nodes) {
-            m_view->reset();
+            m_view->reload();
         }
         
         void IssueBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
-            m_view->reset();
+            m_view->reload();
         }
         
         void IssueBrowser::nodesDidChange(const Model::NodeList& nodes) {
-            m_view->reset();
+            m_view->reload();
         }
         
         void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
-            m_view->reset();
+            m_view->reload();
         }
 
         void IssueBrowser::issueIgnoreChanged(Model::Issue* issue) {

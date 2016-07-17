@@ -38,7 +38,8 @@ namespace TrenchBroom {
         m_document(document),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)),
         m_ignoreSelection(false),
-        m_lastSelectedCol(0) {
+        m_lastSelectedCol(0),
+        m_valid(false) {
             createGui(document);
             bindObservers();
         }
@@ -273,6 +274,8 @@ namespace TrenchBroom {
             sizer->Add(m_grid, 1, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
+            
+            Bind(wxEVT_IDLE, &EntityAttributeGrid::OnIdle, this);
         }
         
         void EntityAttributeGrid::bindObservers() {
@@ -296,15 +299,15 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::documentWasNewed(MapDocument* document) {
-            updateControls();
+            invalidate();
         }
         
         void EntityAttributeGrid::documentWasLoaded(MapDocument* document) {
-            updateControls();
+            invalidate();
         }
         
         void EntityAttributeGrid::nodesDidChange(const Model::NodeList& nodes) {
-            updateControls();
+            invalidate();
         }
         
         void EntityAttributeGrid::selectionWillChange() {
@@ -313,9 +316,25 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
-            updateControls();
+            invalidate();
         }
         
+        void EntityAttributeGrid::OnIdle(wxIdleEvent& event) {
+            validate();
+            event.Skip();
+        }
+        
+        void EntityAttributeGrid::invalidate() {
+            m_valid = false;
+        }
+
+        void EntityAttributeGrid::validate() {
+            if (!m_valid) {
+                m_valid = true;
+                updateControls();
+            }
+        }
+
         void EntityAttributeGrid::updateControls() {
             // const SetBool ignoreSelection(m_ignoreSelection);
             wxGridUpdateLocker lockGrid(m_grid);
