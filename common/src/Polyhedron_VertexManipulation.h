@@ -345,9 +345,17 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
     T lastFrac = 0.0;
     const V originalPosition = vertex->position();
     while (!vertex->position().equals(destination, 0.0)) {
+        std::cout << "Before split" << std::endl;
+        assert(checkLeavingEdges(vertex));
+        
         splitIncidentFaces(vertex, destination, callback);
+
+        std::cout << "After split" << std::endl;
+        assert(checkLeavingEdges(vertex));
         
         const T curFrac = computeNextMergePoint(vertex, originalPosition, destination, lastFrac);
+        std::cout << curFrac << std::endl;
+        
         // if (curFrac < 0.0)
         //    return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
 
@@ -525,6 +533,7 @@ T Polyhedron<T,FP,VP>::computeNextMergePointForIncidentNeighbour(HalfEdge* edge,
     Vertex* v1 = edge->destination();
     Vertex* v2 = nextEdge->destination();
     Vertex* v3 = nextNextEdge->destination();
+    assert(v1 != v2 && v2 != v3 && v1 != v3);
     
     const V& p1 = v1->position();
     const V& p2 = v2->position();
@@ -564,6 +573,7 @@ T Polyhedron<T,FP,VP>::computeNextMergePointForOppositeNeighbour(HalfEdge* edge,
     Vertex* v1 = edge->destination();
     Vertex* v2 = theirBorder->origin();
     Vertex* v3 = theirBorder->previous()->origin();
+    assert(v1 != v2 && v2 != v3 && v1 != v3);
     
     const V& p1 = v1->position();
     const V& p2 = v2->position();

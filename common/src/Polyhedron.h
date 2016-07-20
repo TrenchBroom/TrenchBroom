@@ -350,6 +350,7 @@ private: // General purpose methods
     bool checkVertexLeavingEdges() const;
     bool checkEdges() const;
     bool checkEdgeLengths(const T minLength = Math::Constants<T>::pointStatusEpsilon()) const;
+    bool checkLeavingEdges(const Vertex* v) const;
     
     void updateBounds();
 public: // Vertex correction and edge healing

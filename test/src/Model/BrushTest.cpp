@@ -950,7 +950,7 @@ namespace TrenchBroom {
             
             // This brush is almost degenerate. It should be rejected by the map loader.
             
-            const BBox3 worldBounds(4096.0);
+            const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
             const NodeList nodes = reader.read(worldBounds);
@@ -958,7 +958,7 @@ namespace TrenchBroom {
         }
         
         static void assertCannotSnap(const String& data) {
-            const BBox3 worldBounds(4096.0);
+            const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
             const NodeList nodes = reader.read(worldBounds);
@@ -969,7 +969,7 @@ namespace TrenchBroom {
         }
         
         static void assertSnapToInteger(const String& data) {
-            const BBox3 worldBounds(4096.0);
+            const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
             const NodeList nodes = reader.read(worldBounds);
@@ -1138,6 +1138,34 @@ namespace TrenchBroom {
                               "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
                               "}\n");
 
+            // This case is expected to fail to snap
+            assertCannotSnap(data);
+        }
+        
+        TEST(BrushTest, snapIssue1395_18995) {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const String data("{\n"
+                              "( 335 891 680 ) ( 314 881 665 ) ( 451 826 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 450 813 671 ) ( 451 826 680 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 451 826 680 ) ( 314 881 665 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 807 665 ) ( 446 754 665 ) ( 450 813 671 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 754 680 ) ( 451 826 680 ) ( 446 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 313 880 680 ) ( 310 879 677 ) ( 335 891 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 304 876 670 ) ( 312 880 665 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 314 881 665 ) ( 335 891 680 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 330 754 667 ) ( 328 754 665 ) ( 342 757 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 328 754 665 ) ( 310 879 677 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 304 876 670 ) ( 310 879 677 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 312 823 665 ) ( 304 876 670 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 310.50375366210937 879.1187744140625 676.45660400390625 ) ( 313.50375366210937 880.1187744140625 679.45660400390625 ) ( 342.50375366210937 757.1187744140625 679.45660400390625 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 308.35256958007812 876 676.95867919921875 ) ( 316.35256958007813 823 671.95867919921875 ) ( 316.35256958007813 880 671.95867919921875 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 446 754 680 ) ( 330 754 667 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 665 ) ( 328 754 665 ) ( 446 754 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 680 ) ( 342 757 680 ) ( 451 826 680 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "( 446 754 665 ) ( 446 807 665 ) ( 328 754 665 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "}\n"
+                              "\n");
+            
             // This case is expected to fail to snap
             assertCannotSnap(data);
         }

@@ -824,6 +824,28 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
+    assert(v != NULL);
+    const HalfEdge* firstEdge = v->leaving();
+    assert(firstEdge != NULL);
+    const HalfEdge* curEdge = firstEdge;
+    
+    do {
+        const HalfEdge* nextEdge = curEdge->nextIncident();
+        do {
+            std::cout << "Checking " << curEdge << " against " << nextEdge << std::endl;
+            if (curEdge->destination() == nextEdge->destination())
+                return false;
+            nextEdge = nextEdge->nextIncident();
+        } while (nextEdge != firstEdge);
+        
+        curEdge = curEdge->nextIncident();
+    } while (curEdge->nextIncident() != firstEdge);
+    
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T epsilon) {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
