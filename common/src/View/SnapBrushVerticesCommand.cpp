@@ -36,7 +36,8 @@ namespace TrenchBroom {
         
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const size_t snapTo) :
         DocumentCommand(Type, "Snap Brush Vertices"),
-        m_snapTo(snapTo) {}
+        m_snapTo(snapTo),
+        m_snapshot(NULL) {}
         
         SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
             delete m_snapshot;
