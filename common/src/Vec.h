@@ -1132,10 +1132,59 @@ Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>&
     return crossed(v1, v2);
 }
 
-template <typename T>
-bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> normal = crossed(point0, point1, point2);
-    return normal.null();
+template <typename T, size_t S>
+bool linearlyDependent1(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    // see http://math.stackexchange.com/a/1778739
+    // advantage over linearlyDependent2 is that no square root is required here
+    
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
+    for (size_t i = 0; i < S; ++i) {
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+    
+    return (j * j - k * l) == 0.0;
+}
+
+
+template <typename T, size_t S>
+bool linearlyDependent2(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    // A,B,C are colinear if and only if the largest of the lenghts of AB,AC,BC is equal to the sum of the other two.
+    
+    const T ac = (c - a).length();
+    const T bc = (c - b).length();
+    const T ab = (b - a).length();
+    
+    if (ac > bc) {
+        if (ac > ab) // ac > ab, bc
+            return ac == bc + ab;
+        else if (ab > ac) // ab > ac > bc
+            return ab == ac + bc;
+        else // ac == ab > bc
+            return ac == ab + bc; // bc could be 0
+    } else if (bc > ac) {
+        if (bc > ab) // bc > ac, ab
+            return bc == ac + ab;
+        else if (ab > bc) // ab > bc > ac
+            return ab == bc + ac;
+        else // ab == bc > ac
+            return ab == bc + ac; // ac could be 0
+    } else { // ac == bc
+        if (ab > ac) // ab > ac == bc
+            return ab == ac + bc;
+        else // bc == ac >= ab // ab could be 0
+            return bc == ac + ab;
+    }
+}
+
+template <typename T, size_t S>
+bool linearlyDependent(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    return linearlyDependent1(a, b, c);
 }
 
 #endif

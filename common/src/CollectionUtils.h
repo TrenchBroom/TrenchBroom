@@ -940,6 +940,13 @@ namespace SetUtils {
     }
 
     template <typename T, typename C>
+    const std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result;
+        intersection(lhs, rhs, result);
+        return result;
+    }
+    
+    template <typename T, typename C>
     typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
         typename std::set<T,C>::iterator tmp = it;
         ++it;

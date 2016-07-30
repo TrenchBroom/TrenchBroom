@@ -84,6 +84,8 @@ public:
     class Vertex : public Allocator<Vertex> {
     private:
         friend class Polyhedron<T,FP,VP>;
+        typedef std::set<Vertex*> Set;
+        typedef std::vector<Vertex*> List;
         
         V m_position;
         VertexLink m_link;
@@ -108,6 +110,8 @@ public:
     };
 
     class Edge : public Allocator<Edge> {
+    public:
+        typedef std::vector<Edge*> List;
     private:
         friend class Polyhedron<T,FP,VP>;
         
@@ -180,7 +184,9 @@ public:
         bool colinear(const HalfEdge* other) const;
         void setOrigin(Vertex* origin);
         void setEdge(Edge* edge);
+        void unsetEdge();
         void setFace(Face* face);
+        void unsetFace();
         void setAsLeaving();
     };
 
@@ -202,6 +208,7 @@ public:
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
         HalfEdge* findHalfEdge(const V& origin) const;
+        HalfEdge* findHalfEdge(const Vertex* origin) const;
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
@@ -214,6 +221,7 @@ public:
         // Template methods must remain private!
         template <typename O>
         void getVertexPositions(O output) const;
+        typename Vertex::Set vertexSet() const;
         
         bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
@@ -228,10 +236,13 @@ public:
         size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
         void replaceEntireBoundary(HalfEdgeList& newBoundary);
         size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
-        void updateBoundaryFaces(Face* face);
+        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* until);
+        void setBoundaryFaces();
+        void unsetBoundaryFaces();
         void removeBoundaryFromEdges();
         void setLeavingEdges();
         
+        size_t countSharedVertices(const Face* other) const;
         bool checkBoundary() const;
     };
 private:
@@ -342,6 +353,8 @@ private: // General purpose methods
     bool hasFace(const Face* face) const;
     
     bool checkInvariant() const;
+    bool checkEulerCharacteristic() const;
+    bool checkOverlappingFaces() const;
     bool checkFaceBoundaries() const;
     bool checkConvex() const;
     bool checkClosed() const;
@@ -420,11 +433,16 @@ private:
 
     void mergeLeavingEdges(Vertex* vertex, Callback& callback);
     Edge* mergeIncomingAndLeavingEdges(Vertex* vertex, Callback& callback);
-    void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
     Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
+    void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
+    void doMergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
+    Edge* mergeSuccessiveEdges(HalfEdge* edge1, HalfEdge* edge2);
 
     Face* mergeIncidentFaces(Vertex* vertex, Callback& callback);
+    
     void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
+    void findBorder(HalfEdge* edge, HalfEdge*& start, HalfEdge*& end) const;
+    typename Vertex::Set fixOpposingCoplanarFaces(HalfEdge* edge, Callback& callback);
     
     void incidentFacesDidChange(Vertex* vertex, Callback& callback);
 public: // Convex hull and adding points
@@ -465,7 +483,8 @@ private:
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
     
     Face* weaveCap(const Seam& seam, Callback& callback);
-    Vertex* weaveCap(const Seam& seam, const V& position, Callback& callback);
+    Vertex* weaveCap(Seam seam, const V& position, Callback& callback);
+    bool shiftSeamForWeaving(Seam& seam, const V& position) const;
     Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const;
 public: // Clipping
     struct ClipResult {

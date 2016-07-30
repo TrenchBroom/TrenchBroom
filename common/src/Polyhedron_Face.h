@@ -49,7 +49,7 @@ m_link(this)
     swap(m_boundary, boundary);
     
     assert(m_boundary.size() >= 3);
-    updateBoundaryFaces(this);
+    setBoundaryFaces();
 }
 
 template <typename T, typename FP, typename VP>
@@ -88,6 +88,19 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
     HalfEdge* currentEdge = firstEdge;
     do {
         if (currentEdge->origin()->position().equals(origin))
+            return currentEdge;
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return currentEdge;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const Vertex* origin) const {
+    assert(origin != NULL);
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        if (currentEdge->origin() == origin)
             return currentEdge;
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
@@ -196,8 +209,20 @@ void Polyhedron<T,FP,VP>::Face::getVertexPositions(O output) const {
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex::Set Polyhedron<T,FP,VP>::Face::vertexSet() const {
+    typename Vertex::Set result;
+    HalfEdge* firstEdge = m_boundary.front();
+    HalfEdge* currentEdge = firstEdge;
+    do {
+        result.insert(currentEdge->origin());
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::visibleFrom(const V& point) const {
-    return pointStatus(point) == Math::PointStatus::PSAbove;
+    return pointStatus(point) != Math::PointStatus::PSBelow;
 }
 
 template <typename T, typename FP, typename VP>
@@ -270,7 +295,7 @@ size_t Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* t
     assert(from->face() == this);
     assert(to->face() == this);
     
-    const size_t removeCount = countAndSetFace(from, to->next(), NULL);
+    const size_t removeCount = countAndUnsetFace(from, to->next());
     m_boundary.remove(from, to, removeCount);
     return removeCount;
 }
@@ -295,7 +320,7 @@ size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, 
     assert(to->face() == this);
     assert(with->face() == NULL);
     
-    const size_t removeCount = countAndSetFace(from, to->next(), NULL);
+    const size_t removeCount = countAndUnsetFace(from, to->next());
     const size_t insertCount = countAndSetFace(with, with, this);
     m_boundary.replace(from, to, removeCount, with, insertCount);
     return removeCount;
@@ -305,9 +330,9 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::replaceEntireBoundary(HalfEdgeList& newBoundary) {
     using std::swap;
     
-    updateBoundaryFaces(NULL);
+    unsetBoundaryFaces();
     swap(m_boundary, newBoundary);
-    updateBoundaryFaces(this);
+    setBoundaryFaces();
 }
 
 template <typename T, typename FP, typename VP>
@@ -323,11 +348,33 @@ size_t Polyhedron<T,FP,VP>::Face::countAndSetFace(HalfEdge* from, HalfEdge* unti
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::updateBoundaryFaces(Face* face) {
+size_t Polyhedron<T,FP,VP>::Face::countAndUnsetFace(HalfEdge* from, HalfEdge* until) {
+    size_t count = 0;
+    HalfEdge* cur = from;
+    do {
+        cur->unsetFace();
+        cur = cur->next();
+        ++count;
+    } while (cur != until);
+    return count;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Face::setBoundaryFaces() {
     HalfEdge* first = m_boundary.front();
     HalfEdge* current = first;
     do {
-        current->setFace(face);
+        current->setFace(this);
+        current = current->next();
+    } while (current != first);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Face::unsetBoundaryFaces() {
+    HalfEdge* first = m_boundary.front();
+    HalfEdge* current = first;
+    do {
+        current->unsetFace();
         current = current->next();
     } while (current != first);
 }
@@ -354,6 +401,15 @@ void Polyhedron<T,FP,VP>::Face::setLeavingEdges() {
         current->setAsLeaving();
         current = current->next();
     } while (current != first);
+}
+
+template <typename T, typename FP, typename VP>
+size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
+    assert(other != NULL);
+    assert(other != this);
+
+    typename Vertex::Set intersection = SetUtils::intersection(vertexSet(), other->vertexSet());
+    return intersection.size();
 }
 
 template <typename T, typename FP, typename VP>

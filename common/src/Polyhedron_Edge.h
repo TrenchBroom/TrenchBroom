@@ -254,7 +254,8 @@ void Polyhedron<T,FP,VP>::Edge::setFirstAsLeaving() {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::unsetSecondEdge() {
-    m_second->setEdge(NULL);
+    assert(m_second != NULL);
+    m_second->unsetEdge();
     m_second = NULL;
 }
 

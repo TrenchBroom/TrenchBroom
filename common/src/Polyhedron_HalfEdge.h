@@ -146,9 +146,28 @@ bool Polyhedron<T,FP,VP>::HalfEdge::isLeavingEdge() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
+    assert(other != NULL);
+    assert(other != this);
+    assert(destination() == other->origin());
+    
+    const V& p0 = origin()->position();
+    const V& p1 = destination()->position();
+    const V& p2 = other->destination()->position();
+    
+    return linearlyDependent(p0, p1, p2) && vector().dot(other->vector()) > 0.0;
+    
+    /*
     const V dir = vector().normalized();
     const V otherDir = other->vector().normalized();
     return dir.colinearTo(otherDir);
+
+    const Face* myLeft = face();
+    const Face* theirLeft = other->face();
+    const Face* myRight = twin()->face();
+    const Face* theirRight = other->twin()->face();
+    
+    return myLeft->coplanar(theirLeft) && myRight->coplanar(theirRight);
+     */
 }
 
 template <typename T, typename FP, typename VP>
@@ -160,12 +179,28 @@ void Polyhedron<T,FP,VP>::HalfEdge::setOrigin(Vertex* origin) {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setEdge(Edge* edge) {
+    assert(edge != NULL);
+    assert(m_edge == NULL);
     m_edge = edge;
 }
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::HalfEdge::unsetEdge() {
+    assert(m_edge != NULL);
+    m_edge = NULL;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setFace(Face* face) {
+    assert(face != NULL);
+    assert(m_face == NULL);
     m_face = face;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::HalfEdge::unsetFace() {
+    assert(m_face != NULL);
+    m_face = NULL;
 }
 
 template <typename T, typename FP, typename VP>

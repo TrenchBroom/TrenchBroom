@@ -230,7 +230,17 @@ template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
     return setPlanePoints(plane, points[0], points[1], points[2]);
 }
-            
+
+/*
+ * The normal will be pointing towards the reader when the points are oriented like this:
+ *
+ * 1
+ * |
+ * v2
+ * |
+ * |
+ * 0------v1----2
+ */
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
     const Vec<T,3> v1 = point2 - point0;

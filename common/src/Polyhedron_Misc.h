@@ -656,6 +656,10 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
      */
     if (!checkFaceBoundaries())
         return false;
+    if (!checkOverlappingFaces())
+        return false;
+    if (polyhedron() && !checkEulerCharacteristic())
+        return false;
     if (polyhedron() && !checkClosed())
         return false;
     if (polyhedron() && !checkNoDegenerateFaces())
@@ -668,6 +672,39 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
     if (polyhedron() && !checkNoCoplanarFaces())
         return false;
      */
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkEulerCharacteristic() const {
+    // See https://en.m.wikipedia.org/wiki/Euler_characteristic
+    return vertexCount() + faceCount() - edgeCount() == 2;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkOverlappingFaces() const {
+    if (faceCount() > 1) {
+        Face* firstFace = m_faces.front();
+        Face* curFace1 = firstFace;
+        do {
+            Face* curFace2 = curFace1->next();
+            while (curFace2 != firstFace) {
+                const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
+                if (sharedVertexCount == curFace1->vertexCount() ||
+                    sharedVertexCount == curFace2->vertexCount()) {
+                    std::cout << curFace1 << " overlaps with " << curFace2 << " in " << sharedVertexCount << " vertices" << std::endl;
+                    curFace1->printBoundary();
+                    std::cout << "====================" << std::endl;
+                    curFace2->printBoundary();
+                    std::cout << "====================" << std::endl;
+                    std::cout << std::endl;
+                    return false;
+                }
+                curFace2 = curFace2->next();
+            }
+            curFace1 = curFace1->next();
+        } while (curFace1->next() != firstFace);
+    }
     return true;
 }
 
@@ -833,7 +870,6 @@ bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
     do {
         const HalfEdge* nextEdge = curEdge->nextIncident();
         do {
-            std::cout << "Checking " << curEdge << " against " << nextEdge << std::endl;
             if (curEdge->destination() == nextEdge->destination())
                 return false;
             nextEdge = nextEdge->nextIncident();
@@ -985,7 +1021,7 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     edge2->makeFirstEdge(halfEdge2);
     
     HalfEdge* halfEdge3 = edge2->secondEdge();
-    halfEdge3->setEdge(NULL);
+    halfEdge3->unsetEdge();
     edge1->unsetSecondEdge();
     edge1->setSecondEdge(halfEdge3);
     

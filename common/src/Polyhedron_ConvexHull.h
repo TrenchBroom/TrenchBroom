@@ -23,11 +23,10 @@
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Seam {
 private:
-    typedef std::vector<Edge*> SeamList;
-    SeamList m_edges;
+    typename Edge::List m_edges;
 public:
-    typedef typename SeamList::iterator iterator;
-    typedef typename SeamList::const_iterator const_iterator;
+    typedef typename Edge::List::iterator iterator;
+    typedef typename Edge::List::const_iterator const_iterator;
 public:
     Seam() {
         m_edges.reserve(16);
@@ -37,6 +36,11 @@ public:
         assert(edge != NULL);
         assert(checkEdge(edge));
         m_edges.push_back(edge);
+    }
+
+    void shift() {
+        assert(!m_edges.empty());
+        std::rotate(m_edges.begin(), m_edges.begin() + 1, m_edges.end());
     }
     
     bool empty() const {
@@ -395,7 +399,7 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
                 edge->makeSecondEdge(current);
                 edge->unsetSecondEdge();
             } else {
-                current->setEdge(NULL);
+                current->unsetEdge();
                 m_edges.remove(edge);
                 delete edge;
             }
@@ -413,8 +417,10 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     delete face;
 }
 
-// Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
-// on a plane.
+/**
+ Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
+ on a plane.
+ */
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::weaveCap(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
@@ -437,44 +443,99 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::weaveCap(const Seam& se
     return face;
 }
 
-// Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
-// at the location of the given point being shared by all the newly created triangles.
+/**
+ Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
+ at the location of the given point being shared by all the newly created triangles.
+ */
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weaveCap(const Seam& seam, const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weaveCap(Seam seam, const V& position, Callback& callback) {
     assert(seam.size() >= 3);
+    assertResult(shiftSeamForWeaving(seam, position));
     
+    Plane3 plane;
     Vertex* top = new Vertex(position);
     
     HalfEdge* first = NULL;
     HalfEdge* last = NULL;
     
-    typename Seam::const_iterator it, end;
-    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+    typename Seam::const_iterator it = seam.begin();
+    while (it != seam.end()) {
         Edge* edge = *it;
-        assert(!edge->fullySpecified());
+        ++it;
         
+        assert(!edge->fullySpecified());
         Vertex* v1 = edge->secondVertex();
         Vertex* v2 = edge->firstVertex();
-        
+
         HalfEdge* h1 = new HalfEdge(top);
         HalfEdge* h2 = new HalfEdge(v1);
         HalfEdge* h3 = new HalfEdge(v2);
+        HalfEdge* h = h3;
         
-        m_faces.append(createCapTriangle(h1, h2, h3, callback), 1);
+        HalfEdgeList boundary;
+        boundary.append(h1, 1);
+        boundary.append(h2, 1);
+        boundary.append(h3, 1);
+        edge->setSecondEdge(h2);
+        
+        if (it != seam.end()) {
+            assertResult(setPlanePoints(plane, top->position(), v2->position(), v1->position()));
+            Edge* next = *it;
+            while (it != seam.end() && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
+                next->setSecondEdge(h);
+
+                Vertex* v = next->firstVertex();
+                h = new HalfEdge(v);
+                boundary.append(h, 1);
+                
+                ++it;
+                next = *it;
+            }
+        }
+        
+        Face* newFace = new Face(boundary);
+        callback.faceWasCreated(newFace);
+        m_faces.append(newFace, 1);
         
         if (last != NULL)
             m_edges.append(new Edge(h1, last), 1);
-        edge->setSecondEdge(h2);
         
         if (first == NULL)
             first = h1;
-        last = h3;
+        last = h;
     }
     
     m_edges.append(new Edge(first, last), 1);
     m_vertices.append(top, 1);
     
     return top;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::shiftSeamForWeaving(Seam& seam, const V& position) const {
+    for (size_t i = 0; i < seam.size(); ++i) {
+        const Edge* last = seam.back();
+        const Edge* first = seam.front();
+        
+        const Vertex* v1 = last->firstVertex();
+        const Vertex* v2 = last->secondVertex();
+        const Vertex* v3 = first->firstVertex();
+        assert(v3 != v1);
+        assert(v3 != v2);
+        
+        Plane<T,3> lastPlane;
+        assertResult(setPlanePoints(lastPlane, position, v1->position(), v2->position()));
+        
+        const Math::PointStatus::Type status = lastPlane.pointStatus(v3->position());
+        assert(status != Math::PointStatus::PSAbove);
+        
+        if (status == Math::PointStatus::PSBelow)
+            return true;
+        
+        seam.shift();
+    }
+    
+    return false;
 }
 
 template <typename T, typename FP, typename VP>

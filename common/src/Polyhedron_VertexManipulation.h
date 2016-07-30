@@ -345,16 +345,12 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
     T lastFrac = 0.0;
     const V originalPosition = vertex->position();
     while (!vertex->position().equals(destination, 0.0)) {
-        std::cout << "Before split" << std::endl;
-        assert(checkLeavingEdges(vertex));
-        
-        splitIncidentFaces(vertex, destination, callback);
 
-        std::cout << "After split" << std::endl;
+        assert(checkLeavingEdges(vertex));
+        splitIncidentFaces(vertex, destination, callback);
         assert(checkLeavingEdges(vertex));
         
         const T curFrac = computeNextMergePoint(vertex, originalPosition, destination, lastFrac);
-        std::cout << curFrac << std::endl;
         
         // if (curFrac < 0.0)
         //    return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
@@ -370,6 +366,8 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
                     unused(result);
                     assert(result.moved());
                 }
+
+                assert(checkOverlappingFaces());
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
             }
             
@@ -377,6 +375,8 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
             assert(!hasVertex(occupant));
             assert(hasVertex(vertex));
             vertex->setPosition(destination);
+
+            assert(checkOverlappingFaces());
             return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
         }
         
@@ -778,26 +778,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeIncomingAndLeaving
     return NULL;
 }
 
-// Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback) {
-    assert(edge1->destination() == edge2->origin());
-    
-    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) { // the left side will become a degenerate triangle now
-        mergeNeighbours(edge1->previous(), callback);
-    } else {
-        while (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
-            mergeNeighbours(edge1->next(), callback);
-    }
-
-    if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin()) {
-        mergeNeighbours(edge1->twin()->next(), callback);
-    } else {
-        while (edge1->twin()->face() != edge2->twin()->face())
-            mergeNeighbours(edge1->twin()->previous(), callback);
-    }
-}
-
 // Merges the given successive colinear edges. As a result, the origin of the second
 // given edge, the second given edge itself and its twin are removed. At the same time,
 // the first given edge replaces the second given edge, and the first given edge's twin
@@ -836,6 +816,27 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeColinearEdges(Half
     
     return edge1->edge();
 }
+
+// Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback) {
+    assert(edge1->destination() == edge2->origin());
+    
+    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) { // the left side will become a degenerate triangle now
+        mergeNeighbours(edge1->previous(), callback);
+    } else {
+        while (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
+            mergeNeighbours(edge1->next(), callback);
+    }
+
+    if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin()) {
+        mergeNeighbours(edge1->twin()->next(), callback);
+    } else {
+        while (edge1->twin()->face() != edge2->twin()->face())
+            mergeNeighbours(edge1->twin()->previous(), callback);
+    }
+}
+
 
 // Merges all faces incident to the given vertex with their coplanar neighbours.
 // Returns the given vertex or NULL if the given vertex was deleted.
