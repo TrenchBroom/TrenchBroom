@@ -738,9 +738,11 @@ struct Polyhedron<T,FP,VP>::CleanupResult {
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::CleanupResult Polyhedron<T,FP,VP>::cleanupAfterVertexMove(Vertex* vertex, Callback& callback) {
     mergeLeavingEdges(vertex, callback);
+    
     Face* containingFace = mergeIncidentFaces(vertex, callback);
     if (containingFace != NULL)
         return CleanupResult(containingFace);
+    
     Edge* containingEdge = mergeIncomingAndLeavingEdges(vertex, callback);
     if (containingEdge != NULL)
         return CleanupResult(containingEdge);

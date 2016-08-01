@@ -460,16 +460,16 @@ private:
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
     
-    void addThirdPoint(const V& position, Callback& callback);
-    void addPointToEdge(const V& position);
+    bool addThirdPoint(const V& position, Callback& callback);
+    bool addPointToEdge(const V& position);
     
     bool addFurtherPoint(const V& position, Callback& callback);
     bool addFurtherPointToPolygon(const V& position, Callback& callback);
-    void addPointToPolygon(const V& position, Callback& callback);
+    bool addPointToPolygon(const V& position, Callback& callback);
     void makePolygon(const typename V::List& positions, Callback& callback);
     bool makePolyhedron(const V& position, Callback& callback);
     
-    void addFurtherPointToPolyhedron(const V& position, Callback& callback);
+    bool addFurtherPointToPolyhedron(const V& position, Callback& callback);
     bool addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
     
     class SplittingCriterion;
@@ -484,7 +484,6 @@ private:
     Face* weaveCap(const Seam& seam, Callback& callback);
     Vertex* weaveCap(Seam seam, const V& position, Callback& callback);
     bool shiftSeamForWeaving(Seam& seam, const V& position) const;
-    Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const;
 public: // Clipping
     struct ClipResult {
         typedef enum {

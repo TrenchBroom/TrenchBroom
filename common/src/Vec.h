@@ -1069,6 +1069,35 @@ const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
                     left[0] * right[1] - left[1] * right[0]);
 }
 
+/*
+ * The normal will be pointing towards the reader when the points are oriented like this:
+ *
+ * 1
+ * |
+ * v2
+ * |
+ * |
+ * 0------v1----2
+ */
+template <typename T>
+bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
+    normal = crossed(v1, v2);
+    
+    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
+    const T sin_theta = Math::abs(normal.length() / (v1.length() * v2.length()));
+    if (sin_theta < Math::Constants<T>::angleEpsilon()
+        || Math::isnan(sin_theta)
+        || sin_theta == std::numeric_limits<T>::infinity()
+        || sin_theta == -std::numeric_limits<T>::infinity())
+        return false;
+    
+    normal.normalize();
+    return true;
+}
+
 template <typename T>
 T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     // computes the CCW angle between axis and vector in relation to the given up vector
