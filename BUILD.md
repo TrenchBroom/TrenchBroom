@@ -146,6 +146,10 @@ as instructed below.
   - Get the latest source [wxWidgets-3.1.0.tar.bz2][tar.bz2 sourcecode] and unpack them.
   - Move the unpacked directory someplace where you want to keep it.  
   - Open a terminal and change into the wxwidgets directory.  
+  - Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+```bash
+patch -p0 <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+```
   - Create two directories: build-release and build-debug (don't rename those!)  
   from terminal:`mkdir build-release build-debug`  
   - Run the following commands:  
@@ -220,7 +224,10 @@ MACOSX
 - Get the latest wxWidgets sources; [wxWidgets-3.1.0.tar.bz2][tar.bz2 sourcecode]
 - Move the unpacked directory someplace where you want to keep it.  
 - Open a terminal and change into the wxwidgets directory.  
-- Apply the patches in TrenchBroom/patches/wxWidgets  
+- Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+```bash
+patch -p0 <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+```
 - Create two directories: build-release and build-debug (don't rename those!) 
 `mkdir build-release build-debug`
 - Run the following commands:  
@@ -269,7 +276,7 @@ from **`TrenchBroom`** source directory
 ```bash
 mkdir build-xcode  
 cd build-xcode  
-cmake .. -GXcode  
+cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-debug/install  
 ```  
 Open **`TrenchBroom.xcodeproj`** in **Xcode**  
 
