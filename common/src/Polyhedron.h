@@ -215,7 +215,6 @@ public:
         template <typename O>
         void getVertexPositions(O output) const;
         
-        bool visibleFrom(const V& point) const;
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const Plane<T,3>& plane) const;
         Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
@@ -442,16 +441,16 @@ private:
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
     
-    void addThirdPoint(const V& position, Callback& callback);
-    void addPointToEdge(const V& position);
+    bool addThirdPoint(const V& position, Callback& callback);
+    bool addPointToEdge(const V& position);
     
     bool addFurtherPoint(const V& position, Callback& callback);
     bool addFurtherPointToPolygon(const V& position, Callback& callback);
-    void addPointToPolygon(const V& position, Callback& callback);
+    bool addPointToPolygon(const V& position, Callback& callback);
     void makePolygon(const typename V::List& positions, Callback& callback);
     bool makePolyhedron(const V& position, Callback& callback);
     
-    void addFurtherPointToPolyhedron(const V& position, Callback& callback);
+    bool addFurtherPointToPolyhedron(const V& position, Callback& callback);
     bool addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
     
     class SplittingCriterion;
@@ -464,8 +463,8 @@ private:
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
     
     Face* weaveCap(const Seam& seam, Callback& callback);
-    Vertex* weaveCap(const Seam& seam, const V& position, Callback& callback);
-    Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, Callback& callback) const;
+    Vertex* weaveCap(Seam seam, const V& position, Callback& callback);
+    bool shiftSeamForWeaving(Seam& seam, const V& position) const;
 public: // Clipping
     struct ClipResult {
         typedef enum {

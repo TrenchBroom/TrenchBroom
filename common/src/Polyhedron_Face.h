@@ -196,11 +196,6 @@ void Polyhedron<T,FP,VP>::Face::getVertexPositions(O output) const {
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::visibleFrom(const V& point) const {
-    return pointStatus(point) == Math::PointStatus::PSAbove;
-}
-
-template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     assert(other != NULL);
     if (!normal().colinearTo(other->normal()))

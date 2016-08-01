@@ -727,11 +727,28 @@ struct Polyhedron<T,FP,VP>::CleanupResult {
 // Returns the given vertex or NULL if it was deleted.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::CleanupResult Polyhedron<T,FP,VP>::cleanupAfterVertexMove(Vertex* vertex, Callback& callback) {
+    const size_t v = vertexCount();
+    const size_t e = edgeCount();
+    const size_t f = faceCount();
+    
     mergeLeavingEdges(vertex, callback);
+    // assert(v == vertexCount());
+    // assert(e == edgeCount());
+    // assert(f == faceCount());
+    
     Face* containingFace = mergeIncidentFaces(vertex, callback);
+    // assert(v == vertexCount());
+    // assert(e == edgeCount());
+    // assert(f == faceCount());
+
     if (containingFace != NULL)
         return CleanupResult(containingFace);
+    
     Edge* containingEdge = mergeIncomingAndLeavingEdges(vertex, callback);
+    // assert(v == vertexCount());
+    // assert(e == edgeCount());
+    // assert(f == faceCount());
+
     if (containingEdge != NULL)
         return CleanupResult(containingEdge);
     return CleanupResult();
