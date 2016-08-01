@@ -86,9 +86,10 @@ ___
 Linux
 ===  
 <a name="Linux"></a>  
+
+######IMPORTANT NOTE:
 ``` 
-!!!NOTE: as of April 20, 2016, Debian/Ubuntu and Arch, repos have not updated to wxwidgets3.1.0 
-Binaries and headers are outdated, manual compilation is required.  
+currently wxwidgets3.1.0 MUST be compiled with the included trenchbroom patches on all distros.  
 ```
 #####Dependencies  
 >Compiling **wxWidgets 3.1.0** requires the following dependencies. You should install them using the package manager of your Linux distribution.  
@@ -102,6 +103,12 @@ Binaries and headers are outdated, manual compilation is required.
 - **wxWidgets** development headers: **`wx3.X-headers` `libwxbase3.X-dev` `libwxgtk-media3.X-dev`**  
 
 >current version required is **v3.1.0** if your distros repositories do not have the current version, ***you need to compile!***
+
+
+>Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
+[Install_Mesa_OpenGL_on_Linux_Mint](http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint)  
+
+>[Some more detailed](http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html) (possibly outdated) information about building **TrenchBroom** on Linux:  
 
 ####DEBIAN-BASED DISTRIBUTIONS    
 
@@ -132,12 +139,6 @@ pacman -Q wxgtk
 !!!NOTE:If it doesn't meet the version requirement you'll need to build wxwidgets from source,   
 as instructed below.  
 ```  
-
->Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
-[Install_Mesa_OpenGL_on_Linux_Mint](http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint)  
-
->[Some more detailed](http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html) (possibly outdated) information about building **TrenchBroom** on Linux:  
-  
 
 ####wxWidgets
 >**Warning:** installing source built version ***may*** cause future compile issues with other programs that rely on older versions of **wxWidgets**  
