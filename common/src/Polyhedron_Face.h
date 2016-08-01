@@ -221,11 +221,6 @@ typename Polyhedron<T,FP,VP>::Vertex::Set Polyhedron<T,FP,VP>::Face::vertexSet()
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::visibleFrom(const V& point) const {
-    return pointStatus(point) != Math::PointStatus::PSBelow;
-}
-
-template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     assert(other != NULL);
     if (!normal().colinearTo(other->normal()))
