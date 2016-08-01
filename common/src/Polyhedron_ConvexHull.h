@@ -325,7 +325,7 @@ bool Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& se
     remainingFace->getVertexPositions(std::back_inserter(vertices));
 
     Vertex* newVertex = weaveCap(seam, position, callback);
-    cleanupAfterVertexMove(newVertex, callback);
+    // cleanupAfterVertexMove(newVertex, callback);
     if (faceCount() < 4) {
         // If this polyhedron was a polygon, and the added point was too close to it, the cleanup
         // may merge some of the newly added faces, and the result is an invalid polyhedron.
@@ -632,7 +632,7 @@ public:
     m_point(point) {}
 private:
     bool doMatches(const Face* face) const {
-        return !face->visibleFrom(m_point);
+        return face->pointStatus(m_point) == Math::PointStatus::PSBelow;
     }
 };
 

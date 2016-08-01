@@ -511,7 +511,7 @@ private:
         do {
             const Vertex* currentVertex = firstVertex;
             do {
-                if (currentFace->visibleFrom(currentVertex->position()))
+                if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
                     return false;
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);

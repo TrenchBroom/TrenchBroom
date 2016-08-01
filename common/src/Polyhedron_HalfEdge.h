@@ -155,7 +155,7 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
     const V& p2 = other->destination()->position();
     
     return linearlyDependent(p0, p1, p2) && vector().dot(other->vector()) > 0.0;
-    
+
     /*
     const V dir = vector().normalized();
     const V otherDir = other->vector().normalized();

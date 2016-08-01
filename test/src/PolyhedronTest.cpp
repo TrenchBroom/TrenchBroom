@@ -2647,6 +2647,22 @@ TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid) {
     ASSERT_EQ(3u, result.size());
 }
 
+TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid2) {
+    /*
+     ____________
+     |          |
+     |  ______  |
+     |  |    |  |
+     |__|____|__|
+     */
+    
+    const Polyhedron3d    minuend(BBox3d(Vec3d(-64.0, -64.0, -16.0), Vec3d(64.0, 64.0, 16.0)));
+    const Polyhedron3d subtrahend(BBox3d(Vec3d(-32.0, -64.0, -32.0), Vec3d(32.0,  0.0, 32.0)));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(3u, result.size());
+}
+
 TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
     
     /*
