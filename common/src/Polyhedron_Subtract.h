@@ -396,6 +396,9 @@ private:
     typename Polyhedron::List&  m_fragments;
     const Callback& m_callback;
     IndexList m_indices;
+    
+    // Maps a polyhedron index (into m_indices) to the set of its mergeable neighbours.
+    // Each entry in the set also stores the two shared faces between the neighbours.
     Neighbours m_neighbours;
     MergeGroups m_mergeGroups;
 public:
@@ -419,17 +422,15 @@ private:
         applyMergeGroups();
     }
     
+    /**
+     Sorts faces by their vertices.
+     */
     class FaceKey {
     private:
         typename V::Set m_vertices;
     public:
         FaceKey(const Face* face) {
-            const HalfEdge* first = face->boundary().front();
-            const HalfEdge* current = first;
-            do {
-                m_vertices.insert(current->origin()->position());
-                current = current->next();
-            } while (current != first);
+            face->getVertexPositions(std::inserter(m_vertices, m_vertices.begin()));
         }
         
         bool operator<(const FaceKey& other) const {
@@ -457,6 +458,10 @@ private:
     typedef std::vector<NeighbourFace> NeighbourFaceList;
     typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
     
+    /**
+     Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
+     the m_neighbours map.
+     */
     void findMergeableNeighbours() {
         const NeighbourMap neighbourMap = findNeighbours();
         typename NeighbourMap::const_iterator nIt, nEnd;
@@ -474,13 +479,20 @@ private:
                 Face* secondFace = second.second;
                 
                 if (mergeableNeighbours(secondFace, *m_indices[firstIndex])) {
+                    assert(mergeableNeighbours(firstFace, *m_indices[secondIndex]));
                     m_neighbours[ firstIndex].insert(NeighbourEntry(secondIndex,  firstFace, secondFace));
                     m_neighbours[secondIndex].insert(NeighbourEntry( firstIndex, secondFace,  firstFace));
+                } else {
+                    assert(!mergeableNeighbours(firstFace, *m_indices[secondIndex]));
                 }
             }
         }
     }
     
+    /**
+     Builds a map that maps face keys (which are essentially sets of vertices) to a list of faces,
+     whereby each face is represented by a pair of its index into m_indices and the face itself.
+     */
     NeighbourMap findNeighbours() {
         NeighbourMap result;
         
@@ -535,12 +547,14 @@ private:
                 group.insert(index1);
                 group.insert(index2);
                 
-                const Polyhedron polyhedron = mergeGroup(group);
-                
-                if (m_mergeGroups.count(group) == 0 &&
-                    !expandMergeGroup(group, polyhedron, index1) &&
-                    !expandMergeGroup(group, polyhedron, index2))
-                    m_mergeGroups.insert(group);
+                if (m_mergeGroups.count(group) == 0) {
+                    const Polyhedron polyhedron = mergeGroup(group);
+                    
+                    if (!expandMergeGroup(group, polyhedron, index1) &&
+                        !expandMergeGroup(group, polyhedron, index2)) {
+                        m_mergeGroups.insert(group);
+                    }
+                }
             }
         }
     }
@@ -600,9 +614,7 @@ private:
             
             while (mSecond != m_mergeGroups.end()) {
                 const MergeGroup& second = *mSecond;
-                MergeGroup intersection;
-                
-                SetUtils::intersection(first, second, intersection);
+                const MergeGroup intersection = SetUtils::intersection(first, second);
                 if (!intersection.empty()) {
                     firstIsDisjoint = false;
                     if (first.size() == intersection.size()) {
@@ -613,10 +625,8 @@ private:
                         m_mergeGroups.erase(mSecond);
                     } else {
                         // the groups must be partitioned properly
-                        MergeGroup firstMinusSecond;
-                        MergeGroup secondMinusFirst;
-                        SetUtils::minus(first, intersection, firstMinusSecond);
-                        SetUtils::minus(second, intersection, secondMinusFirst);
+                        const MergeGroup firstMinusSecond = SetUtils::minus(first, intersection);
+                        const MergeGroup secondMinusFirst = SetUtils::minus(second, intersection);
                         
                         // erase both first and second
                         m_mergeGroups.erase(mFirst);
