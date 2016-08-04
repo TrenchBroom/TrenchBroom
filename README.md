@@ -31,7 +31,9 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 	- Smart entity property editors
 
 ## Compiling
-- Read [Build.txt](Build.txt) for instructions
+- read [Windows](./BUILD.md#windows) for instructions  
+- read [Mac](./BUILD.md#macosx) for instructions  
+- read [Linux](./BUILD.md#linux) for instructions 
 
 # Contributing
 - Bug reports and feature suggestions are welcome. Please submit them at https://github.com/kduske/TrenchBroom/issues
