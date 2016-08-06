@@ -1159,6 +1159,40 @@ TEST(PolyhedronTest, crashWhileAddingPoints3) {
     p.addPoint(p15); // Assertion failure here.
 }
 
+TEST(PolyhedronTest, removeVertexFromCube) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(  0.0,   0.0, +64.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0, +64.0);
+    const Vec3d p5(+64.0,   0.0,   0.0);
+    const Vec3d p6(+64.0,   0.0, +64.0);
+    const Vec3d p7(+64.0, +64.0,   0.0);
+    const Vec3d p8(+64.0, +64.0, +64.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    positions.push_back(p5);
+    positions.push_back(p6);
+    positions.push_back(p7);
+    positions.push_back(p8);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p8);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
+}
+
 TEST(PolyhedronTest, moveSingleVertex) {
     const Vec3d p1(0.0, 0.0, 0.0);
     const Vec3d p2(32.0, -16.0, 8.0);

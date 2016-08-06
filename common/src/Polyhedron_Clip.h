@@ -56,7 +56,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T
     split(seam, callback);
     
     // We seal the polyhedron by creating a new face.
-    weaveCap(seam, callback);
+    sealWithSinglePolygon(seam, callback);
     updateBounds();
     
     assert(checkInvariant());

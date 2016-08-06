@@ -101,6 +101,7 @@ public:
         Vertex* next() const;
         Vertex* previous() const;
         HalfEdge* leaving() const;
+        bool incident(const Face* face) const;
     private:
         HalfEdge* findConnectingEdge(const Vertex* vertex) const;
         HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
@@ -337,8 +338,9 @@ public: // Accessors
     };
     
     FaceHit pickFace(const Ray<T,3>& ray) const;
-private: // General purpose methods
+public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = NULL, T epsilon = Math::Constants<T>::almostZero()) const;
+private:
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
@@ -444,7 +446,7 @@ private:
     typename Vertex::Set fixOpposingCoplanarFaces(HalfEdge* edge, Callback& callback);
     
     void incidentFacesDidChange(Vertex* vertex, Callback& callback);
-public: // Convex hull and adding points
+public: // Convex hull; adding and removing points
     void addPoints(const typename V::List& points);
     void addPoints(const typename V::List& points, Callback& callback);
 private:
@@ -453,10 +455,11 @@ private:
 public:
     void addPoint(const V& position);
     void addPoint(const V& position, Callback& callback);
+    void removeVertex(Vertex* vertex);
+    void removeVertex(Vertex* vertex, Callback& callback);
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
-
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
     
@@ -474,16 +477,21 @@ private:
     
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
+    class SplitByConnectivityCriterion;
     class SplitByNormalCriterion;
     
     Seam createSeam(const SplittingCriterion& criterion);
     
     void split(const Seam& seam, Callback& callback);
     void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
+
+    void sealWithSinglePolygon(const Seam& seam, Callback& callback);
     
-    Face* weaveCap(const Seam& seam, Callback& callback);
-    Vertex* weaveCap(Seam seam, const V& position, Callback& callback);
-    bool shiftSeamForWeaving(Seam& seam, const V& position) const;
+    class ShiftSeamForSealing;
+    void sealWithMultiplePolygons(Seam seam, Callback& callback);
+    
+    class ShiftSeamForWeaving;
+    void weave(Seam seam, const V& position, Callback& callback);
 public: // Clipping
     struct ClipResult {
         typedef enum {

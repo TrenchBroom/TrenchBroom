@@ -76,6 +76,20 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::leaving() c
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
+    assert(face != NULL);
+    assert(m_leaving != NULL);
+    
+    HalfEdge* curEdge = m_leaving;
+    do {
+        if (curEdge->face() == face)
+            return true;
+        curEdge = curEdge->nextIncident();
+    } while (curEdge != m_leaving);
+    return false;
+}
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnectingEdge(const Vertex* vertex) const {
     assert(vertex != NULL);
     assert(m_leaving != NULL);
