@@ -29,8 +29,10 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
     const Face* currentFace = firstFace;
     do {
         const Plane<T,3> plane = callback.plane(currentFace);
-        if (plane.pointStatus(point) == Math::PointStatus::PSAbove)
+        if (plane.pointStatus(point) == Math::PointStatus::PSAbove) {
+            plane.pointStatus(point);
             return false;
+        }
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
     return true;

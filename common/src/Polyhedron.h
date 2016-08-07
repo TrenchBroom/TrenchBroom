@@ -453,27 +453,34 @@ private:
     template <typename I> void addPoints(I cur, I end);
     template <typename I> void addPoints(I cur, I end, Callback& callback);
 public:
-    void addPoint(const V& position);
-    void addPoint(const V& position, Callback& callback);
+    Vertex* addPoint(const V& position);
+    Vertex* addPoint(const V& position, Callback& callback);
     void removeVertex(Vertex* vertex);
     void removeVertex(Vertex* vertex, Callback& callback);
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
-    void addFirstPoint(const V& position);
-    void addSecondPoint(const V& position);
+    Vertex* addFirstPoint(const V& position);
+    Vertex* addSecondPoint(const V& position);
     
-    bool addThirdPoint(const V& position, Callback& callback);
-    bool addPointToEdge(const V& position);
+    Vertex* addThirdPoint(const V& position, Callback& callback);
+    Vertex* addPointToEdge(const V& position);
     
-    bool addFurtherPoint(const V& position, Callback& callback);
-    bool addFurtherPointToPolygon(const V& position, Callback& callback);
-    bool addPointToPolygon(const V& position, Callback& callback);
+    Vertex* addFurtherPoint(const V& position, Callback& callback);
+    Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);
+    Vertex* addPointToPolygon(const V& position, Callback& callback);
     void makePolygon(const typename V::List& positions, Callback& callback);
-    bool makePolyhedron(const V& position, Callback& callback);
+    Vertex* makePolyhedron(const V& position, Callback& callback);
     
-    bool addFurtherPointToPolyhedron(const V& position, Callback& callback);
-    bool addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
+    Vertex* addFurtherPointToPolyhedron(const V& position, Callback& callback);
+    Vertex* addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback);
+    
+    void removeSingleVertex(Vertex* vertex, Callback& callback);
+    void removeVertexFromEdge(Vertex* vertex, Callback& callback);
+    void removeVertexFromPolygon(Vertex* vertex, Callback& callback);
+    void removeThirdVertexFromPolygon(Vertex* vertex, Callback& callback);
+    void removeFurtherVertexFromPolygon(Vertex* vertex, Callback& callback);
+    void removeVertexFromPolyhedron(Vertex* vertex, Callback& callback);
     
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
@@ -491,7 +498,7 @@ private:
     void sealWithMultiplePolygons(Seam seam, Callback& callback);
     
     class ShiftSeamForWeaving;
-    void weave(Seam seam, const V& position, Callback& callback);
+    Vertex* weave(Seam seam, const V& position, Callback& callback);
 public: // Clipping
     struct ClipResult {
         typedef enum {

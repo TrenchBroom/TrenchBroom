@@ -692,12 +692,6 @@ bool Polyhedron<T,FP,VP>::checkOverlappingFaces() const {
                 const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
                 if (sharedVertexCount == curFace1->vertexCount() ||
                     sharedVertexCount == curFace2->vertexCount()) {
-                    std::cout << curFace1 << " overlaps with " << curFace2 << " in " << sharedVertexCount << " vertices" << std::endl;
-                    curFace1->printBoundary();
-                    std::cout << "====================" << std::endl;
-                    curFace2->printBoundary();
-                    std::cout << "====================" << std::endl;
-                    std::cout << std::endl;
                     return false;
                 }
                 curFace2 = curFace2->next();

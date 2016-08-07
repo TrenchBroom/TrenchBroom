@@ -1159,6 +1159,102 @@ TEST(PolyhedronTest, crashWhileAddingPoints3) {
     p.addPoint(p15); // Assertion failure here.
 }
 
+TEST(PolyhedronTest, removeVertexFromPoint) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p1);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.empty());
+}
+
+TEST(PolyhedronTest, removeVertexFromEdge) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p2);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.point());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_FALSE(p.hasVertex(p2));
+}
+
+TEST(PolyhedronTest, removeVertexFromTriangle) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(+64.0, +64.0,   0.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p3);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.edge());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_FALSE(p.hasVertex(p3));
+}
+
+TEST(PolyhedronTest, removeVertexFromSquare) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(+64.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0,   0.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p3);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.polygon());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4) || hasTriangleOf(p, p1, p4, p2));
+    ASSERT_FALSE(p.hasVertex(p3));
+}
+
+TEST(PolyhedronTest, removeVertexFromTetrahedron) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0,   0.0, +64.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p4);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.polygon());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2) || hasTriangleOf(p, p1, p2, p3));
+}
+
 TEST(PolyhedronTest, removeVertexFromCube) {
     const Vec3d p1(  0.0,   0.0,   0.0);
     const Vec3d p2(  0.0,   0.0, +64.0);
@@ -1191,6 +1287,75 @@ TEST(PolyhedronTest, removeVertexFromCube) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
     ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
     ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
+}
+
+TEST(PolyhedronTest, removeVertexFromCubeWithRoof) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(  0.0,   0.0, +64.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0, +64.0);
+    const Vec3d p5(+64.0,   0.0,   0.0);
+    const Vec3d p6(+64.0,   0.0, +64.0);
+    const Vec3d p7(+64.0, +64.0,   0.0);
+    const Vec3d p8(+64.0, +64.0, +64.0);
+    const Vec3d p9(+32.0, +32.0, +96.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    positions.push_back(p5);
+    positions.push_back(p6);
+    positions.push_back(p7);
+    positions.push_back(p8);
+    positions.push_back(p9);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p9);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5)); // bottom
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3)); // left
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4)); // top
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6)); // right
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7)); // back
+}
+
+TEST(PolyhedronTest, removeVertexFromClippedCube) {
+    const Vec3d p1(-64.0, -64.0, -64.0);
+    const Vec3d p2(-64.0, -64.0, +64.0);
+    const Vec3d p3(-64.0, +64.0, -64.0);
+    const Vec3d p4(-64.0, +64.0, +64.0);
+    const Vec3d p5(+64.0, -64.0, -64.0);
+    const Vec3d p6(+64.0, -64.0, +64.0);
+    const Vec3d p7(+64.0, +64.0, -64.0);
+    const Vec3d p8(+64.0, +64.0, +00.0); // note this vertex
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    positions.push_back(p5);
+    positions.push_back(p6);
+    positions.push_back(p7);
+    positions.push_back(p8);
+    
+    Polyhedron3d p(positions);
+
+    Vertex* v = p.findVertexByPosition(p8);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5)); // bottom
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3)); // left
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6)); // right
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4)); // top
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7)); // back
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7)); // slanted
 }
 
 TEST(PolyhedronTest, moveSingleVertex) {

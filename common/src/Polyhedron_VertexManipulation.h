@@ -329,6 +329,26 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonV
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
+    
+    const V originalPosition = vertex->position();
+    Vertex* occupant = findVertexByPosition(destination);
+    if (occupant != NULL) {
+        if (!allowMergeIncidentVertices || vertex->findConnectingEdge(occupant) == NULL)
+            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+    }
+    
+    removeVertex(vertex, callback);
+    Vertex* newVertex = addPoint(destination, callback);
+    if (newVertex == NULL) {
+        if (occupant != NULL)
+            return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, occupant);
+        else
+            return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
+    }
+    return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, newVertex);
+    
+    
+    /*
     // The idea of this algorithm can be summarized as follows:
     // First, break up all faces incident to the given vertex so that they become triangles.
     // Second, examine the line along which the given vertex will travel when moved to the
@@ -420,6 +440,7 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
     }
     
     return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
+     */
 }
 
 // Splits the faces incident to the given vertex so that the polyhedron cannot become

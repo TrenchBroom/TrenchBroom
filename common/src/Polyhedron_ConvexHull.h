@@ -38,9 +38,9 @@ public:
         m_edges.push_back(edge);
     }
     
-    void replace(typename List::iterator end, Edge* replacement) {
-        m_edges.erase(m_edges.begin(), end);
-        m_edges.push_back(replacement);
+    void replace(typename List::iterator first, typename List::iterator end, Edge* replacement) {
+        m_edges.erase(first, end);
+        m_edges.insert(end, replacement);
         assert(checkEdges());
     }
 
@@ -111,6 +111,14 @@ public:
     void clear() {
         m_edges.clear();
     }
+    
+    void print() const {
+        const_iterator it, end;
+        for (it = begin(), end = Seam::end(); it != end; ++it) {
+            const Edge* edge = *it;
+            std::cout << edge->secondVertex()->position().asString(3) << std::endl;
+        }
+    }
 private:
     // Check whether the given edge is connected to the last edge
     // of the current seam with a vertex.
@@ -162,33 +170,36 @@ void Polyhedron<T,FP,VP>::addPoints(I cur, I end, Callback& callback) {
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoint(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& position) {
     Callback c;
-    addPoint(position, c);
+    return addPoint(position, c);
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& position, Callback& callback) {
     assert(checkInvariant());
+    Vertex* result = NULL;
     switch (vertexCount()) {
         case 0:
-            addFirstPoint(position);
+            result = addFirstPoint(position);
             m_bounds.min = m_bounds.max = position;
             break;
         case 1:
-            addSecondPoint(position);
+            result = addSecondPoint(position);
             m_bounds.mergeWith(position);
             break;
         case 2:
-            addThirdPoint(position, callback);
+            result = addThirdPoint(position, callback);
             m_bounds.mergeWith(position);
             break;
         default:
-            if (addFurtherPoint(position, callback))
+            result = addFurtherPoint(position, callback);
+            if (result != NULL)
                 m_bounds.mergeWith(position);
             break;
     }
     assert(checkInvariant());
+    return result;
 }
 
 template <typename T, typename FP, typename VP>
@@ -204,10 +215,14 @@ void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
     assert(findVertexByPosition(vertex->position()) == vertex);
     assert(checkInvariant());
     
-    const Seam seam = createSeam(SplitByConnectivityCriterion(vertex));
-    split(seam, callback);
-    sealWithMultiplePolygons(seam, callback);
-    updateBounds();
+    if (point())
+        removeSingleVertex(vertex, callback);
+    else if (edge())
+        removeVertexFromEdge(vertex, callback);
+    else if (polygon())
+        removeVertexFromPolygon(vertex, callback);
+    else
+        removeVertexFromPolyhedron(vertex, callback);
     
     assert(checkInvariant());
 }
@@ -232,14 +247,16 @@ void Polyhedron<T,FP,VP>::merge(const Polyhedron& other, Callback& callback) {
 
 // Adds the given point to an empty polyhedron.
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addFirstPoint(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const V& position) {
     assert(empty());
-    m_vertices.append(new Vertex(position), 1);
+    Vertex* newVertex = new Vertex(position);
+    m_vertices.append(newVertex, 1);
+    return newVertex;
 }
 
 // Adds the given point to a polyhedron that contains one point.
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addSecondPoint(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const V& position) {
     assert(point());
     
     Vertex* onlyVertex = *m_vertices.begin();
@@ -251,12 +268,15 @@ void Polyhedron<T,FP,VP>::addSecondPoint(const V& position) {
         HalfEdge* halfEdge2 = new HalfEdge(newVertex);
         Edge* edge = new Edge(halfEdge1, halfEdge2);
         m_edges.append(edge, 1);
+        return newVertex;
+    } else {
+        return NULL;
     }
 }
 
 // Adds the given point to a polyhedron that contains one edge.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addThirdPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
     Vertex* v1 = m_vertices.front();
@@ -270,7 +290,7 @@ bool Polyhedron<T,FP,VP>::addThirdPoint(const V& position, Callback& callback) {
 
 // Adds a colinear third point to a polyhedron that contains one edge.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addPointToEdge(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToEdge(const V& position) {
     assert(edge());
     
     Vertex* v1 = m_vertices.front();
@@ -278,14 +298,14 @@ bool Polyhedron<T,FP,VP>::addPointToEdge(const V& position) {
     assert(linearlyDependent(v1->position(), v2->position(), position));
     
     if (position.containedWithinSegment(v1->position(), v2->position()))
-        return false;
+        return NULL;
     v2->setPosition(position);
-    return true;
+    return v2;
 }
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback) {
     if (faceCount() == 1)
         return addFurtherPointToPolygon(position, callback);
     else
@@ -296,7 +316,7 @@ bool Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback)
 // given point is coplanar to the already existing polygon, or a polyhedron if the
 // given point is not coplanar.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
     Face* face = *m_faces.begin();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
@@ -308,14 +328,14 @@ bool Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& 
             return makePolyhedron(position, callback);
     }
     // will never be reached
-    return true;
+    return NULL;
 }
 
 // Adds the given coplanar point to a polyhedron that is a polygon or an edge.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
     if (vertexCount() >= 3 && polygonContainsPoint(position, m_vertices.begin(), m_vertices.end(), GetVertexPosition()))
-        return false;
+        return NULL;
     
     typename V::List positions;
     positions.reserve(vertexCount() + 1);
@@ -326,7 +346,7 @@ bool Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callbac
     clear();
     makePolygon(positions, callback);
     
-    return true;
+    return findVertexByPosition(position);
 }
 
 // Creates a new polygon from the given set of coplanar points. Assumes that
@@ -357,7 +377,7 @@ void Polyhedron<T,FP,VP>::makePolygon(const typename V::List& positions, Callbac
 // Converts a coplanar polyhedron into a non-coplanar one by adding the given
 // point, which is assumed to be non-coplanar to the points in this polyhedron.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::makePolyhedron(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const V& position, Callback& callback) {
     assert(polygon());
     
     Seam seam;
@@ -376,14 +396,14 @@ bool Polyhedron<T,FP,VP>::makePolyhedron(const V& position, Callback& callback) 
 
 // Adds the given point to this polyhedron.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
     assert(polyhedron());
     if (contains(position, callback))
-        return false;
+        return NULL;
     
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
     if (seam.empty())
-        return false;
+        return NULL;
     
     split(seam, callback);
     return addPointToPolyhedron(position, seam, callback);
@@ -392,7 +412,7 @@ bool Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callbac
 // Adds the given point to this polyhedron by weaving a cap over the given seam.
 // Assumes that this polyhedron has been split by the given seam.
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(!seam.empty());
 
     Face* remainingFace = m_faces.front();
@@ -400,9 +420,107 @@ bool Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& se
     vertices.reserve(remainingFace->vertexCount());
     remainingFace->getVertexPositions(std::back_inserter(vertices));
 
-    weave(seam, position, callback);
+    Vertex* newVertex = weave(seam, position, callback);
     assert(polyhedron());
-    return true;
+    return newVertex;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeSingleVertex(Vertex* vertex, Callback& callback) {
+    assert(point());
+    
+    m_vertices.remove(vertex);
+    delete vertex;
+    
+    assert(empty());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeVertexFromEdge(Vertex* vertex, Callback& callback) {
+    assert(edge());
+    
+    HalfEdge* halfEdge = vertex->leaving();
+    Edge* edge = halfEdge->edge();
+    
+    delete halfEdge;
+    
+    m_edges.remove(edge);
+    delete edge;
+    
+    m_vertices.remove(vertex);
+    delete vertex;
+    
+    assert(point());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeVertexFromPolygon(Vertex* vertex, Callback& callback) {
+    assert(polygon());
+    
+    if (vertexCount() == 3)
+        removeThirdVertexFromPolygon(vertex, callback);
+    else
+        removeFurtherVertexFromPolygon(vertex, callback);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback& callback) {
+    assert(vertexCount() == 3);
+    
+    HalfEdge* outgoingHalfEdge = vertex->leaving();
+    HalfEdge* incomingHalfEdge = outgoingHalfEdge->previous();
+    HalfEdge* remainingHalfEdge = incomingHalfEdge->previous();
+    assert(remainingHalfEdge->previous() == outgoingHalfEdge);
+    
+    Edge* outgoingEdge = outgoingHalfEdge->edge();
+    Edge* incomingEdge = incomingHalfEdge->edge();
+    
+    Face* face = remainingHalfEdge->face();
+    face->removeFromBoundary(remainingHalfEdge);
+    
+    m_faces.remove(face);
+    delete face;
+    
+    m_edges.remove(outgoingEdge);
+    m_edges.remove(incomingEdge);
+    delete outgoingEdge;
+    delete incomingEdge;
+    
+    m_vertices.remove(vertex);
+    delete vertex;
+    
+    assert(edge());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeFurtherVertexFromPolygon(Vertex* vertex, Callback& callback) {
+    assert(polygon() && vertexCount() > 3);
+    
+    HalfEdge* outgoingHalfEdge = vertex->leaving();
+    Edge* outgoingEdge = outgoingHalfEdge->edge();
+    
+    Face* face = outgoingHalfEdge->face();
+    face->removeFromBoundary(outgoingHalfEdge);
+    
+    m_edges.remove(outgoingEdge);
+    delete outgoingEdge;
+    delete outgoingHalfEdge;
+    
+    m_vertices.remove(vertex);
+    delete vertex;
+    
+    assert(polygon());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeVertexFromPolyhedron(Vertex* vertex, Callback& callback) {
+    assert(polyhedron());
+    
+    const Seam seam = createSeam(SplitByConnectivityCriterion(vertex));
+    split(seam, callback);
+    if (faceCount() > 1)
+        sealWithMultiplePolygons(seam, callback);
+    updateBounds();
 }
 
 template <typename T, typename FP, typename VP>
@@ -558,19 +676,21 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         return;
     }
     
-    seam.shift(ShiftSeamForSealing());
-    
     while (!seam.empty()) {
         assert(seam.size() >= 3);
         
+        if (seam.size() > 3)
+            seam.shift(ShiftSeamForSealing());
+
         HalfEdgeList boundary;
 
-        typename Seam::List::iterator curIt = seam.begin();
-        Edge* firstEdge = *curIt;
-        ++curIt;
+        typename Seam::List::iterator firstIt = seam.begin();
+        typename Seam::List::iterator endIt = firstIt;
+        Edge* firstEdge = *endIt;
+        ++endIt;
         
-        Edge* secondEdge = *curIt;
-        ++curIt;
+        Edge* secondEdge = *endIt;
+        ++endIt;
         
         HalfEdge* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
         HalfEdge* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
@@ -592,9 +712,9 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         assertResult(setPlanePoints(plane, v1->position(), v2->position(), v3->position()));
 
         Vertex* lastVertex = v3;
-        while (curIt != seam.end() && plane.pointStatus((*curIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
-            Edge* curEdge = *curIt;
-            ++curIt;
+        while (endIt != seam.end() && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
+            Edge* curEdge = *endIt;
+            ++endIt;
             
             HalfEdge* curBoundaryEdge = new HalfEdge(curEdge->secondVertex());
             boundary.append(curBoundaryEdge, 1);
@@ -603,13 +723,13 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
             lastVertex = curEdge->firstVertex();
         }
         
-        if (curIt != seam.end()) {
+        if (endIt != seam.end()) {
             HalfEdge* lastBoundaryEdge = new HalfEdge(lastVertex);
             boundary.append(lastBoundaryEdge, 1);
 
             Edge* newEdge = new Edge(lastBoundaryEdge);
             m_edges.append(newEdge, 1);
-            seam.replace(curIt, newEdge);
+            seam.replace(firstIt, endIt, newEdge);
         } else {
             seam.clear();
         }
@@ -643,7 +763,6 @@ public:
         assertResult(setPlanePoints(lastPlane, m_position, v1->position(), v2->position()));
         
         const Math::PointStatus::Type status = lastPlane.pointStatus(v3->position());
-        assert(status != Math::PointStatus::PSAbove);
         return status == Math::PointStatus::PSBelow;
     }
 };
@@ -653,7 +772,7 @@ public:
  at the location of the given point being shared by all the newly created triangles.
  */
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::weave(Seam seam, const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const V& position, Callback& callback) {
     assert(seam.size() >= 3);
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
@@ -713,6 +832,8 @@ void Polyhedron<T,FP,VP>::weave(Seam seam, const V& position, Callback& callback
     assert(first->face() != last->face());
     m_edges.append(new Edge(first, last), 1);
     m_vertices.append(top, 1);
+    
+    return top;
 }
 
 template <typename T, typename FP, typename VP>
