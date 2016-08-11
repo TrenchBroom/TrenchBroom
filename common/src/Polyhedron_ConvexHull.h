@@ -477,24 +477,30 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback& callback) {
     assert(vertexCount() == 3);
     
-    HalfEdge* outgoingHalfEdge = vertex->leaving();
-    HalfEdge* incomingHalfEdge = outgoingHalfEdge->previous();
-    HalfEdge* remainingHalfEdge = incomingHalfEdge->previous();
-    assert(remainingHalfEdge->previous() == outgoingHalfEdge);
+    HalfEdge* removedHalfEdge = vertex->leaving();
+    HalfEdge* firstRemainingHalfEdge = removedHalfEdge->next();
+    HalfEdge* secondRemainingHalfEdge = firstRemainingHalfEdge->next();
     
-    Edge* outgoingEdge = outgoingHalfEdge->edge();
-    Edge* incomingEdge = incomingHalfEdge->edge();
+    Edge* remainingEdge = firstRemainingHalfEdge->edge();
+    Edge* firstRemovedEdge = removedHalfEdge->edge();
+    Edge* secondRemovedEdge = secondRemainingHalfEdge->edge();
     
-    Face* face = remainingHalfEdge->face();
-    face->removeFromBoundary(remainingHalfEdge);
+    Face* face = removedHalfEdge->face();
+    callback.faceWillBeDeleted(face);
+
+    face->removeFromBoundary(firstRemainingHalfEdge, secondRemainingHalfEdge);
     
     m_faces.remove(face);
     delete face;
+
+    secondRemainingHalfEdge->unsetEdge();
+    remainingEdge->makeFirstEdge(firstRemainingHalfEdge);
+    remainingEdge->setSecondEdge(secondRemainingHalfEdge);
     
-    m_edges.remove(outgoingEdge);
-    m_edges.remove(incomingEdge);
-    delete outgoingEdge;
-    delete incomingEdge;
+    m_edges.remove(firstRemovedEdge);
+    m_edges.remove(secondRemovedEdge);
+    delete firstRemovedEdge;
+    delete secondRemovedEdge;
     
     callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);

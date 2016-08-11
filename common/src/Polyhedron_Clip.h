@@ -241,8 +241,6 @@ void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdg
     HalfEdge* newBoundarySplitter = new HalfEdge(oldBoundaryFirst->origin());
     
     Face* oldFace = oldBoundaryFirst->face();
-    newBoundarySplitter->setFace(oldFace);
-    
     oldFace->insertIntoBoundaryAfter(newBoundaryLast, newBoundarySplitter);
     const size_t newBoundaryCount = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, oldBoundarySplitter);
     

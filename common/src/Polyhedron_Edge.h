@@ -210,9 +210,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(cons
     HalfEdge* newSecondEdge = new HalfEdge(newVertex);
     HalfEdge* oldSecondEdge = secondEdge();
     
-    newFirstEdge->setFace(firstFace());
-    newSecondEdge->setFace(secondFace());
-    
     firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
     secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
     
