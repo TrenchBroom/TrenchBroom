@@ -979,6 +979,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->canSnapVertices(worldBounds, 1));
             
             brush->snapVertices(worldBounds, 1);
+            ASSERT_TRUE(brush->fullySpecified());
             
             // Ensure they were actually snapped
             {
@@ -990,6 +991,7 @@ namespace TrenchBroom {
                     ASSERT_TRUE(pos.isInteger()) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
                 }
             }
+            
         }
         
         TEST(BrushTest, snapIssue1198) {
@@ -1078,8 +1080,7 @@ namespace TrenchBroom {
                               "( -637 1440.50000 1338 ) ( -637 1440.50000 1466 ) ( -637 1568.50000 1338 ) column01_3 -1440 1338 0 1 1 //TX1\n"
                               "( -638 1435.27452 1340.35014 ) ( -638 1312.19946 1375.51444 ) ( -510 1435.27452 1340.35014 ) column01_3 638 -1493 0 1 -0.96152 //TX1\n"
                               "}");
-            // assertSnapToInteger(data);
-            bool b = true; // fixme
+            assertSnapToInteger(data);
         }
         
         TEST(BrushTest, snapIssue1207) {
@@ -1092,8 +1093,6 @@ namespace TrenchBroom {
                               "( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) column01_3 636 1354 0 1 1 //TX1\n"
                               "( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 1570.50000 1354 ) column01_3 -1442 1354 0 1 1 //TX1\n"
                               "}\n");
-
-            // This case is expected to fail to snap
             assertCannotSnap(data);
         }
         
@@ -1141,7 +1140,7 @@ namespace TrenchBroom {
                               "}\n");
 
             // This case is expected to fail to snap
-            assertCannotSnap(data);
+            assertSnapToInteger(data);
         }
         
         TEST(BrushTest, snapIssue1395_18995) {

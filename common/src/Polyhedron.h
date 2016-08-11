@@ -465,11 +465,9 @@ public:
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
-    
     Vertex* addFirstPoint(const V& position, Callback& callback);
     Vertex* addSecondPoint(const V& position, Callback& callback);
     Vertex* addThirdPoint(const V& position, Callback& callback);
-    Vertex* addPointToEdge(const V& position);
     
     Vertex* addFurtherPoint(const V& position, Callback& callback);
     Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);

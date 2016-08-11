@@ -287,26 +287,46 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const V
     
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
-    
-    if (linearlyDependent(v1->position(), v2->position(), position))
-        return addPointToEdge(position);
-    else
-        return addPointToPolygon(position, callback);
-}
-
-// Adds a colinear third point to a polyhedron that contains one edge.
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToEdge(const V& position) {
-    assert(edge());
-    
-    Vertex* v1 = m_vertices.front();
-    Vertex* v2 = v1->next();
-    assert(linearlyDependent(v1->position(), v2->position(), position));
-    
-    if (position.containedWithinSegment(v1->position(), v2->position()))
-        return NULL;
-    v2->setPosition(position);
-    return v2;
+    if (linearlyDependent(v1->position(), v2->position(), position)) {
+        if (position.containedWithinSegment(v1->position(), v2->position()))
+            return NULL;
+        v2->setPosition(position);
+        return v2;
+    } else {
+        HalfEdge* h1 = v1->leaving();
+        HalfEdge* h2 = v2->leaving();
+        assert(h1->next() == h1);
+        assert(h1->previous() == h1);
+        assert(h2->next() == h2);
+        assert(h2->previous() == h2);
+        
+        Vertex* v3 = new Vertex(position);
+        HalfEdge* h3 = new HalfEdge(v3);
+        
+        Edge* e1 = m_edges.front();
+        e1->makeFirstEdge(h1);
+        e1->unsetSecondEdge();
+        
+        HalfEdgeList boundary;
+        boundary.append(h1, 1);
+        boundary.append(h2, 1);
+        boundary.append(h3, 1);
+        
+        Face* face = new Face(boundary);
+        
+        Edge* e2 = new Edge(h2);
+        Edge* e3 = new Edge(h3);
+        
+        m_vertices.append(v3, 1);
+        m_edges.append(e2, 1);
+        m_edges.append(e3, 1);
+        m_faces.append(face, 1);
+        
+        callback.vertexWasCreated(v1);
+        callback.faceWasCreated(face);
+        
+        return v3;
+    }
 }
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
@@ -337,22 +357,79 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
     return NULL;
 }
 
-// Adds the given coplanar point to a polyhedron that is a polygon or an edge.
+// Adds the given coplanar point to a polyhedron that is a polygon.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
-    if (vertexCount() >= 3 && polygonContainsPoint(position, m_vertices.begin(), m_vertices.end(), GetVertexPosition()))
+    assert(polygon());
+    if (polygonContainsPoint(position, m_vertices.begin(), m_vertices.end(), GetVertexPosition()))
         return NULL;
     
-    typename V::List positions;
-    positions.reserve(vertexCount() + 1);
-    V::toList(m_vertices.begin(), m_vertices.end(), GetVertexPosition(), positions);
-    positions.push_back(position);
+    Face* face = m_faces.front();
+    Plane<T,3> facePlane = callback.plane(face);
     
-    positions = convexHull2D<T>(positions);
-    clear();
-    makePolygon(positions, callback);
+    HalfEdge* firstVisibleEdge = NULL;
+    HalfEdge* lastVisibleEdge = NULL;
     
-    return findVertexByPosition(position);
+    HalfEdge* firstEdge = face->boundary().front();
+    HalfEdge* curEdge = firstEdge;
+    do {
+        HalfEdge* previous = curEdge->previous();
+        HalfEdge* next = curEdge->next();
+        if ((previous->pointStatus(facePlane.normal, position) == Math::PointStatus::PSBelow &&
+              curEdge->pointStatus(facePlane.normal, position) != Math::PointStatus::PSBelow)) {
+            firstVisibleEdge = curEdge;
+        }
+        if ((curEdge->pointStatus(facePlane.normal, position) != Math::PointStatus::PSBelow &&
+                next->pointStatus(facePlane.normal, position) == Math::PointStatus::PSBelow)) {
+            lastVisibleEdge = curEdge;
+        }
+        curEdge = curEdge->next();
+    } while (curEdge != firstEdge && (firstVisibleEdge == NULL || lastVisibleEdge == NULL));
+    
+    assert(firstVisibleEdge != NULL);
+    assert(lastVisibleEdge != NULL);
+    
+    // Now we know which edges are visible from the point. These will have to be replaced with two new edges.
+    Vertex* newVertex = new Vertex(position);
+    HalfEdge* h1 = new HalfEdge(firstVisibleEdge->origin());
+    HalfEdge* h2 = new HalfEdge(newVertex);
+    
+    face->insertIntoBoundaryAfter(lastVisibleEdge, h1);
+    face->insertIntoBoundaryAfter(lastVisibleEdge, h2);
+    face->removeFromBoundary(firstVisibleEdge, lastVisibleEdge);
+
+    h1->setAsLeaving();
+    
+    Edge* e1 = new Edge(h1);
+    Edge* e2 = new Edge(h2);
+
+    // Delete the visible half edges, the vertices and edges.
+    firstEdge = firstVisibleEdge;
+    curEdge = firstEdge;
+    do {
+        HalfEdge* nextEdge = curEdge->next();
+        
+        Edge* edge = curEdge->edge();
+        m_edges.remove(edge);
+        delete edge;
+        
+        if (curEdge != firstEdge) {
+            Vertex* vertex = curEdge->origin();
+            callback.vertexWillBeDeleted(vertex);
+            m_vertices.remove(vertex);
+            delete vertex;
+        }
+        
+        curEdge = nextEdge;
+    } while (curEdge != firstEdge);
+    
+    m_edges.append(e1, 1);
+    m_edges.append(e2, 1);
+    m_vertices.append(newVertex, 1);
+    callback.vertexWasCreated(newVertex);
+    callback.faceDidChange(face);
+    
+    return newVertex;
 }
 
 // Creates a new polygon from the given set of coplanar points. Assumes that
