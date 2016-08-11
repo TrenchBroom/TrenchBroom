@@ -427,7 +427,6 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     m_edges.append(e2, 1);
     m_vertices.append(newVertex, 1);
     callback.vertexWasCreated(newVertex);
-    callback.faceDidChange(face);
     
     return newVertex;
 }
