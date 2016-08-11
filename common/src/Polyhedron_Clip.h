@@ -202,6 +202,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
             m_vertices.append(newVertex, 1);
+            callback.vertexWasCreated(newVertex);
 
             // The newly inserted vertex will be reexamined in the next loop iteration as it is now contained within the plane.
         } else {

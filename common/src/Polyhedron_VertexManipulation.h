@@ -173,6 +173,7 @@ typename Polyhedron<T,FP,VP>::SplitResult Polyhedron<T,FP,VP>::splitEdge(const V
     
     Vertex* newVertex = newEdge->firstVertex();
     m_vertices.append(newVertex, 1);
+    callback.vertexWasCreated(newVertex);
     
     return SplitResult(true, newVertex->position());
 }
@@ -185,6 +186,7 @@ typename Polyhedron<T,FP,VP>::SplitResult Polyhedron<T,FP,VP>::splitFace(const t
     
     Vertex* newVertex = new Vertex(face->center());
     m_vertices.append(newVertex, 1);
+    callback.vertexWasCreated(newVertex);
     
     const size_t vertexCount = face->vertexCount();
     HalfEdge* current = face->boundary().front();
@@ -258,24 +260,24 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveVertex(V
         return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex->position());
     
     if (point())
-        return movePointVertex(vertex, destination);
+        return movePointVertex(vertex, destination, callback);
     else if (edge())
-        return moveEdgeVertex(vertex, destination, allowMergeIncidentVertices);
+        return moveEdgeVertex(vertex, destination, allowMergeIncidentVertices, callback);
     else if (polygon())
-        return movePolygonVertex(vertex, destination, allowMergeIncidentVertices);
+        return movePolygonVertex(vertex, destination, allowMergeIncidentVertices, callback);
     else
         return movePolyhedronVertex(vertex, destination, allowMergeIncidentVertices, callback);
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePointVertex(Vertex* vertex, const V& destination) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePointVertex(Vertex* vertex, const V& destination, Callback& callback) {
     const V originalPosition(vertex->position());
     vertex->setPosition(destination);
     return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, vertex);
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
     const V originalPosition(vertex->position());
     Edge* edge = *m_edges.begin();
     Vertex* other = edge->otherVertex(vertex);
@@ -285,17 +287,19 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::moveEdgeVert
         
         m_edges.remove(edge);
         delete edge;
+        
+        callback.vertexWillBeDeleted(vertex);
         m_vertices.remove(vertex);
         delete vertex;
         
         return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, other);
     } else {
-        return movePointVertex(vertex, destination);
+        return movePointVertex(vertex, destination, callback);
     }
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices) {
+typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
     const V originalPosition(vertex->position());
     Face* face = *m_faces.begin();
     if (face->pointStatus(destination) != Math::PointStatus::PSInside)
@@ -318,12 +322,14 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolygonV
         m_edges.remove(edge);
         delete edge;
         delete connectingEdge;
+        
+        callback.vertexWillBeDeleted(origin);
         m_vertices.remove(origin);
         delete origin;
         
         return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, destVertex);
     } else {
-        return movePointVertex(vertex, destination);
+        return movePointVertex(vertex, destination, callback);
     }
 }
 
@@ -338,13 +344,12 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
     }
     
     removeVertex(vertex, callback);
+    if (occupant != NULL)
+        return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, occupant);
+    
     Vertex* newVertex = addPoint(destination, callback);
-    if (newVertex == NULL) {
-        if (occupant != NULL)
-            return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, occupant);
-        else
-            return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
-    }
+    if (newVertex == NULL)
+        return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
     return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, newVertex);
     
     
@@ -718,6 +723,7 @@ void Polyhedron<T,FP,VP>::mergeVertices(HalfEdge* connectingEdge, Callback& call
     delete connectingEdge;
     delete opposingEdge;
     
+    callback.vertexWillBeDeleted(destination);
     m_vertices.remove(destination);
     delete destination;
 }
@@ -779,7 +785,7 @@ void Polyhedron<T,FP,VP>::mergeLeavingEdges(Vertex* vertex, Callback& callback) 
         HalfEdge* colinearEdge = destination->findColinearEdge(curEdge);
         if (colinearEdge != NULL) {
             mergeNeighboursOfColinearEdges(curEdge, colinearEdge, callback);
-            mergeColinearEdges(curEdge, colinearEdge);
+            mergeColinearEdges(curEdge, colinearEdge, callback);
         }
         curEdge = curEdge->nextIncident();
     } while (curEdge != vertex->leaving());
@@ -794,7 +800,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeIncomingAndLeaving
         HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
         if (colinearLeaving != NULL) {
             mergeNeighboursOfColinearEdges(arriving, colinearLeaving, callback);
-            return mergeColinearEdges(arriving, colinearLeaving);
+            return mergeColinearEdges(arriving, colinearLeaving, callback);
         }
         arriving = arriving->next()->twin();
     } while (arriving != vertex->leaving()->twin());
@@ -807,7 +813,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeIncomingAndLeaving
 // replaces the twin of the second given edge.
 // Assumes that the incident faces have already been merged.
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback) {
     assert(edge1->destination() == edge2->origin());
     assert(edge1->face() == edge2->face());
     assert(edge1->twin()->face() == edge2->twin()->face());
@@ -834,6 +840,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeColinearEdges(Half
     delete toRemove1;
     delete toRemove2;
     
+    callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);
     delete vertex;
     
@@ -924,6 +931,7 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::mergeIncidentFaces(Vert
         // also deletes the old boundary once the local boundary variable falls out of scope
         remainingFace->replaceEntireBoundary(boundary);
         
+        callback.vertexWillBeDeleted(vertex);
         m_vertices.remove(vertex);
         delete vertex;
     } else {
@@ -1013,6 +1021,7 @@ void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callb
         delete twin;
 
         if (cur != borderFirst) {
+            callback.vertexWillBeDeleted(origin);
             m_vertices.remove(origin);
             delete origin;
         }

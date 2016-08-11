@@ -181,6 +181,7 @@ public:
         bool hasOrigins(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         String asString() const;
     private:
+        Math::PointStatus::Type pointStatus(const V& faceNormal, const V& point) const;
         bool isLeavingEdge() const;
         bool colinear(const HalfEdge* other) const;
         void setOrigin(Vertex* origin);
@@ -256,7 +257,11 @@ public:
     class Callback {
     public:
         virtual ~Callback();
-    public: // factory methods
+    public:
+        virtual void vertexWasCreated(Vertex* vertex);
+        virtual void vertexWillBeDeleted(Vertex* vertex);
+        virtual void vertexWasAdded(Vertex* vertex);
+        virtual void vertexWillBeRemoved(Vertex* vertex);
         virtual Plane<T,3> plane(const Face* face) const;
         virtual void faceWasCreated(Face* face);
         virtual void faceWillBeDeleted(Face* face);
@@ -411,9 +416,9 @@ private:
     MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
 
     MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePointVertex(Vertex* vertex, const V& destination);
-    MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
-    MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
+    MoveVertexResult movePointVertex(Vertex* vertex, const V& destination, Callback& callback);
+    MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
+    MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
     MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
 
     void splitIncidentFaces(Vertex* vertex, const V& destination, Callback& callback);
@@ -434,7 +439,7 @@ private:
 
     void mergeLeavingEdges(Vertex* vertex, Callback& callback);
     Edge* mergeIncomingAndLeavingEdges(Vertex* vertex, Callback& callback);
-    Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
+    Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
     void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
     void doMergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
     Edge* mergeSuccessiveEdges(HalfEdge* edge1, HalfEdge* edge2);
@@ -460,9 +465,9 @@ public:
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
-    Vertex* addFirstPoint(const V& position);
-    Vertex* addSecondPoint(const V& position);
     
+    Vertex* addFirstPoint(const V& position, Callback& callback);
+    Vertex* addSecondPoint(const V& position, Callback& callback);
     Vertex* addThirdPoint(const V& position, Callback& callback);
     Vertex* addPointToEdge(const V& position);
     

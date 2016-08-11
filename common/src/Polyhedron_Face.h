@@ -268,8 +268,9 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryBefore(HalfEdge* before, HalfE
     assert(before != NULL);
     assert(edge != NULL);
     assert(before->face() == this);
-    assert(edge->face() == this);
+    assert(edge->face() == NULL);
     
+    edge->setFace(this);
     m_boundary.insertBefore(before, edge, 1);
 }
 
@@ -278,8 +279,9 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdg
     assert(after != NULL);
     assert(edge != NULL);
     assert(after->face() == this);
-    assert(edge->face() == this);
+    assert(edge->face() == NULL);
     
+    edge->setFace(this);
     m_boundary.insertAfter(after, edge, 1);
 }
 
@@ -413,6 +415,8 @@ bool Polyhedron<T,FP,VP>::Face::checkBoundary() const {
     HalfEdge* current = first;
     do {
         if (current->face() != this)
+            return false;
+        if (current->edge() == NULL)
             return false;
         current = current->next();
     } while (current != first);

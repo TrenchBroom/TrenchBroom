@@ -181,11 +181,11 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
     Vertex* result = NULL;
     switch (vertexCount()) {
         case 0:
-            result = addFirstPoint(position);
+            result = addFirstPoint(position, callback);
             m_bounds.min = m_bounds.max = position;
             break;
         case 1:
-            result = addSecondPoint(position);
+            result = addSecondPoint(position, callback);
             m_bounds.mergeWith(position);
             break;
         case 2:
@@ -199,6 +199,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
             break;
     }
     assert(checkInvariant());
+    if (result != NULL)
+        callback.vertexWasAdded(result);
     return result;
 }
 
@@ -214,6 +216,8 @@ void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
     assert(vertex != NULL);
     assert(findVertexByPosition(vertex->position()) == vertex);
     assert(checkInvariant());
+    
+    callback.vertexWillBeRemoved(vertex);
     
     if (point())
         removeSingleVertex(vertex, callback);
@@ -247,22 +251,24 @@ void Polyhedron<T,FP,VP>::merge(const Polyhedron& other, Callback& callback) {
 
 // Adds the given point to an empty polyhedron.
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const V& position, Callback& callback) {
     assert(empty());
     Vertex* newVertex = new Vertex(position);
     m_vertices.append(newVertex, 1);
+    callback.vertexWasCreated(newVertex);
     return newVertex;
 }
 
 // Adds the given point to a polyhedron that contains one point.
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const V& position) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const V& position, Callback& callback) {
     assert(point());
     
     Vertex* onlyVertex = *m_vertices.begin();
     if (position != onlyVertex->position()) {
         Vertex* newVertex = new Vertex(position);
         m_vertices.append(newVertex, 1);
+        callback.vertexWasCreated(newVertex);
         
         HalfEdge* halfEdge1 = new HalfEdge(onlyVertex);
         HalfEdge* halfEdge2 = new HalfEdge(newVertex);
@@ -365,6 +371,8 @@ void Polyhedron<T,FP,VP>::makePolygon(const typename V::List& positions, Callbac
         Edge* e = new Edge(h);
         
         m_vertices.append(v, 1);
+        callback.vertexWasCreated(v);
+        
         boundary.append(h, 1);
         m_edges.append(e, 1);
     }
@@ -429,6 +437,7 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeSingleVertex(Vertex* vertex, Callback& callback) {
     assert(point());
     
+    callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);
     delete vertex;
     
@@ -447,6 +456,7 @@ void Polyhedron<T,FP,VP>::removeVertexFromEdge(Vertex* vertex, Callback& callbac
     m_edges.remove(edge);
     delete edge;
     
+    callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);
     delete vertex;
     
@@ -486,6 +496,7 @@ void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback&
     delete outgoingEdge;
     delete incomingEdge;
     
+    callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);
     delete vertex;
     
@@ -506,6 +517,7 @@ void Polyhedron<T,FP,VP>::removeFurtherVertexFromPolygon(Vertex* vertex, Callbac
     delete outgoingEdge;
     delete outgoingHalfEdge;
     
+    callback.vertexWillBeDeleted(vertex);
     m_vertices.remove(vertex);
     delete vertex;
     
@@ -588,8 +600,10 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
                 delete edge;
             }
         }
+        
         Vertex* origin = current->origin();
         if (origin->leaving() == current) {
+            callback.vertexWillBeDeleted(origin);
             m_vertices.remove(origin);
             verticesToDelete.append(origin, 1);
         }
@@ -611,7 +625,8 @@ public:
         const Vertex* v3 = second->firstVertex();
         
         Plane<T,3> plane;
-        assertResult(setPlanePoints(plane, v1->position(), v2->position(), v3->position()));
+        if (!setPlanePoints(plane, v1->position(), v2->position(), v3->position()))
+            return false;
         
         const Edge* last = seam.last();
         const Vertex* v4 = last->secondVertex();
@@ -831,7 +846,9 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
 
     assert(first->face() != last->face());
     m_edges.append(new Edge(first, last), 1);
+    
     m_vertices.append(top, 1);
+    callback.vertexWasCreated(top);
     
     return top;
 }

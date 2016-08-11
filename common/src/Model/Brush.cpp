@@ -198,20 +198,76 @@ namespace TrenchBroom {
         };
 
         class Brush::MoveVerticesCallback : public BrushGeometry::Callback {
+        private:
+            BrushGeometry* m_geometry;
+            
+            typedef std::map<const BrushGeometry::Vertex*, BrushFaceList> IncidenceMap;
+            IncidenceMap m_incidences;
+            
+            BrushFaceList m_deletedFaces;
         public:
+            MoveVerticesCallback(BrushGeometry* geometry) :
+            m_geometry(geometry) {
+                assert(m_geometry != NULL);
+            }
+            
+            ~MoveVerticesCallback() {
+                VectorUtils::clearAndDelete(m_deletedFaces);
+            }
+        private:
+            void rebuildIncidences(const BrushVertex* exclude) {
+                m_incidences.clear();
+                addVertices(m_geometry->vertices(), exclude);
+            }
+            
+            void addVertices(const BrushGeometry::VertexList& vertices, const BrushVertex* except) {
+                const BrushVertex* firstVertex = vertices.front();
+                const BrushVertex* curVertex = firstVertex;
+                do {
+                    if (curVertex != except)
+                        m_incidences.insert(std::make_pair(curVertex, collectIncidentFaces(curVertex)));
+                    curVertex = curVertex->next();
+                } while (curVertex != firstVertex);
+            }
+            
+            BrushFaceList collectIncidentFaces(const BrushVertex* vertex) {
+                BrushFaceList result;
+                BrushGeometry::HalfEdge* firstEdge = vertex->leaving();
+                BrushGeometry::HalfEdge* curEdge = firstEdge;
+                do {
+                    result.push_back(curEdge->face()->payload());
+                    curEdge = curEdge->nextIncident();
+                } while (curEdge != firstEdge);
+                return result;
+            }
+        public:
+            void vertexWasAdded(BrushVertex* vertex) {}
+            
+            void vertexWillBeRemoved(BrushVertex* vertex) {
+                rebuildIncidences(vertex);
+            }
+
+            void faceWasCreated(BrushFaceGeometry* faceGeometry) {
+                BrushFace* matchingFace = findMatchingFace(faceGeometry);
+                BrushFace* clone = matchingFace->clone();
+                faceGeometry->setPayload(clone);
+                clone->setGeometry(faceGeometry);
+            }
+
             void faceWillBeDeleted(BrushFaceGeometry* faceGeometry) {
                 BrushFace* face = faceGeometry->payload();
-                assert(!face->selected());
-                delete face;
+                m_deletedFaces.push_back(face);
                 faceGeometry->setPayload(NULL);
+                face->setGeometry(NULL);
             }
             
             void faceDidChange(BrushFaceGeometry* faceGeometry) {
-                BrushFace* face = faceGeometry->payload();
-                face->updatePointsFromVertices();
+                assert(false);
             }
             
             void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) {
+                // Called when faces are split due to creating new vertices.
+                
                 BrushFace* originalFace = originalGeometry->payload();
                 assert(originalFace != NULL);
                 assert(cloneGeometry->payload() == NULL);
@@ -225,16 +281,55 @@ namespace TrenchBroom {
             }
             
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
-                BrushFace* remainingFace = remainingGeometry->payload();
-                assert(remainingFace != NULL);
-                remainingFace->invalidate();
+                assert(false);
+            }
+            
+            typedef std::map<BrushFace*, size_t> SharedIncidentFaceCounts;
+            
+            BrushFace* findMatchingFace(BrushFaceGeometry* geometry) const {
+                const SharedIncidentFaceCounts counts = findSharedIncidentFaces(geometry);
+                assert(!counts.empty());
                 
-                BrushFace* faceToDelete = geometryToDelete->payload();
-                assert(faceToDelete != NULL);
-                assert(!faceToDelete->selected());
+                size_t bestCount = 0;
+                BrushFace* bestFace = NULL;
                 
-                delete faceToDelete;
-                geometryToDelete->setPayload(NULL);
+                SharedIncidentFaceCounts::const_iterator it, end;
+                for (it = counts.begin(), end = counts.end(); it != end; ++it) {
+                    const size_t count = it->second;
+                    if (count > bestCount) {
+                        bestFace = it->first;
+                        bestCount = count;
+                    }
+                }
+                
+                assert(bestFace != NULL);
+                return bestFace;
+            }
+            
+            SharedIncidentFaceCounts findSharedIncidentFaces(BrushFaceGeometry* geometry) const {
+                SharedIncidentFaceCounts result;
+                
+                const BrushGeometry::HalfEdge* firstEdge = geometry->boundary().front();
+                const BrushGeometry::HalfEdge* curEdge = firstEdge;
+                do {
+                    const BrushGeometry::Vertex* origin = curEdge->origin();
+                    const IncidenceMap::const_iterator iIt = m_incidences.find(origin);
+                    if (iIt != m_incidences.end()) {
+                        const BrushFaceList& incidentFaces = iIt->second;
+                        BrushFaceList::const_iterator fIt, fEnd;
+                        for (fIt = incidentFaces.begin(), fEnd = incidentFaces.end(); fIt != fEnd; ++fIt) {
+                            BrushFace* curFace = *fIt;
+                            SharedIncidentFaceCounts::iterator qIt = result.find(curFace);
+                            if (qIt == result.end())
+                                result.insert(qIt, std::make_pair(curFace, 1));
+                            else
+                                ++qIt->second;
+                        }
+                    }
+                    curEdge = curEdge->next();
+                } while (curEdge != firstEdge);
+                
+                return result;
             }
         };
 
@@ -564,7 +659,7 @@ namespace TrenchBroom {
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
             
             const NotifyNodeChange nodeChange(this);
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
             const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(vertexPositions, delta, true, callback);
             updateFacesFromGeometry(worldBounds);
             nodeBoundsDidChange();
@@ -627,7 +722,7 @@ namespace TrenchBroom {
             const Vec3::List vertexPositions = m_geometry->vertexPositions();
             
             const NotifyNodeChange nodeChange(this);
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
 
             Vec3::List::const_iterator it, end;
             for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
@@ -677,7 +772,7 @@ namespace TrenchBroom {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
             
             const NotifyNodeChange nodeChange(this);
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
             updateFacesFromGeometry(worldBounds);
@@ -715,7 +810,7 @@ namespace TrenchBroom {
             
             const NotifyNodeChange nodeChange(this);
 
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
             const BrushGeometry::MoveVerticesResult result = m_geometry->splitEdge(edgePosition.start(), edgePosition.end(), delta, callback);
             
             assert(result.allVerticesMoved());
@@ -757,7 +852,7 @@ namespace TrenchBroom {
             assert(canMoveFaces(worldBounds, facePositions, delta));
             
             const NotifyNodeChange nodeChange(this);
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
             updateFacesFromGeometry(worldBounds);
@@ -794,7 +889,7 @@ namespace TrenchBroom {
             
             const NotifyNodeChange nodeChange(this);
             
-            MoveVerticesCallback callback;
+            MoveVerticesCallback callback(m_geometry);
             const BrushGeometry::MoveVerticesResult result = m_geometry->splitFace(facePosition.vertices(), delta, callback);
             assert(result.allVerticesMoved());
             updateFacesFromGeometry(worldBounds);

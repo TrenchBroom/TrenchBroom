@@ -56,6 +56,18 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Callback::~Callback() {}
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeDeleted(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWasAdded(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
 Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     const HalfEdgeList& boundary = face->boundary();
     assert(boundary.size() >= 3);
@@ -658,15 +670,15 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
         return false;
     if (!checkOverlappingFaces())
         return false;
-    if (polyhedron() && !checkEulerCharacteristic())
+    if (!checkVertexLeavingEdges())
         return false;
-    if (polyhedron() && !checkClosed())
+    if (!checkEulerCharacteristic())
         return false;
-    if (polyhedron() && !checkNoDegenerateFaces())
+    if (!checkClosed())
         return false;
-    if (polyhedron() && !checkVertexLeavingEdges())
+    if (!checkNoDegenerateFaces())
         return false;
-    if (polyhedron() && !checkEdges())
+    if (!checkEdges())
         return false;
     /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
@@ -677,28 +689,32 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkEulerCharacteristic() const {
+    if (!polyhedron())
+        return true;
+    
     // See https://en.m.wikipedia.org/wiki/Euler_characteristic
     return vertexCount() + faceCount() - edgeCount() == 2;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkOverlappingFaces() const {
-    if (faceCount() > 1) {
-        Face* firstFace = m_faces.front();
-        Face* curFace1 = firstFace;
-        do {
-            Face* curFace2 = curFace1->next();
-            while (curFace2 != firstFace) {
-                const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
-                if (sharedVertexCount == curFace1->vertexCount() ||
-                    sharedVertexCount == curFace2->vertexCount()) {
-                    return false;
-                }
-                curFace2 = curFace2->next();
+    if (!polyhedron())
+        return true;
+    
+    Face* firstFace = m_faces.front();
+    Face* curFace1 = firstFace;
+    do {
+        Face* curFace2 = curFace1->next();
+        while (curFace2 != firstFace) {
+            const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
+            if (sharedVertexCount == curFace1->vertexCount() ||
+                sharedVertexCount == curFace2->vertexCount()) {
+                return false;
             }
-            curFace1 = curFace1->next();
-        } while (curFace1->next() != firstFace);
-    }
+            curFace2 = curFace2->next();
+        }
+        curFace1 = curFace1->next();
+    } while (curFace1->next() != firstFace);
     return true;
 }
 
@@ -706,6 +722,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
     if (m_faces.empty())
         return true;
+    
     Face* first = m_faces.front();
     Face* current = first;
     do {
@@ -718,6 +735,9 @@ bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkConvex() const {
+    if (!polyhedron())
+        return true;
+    
     typename FaceList::const_iterator fIt, fEnd;
     for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
@@ -733,6 +753,9 @@ bool Polyhedron<T,FP,VP>::checkConvex() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkClosed() const {
+    if (!polyhedron())
+        return true;
+    
     typename EdgeList::const_iterator eIt, eEnd;
     for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
@@ -752,6 +775,9 @@ bool Polyhedron<T,FP,VP>::checkClosed() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
+    if (!polyhedron())
+        return true;
+    
     typename EdgeList::const_iterator eIt, eEnd;
     for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
@@ -768,6 +794,9 @@ bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
+    if (!polyhedron())
+        return true;
+    
     typename FaceList::const_iterator fIt, fEnd;
     for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
@@ -789,6 +818,9 @@ bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
+    if (empty() || point())
+        return true;
+    
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
@@ -797,13 +829,15 @@ bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
             return false;
         if (leaving->origin() != currentVertex)
             return false;
-        const Edge* edge = leaving->edge();
-        if (edge == NULL)
-            return false;
-        if (!edge->fullySpecified())
-            return false;
-        if (!hasEdge(edge))
-            return false;
+        if (!point()) {
+            const Edge* edge = leaving->edge();
+            if (edge == NULL)
+                return false;
+            if (!hasEdge(edge))
+                return false;
+            if (polyhedron() && !edge->fullySpecified())
+                return false;
+        }
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
     return true;
@@ -811,7 +845,7 @@ bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkEdges() const {
-    if (m_edges.empty())
+    if (!polyhedron())
         return true;
     
     Edge* firstEdge = m_edges.front();
@@ -969,6 +1003,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
             removeDegenerateFace(secondFace, callback);
     }
     
+    callback.vertexWillBeDeleted(secondVertex);
     m_vertices.remove(secondVertex);
     delete secondVertex;
     
