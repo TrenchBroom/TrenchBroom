@@ -489,7 +489,10 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
     if (seam.empty())
         return NULL;
     
+    assert(checkFaceBoundaries());
     split(seam, callback);
+    assert(checkFaceBoundaries());
+    
     return addPointToPolyhedron(position, seam, callback);
 }
 
@@ -498,11 +501,6 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(!seam.empty());
-
-    Face* remainingFace = m_faces.front();
-    typename V::List vertices;
-    vertices.reserve(remainingFace->vertexCount());
-    remainingFace->getVertexPositions(std::back_inserter(vertices));
 
     Vertex* newVertex = weave(seam, position, callback);
     assert(polyhedron());
@@ -644,6 +642,8 @@ void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     
     // First, unset the second half edge of every seam edge.
     // Thereby remember the second half edge of the first seam edge.
+    // Note that all seam edges are oriented such that their second half edge belongs
+    // to the portion of the polyhedron that must be removed.
     HalfEdge* first = seam.first()->secondEdge();
     typename Seam::const_iterator it, end;
     for (it = seam.begin(), end = seam.end(); it != end; ++it) {
@@ -656,13 +656,15 @@ void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     // The first half edge we remembered above is our entry point into that portion of the polyhedron.
     // We must remember which faces we have already visited to stop the recursion.
     FaceSet faceSet;
-    VertexList verticesToDelete;
+    VertexList verticesToDelete; // Will automatically delete the vertices when it falls out of scope
     deleteFaces(first, faceSet, verticesToDelete, callback);
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback) {
     Face* face = first->face();
+    
+    // Have we already visited this face?
     if (!visitedFaces.insert(face).second)
         return;
     
@@ -670,6 +672,8 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     do {
         Edge* edge = current->edge();
         if (edge != NULL) {
+            // If the edge is not a seam edge (we have already removed the second edge
+            // of every seam edge), then we can try and delete the neighbouring face
             if (edge->fullySpecified())
                 deleteFaces(edge->twin(current), visitedFaces, verticesToDelete, callback);
             
@@ -696,6 +700,7 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     m_faces.remove(face);
     delete face;
 }
+
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
 public:

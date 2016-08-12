@@ -36,6 +36,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        void assertTexture(String expected, Brush* brush, const Vec3& faceNormal);
+        
+        void assertTexture(String expected, Brush* brush, const Vec3& faceNormal) {
+            assert(brush != NULL);
+            BrushFace* face = brush->findFace(faceNormal);
+            assert(face != NULL);
+            
+            ASSERT_EQ(expected, face->textureName());
+        }
+        
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const BBox3 worldBounds(4096.0);
             
@@ -913,7 +923,15 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(left != NULL && top != NULL && right != NULL);
             
-            // left brush
+            // left brush faces
+            ASSERT_TRUE(left->findFace(Vec3::PosX) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegX) != NULL); // failure here
+            ASSERT_TRUE(left->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(left->findFace(leftTopNormal) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegZ) != NULL);
+            
+            // left brush textures
             ASSERT_EQ(subtrahendTexture, left->findFace(Vec3::PosX)->textureName());
             ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegX)->textureName());
             ASSERT_EQ(minuendTexture,    left->findFace(Vec3::PosY)->textureName());
@@ -921,7 +939,15 @@ namespace TrenchBroom {
             ASSERT_EQ(defaultTexture,    left->findFace(leftTopNormal)->textureName());
             ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegZ)->textureName());
             
-            // top brush
+            // top brush faces
+            ASSERT_TRUE(top->findFace(topLeftNormal) != NULL);
+            ASSERT_TRUE(top->findFace(topRightNormal) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::PosZ) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::NegZ) != NULL);
+            
+            // top brush textures
             ASSERT_EQ(defaultTexture,    top->findFace(topLeftNormal)->textureName());
             ASSERT_EQ(defaultTexture,    top->findFace(topRightNormal)->textureName());
             ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosY)->textureName());
@@ -929,7 +955,15 @@ namespace TrenchBroom {
             ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosZ)->textureName());
             ASSERT_EQ(subtrahendTexture, top->findFace(Vec3::NegZ)->textureName());
             
-            // right brush
+            // right brush faces
+            ASSERT_TRUE(right->findFace(Vec3::PosX) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegX) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(right->findFace(rightTopNormal) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegZ) != NULL);
+            
+            // right brush textures
             ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosX)->textureName());
             ASSERT_EQ(subtrahendTexture, right->findFace(Vec3::NegX)->textureName());
             ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosY)->textureName());
