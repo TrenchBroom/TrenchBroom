@@ -362,6 +362,7 @@ private:
     bool checkEulerCharacteristic() const;
     bool checkOverlappingFaces() const;
     bool checkFaceBoundaries() const;
+    bool checkFaceNeighbours() const;
     bool checkConvex() const;
     bool checkClosed() const;
     bool checkNoCoplanarFaces() const;

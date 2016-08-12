@@ -72,17 +72,28 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     const HalfEdgeList& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
-    const HalfEdge* e1 = boundary.front();
-    const HalfEdge* e2 = e1->next();
-    const HalfEdge* e3 = e2->next();
-    
-    const V& p1 = e1->origin()->position();
-    const V& p2 = e2->origin()->position();
-    const V& p3 = e3->origin()->position();
-
     Plane<T,3> plane;
-    assertResult(setPlanePoints(plane, p2, p1, p3));
-    return plane;
+
+    const HalfEdge* firstEdge = boundary.front();
+    const HalfEdge* curEdge = firstEdge;
+    do {
+        const HalfEdge* e1 = curEdge;
+        const HalfEdge* e2 = e1->next();
+        const HalfEdge* e3 = e2->next();
+        
+        const V& p1 = e1->origin()->position();
+        const V& p2 = e2->origin()->position();
+        const V& p3 = e3->origin()->position();
+        
+        if (setPlanePoints(plane, p2, p1, p3))
+            return plane;
+
+        curEdge = curEdge->next();
+    } while (curEdge != firstEdge);
+    
+    // TODO: We should really through an exception here.
+    assert(false);
+    return plane; // Ooops!
 }
 
 template <typename T, typename FP, typename VP>
@@ -668,6 +679,8 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
      */
     if (!checkFaceBoundaries())
         return false;
+    if (!checkFaceNeighbours())
+        return false;
     if (!checkOverlappingFaces())
         return false;
     if (!checkVertexLeavingEdges())
@@ -730,6 +743,33 @@ bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
             return false;
         current = current->next();
     } while (current != first);
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkFaceNeighbours() const {
+    if (!polyhedron())
+        return true;
+    
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
+    do {
+        const HalfEdgeList& boundary = currentFace->boundary();
+        HalfEdge* firstEdge = boundary.front();
+        HalfEdge* currentEdge = firstEdge;
+        do {
+            HalfEdge* twin = currentEdge->twin();
+            assert(twin != NULL);
+            assert(twin->face() != NULL);
+            assert(hasFace(twin->face()));
+            
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+        
+        if (!currentFace->checkBoundary())
+            return false;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
     return true;
 }
 
