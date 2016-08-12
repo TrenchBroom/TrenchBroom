@@ -395,7 +395,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     HalfEdge* h2 = new HalfEdge(newVertex);
     
     face->insertIntoBoundaryAfter(lastVisibleEdge, h1);
-    face->insertIntoBoundaryAfter(lastVisibleEdge, h2);
+    face->insertIntoBoundaryAfter(h1, h2);
     face->removeFromBoundary(firstVisibleEdge, lastVisibleEdge);
 
     h1->setAsLeaving();
@@ -489,10 +489,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
     if (seam.empty())
         return NULL;
     
-    assert(checkFaceBoundaries());
     split(seam, callback);
-    assert(checkFaceBoundaries());
-    
     return addPointToPolyhedron(position, seam, callback);
 }
 
