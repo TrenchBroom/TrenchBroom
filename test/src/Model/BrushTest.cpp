@@ -1154,7 +1154,7 @@ namespace TrenchBroom {
                               " }\n");
 
             // This case is expected to fail to snap
-            assertCannotSnap(data);
+            assertSnapToInteger(data);
         }
         
         TEST(BrushTest, snapIssue1395_24202) {

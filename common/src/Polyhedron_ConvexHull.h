@@ -120,7 +120,7 @@ public:
         }
     }
     
-    bool check() const {
+    bool hasMultipleLoops() const {
         assert(size() > 2);
         
         VertexSet visitedVertices;
@@ -129,17 +129,11 @@ public:
         const_iterator it, end;
         for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
             Edge* edge = *it;
-            if (last->firstVertex() != edge->secondVertex())
-                return false;
-
-            // If we have already visited this vertex, then the seam contains more than
-            // one loop, and is thus invalid.
             if (!visitedVertices.insert(edge->secondVertex()).second)
-                return false;
-            
+                return true;
             last = edge;
         }
-        return true;
+        return false;
     }
 private:
     // Check whether the given edge is connected to the last edge
@@ -151,6 +145,22 @@ private:
         if (last->firstVertex() == edge->secondVertex())
             return true;
         return false;
+    }
+
+    
+    bool check() const {
+        assert(size() > 2);
+        
+        Edge* last = m_edges.back();
+        const_iterator it, end;
+        for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            Edge* edge = *it;
+            if (last->firstVertex() != edge->secondVertex())
+                return false;
+            
+            last = edge;
+        }
+        return true;
     }
 };
 
@@ -494,7 +504,12 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         return NULL;
     
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
-    if (seam.empty())
+    
+    // If no correct seam could be created, we assume that the vertex was inside the polyhedron.
+    // If the seam has multiple loops, this indicates that the point to be added is very close to
+    // another vertex and no correct seam can be computed due to imprecision. In that case, we just
+    // assume that the vertex is inside the polyhedron and skip it.
+    if (seam.empty() || seam.hasMultipleLoops())
         return NULL;
     
     assert(checkFaceBoundaries());
@@ -509,7 +524,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolyhedron(const V& position, const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(seam.check());
+    assert(!seam.hasMultipleLoops());
 
     Vertex* newVertex = weave(seam, position, callback);
     assert(polyhedron());
@@ -648,7 +663,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(seam.check());
+    assert(!seam.hasMultipleLoops());
     
     // First, unset the second half edge of every seam edge.
     // Thereby remember the second half edge of the first seam edge.
@@ -782,7 +797,7 @@ private:
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(seam.check());
+    assert(!seam.hasMultipleLoops());
     
     HalfEdgeList boundary;
     typename Seam::const_iterator it, end;
@@ -804,7 +819,7 @@ void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& call
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(seam.check());
+    assert(!seam.hasMultipleLoops());
     
     if (seam.size() == 3) {
         sealWithSinglePolygon(seam, callback);
@@ -909,7 +924,7 @@ public:
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const V& position, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(seam.check());
+    assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
     Plane3 plane;
