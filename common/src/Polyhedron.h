@@ -442,14 +442,9 @@ private:
     Edge* mergeIncomingAndLeavingEdges(Vertex* vertex, Callback& callback);
     Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
     void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
-    void doMergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
-    Edge* mergeSuccessiveEdges(HalfEdge* edge1, HalfEdge* edge2);
 
     Face* mergeIncidentFaces(Vertex* vertex, Callback& callback);
-    
     void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
-    void findBorder(HalfEdge* edge, HalfEdge*& start, HalfEdge*& end) const;
-    typename Vertex::Set fixOpposingCoplanarFaces(HalfEdge* edge, Callback& callback);
     
     void incidentFacesDidChange(Vertex* vertex, Callback& callback);
 public: // Convex hull; adding and removing points
