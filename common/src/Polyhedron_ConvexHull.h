@@ -124,14 +124,11 @@ public:
         assert(size() > 2);
         
         VertexSet visitedVertices;
-        Edge* last = m_edges.back();
-        
         const_iterator it, end;
         for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
             Edge* edge = *it;
             if (!visitedVertices.insert(edge->secondVertex()).second)
                 return true;
-            last = edge;
         }
         return false;
     }

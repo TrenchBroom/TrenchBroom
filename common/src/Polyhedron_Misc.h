@@ -759,6 +759,7 @@ bool Polyhedron<T,FP,VP>::checkFaceNeighbours() const {
         HalfEdge* currentEdge = firstEdge;
         do {
             HalfEdge* twin = currentEdge->twin();
+            unused(twin);
             assert(twin != NULL);
             assert(twin->face() != NULL);
             assert(hasFace(twin->face()));
