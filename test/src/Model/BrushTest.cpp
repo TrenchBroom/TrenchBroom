@@ -991,7 +991,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0, nodes.size());
         }
         
-        static void assertCannotSnapTo(const String& data, int gridSize) {
+        static void assertCannotSnapTo(const String& data, size_t gridSize) {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
@@ -1006,7 +1006,7 @@ namespace TrenchBroom {
             assertCannotSnapTo(data, 1);
         }
         
-        static void assertSnapTo(const String& data, int gridSize) {
+        static void assertSnapTo(const String& data, size_t gridSize) {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             IO::NodeReader reader(data, &world);
@@ -1242,16 +1242,13 @@ namespace TrenchBroom {
         TEST(BrushTest, snapToGrid64) {
             // https://github.com/kduske/TrenchBroom/issues/1415
             const String data("{\n"
-                              "    \"classname\" \"worldspawn\"\n"
-                              "    {\n"
-                              "        ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
-                              "        ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
-                              "        ( 304 272 32 ) ( 304 832 48 ) ( 304 272 48 ) techrock 64 -0 -0 1 1\n"
-                              "        ( 304 448 224 ) ( 416 448 224 ) ( 304 448 272 ) techrock 128 0 0 1 1\n"
-                              "        ( 400 224 224 ) ( 304 224 224 ) ( 400 224 272 ) techrock 128 -0 -0 1 1\n"
-                              "        ( 352 272 272 ) ( 400 832 272 ) ( 400 272 272 ) techrock 128 -64 -0 1 1\n"
-                              "        ( 304 448 224 ) ( 304 224 224 ) ( 416 448 224 ) techrock 128 -64 0 1 1\n"
-                              "    }\n"
+                              "    ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 272 32 ) ( 304 832 48 ) ( 304 272 48 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 416 448 224 ) ( 304 448 272 ) techrock 128 0 0 1 1\n"
+                              "    ( 400 224 224 ) ( 304 224 224 ) ( 400 224 272 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 352 272 272 ) ( 400 832 272 ) ( 400 272 272 ) techrock 128 -64 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 304 224 224 ) ( 416 448 224 ) techrock 128 -64 0 1 1\n"
                               "}\n");
             
             // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.

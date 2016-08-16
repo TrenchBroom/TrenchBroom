@@ -252,6 +252,7 @@ namespace TrenchBroom {
                 BrushFace* clone = matchingFace->clone();
                 faceGeometry->setPayload(clone);
                 clone->setGeometry(faceGeometry);
+                clone->updatePointsFromVertices();
             }
 
             void faceWillBeDeleted(BrushFaceGeometry* faceGeometry) {
@@ -662,6 +663,7 @@ namespace TrenchBroom {
             MoveVerticesCallback callback(m_geometry);
             const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(vertexPositions, delta, true, callback);
             updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
             
             return result.newVertexPositions;
@@ -738,6 +740,7 @@ namespace TrenchBroom {
 
             updateFacesFromGeometry(worldBounds);
             updatePointsFromVertices(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
         }
 
@@ -776,6 +779,7 @@ namespace TrenchBroom {
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
             updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
             
             Edge3::List result;
@@ -815,6 +819,7 @@ namespace TrenchBroom {
             
             assert(result.allVerticesMoved());
             updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
             
             return result.newVertexPositions.front();
@@ -856,6 +861,7 @@ namespace TrenchBroom {
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
             m_geometry->moveVertices(vertexPositions, delta, false, callback);
             updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
             
             Polygon3::List result;
@@ -893,6 +899,7 @@ namespace TrenchBroom {
             const BrushGeometry::MoveVerticesResult result = m_geometry->splitFace(facePosition.vertices(), delta, callback);
             assert(result.allVerticesMoved());
             updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
             nodeBoundsDidChange();
             
             return result.newVertexPositions.front();
