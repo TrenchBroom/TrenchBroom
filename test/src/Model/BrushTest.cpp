@@ -1201,8 +1201,7 @@ namespace TrenchBroom {
                               "\n");
             
             // This case is expected to fail to snap
-            // assertCannotSnap(data);
-            bool b = true; // fixme
+            assertSnapToInteger(data);
         }
         
         TEST(BrushTest, invalidBrush1332) {

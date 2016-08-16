@@ -753,6 +753,10 @@ public:
     bool operator()(const Seam& seam) const {
         const Edge* first = seam.first();
         const Edge* second = seam.second();
+        
+        if (first->firstFace() == second->firstFace())
+            return false;
+        
         const Vertex* v1 = first->firstVertex();
         const Vertex* v2 = first->secondVertex();
         const Vertex* v3 = second->firstVertex();
