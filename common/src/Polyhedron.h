@@ -380,6 +380,7 @@ public: // Vertex correction and edge healing
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
+    void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
 private:  // Moving vertices
     struct MoveVertexResult;
 public:
@@ -413,6 +414,9 @@ private: // Splitting edges and faces
     struct SplitResult;
     SplitResult splitEdge(const V& v1, const V& v2, Callback& callback);
     SplitResult splitFace(const typename V::List& vertexPositions, Callback& callback);
+
+    void splitFace(Face* face, HalfEdge* halfEdge, Callback& callback);
+    void chopFace(Face* face, HalfEdge* halfEdge, Callback& callback);
 private:
     MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
 
@@ -421,32 +425,6 @@ private:
     MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
     MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
     MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-
-    void splitIncidentFaces(Vertex* vertex, const V& destination, Callback& callback);
-    void chopFace(Face* face, HalfEdge* halfEdge, Callback& callback);
-    void splitFace(Face* face, HalfEdge* halfEdge, Callback& callback);
-    
-    T computeNextMergePoint(Vertex* vertex, const V& origin, const V& destination, T lastFrac) const;
-    T computeNextMergePointForIncidentNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
-    T computeNextMergePointForOppositeNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
-    T computeNextMergePointForPlane(const V& origin, const V& destination, const Plane<T,3>& plane, T lastFrac) const;
-    
-    bool denaturedPolyhedron(const Vertex* vertex, const V& newPosition) const;
-
-    void mergeVertices(HalfEdge* connectingEdge, Callback& callback);
-
-    struct CleanupResult;
-    CleanupResult cleanupAfterVertexMove(Vertex* vertex, Callback& callback);
-
-    void mergeLeavingEdges(Vertex* vertex, Callback& callback);
-    Edge* mergeIncomingAndLeavingEdges(Vertex* vertex, Callback& callback);
-    Edge* mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
-    void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, Callback& callback);
-
-    Face* mergeIncidentFaces(Vertex* vertex, Callback& callback);
-    void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
-    
-    void incidentFacesDidChange(Vertex* vertex, Callback& callback);
 public: // Convex hull; adding and removing points
     void addPoints(const typename V::List& points);
     void addPoints(const typename V::List& points, Callback& callback);
