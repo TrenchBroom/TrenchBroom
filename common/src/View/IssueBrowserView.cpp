@@ -279,6 +279,7 @@ namespace TrenchBroom {
         
         void IssueBrowserView::invalidate() {
             m_valid = false;
+            SetItemCount(0);
         }
         
         void IssueBrowserView::validate() {
