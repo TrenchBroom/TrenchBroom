@@ -200,6 +200,8 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
+            assert(plane.pointStatus(newVertex->position()) == Math::PointStatus::PSInside);
+            
             m_vertices.append(newVertex, 1);
             callback.vertexWasCreated(newVertex);
 
@@ -257,10 +259,10 @@ void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdg
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const {
-    HalfEdge* currentEdge = searchFrom->next()->twin()->next();
-    const HalfEdge* stopEdge = searchFrom->next();
+    HalfEdge* currentEdge = searchFrom->next();
+    const HalfEdge* stopEdge = searchFrom;
     do {
-        // Select two vertices that form a triangle (of an adjacent face) together with seamDestination's origin vertex.
+        // Select two vertices that form a triangle (of an adjacent face) together with currentEdge's origin vertex.
         // If either of the two vertices is inside the plane or if they lie on different sides of it, then we have found
         // the next face to handle.
         

@@ -217,8 +217,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(cons
     unsetSecondEdge();
     setSecondEdge(newSecondEdge);
     
-    Edge* newEdge = new Edge(newFirstEdge, oldSecondEdge);
-    return newEdge;
+    return new Edge(newFirstEdge, oldSecondEdge);
 }
 
 template <typename T, typename FP, typename VP>
