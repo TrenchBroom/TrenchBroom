@@ -104,7 +104,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
     assert(initialEdge != NULL);
 
     // Now we split the face to which this initial half edge belongs. The call returns the newly inserted edge
-    // that connectes the (possibly newly inserted) vertices which are now within the plane.
+    // that connects the (possibly newly inserted) vertices which are now within the plane.
     HalfEdge* currentEdge = intersectWithPlane(initialEdge, plane, callback);
     
     // The destination of that edge is the first vertex which we encountered (or inserted) which is inside the plane.
@@ -156,8 +156,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
             (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove))
             return halfEdge->twin();
         
-        if (
-            (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
+        if ((os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
             (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
             return halfEdge;
         currentEdge = currentEdge->next();
