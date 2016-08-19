@@ -45,6 +45,8 @@
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
+#include "Model/EmptyAttributeNameIssueGenerator.h"
+#include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EmptyGroupIssueGenerator.h"
 #include "Model/Entity.h"
@@ -1571,6 +1573,8 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
+            m_world->registerIssueGenerator(new Model::EmptyAttributeNameIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
         }
