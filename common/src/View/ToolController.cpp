@@ -305,8 +305,7 @@ namespace TrenchBroom {
                 m_dragOrigin = info.initialPoint;
             } else {
                 if (!hitPoint(inputState, m_dragOrigin)) {
-                    deleteRestricter();
-                    deleteSnapper();
+                    doCancelMouseDrag();
                     return false;
                 }
             }
