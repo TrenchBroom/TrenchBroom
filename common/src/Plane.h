@@ -199,11 +199,11 @@ public:
     }
              */
     
-    Vec<T,S> project(const Vec<T,S>& point) const {
+    Vec<T,S> projectPoint(const Vec<T,S>& point) const {
         return point - point.dot(normal) * normal + distance * normal;
     }
 
-    Vec<T,S> project(const Vec<T,S>& point, const Vec<T,S>& direction) const {
+    Vec<T,S> projectPoint(const Vec<T,S>& point, const Vec<T,S>& direction) const {
         const T f = direction.dot(normal);
         if (Math::zero(f))
             return Vec<T,S>::NaN;
@@ -211,17 +211,39 @@ public:
         return point + direction * d;
     }
     
-    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points) const {
+    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points) const {
         typename Vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i]);
         return result;
     }
 
-    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
+    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
         typename Vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i], direction);
+        return result;
+    }
+    
+    Vec<T,S> projectVector(const Vec<T,S>& vector) const {
+        return projectPoint(anchor() + vector) - anchor();
+    }
+    
+    Vec<T,S> projectVector(const Vec<T,S>& vector, const Vec<T,S>& direction) const {
+        return projectPoint(anchor() + vector) - anchor();
+    }
+    
+    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors) const {
+        typename Vec<T,S>::List result(vectors.size());
+        for (size_t i = 0; i < vectors.size(); ++i)
+            result[i] = projectVector(vectors[i]);
+        return result;
+    }
+    
+    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors, const Vec<T,S>& direction) const {
+        typename Vec<T,S>::List result(vectors.size());
+        for (size_t i = 0; i < vectors.size(); ++i)
+            result[i] = projectVector(vectors[i], direction);
         return result;
     }
 };

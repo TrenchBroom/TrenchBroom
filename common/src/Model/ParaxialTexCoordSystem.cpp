@@ -131,9 +131,9 @@ namespace TrenchBroom {
             const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
             // project the texture axes onto the boundary plane along the texture Z axis
-            const Vec3 boundaryOffset     = oldBoundary.project(Vec3::Null, getZAxis());
-            const Vec3 oldXAxisOnBoundary = oldBoundary.project(m_xAxis * attribs.xScale(), getZAxis()) - boundaryOffset;
-            const Vec3 oldYAxisOnBoundary = oldBoundary.project(m_yAxis * attribs.yScale(), getZAxis()) - boundaryOffset;
+            const Vec3 boundaryOffset     = oldBoundary.projectPoint(Vec3::Null, getZAxis());
+            const Vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * attribs.xScale(), getZAxis()) - boundaryOffset;
+            const Vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * attribs.yScale(), getZAxis()) - boundaryOffset;
 
             // transform the projected texture axes and compensate the translational component
             const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
@@ -156,8 +156,8 @@ namespace TrenchBroom {
             const Plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
-            const Vec3 projectedTransformedXAxis = newTexturePlane.project(transformedXAxis);
-            const Vec3 projectedTransformedYAxis = newTexturePlane.project(transformedYAxis);
+            const Vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
+            const Vec3 projectedTransformedYAxis = newTexturePlane.projectPoint(transformedYAxis);
             assert(!projectedTransformedXAxis.nan() &&
                    !projectedTransformedYAxis.nan());
 

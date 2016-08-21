@@ -208,8 +208,8 @@ namespace TrenchBroom {
                 Model::Brush::VertexList::const_iterator vIt, vEnd;
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Model::BrushVertex* vertex = *vIt;
-                    tallVertices.push_back(minPlane.project(vertex->position()));
-                    tallVertices.push_back(maxPlane.project(vertex->position()));
+                    tallVertices.push_back(minPlane.projectPoint(vertex->position()));
+                    tallVertices.push_back(maxPlane.projectPoint(vertex->position()));
                 }
 
                 Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFace::NoTextureName);

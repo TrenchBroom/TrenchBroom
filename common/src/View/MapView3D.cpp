@@ -492,12 +492,16 @@ namespace TrenchBroom {
         Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
-                    Vec3 dir = m_camera.direction().firstAxis();
-                    if (dir.z() < 0.0)
-                        dir = m_camera.up().firstAxis();
-                    else if (dir.z() > 0.0)
-                        dir = -m_camera.up().firstAxis();
-                    return dir;
+                    const Plane3 plane(m_camera.position(), Vec3::PosZ);
+                    const Vec3 projectedDirection = plane.projectVector(m_camera.direction());
+                    if (projectedDirection.null()) {
+                        // camera is looking straight down or up
+                        if (m_camera.direction().z() < 0.0)
+                            return m_camera.up().firstAxis();
+                        else
+                            return -m_camera.up().firstAxis();
+                    }
+                    return projectedDirection.firstAxis();
                 }
                 case Math::Direction_Backward:
                     return -doGetMoveDirection(Math::Direction_Forward);
