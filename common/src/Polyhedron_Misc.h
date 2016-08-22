@@ -1103,6 +1103,68 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     delete face;
 }
 
+// Merges the face incident to the given edge (called border) with its neighbour, i.e.
+// the face incident to the given face's twin. The face incident to the border is deleted
+// while the neighbour consumes the boundary of the incident face.
+// Also handles the case where the border is longer than just one edge.
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback) {
+    Face* face = borderFirst->face();
+    Face* neighbour = borderFirst->twin()->face();
+    
+    while (borderFirst->previous()->face() == face &&
+           borderFirst->previous()->twin()->face() == neighbour) {
+        borderFirst = borderFirst->previous();
+    }
+    
+    HalfEdge* twinLast = borderFirst->twin();
+    HalfEdge* borderLast = borderFirst;
+    
+    while (borderLast->next()->face() == face &&
+           borderLast->next()->twin()->face() == neighbour) {
+        borderLast = borderLast->next();
+    }
+    
+    HalfEdge* twinFirst = borderLast->twin();
+    
+    borderFirst->origin()->setLeaving(twinLast->next());
+    twinFirst->origin()->setLeaving(borderLast->next());
+    
+    HalfEdge* remainingFirst = borderLast->next();
+    HalfEdge* remainingLast = borderFirst->previous();
+    
+    face->removeFromBoundary(borderFirst, borderLast);
+    face->removeFromBoundary(remainingFirst, remainingLast);
+    
+    neighbour->replaceBoundary(twinFirst, twinLast, remainingFirst);
+    
+    HalfEdge* cur = borderFirst;
+    do {
+        Edge* edge = cur->edge();
+        HalfEdge* next = cur->next();
+        HalfEdge* twin = cur->twin();
+        Vertex* origin = cur->origin();
+        
+        m_edges.remove(edge);
+        delete edge;
+        
+        delete cur;
+        delete twin;
+        
+        if (cur != borderFirst) {
+            callback.vertexWillBeDeleted(origin);
+            m_vertices.remove(origin);
+            delete origin;
+        }
+        
+        cur = next;
+    } while (cur != borderFirst);
+    
+    callback.facesWillBeMerged(neighbour, face);
+    m_faces.remove(face);
+    delete face;
+}
+
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {

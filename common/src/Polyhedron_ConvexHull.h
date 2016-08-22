@@ -34,6 +34,7 @@ public:
 public:
     void push_back(Edge* edge) {
         assert(edge != NULL);
+        assert(empty() || edge != last());
         assert(checkEdge(edge));
         m_edges.push_back(edge);
     }
