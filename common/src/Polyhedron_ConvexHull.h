@@ -965,7 +965,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
                 h = new HalfEdge(v);
                 boundary.append(h, 1);
                 
-                next = *++it;
+				if (++it != seam.end())
+					next = *it;
             }
         }
         
