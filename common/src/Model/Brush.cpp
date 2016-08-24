@@ -266,6 +266,12 @@ namespace TrenchBroom {
                 assert(false);
             }
             
+            void faceWasFlipped(BrushFaceGeometry* faceGeometry) {
+                BrushFace* face = faceGeometry->payload();
+                assert(face != NULL);
+                face->invert();
+            }
+            
             void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) {
                 // Called when faces are split due to creating new vertices.
                 

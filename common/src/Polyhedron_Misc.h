@@ -106,6 +106,9 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* face) {}
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceWasFlipped(Face* face) {}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* original, Face* clone) {}
 
 template <typename T, typename FP, typename VP>

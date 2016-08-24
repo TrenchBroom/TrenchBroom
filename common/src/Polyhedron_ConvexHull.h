@@ -366,6 +366,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
             return addPointToPolygon(position, callback);
         case Math::PointStatus::PSAbove:
             face->flip();
+            callback.faceWasFlipped(face);
         case Math::PointStatus::PSBelow:
             return makePolyhedron(position, callback);
     }

@@ -266,6 +266,7 @@ public:
         virtual void faceWasCreated(Face* face);
         virtual void faceWillBeDeleted(Face* face);
         virtual void faceDidChange(Face* face);
+        virtual void faceWasFlipped(Face* face);
         virtual void faceWasSplit(Face* original, Face* clone);
         virtual void facesWillBeMerged(Face* remaining, Face* toDelete);
     };

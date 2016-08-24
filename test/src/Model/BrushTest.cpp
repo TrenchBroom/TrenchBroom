@@ -750,6 +750,31 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, moveTetrahedronVertexToOpposideSide) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3 top(0.0, 0.0, +16.0);
+            
+            Vec3::List points;
+            points.push_back(Vec3(-16.0, -16.0,   0.0));
+            points.push_back(Vec3(+16.0, -16.0,   0.0));
+            points.push_back(Vec3(  0.0, +16.0,   0.0));
+            points.push_back(top);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(points, "some_texture");
+            
+            Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, top), Vec3(0.0, 0.0, -32.0));
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(Vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
+            
+            brush->rebuildGeometry(worldBounds);
+            ASSERT_TRUE(brush->fullySpecified());
+            
+            delete brush;
+        }
+        
         TEST(BrushTest, moveEdge) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
