@@ -426,6 +426,8 @@ private:
     MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
     MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
     MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
+    bool validPolyhedronVertexMove(Vertex* vertex, const V& destination) const;
+    bool validPolyhedronVertexMoveDestination(const V& origin, const V& destination) const;
 public: // Convex hull; adding and removing points
     void addPoints(const typename V::List& points);
     void addPoints(const typename V::List& points, Callback& callback);

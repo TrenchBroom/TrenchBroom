@@ -1325,7 +1325,7 @@ namespace TrenchBroom {
             
             // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
             // If it was able to snap, that would be OK too.
-            assertCannotSnapTo(data, 64);
+            assertSnapTo(data, 64);
         }
     }
 }

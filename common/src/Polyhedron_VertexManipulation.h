@@ -386,6 +386,9 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertices, Callback& callback) {
     
     const V originalPosition = vertex->position();
+    if (!validPolyhedronVertexMove(vertex, destination))
+        return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, originalPosition, vertex);
+    
     Vertex* occupant = findVertexByPosition(destination);
     if (occupant != NULL) {
         if (!allowMergeIncidentVertices || vertex->findConnectingEdge(occupant) == NULL)
@@ -395,11 +398,44 @@ typename Polyhedron<T,FP,VP>::MoveVertexResult Polyhedron<T,FP,VP>::movePolyhedr
     removeVertex(vertex, callback);
     if (occupant != NULL)
         return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, occupant);
+
+    if (!validPolyhedronVertexMoveDestination(originalPosition, destination))
+        return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
     
     Vertex* newVertex = addPoint(destination, callback);
     if (newVertex == NULL)
         return MoveVertexResult(MoveVertexResult::Type_VertexDeleted, originalPosition);
     return MoveVertexResult(MoveVertexResult::Type_VertexMoved, originalPosition, newVertex);
 }
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::validPolyhedronVertexMove(Vertex* vertex, const V& destination) const {
+    // This is the potentially remaining face if the given vertex were to be removed.
+    Face* face = vertex->leaving()->next()->twin()->face();
+    if (face->vertexCount() != vertexCount() - 1)
+        return true;
+    
+    // If the given vertex is removed, then this polyhedron turns into a polygon.
+    // Now check whether the vertex is moved to a position inside the plane of the remaining face.
+    return face->pointStatus(destination) != Math::PointStatus::PSInside;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::validPolyhedronVertexMoveDestination(const V& origin, const V& destination) const {
+    // Check whether the vertex at origin would travel through any of the faces which are now visible from the original position.
+    // Assumes that the vertex has already been removed. Possible optimization: Get the newly woven faces when the vertex
+    // was removed.
+    
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
+    do {
+        if (currentFace->pointStatus(origin) == Math::PointStatus::PSAbove &&
+            currentFace->pointStatus(destination) == Math::PointStatus::PSBelow)
+            return false;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return true;
+}
+
 
 #endif
