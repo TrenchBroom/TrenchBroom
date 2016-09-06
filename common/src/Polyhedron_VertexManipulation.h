@@ -430,8 +430,15 @@ bool Polyhedron<T,FP,VP>::validPolyhedronVertexMoveDestination(const V& origin, 
     Face* currentFace = firstFace;
     do {
         if (currentFace->pointStatus(origin) == Math::PointStatus::PSAbove &&
-            currentFace->pointStatus(destination) == Math::PointStatus::PSBelow)
-            return false;
+            currentFace->pointStatus(destination) == Math::PointStatus::PSBelow) {
+            const Ray<T,3> ray(origin, (destination - origin).normalized());
+            const T distance = currentFace->intersectWithRay(ray, Math::Side_Front);
+            if (!Math::isnan(distance)) {
+                const T distance2 = distance * distance;
+                if (distance2 <= ray.squaredDistanceToPoint(destination).rayDistance)
+                    return false;
+            }
+        }
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
     return true;
