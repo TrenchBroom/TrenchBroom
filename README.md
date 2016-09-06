@@ -52,6 +52,22 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
+### TrenchBroom 2.0.0 Beta 2f3c498
+- Improved vertex manipulation with more degrees of freedom.
+- Improved vertex snapping.
+- Fixed crash when applying quick fixes.
+- Added #1408: Show warning for blank entity keys and values
+- Fixed #1423: TrenchBroom 2 not working in Windows XP
+- Fixed #1418: Angle values -1 and -2 not displayed for brush entities
+- Fixed #1402: Up and down arrow keys sometimes move objects along Z axis
+- Fixed #1401: Undo crash after rotation on Y axis
+- Fixed #1397: Crash when loading a map that was saved under a different name
+- Fixed #1395: Issues manager no longer fixing issues
+- Fixed #1394: CSG redo crash
+- Fixed #1393: Crash when when pressing keyboard shortcut to snap vertices
+- Fixed #1392: Bad performance when undoing / redoing
+
+
 ### TrenchBroom 2.0.0 Beta 31439f2
 - Fix rendering views flashing on Windows (#1389).
 - Don't crash when Quake 2 game path is not set or cannot be found (#1388).
