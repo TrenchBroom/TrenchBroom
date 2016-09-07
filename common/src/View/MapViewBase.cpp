@@ -913,6 +913,9 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doShowPopupMenu() {
+            if (!doBeforePopupMenu())
+                return;
+            
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
@@ -1127,6 +1130,7 @@ namespace TrenchBroom {
 
         void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
+        bool MapViewBase::doBeforePopupMenu() { return true; }
         void MapViewBase::doAfterPopupMenu() {}
     }
 }

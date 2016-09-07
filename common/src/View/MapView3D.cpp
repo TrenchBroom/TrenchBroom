@@ -589,6 +589,14 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
         
+        bool MapView3D::doBeforePopupMenu() {
+            if (cameraFlyModeActive())
+                return false;
+            
+            m_flyModeHelper->resetKeys();
+            return true;
+        }
+
         void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}
     }
 }

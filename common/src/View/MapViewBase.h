@@ -231,6 +231,7 @@ namespace TrenchBroom {
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
+            virtual bool doBeforePopupMenu();
             virtual void doAfterPopupMenu();
         };
     }
