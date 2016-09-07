@@ -39,6 +39,25 @@ namespace TrenchBroom {
             return NULL;
         }
         
+        TEST(WorldReaderTest, parseFailure_1424) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"yay\""
+                              "{\n"
+                              "( 0 0 0 ) ( 0 0 0 ) ( 0 0 0 ) __TB_empty -56 -72 -0 1 1\n"
+                              "( 1320 512 152 ) ( 1280 512 192 ) ( 1320 504 152 ) grill_wall03b_h -0 -72 -0 1 1\n"
+                              "( 1344 512 160 ) ( 1280 512 224 ) ( 1320 512 152 ) grill_wall03b_h -56 -72 -0 1 1\n"
+                              "( 1320 512 152 ) ( 1320 504 152 ) ( 1344 512 160 ) grill_wall03b_h -56 -0 -0 1 1\n"
+                              "( 0 0 0 ) ( 0 0 0 ) ( 0 0 0 ) __TB_empty -0 -72 -0 1 1\n"
+                              "( 1320 504 152 ) ( 1280 505.37931034482756 197.51724137931035 ) ( 1344 512 160 ) grill_wall03b_h -56 -72 -0 1 1\n"
+                              "}\n"
+                              "}\n");
+            BBox3 worldBounds(8192);
+            
+            WorldReader reader(data, NULL);
+            ASSERT_TRUE(reader.read(Model::MapFormat::Standard, worldBounds) != NULL);
+        }
+        
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
             BBox3 worldBounds(8192);

@@ -352,12 +352,6 @@ namespace TrenchBroom {
             const Vec3 p3 = parseVector().corrected();
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             
-            const Vec3 normal = crossed(p3 - p1, p2 - p1).normalized();
-            if (normal.null()) {
-                m_logger->warn("Skipping face at line %u: face points are colinear", static_cast<unsigned int>(token.line()));
-                return;
-            }
-            
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
             String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             if (textureName == Model::BrushFace::NoTextureName)
@@ -415,7 +409,12 @@ namespace TrenchBroom {
                 }
             }
             
-            brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY);
+            const Vec3 normal = crossed(p3 - p1, p2 - p1).normalized();
+            if (!normal.null()) {
+                brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY);
+            } else if (m_logger != NULL) {
+                m_logger->warn("Skipping face at line %u: face points are colinear", static_cast<unsigned int>(line));
+            }
         }
         
         Vec3 StandardMapParser::parseVector() {
