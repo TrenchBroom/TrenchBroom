@@ -219,8 +219,9 @@ namespace TrenchBroom {
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(tallBrushes.begin(), tallBrushes.end(), document->world());
-            document->select(nodes);
+            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(tallBrushes.begin(), tallBrushes.end(), document->editorContext());
+            document->world()->acceptAndRecurse(visitor);
+            document->select(visitor.nodes());
 
             VectorUtils::clearAndDelete(tallBrushes);
         }

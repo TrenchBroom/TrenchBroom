@@ -441,7 +441,11 @@ namespace TrenchBroom {
         
         void MapDocument::selectTouching(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+            
+            Model::CollectTouchingNodesVisitor<Model::BrushList::const_iterator> visitor(brushes.begin(), brushes.end(), editorContext());
+            m_world->acceptAndRecurse(visitor);
+            
+            const Model::NodeList nodes = visitor.nodes();
             
             Transaction transaction(this, "Select Touching");
             if (del)
@@ -453,8 +457,12 @@ namespace TrenchBroom {
         
         void MapDocument::selectInside(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+
+            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(brushes.begin(), brushes.end(), editorContext());
+            m_world->acceptAndRecurse(visitor);
             
+            const Model::NodeList nodes = visitor.nodes();
+
             Transaction transaction(this, "Select Inside");
             if (del)
                 deleteObjects();
