@@ -46,8 +46,6 @@ namespace TrenchBroom {
             bool m_ignoreSelection;
             Model::AttributeName m_lastSelectedName;
             int m_lastSelectedCol;
-            
-            bool m_valid;
         public:
             EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
             ~EntityAttributeGrid();
@@ -91,10 +89,6 @@ namespace TrenchBroom {
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
         private:
-            void OnIdle(wxIdleEvent& event);
-            void invalidate();
-            void validate();
-            
             void updateControls();
             Model::AttributeName selectedRowName() const;
         };

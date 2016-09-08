@@ -38,8 +38,7 @@ namespace TrenchBroom {
         m_document(document),
         m_lastHoveredCell(wxGridCellCoords(-1, -1)),
         m_ignoreSelection(false),
-        m_lastSelectedCol(0),
-        m_valid(false) {
+        m_lastSelectedCol(0) {
             createGui(document);
             bindObservers();
         }
@@ -274,8 +273,6 @@ namespace TrenchBroom {
             sizer->Add(m_grid, 1, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
-            
-            Bind(wxEVT_IDLE, &EntityAttributeGrid::OnIdle, this);
         }
         
         void EntityAttributeGrid::bindObservers() {
@@ -299,15 +296,15 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::documentWasNewed(MapDocument* document) {
-            invalidate();
+            updateControls();
         }
         
         void EntityAttributeGrid::documentWasLoaded(MapDocument* document) {
-            invalidate();
+            updateControls();
         }
         
         void EntityAttributeGrid::nodesDidChange(const Model::NodeList& nodes) {
-            invalidate();
+            updateControls();
         }
         
         void EntityAttributeGrid::selectionWillChange() {
@@ -316,23 +313,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
-            invalidate();
-        }
-        
-        void EntityAttributeGrid::OnIdle(wxIdleEvent& event) {
-            validate();
-            event.Skip();
-        }
-        
-        void EntityAttributeGrid::invalidate() {
-            m_valid = false;
-        }
-
-        void EntityAttributeGrid::validate() {
-            if (!m_valid) {
-                m_valid = true;
-                updateControls();
-            }
+            updateControls();
         }
 
         void EntityAttributeGrid::updateControls() {
