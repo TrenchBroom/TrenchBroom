@@ -194,7 +194,10 @@ namespace TrenchBroom {
             launchStr << path.asString() << " " << parameters;
 #endif
             
-            wxExecute(launchStr);
+            wxExecuteEnv env;
+            env.cwd = path.deleteLastComponent().asString();
+            
+            wxExecute(launchStr, wxEXEC_ASYNC, NULL, &env);
             EndModal(wxOK);
         }
         
