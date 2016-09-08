@@ -42,7 +42,7 @@ namespace TrenchBroom {
             bool operator()(const Node* node) const {
                 I cur = m_begin;
                 while (cur != m_end) {
-                    if (*cur != node && (*cur)ma->intersects(node))
+                    if (*cur != node && (*cur)->intersects(node))
                         return true;
                     ++cur;
                 }
