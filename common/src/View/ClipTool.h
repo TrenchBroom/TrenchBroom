@@ -67,7 +67,8 @@ namespace TrenchBroom {
                 bool hasPoints() const;
                 bool canAddPoint(const Vec3& point) const;
                 void addPoint(const Vec3& point, const Vec3::List& helpVectors);
-                bool removeLastPoint();
+                bool canRemoveLastPoint() const;
+                void removeLastPoint();
                 
                 bool canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const;
                 void beginDragPoint(const Model::PickResult& pickResult);
@@ -91,7 +92,8 @@ namespace TrenchBroom {
                 virtual bool doHasPoints() const = 0;
                 virtual bool doCanAddPoint(const Vec3& point) const = 0;
                 virtual void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) = 0;
-                virtual bool doRemoveLastPoint() = 0;
+                virtual bool doCanRemoveLastPoint() const = 0;
+                virtual void doRemoveLastPoint() = 0;
                 
                 virtual bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const = 0;
                 virtual void doBeginDragPoint(const Model::PickResult& pickResult) = 0;
@@ -147,6 +149,7 @@ namespace TrenchBroom {
             bool canAddPoint(const Vec3& point) const;
             bool hasPoints() const;
             void addPoint(const Vec3& point, const Vec3::List& helpVectors);
+            bool canRemoveLastPoint() const;
             bool removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
@@ -175,6 +178,8 @@ namespace TrenchBroom {
         private:
             bool doActivate();
             bool doDeactivate();
+            
+            bool doRemove();
             
             void bindObservers();
             void unbindObservers();

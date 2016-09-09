@@ -226,7 +226,6 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
-            Bind(wxEVT_MENU, &MapViewBase::OnRemoveLastClipPoint,          this, CommandIds::Actions::RemoveLastClipPoint);
 
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
@@ -531,12 +530,6 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_toolBox.performClip();
-        }
-
-        void MapViewBase::OnRemoveLastClipPoint(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_toolBox.removeLastClipPoint();
         }
 
         void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {

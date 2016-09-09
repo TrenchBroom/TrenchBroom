@@ -74,8 +74,12 @@ namespace TrenchBroom {
             return doAddPoint(point, helpVectors);
         }
         
-        bool ClipTool::ClipStrategy::removeLastPoint() {
-            return doRemoveLastPoint();
+        bool ClipTool::ClipStrategy::canRemoveLastPoint() const {
+            return doCanRemoveLastPoint();
+        }
+
+        void ClipTool::ClipStrategy::removeLastPoint() {
+            doRemoveLastPoint();
         }
         
         bool ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const {
@@ -229,11 +233,13 @@ namespace TrenchBroom {
                 ++m_numPoints;
             }
             
-            bool doRemoveLastPoint() {
-                if (m_numPoints == 0)
-                    return false;
+            bool doCanRemoveLastPoint() const {
+                return m_numPoints > 0;
+            }
+
+            void doRemoveLastPoint() {
+                assert(canRemoveLastPoint());
                 --m_numPoints;
-                return true;
             }
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const {
@@ -426,7 +432,8 @@ namespace TrenchBroom {
             bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
-            bool doRemoveLastPoint() { return false; }
+            bool doCanRemoveLastPoint() const { return false; }
+            void doRemoveLastPoint() {}
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) {}
@@ -599,8 +606,13 @@ namespace TrenchBroom {
             update();
         }
         
+        bool ClipTool::canRemoveLastPoint() const {
+            return m_strategy != NULL && m_strategy->canRemoveLastPoint();
+        }
+
         bool ClipTool::removeLastPoint() {
-            if (m_strategy != NULL && m_strategy->removeLastPoint()) {
+            if (canRemoveLastPoint()) {
+                m_strategy->removeLastPoint();
                 update();
                 return true;
             }
@@ -808,6 +820,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool ClipTool::doRemove() {
+            return removeLastPoint();
+        }
+
         void ClipTool::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
