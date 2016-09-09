@@ -43,11 +43,11 @@ namespace TrenchBroom {
         ToolControllerBase(),
         Tool(true),
         m_document(document) {}
-
+        
         Tool* SelectionTool::doGetTool() {
             return this;
         }
-
+        
         bool SelectionTool::doMouseClick(const InputState& inputState) {
             if (!handleClick(inputState))
                 return false;
@@ -135,22 +135,24 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit);
-                if (hit.type() == Model::Group::GroupHit) {
-                    Model::Group* group = Model::hitToGroup(hit);
-                    if (editorContext.selectable(group))
-                        document->openGroup(group);
-                } else if (hit.type() == Model::Brush::BrushHit) {
-                    const Model::Brush* brush = Model::hitToBrush(hit);
-                    const Model::Node* container = brush->container();
-                    if (editorContext.selectable(brush)) {
-                        const Model::NodeList& siblings = container->children();
-                        if (isMultiClick(inputState)) {
-                            document->select(siblings);
-                        } else {
-                            Transaction transaction(document, "Select Brushes");
-                            document->deselectAll();
-                            document->select(siblings);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
+                if (hit.isMatch()) {
+                    if (hit.type() == Model::Group::GroupHit) {
+                        Model::Group* group = Model::hitToGroup(hit);
+                        if (editorContext.selectable(group))
+                            document->openGroup(group);
+                    } else {
+                        const Model::Node* node = Model::hitToNode(hit);
+                        if (editorContext.selectable(node)) {
+                            const Model::Node* container = node->parent();
+                            const Model::NodeList& siblings = container->children();
+                            if (isMultiClick(inputState)) {
+                                document->select(siblings);
+                            } else {
+                                Transaction transaction(document, "Select Brushes");
+                                document->deselectAll();
+                                document->select(siblings);
+                            }
                         }
                     }
                 } else if (document->currentGroup() != NULL) {
@@ -174,15 +176,15 @@ namespace TrenchBroom {
         bool SelectionTool::isFaceClick(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKShift);
         }
-
+        
         bool SelectionTool::isMultiClick(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
-
+        
         const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::Hit::HitType type) const {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
-
+        
         void SelectionTool::doMouseScroll(const InputState& inputState) {
             if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
                 adjustGrid(inputState);
@@ -234,7 +236,7 @@ namespace TrenchBroom {
         
         void SelectionTool::drillSelection(const InputState& inputState) {
             const Model::Hit::List hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
-
+            
             MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             
@@ -249,7 +251,7 @@ namespace TrenchBroom {
                 document->select(nextNode);
             }
         }
-
+        
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             if (!handleClick(inputState) || !isMultiClick(inputState))
                 return false;
@@ -326,14 +328,14 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
         }
-
+        
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch() && Model::hitToNode(hit)->selected())
                 renderContext.setShowSelectionGuide();
         }
-
+        
         bool SelectionTool::doCancel() {
             // closing the current group is handled in MapViewBase
             return false;
