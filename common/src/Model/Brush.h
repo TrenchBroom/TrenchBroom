@@ -56,6 +56,7 @@ namespace TrenchBroom {
             class CanMoveBoundaryCallback;
             class CanMoveBoundary;
             class MoveVerticesCallback;
+            typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
@@ -131,6 +132,7 @@ namespace TrenchBroom {
             // geometry access
             size_t vertexCount() const;
             VertexList vertices() const;
+            bool hasVertex(const Vec3& position) const;
             
             size_t edgeCount() const;
             EdgeList edges() const;
@@ -142,6 +144,8 @@ namespace TrenchBroom {
             // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
+            void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
             
             bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
             void snapVertices(const BBox3& worldBounds, size_t snapTo);
