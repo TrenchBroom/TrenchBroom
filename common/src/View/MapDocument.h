@@ -306,6 +306,10 @@ namespace TrenchBroom {
             bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            
+            bool removeVertices(const Model::VertexToBrushesMap& vertices);
+            bool removeEdges(const Model::VertexToEdgesMap& edges);
+            bool removeFaces(const Model::VertexToFacesMap& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // debug commands

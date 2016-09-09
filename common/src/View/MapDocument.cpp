@@ -85,6 +85,9 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/RemoveBrushEdgesCommand.h"
+#include "View/RemoveBrushFacesCommand.h"
+#include "View/RemoveBrushVerticesCommand.h"
 #include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
@@ -1124,6 +1127,18 @@ namespace TrenchBroom {
             return submitAndStore(SplitBrushFacesCommand::split(faces, delta));
         }
         
+        bool MapDocument::removeVertices(const Model::VertexToBrushesMap& vertices) {
+            return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
+        }
+        
+        bool MapDocument::removeEdges(const Model::VertexToEdgesMap& edges) {
+            return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
+        }
+        
+        bool MapDocument::removeFaces(const Model::VertexToFacesMap& faces) {
+            return submitAndStore(RemoveBrushFacesCommand::remove(faces));
+        }
+
         void MapDocument::printVertices() {
             if (hasSelectedBrushFaces()) {
                 Model::BrushFaceList::const_iterator fIt, fEnd;

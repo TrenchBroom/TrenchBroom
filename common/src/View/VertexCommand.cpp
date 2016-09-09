@@ -106,6 +106,34 @@ namespace TrenchBroom {
             assert(brushes.size() == brushFaces.size());
         }
 
+        Model::BrushVerticesMap VertexCommand::brushVertexMap(const Model::BrushEdgesMap& edges) {
+            Model::BrushVerticesMap result;
+            Model::BrushEdgesMap::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Edge3::List& edgeList = it->second;
+                
+                Vec3::List vertices = Edge3::asVertexList(edgeList);
+                VectorUtils::sortAndRemoveDuplicates(vertices);
+                result.insert(std::make_pair(brush, vertices));
+            }
+            return result;
+        }
+        
+        Model::BrushVerticesMap VertexCommand::brushVertexMap(const Model::BrushFacesMap& faces) {
+            Model::BrushVerticesMap result;
+            Model::BrushFacesMap::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Polygon3::List& faceList = it->second;
+                
+                Vec3::List vertices = Polygon3::asVertexList(faceList);
+                VectorUtils::sortAndRemoveDuplicates(vertices);
+                result.insert(std::make_pair(brush, vertices));
+            }
+            return result;
+        }
+
         bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (!doCanDoVertexOperation(document))
                 return false;
