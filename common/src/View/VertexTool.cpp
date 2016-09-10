@@ -33,6 +33,9 @@
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
+#include "View/RemoveBrushEdgesCommand.h"
+#include "View/RemoveBrushFacesCommand.h"
+#include "View/RemoveBrushVerticesCommand.h"
 #include "View/Selection.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
@@ -126,6 +129,22 @@ namespace TrenchBroom {
                 m_handleManager.toggleVertexHandles(contained);
             }
             refreshViews();
+        }
+
+        bool VertexTool::canRemoveSelection() const {
+            return m_handleManager.hasSelectedHandles();
+        }
+        
+        void VertexTool::removeSelection() {
+            assert(canRemoveSelection());
+            
+            if (m_handleManager.selectedVertexCount() > 0) {
+                lock(m_document)->removeVertices(m_handleManager.selectedVertexHandles());
+            } else if (m_handleManager.selectedEdgeCount() > 0) {
+                lock(m_document)->removeEdges(m_handleManager.selectedEdgeHandles());
+            } else if (m_handleManager.selectedFaceCount() > 0) {
+                lock(m_document)->removeFaces(m_handleManager.selectedFaceHandles());
+            }
         }
 
         bool VertexTool::beginMove(const Model::Hit& hit) {
@@ -566,7 +585,10 @@ namespace TrenchBroom {
                     command->type() == MoveBrushEdgesCommand::Type ||
                     command->type() == MoveBrushFacesCommand::Type ||
                     command->type() == SplitBrushEdgesCommand::Type ||
-                    command->type() == SplitBrushFacesCommand::Type);
+                    command->type() == SplitBrushFacesCommand::Type ||
+                    command->type() == RemoveBrushVerticesCommand::Type ||
+                    command->type() == RemoveBrushEdgesCommand::Type ||
+                    command->type() == RemoveBrushFacesCommand::Type);
         }
 
         class AddToHandleManager : public Model::NodeVisitor {

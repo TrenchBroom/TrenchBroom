@@ -1327,5 +1327,112 @@ namespace TrenchBroom {
             // If it was able to snap, that would be OK too.
             assertSnapTo(data, 64);
         }
+        
+        TEST(BrushTest, removeSingleVertex) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, +32.0)));
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, -32.0)));
+            
+            ASSERT_EQ(6u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, +32.0)));
+            
+            ASSERT_EQ(5u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, -32.0)));
+            
+            ASSERT_EQ(4u, brush->vertexCount());
+            ASSERT_FALSE(brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+
+            
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, -32.0))));
+            
+            delete brush;
+        }
+
+        
+        TEST(BrushTest, removeMultipleVertices) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            BrushBuilder builder(&world, worldBounds);
+
+            Vec3::List vertices;
+            vertices.push_back(Vec3(-32.0, -32.0, -32.0));
+            vertices.push_back(Vec3(-32.0, -32.0, +32.0));
+            vertices.push_back(Vec3(-32.0, +32.0, -32.0));
+            vertices.push_back(Vec3(-32.0, +32.0, +32.0));
+            vertices.push_back(Vec3(+32.0, -32.0, -32.0));
+            vertices.push_back(Vec3(+32.0, -32.0, +32.0));
+            vertices.push_back(Vec3(+32.0, +32.0, -32.0));
+            vertices.push_back(Vec3(+32.0, +32.0, +32.0));
+            
+            for (size_t i = 0; i < 6; ++i) {
+                for (size_t j = i + 1; j < 7; ++j) {
+                    for (size_t k = j + 1; k < 8; ++k) {
+                        Vec3::List toRemove;
+                        toRemove.push_back(vertices[i]);
+                        toRemove.push_back(vertices[j]);
+                        toRemove.push_back(vertices[k]);
+                        
+                        Brush* brush = builder.createBrush(vertices, "asdf");
+                        ASSERT_TRUE(brush->canRemoveVertices(worldBounds, toRemove));
+                        brush->removeVertices(worldBounds, toRemove);
+                        
+                        for (size_t l = 0; l < 8; ++l) {
+                            if (l != i && l != j && l != k)
+                                ASSERT_TRUE(brush->hasVertex(vertices[l]));
+                        }
+                        
+                        delete brush;
+                    }
+                }
+            }
+        }
     }
 }

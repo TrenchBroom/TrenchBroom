@@ -79,6 +79,9 @@ namespace TrenchBroom {
             bool handleDoubleClicked(const Model::Hit& hit);
             bool select(const Model::Hit::List& hits, bool addToSelection);
             void select(const Lasso& lasso, bool modifySelection);
+            
+            bool canRemoveSelection() const;
+            void removeSelection();
 
             bool beginMove(const Model::Hit& hit);
             MoveResult move(const Vec3& delta);

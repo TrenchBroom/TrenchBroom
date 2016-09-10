@@ -32,6 +32,7 @@
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
 #include "View/CachingLogger.h"
+#include "View/ClipTool.h"
 #include "View/CommandIds.h"
 #include "View/CommandWindowUpdateLocker.h"
 #include "View/CompilationDialog.h"
@@ -48,6 +49,7 @@
 #include "View/ReplaceTextureDialog.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
+#include "View/VertexTool.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
@@ -698,8 +700,14 @@ namespace TrenchBroom {
         void MapFrame::OnEditDelete(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDelete())
-                m_document->deleteObjects();
+            if (canDelete()) {
+                if (m_mapView->clipToolActive())
+                    m_mapView->clipTool()->removeLastPoint();
+                else if (m_mapView->vertexToolActive())
+                    m_mapView->vertexTool()->removeSelection();
+                else if (!m_mapView->anyToolActive())
+                    m_document->deleteObjects();
+            }
         }
 
         void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
@@ -1391,7 +1399,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canCut() const {
-            return canDelete();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canCopy() const {
@@ -1404,7 +1412,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canDelete() const {
-            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+            if (m_mapView->clipToolActive())
+                return m_mapView->clipTool()->canRemoveLastPoint();
+            if (m_mapView->vertexToolActive())
+                return m_mapView->vertexTool()->canRemoveSelection();
+            return canCut();
         }
 
         bool MapFrame::canDuplicate() const {

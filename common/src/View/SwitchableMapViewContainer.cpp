@@ -135,6 +135,10 @@ namespace TrenchBroom {
             m_toolBox->toggleClipTool();
         }
         
+        ClipTool* SwitchableMapViewContainer::clipTool() {
+            return m_toolBox->clipTool();
+        }
+
         bool SwitchableMapViewContainer::rotateObjectsToolActive() const {
             return m_toolBox->rotateObjectsToolActive();
         }
@@ -157,6 +161,10 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::toggleVertexTool() {
             m_toolBox->toggleVertexTool();
+        }
+
+        VertexTool* SwitchableMapViewContainer::vertexTool() {
+            return m_toolBox->vertexTool();
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {

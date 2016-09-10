@@ -610,6 +610,11 @@ namespace TrenchBroom {
             return VertexList(m_geometry->vertices());
         }
         
+        bool Brush::hasVertex(const Vec3& position) const {
+            assert(m_geometry != NULL);
+            return m_geometry->findVertexByPosition(position) != NULL;
+        }
+
         size_t Brush::edgeCount() const {
             assert(m_geometry != NULL);
             return m_geometry->edgeCount();
@@ -675,6 +680,47 @@ namespace TrenchBroom {
             return result.newVertexPositions;
         }
         
+        bool Brush::canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            
+            BrushGeometry testGeometry(*m_geometry);
+            
+            Vec3::List::const_iterator it, end;
+            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
+                const Vec3& position = *it;
+                BrushVertex* vertex = testGeometry.findVertexByPosition(position);
+                if (vertex == NULL)
+                    return false;
+                
+                testGeometry.removeVertex(vertex);
+            }
+            
+            return testGeometry.polyhedron();
+        }
+        
+        void Brush::removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            assert(canRemoveVertices(worldBounds, vertexPositions));
+
+            const NotifyNodeChange nodeChange(this);
+            
+            Vec3::List::const_iterator it, end;
+            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
+                const Vec3& position = *it;
+                BrushVertex* vertex = m_geometry->findVertexByPosition(position);
+                assert(vertex != NULL);
+                
+                MoveVerticesCallback callback(m_geometry);
+                m_geometry->removeVertex(vertex, callback);
+            }
+
+            updateFacesFromGeometry(worldBounds);
+            assert(fullySpecified());
+            nodeBoundsDidChange();
+        }
+
         bool Brush::canSnapVertices(const BBox3& worldBounds, const size_t snapTo) {
             Brush* clone = this->clone(worldBounds);
             try {

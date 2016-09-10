@@ -322,13 +322,6 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::ToggleClipSide, "Toggle clip side", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::PerformClip, "Perform clip", true));
-#ifdef __APPLE__
-            createViewShortcut(KeyboardShortcut(WXK_BACK, WXK_CONTROL), ActionContext_ClipTool,
-                               Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
-#else
-            createViewShortcut(KeyboardShortcut(WXK_DELETE, WXK_CONTROL), ActionContext_ClipTool,
-                               Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
-#endif
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true),
