@@ -34,7 +34,8 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow2::Save() const {
             const SplitterWindow2* window = Get();
-            const wxCoord scaledRatio = static_cast<int>(Scaling * window->m_currentSplitRatio);
+            const double ratio = window->m_currentSplitRatio == -1.0 ? window->m_initialSplitRatio : window->m_currentSplitRatio;
+            const wxCoord scaledRatio = static_cast<int>(Scaling * ratio);
             SaveValue("SplitRatio", scaledRatio);
         }
         

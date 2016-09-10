@@ -235,7 +235,7 @@ namespace TrenchBroom {
             m_oldSize = event.GetSize();
             event.Skip();
         }
-        
+
         void SplitterWindow2::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
             initSashPosition();
             
