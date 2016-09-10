@@ -76,7 +76,7 @@ namespace TrenchBroom {
             IndexMap<Vec3>::List::const_iterator it, end;
             for (it = elements.begin(), end = elements.end(); it != end; ++it) {
                 const Vec3& elem = *it;
-                std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
+                std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
         }
         
