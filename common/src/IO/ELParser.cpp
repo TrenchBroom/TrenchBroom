@@ -284,8 +284,11 @@ namespace TrenchBroom {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::String | ELToken::Number | ELToken::Boolean | ELToken::OBracket | ELToken::OBrace, token);
             
-            if (token.hasType(ELToken::String))
-                return EL::LiteralExpression::create(EL::Value(token.data()), token.line(), token.column());
+            if (token.hasType(ELToken::String)) {
+                // Escaping happens in EL::Value::appendToStream
+                const String value = StringUtils::unescape(token.data(), "\\\"");
+                return EL::LiteralExpression::create(EL::Value(value), token.line(), token.column());
+            }
             if (token.hasType(ELToken::Number))
                 return EL::LiteralExpression::create(EL::Value(token.toFloat<EL::NumberType>()), token.line(), token.column());
             if (token.hasType(ELToken::Boolean))

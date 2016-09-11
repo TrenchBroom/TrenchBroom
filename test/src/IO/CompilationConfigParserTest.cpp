@@ -374,5 +374,34 @@ namespace TrenchBroom {
             profile->task(0)->accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
             profile->task(1)->accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
         }
+        
+        TEST(CompilationConfigParserTest, parseError_1437_unescaped_backslashes) {
+            const String config("{\n"
+                                "	\"profiles\": [\n"
+                                "		{\n"
+                                "			\"name\": \"Full Compile\",\n"
+                                "			\"tasks\": [\n"
+                                "				{\n"
+                                "					\"source\": \"${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp\",\n"
+                                "					\"target\": \"C:\\\\quake2\\\\chaos\\\\maps\\\\\",\n" // The trailing backslash of the path has to be escaped.
+                                "					\"type\": \"copy\"\n"
+                                "				}\n"
+                                "			],\n"
+                                "			\"workdir\": \"${MAP_DIR_PATH}\"\n"
+                                "		}\n"
+                                "	],\n"
+                                "	\"version\": 1\n"
+                                "}\n");
+            CompilationConfigParser parser(config);
+            
+            Model::CompilationConfig result = parser.parse();
+            ASSERT_EQ(1u, result.profileCount());
+
+            const Model::CompilationProfile* profile = result.profile(0);
+            ASSERT_EQ(String("Full Compile"), profile->name());
+            ASSERT_EQ(1u, profile->taskCount());
+            
+            profile->task(0)->accept(AssertCompilationCopyFilesVisitor("${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
+        }
     }
 }

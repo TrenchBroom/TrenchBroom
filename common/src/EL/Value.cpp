@@ -100,7 +100,10 @@ namespace TrenchBroom {
         }
         
         ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
-        void StringValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "\"" << m_value << "\""; }
+        void StringValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+            // Unescaping happens in IO::ELParser::parseLiteral
+            str << "\"" << StringUtils::escape(m_value, "\\\"") << "\"";
+        }
         
         
         

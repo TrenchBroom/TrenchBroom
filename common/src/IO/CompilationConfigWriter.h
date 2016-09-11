@@ -47,6 +47,8 @@ namespace TrenchBroom {
             class WriteCompilationTaskVisitor;
             EL::Value writeTasks(const Model::CompilationProfile* profile) const;
             
+            String escape(const String& str) const;
+            
             deleteCopyAndAssignment(CompilationConfigWriter)
         };
     }
