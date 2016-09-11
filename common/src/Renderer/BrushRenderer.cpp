@@ -106,21 +106,21 @@ namespace TrenchBroom {
 
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
-        void BrushRenderer::NoFilter::doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFaces) const {
+        void BrushRenderer::NoFilter::doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
             const Model::BrushFaceList& faces = brush->faces();
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 const Model::BrushFace* face = *it;
-                collectFaces.accept(face);
+                faceAcceptor.accept(face);
             }
         }
         
-        void BrushRenderer::NoFilter::doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdges) const {
+        void BrushRenderer::NoFilter::doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
             const Model::Brush::EdgeList& edges = brush->edges();
             Model::Brush::EdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
-                collectEdges.accept(edge);
+                edgeAcceptor.accept(edge);
             }
         }
         
@@ -251,18 +251,18 @@ namespace TrenchBroom {
             m_showHiddenBrushes(showHiddenBrushes),
             m_noFilter(false) {}
             
-            void doCollectFaces(const Model::Brush* brush, FaceAcceptor& collectFaces) const {
+            void doCollectFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const {
                 if (m_showHiddenBrushes)
-                    m_noFilter.collectFaces(brush, collectFaces);
+                    m_noFilter.collectFaces(brush, faceAcceptor);
                 else
-                    m_filter.collectFaces(brush, collectFaces);
+                    m_filter.collectFaces(brush, faceAcceptor);
             }
             
-            void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& collectEdges) const {
+            void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const {
                 if (m_showHiddenBrushes)
-                    m_noFilter.collectEdges(brush, collectEdges);
+                    m_noFilter.collectEdges(brush, edgeAcceptor);
                 else
-                    m_filter.collectEdges(brush, collectEdges);
+                    m_filter.collectEdges(brush, edgeAcceptor);
             }
 
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }

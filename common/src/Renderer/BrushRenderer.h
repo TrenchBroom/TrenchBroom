@@ -57,13 +57,13 @@ namespace TrenchBroom {
                 
                 Filter& operator=(const Filter& other);
                 
-                void collectFaces(const Model::Brush* brush, FaceAcceptor& collectFaces) const;
-                void collectEdges(const Model::Brush* brush, EdgeAcceptor& collectEdges) const;
+                void collectFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void collectEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
                 
                 bool transparent(const Model::Brush* brush) const;
             private:
-                virtual void doCollectFaces(const Model::Brush* brush, FaceAcceptor& collectFaces) const = 0;
-                virtual void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& collectEdges) const = 0;
+                virtual void doCollectFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const = 0;
+                virtual void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const = 0;
                 virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
             };
             
@@ -97,8 +97,8 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                void doCollectFaces(const Model::Brush* brush, FaceAcceptor& collectFaces) const;
-                void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& collectEdges) const;
+                void doCollectFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
             private:
                 NoFilter(const NoFilter& other);
