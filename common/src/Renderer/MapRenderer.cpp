@@ -52,13 +52,47 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return editable(face) && (selected(face) || selected(face->brush())) && visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                const bool brushSelected = selected(brush);
+                const bool brushEditable = editable(brush);
+                
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    const Model::BrushFace* face = *it;
+                    
+                    if (brushEditable && (selected(face) || brushSelected) && brushVisible) {
+                         provideFaces.accept(face);
+                    }
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return selected(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushSelected = selected(brush);
+                
+                const Model::Brush::EdgeList& edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    
+                    const Model::BrushFace* first = edge->firstFace()->payload();
+                    const Model::BrushFace* second = edge->secondFace()->payload();
+                    assert(second->brush() == brush);
+                    
+                    if (brushSelected || selected(first) || selected(second)) {
+                         provideEdges.accept(edge);
+                    }
+                }
             }
+            
+//            bool doShow(const Model::BrushFace* face) const {
+//                return editable(face) && (selected(face) || selected(face->brush())) && visible(face);
+//            }
+//            
+//            bool doShow(const Model::BrushEdge* edge) const {
+//                return selected(edge);
+//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return false;
@@ -70,13 +104,41 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                
+                if (brushVisible) {
+                    // collect all faces
+                    const Model::BrushFaceList& faces = brush->faces();
+                    Model::BrushFaceList::const_iterator it, end;
+                    for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                        const Model::BrushFace* face = *it;
+                         provideFaces.accept(face);
+                    }
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return visible(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
+                
+                if (brushVisible) {
+                    // collect all edges
+                    const Model::Brush::EdgeList& edges = brush->edges();
+                    Model::Brush::EdgeList::const_iterator it, end;
+                    for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                        const Model::BrushEdge* edge = *it;
+                         provideEdges.accept(edge);
+                    }
+                }
             }
+            
+//            bool doShow(const Model::BrushFace* face) const {
+//                return visible(face);
+//            }
+//            
+//            bool doShow(const Model::BrushEdge* edge) const {
+//                return visible(edge);
+//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return brush->transparent();
@@ -88,13 +150,51 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return editable(face) && !selected(face) && visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                const bool brushEditable = editable(brush);
+                
+                // collect faces
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    const Model::BrushFace* face = *it;
+                    
+                    if (brushEditable && !selected(face) && brushVisible) {
+                         provideFaces.accept(face);
+                    }
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return !selected(edge) && visible(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
+                const bool brushSelected = selected(brush);
+                
+                // collect edges
+                const Model::Brush::EdgeList& edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
+                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    const Model::BrushEdge* edge = *it;
+                    
+                    const Model::BrushFace* first = edge->firstFace()->payload();
+                    const Model::BrushFace* second = edge->secondFace()->payload();
+                    assert(second->brush() == brush);
+                    
+                    const bool edgeSelected = (brushSelected || selected(first) || selected(second));
+                    
+                    if (!edgeSelected && brushVisible) {
+                         provideEdges.accept(edge);
+                    }
+                }
             }
+            
+//            bool doShow(const Model::BrushFace* face) const {
+//                return editable(face) && !selected(face) && visible(face);
+//            }
+//            
+//            bool doShow(const Model::BrushEdge* edge) const {
+//                return !selected(edge) && visible(edge);
+//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return brush->transparent();

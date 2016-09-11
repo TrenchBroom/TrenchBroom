@@ -37,6 +37,18 @@ namespace TrenchBroom {
         
         class BrushRenderer {
         public:
+            class FaceAcceptor {
+            public:
+                virtual ~FaceAcceptor();
+                virtual void accept(const Model::BrushFace* face) = 0;
+            };
+            
+            class EdgeAcceptor {
+            public:
+                virtual ~EdgeAcceptor();
+                virtual void accept(const Model::BrushEdge* edge) = 0;
+            };
+            
             class Filter {
             public:
                 Filter();
@@ -45,12 +57,13 @@ namespace TrenchBroom {
                 
                 Filter& operator=(const Filter& other);
                 
-                bool show(const Model::BrushFace* face) const;
-                bool show(const Model::BrushEdge* edge) const;
+                void  provideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void  provideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
+                
                 bool transparent(const Model::Brush* brush) const;
             private:
-                virtual bool doShow(const Model::BrushFace* face) const = 0;
-                virtual bool doShow(const Model::BrushEdge* edge) const = 0;
+                virtual void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const = 0;
+                virtual void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const = 0;
                 virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
             };
             
@@ -84,8 +97,8 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                bool doShow(const Model::BrushFace* face) const;
-                bool doShow(const Model::BrushEdge* edge) const;
+                void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
             private:
                 NoFilter(const NoFilter& other);
