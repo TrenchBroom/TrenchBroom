@@ -45,12 +45,12 @@ namespace TrenchBroom {
         
         BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
 
-        void BrushRenderer::Filter::collectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
-            doCollectFaces(brush, collectFace);
+        void BrushRenderer::Filter:: provideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
+            doProvideFaces(brush, collectFace);
         }
         
-        void BrushRenderer::Filter::collectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
-            doCollectEdges(brush, collectEdge);
+        void BrushRenderer::Filter:: provideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
+            doProvideEdges(brush, collectEdge);
         }
         
         bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  {
@@ -106,7 +106,7 @@ namespace TrenchBroom {
 
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
-        void BrushRenderer::NoFilter::doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
+        void BrushRenderer::NoFilter::doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
             const Model::BrushFaceList& faces = brush->faces();
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             }
         }
         
-        void BrushRenderer::NoFilter::doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
+        void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
             const Model::Brush::EdgeList& edges = brush->edges();
             Model::Brush::EdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
@@ -251,18 +251,18 @@ namespace TrenchBroom {
             m_showHiddenBrushes(showHiddenBrushes),
             m_noFilter(false) {}
             
-            void doCollectFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const {
+            void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const {
                 if (m_showHiddenBrushes)
-                    m_noFilter.collectFaces(brush, faceAcceptor);
+                    m_noFilter.provideFaces(brush, faceAcceptor);
                 else
-                    m_filter.collectFaces(brush, faceAcceptor);
+                    m_filter.provideFaces(brush, faceAcceptor);
             }
             
-            void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const {
+            void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const {
                 if (m_showHiddenBrushes)
-                    m_noFilter.collectEdges(brush, edgeAcceptor);
+                    m_noFilter.provideEdges(brush, edgeAcceptor);
                 else
-                    m_filter.collectEdges(brush, edgeAcceptor);
+                    m_filter.provideEdges(brush, edgeAcceptor);
             }
 
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             }
             
             void countFaceVertices(const Model::Brush* brush) {
-                m_filter.collectFaces(brush, *this);
+                m_filter.provideFaces(brush, *this);
             }
             
             void accept(const Model::BrushFace* face) {
@@ -320,7 +320,7 @@ namespace TrenchBroom {
             }
             
             void collectFaceVertices(const Model::Brush* brush) {
-                m_filter.collectFaces(brush, *this);
+                m_filter.provideFaces(brush, *this);
             }
             
             void accept(const Model::BrushFace* face) {
@@ -363,7 +363,7 @@ namespace TrenchBroom {
             void countFaceIndices(const Model::Brush* brush) {
                 // HACK:
                 m_brushTransparent = m_filter.transparent(brush);
-                m_filter.collectFaces(brush, *this);
+                m_filter.provideFaces(brush, *this);
             }
             
             void accept(const Model::BrushFace* face) {
@@ -374,7 +374,7 @@ namespace TrenchBroom {
             }
             
             void countEdgeIndices(const Model::Brush* brush) {
-                m_filter.collectEdges(brush, *this);
+                m_filter.provideEdges(brush, *this);
             }
             
             void accept(const Model::BrushEdge* edge) {
@@ -421,7 +421,7 @@ namespace TrenchBroom {
                 // HACK: cache this now
                 m_brushTransparent = m_filter.transparent(brush);
                 
-                m_filter.collectFaces(brush, *this);
+                m_filter.provideFaces(brush, *this);
             }
             
             void accept(const Model::BrushFace* face) {
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             }
             
             void collectEdgeIndices(const Model::Brush* brush) {
-                m_filter.collectEdges(brush, *this);
+                m_filter.provideEdges(brush, *this);
             }
             
             void accept(const Model::BrushEdge* edge) {
