@@ -52,7 +52,7 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            void doCollectShownFaces(const Model::Brush* brush, BrushRenderer::CollectShownFaces &collectFaces) const {
+            void doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFaces) const {
                 const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
                 const bool brushEditable = editable(brush);
@@ -63,12 +63,12 @@ namespace TrenchBroom {
                     const Model::BrushFace* face = *it;
                     
                     if (brushEditable && (selected(face) || brushSelected) && brushVisible) {
-                        collectFaces.showFace(face);
+                        collectFaces.accept(face);
                     }
                 }
             }
             
-            void doCollectShownEdges(const Model::Brush* brush, BrushRenderer::CollectShownEdges &collectEdges) const {
+            void doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdges) const {
                 const bool brushSelected = selected(brush);
                 
                 const Model::Brush::EdgeList& edges = brush->edges();
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                     assert(second->brush() == brush);
                     
                     if (brushSelected || selected(first) || selected(second)) {
-                        collectEdges.showEdge(edge);
+                        collectEdges.accept(edge);
                     }
                 }
             }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            void doCollectShownFaces(const Model::Brush* brush, BrushRenderer::CollectShownFaces &collectFaces) const {
+            void doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFaces) const {
                 const bool brushVisible = visible(brush);
                 
                 if (brushVisible) {
@@ -113,12 +113,12 @@ namespace TrenchBroom {
                     Model::BrushFaceList::const_iterator it, end;
                     for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                         const Model::BrushFace* face = *it;
-                        collectFaces.showFace(face);
+                        collectFaces.accept(face);
                     }
                 }
             }
             
-            void doCollectShownEdges(const Model::Brush* brush, BrushRenderer::CollectShownEdges &collectEdges) const {
+            void doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdges) const {
                 const bool brushVisible = visible(brush);
                 
                 if (brushVisible) {
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     Model::Brush::EdgeList::const_iterator it, end;
                     for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                         const Model::BrushEdge* edge = *it;
-                        collectEdges.showEdge(edge);
+                        collectEdges.accept(edge);
                     }
                 }
             }
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            void doCollectShownFaces(const Model::Brush* brush, BrushRenderer::CollectShownFaces &collectFaces) const {
+            void doCollectFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFaces) const {
                 const bool brushVisible = visible(brush);
                 const bool brushEditable = editable(brush);
                 
@@ -161,12 +161,12 @@ namespace TrenchBroom {
                     const Model::BrushFace* face = *it;
                     
                     if (brushEditable && !selected(face) && brushVisible) {
-                        collectFaces.showFace(face);
+                        collectFaces.accept(face);
                     }
                 }
             }
             
-            void doCollectShownEdges(const Model::Brush* brush, BrushRenderer::CollectShownEdges &collectEdges) const {
+            void doCollectEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdges) const {
                 const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
                 
@@ -183,7 +183,7 @@ namespace TrenchBroom {
                     const bool edgeSelected = (brushSelected || selected(first) || selected(second));
                     
                     if (!edgeSelected && brushVisible) {
-                        collectEdges.showEdge(edge);
+                        collectEdges.accept(edge);
                     }
                 }
             }
