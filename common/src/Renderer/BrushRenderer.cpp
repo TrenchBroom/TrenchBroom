@@ -203,10 +203,10 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
-            if (showHiddenBrushes == m_showHiddenBrushes)
-                return;
-            m_showHiddenBrushes = showHiddenBrushes;
-            invalidate();
+            if (showHiddenBrushes != m_showHiddenBrushes) {
+                m_showHiddenBrushes = showHiddenBrushes;
+                invalidate();
+            }
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -252,19 +252,17 @@ namespace TrenchBroom {
             m_noFilter(false) {}
             
             void doCollectFaces(const Model::Brush* brush, FaceAcceptor& collectFaces) const {
-                if (m_showHiddenBrushes) {
+                if (m_showHiddenBrushes)
                     m_noFilter.collectFaces(brush, collectFaces);
-                    return;
-                }
-                m_filter.collectFaces(brush, collectFaces);
+                else
+                    m_filter.collectFaces(brush, collectFaces);
             }
             
             void doCollectEdges(const Model::Brush* brush, EdgeAcceptor& collectEdges) const {
-                if (m_showHiddenBrushes) {
+                if (m_showHiddenBrushes)
                     m_noFilter.collectEdges(brush, collectEdges);
-                    return;
-                }
-                m_filter.collectEdges(brush, collectEdges);
+                else
+                    m_filter.collectEdges(brush, collectEdges);
             }
 
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
