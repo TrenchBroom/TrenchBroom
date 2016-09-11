@@ -37,6 +37,18 @@ namespace TrenchBroom {
         
         class BrushRenderer {
         public:
+            class CollectShownFaces {
+            public:
+                virtual ~CollectShownFaces();
+                virtual void showFace(const Model::BrushFace* face) = 0;
+            };
+            
+            class CollectShownEdges {
+            public:
+                virtual ~CollectShownEdges();
+                virtual void showEdge(const Model::BrushEdge* edge) = 0;
+            };
+            
             class Filter {
             public:
                 Filter();
@@ -45,12 +57,17 @@ namespace TrenchBroom {
                 
                 Filter& operator=(const Filter& other);
                 
-                bool show(const Model::BrushFace* face) const;
-                bool show(const Model::BrushEdge* edge) const;
+                void collectShownFaces(const Model::Brush* brush, CollectShownFaces &collectFaces) const;
+                void collectShownEdges(const Model::Brush* brush, CollectShownEdges &collectEdges) const;
+                
+//                bool show(const Model::BrushFace* face) const;
+//                bool show(const Model::BrushEdge* edge) const;
                 bool transparent(const Model::Brush* brush) const;
             private:
-                virtual bool doShow(const Model::BrushFace* face) const = 0;
-                virtual bool doShow(const Model::BrushEdge* edge) const = 0;
+                virtual void doCollectShownFaces(const Model::Brush* brush, CollectShownFaces &collectFaces) const = 0;
+                virtual void doCollectShownEdges(const Model::Brush* brush, CollectShownEdges &collectEdges) const = 0;
+//                virtual bool doShow(const Model::BrushFace* face) const = 0;
+//                virtual bool doShow(const Model::BrushEdge* edge) const = 0;
                 virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
             };
             
@@ -84,8 +101,10 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                bool doShow(const Model::BrushFace* face) const;
-                bool doShow(const Model::BrushEdge* edge) const;
+//                bool doShow(const Model::BrushFace* face) const;
+//                bool doShow(const Model::BrushEdge* edge) const;
+                void doCollectShownFaces(const Model::Brush* brush, CollectShownFaces &collectFaces) const;
+                void doCollectShownEdges(const Model::Brush* brush, CollectShownEdges &collectEdges) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
             private:
                 NoFilter(const NoFilter& other);
