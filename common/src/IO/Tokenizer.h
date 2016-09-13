@@ -242,29 +242,35 @@ namespace TrenchBroom {
                 const State previous = m_state;
                 if (curChar() != '.') {
                     advance();
-                    while (!eof() && isDigit(curChar()))
-                        advance();
+                    readDigits();
                 }
+                
                 if (curChar() == '.') {
                     advance();
-                    while (!eof() && isDigit(curChar()))
-                        advance();
-                    if (curChar() == 'e') {
-                        advance();
-                        if (curChar() == '+' || curChar() == '-' || isDigit(curChar())) {
-                            advance();
-                            while (!eof() && isDigit(curChar()))
-                                advance();
-                        }
-                    }
-                    if (eof() || isAnyOf(curChar(), delims))
-                        return curPos();
+                    readDigits();
                 }
+
+                if (curChar() == 'e') {
+                    advance();
+                    if (curChar() == '+' || curChar() == '-' || isDigit(curChar())) {
+                        advance();
+                        readDigits();
+                    }
+                }
+                
+                if (eof() || isAnyOf(curChar(), delims))
+                    return curPos();
 
                 m_state = previous;
                 return NULL;
             }
-
+            
+        private:
+            void readDigits() {
+                while (!eof() && isDigit(curChar()))
+                    advance();
+            }
+        protected:
             const char* readUntil(const String& delims) {
                 while (!eof() && !isAnyOf(curChar(), delims))
                     advance();
