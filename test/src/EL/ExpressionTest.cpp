@@ -27,9 +27,11 @@ namespace TrenchBroom {
     namespace EL {
         typedef Value V;
         
+        void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context = EvaluationContext());
+        
         template <typename T>
         void evaluateAndAssert(const String& expression, const T& result, const EvaluationContext& context = EvaluationContext()) {
-            ASSERT_EQ(Value(result), IO::ELParser(expression).parse().evaluate(context));
+            evaluateAndAssert(expression, Value(result), context);
         }
         
         template <typename T, typename S>
@@ -93,6 +95,12 @@ namespace TrenchBroom {
             evaluateAndAssert("-2", -2);
         }
         
+        TEST(ExpressionTest, testVariableExpression) {
+            evaluateAndAssert("x", true, "x", true);
+            evaluateAndAssert("ohhai", 7, "ohhai", 7);
+            evaluateAndAssert("x", Value::Undefined);
+        }
+        
         TEST(ExpressionTest, testArrayExpression) {
             evaluateAndAssert("[]", ArrayType());
             evaluateAndAssert("[1, 2, 3]", array(1, 2, 3));
@@ -119,6 +127,10 @@ namespace TrenchBroom {
             evaluateAndAssert("2 + 3", 5);
             evaluateAndAssert("-2 + 3", 1);
             assertOptimizable("2 + 3");
+        }
+        
+        void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context) {
+            ASSERT_EQ(result, IO::ELParser(expression).parse().evaluate(context));
         }
         
         void assertOptimizable(const String& expression) {

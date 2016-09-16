@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Table::const_iterator it = m_variables.find(name);
             if (it != m_variables.end())
                 return it->second;
-            throw EvaluationError("Variable '" + name + "' is undefined");
+            return Value::Undefined;
         }
         
         StringSet VariableTable::doGetNames() const {
