@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             Expression(ExpressionBase* expression);
             
-            void optimize();
+            bool optimize();
             Value evaluate(const EvaluationContext& context) const;
         };
         
@@ -378,6 +378,36 @@ namespace TrenchBroom {
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(RangeOperator)
+        };
+
+        class CaseOperator : public BinaryOperator {
+        private:
+            CaseOperator(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(CaseOperator)
+        };
+        
+        class SwitchOperator : public ExpressionBase {
+        private:
+            ExpressionBase::List m_cases;
+        private:
+            SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column);
+        public:
+            ~SwitchOperator();
+        public:
+            static ExpressionBase* create(const ExpressionBase::List& cases, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(SwitchOperator)
         };
     }
 }

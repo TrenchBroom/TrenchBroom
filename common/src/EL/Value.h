@@ -255,6 +255,7 @@ namespace TrenchBroom {
             const MapType& mapValue() const;
             const RangeType& rangeValue() const;
             bool null() const;
+            bool undefined() const;
             
             const StringList asStringList() const;
             const StringSet asStringSet() const;

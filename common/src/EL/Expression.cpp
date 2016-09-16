@@ -29,10 +29,13 @@ namespace TrenchBroom {
             assert(m_expression.get() != NULL);
         }
         
-        void Expression::optimize() {
+        bool Expression::optimize() {
             ExpressionBase* optimized = m_expression->optimize();
-            if (optimized != NULL && optimized != m_expression.get())
+            if (optimized != NULL && optimized != m_expression.get()) {
                 m_expression.reset(optimized);
+                return true;
+            }
+            return false;
         }
         
         Value Expression::evaluate(const EvaluationContext& context) const {
@@ -460,7 +463,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits AdditionOperator::doGetTraits() const {
-            return Traits(4, true, true);
+            return Traits(5, true, true);
         }
         
         SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -481,7 +484,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
-            return Traits(4, false, false);
+            return Traits(5, false, false);
         }
         
         MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -502,7 +505,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
-            return Traits(5, true, true);
+            return Traits(6, true, true);
         }
         
         DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -523,7 +526,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits DivisionOperator::doGetTraits() const {
-            return Traits(5, false, false);
+            return Traits(6, false, false);
         }
         
         ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -544,7 +547,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits ModulusOperator::doGetTraits() const {
-            return Traits(5, false, false);
+            return Traits(6, false, false);
         }
         
         const String& RangeOperator::AutoRangeParameterName() {
@@ -568,7 +571,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
-            return Traits(2, true, true);
+            return Traits(3, true, true);
         }
         
         DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -587,7 +590,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
-            return Traits(1, true, true);
+            return Traits(2, true, true);
         }
         
         ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
@@ -646,10 +649,10 @@ namespace TrenchBroom {
                 case Op_LessOrEqual:
                 case Op_Greater:
                 case Op_GreaterOrEqual:
-                    return Traits(3, false, false);
+                    return Traits(4, false, false);
                 case Op_Equal:
                 case Op_Inequal:
-                    return Traits(3, true, false);
+                    return Traits(4, true, false);
                     switchDefault()
             }
         }
@@ -700,7 +703,79 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits RangeOperator::doGetTraits() const {
+            return Traits(1, false, false);
+        }
+
+        CaseOperator::CaseOperator(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) :
+        BinaryOperator(premise, conclusion, line, column) {}
+
+        ExpressionBase* CaseOperator::create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) {
+            return new CaseOperator(premise, conclusion, line, column);
+        }
+
+        ExpressionBase* CaseOperator::doClone() const {
+            return new CaseOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value CaseOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value premise = m_leftOperand->evaluate(context);
+            if (premise.convertTo(Type_Boolean))
+                return m_rightOperand->evaluate(context);
+            return Value::Undefined;
+        }
+        
+        BinaryOperator::Traits CaseOperator::doGetTraits() const {
             return Traits(0, false, false);
+        }
+
+        SwitchOperator::SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column) :
+        ExpressionBase(line, column),
+        m_cases(cases) {}
+
+        SwitchOperator::~SwitchOperator() {
+            ListUtils::clearAndDelete(m_cases);
+        }
+        
+        ExpressionBase* SwitchOperator::create(const ExpressionBase::List& cases, size_t line, size_t column) {
+            return new SwitchOperator(cases, line, column);
+        }
+
+        ExpressionBase* SwitchOperator::doOptimize() {
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+                ExpressionBase* case_ = *it;
+                ExpressionBase* optimized = case_->optimize();
+                
+                if (optimized != NULL && optimized != case_) {
+                    const Value result = optimized->evaluate(EvaluationContext());
+                    if (!result.undefined())
+                        return LiteralExpression::create(result, m_line, m_column);
+                    
+                    delete case_;
+                    case_ = optimized;
+                }
+            }
+            
+            return NULL;
+        }
+
+        ExpressionBase* SwitchOperator::doClone() const {
+            ExpressionBase::List caseClones;
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it)
+                caseClones.push_back((*it)->clone());
+            return new SwitchOperator(caseClones, m_line, m_column);
+        }
+        
+        Value SwitchOperator::doEvaluate(const EvaluationContext& context) const {
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+                const ExpressionBase* case_ = *it;
+                const Value result = case_->evaluate(context);
+                if (!result.undefined())
+                    return result;
+            }
+            return Value::Undefined;
         }
     }
 }

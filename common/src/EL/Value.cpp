@@ -405,6 +405,10 @@ namespace TrenchBroom {
             return type() == Type_Null;
         }
         
+        bool Value::undefined() const {
+            return type() == Type_Undefined;
+        }
+
         const StringList Value::asStringList() const {
             const ArrayType& array = arrayValue();
             StringList result;
