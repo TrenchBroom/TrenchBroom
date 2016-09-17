@@ -36,6 +36,7 @@ namespace TrenchBroom {
             virtual const BooleanType& booleanValue() const;
             virtual const StringType&  stringValue()  const;
             virtual const NumberType&  numberValue()  const;
+                          IntegerType  integerValue() const;
             virtual const ArrayType&   arrayValue()   const;
             virtual const MapType&     mapValue()     const;
             virtual const RangeType&   rangeValue()   const;
@@ -251,6 +252,7 @@ namespace TrenchBroom {
             const StringType& stringValue() const;
             const BooleanType& booleanValue() const;
             const NumberType& numberValue() const;
+                  IntegerType integerValue() const;
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
             const RangeType& rangeValue() const;
@@ -304,6 +306,14 @@ namespace TrenchBroom {
             friend int compare(const Value& lhs, const Value& rhs);
             friend int compareAsBooleans(const Value& lhs, const Value& rhs);
             friend int compareAsNumbers(const Value& lhs, const Value& rhs);
+        public:
+            Value operator~() const;
+            
+            friend Value operator&(const Value& lhs, const Value& rhs);
+            friend Value operator|(const Value& lhs, const Value& rhs);
+            friend Value operator^(const Value& lhs, const Value& rhs);
+            friend Value operator<<(const Value& lhs, const Value& rhs);
+            friend Value operator>>(const Value& lhs, const Value& rhs);
         };
     }
 }

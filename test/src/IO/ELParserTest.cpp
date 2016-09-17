@@ -206,6 +206,10 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(EL::Value::Undefined, "false -> true");
         }
         
+        TEST(ELParserTest, parseBinaryNegation) {
+            ASSERT_EL_EQ(~1l, "~1");
+        }
+        
         TEST(ELParserTest, testComparisonOperators) {
             ASSERT_EL_EQ(true, "1 < 2");
             ASSERT_EL_EQ(false, "2 < 2");

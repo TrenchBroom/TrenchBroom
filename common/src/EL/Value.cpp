@@ -36,6 +36,7 @@ namespace TrenchBroom {
         const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(describe(), type(), Type_Boolean); }
         const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(describe(), type(), Type_String); }
         const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(describe(), type(), Type_Number); }
+              IntegerType  ValueHolder::integerValue() const { return static_cast<IntegerType>(numberValue()); }
         const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(describe(), type(), Type_Array); }
         const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(describe(), type(), Type_Map); }
         const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(describe(), type(), Type_Range); }
@@ -389,6 +390,10 @@ namespace TrenchBroom {
             return m_value->numberValue();
         }
         
+        IntegerType Value::integerValue() const {
+            return m_value->integerValue();
+        }
+
         const ArrayType& Value::arrayValue() const {
             return m_value->arrayValue();
         }
@@ -1147,6 +1152,43 @@ namespace TrenchBroom {
             else if (diff > 0.0)
                 return 1;
             return 0;
+        }
+
+        Value Value::operator~() const {
+            switch (type()) {
+                case Type_Boolean:
+                case Type_Number: {
+                    return Value(~integerValue());
+                }
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+            throw ConversionError(describe(), type(), Type_Boolean);
+        }
+        
+        Value operator&(const Value& lhs, const Value& rhs) {
+            return Value(lhs.integerValue() & rhs.integerValue());
+        }
+        
+        Value operator|(const Value& lhs, const Value& rhs) {
+            return Value(lhs.integerValue() | rhs.integerValue());
+        }
+        
+        Value operator^(const Value& lhs, const Value& rhs) {
+            return Value(lhs.integerValue() ^ rhs.integerValue());
+        }
+        
+        Value operator<<(const Value& lhs, const Value& rhs) {
+            return Value(lhs.integerValue() << rhs.integerValue());
+        }
+        
+        Value operator>>(const Value& lhs, const Value& rhs) {
+            return Value(lhs.integerValue() >> rhs.integerValue());
         }
     }
 }
