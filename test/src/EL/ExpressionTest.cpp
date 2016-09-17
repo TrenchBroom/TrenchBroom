@@ -126,6 +126,7 @@ namespace TrenchBroom {
         TEST(ExpressionTest, testPlusOperator) {
             evaluateAndAssert("2 + 3", 5);
             evaluateAndAssert("-2 + 3", 1);
+            evaluateAndAssert("2 + 3 + 4", 9);
             assertOptimizable("2 + 3");
         }
         
