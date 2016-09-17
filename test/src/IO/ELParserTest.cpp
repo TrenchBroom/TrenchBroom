@@ -199,6 +199,13 @@ namespace TrenchBroom {
             ASSERT_EL_EQ("est", "\"test\"[1..]");
         }
         
+        TEST(ELParserTest, parseCaseOperator) {
+            ASSERT_EL_EQ(false, "true -> false");
+            ASSERT_EL_EQ(true, "true -> true && true");
+            ASSERT_EL_EQ(5, "1 < 3 -> 2 + 3");
+            ASSERT_EL_EQ(EL::Value::Undefined, "false -> true");
+        }
+        
         TEST(ELParserTest, testComparisonOperators) {
             ASSERT_EL_EQ(true, "1 < 2");
             ASSERT_EL_EQ(false, "2 < 2");

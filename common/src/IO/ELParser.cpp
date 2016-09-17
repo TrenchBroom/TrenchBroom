@@ -77,6 +77,10 @@ namespace TrenchBroom {
                         return Token(ELToken::Plus, c, c+1, offset(c), startLine, startColumn);
                     case '-':
                         advance();
+                        if (curChar() == '>') {
+                            advance();
+                            return Token(ELToken::Arrow, c, c+2, offset(c), startLine, startColumn);
+                        }
                         return Token(ELToken::Minus, c, c+1, offset(c), startLine, startColumn);
                     case '*':
                         advance();
@@ -416,6 +420,8 @@ namespace TrenchBroom {
                     lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Greater))
                     lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::Arrow))
+                    lhs = EL::CaseOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
             }
             
             return lhs;

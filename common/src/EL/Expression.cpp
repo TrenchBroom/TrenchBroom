@@ -559,7 +559,7 @@ namespace TrenchBroom {
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
         ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ConjunctionOperator(leftOperand, rightOperand, line, column);
+            return (new ConjunctionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ConjunctionOperator::doClone() const {
@@ -578,7 +578,7 @@ namespace TrenchBroom {
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
         ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new DisjunctionOperator(leftOperand, rightOperand, line, column);
+            return (new DisjunctionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* DisjunctionOperator::doClone() const {
@@ -598,27 +598,27 @@ namespace TrenchBroom {
         m_op(op) {}
         
         ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::doClone() const {
@@ -710,7 +710,7 @@ namespace TrenchBroom {
         BinaryOperator(premise, conclusion, line, column) {}
 
         ExpressionBase* CaseOperator::create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) {
-            return new CaseOperator(premise, conclusion, line, column);
+            return (new CaseOperator(premise, conclusion, line, column))->reorderByPrecedence();
         }
 
         ExpressionBase* CaseOperator::doClone() const {

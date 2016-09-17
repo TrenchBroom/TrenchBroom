@@ -123,7 +123,7 @@ namespace TrenchBroom {
             assertNotOptimizable("{ 'k1': 'asdf', 'k2': x }");
         }
         
-        TEST(ExpressionTest, testPlusOperator) {
+        TEST(ExpressionTest, testAdditionOperator) {
             evaluateAndAssert("2 + 3", 5);
             evaluateAndAssert("-2 + 3", 1);
             evaluateAndAssert("2 + 3 + 4", 9);
@@ -132,11 +132,104 @@ namespace TrenchBroom {
             evaluateAndAssert("'as' + 'df'", "asdf");
         }
         
-        TEST(ExpressionTest, testMinusOperator) {
+        TEST(ExpressionTest, testSubtractionOperator) {
             evaluateAndAssert("2 - 3", -1);
             evaluateAndAssert("-2 - 3", -5);
             evaluateAndAssert("2 - 3 - 4", -5);
             assertOptimizable("2 - 3");
+        }
+        
+        TEST(ExpressionTest, testMultiplicationOperator) {
+            evaluateAndAssert("2 * 3", 6);
+            evaluateAndAssert("-2 * 3", -6);
+            evaluateAndAssert("2 * 3 * 4", 24);
+            assertOptimizable("2 * 3");
+        }
+        
+        TEST(ExpressionTest, testDivisionOperator) {
+            evaluateAndAssert("2 / 3", 2.0 / 3.0);
+            evaluateAndAssert("-2 / 3", -2.0 / 3.0);
+            evaluateAndAssert("2 / 3 / 4", 2.0 / 3.0 / 4.0);
+            evaluateAndAssert("2 / 0", 2.0 / 0.0);
+            assertOptimizable("2 / 3");
+        }
+        
+        TEST(ExpressionTest, testModulusOperator) {
+            evaluateAndAssert("3 % 2", std::fmod(3.0, 2.0));
+            evaluateAndAssert("-2 % 3", std::fmod(-2.0, 3.0));
+            evaluateAndAssert("13 % 8 % 4", std::fmod(std::fmod(13.0, 8.0), 4.0));
+            evaluateAndAssert("2 % 0", std::fmod(2.0, 0.0));
+            assertOptimizable("2 % 3");
+        }
+        
+        TEST(ExpressionTest, testConjunctionOperator) {
+            evaluateAndAssert("false && false", false);
+            evaluateAndAssert("false &&  true", false);
+            evaluateAndAssert(" true && false", false);
+            evaluateAndAssert(" true &&  true",  true);
+            assertOptimizable("true && false");
+        }
+        
+        TEST(ExpressionTest, testDisjunctionOperator) {
+            evaluateAndAssert("false || false", false);
+            evaluateAndAssert("false ||  true",  true);
+            evaluateAndAssert(" true || false",  true);
+            evaluateAndAssert(" true ||  true",  true);
+            assertOptimizable("true || false");
+        }
+        
+        void evalutateComparisonAndAssert(const String& op, bool result);
+        
+        TEST(ExpressionTest, testComparisonOperators) {
+            evalutateComparisonAndAssert("<",   true);
+            evalutateComparisonAndAssert("<=",  true);
+            evalutateComparisonAndAssert("==", false);
+            evalutateComparisonAndAssert("!=",  true);
+            evalutateComparisonAndAssert(">",  false);
+            evalutateComparisonAndAssert(">=", false);
+        }
+
+        TEST(ExpressionTest, testArithmeticPrecedence) {
+            evaluateAndAssert("1 + 2 - 3", 1.0 + 2.0 - 3.0);
+            evaluateAndAssert("1 - 2 + 3", 1.0 - 2.0 + 3.0);
+            
+            evaluateAndAssert("2 * 3 + 4", 2.0 * 3.0 + 4.0);
+            evaluateAndAssert("2 + 3 * 4", 2.0 + 3.0 * 4.0);
+            
+            evaluateAndAssert("2 * 3 - 4", 2.0 * 3.0 - 4.0);
+            evaluateAndAssert("2 - 3 * 4", 2.0 - 3.0 * 4.0);
+ 
+            evaluateAndAssert("6 / 2 + 4", 6.0 / 2.0 + 4);
+            evaluateAndAssert("6 + 2 / 4", 6.0 + 2.0 / 4.0);
+            
+            evaluateAndAssert("6 / 2 - 4", 6.0 / 2.0 - 4.0);
+            evaluateAndAssert("6 - 2 / 4", 6.0 - 2.0 / 4.0);
+
+            evaluateAndAssert("2 * 6 / 4", 2.0 * 6.0 / 4.0);
+            evaluateAndAssert("2 / 6 * 4", 2.0 / 6.0 * 4.0);
+        }
+        
+        TEST(ExpressionTest, testLogicalPrecedence) {
+            evaluateAndAssert("false && false || true",   true);
+            evaluateAndAssert("!true && !true || !false", true);
+        }
+        
+        TEST(ExpressionTest, testLogicalAndComparisonPrecedence) {
+            evaluateAndAssert("3 < 10 || 10 > 2", true);
+        }
+        
+        TEST(ExpressionTest, testArithmeticAndComparisonPrecedence) {
+            evaluateAndAssert("2 + 3 < 2 + 4", 1);
+        }
+
+        TEST(ExpressionTest, testCaseExpression) {
+            ASSERT_FALSE(true);
+        }
+        
+        void evalutateComparisonAndAssert(const String& op, bool result) {
+            const String expression = "4 " + op + " 5";
+            evaluateAndAssert(expression, result);
+            assertOptimizable(expression);
         }
         
         void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context) {

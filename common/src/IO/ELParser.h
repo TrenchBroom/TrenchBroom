@@ -58,11 +58,12 @@ namespace TrenchBroom {
             static const Type Inequal = 1 << 25;
             static const Type GreaterOrEqual = 1 << 26;
             static const Type Greater = 1 << 27;
-            static const Type Eof = 1 << 28;
+            static const Type Arrow = 1 << 28;
+            static const Type Eof = 1 << 29;
             static const Type Literal = String | Number | Boolean;
             static const Type UnaryOperator = Plus | Minus | Not;
             static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | UnaryOperator;
-            static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus | And | Or | Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater;
+            static const Type CompoundTerm = Plus | Minus | Times | Over | Modulus | And | Or | Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater | Arrow;
         }
         
         class ELTokenizer : public Tokenizer<ELToken::Type> {
