@@ -223,7 +223,9 @@ namespace TrenchBroom {
         }
 
         TEST(ExpressionTest, testCaseExpression) {
-            ASSERT_FALSE(true);
+            evaluateAndAssert("true && false -> true", Value::Undefined);
+            evaluateAndAssert("true && true -> false", false);
+            evaluateAndAssert("2 + 3 < 2 + 4 -> 6 % 5", 1);
         }
         
         void evalutateComparisonAndAssert(const String& op, bool result) {
