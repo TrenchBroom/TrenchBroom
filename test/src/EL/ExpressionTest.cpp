@@ -128,6 +128,15 @@ namespace TrenchBroom {
             evaluateAndAssert("-2 + 3", 1);
             evaluateAndAssert("2 + 3 + 4", 9);
             assertOptimizable("2 + 3");
+            
+            evaluateAndAssert("'as' + 'df'", "asdf");
+        }
+        
+        TEST(ExpressionTest, testMinusOperator) {
+            evaluateAndAssert("2 - 3", -1);
+            evaluateAndAssert("-2 - 3", -5);
+            evaluateAndAssert("2 - 3 - 4", -5);
+            assertOptimizable("2 - 3");
         }
         
         void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context) {
