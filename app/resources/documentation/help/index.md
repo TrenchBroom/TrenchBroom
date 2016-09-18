@@ -1521,7 +1521,7 @@ The following examples show the comparison operators in action with different op
 
 The case operator allows for conditional evaluation of expressions. This is usally most useful in combination with the switch operator, which is explained in the next subsection.
 
-     Case = SimpleTerm "->"" Expression
+     Case = SimpleTerm "->" Expression
 
 In a case expression, the part before the `->` operator is called the *premise* and the part after it is called the *conclusion*. The case operator is evaluated as follows:
 
