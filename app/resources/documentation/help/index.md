@@ -1248,7 +1248,11 @@ Index    Effect
 `Number` Returns the value at the specified index. An error is thrown if an the index is out of bounds. Negative indices are allowed. The same rounding rules as for string subscripts are applied.
 `Array`  Returns an array containing the values at the specified indizes. Assumes that all elements of the indexing array are convertible to `Number`. If the indexing array contains an index that is out of bounds, an error is thrown. Negative indices are allowed.
 
-Just like string subscripts, array subscripts are very powerful because they allow multiple subscript index values and even negative indices. For the following example, assume that the value of variable `arr` is the array `[ 7, 8, 9, "test", [ 10, 11, 12 ] ]`.
+Just like string subscripts, array subscripts are very powerful because they allow multiple subscript index values and even negative indices. For the following examples, assume that the variable `arr` is the following array:
+
+    [ 7, 8, 9, "test", [ 10, 11, 12 ] ]
+
+Simple subscripting with integer indices behaves as expected:
 
 	arr[0] // 7
     arr[3] // "test"
@@ -1321,7 +1325,7 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
 
 ### Unary Operator Terms
 
-A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are three unary operators: unary plus, unary minus, and unary negation (not).
+A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
 
 	Plus            = "+" SimpleTerm
 	Minus           = "-" SimpleTerm
