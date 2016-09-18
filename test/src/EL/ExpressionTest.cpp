@@ -42,6 +42,11 @@ namespace TrenchBroom {
             evaluateAndAssert(expression, result, EvaluationContext(table));
         }
         
+        template <typename E>
+        void evaluateAndThrow(const String& expression, const EvaluationContext& context = EvaluationContext()) {
+            ASSERT_THROW(IO::ELParser(expression).parse().evaluate(context), E);
+        }
+        
         template <typename T1>
         ArrayType array(const T1& v1) {
             return VectorUtils::create<V>(V(v1));
@@ -162,7 +167,17 @@ namespace TrenchBroom {
             assertOptimizable("2 % 3");
         }
         
-        TEST(ExpressionTest, testConjunctionOperator) {
+        TEST(ExpressionTest, testLogicalNegationOperator) {
+            evaluateAndAssert("!true", false);
+            evaluateAndAssert("!false", true);
+            evaluateAndThrow<ConversionError>("!1");
+            evaluateAndThrow<ConversionError>("!'asdf'");
+            evaluateAndThrow<ConversionError>("![1,2]");
+            evaluateAndThrow<ConversionError>("!{}");
+            evaluateAndThrow<ConversionError>("!null");
+        }
+        
+        TEST(ExpressionTest, testLogicalAndOperator) {
             evaluateAndAssert("false && false", false);
             evaluateAndAssert("false &&  true", false);
             evaluateAndAssert(" true && false", false);
@@ -170,7 +185,7 @@ namespace TrenchBroom {
             assertOptimizable("true && false");
         }
         
-        TEST(ExpressionTest, testDisjunctionOperator) {
+        TEST(ExpressionTest, testLogicalOrOperator) {
             evaluateAndAssert("false || false", false);
             evaluateAndAssert("false ||  true",  true);
             evaluateAndAssert(" true || false",  true);
@@ -189,6 +204,77 @@ namespace TrenchBroom {
             evalutateComparisonAndAssert(">=", false);
         }
 
+        TEST(ExpressionTest, testBitwiseNegationOperator) {
+            evaluateAndAssert("~23423", ~23423);
+            evaluateAndAssert("~23423.1", ~23423);
+            evaluateAndAssert("~23423.8", ~23423);
+            evaluateAndThrow<ConversionError>("~true");
+            evaluateAndThrow<ConversionError>("~'asdf'");
+            evaluateAndThrow<ConversionError>("~[]");
+            evaluateAndThrow<ConversionError>("~{}");
+            evaluateAndThrow<ConversionError>("~null");
+        }
+        
+        TEST(ExpressionTest, testBitwiseAndOperator) {
+            evaluateAndAssert("0 & 0", 0 & 0);
+            evaluateAndAssert("123 & 456", 123 & 456);
+            evaluateAndThrow<EvaluationError>("true & 123");
+            evaluateAndThrow<EvaluationError>("'asdf' & 123");
+            evaluateAndThrow<EvaluationError>("[] & 123");
+            evaluateAndThrow<EvaluationError>("{} & 123");
+            evaluateAndThrow<EvaluationError>("null & 123");
+        }
+        
+        TEST(ExpressionTest, testBitwiseOrOperator) {
+            evaluateAndAssert("0 | 0", 0 | 0);
+            evaluateAndAssert("123 | 456", 123 | 456);
+            evaluateAndThrow<EvaluationError>("true | 123");
+            evaluateAndThrow<EvaluationError>("'asdf' | 123");
+            evaluateAndThrow<EvaluationError>("[] | 123");
+            evaluateAndThrow<EvaluationError>("{} | 123");
+            evaluateAndThrow<EvaluationError>("null | 123");
+        }
+        
+        TEST(ExpressionTest, testBitwiseXorOperator) {
+            evaluateAndAssert("0 ^ 0", 0 ^ 0);
+            evaluateAndAssert("123 ^ 456", 123 ^ 456);
+            evaluateAndThrow<EvaluationError>("true ^ 123");
+            evaluateAndThrow<EvaluationError>("'asdf' ^ 123");
+            evaluateAndThrow<EvaluationError>("[] ^ 123");
+            evaluateAndThrow<EvaluationError>("{} ^ 123");
+            evaluateAndThrow<EvaluationError>("null ^ 123");
+        }
+        
+        TEST(ExpressionTest, testBitwiseShiftLeftOperator) {
+            evaluateAndAssert("1 << 2", 1 << 2);
+            evaluateAndAssert("1 << 33", 1l << 33);
+            evaluateAndThrow<EvaluationError>("true << 2");
+            evaluateAndThrow<EvaluationError>("1 << false");
+            evaluateAndThrow<EvaluationError>("'asdf' << 2");
+            evaluateAndThrow<EvaluationError>("1 << 'asdf'");
+            evaluateAndThrow<EvaluationError>("[] << 2");
+            evaluateAndThrow<EvaluationError>("1 << []");
+            evaluateAndThrow<EvaluationError>("{} << 2");
+            evaluateAndThrow<EvaluationError>("1 << {}");
+            evaluateAndThrow<EvaluationError>("null << 2");
+            evaluateAndThrow<EvaluationError>("1 << null");
+        }
+        
+        TEST(ExpressionTest, testBitwiseShiftRightOperator) {
+            evaluateAndAssert("1 >> 2", 1 >> 2);
+            evaluateAndAssert("1 >> 33", 1l >> 33);
+            evaluateAndThrow<EvaluationError>("true >> 2");
+            evaluateAndThrow<EvaluationError>("1 >> false");
+            evaluateAndThrow<EvaluationError>("'asdf' >> 2");
+            evaluateAndThrow<EvaluationError>("1 >> 'asdf'");
+            evaluateAndThrow<EvaluationError>("[] >> 2");
+            evaluateAndThrow<EvaluationError>("1 >> []");
+            evaluateAndThrow<EvaluationError>("{} >> 2");
+            evaluateAndThrow<EvaluationError>("1 >> {}");
+            evaluateAndThrow<EvaluationError>("null >> 2");
+            evaluateAndThrow<EvaluationError>("1 >> null");
+        }
+        
         TEST(ExpressionTest, testArithmeticPrecedence) {
             evaluateAndAssert("1 + 2 - 3", 1.0 + 2.0 - 3.0);
             evaluateAndAssert("1 - 2 + 3", 1.0 - 2.0 + 3.0);

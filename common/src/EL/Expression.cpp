@@ -283,21 +283,36 @@ namespace TrenchBroom {
             return Value(-m_operand->evaluate(context), m_line, m_column);
         }
         
-        NegationOperator::NegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        LogicalNegationOperator::LogicalNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         UnaryOperator(operand, line, column) {}
         
-        ExpressionBase* NegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new NegationOperator(operand, line, column);
+        ExpressionBase* LogicalNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new LogicalNegationOperator(operand, line, column);
         }
         
-        ExpressionBase* NegationOperator::doClone() const  {
-            return new NegationOperator(m_operand->clone(), m_line, m_column);
+        ExpressionBase* LogicalNegationOperator::doClone() const  {
+            return new LogicalNegationOperator(m_operand->clone(), m_line, m_column);
         }
         
-        Value NegationOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalNegationOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(!m_operand->evaluate(context), m_line, m_column);
         }
         
+        BitwiseNegationOperator::BitwiseNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
+
+        ExpressionBase* BitwiseNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new BitwiseNegationOperator(operand, line, column);
+        }
+
+        ExpressionBase* BitwiseNegationOperator::doClone() const {
+            return new BitwiseNegationOperator(m_operand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseNegationOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(~m_operand->evaluate(context), m_line, m_column);
+        }
+
         GroupingOperator::GroupingOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         UnaryOperator(operand, line, column) {}
         
@@ -463,7 +478,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits AdditionOperator::doGetTraits() const {
-            return Traits(5, true, true);
+            return Traits(10, true, true);
         }
         
         SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -484,7 +499,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
-            return Traits(5, false, false);
+            return Traits(10, false, false);
         }
         
         MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -505,7 +520,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
-            return Traits(6, true, true);
+            return Traits(11, true, true);
         }
         
         DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -526,7 +541,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits DivisionOperator::doGetTraits() const {
-            return Traits(6, false, false);
+            return Traits(11, false, false);
         }
         
         ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -547,7 +562,7 @@ namespace TrenchBroom {
         }
         
         BinaryOperator::Traits ModulusOperator::doGetTraits() const {
-            return Traits(6, false, false);
+            return Traits(11, false, false);
         }
         
         const String& RangeOperator::AutoRangeParameterName() {
@@ -555,44 +570,139 @@ namespace TrenchBroom {
             return Name;
         }
         
-        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        LogicalAndOperator::LogicalAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ConjunctionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        ExpressionBase* LogicalAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new LogicalAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* ConjunctionOperator::doClone() const {
-            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        ExpressionBase* LogicalAndOperator::doClone() const {
+            return new LogicalAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
-        Value ConjunctionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalAndOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_line, m_column);
         }
         
-        BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
+        BinaryOperator::Traits LogicalAndOperator::doGetTraits() const {
             return Traits(3, true, true);
         }
         
-        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        LogicalOrOperator::LogicalOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new DisjunctionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        ExpressionBase* LogicalOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new LogicalOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* DisjunctionOperator::doClone() const {
-            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        ExpressionBase* LogicalOrOperator::doClone() const {
+            return new LogicalOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
-        Value DisjunctionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalOrOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_line, m_column);
         }
         
-        BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
+        BinaryOperator::Traits LogicalOrOperator::doGetTraits() const {
             return Traits(2, true, true);
         }
+
+        BitwiseAndOperator::BitwiseAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
         
+        ExpressionBase* BitwiseAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseAndOperator::doClone() const {
+            return new BitwiseAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseAndOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) & m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        BinaryOperator::Traits BitwiseAndOperator::doGetTraits() const {
+            return Traits(6, true, true);
+        }
+        
+        BitwiseXorOperator::BitwiseXorOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseXorOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseXorOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseXorOperator::doClone() const {
+            return new BitwiseXorOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseXorOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) ^ m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        BinaryOperator::Traits BitwiseXorOperator::doGetTraits() const {
+            return Traits(5, true, true);
+        }
+        
+        BitwiseOrOperator::BitwiseOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseOrOperator::doClone() const {
+            return new BitwiseOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseOrOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) | m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        BinaryOperator::Traits BitwiseOrOperator::doGetTraits() const {
+            return Traits(4, true, true);
+        }
+
+        BitwiseShiftLeftOperator::BitwiseShiftLeftOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseShiftLeftOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseShiftLeftOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseShiftLeftOperator::doClone() const {
+            return new BitwiseShiftLeftOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseShiftLeftOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) << m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        BinaryOperator::Traits BitwiseShiftLeftOperator::doGetTraits() const {
+            return Traits(9, true, true);
+        }
+
+        BitwiseShiftRightOperator::BitwiseShiftRightOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseShiftRightOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseShiftRightOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseShiftRightOperator::doClone() const {
+            return new BitwiseShiftRightOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseShiftRightOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) >> m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        BinaryOperator::Traits BitwiseShiftRightOperator::doGetTraits() const {
+            return Traits(9, true, true);
+        }
+
         ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column),
         m_op(op) {}
@@ -649,10 +759,10 @@ namespace TrenchBroom {
                 case Op_LessOrEqual:
                 case Op_Greater:
                 case Op_GreaterOrEqual:
-                    return Traits(4, false, false);
+                    return Traits(8, false, false);
                 case Op_Equal:
                 case Op_Inequal:
-                    return Traits(4, true, false);
+                    return Traits(7, true, false);
                     switchDefault()
             }
         }

@@ -173,16 +173,28 @@ namespace TrenchBroom {
             deleteCopyAndAssignment(UnaryMinusOperator)
         };
         
-        class NegationOperator : public UnaryOperator {
+        class LogicalNegationOperator : public UnaryOperator {
         private:
-            NegationOperator(ExpressionBase* operand, size_t line, size_t column);
+            LogicalNegationOperator(ExpressionBase* operand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
             
-            deleteCopyAndAssignment(NegationOperator)
+            deleteCopyAndAssignment(LogicalNegationOperator)
+        };
+        
+        class BitwiseNegationOperator : public UnaryOperator {
+        private:
+            BitwiseNegationOperator(ExpressionBase* operand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(BitwiseNegationOperator)
         };
         
         class GroupingOperator : public UnaryOperator {
@@ -309,9 +321,9 @@ namespace TrenchBroom {
             deleteCopyAndAssignment(ModulusOperator)
         };
         
-        class ConjunctionOperator : public BinaryOperator {
+        class LogicalAndOperator : public BinaryOperator {
         private:
-            ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            LogicalAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
@@ -319,12 +331,12 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
-            deleteCopyAndAssignment(ConjunctionOperator)
+            deleteCopyAndAssignment(LogicalAndOperator)
         };
         
-        class DisjunctionOperator : public BinaryOperator {
+        class LogicalOrOperator : public BinaryOperator {
         private:
-            DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            LogicalOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
@@ -332,7 +344,72 @@ namespace TrenchBroom {
             Value doEvaluate(const EvaluationContext& context) const;
             Traits doGetTraits() const;
             
-            deleteCopyAndAssignment(DisjunctionOperator)
+            deleteCopyAndAssignment(LogicalOrOperator)
+        };
+        
+        class BitwiseAndOperator : public BinaryOperator {
+        private:
+            BitwiseAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseAndOperator)
+        };
+        
+        class BitwiseXorOperator : public BinaryOperator {
+        private:
+            BitwiseXorOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseXorOperator)
+        };
+        
+        class BitwiseOrOperator : public BinaryOperator {
+        private:
+            BitwiseOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseOrOperator)
+        };
+        
+        class BitwiseShiftLeftOperator : public BinaryOperator {
+        private:
+            BitwiseShiftLeftOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseShiftLeftOperator)
+        };
+        
+        class BitwiseShiftRightOperator : public BinaryOperator {
+        private:
+            BitwiseShiftRightOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseShiftRightOperator)
         };
         
         class ComparisonOperator : public BinaryOperator {

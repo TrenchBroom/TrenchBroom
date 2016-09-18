@@ -74,51 +74,54 @@ namespace TrenchBroom {
                         return Token(ELToken::CParen, c, c+1, offset(c), startLine, startColumn);
                     case '+':
                         advance();
-                        return Token(ELToken::Plus, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::Addition, c, c+1, offset(c), startLine, startColumn);
                     case '-':
                         advance();
                         if (curChar() == '>') {
                             advance();
-                            return Token(ELToken::Arrow, c, c+2, offset(c), startLine, startColumn);
+                            return Token(ELToken::Case, c, c+2, offset(c), startLine, startColumn);
                         }
-                        return Token(ELToken::Minus, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::Subtraction, c, c+1, offset(c), startLine, startColumn);
                     case '*':
                         advance();
-                        return Token(ELToken::Times, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::Multiplication, c, c+1, offset(c), startLine, startColumn);
                     case '/':
                         advance();
                         if (curChar() == '/') {
                             discardUntil("\n\r");
                             break;
                         }
-                        return Token(ELToken::Over, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::Division, c, c+1, offset(c), startLine, startColumn);
                     case '%':
                         advance();
                         return Token(ELToken::Modulus, c, c+1, offset(c), startLine, startColumn);
                     case '~':
                         advance();
-                        return Token(ELToken::BinaryNot, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::BitwiseNegation, c, c+1, offset(c), startLine, startColumn);
                     case '&':
                         advance();
                         if (curChar() == '&') {
                             advance();
-                            return Token(ELToken::And, c, c+2, offset(c), startLine, startColumn);
+                            return Token(ELToken::LogicalAnd, c, c+2, offset(c), startLine, startColumn);
                         }
-                        return Token(ELToken::BinaryAnd, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::BitwiseAnd, c, c+1, offset(c), startLine, startColumn);
                     case '|':
                         advance();
                         if (curChar() == '|') {
                             advance();
-                            return Token(ELToken::Or, c, c+2, offset(c), startLine, startColumn);
+                            return Token(ELToken::LogicalOr, c, c+2, offset(c), startLine, startColumn);
                         }
-                        return Token(ELToken::BinaryOr, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::BitwiseOr, c, c+1, offset(c), startLine, startColumn);
+                    case '^':
+                        advance();
+                        return Token(ELToken::BitwiseXor, c, c+1, offset(c), startLine, startColumn);
                     case '!':
                         advance();
                         if (curChar() == '=') {
                             advance();
                             return Token(ELToken::Inequal, c, c+2, offset(c), startLine, startColumn);
                         }
-                        return Token(ELToken::Not, c, c+1, offset(c), startLine, startColumn);
+                        return Token(ELToken::LogicalNegation, c, c+1, offset(c), startLine, startColumn);
                     case '<':
                         advance();
                         if (curChar() == '=') {
@@ -126,7 +129,7 @@ namespace TrenchBroom {
                             return Token(ELToken::LessOrEqual, c, c+2, offset(c), startLine, startColumn);
                         } else if (curChar() == '<') {
                             advance();
-                            return Token(ELToken::BinaryLeft, c, c+2, offset(c), startLine, startColumn);
+                            return Token(ELToken::BitwiseShiftLeft, c, c+2, offset(c), startLine, startColumn);
                         }
                         return Token(ELToken::Less, c, c+1, offset(c), startLine, startColumn);
                     case '>':
@@ -136,7 +139,7 @@ namespace TrenchBroom {
                             return Token(ELToken::GreaterOrEqual, c, c+2, offset(c), startLine, startColumn);
                         } else if (curChar() == '>') {
                             advance();
-                            return Token(ELToken::BinaryRight, c, c+2, offset(c), startLine, startColumn);
+                            return Token(ELToken::BitwiseShiftRight, c, c+2, offset(c), startLine, startColumn);
                         }
                         return Token(ELToken::Greater, c, c+1, offset(c), startLine, startColumn);
                     case ':':
@@ -393,12 +396,14 @@ namespace TrenchBroom {
             Token token = m_tokenizer.nextToken();
             expect(ELToken::UnaryOperator, token);
             
-            if (token.hasType(ELToken::Plus))
+            if (token.hasType(ELToken::Addition))
                 return EL::UnaryPlusOperator::create(parseSimpleTerm(), token.line(), token.column());
-            else if (token.hasType(ELToken::Minus))
+            else if (token.hasType(ELToken::Subtraction))
                 return EL::UnaryMinusOperator::create(parseSimpleTerm(), token.line(), token.column());
-            else if (token.hasType(ELToken::Not))
-                return EL::NegationOperator::create(parseSimpleTerm(), token.line(), token.column());
+            else if (token.hasType(ELToken::LogicalNegation))
+                return EL::LogicalNegationOperator::create(parseSimpleTerm(), token.line(), token.column());
+            else if (token.hasType(ELToken::BitwiseNegation))
+                return EL::BitwiseNegationOperator::create(parseSimpleTerm(), token.line(), token.column());
             else
                 throw new ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
         }
@@ -408,20 +413,20 @@ namespace TrenchBroom {
                 Token token = m_tokenizer.nextToken();
                 expect(ELToken::CompoundTerm, token);
                 
-                if (token.hasType(ELToken::Plus))
+                if (token.hasType(ELToken::Addition))
                     lhs = EL::AdditionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::Minus))
+                else if (token.hasType(ELToken::Subtraction))
                     lhs = EL::SubtractionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::Times))
+                else if (token.hasType(ELToken::Multiplication))
                     lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::Over))
+                else if (token.hasType(ELToken::Division))
                     lhs = EL::DivisionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Modulus))
                     lhs = EL::ModulusOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::And))
-                    lhs = EL::ConjunctionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::Or))
-                    lhs = EL::DisjunctionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::LogicalAnd))
+                    lhs = EL::LogicalAndOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::LogicalOr))
+                    lhs = EL::LogicalOrOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Less))
                     lhs = EL::ComparisonOperator::createLess(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::LessOrEqual))
@@ -434,7 +439,17 @@ namespace TrenchBroom {
                     lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
                 else if (token.hasType(ELToken::Greater))
                     lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTerm(), token.line(), token.column());
-                else if (token.hasType(ELToken::Arrow))
+                else if (token.hasType(ELToken::BitwiseAnd))
+                    lhs = EL::BitwiseAndOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::BitwiseXor))
+                    lhs = EL::BitwiseXorOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::BitwiseOr))
+                    lhs = EL::BitwiseOrOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::BitwiseShiftLeft))
+                    lhs = EL::BitwiseShiftLeftOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::BitwiseShiftRight))
+                    lhs = EL::BitwiseShiftRightOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                else if (token.hasType(ELToken::Case))
                     lhs = EL::CaseOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
                 else
                     throw new ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
@@ -445,40 +460,40 @@ namespace TrenchBroom {
 
         ELParser::TokenNameMap ELParser::tokenNames() const {
             TokenNameMap result;
-            result[ELToken::Variable]       = "variable";
-            result[ELToken::String]         = "string";
-            result[ELToken::Number]         = "number";
-            result[ELToken::Boolean]        = "boolean";
-            result[ELToken::OBracket]       = "'['";
-            result[ELToken::CBracket]       = "']'";
-            result[ELToken::OBrace]         = "'{'";
-            result[ELToken::CBrace]         = "'}'";
-            result[ELToken::OParen]         = "'('";
-            result[ELToken::CParen]         = "')'";
-            result[ELToken::Plus]           = "'+'";
-            result[ELToken::Minus]          = "'-'";
-            result[ELToken::Times]          = "'*'";
-            result[ELToken::Over]           = "'/'";
-            result[ELToken::Modulus]        = "'%'";
-            result[ELToken::Colon]          = "':'";
-            result[ELToken::Comma]          = "','";
-            result[ELToken::Range]          = "'..'";
-            result[ELToken::Not]            = "'!'";
-            result[ELToken::And]            = "'&&'";
-            result[ELToken::Or]             = "'||'";
-            result[ELToken::Less]           = "'<'";
-            result[ELToken::LessOrEqual]    = "'<='";
-            result[ELToken::Equal]          = "'=='";
-            result[ELToken::Inequal]        = "'!='";
-            result[ELToken::GreaterOrEqual] = "'>='";
-            result[ELToken::Greater]        = "'>'";
-            result[ELToken::Arrow]          = "'->'";
-            result[ELToken::BinaryNot]      = "'~'";
-            result[ELToken::BinaryAnd]      = "'&'";
-            result[ELToken::BinaryOr]       = "'|'";
-            result[ELToken::BinaryLeft]     = "'<<'";
-            result[ELToken::BinaryRight]    = "'>>'";
-            result[ELToken::Eof]            = "end of file";
+            result[ELToken::Variable]           = "variable";
+            result[ELToken::String]             = "string";
+            result[ELToken::Number]             = "number";
+            result[ELToken::Boolean]            = "boolean";
+            result[ELToken::OBracket]           = "'['";
+            result[ELToken::CBracket]           = "']'";
+            result[ELToken::OBrace]             = "'{'";
+            result[ELToken::CBrace]             = "'}'";
+            result[ELToken::OParen]             = "'('";
+            result[ELToken::CParen]             = "')'";
+            result[ELToken::Addition]           = "'+'";
+            result[ELToken::Subtraction]        = "'-'";
+            result[ELToken::Multiplication]     = "'*'";
+            result[ELToken::Division]           = "'/'";
+            result[ELToken::Modulus]            = "'%'";
+            result[ELToken::Colon]              = "':'";
+            result[ELToken::Comma]              = "','";
+            result[ELToken::Range]              = "'..'";
+            result[ELToken::LogicalNegation]    = "'!'";
+            result[ELToken::LogicalAnd]         = "'&&'";
+            result[ELToken::LogicalOr]          = "'||'";
+            result[ELToken::Less]               = "'<'";
+            result[ELToken::LessOrEqual]        = "'<='";
+            result[ELToken::Equal]              = "'=='";
+            result[ELToken::Inequal]            = "'!='";
+            result[ELToken::GreaterOrEqual]     = "'>='";
+            result[ELToken::Greater]            = "'>'";
+            result[ELToken::Case]               = "'->'";
+            result[ELToken::BitwiseNegation]    = "'~'";
+            result[ELToken::BitwiseAnd]         = "'&'";
+            result[ELToken::BitwiseOr]          = "'|'";
+            result[ELToken::BitwiseShiftLeft]   = "'<<'";
+            result[ELToken::BitwiseShiftRight]  = "'>>'";
+            result[ELToken::Eof]                = "end of file";
             return result;
         }
     }

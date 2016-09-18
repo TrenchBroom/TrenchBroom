@@ -1002,7 +1002,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            throw EvaluationError("Cannot subtract value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + " from value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + "'");
+            throw EvaluationError("Cannot compute moduls of value '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and value '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value::operator bool() const {
@@ -1156,10 +1156,9 @@ namespace TrenchBroom {
 
         Value Value::operator~() const {
             switch (type()) {
-                case Type_Boolean:
-                case Type_Number: {
+                case Type_Number:
                     return Value(~integerValue());
-                }
+                case Type_Boolean:
                 case Type_String:
                 case Type_Array:
                 case Type_Map:
@@ -1172,23 +1171,33 @@ namespace TrenchBroom {
         }
         
         Value operator&(const Value& lhs, const Value& rhs) {
-            return Value(lhs.integerValue() & rhs.integerValue());
+            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
+                return Value(lhs.integerValue() & rhs.integerValue());
+            throw EvaluationError("Cannot apply operator & to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator|(const Value& lhs, const Value& rhs) {
-            return Value(lhs.integerValue() | rhs.integerValue());
+            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
+                return Value(lhs.integerValue() | rhs.integerValue());
+            throw EvaluationError("Cannot apply operator | to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator^(const Value& lhs, const Value& rhs) {
-            return Value(lhs.integerValue() ^ rhs.integerValue());
+            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
+                return Value(lhs.integerValue() ^ rhs.integerValue());
+            throw EvaluationError("Cannot apply operator ^ to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator<<(const Value& lhs, const Value& rhs) {
-            return Value(lhs.integerValue() << rhs.integerValue());
+            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
+                return Value(lhs.integerValue() << rhs.integerValue());
+            throw EvaluationError("Cannot apply operator << to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator>>(const Value& lhs, const Value& rhs) {
-            return Value(lhs.integerValue() >> rhs.integerValue());
+            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
+                return Value(lhs.integerValue() >> rhs.integerValue());
+            throw EvaluationError("Cannot apply operator >> to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
     }
 }
