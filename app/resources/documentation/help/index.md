@@ -1132,7 +1132,7 @@ Every expression is made of one single term. A term is something that can be eva
 
 	UnaryTerm      = Plus | Minus | Not
 	AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
-	BooleanTerm    = Conjunction | Disjunction
+	BooleanTerm    = LogicalAnd | LogicalOr
 	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
 ### Variables and Literals
@@ -1379,8 +1379,8 @@ Note that the value under key `'k3'` is `4` and not `3`!
 
 Boolean terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
 
-	Conjunction    = SimpleTerm "&&" Expression
-	Disjunction    = SimpleTerm "||" Expression
+	LogicalAnd    = SimpleTerm "&&" Expression
+	LogicalOr     = SimpleTerm "||" Expression
 
 The following table shows the effects of applying the boolean operators.
 
@@ -1487,28 +1487,35 @@ The following examples show the comparison operators in action with different op
 
 #### Binary Operator Precedence
 
-Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators.
+Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators. In the table, higher numbers indicate higher precedence.
 
-Operator Precedence
-----     ----
-`*`      5
-`/`      5
-`%`      5
-`+`      4
-`-`      4
-`<`      3
-`<=`     3
-`==`     3
-`!=`     3
-`>`      3
-`>=`     3
-`&&`     2
-`||`     1
+Operator Name 					Precedence
+----     ----                   ----
+`*`      Multiplication			11
+`/`      Division				11
+`%`      Modulus				11
+`+`      Addition 				10
+`-`      Subtraction 			10
+`<<` 	 Bitwise shift left     9
+`>>` 	 Bitwise shift right    9
+`<`      Less 					8
+`<=`     Less or equal 			8
+`>`      Greater 				8
+`>=`     Greater or equal 		8
+`==`     Equal 					7
+`!=`     Inequal 				7
+`&` 	 Bitwise and   			6
+`^` 	 Bitwise xor   			5
+`|` 	 Bitwise or             4
+`&&`     Logical and 			3
+`||`     Logical or 			2
+`[]`     Range 					1
+`->`     Case 					0
 
 Some examples:
 
     2 * 3 + 4       // 10 because * has a higher precedence than +
-    7 < 10 && 8 < 3 // comparisons are evaluated before the conjunction operator
+    7 < 10 && 8 < 3 // comparisons are evaluated before the logical and operator
 
 If the builtin precedence does not reflect your intention, you can use parentheses to force an operator to be evaluated first.
 
