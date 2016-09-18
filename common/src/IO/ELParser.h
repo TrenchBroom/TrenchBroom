@@ -65,7 +65,9 @@ namespace TrenchBroom {
             static const Type BitwiseOr = 1ul << 32;
             static const Type BitwiseShiftLeft = 1ul << 33;
             static const Type BitwiseShiftRight = 1ul << 34;
-            static const Type Eof = 1ul << 35;
+            static const Type DoubleOBrace = 1ul << 35;
+            static const Type DoubleCBrace = 1ul << 36;
+            static const Type Eof = 1ul << 37;
             static const Type Literal = String | Number | Boolean;
             static const Type UnaryOperator = Addition | Subtraction | LogicalNegation | BitwiseNegation;
             static const Type SimpleTerm = Variable | Literal | OParen | OBracket | OBrace | UnaryOperator;
@@ -98,6 +100,7 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseExpression();
             EL::ExpressionBase* parseGroupedTerm();
             EL::ExpressionBase* parseTerm();
+            EL::ExpressionBase* parseSimpleTermOrSwitch();
             EL::ExpressionBase* parseSimpleTerm();
             EL::ExpressionBase* parseSubscript(EL::ExpressionBase* lhs);
             EL::ExpressionBase* parseVariable();
@@ -107,6 +110,7 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseExpressionOrAnyRange();
             EL::ExpressionBase* parseMap();
             EL::ExpressionBase* parseUnaryOperator();
+            EL::ExpressionBase* parseSwitch();
             EL::ExpressionBase* parseCompoundTerm(EL::ExpressionBase* lhs);
         private:
             TokenNameMap tokenNames() const;

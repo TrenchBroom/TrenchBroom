@@ -62,9 +62,17 @@ namespace TrenchBroom {
                         return Token(ELToken::CBracket, c, c+1, offset(c), startLine, startColumn);
                     case '{':
                         advance();
+                        if (curChar() == '{') {
+                            advance();
+                            return Token(ELToken::DoubleOBrace, c, c+2, offset(c), startLine, startColumn);
+                        }
                         return Token(ELToken::OBrace, c, c+1, offset(c), startLine, startColumn);
                     case '}':
                         advance();
+                        if (curChar() == '}') {
+                            advance();
+                            return Token(ELToken::DoubleCBrace, c, c+2, offset(c), startLine, startColumn);
+                        }
                         return Token(ELToken::CBrace, c, c+1, offset(c), startLine, startColumn);
                     case '(':
                         advance();
@@ -242,12 +250,21 @@ namespace TrenchBroom {
         }
 
         EL::ExpressionBase* ELParser::parseTerm() {
-            expect(ELToken::SimpleTerm, m_tokenizer.peekToken());
+            expect(ELToken::SimpleTerm | ELToken::DoubleOBrace, m_tokenizer.peekToken());
             
-            EL::ExpressionBase* lhs = parseSimpleTerm();
+            EL::ExpressionBase* lhs = parseSimpleTermOrSwitch();
             if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
                 return parseCompoundTerm(lhs);
             return lhs;
+        }
+
+        EL::ExpressionBase* ELParser::parseSimpleTermOrSwitch() {
+            Token token = m_tokenizer.peekToken();
+            expect(ELToken::SimpleTerm | ELToken::DoubleOBrace, token);
+            
+            if (token.hasType(ELToken::SimpleTerm))
+                return parseSimpleTerm();
+            return parseSwitch();
         }
 
         EL::ExpressionBase* ELParser::parseSimpleTerm() {
@@ -397,15 +414,39 @@ namespace TrenchBroom {
             expect(ELToken::UnaryOperator, token);
             
             if (token.hasType(ELToken::Addition))
-                return EL::UnaryPlusOperator::create(parseSimpleTerm(), token.line(), token.column());
+                return EL::UnaryPlusOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else if (token.hasType(ELToken::Subtraction))
-                return EL::UnaryMinusOperator::create(parseSimpleTerm(), token.line(), token.column());
+                return EL::UnaryMinusOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else if (token.hasType(ELToken::LogicalNegation))
-                return EL::LogicalNegationOperator::create(parseSimpleTerm(), token.line(), token.column());
+                return EL::LogicalNegationOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else if (token.hasType(ELToken::BitwiseNegation))
-                return EL::BitwiseNegationOperator::create(parseSimpleTerm(), token.line(), token.column());
+                return EL::BitwiseNegationOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else
                 throw new ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
+        }
+
+        EL::ExpressionBase* ELParser::parseSwitch() {
+            Token token = m_tokenizer.nextToken();
+            expect(ELToken::DoubleOBrace, token);
+            
+            const size_t startLine = token.line();
+            const size_t startColumn = token.column();
+            EL::ExpressionBase::List subExpressions;
+            
+            token = m_tokenizer.nextToken();
+            expect(ELToken::SimpleTerm | ELToken::DoubleCBrace, token);
+            
+            if (token.hasType(ELToken::SimpleTerm)) {
+                m_tokenizer.pushToken(token);
+                do {
+                    subExpressions.push_back(parseExpression());
+                    
+                    token = m_tokenizer.nextToken();
+                    expect(ELToken::Comma | ELToken::DoubleCBrace, token);
+                } while (token.hasType(ELToken::Comma));
+            }
+            
+            return EL::SwitchOperator::create(subExpressions, startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseCompoundTerm(EL::ExpressionBase* lhs) {
@@ -414,43 +455,43 @@ namespace TrenchBroom {
                 expect(ELToken::CompoundTerm, token);
                 
                 if (token.hasType(ELToken::Addition))
-                    lhs = EL::AdditionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::AdditionOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Subtraction))
-                    lhs = EL::SubtractionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::SubtractionOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Multiplication))
-                    lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::MultiplicationOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Division))
-                    lhs = EL::DivisionOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::DivisionOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Modulus))
-                    lhs = EL::ModulusOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ModulusOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::LogicalAnd))
-                    lhs = EL::LogicalAndOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::LogicalAndOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::LogicalOr))
-                    lhs = EL::LogicalOrOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::LogicalOrOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Less))
-                    lhs = EL::ComparisonOperator::createLess(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createLess(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::LessOrEqual))
-                    lhs = EL::ComparisonOperator::createLessOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createLessOrEqual(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Equal))
-                    lhs = EL::ComparisonOperator::createEqual(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createEqual(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Inequal))
-                    lhs = EL::ComparisonOperator::createInequal(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createInequal(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::GreaterOrEqual))
-                    lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createGreaterOrEqual(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Greater))
-                    lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::ComparisonOperator::createGreater(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::BitwiseAnd))
-                    lhs = EL::BitwiseAndOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::BitwiseAndOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::BitwiseXor))
-                    lhs = EL::BitwiseXorOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::BitwiseXorOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::BitwiseOr))
-                    lhs = EL::BitwiseOrOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::BitwiseOrOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::BitwiseShiftLeft))
-                    lhs = EL::BitwiseShiftLeftOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::BitwiseShiftLeftOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::BitwiseShiftRight))
-                    lhs = EL::BitwiseShiftRightOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::BitwiseShiftRightOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else if (token.hasType(ELToken::Case))
-                    lhs = EL::CaseOperator::create(lhs, parseSimpleTerm(), token.line(), token.column());
+                    lhs = EL::CaseOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else
                     throw new ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
             }
@@ -493,6 +534,8 @@ namespace TrenchBroom {
             result[ELToken::BitwiseOr]          = "'|'";
             result[ELToken::BitwiseShiftLeft]   = "'<<'";
             result[ELToken::BitwiseShiftRight]  = "'>>'";
+            result[ELToken::DoubleOBrace]       = "'{{'";
+            result[ELToken::DoubleCBrace]       = "'}}'";
             result[ELToken::Eof]                = "end of file";
             return result;
         }

@@ -237,6 +237,14 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(~1l, "~1");
         }
         
+        TEST(ELParserTest, parseSwitchExpression) {
+            ASSERT_EL_EQ(EL::Value::Undefined, "{{}}");
+            ASSERT_EL_EQ("asdf", "{{'asdf'}}");
+            ASSERT_EL_EQ("fdsa", "{{'fdsa', 'asdf'}}");
+            ASSERT_EL_EQ("asdf", "{{false -> 'fdsa', 'asdf'}}");
+            ASSERT_EL_EQ(EL::Value::Undefined, "{{false -> false}}");
+        }
+        
         TEST(ELParserTest, testComparisonOperators) {
             ASSERT_EL_EQ(true, "1 < 2");
             ASSERT_EL_EQ(false, "2 < 2");
