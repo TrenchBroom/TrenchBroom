@@ -1542,6 +1542,33 @@ The switch operator comprises of zero or more sub expressions and its evaluation
 
     Switch = "{{" [ Expression { "," Expression } ] "}}"
 
+The following example demonstrates a very simple `if / then / else` use of the switch term.
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1'
+    }}
+
+This expression evaluates to the string `'x equals 0'` if the value of the variable `x` equals `0` and it evaluates to the string `'x equals 1'` if the value of the variable `x` equals `1`. In all other cases, the switch expression evaluates to `undefined`.
+
+But what if we wanted to have a default result for all those other cases? That's easy with the switch expression.
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1',
+    	true   -> 'otherwise'   // the default case
+    }}
+
+However, due to how the sub expressions of the switch expression are evaluated, we can abbreviate the default case:
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1',
+    	          'otherwise'   // the default case
+    }}
+
+Remember that the switch expression will return the value of the first expression that does not evaluate to `undefined`. Since the first two sub expressions do evaluate to `undefined`, and the string `'otherwise'` is not `undefined`, the switch expression will return `'otherwise'` as its result. 
+
 #### Binary Operator Precedence
 
 Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators. In the table, higher numbers indicate higher precedence.
