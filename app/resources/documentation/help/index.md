@@ -1125,14 +1125,15 @@ Every expression is made of one single term. A term is something that can be eva
 
 	Expression     = GroupedTerm | Term
 	GroupedTerm    = "(" Term ")"
-	Term           = SimpleTerm | CompoundTerm
+	Term           = SimpleTerm | Switch | CompoundTerm
 
 	SimpleTerm     = Variable | Literal | Subscript | UnaryTerm | GroupedTerm
-	CompoundTerm   = AlgebraicTerm | BooleanTerm | ComparisonTerm
+	CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
 
-	UnaryTerm      = Plus | Minus | Not
+	UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
 	AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
-	BooleanTerm    = LogicalAnd | LogicalOr
+	LogicalTerm    = LogicalAnd | LogicalOr
+	BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
 	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
 ### Variables and Literals
@@ -1322,22 +1323,25 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are three unary operators: unary plus, unary minus, and unary negation (not).
 
-	Plus           = "+" SimpleTerm
-	Minus          = "-" SimpleTerm
-	Not            = "!" SimpleTerm
+	Plus            = "+" SimpleTerm
+	Minus           = "-" SimpleTerm
+	LogicalNegation = "!" SimpleTerm
+	BinaryNegation  = "~" SimpleTerm
 
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
---------------------------------------------------------------------------------------------
-Operator `Boolean`         `String` `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
--------- ----              ----     ----         ----    ----    ----    ----    ----
-`Plus`   convert to number error    no effect    error   error   error   error   error
+-------------------------------------------------------------------------------------------------------
+Operator 			`Boolean`         `String` `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+--------            ----              ----     ----         ----    ----    ----    ----    ----
+`Plus`   			convert to number error    no effect    error   error   error   error   error
 
-`Minus`  convert to number error    negate value error   error   error   error   error
-         and negate value
+`Minus`  			convert to number error    negate value error   error   error   error   error
+         			and negate value
 
-`Not`    invert value      error    error        error   error   error   error   error
---------------------------------------------------------------------------------------------
+`LogicalNegation` 	invert value      error    error        error   error   error   error   error
+
+`BinaryNegation` 	error 			  error    invert bits  error   error   error   error   error
+-------------------------------------------------------------------------------------------------------
 
 Some examples of using unary operators follow.
 
@@ -1347,6 +1351,8 @@ Some examples of using unary operators follow.
     -true  // -1.0
     !true  // false
     !false // true
+    ~1     // -2
+    ~-2    // 1
 
 ### Binary Operator Terms
 
@@ -1375,14 +1381,14 @@ In the previous two examples, the operands are simply concatenated. If both oper
 
 Note that the value under key `'k3'` is `4` and not `3`!
 
-#### Boolean Terms
+#### Logical Terms
 
-Boolean terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
+Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
 
 	LogicalAnd    = SimpleTerm "&&" Expression
 	LogicalOr     = SimpleTerm "||" Expression
 
-The following table shows the effects of applying the boolean operators.
+The following table shows the effects of applying the logical operators.
 
   Left    Right   &&      ||
 -------- ------- ----    ----
@@ -1390,6 +1396,28 @@ The following table shows the effects of applying the boolean operators.
 `true`   `false` `false` `true`
 `false`  `true`  `false` `true`
 `false`  `false` `false` `false`
+
+#### Binary Terms
+
+Binary terms manipulate the bit representation of operatands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If one of the operands is not of type `Number`, an error is thrown.
+
+    BinaryAnd        = SimpleTerm "&" SimpleTerm
+    BinaryXor        = SimpleTerm "|" SimpleTerm
+    BinaryOr         = SimpleTerm "^" SimpleTerm
+    BinaryShiftLeft  = SimpleTerm "<<" SimpleTerm
+    BinaryShiftRight = SimpleTerm ">>" SimpleTerm
+
+Here are some examples of the operators in use:
+
+    1 & 0  // 0
+    1 | 0  // 1
+    3 & 1  // 1
+    2 | 1  // 3
+    1 ^ 1  // 0
+    1 ^ 0  // 1
+    3 ^ 1  // 2
+    1 << 1 // 2
+    2 >> 1 // 1
 
 #### Comparison Terms
 
@@ -1484,6 +1512,35 @@ The following examples show the comparison operators in action with different op
     [ 1, 2, 3 ] == [ 1, 2, 3 ]
     [ 1, 2, 3 ] <  [ 2, 2, 3 ]
     [ 1, 2 ]    <  [ 1, 2, 3 ]
+
+#### Case Term
+
+The case operator allows for conditional evaluation of expressions. This is usally most useful in combination with the switch operator, which is explained in the next subsection.
+
+     Case = SimpleTerm "->"" Expression
+
+In a case expression, the part before the `->` operator is called the *premise* and the part after it is called the *conclusion*. The case operator is evaluated as follows:
+
+- If the premise evaluates to a value `r` that is convertible to `boolean`:
+    - If `r` converts to `true`: 
+        - The result of the case expression is the result of evaluating the conclusion.
+    - Otherwise, the result of the case expression is `undefined`.
+- Otherwise, an error is thrown.
+
+The following examples demonstrate the semantics of the case operator:
+
+    true   -> false  // false
+    false  -> true   // undefined
+    1      -> "test" // "test", because 1 converts to true
+    0      -> "test" // undefined, because 0 converts to false
+    "true" -> ""     // "", because "true" converts to true
+    ""     -> ""     // undefined, because "" converts to false
+
+#### Switch Term
+
+The switch operator comprises of zero or more sub expressions and its evaluation returns the result of the first expression that does not evaluate to `undefined`. In combination with the case operator, it implements a piecewise defined function.
+
+    Switch = "{{" [ Expression { "," Expression } ] "}}"
 
 #### Binary Operator Precedence
 
