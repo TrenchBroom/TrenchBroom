@@ -35,23 +35,113 @@ namespace TrenchBroom {
         private:
             typedef std::stack<Token> TokenStack;
 
-            struct State {
-                const char* cur;
-                size_t line;
-                size_t column;
-                size_t lastColumn;
-                bool escaped;
+            class State {
+            private:
+                const char* m_begin;
+                const char* m_cur;
+                const char* m_end;
+                size_t m_line;
+                size_t m_column;
+                bool m_escaped;
+            public:
+                State(const char* begin, const char* end) :
+                m_begin(begin),
+                m_cur(m_begin),
+                m_end(end),
+                m_line(1),
+                m_column(1),
+                m_escaped(false) {}
+                
+                size_t length() const {
+                    return static_cast<size_t>(m_end - m_begin);
+                }
+                
+                const char* begin() const {
+                    return m_begin;
+                }
+                
+                const char* end() const {
+                    return m_end;
+                }
+                
+                const char* curPos() const {
+                    return m_cur;
+                }
+                
+                char curChar() const {
+                    return *m_cur;
+                }
+                
+                char lookAhead(const size_t offset = 1) const {
+                    if (eof(m_cur + offset))
+                        return 0;
+                    return *(m_cur + offset);
+                }
+                
+                size_t line() const {
+                    return m_line;
+                }
+                
+                size_t column() const {
+                    return m_column;
+                }
+                
+                bool escaped() const {
+                    return m_escaped;
+                }
+                
+                bool eof() const {
+                    return eof(m_cur);
+                }
+                
+                bool eof(const char* ptr) const {
+                    return ptr >= m_end;
+                }
+                
+                size_t offset(const char* ptr) const {
+                    assert(ptr >= m_begin);
+                    return static_cast<size_t>(ptr - m_begin);
+                }
+                
+                void advance(const size_t offset) {
+                    for (size_t i = 0; i < offset; ++i)
+                        advance();
+                }
+                
+                void advance() {
+                    errorIfEof();
+                    
+                    switch (curChar()) {
+                        case '\n':
+                            ++m_line;
+                            m_column = 1;
+                            m_escaped = false;
+                            break;
+                        case '\\':
+                            ++m_column;
+                            m_escaped = !m_escaped;
+                            break;
+                        default:
+                            ++m_column;
+                            m_escaped = false;
+                            break;
+                    }
+                    ++m_cur;
+                }
+                
+                void reset() {
+                    m_cur = m_begin;
+                    m_line = 1;
+                    m_column = 1;
+                    m_escaped = false;
+                }
 
-                State(const char* i_cur) :
-                cur(i_cur),
-                line(1),
-                column(1),
-                lastColumn(0),
-                escaped(false) {}
+                void errorIfEof() const {
+                    if (eof())
+                        throw ParserException("Unexpected end of file");
+                }
             };
 
-            const char* m_begin;
-            const char* m_end;
             State m_state;
 
             TokenStack m_tokenStack;
@@ -62,20 +152,10 @@ namespace TrenchBroom {
             }
         public:
             Tokenizer(const char* begin, const char* end) :
-            m_begin(begin),
-            m_end(end),
-            m_state(State(m_begin)) {}
+            m_state(begin, end) {}
 
             Tokenizer(const String& str) :
-            m_begin(str.c_str()),
-            m_end(str.c_str() + str.size()),
-            m_state(State(m_begin)) {}
-
-            Tokenizer(const Tokenizer& other) :
-            m_begin(other.m_begin),
-            m_end(other.m_end),
-            m_state(other.m_state),
-            m_tokenStack(other.m_tokenStack) {}
+            m_state(str.c_str(), str.c_str() + str.size()) {}
 
             virtual ~Tokenizer() {}
 
@@ -126,7 +206,7 @@ namespace TrenchBroom {
             }
 
             void reset() {
-                m_state = State(m_begin);
+                m_state.reset();
             }
 
             double progress() const {
@@ -138,28 +218,27 @@ namespace TrenchBroom {
             }
 
             bool eof() const {
-                return m_state.cur >= m_end;
+                return m_state.eof();
             }
         protected:
             size_t line() const {
-                return m_state.line;
+                return m_state.line();
             }
 
             size_t column() const {
-                return m_state.column;
+                return m_state.column();
             }
 
             size_t length() const {
-                return static_cast<size_t>(m_end - m_begin);
+                return m_state.length();
             }
 
             size_t offset(const char* ptr) const {
-                assert(ptr >= m_begin);
-                return static_cast<size_t>(ptr - m_begin);
+                return m_state.offset(ptr);
             }
 
             const char* curPos() const {
-                return m_state.cur;
+                return m_state.curPos();
             }
 
             char curChar() const {
@@ -170,37 +249,15 @@ namespace TrenchBroom {
             }
 
             char lookAhead(const size_t offset = 1) const {
-                if (m_state.cur + offset >= m_end)
-                    return 0;
-                return *(m_state.cur + offset);
+                return m_state.lookAhead(offset);
             }
 
             void advance(const size_t offset) {
-                for (size_t i = 0; i < offset; ++i)
-                    advance();
+                m_state.advance(offset);
             }
 
             void advance() {
-                errorIfEof();
-
-                switch (curChar()) {
-                    case '\n':
-                        ++m_state.line;
-                        m_state.lastColumn = m_state.column;
-                        m_state.column = 1;
-                        m_state.escaped = false;
-                        break;
-                    case '\\':
-                        ++m_state.column;
-                        m_state.escaped = !m_state.escaped;
-                        break;
-                    default:
-                        ++m_state.column;
-                        m_state.escaped = false;
-                        break;
-                }
-
-                ++m_state.cur;
+                m_state.advance();
             }
 
             bool isDigit(const char c) const {
@@ -216,7 +273,7 @@ namespace TrenchBroom {
             }
 
             bool isEscaped() const {
-                return m_state.escaped;
+                return m_state.escaped();
             }
 
             const char* readInteger(const String& delims) {
@@ -286,7 +343,7 @@ namespace TrenchBroom {
             const char* readQuotedString(const char delim = '"') {
                 while (!eof() && (curChar() != delim || isEscaped()))
                     advance();
-                errorIfEof();
+                m_state.errorIfEof();
                 const char* end = curPos();
                 advance();
                 return end;
@@ -322,7 +379,7 @@ namespace TrenchBroom {
                     advance();
 
                 if (eof())
-                    return m_end;
+                    return m_state.end();
 
                 return curPos();
             }
@@ -343,11 +400,6 @@ namespace TrenchBroom {
                 ParserException e;
                 e << "Unexpected character '" << c << "'";
                 throw e;
-            }
-
-            void errorIfEof() const {
-                if (eof())
-                    throw ParserException("Unexpected end of file");
             }
         protected:
             bool isAnyOf(const char c, const String& allow) const {
