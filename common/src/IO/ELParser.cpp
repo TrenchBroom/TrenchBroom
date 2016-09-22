@@ -294,15 +294,13 @@ namespace TrenchBroom {
             
             expect(ELToken::OBracket, token);
             EL::ExpressionBase::List elements;
-            while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
-                elements.push_back(parseExpressionOrAnyRange());
-                token = m_tokenizer.nextToken();
-                expect(ELToken::Comma | ELToken::CBracket, token);
-                if (token.hasType(ELToken::CBracket))
-                    m_tokenizer.pushToken(token);
-                
+            if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
+                do {
+                    elements.push_back(parseExpressionOrAnyRange());
+                } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
+            } else {
+                m_tokenizer.nextToken();
             }
-            expect(ELToken::CBracket, m_tokenizer.nextToken());
             
             if (elements.size() == 1)
                 return EL::SubscriptOperator::create(lhs, elements.front(), startLine, startColumn);
@@ -316,20 +314,24 @@ namespace TrenchBroom {
         }
 
         EL::ExpressionBase* ELParser::parseLiteral() {
-            Token token = m_tokenizer.nextToken();
+            Token token = m_tokenizer.peekToken();
             expect(ELToken::String | ELToken::Number | ELToken::Boolean | ELToken::OBracket | ELToken::OBrace, token);
             
             if (token.hasType(ELToken::String)) {
+                m_tokenizer.nextToken();
                 // Escaping happens in EL::Value::appendToStream
                 const String value = StringUtils::unescape(token.data(), "\\\"");
                 return EL::LiteralExpression::create(EL::Value(value), token.line(), token.column());
             }
-            if (token.hasType(ELToken::Number))
+            if (token.hasType(ELToken::Number)) {
+                m_tokenizer.nextToken();
                 return EL::LiteralExpression::create(EL::Value(token.toFloat<EL::NumberType>()), token.line(), token.column());
-            if (token.hasType(ELToken::Boolean))
+            }
+            if (token.hasType(ELToken::Boolean)) {
+                m_tokenizer.nextToken();
                 return EL::LiteralExpression::create(EL::Value(token.data() == "true"), token.line(), token.column());
+            }
             
-            m_tokenizer.pushToken(token);
             if (token.hasType(ELToken::OBracket))
                 return parseArray();
             return parseMap();
@@ -339,17 +341,16 @@ namespace TrenchBroom {
             Token token = m_tokenizer.nextToken();
             const size_t startLine = token.line();
             const size_t startColumn = token.column();
+            
             expect(ELToken::OBracket, token);
             EL::ExpressionBase::List elements;
-            while (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
-                elements.push_back(parseExpressionOrRange());
-                token = m_tokenizer.nextToken();
-                expect(ELToken::Comma | ELToken::CBracket, token);
-                if (token.hasType(ELToken::CBracket))
-                    m_tokenizer.pushToken(token);
-                
+            if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
+                do {
+                    elements.push_back(parseExpressionOrRange());
+                } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
+            } else {
+                m_tokenizer.nextToken();
             }
-            expect(ELToken::CBracket, m_tokenizer.nextToken());
             
             return EL::ArrayExpression::create(elements, startLine, startColumn);
         }
@@ -389,22 +390,22 @@ namespace TrenchBroom {
             Token token = m_tokenizer.nextToken();
             const size_t startLine = token.line();
             const size_t startColumn = token.column();
-            expect(ELToken::OBrace, token);
-            while (!m_tokenizer.peekToken().hasType(ELToken::CBrace)) {
-                token = m_tokenizer.nextToken();
-                expect(ELToken::String, token);
-                const String key = token.data();
-                
-                expect(ELToken::Colon, m_tokenizer.nextToken());
-                EL::ExpressionBase* value = parseExpression();
 
-                MapUtils::insertOrReplaceAndDelete(elements, key, value);
-                
-                expect(ELToken::Comma | ELToken::CBrace, token = m_tokenizer.nextToken());
-                if (token.hasType(ELToken::CBrace))
-                    m_tokenizer.pushToken(token);
+            expect(ELToken::OBrace, token);
+            if (!m_tokenizer.peekToken().hasType(ELToken::CBrace)) {
+                do {
+                    token = m_tokenizer.nextToken();
+                    expect(ELToken::String, token);
+                    const String key = token.data();
+                    
+                    expect(ELToken::Colon, m_tokenizer.nextToken());
+                    EL::ExpressionBase* value = parseExpression();
+                    
+                    MapUtils::insertOrReplaceAndDelete(elements, key, value);
+                } while (expect(ELToken::Comma | ELToken::CBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
+            } else {
+                m_tokenizer.nextToken();
             }
-            expect(ELToken::CBrace, m_tokenizer.nextToken());
             
             return EL::MapExpression::create(elements, startLine, startColumn);
         }
@@ -433,17 +434,15 @@ namespace TrenchBroom {
             const size_t startColumn = token.column();
             EL::ExpressionBase::List subExpressions;
             
-            token = m_tokenizer.nextToken();
+            token = m_tokenizer.peekToken();
             expect(ELToken::SimpleTerm | ELToken::DoubleCBrace, token);
             
             if (token.hasType(ELToken::SimpleTerm)) {
-                m_tokenizer.pushToken(token);
                 do {
                     subExpressions.push_back(parseExpression());
-                    
-                    token = m_tokenizer.nextToken();
-                    expect(ELToken::Comma | ELToken::DoubleCBrace, token);
-                } while (token.hasType(ELToken::Comma));
+                } while (expect(ELToken::Comma | ELToken::DoubleCBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
+            } else if (token.hasType(ELToken::DoubleCBrace)) {
+                m_tokenizer.nextToken();
             }
             
             return EL::SwitchOperator::create(subExpressions, startLine, startColumn);

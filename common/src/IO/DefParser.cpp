@@ -321,17 +321,18 @@ namespace TrenchBroom {
             Assets::ModelDefinitionList result;
             Token token;
             expect(status, DefToken::OParenthesis, token = m_tokenizer.nextToken());
-            expect(status, DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            if (token.type() == DefToken::QuotedString || token.type() == DefToken::Word) {
-                m_tokenizer.pushToken(token);
+            
+            expect(status, DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken());
+            if (!token.hasType(DefToken::CParenthesis)) {
                 do {
                     expect(status, DefToken::QuotedString | DefToken::Word, token = m_tokenizer.peekToken());
                     if (token.type() == DefToken::QuotedString)
                         parseStaticModelDefinition(status, modelDefinitions);
                     else
                         parseDynamicModelDefinition(status, modelDefinitions);
-                    expect(status, DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                } while (token.type() == DefToken::Comma);
+                } while (expect(status, DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken()).hasType(DefToken::Comma));
+            } else {
+                m_tokenizer.nextToken();
             }
         }
 
@@ -343,13 +344,15 @@ namespace TrenchBroom {
             
             std::vector<size_t> indices;
             
-            expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+            expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.peekToken());
             if (token.type() == DefToken::Integer) {
+                token = m_tokenizer.nextToken();
                 indices.push_back(token.toInteger<size_t>());
-                expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+                expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.peekToken());
                 if (token.type() == DefToken::Integer) {
+                    token = m_tokenizer.nextToken();
                     indices.push_back(token.toInteger<size_t>());
-                    expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+                    expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.peekToken());
                 }
             }
             
@@ -362,6 +365,8 @@ namespace TrenchBroom {
             }
             
             if (token.type() == DefToken::Word) {
+                token = m_tokenizer.nextToken();
+                
                 const String attributeKey = token.data();
                 expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
                 expect(status, DefToken::QuotedString | DefToken::Integer, token = m_tokenizer.nextToken());
@@ -373,42 +378,30 @@ namespace TrenchBroom {
                     modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, flagValue)));
                 }
             } else {
-                m_tokenizer.pushToken(token);
                 modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex)));
             }
         }
         
         void DefParser::parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
+            const String pathKey = parseNamedValue(status, "pathKey");
+            
+            String skinKey, frameKey;
             Token token;
-            String pathKey, skinKey, frameKey;
+            expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken());
             
-            expect(status, DefToken::Word, token = m_tokenizer.nextToken());
-            if (!StringUtils::caseInsensitiveEqual("pathKey", token.data())) {
-                const String msg = "Expected 'pathKey', but found '" + token.data() + "'";
-                status.error(token.line(), token.column(), msg);
-                throw ParserException(token.line(), token.column(), msg);
+            if (!token.hasType(DefToken::CParenthesis)) {
+                do {
+                    if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                        skinKey = parseNamedValue(status, "skinKey");
+                    } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                        frameKey = parseNamedValue(status, "frameKey");
+                    } else {
+                        const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
+                        status.error(token.line(), token.column(), msg);
+                        throw ParserException(token.line(), token.column(), msg);
+                    }
+                } while (expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(DefToken::Word));
             }
-            
-            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-            pathKey = token.data();
-            
-            expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            while (token.type() == DefToken::Word) {
-                if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    skinKey = parseNamedValue(status, "skinKey");
-                } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    frameKey = parseNamedValue(status, "frameKey");
-                } else {
-                    const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
-                    status.error(token.line(), token.column(), msg);
-                    throw ParserException(token.line(), token.column(), msg);
-                }
-                expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            }
-            m_tokenizer.pushToken(token);
             
             modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
         }
@@ -416,7 +409,11 @@ namespace TrenchBroom {
         String DefParser::parseNamedValue(ParserStatus& status, const String& name) {
             Token token;
             expect(status, DefToken::Word, token = m_tokenizer.nextToken());
-            assert(StringUtils::caseInsensitiveEqual(name, token.data()));
+            if (!StringUtils::caseInsensitiveEqual(name, token.data())) {
+                const String msg = "Expected '" + name + "', but found '" + token.data() + "'";
+                status.error(token.line(), token.column(), msg);
+                throw ParserException(token.line(), token.column(), msg);
+            }
             expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
             expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
             return token.data();

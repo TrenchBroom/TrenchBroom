@@ -115,11 +115,6 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(1u, token.line());
-            tokenizer.pushToken(token);
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
-            ASSERT_EQ(1u, token.line());
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }

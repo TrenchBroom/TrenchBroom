@@ -141,10 +141,22 @@ namespace TrenchBroom {
                         throw ParserException("Unexpected end of file");
                 }
             };
+            
+            class SaveState {
+            private:
+                State& m_state;
+                State m_savedState;
+            public:
+                SaveState(State& state) :
+                m_state(state),
+                m_savedState(m_state) {}
+                
+                ~SaveState() {
+                    m_state = m_savedState;
+                }
+            };
 
             State m_state;
-
-            TokenStack m_tokenStack;
         public:
             static const String& Whitespace() {
                 static const String whitespace(" \t\n\r");
@@ -160,24 +172,12 @@ namespace TrenchBroom {
             virtual ~Tokenizer() {}
 
             Token nextToken() {
-                return !m_tokenStack.empty() ? popToken() : emitToken();
+                return emitToken();
             }
 
             Token peekToken() {
-                Token token = nextToken();
-                pushToken(token);
-                return token;
-            }
-
-            void pushToken(const Token& token) {
-                m_tokenStack.push(token);
-            }
-
-            Token popToken() {
-                assert(!m_tokenStack.empty());
-                Token token = m_tokenStack.top();
-                m_tokenStack.pop();
-                return token;
+                SaveState oldState(m_state);
+                return nextToken();
             }
 
             String readRemainder(const TokenType delimiterType) {
@@ -187,13 +187,11 @@ namespace TrenchBroom {
                 Token token = peekToken();
                 const char* startPos = token.begin();
                 const char* endPos = startPos;
-                token = nextToken();
-                while ((token.type() & delimiterType) == 0 && !eof()) {
-                    endPos = token.end();
+                do {
                     token = nextToken();
-                }
+                    endPos = token.end();
+                } while (peekToken().hasType(delimiterType) == 0 && !eof());
 
-                pushToken(token);
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
 

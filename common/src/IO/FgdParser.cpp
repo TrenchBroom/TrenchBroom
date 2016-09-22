@@ -225,12 +225,11 @@ namespace TrenchBroom {
             expect(status, FgdToken::Word, token = m_tokenizer.nextToken());
             classInfo.setName(token.data());
 
-            expect(status, FgdToken::Colon | FgdToken::OBracket, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::Colon | FgdToken::OBracket, token = m_tokenizer.peekToken());
             if (token.type() == FgdToken::Colon) {
+                m_tokenizer.nextToken();
                 expect(status, FgdToken::String, token = m_tokenizer.nextToken());
                 classInfo.setDescription(StringUtils::trim(token.data()));
-            } else {
-                m_tokenizer.pushToken(token);
             }
             
             classInfo.addAttributeDefinitions(parseProperties(status));
@@ -251,14 +250,15 @@ namespace TrenchBroom {
             StringList superClasses;
             Token token;
             expect(status, FgdToken::OParenthesis, token = m_tokenizer.nextToken());
-            expect(status, FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
             if (token.type() == FgdToken::Word) {
-                m_tokenizer.pushToken(token);
                 do {
                     expect(status, FgdToken::Word, token = m_tokenizer.nextToken());
                     superClasses.push_back(token.data());
                     expect(status, FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
                 } while (token.type() == FgdToken::Comma);
+            } else {
+                m_tokenizer.nextToken();
             }
             return superClasses;
         }
@@ -267,9 +267,8 @@ namespace TrenchBroom {
             Assets::ModelDefinitionList result;
             Token token;
             expect(status, FgdToken::OParenthesis, token = m_tokenizer.nextToken());
-            expect(status, FgdToken::String | FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::String | FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
             if (token.type() == FgdToken::String || token.type() == FgdToken::Word) {
-                m_tokenizer.pushToken(token);
                 do {
                     expect(status, FgdToken::String | FgdToken::Word, token = m_tokenizer.peekToken());
                     if (token.type() == FgdToken::String)
@@ -278,6 +277,8 @@ namespace TrenchBroom {
                         result.push_back(parseDynamicModel(status));
                     expect(status, FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
                 } while (token.type() == FgdToken::Comma);
+            } else {
+                m_tokenizer.nextToken();
             }
             return result;
         }
@@ -290,13 +291,15 @@ namespace TrenchBroom {
             
             std::vector<size_t> indices;
             
-            expect(status, FgdToken::Integer | FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
+            expect(status, FgdToken::Integer | FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
             if (token.type() == FgdToken::Integer) {
+                token = m_tokenizer.nextToken();
                 indices.push_back(token.toInteger<size_t>());
-                expect(status, FgdToken::Integer | FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
+                expect(status, FgdToken::Integer | FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
                 if (token.type() == FgdToken::Integer) {
+                    token = m_tokenizer.nextToken();
                     indices.push_back(token.toInteger<size_t>());
-                    expect(status, FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
+                    expect(status, FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
                 }
             }
             
@@ -309,6 +312,8 @@ namespace TrenchBroom {
             }
             
             if (token.type() == FgdToken::Word) {
+                token = m_tokenizer.nextToken();
+                
                 const String attributeKey = token.data();
                 expect(status, FgdToken::Equality, token = m_tokenizer.nextToken());
                 expect(status, FgdToken::String | FgdToken::Integer, token = m_tokenizer.nextToken());
@@ -320,42 +325,31 @@ namespace TrenchBroom {
                     return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, flagValue));
                 }
             } else {
-                m_tokenizer.pushToken(token);
                 return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex));
             }
+
         }
         
         Assets::ModelDefinitionPtr FgdParser::parseDynamicModel(ParserStatus& status) {
+            const String pathKey = parseNamedValue(status, "pathKey");
+            
+            String skinKey, frameKey;
             Token token;
-            String pathKey, skinKey, frameKey;
+            expect(status, FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
             
-            expect(status, FgdToken::Word, token = m_tokenizer.nextToken());
-            if (!StringUtils::caseInsensitiveEqual("pathKey", token.data())) {
-                const String msg = "Expected 'pathKey', but found '" + token.data() + "'";
-                status.error(token.line(), token.column(), msg);
-                throw ParserException(token.line(), token.column(), msg);
+            if (!token.hasType(FgdToken::CParenthesis)) {
+                do {
+                    if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                        skinKey = parseNamedValue(status, "skinKey");
+                    } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                        frameKey = parseNamedValue(status, "frameKey");
+                    } else {
+                        const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
+                        status.error(token.line(), token.column(), msg);
+                        throw ParserException(token.line(), token.column(), msg);
+                    }
+                } while (expect(status, FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(FgdToken::Word));
             }
-            
-            expect(status, FgdToken::Equality, token = m_tokenizer.nextToken());
-            expect(status, FgdToken::String, token = m_tokenizer.nextToken());
-            pathKey = token.data();
-            
-            expect(status, FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
-            while (token.type() == FgdToken::Word) {
-                if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    skinKey = parseNamedValue(status, "skinKey");
-                } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    frameKey = parseNamedValue(status, "frameKey");
-                } else {
-                    const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
-                    status.error(token.line(), token.column(), msg);
-                    throw ParserException(token.line(), token.column(), msg);
-                }
-                expect(status, FgdToken::Word | FgdToken::Comma | FgdToken::CParenthesis, token = m_tokenizer.nextToken());
-            }
-            m_tokenizer.pushToken(token);
             
             return Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey));
         }
@@ -511,12 +505,11 @@ namespace TrenchBroom {
                 const String shortDescription = token.data();
                 
                 bool defaultValue = false;
-                expect(status, FgdToken::Colon | FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
+                expect(status, FgdToken::Colon | FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.peekToken());
                 if (token.type() == FgdToken::Colon) {
+                    m_tokenizer.nextToken();
                     expect(status, FgdToken::Integer, token = m_tokenizer.nextToken());
                     defaultValue = token.toInteger<int>() != 0;
-                } else {
-                    m_tokenizer.pushToken(token);
                 }
                 
                 expect(status, FgdToken::Integer | FgdToken::CBracket | FgdToken::Colon, token = m_tokenizer.nextToken());
@@ -545,57 +538,61 @@ namespace TrenchBroom {
         }
 
         String FgdParser::parseAttributeDescription(ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
+            Token token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
-                expect(status, FgdToken::String | FgdToken::Colon, token = m_tokenizer.nextToken());
-                if (token.type() == FgdToken::String)
+                m_tokenizer.nextToken();
+                expect(status, FgdToken::String | FgdToken::Colon, token = m_tokenizer.peekToken());
+                if (token.type() == FgdToken::String) {
+                    token = m_tokenizer.nextToken();
                     return token.data();
+                }
             }
-            m_tokenizer.pushToken(token);
             return EmptyString;
         }
 
         FgdParser::DefaultValue<String> FgdParser::parseDefaultStringValue(ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
+            Token token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
-                expect(status, FgdToken::String | FgdToken::Colon, token = m_tokenizer.nextToken());
-                if (token.type() == FgdToken::String)
+                m_tokenizer.nextToken();
+                expect(status, FgdToken::String | FgdToken::Colon, token = m_tokenizer.peekToken());
+                if (token.type() == FgdToken::String) {
+                    token = m_tokenizer.nextToken();
                     return DefaultValue<String>(token.data());
+                }
             }
-            
-            m_tokenizer.pushToken(token);
             return DefaultValue<String>();
         }
 
         FgdParser::DefaultValue<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
+            Token token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
-                expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, token = m_tokenizer.nextToken());
-                if (token.type() == FgdToken::Integer)
+                m_tokenizer.nextToken();
+                expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, token = m_tokenizer.peekToken());
+                if (token.type() == FgdToken::Integer) {
+                    token = m_tokenizer.nextToken();
                     return DefaultValue<int>(token.toInteger<int>());
-                else if (token.type() == FgdToken::Decimal) { // be graceful for DaZ
+                } else if (token.type() == FgdToken::Decimal) { // be graceful for DaZ
+                    token = m_tokenizer.nextToken();
                     status.warn(token.line(), token.column(), "Found float default value for integer property");
                     return DefaultValue<int>(static_cast<int>(token.toFloat<float>()));
                 }
             }
-            
-            m_tokenizer.pushToken(token);
             return DefaultValue<int>();
         }
 
         FgdParser::DefaultValue<float> FgdParser::parseDefaultFloatValue(ParserStatus& status) {
-            Token token = m_tokenizer.nextToken();
+            Token token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
+                m_tokenizer.nextToken();
                 // the default value should have quotes around it, but sometimes they're missing
-                expect(status, FgdToken::String | FgdToken::Decimal | FgdToken::Integer | FgdToken::Colon, token = m_tokenizer.nextToken());
+                expect(status, FgdToken::String | FgdToken::Decimal | FgdToken::Integer | FgdToken::Colon, token = m_tokenizer.peekToken());
                 if (token.type() != FgdToken::Colon) {
+                    token = m_tokenizer.nextToken();
                     if (token.type() != FgdToken::String)
                         status.warn(token.line(), token.column(), "Unquoted float default value " + token.data());
                     return DefaultValue<float>(token.toFloat<float>());
                 }
             }
-
-            m_tokenizer.pushToken(token);
             return DefaultValue<float>();
         }
         

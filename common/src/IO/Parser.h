@@ -40,17 +40,19 @@ namespace TrenchBroom {
             virtual ~Parser() {}
         protected:
             bool check(const TokenType typeMask, const Token& token) const {
-                return (token.type() & typeMask) != 0;
+                return token.hasType(typeMask);
             }
             
-            void expect(const TokenType typeMask, const Token& token) const {
+            const Token& expect(const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
                     throw ParserException(token.line(), token.column(), expectString(tokenName(typeMask), token));
+                return token;
             }
             
-            void expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
+            const Token& expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
                     expect(status, tokenName(typeMask), token);
+                return token;
             }
             
             void expect(ParserStatus& status, const String& typeName, const Token& token) const {
