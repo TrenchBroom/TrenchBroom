@@ -122,8 +122,8 @@ namespace TrenchBroom {
             m_strings[WXK_WINDOWS_RIGHT]    = "Right Windows Key";
             m_strings[WXK_WINDOWS_MENU]     = "Windows Menu Key";
             m_strings[WXK_RAW_CONTROL]      = "Ctrl";
-            m_strings[WXK_COMMAND]          = "Cmd";
-            
+            m_strings[WXK_COMMAND]          = "Ctrl";
+
             for (char c = '!'; c <= '~'; ++c)
                 m_strings[static_cast<wxKeyCode>(c)] = c;
             
