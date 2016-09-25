@@ -444,7 +444,7 @@ namespace TrenchBroom {
             if (attr == NULL)
                 attr = new wxGridCellAttr();
             
-            if (m_rows.isDefaultRow(rowIndex)) {
+            if (m_rows.isDefaultRow(rowIndex) || m_rows.subset(rowIndex)) {
                 attr->SetTextColour(*wxLIGHT_GREY);
             } else {
                 attr->SetTextColour(GetView()->GetForegroundColour());
