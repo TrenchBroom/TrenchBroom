@@ -101,7 +101,6 @@ namespace TrenchBroom {
             bool m_ignoreUpdates;
             bool m_showDefaultRows;
             wxColor m_readonlyCellColor;
-            wxColor m_specialCellColor;
         public:
             EntityAttributeGridTable(MapDocumentWPtr document);
             

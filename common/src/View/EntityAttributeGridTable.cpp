@@ -312,8 +312,7 @@ namespace TrenchBroom {
         m_rows(),
         m_ignoreUpdates(false),
         m_showDefaultRows(true),
-        m_readonlyCellColor(wxColor(224, 224, 224)),
-        m_specialCellColor(wxColor(128, 128, 128)) {}
+        m_readonlyCellColor(wxColor(224, 224, 224)) {}
         
         int EntityAttributeGridTable::GetNumberRows() {
             return static_cast<int>(m_rows.totalRowCount());
@@ -445,9 +444,14 @@ namespace TrenchBroom {
             if (attr == NULL)
                 attr = new wxGridCellAttr();
             
+            if (m_rows.isDefaultRow(rowIndex)) {
+                attr->SetTextColour(*wxLIGHT_GREY);
+            } else {
+                attr->SetTextColour(GetView()->GetForegroundColour());
+            }
+            
             if (col == 0) {
                 if (m_rows.isDefaultRow(rowIndex)) {
-                    attr->SetFont(GetView()->GetFont().MakeItalic());
                     attr->SetReadOnly();
                 } else {
                     attr->SetFont(GetView()->GetFont());
@@ -455,22 +459,15 @@ namespace TrenchBroom {
                     if (!m_rows.nameMutable(rowIndex)) {
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
-                    } else if (m_rows.subset(rowIndex)) {
-                        attr->SetTextColour(m_specialCellColor);
                     }
                 }
             } else if (col == 1) {
-                if (m_rows.isDefaultRow(rowIndex)) {
-                    attr->SetFont(GetView()->GetFont().MakeItalic());
-                } else {
+                if (!m_rows.isDefaultRow(rowIndex)) {
                     attr->SetFont(GetView()->GetFont());
-
-                    if (!m_rows.valueMutable(rowIndex)) {
-                        attr->SetReadOnly(true);
-                        attr->SetBackgroundColour(m_readonlyCellColor);
-                    }
-                    if (m_rows.multi(rowIndex))
-                        attr->SetTextColour(m_specialCellColor);
+                }
+                if (!m_rows.valueMutable(rowIndex)) {
+                    attr->SetReadOnly(true);
+                    attr->SetBackgroundColour(m_readonlyCellColor);
                 }
             }
             return attr;
