@@ -94,6 +94,12 @@ namespace TrenchBroom {
         
         T& get() { return static_cast<TypedHolder*>(m_holder.get())->get(); }
         const T& get() const { return static_cast<TypedHolder*>(m_holder.get())->get(); }
+        
+        T& operator*() { return get(); }
+        const T& operator*() const { return get(); }
+        
+        T* operator->() { return &get(); }
+        const T* operator->() const { return &get(); }
     };
     
     namespace Reference {

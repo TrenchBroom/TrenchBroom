@@ -246,6 +246,14 @@ namespace TrenchBroom {
             return false;
         }
 
+        const AttributeNameSet EntityAttributes::names() const {
+            AttributeNameSet result;
+            EntityAttribute::List::const_iterator it, end;
+            for (it = m_attributes.begin(), end = m_attributes.end(); it != end; ++it)
+                result.insert(it->name());
+            return result;
+        }
+
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
             EntityAttribute::List::const_iterator it = findAttribute(name);
             if (it == m_attributes.end())

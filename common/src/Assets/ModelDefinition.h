@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ModelDefinition
 #define TrenchBroom_ModelDefinition
 
+#include "EL/Expression.h"
 #include "IO/Path.h"
 #include "Model/EntityAttributes.h"
 
@@ -38,79 +39,14 @@ namespace TrenchBroom {
         };
         
         class ModelDefinition {
+        private:
+            EL::Expression m_expression;
         public:
-            virtual ~ModelDefinition();
+            ModelDefinition(const EL::Expression& expression);
             
-            bool matches(const Model::EntityAttributes& attributes) const;
             ModelSpecification modelSpecification(const Model::EntityAttributes& attributes) const;
-            ModelSpecification defaultModelSpecification() const;
-        protected:
-            ModelDefinition();
         private:
-            virtual bool doMatches(const Model::EntityAttributes& attributes) const = 0;
-            virtual ModelSpecification doModelSpecification(const Model::EntityAttributes& attributes) const = 0;
-            virtual ModelSpecification doDefaultModelSpecification() const = 0;
-        };
-        
-        class StaticModelDefinitionMatcher {
-        public:
-            virtual ~StaticModelDefinitionMatcher();
-            bool matches(const Model::EntityAttributes& attributes) const;
-        protected:
-            StaticModelDefinitionMatcher();
-        private:
-            virtual bool doMatches(const Model::EntityAttributes& attributes) const = 0;
-        };
-        
-        class StaticModelDefinitionAttributeMatcher : public StaticModelDefinitionMatcher {
-        private:
-            Model::AttributeName m_attributeName;
-            Model::AttributeValue m_attributeValue;
-        public:
-            StaticModelDefinitionAttributeMatcher(const Model::AttributeName& attributeName, const Model::AttributeValue& attributeValue);
-        private:
-            bool doMatches(const Model::EntityAttributes& attributes) const;
-        };
-        
-        class StaticModelDefinitionFlagMatcher : public StaticModelDefinitionMatcher {
-        private:
-            Model::AttributeName m_attributeName;
-            int m_attributeValue;
-        public:
-            StaticModelDefinitionFlagMatcher(const Model::AttributeName& attributeName, const int attributeValue);
-        private:
-            bool doMatches(const Model::EntityAttributes& attributes) const;
-        };
-        
-        
-        class StaticModelDefinition : public ModelDefinition {
-        private:
-            IO::Path m_path;
-            size_t m_skinIndex;
-            size_t m_frameIndex;
-            StaticModelDefinitionMatcher* m_matcher;
-        public:
-            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex);
-            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::AttributeName& attributeName, const Model::AttributeValue& attributeValue);
-            StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::AttributeName& attributeName, const int attributeValue);
-            ~StaticModelDefinition();
-        private:
-            bool doMatches(const Model::EntityAttributes& attributes) const;
-            ModelSpecification doModelSpecification(const Model::EntityAttributes& attributes) const;
-            ModelSpecification doDefaultModelSpecification() const;
-        };
-        
-        class DynamicModelDefinition : public ModelDefinition {
-        private:
-            Model::AttributeName m_pathAttributeName;
-            Model::AttributeName m_skinAttributeName;
-            Model::AttributeName m_frameAttributeName;
-        public:
-            DynamicModelDefinition(const Model::AttributeName& pathAttributeName, const Model::AttributeName& skinAttributeName = "", const Model::AttributeName& frameAttributeName = "");
-        private:
-            bool doMatches(const Model::EntityAttributes& attributes) const;
-            ModelSpecification doModelSpecification(const Model::EntityAttributes& attributes) const;
-            ModelSpecification doDefaultModelSpecification() const;
+            EL::Value evaluateExpression(const Model::EntityAttributes& attributes) const;
         };
     }
 }
