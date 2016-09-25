@@ -337,6 +337,9 @@ namespace TrenchBroom {
             const size_t rowIndex = static_cast<size_t>(row);
             if (col == 0)
                 return m_rows.name(rowIndex);
+            
+            if (m_rows.multi(rowIndex))
+                return "multi";
             return m_rows.value(rowIndex);
         }
         
@@ -468,6 +471,10 @@ namespace TrenchBroom {
                 if (!m_rows.valueMutable(rowIndex)) {
                     attr->SetReadOnly(true);
                     attr->SetBackgroundColour(m_readonlyCellColor);
+                }
+                if (m_rows.multi(rowIndex)) {
+                    attr->SetTextColour(*wxLIGHT_GREY);
+                    attr->SetFont(GetView()->GetFont().MakeItalic());
                 }
             }
             return attr;
