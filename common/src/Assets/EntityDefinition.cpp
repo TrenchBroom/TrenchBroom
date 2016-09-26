@@ -155,10 +155,10 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinitionList& modelDefinitions) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
-        m_modelDefinitions(modelDefinitions) {}
+        m_modelDefinition(modelDefinition) {}
         
         EntityDefinition::Type PointEntityDefinition::type() const {
             return Type_PointEntity;
@@ -169,19 +169,11 @@ namespace TrenchBroom {
         }
         
         ModelSpecification PointEntityDefinition::model(const Model::EntityAttributes& attributes) const {
-            ModelDefinitionList::const_reverse_iterator it, end;
-            for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
-                ModelDefinitionPtr modelDefinition = *it;
-                if (modelDefinition->matches(attributes))
-                    return modelDefinition->modelSpecification(attributes);
-            }
-            return ModelSpecification(IO::Path(""), 0, 0);
+            return m_modelDefinition.modelSpecification(attributes);
         }
 
         ModelSpecification PointEntityDefinition::defaultModel() const {
-            if (m_modelDefinitions.empty())
-                return ModelSpecification(IO::Path(""), 0, 0);
-            return m_modelDefinitions.front()->defaultModelSpecification();
+            
         }
 
         const ModelDefinitionList& PointEntityDefinition::modelDefinitions() const {
