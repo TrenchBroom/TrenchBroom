@@ -173,11 +173,11 @@ namespace TrenchBroom {
         }
 
         ModelSpecification PointEntityDefinition::defaultModel() const {
-            
+            return m_modelDefinition.defaultModelSpecification();
         }
 
-        const ModelDefinitionList& PointEntityDefinition::modelDefinitions() const {
-            return m_modelDefinitions;
+        const ModelDefinition& PointEntityDefinition::modelDefinition() const {
+            return m_modelDefinition;
         }
 
         BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :

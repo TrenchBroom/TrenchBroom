@@ -58,14 +58,25 @@ namespace TrenchBroom {
         m_expression(expression) {}
         
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
-            const EL::Value result = evaluateExpression(attributes);
-            switch (result.type()) {
+            const Model::EntityAttributesVariableStore store(attributes);
+            const EL::EvaluationContext context(store);
+            return convertToModel(m_expression.evaluate(context));
+        }
+
+        ModelSpecification ModelDefinition::defaultModelSpecification() const {
+            const EL::NullVariableStore store;
+            const EL::EvaluationContext context(store);
+            return convertToModel(m_expression.evaluate(context));
+        }
+
+        ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
+            switch (value.type()) {
                 case EL::Type_Map:
-                    return ModelSpecification(result["path"].stringValue(),
-                                              static_cast<size_t>(result["skin"].numberValue()),
-                                              static_cast<size_t>(result["frame"].numberValue()));
+                    return ModelSpecification(value["path"].stringValue(),
+                                              static_cast<size_t>(value["skin"].numberValue()),
+                                              static_cast<size_t>(value["frame"].numberValue()));
                 case EL::Type_String:
-                    return ModelSpecification(result.stringValue());
+                    return ModelSpecification(value.stringValue());
                 case EL::Type_Boolean:
                 case EL::Type_Number:
                 case EL::Type_Array:
@@ -74,12 +85,6 @@ namespace TrenchBroom {
                 case EL::Type_Undefined:
                     return ModelSpecification();
             }
-        }
-
-        EL::Value ModelDefinition::evaluateExpression(const Model::EntityAttributes& attributes) const {
-            const Model::EntityAttributesVariableStore store(attributes);
-            const EL::EvaluationContext context(store);
-            return m_expression.evaluate(context);
         }
     }
 }

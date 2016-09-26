@@ -45,8 +45,9 @@ namespace TrenchBroom {
             ModelDefinition(const EL::Expression& expression);
             
             ModelSpecification modelSpecification(const Model::EntityAttributes& attributes) const;
+            ModelSpecification defaultModelSpecification() const;
         private:
-            EL::Value evaluateExpression(const Model::EntityAttributes& attributes) const;
+            ModelSpecification convertToModel(const EL::Value& value) const;
         };
     }
 }
