@@ -449,16 +449,13 @@ namespace TrenchBroom {
             
             if (m_rows.isDefaultRow(rowIndex) || m_rows.subset(rowIndex)) {
                 attr->SetTextColour(*wxLIGHT_GREY);
-            } else {
-                attr->SetTextColour(GetView()->GetForegroundColour());
+                attr->SetFont(GetView()->GetFont().MakeItalic());
             }
             
             if (col == 0) {
                 if (m_rows.isDefaultRow(rowIndex)) {
                     attr->SetReadOnly();
                 } else {
-                    attr->SetFont(GetView()->GetFont());
-                    
                     if (!m_rows.nameMutable(rowIndex)) {
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
