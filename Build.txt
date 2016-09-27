@@ -65,13 +65,13 @@ Compiling wxWidgets 3 requires the following dependencies. You should install th
   freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
 - If you have a debian-based distribution, install them with this command:
-  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc wx3.0-headers libwxbase3.0-dev libwxgtk-media3.0-dev
+  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc
 Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
 http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 wxWidgets
-- You have two options here: Either install wxWidgets 3 using your package manager of choice, or download and build it yourself. For the latter, you may follow these instructions:
+- Currently you must download, patch, and build wxWidgets yourself.
   - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
