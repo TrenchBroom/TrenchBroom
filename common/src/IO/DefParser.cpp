@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "EL/Expression.h"
 #include "IO/ParserStatus.h"
 
 namespace TrenchBroom {
@@ -382,28 +383,41 @@ namespace TrenchBroom {
             }
         }
         
-        void DefParser::parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
-            const String pathKey = parseNamedValue(status, "pathKey");
-            
-            String skinKey, frameKey;
-            Token token;
-            expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken());
-            
-            if (!token.hasType(DefToken::CParenthesis)) {
-                do {
-                    if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                        skinKey = parseNamedValue(status, "skinKey");
-                    } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                        frameKey = parseNamedValue(status, "frameKey");
-                    } else {
-                        const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
-                        status.error(token.line(), token.column(), msg);
-                        throw ParserException(token.line(), token.column(), msg);
-                    }
-                } while (expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(DefToken::Word));
+        Assets::ModelDefinition DefParser::parseDynamicModelDefinition(ParserStatus& status) {
+            EL::ExpressionBase::Map map;
+            try {
+                Token token;
+                expect(status, DefToken::Word, token = m_tokenizer.peekToken());
+                
+                const size_t line = token.line();
+                const size_t column = token.column();
+                
+                const String pathKey = parseNamedValue(status, "pathKey");
+                map["path"]  = EL::VariableExpression::create(pathKey,  line, column);
+                
+                String skinKey, frameKey;
+                expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken());
+                if (!token.hasType(DefToken::CParenthesis)) {
+                    do {
+                        if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                            String skinKey = parseNamedValue(status, "skinKey");
+                            map["skin"]  = EL::VariableExpression::create(skinKey,  token.line(), token.column());
+                        } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                            String frameKey = parseNamedValue(status, "frameKey");
+                            map["frame"] = EL::VariableExpression::create(frameKey, token.line(), token.column());
+                        } else {
+                            const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
+                            status.error(token.line(), token.column(), msg);
+                            throw ParserException(token.line(), token.column(), msg);
+                        }
+                    } while (expect(status, DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(DefToken::Word));
+                }
+
+                return ModelDefinition(EL::Expression(EL::MapExpression::create(map, line, column)));
+            } catch (...) {
+                MapUtils::clearAndDelete(map);
+                throw;
             }
-            
-            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
         }
 
         String DefParser::parseNamedValue(ParserStatus& status, const String& name) {

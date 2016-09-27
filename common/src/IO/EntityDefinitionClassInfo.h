@@ -25,6 +25,7 @@
 #include "StringUtils.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
+#include "EL/Expression.h"
 
 #include <map>
 

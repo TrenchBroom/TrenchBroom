@@ -83,9 +83,9 @@ namespace TrenchBroom {
             void parseDefaultAttribute(ParserStatus& status);
             void parseBaseAttribute(ParserStatus& status, StringList& superClasses);
             void parseChoiceAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes);
-            void parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
-            void parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
-            void parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
+            Assets::ModelDefinition parseModelDefinitions(ParserStatus& status);
+            Assets::ModelDefinition parseStaticModelDefinition(ParserStatus& status);
+            Assets::ModelDefinition parseDynamicModelDefinition(ParserStatus& status);
             String parseNamedValue(ParserStatus& status, const String& name);
             String parseDescription();
 
