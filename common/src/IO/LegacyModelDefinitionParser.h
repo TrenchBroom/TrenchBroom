@@ -26,23 +26,32 @@
 #include "IO/Tokenizer.h"
 
 namespace TrenchBroom {
+    namespace EL {
+        class ExpressionBase;
+    }
+    
     namespace IO {
         class ParserStatus;
         
         namespace MdlToken {
             typedef size_t Type;
-            static const Type Integer  = 1 << 0;
-            static const Type Equality = 1 << 1;
-            static const Type Word     = 1 << 2;
-            static const Type String   = 1 << 3;
-            static const Type Comma    = 1 << 4;
-            static const Type Eof      = 1 << 5;
+            static const Type Integer       = 1 << 0;
+            static const Type Equality      = 1 << 1;
+            static const Type Word          = 1 << 2;
+            static const Type String        = 1 << 3;
+            static const Type Comma         = 1 << 4;
+            static const Type CParenthesis  = 1 << 5;
+            static const Type Eof           = 1 << 6;
         }
         
         class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
         public:
             LegacyModelDefinitionTokenizer(const char* begin, const char* end);
             LegacyModelDefinitionTokenizer(const String& str);
+            
+            template <typename OtherToken>
+            LegacyModelDefinitionTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
+            Tokenizer(nestedTokenizer) {}
         private:
             static const String WordDelims;
             Token emitToken();
@@ -55,12 +64,17 @@ namespace TrenchBroom {
         public:
             LegacyModelDefinitionParser(const char* begin, const char* end);
             LegacyModelDefinitionParser(const String& str);
+            
+            template <typename OtherToken>
+            LegacyModelDefinitionParser(Tokenizer<OtherToken>& nestedTokenizer) :
+            m_tokenizer(nestedTokenizer) {}
         public:
             Assets::ModelDefinition parse(ParserStatus& status);
         private:
             Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
-            Assets::ModelDefinition parseStaticModelDefinition(ParserStatus& status);
-            Assets::ModelDefinition parseDynamicModelDefinition(ParserStatus& status);
+            EL::ExpressionBase* parseStaticModelDefinition(ParserStatus& status);
+            EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
+            EL::ExpressionBase* parseNamedValue(ParserStatus& status, const String& name);
         private:
             TokenNameMap tokenNames() const;
         };

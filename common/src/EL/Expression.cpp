@@ -42,6 +42,18 @@ namespace TrenchBroom {
             return m_expression->evaluate(context);
         }
         
+        ExpressionBase* Expression::clone() const {
+            return m_expression->clone();
+        }
+
+        size_t Expression::line() const {
+            return m_expression->m_line;
+        }
+
+        size_t Expression::column() const {
+            return m_expression->m_column;
+        }
+
         void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
             if (newExpression != NULL && newExpression != oldExpression) {
                 delete oldExpression;

@@ -41,6 +41,10 @@ namespace TrenchBroom {
             
             bool optimize();
             Value evaluate(const EvaluationContext& context) const;
+            ExpressionBase* clone() const;
+            
+            size_t line() const;
+            size_t column() const;
         };
         
         class BinaryOperator;
@@ -50,6 +54,8 @@ namespace TrenchBroom {
             typedef std::auto_ptr<ExpressionBase> Ptr;
             typedef std::list<ExpressionBase*> List;
             typedef std::map<String, ExpressionBase*> Map;
+            
+            friend class Expression;
         protected:
             size_t m_line;
             size_t m_column;

@@ -22,12 +22,50 @@
 
 #include "Exceptions.h"
 #include "Token.h"
+#include "SharedPointer.h"
 
 #include <cassert>
 #include <stack>
 
 namespace TrenchBroom {
     namespace IO {
+        class TokenizerState {
+        private:
+            const char* m_begin;
+            const char* m_cur;
+            const char* m_end;
+            size_t m_line;
+            size_t m_column;
+            bool m_escaped;
+        public:
+            TokenizerState(const char* begin, const char* end);
+            
+            size_t length() const;
+            const char* begin() const;
+            const char* end() const;
+            
+            const char* curPos() const;
+            char curChar() const;
+            
+            char lookAhead(const size_t offset = 1) const;
+            
+            size_t line() const;
+            size_t column() const;
+            
+            bool escaped() const;
+            
+            bool eof() const;
+            bool eof(const char* ptr) const;
+            
+            size_t offset(const char* ptr) const;
+            
+            void advance(const size_t offset);
+            void advance();
+            void reset();
+            
+            void errorIfEof() const;
+        };
+        
         template <typename TokenType>
         class Tokenizer {
         public:
@@ -35,128 +73,25 @@ namespace TrenchBroom {
         private:
             typedef std::stack<Token> TokenStack;
 
-            class State {
-            private:
-                const char* m_begin;
-                const char* m_cur;
-                const char* m_end;
-                size_t m_line;
-                size_t m_column;
-                bool m_escaped;
-            public:
-                State(const char* begin, const char* end) :
-                m_begin(begin),
-                m_cur(m_begin),
-                m_end(end),
-                m_line(1),
-                m_column(1),
-                m_escaped(false) {}
-                
-                size_t length() const {
-                    return static_cast<size_t>(m_end - m_begin);
-                }
-                
-                const char* begin() const {
-                    return m_begin;
-                }
-                
-                const char* end() const {
-                    return m_end;
-                }
-                
-                const char* curPos() const {
-                    return m_cur;
-                }
-                
-                char curChar() const {
-                    return *m_cur;
-                }
-                
-                char lookAhead(const size_t offset = 1) const {
-                    if (eof(m_cur + offset))
-                        return 0;
-                    return *(m_cur + offset);
-                }
-                
-                size_t line() const {
-                    return m_line;
-                }
-                
-                size_t column() const {
-                    return m_column;
-                }
-                
-                bool escaped() const {
-                    return m_escaped;
-                }
-                
-                bool eof() const {
-                    return eof(m_cur);
-                }
-                
-                bool eof(const char* ptr) const {
-                    return ptr >= m_end;
-                }
-                
-                size_t offset(const char* ptr) const {
-                    assert(ptr >= m_begin);
-                    return static_cast<size_t>(ptr - m_begin);
-                }
-                
-                void advance(const size_t offset) {
-                    for (size_t i = 0; i < offset; ++i)
-                        advance();
-                }
-                
-                void advance() {
-                    errorIfEof();
-                    
-                    switch (curChar()) {
-                        case '\n':
-                            ++m_line;
-                            m_column = 1;
-                            m_escaped = false;
-                            break;
-                        case '\\':
-                            ++m_column;
-                            m_escaped = !m_escaped;
-                            break;
-                        default:
-                            ++m_column;
-                            m_escaped = false;
-                            break;
-                    }
-                    ++m_cur;
-                }
-                
-                void reset() {
-                    m_cur = m_begin;
-                    m_line = 1;
-                    m_column = 1;
-                    m_escaped = false;
-                }
+            typedef std::tr1::shared_ptr<TokenizerState> StatePtr;
 
-                void errorIfEof() const {
-                    if (eof())
-                        throw ParserException("Unexpected end of file");
-                }
-            };
-            
             class SaveState {
             private:
-                State& m_state;
-                State m_savedState;
+                StatePtr m_state;
+                TokenizerState m_savedState;
             public:
-                SaveState(State& state) :
+                SaveState(StatePtr state) :
                 m_state(state),
-                m_savedState(m_state) {}
+                m_savedState(*m_state) {}
                 
                 ~SaveState() {
-                    m_state = m_savedState;
+                    *m_state = m_savedState;
                 }
             };
 
-            State m_state;
+            StatePtr m_state;
+            
+            template <typename T> friend class Tokenizer;
         public:
             static const String& Whitespace() {
                 static const String whitespace(" \t\n\r");
@@ -164,11 +99,15 @@ namespace TrenchBroom {
             }
         public:
             Tokenizer(const char* begin, const char* end) :
-            m_state(begin, end) {}
+            m_state(new TokenizerState(begin, end)) {}
 
             Tokenizer(const String& str) :
-            m_state(str.c_str(), str.c_str() + str.size()) {}
+            m_state(new TokenizerState(str.c_str(), str.c_str() + str.size())) {}
 
+            template <typename OtherType>
+            Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
+            m_state(nestedTokenizer.m_state) {}
+            
             virtual ~Tokenizer() {}
 
             Token nextToken() {
@@ -204,7 +143,7 @@ namespace TrenchBroom {
             }
 
             void reset() {
-                m_state.reset();
+                m_state->reset();
             }
 
             double progress() const {
@@ -216,27 +155,27 @@ namespace TrenchBroom {
             }
 
             bool eof() const {
-                return m_state.eof();
+                return m_state->eof();
             }
         protected:
             size_t line() const {
-                return m_state.line();
+                return m_state->line();
             }
 
             size_t column() const {
-                return m_state.column();
+                return m_state->column();
             }
 
             size_t length() const {
-                return m_state.length();
+                return m_state->length();
             }
 
             size_t offset(const char* ptr) const {
-                return m_state.offset(ptr);
+                return m_state->offset(ptr);
             }
 
             const char* curPos() const {
-                return m_state.curPos();
+                return m_state->curPos();
             }
 
             char curChar() const {
@@ -247,15 +186,15 @@ namespace TrenchBroom {
             }
 
             char lookAhead(const size_t offset = 1) const {
-                return m_state.lookAhead(offset);
+                return m_state->lookAhead(offset);
             }
 
             void advance(const size_t offset) {
-                m_state.advance(offset);
+                m_state->advance(offset);
             }
 
             void advance() {
-                m_state.advance();
+                m_state->advance();
             }
 
             bool isDigit(const char c) const {
@@ -271,14 +210,14 @@ namespace TrenchBroom {
             }
 
             bool isEscaped() const {
-                return m_state.escaped();
+                return m_state->escaped();
             }
 
             const char* readInteger(const String& delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar()))
                     return NULL;
 
-                const State previous = m_state;
+                const TokenizerState previous = *m_state;
                 if (curChar() == '+' || curChar() == '-')
                     advance();
                 while (!eof() && isDigit(curChar()))
@@ -286,7 +225,7 @@ namespace TrenchBroom {
                 if (eof() || isAnyOf(curChar(), delims))
                     return curPos();
 
-                m_state = previous;
+                *m_state = previous;
                 return NULL;
             }
 
@@ -294,7 +233,7 @@ namespace TrenchBroom {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar()))
                     return NULL;
 
-                const State previous = m_state;
+                const TokenizerState previous = *m_state;
                 if (curChar() != '.') {
                     advance();
                     readDigits();
@@ -316,7 +255,7 @@ namespace TrenchBroom {
                 if (eof() || isAnyOf(curChar(), delims))
                     return curPos();
 
-                m_state = previous;
+                *m_state = previous;
                 return NULL;
             }
             
@@ -341,7 +280,7 @@ namespace TrenchBroom {
             const char* readQuotedString(const char delim = '"') {
                 while (!eof() && (curChar() != delim || isEscaped()))
                     advance();
-                m_state.errorIfEof();
+                m_state->errorIfEof();
                 const char* end = curPos();
                 advance();
                 return end;
@@ -377,7 +316,7 @@ namespace TrenchBroom {
                     advance();
 
                 if (eof())
-                    return m_state.end();
+                    return m_state->end();
 
                 return curPos();
             }

@@ -566,9 +566,6 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Shells"), definition->description());
             
             ASSERT_TRUE(definition->attributeDefinitions().empty());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(2u, models.size());
         }
 
         TEST(FgdParserTest, parseDynamicModelAttribute) {
@@ -590,9 +587,6 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Shells"), definition->description());
             
             ASSERT_TRUE(definition->attributeDefinitions().empty());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(1u, models.size());
         }
     }
 }

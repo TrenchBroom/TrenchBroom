@@ -77,16 +77,14 @@ namespace TrenchBroom {
             
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parserAttributes(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
-            bool parseAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
+            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
             
             void parseDefaultAttribute(ParserStatus& status);
-            void parseBaseAttribute(ParserStatus& status, StringList& superClasses);
-            void parseChoiceAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes);
-            Assets::ModelDefinition parseModelDefinitions(ParserStatus& status);
-            Assets::ModelDefinition parseStaticModelDefinition(ParserStatus& status);
-            Assets::ModelDefinition parseDynamicModelDefinition(ParserStatus& status);
-            String parseNamedValue(ParserStatus& status, const String& name);
+            String parseBaseAttribute(ParserStatus& status);
+            Assets::AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
+            Assets::ModelDefinition parseModel(ParserStatus& status);
+            
             String parseDescription();
 
             Vec3 parseVector(ParserStatus& status);

@@ -42,8 +42,12 @@ namespace TrenchBroom {
         private:
             EL::Expression m_expression;
         public:
+            ModelDefinition();
+            ModelDefinition(size_t line, size_t column);
             ModelDefinition(const EL::Expression& expression);
             
+            void append(const ModelDefinition& other);
+
             ModelSpecification modelSpecification(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModelSpecification() const;
         private:

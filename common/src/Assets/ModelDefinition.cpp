@@ -54,9 +54,25 @@ namespace TrenchBroom {
             return str.str();
         }
 
+        ModelDefinition::ModelDefinition() :
+        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, 0, 0)) {}
+
+        ModelDefinition::ModelDefinition(const size_t line, const size_t column) :
+        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, line, column)) {}
+
         ModelDefinition::ModelDefinition(const EL::Expression& expression) :
         m_expression(expression) {}
         
+        void ModelDefinition::append(const ModelDefinition& other) {
+            EL::ExpressionBase::List cases;
+            cases.push_back(m_expression.clone());
+            cases.push_back(other.m_expression.clone());
+
+            const size_t line = m_expression.line();
+            const size_t column = m_expression.column();
+            m_expression = EL::SwitchOperator::create(cases, line, column);
+        }
+
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
             const Model::EntityAttributesVariableStore store(attributes);
             const EL::EvaluationContext context(store);
