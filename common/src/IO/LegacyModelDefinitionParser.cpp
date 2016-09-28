@@ -20,6 +20,7 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
+#include "StringUtils.h"
 #include "EL.h"
 
 namespace TrenchBroom {
@@ -50,7 +51,8 @@ namespace TrenchBroom {
                     case ' ':
                     case '\t':
                     case '\n':
-                        discardWhile(" \t\n");
+                    case '\r':
+                        advance();
                         break;
                     case '"':
                         advance();
@@ -119,7 +121,7 @@ namespace TrenchBroom {
             const size_t startColumn = token.column();
 
             EL::MapType map;
-            map["path"] = EL::Value(token.data());
+            map["path"] = EL::Value(cleanModelPath(token.data()));
             
             std::vector<size_t> indices;
             
@@ -211,6 +213,10 @@ namespace TrenchBroom {
             expect(status, MdlToken::String, token = m_tokenizer.nextToken());
             
             return EL::VariableExpression::create(token.data(), line, column);
+        }
+
+        String LegacyModelDefinitionParser::cleanModelPath(const String& path) const {
+            return StringUtils::isPrefix(path, ":") ? path.substr(1) : path;
         }
 
         LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenNames() const {
