@@ -21,6 +21,7 @@
 #define ModelDefinitionParser_h
 
 #include "Assets/ModelDefinition.h"
+#include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 
 namespace TrenchBroom {
@@ -29,8 +30,18 @@ namespace TrenchBroom {
         
         template <typename T>
         Assets::ModelDefinition parseModelDefinition(ParserStatus& status, T& tokenizer) {
-            LegacyModelDefinitionParser parser(tokenizer);
-            return parser.parse(status);
+            const size_t line = tokenizer.line();
+            const size_t column = tokenizer.column();
+            
+            try {
+                LegacyModelDefinitionParser parser(tokenizer);
+                EL::Expression expression = parser.parse(status);
+                status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
+                return Assets::ModelDefinition(expression);
+            } catch (const ParserException&) {
+                ELParser parser(tokenizer);
+                return Assets::ModelDefinition(parser.parse());
+            }
         }
     }
 }

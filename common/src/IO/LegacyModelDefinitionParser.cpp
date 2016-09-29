@@ -78,18 +78,18 @@ namespace TrenchBroom {
         LegacyModelDefinitionParser::LegacyModelDefinitionParser(const String& str) :
         m_tokenizer(str) {}
         
-        Assets::ModelDefinition LegacyModelDefinitionParser::parse(ParserStatus& status) {
+        EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status) {
             return parseModelDefinition(status);
         }
         
-        Assets::ModelDefinition LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status) {
+        EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status) {
             Token token = m_tokenizer.peekToken();
             const size_t startLine = token.line();
             const size_t startColumn = token.column();
             
             expect(status, MdlToken::String | MdlToken::Word | MdlToken::CParenthesis, token);
             if (token.hasType(MdlToken::CParenthesis))
-                return Assets::ModelDefinition(token.line(), token.column());
+                return EL::Expression(EL::LiteralExpression::create(EL::Value::Undefined, token.line(), token.column()));
             
             EL::ExpressionBase::List modelExpressions;
             try {
@@ -106,8 +106,7 @@ namespace TrenchBroom {
                 
                 // The legacy model expressions are evaluated back to front.
                 modelExpressions.reverse();
-                EL::Expression expression(EL::SwitchOperator::create(modelExpressions, startLine, startColumn));
-                return Assets::ModelDefinition(expression);
+                return EL::Expression(EL::SwitchOperator::create(modelExpressions, startLine, startColumn));
             } catch (...) {
                 ListUtils::clearAndDelete(modelExpressions);
                 throw;

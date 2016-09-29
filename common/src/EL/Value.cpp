@@ -175,6 +175,8 @@ namespace TrenchBroom {
                 str << "[";
                 if (multiline)
                     str << "\n";
+                else
+                    str << " ";
                 for (size_t i = 0; i < m_value.size(); ++i) {
                     str << childIndent;
                     m_value[i].appendToStream(str, multiline, childIndent);
@@ -186,7 +188,11 @@ namespace TrenchBroom {
                     if (multiline)
                         str << "\n";
                 }
-                str << indent << "]";
+                if (multiline)
+                    str << indent;
+                else
+                    str << " ";
+                str << "]";
             }
         }
         
@@ -223,6 +229,8 @@ namespace TrenchBroom {
                 str << "{";
                 if (multiline)
                     str << "\n";
+                else
+                    str << " ";
                 MapType::const_iterator it, end;
                 size_t i = 0;
                 for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
@@ -236,7 +244,11 @@ namespace TrenchBroom {
                     if (multiline)
                         str << "\n";
                 }
-                str << indent << "}";
+                if (multiline)
+                    str << indent;
+                else
+                    str << " ";
+                str << "}";
             }
         }
         

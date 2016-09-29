@@ -157,7 +157,7 @@ namespace TrenchBroom {
             bool eof() const {
                 return m_state->eof();
             }
-        protected:
+        public:
             size_t line() const {
                 return m_state->line();
             }
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             size_t length() const {
                 return m_state->length();
             }
-
+        protected:
             size_t offset(const char* ptr) const {
                 return m_state->offset(ptr);
             }

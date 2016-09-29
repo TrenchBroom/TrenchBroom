@@ -87,6 +87,10 @@ namespace TrenchBroom {
         public:
             ELTokenizer(const char* begin, const char* end);
             ELTokenizer(const String& str);
+            
+            template <typename OtherToken>
+            ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
+            Tokenizer(nestedTokenizer) {}
         public:
             void appendUntil(const String& pattern, StringStream& str);
         private:
@@ -101,6 +105,10 @@ namespace TrenchBroom {
             ELParser(const char* begin, const char* end);
             ELParser(const String& str);
             
+            template <typename OtherToken>
+            ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
+            m_tokenizer(nestedTokenizer) {}
+
             EL::Expression parse();
         private:
             EL::ExpressionBase* parseExpression();

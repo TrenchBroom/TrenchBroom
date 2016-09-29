@@ -20,13 +20,13 @@
 #ifndef LegacyModelDefinitionParser_h
 #define LegacyModelDefinitionParser_h
 
-#include "Assets/AssetTypes.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 namespace TrenchBroom {
     namespace EL {
+        class Expression;
         class ExpressionBase;
     }
     
@@ -69,9 +69,9 @@ namespace TrenchBroom {
             LegacyModelDefinitionParser(Tokenizer<OtherToken>& nestedTokenizer) :
             m_tokenizer(nestedTokenizer) {}
         public:
-            Assets::ModelDefinition parse(ParserStatus& status);
+            EL::Expression parse(ParserStatus& status);
         private:
-            Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
+            EL::Expression parseModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseStaticModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseNamedValue(ParserStatus& status, const String& name);
