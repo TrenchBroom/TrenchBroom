@@ -300,7 +300,7 @@ namespace TrenchBroom {
                 const String& key = it->first;
                 const ExpressionBase* value = it->second;
                 
-                str << "'" << key << "': " << *value;
+                str << "\"" << key << "\": " << *value;
                 if (i < m_elements.size() - 1)
                     str << ", ";
                 ++i;

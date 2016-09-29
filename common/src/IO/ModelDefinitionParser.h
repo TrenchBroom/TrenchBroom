@@ -34,13 +34,21 @@ namespace TrenchBroom {
             const size_t column = tokenizer.column();
             
             try {
-                LegacyModelDefinitionParser parser(tokenizer);
-                EL::Expression expression = parser.parse(status);
-                status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
-                return Assets::ModelDefinition(expression);
-            } catch (const ParserException&) {
                 ELParser parser(tokenizer);
+                EL::Expression expression = parser.parse();
+                expression.optimize();
                 return Assets::ModelDefinition(parser.parse());
+            } catch (const ParserException& e) {
+                try {
+                    LegacyModelDefinitionParser parser(tokenizer);
+                    EL::Expression expression = parser.parse(status);
+                    expression.optimize();
+                    
+                    status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
+                    return Assets::ModelDefinition(expression);
+                } catch (const ParserException&) {
+                    throw e;
+                }
             }
         }
     }
