@@ -76,7 +76,6 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseNamedValue(ParserStatus& status, const String& name);
         private:
-            String cleanModelPath(const String& path) const;
             TokenNameMap tokenNames() const;
         };
     }

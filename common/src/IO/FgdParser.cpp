@@ -24,7 +24,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
-#include "IO/ModelDefinitionParser.h"
+#include "IO/ELParser.h"
+#include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
 namespace TrenchBroom {
@@ -266,9 +267,34 @@ namespace TrenchBroom {
         
         Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status) {
             expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
-            const Assets::ModelDefinition result = parseModelDefinition(status, m_tokenizer);
-            expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
-            return result;
+            
+            const TokenizerState::Snapshot snapshot = m_tokenizer.snapshot();
+            const size_t line = m_tokenizer.line();
+            const size_t column = m_tokenizer.column();
+            
+            try {
+                ELParser parser(m_tokenizer);
+                EL::Expression expression = parser.parse();
+                expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+
+                expression.optimize();
+                return Assets::ModelDefinition(expression);
+            } catch (const ParserException& e) {
+                try {
+                    m_tokenizer.restore(snapshot);
+                    
+                    LegacyModelDefinitionParser parser(m_tokenizer);
+                    EL::Expression expression = parser.parse(status);
+                    expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+
+                    expression.optimize();
+                    status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
+                    return Assets::ModelDefinition(expression);
+                } catch (const ParserException&) {
+                    m_tokenizer.restore(snapshot);
+                    throw e;
+                }
+            }
         }
 
         void FgdParser::skipClassAttribute(ParserStatus& status) {

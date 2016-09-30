@@ -588,5 +588,24 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(definition->attributeDefinitions().empty());
         }
+        
+        TEST(FgdParserTest, parseLegacyModelWithParseError) {
+            const String file =
+            "@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(\":progs/polyp.mdl\" 0 153, \":progs/polyp.mdl\" startonground = \"1\") = monster_polyp: \"Polyp\""
+            "["
+                "startonground(choices) : \"Starting pose\" : 0 ="
+                "["
+                    "0 : \"Flying\""
+                    "1 : \"On ground\""
+                "]"
+            "]";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+            
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+        }
     }
 }

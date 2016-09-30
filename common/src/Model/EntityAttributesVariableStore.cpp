@@ -31,9 +31,10 @@ namespace TrenchBroom {
         }
         
         EL::Value EntityAttributesVariableStore::doGetValue(const String& name) const {
-            if (!m_attributes.hasAttribute(name))
+            const AttributeValue* value = m_attributes.attribute(name);
+            if (value == NULL)
                 return EL::Value::Undefined;
-            return EL::Value(m_attributes.attribute(name));
+            return EL::Value(*value);
         }
         
         StringSet EntityAttributesVariableStore::doGetNames() const {

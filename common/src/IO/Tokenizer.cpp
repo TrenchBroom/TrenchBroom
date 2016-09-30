@@ -117,5 +117,13 @@ namespace TrenchBroom {
             if (eof())
                 throw ParserException("Unexpected end of file");
         }
+
+        TokenizerState::Snapshot TokenizerState::snapshot() const {
+            return Snapshot(*this);
+        }
+        
+        void TokenizerState::restore(const Snapshot& snapshot) {
+            snapshot.restore(*this);
+        }
     }
 }

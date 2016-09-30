@@ -30,6 +30,29 @@
 namespace TrenchBroom {
     namespace IO {
         class TokenizerState {
+        public:
+            class Snapshot {
+            private:
+                const char* m_cur;
+                size_t m_line;
+                size_t m_column;
+                bool m_escaped;
+                
+                friend class TokenizerState;
+            private:
+                Snapshot(const TokenizerState& state) :
+                m_cur(state.m_cur),
+                m_line(state.m_line),
+                m_column(state.m_column),
+                m_escaped(state.m_escaped) {}
+
+                void restore(TokenizerState& state) const {
+                    state.m_cur = m_cur;
+                    state.m_line = m_line;
+                    state.m_column = m_column;
+                    state.m_escaped = m_escaped;
+                }
+            };
         private:
             const char* m_begin;
             const char* m_cur;
@@ -64,6 +87,9 @@ namespace TrenchBroom {
             void reset();
             
             void errorIfEof() const;
+            
+            Snapshot snapshot() const;
+            void restore(const Snapshot& snapshot);
         };
         
         template <typename TokenType>
@@ -78,14 +104,14 @@ namespace TrenchBroom {
             class SaveState {
             private:
                 StatePtr m_state;
-                TokenizerState m_savedState;
+                TokenizerState::Snapshot m_snapshot;
             public:
                 SaveState(StatePtr state) :
                 m_state(state),
-                m_savedState(*m_state) {}
+                m_snapshot(m_state->snapshot()) {}
                 
                 ~SaveState() {
-                    *m_state = m_savedState;
+                    m_state->restore(m_snapshot);
                 }
             };
 
@@ -168,6 +194,14 @@ namespace TrenchBroom {
 
             size_t length() const {
                 return m_state->length();
+            }
+        public:
+            TokenizerState::Snapshot snapshot() const {
+                return m_state->snapshot();
+            }
+            
+            void restore(const TokenizerState::Snapshot& snapshot) {
+                m_state->restore(snapshot);
             }
         protected:
             size_t offset(const char* ptr) const {

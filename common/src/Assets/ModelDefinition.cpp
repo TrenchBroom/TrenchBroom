@@ -88,11 +88,11 @@ namespace TrenchBroom {
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
             switch (value.type()) {
                 case EL::Type_Map:
-                    return ModelSpecification(value["path"].stringValue(),
+                    return ModelSpecification(cleanModelPath(value["path"]),
                                               static_cast<size_t>(value["skin"].numberValue()),
                                               static_cast<size_t>(value["frame"].numberValue()));
                 case EL::Type_String:
-                    return ModelSpecification(value.stringValue());
+                    return ModelSpecification(cleanModelPath(value));
                 case EL::Type_Boolean:
                 case EL::Type_Number:
                 case EL::Type_Array:
@@ -101,6 +101,11 @@ namespace TrenchBroom {
                 case EL::Type_Undefined:
                     return ModelSpecification();
             }
+        }
+
+        String ModelDefinition::cleanModelPath(const EL::Value& value) const {
+            const String& path = value.stringValue();
+            return StringUtils::isPrefix(path, ":") ? path.substr(1) : path;
         }
     }
 }
