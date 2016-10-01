@@ -68,21 +68,21 @@ namespace TrenchBroom {
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
         void BooleanValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << (m_value ? "true" : "false"); }
         
-        StringValueHolder::StringValueHolder(const StringType& value) : m_value(value) {}
-        ValueType StringValueHolder::type() const { return Type_String; }
-        const StringType& StringValueHolder::stringValue() const { return m_value; }
-        size_t StringValueHolder::length() const { return m_value.length(); }
+        StringHolder::~StringHolder() {}
+        ValueType StringHolder::type() const { return Type_String; }
+        const StringType& StringHolder::stringValue() const { return doGetValue(); }
+        size_t StringHolder::length() const { return doGetValue().length(); }
         
-        ValueHolder* StringValueHolder::convertTo(const ValueType toType) const {
+        ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
-                    return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(m_value, "false") && !m_value.empty());
+                    return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(doGetValue(), "false") && !doGetValue().empty());
                 case Type_String:
-                    return new StringValueHolder(m_value);
+                    return new StringValueHolder(doGetValue());
                 case Type_Number: {
-                    if (m_value.empty())
+                    if (doGetValue().empty())
                         throw ConversionError(describe(), type(), toType);
-                    const char* begin = m_value.c_str();
+                    const char* begin = doGetValue().c_str();
                     char* end;
                     const NumberType value = std::strtod(begin, &end);
                     if (value == 0.0 && end == begin)
@@ -100,11 +100,22 @@ namespace TrenchBroom {
             throw ConversionError(describe(), type(), toType);
         }
         
-        ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
-        void StringValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void StringHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             // Unescaping happens in IO::ELParser::parseLiteral
-            str << "\"" << StringUtils::escape(m_value, "\\\"") << "\"";
+            str << "\"" << StringUtils::escape(doGetValue(), "\\\"") << "\"";
         }
+
+        
+        
+        StringValueHolder::StringValueHolder(const StringType& value) : m_value(value) {}
+        ValueHolder* StringValueHolder::clone() const { return new StringValueHolder(m_value); }
+        const StringType& StringValueHolder::doGetValue() const { return m_value; }
+
+        
+        
+        StringReferenceHolder::StringReferenceHolder(const StringType& value) : m_value(value) {}
+        ValueHolder* StringReferenceHolder::clone() const { return new StringReferenceHolder(m_value); }
+        const StringType& StringReferenceHolder::doGetValue() const { return m_value; }
         
         
         
@@ -372,6 +383,14 @@ namespace TrenchBroom {
         
         Value::Value()                                                                 : m_value(new NullValueHolder()), m_line(0), m_column(0) {}
         
+        Value Value::ref(const StringType& value, const size_t line, const size_t column) {
+            return Value(new StringReferenceHolder(value), line, column);
+        }
+        
+        Value Value::ref(const StringType& value) {
+            return ref(value, 0, 0);
+        }
+
         ValueType Value::type() const {
             return m_value->type();
         }

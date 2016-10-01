@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const AttributeValue* value = m_attributes.attribute(name);
             if (value == NULL)
                 return EL::Value::Undefined;
-            return EL::Value(*value);
+            return EL::Value::ref(*value);
         }
         
         StringSet EntityAttributesVariableStore::doGetNames() const {

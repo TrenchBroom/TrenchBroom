@@ -61,18 +61,38 @@ namespace TrenchBroom {
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
-        
-        class StringValueHolder : public ValueHolder {
-        private:
-            StringType m_value;
+
+        class StringHolder : public ValueHolder {
         public:
-            StringValueHolder(const StringType& value);
+            virtual ~StringHolder();
+            
             ValueType type() const;
             const StringType& stringValue() const;
             size_t length() const;
             ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+        private:
+            virtual const StringType& doGetValue() const = 0;
+        };
+        
+        class StringValueHolder : public StringHolder {
+        private:
+            StringType m_value;
+        public:
+            StringValueHolder(const StringType& value);
+            ValueHolder* clone() const;
+        private:
+            const StringType& doGetValue() const;
+        };
+        
+        class StringReferenceHolder : public StringHolder {
+        private:
+            const StringType& m_value;
+        public:
+            StringReferenceHolder(const StringType& value);
+            ValueHolder* clone() const;
+        private:
+            const StringType& doGetValue() const;
         };
         
         class NumberValueHolder : public ValueHolder {
@@ -222,6 +242,9 @@ namespace TrenchBroom {
             Value(const Value& other);
             
             Value();
+            
+            static Value ref(const StringType& value, size_t line, size_t column);
+            static Value ref(const StringType& value);
         private:
             template <typename T>
             ArrayType makeArray(const std::vector<T>& value) {
