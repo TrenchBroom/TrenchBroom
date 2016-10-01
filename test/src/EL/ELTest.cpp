@@ -121,6 +121,10 @@ namespace TrenchBroom {
             ASSERT_EQ(Value::Undefined, Value::Undefined.convertTo(Type_Undefined));
         }
         
+        TEST(ELTest, serializeValues) {
+            ASSERT_EQ(String("16"), Value(16.0).asString());
+        }
+        
         TEST(ELTest, subscriptOperator) {
             ASSERT_THROW(Value(true)[Value(0)], EvaluationError);
             ASSERT_THROW(Value(1.0)[Value(0)], EvaluationError);

@@ -134,10 +134,13 @@ namespace TrenchBroom {
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
         void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
-            if (Math::isInteger(m_value))
+            if (Math::isInteger(m_value)) {
                 str.precision(0);
-            else
+                str.setf(std::ios::fixed);
+            } else {
                 str.precision(17);
+                str.unsetf(std::ios::fixed);
+            }
             str << m_value;
         }
         
@@ -463,6 +466,12 @@ namespace TrenchBroom {
             return Value(m_value->convertTo(toType), m_line, m_column);
         }
         
+        String Value::asString(const bool multiline) const {
+            StringStream str;
+            appendToStream(str, multiline);
+            return str.str();
+        }
+
         void Value::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
             m_value->appendToStream(str, multiline, indent);
         }

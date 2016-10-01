@@ -265,6 +265,7 @@ namespace TrenchBroom {
             size_t length() const;
             Value convertTo(ValueType toType) const;
             
+            String asString(bool multiline = false) const;
             void appendToStream(std::ostream& str, bool multiline = true, const String& indent = "") const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
             
