@@ -24,13 +24,27 @@
 namespace TrenchBroom {
     bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2) {
         for (size_t i = 0; i < 2; ++i) {
-            const float d1 = tc1[i] - Math::roundDownToMultiple(tc1[i], 1.0f);
-            const float c1 = d1 < 0.0f ? 1.0f + d1 : d1;
-            const float d2 = tc2[i] - Math::roundDownToMultiple(tc2[i], 1.0f);
-            const float c2 = d2 < 0.0f ? 1.0f + d2 : d2;
-            if (!Math::eq(c1, c2))
+            const float dist = fabsf(tc1[i] - tc2[i]);
+            const float distRemainder = dist - floorf(dist);
+            
+            if (!(Math::eq(0.0f, distRemainder) || Math::eq(1.0f, distRemainder)))
                 return false;
         }
         return true;
+    }
+    
+    TEST(TestUtilsTest, testTexCoordsEqual) {
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(0.0, 0.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(1.0, 0.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(2.00001, 0.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(-10.0, 2.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(2.0, -3.0), Vec2f(-10.0, 2.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(-2.0, -3.0), Vec2f(-10.0, 2.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(-1.0, 1.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(-0.00001, 0.0)));
+        ASSERT_TRUE(texCoordsEqual(Vec2f(0.25, 0.0), Vec2f(-0.75, 0.0)));
+        
+        ASSERT_FALSE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(0.1, 0.1)));
+        ASSERT_FALSE(texCoordsEqual(Vec2f(-0.25, 0.0), Vec2f(0.25, 0.0)));
     }
 }
