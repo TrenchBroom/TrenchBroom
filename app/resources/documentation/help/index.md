@@ -1631,7 +1631,7 @@ You can use these backups to go back to previous versions of you map if problems
 
 ## Display Models for Entities
 
-TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration]({#game_configuration). For most of the included FGD and DEF files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included FGD and DEF files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
 
 ### General Model Syntax
 
@@ -1639,68 +1639,104 @@ The syntax for adding display models is identical in both FGD and DEF files, onl
 
     model(...)
 
-Thereby, the ellipsis contains the actual information about the model to display. TrenchBroom allows you to set up both static and dynamic models. A static model is one where the actual model that is being displayed is known beforehand, even though the skin and frame that TrenchBroom will show might. A dynamic model is one where the model, skin, and frame depend on the values of entity properties and are completely arbitrary. Static models are much more common that dynamic models, so we introduce those first.
+Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
-#### Static Models
+    {
+    	"path" : MODEL,
+    	"skin" : SKIN,
+    	"frame": FRAME
+    }
 
-A static model definition looks as follows:
-
-    model(DEFINITION {, DEFINITION})
-
-This means that a model definition actually contains a comma-separated, non-empty list of definitions. Thereby each definition has the following syntax:
-
-    DEFINITION = "MODEL" SKIN FRAME CONDITION
-
-The placeholders `MODEL`, `SKIN`, `FRAME` and `CONDITION` have the following meaning
+The placeholders `MODEL`, `SKIN`, and `FRAME` have the following meaning
 
 Placeholder 		Description
 -----------     	-----------
 `MODEL` 			The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
-`SKIN` 				The 0-based index of the skin to display. Optional if no frame is specified, defaults to 0.
-`FRAME` 			The 0-based index of the frame to display. Optional if no condition is specified, defaults to 0. Requires specifing the skin index, too.
-`CONDITION`			A condition under which this model specification is used by the editor. Optional, defaults to true. Requires specifing the frame index, too.
+`SKIN` 				The 0-based index of the skin to display. Optional, defaults to 0.
+`FRAME` 			The 0-based index of the frame to display. Optional, defaults to 0.
 
-So a valid static model definition might look like this:
+If the expression evaluates to a value of type string, then that is interpreted as a map containing only a `path` key with the string as its value. In other words, if the expression evaluates to a string, then that value is interpreted as the path to a model. Think of such expressions as shorthands that allow you to define a simple model like so:
 
-    model("progs/armor.mdl" 2)
+    model("path/to/model")
 
-This would show the model located at "progs/armor" using the third skin in the model file.
+instead of having to write
 
-Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimick this behavior by providing more than one model definition. Which one of these definitions is used when the entity is displayed in the editor depends on an additional condition. The actual model definition can depend on literal property values or on flag values.
+    model({ "path": "path/to/model" })
 
--------------------------------------------------------------------------------------------------------------------------
-Conditional Syntax 	     		    Description
-Type
------------ ------ 				    --------------------------------------------------------------
-Literal     `KEYNAME` = "`VALUE`"   Evaluates to true if the entity property `KEYNAME` has the value `VALUE`
-value 	 	 
+#### Basic Examples
 
-Flag value  `KEYNAME` = `FLAGINDEX` Evaluates to true if the entity property `KEYNAME` is a flag (an integer) and the flag at the specified 0-based index is set.
--------------------------------------------------------------------------------------------------------------------------
+So a valid model definitions might look like this:
 
-Let's look at an example where we combine several model definitions using a literal value.
+	// use the model found at the given path with skin 0 and frame 0
+	model("progs/armor")
 
-    model(":progs/voreling.mdl", ":progs/voreling.mdl" 0 13 dangle = "1")
+	// use the model found at the given path with skin 1 and frame 0
+    model({ 
+    	"path": "progs/armor", 
+    	"skin": 1 
+    })
 
-The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. There are two model declarations, the first has no skin or frame setting, so Trenchbroom will use skin 0 and frame 0, and it has no conditionals, so that means this is going to be the default visual model used to display this monster in the editor.
+	// use the model found at the given path with skin 1 and frame 3
+    model({ 
+    	"path" : "progs/armor", 
+    	"skin" : 1,
+    	"frame": 3
+    })
 
-The second model declaration has a skin setting of 0 and a frame setting of 13. If you look in the model file, you will see this is the frame where the Voreling is hanging upside down. Finally, we can see that the conditional `dangle = "1"` tells TrenchBroom to only use this declaration if the dangle key is set to 1.
+Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimick this behavior by using conditional expressions using the switch and case operators and by referring to the entity properties as variables in the expressions. Let's look at an example where we combine several model definitions using a literal value.
+
+    model({{
+		dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
+                         { "path": "progs/voreling.mdl" }
+    }})
+
+The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
+
+	dangle == "1"                                             // If the value of the entity property 'dangle' equals "1"
+	->            											  // then
+	{ "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
+	,                                                         // Otherwise,
+    { "path": "progs/voreling.mdl" }                          // use this as the model.
+
+If you have problems understanding this syntax, you should read the section on TrenchBroom's [expression language](#expression_language).
 
 The following example shows a combination of model definitions using flag values.
 
-	model("maps/b_bh25.bsp", "maps/b_bh10.bsp" 0 0 spawnflags = 1, "maps/b_bh100.bsp" 0 0 spawnflags = 2)
+    model({{
+        spawnflags == 2 -> "maps/b_bh100.bsp",
+        spawnflags == 1 -> "maps/b_bh10.bsp",
+                           "maps/b_bh25.bsp"
+    }})
 
-This is an example of more complex usage of the new model syntax for DEF files. As you can see, there are three models attached to the Health kit, `maps/b_bh25.bsp, maps/b_bh10.bsp` and `maps/b_bh100.bsp`. This is because the Health kit uses three different models depending on what spawnflags are checked. If `ROTTEN` is checked, it uses `maps/b_bh10.bsp`, which is the dim (rotten) health kit and if `MEGAHEALTH` is checked, then it uses maps/b_bh100.bsp which is the megahealth powerup. If neither are checked, it uses the standard health kit.
+As you can see, there are three models attached to the Health kit, `maps/b_bh25.bsp, maps/b_bh10.bsp` and `maps/b_bh100.bsp`. This is because the Health kit uses three different models depending on what spawnflags are checked. If `ROTTEN` is checked, it uses `maps/b_bh10.bsp`, which is the dim (rotten) health kit and if `MEGAHEALTH` is checked, then it uses maps/b_bh100.bsp which is the megahealth powerup. If neither are checked, it uses the standard health kit.
 
-This is done by adding `spawnflags = 1` to the second model declaration which is the rotten kit model and `spawnflags = 2` to the megahealth model declaration.
+Accordingly, the nested case expressions inspect the value of the `spawnflags` property to determine the correct model. Since there is no need to specify a skin or a frame for these models, the expressions only return strings as a shorthand.
 
-In the previous example, note that if both `ROTTEN` and `MEGAHEALTH` were checked, it would display the megahealth model. In the case where multiple conditionals evaluate to true, Trenchbroom will use the last one that evaluates to true as the model to display. For this reason, do not put a model declaration with no condition as the last one in the definition because that will override everything else!
+In the previous example, note that if both `ROTTEN` and `MEGAHEALTH` were checked, it would display the megahealth model. Remember that the switch operator returns the value of the first expression that does not evaluate to undefined. For this reason, you must put model definitions with no condition as the last one in the switch because that will override everything else!
 
-#### Dynamic Models
+#### Advanced Examples
 
-Conditionals allow you to customize which model, skin and frame TrenchBroom shows depending on the values of an entity's properties with great flexibility, but the actual paths, skin indices and frame indices are hardcoded in the entity definition file. However, sometimes even this flexibility is not enough, in particular with entities that allow you to place arbitrary models into the map. In such cases, the entity definition file cannot contain the actual model paths and so on. Rather, the model path, skin index and frame index are specified by the mapper using entity properties. To allow TrenchBroom to display models for such entities, you can define an entity defintion that contains a dynamic model definition that looks as follows.
+The basic expressions you have seen so far allow you to customize which model, skin and frame TrenchBroom shows depending on the values of an entity's properties with great flexibility, but the actual paths, skin indices and frame indices are hardcoded in the entity definition file. However, sometimes even this flexibility is not enough, in particular with entities that allow you to place arbitrary models into the map. In such cases, the entity definition file cannot contain the actual model paths and so on. Rather, the model path, skin index and frame index are specified by the mapper using entity properties. Since TrenchBroom provides the values of the entity properties to the model expressions as variables, you can easily cover such cases as well.
 
-    model(pathKey = "PATHKEY" skinKey = "SKINKEY" frameKey = "FRAMEKEY")
+Remember the structure of the model definition maps:
+
+    {
+    	"path" : MODEL,
+    	"skin" : SKIN,
+    	"frame": FRAME
+    }
+
+So far, we have used hardcoded literals for the values of the map entries like so:
+
+    model({ "path" : "progs/armor", "skin" : 1, "frame": 3 })
+
+However, nothing prevents us from using variables instead of hardcoded literals, thereby referring to the entities properties. 
+
+    model({ 
+    	"path" : PATHKEY, 
+    	"skin" : SKINKEY, 
+    	"frame": FRAMEKEY 
+    })
 
 The placeholders `PATHKEY`, `SKINKEY` and `FRAMEKEY` have the following meaning
 
@@ -1712,7 +1748,11 @@ Placeholder 		Description
 
 A valid dynamic model definition might look like this:
 
-    model(pathKey = "mdl" skinKey = "skin" frameKey = "frame")
+    model({ 
+    	"path" : mdl,
+    	"skin" : skin,
+    	"frame": frame
+    })
 
 Then, if you create an entity with the appropriate classname and specifies three properties as follows
 
@@ -1731,7 +1771,7 @@ In both files, the model definitions are just specified alongside with other ent
 
 	/*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
 	{
-	    model(":maps/b_bh25.bsp", ":maps/b_bh10.bsp" 0 0 spawnflags = 1, ":maps/b_bh100.bsp" 0 0 spawnflags = 2);
+	    model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
 	}
 	Health box. Normally gives 25 points.
 
@@ -1746,7 +1786,7 @@ In both files, the model definitions are just specified alongside with other ent
 An example from an FGD file might look as follows.
 
 	@PointClass base(Monster) size(-32 -32 -24, 32 32 64) 
-	    model("progs/gaunt.mdl" 0 24, ":progs/gaunt.mdl" perch = "1")
+	    model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
 	    = monster_gaunt : "Gaunt"
 	[
 	    perch(choices) : "Starting pose" : 0 =
@@ -1756,7 +1796,7 @@ An example from an FGD file might look as follows.
 	    ]
 	]
 
-To improve compatibility to other editors, the model definition can also be named *studio* in FGD files.
+To improve compatibility to other editors, the model definition can also be named *studio* or *studioprop* in FGD files.
 
 # Getting Involved
 
