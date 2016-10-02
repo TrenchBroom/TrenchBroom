@@ -213,7 +213,8 @@ namespace TrenchBroom {
                         status.warn(token.line(), token.column(), "Found multiple size attributes");
                     classInfo.setSize(parseSize(status));
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "model") ||
-                           StringUtils::caseInsensitiveEqual(typeName, "studio")) {
+                           StringUtils::caseInsensitiveEqual(typeName, "studio") ||
+                           StringUtils::caseInsensitiveEqual(typeName, "studioprop")) {
                     if (classInfo.hasModelDefinition())
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     classInfo.setModelDefinition(parseModel(status));
