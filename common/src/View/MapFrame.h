@@ -22,6 +22,7 @@
 
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "View/Inspector.h"
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
@@ -190,6 +191,9 @@ namespace TrenchBroom {
             void OnViewSwitchToMapInspector(wxCommandEvent& event);
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+
+            void switchToInspectorPage(Inspector::InspectorPage page);
+            void ensureInspectorVisible();
             
             void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
             void OnViewToggleInfoPanel(wxCommandEvent& event);

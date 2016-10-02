@@ -975,19 +975,29 @@ namespace TrenchBroom {
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_inspector->switchToPage(Inspector::InspectorPage_Map);
+            switchToInspectorPage(Inspector::InspectorPage_Map);
         }
 
         void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_inspector->switchToPage(Inspector::InspectorPage_Entity);
+            switchToInspectorPage(Inspector::InspectorPage_Entity);
         }
 
         void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            m_inspector->switchToPage(Inspector::InspectorPage_Face);
+            switchToInspectorPage(Inspector::InspectorPage_Face);
+        }
+
+        void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
+            ensureInspectorVisible();
+            m_inspector->switchToPage(page);
+        }
+
+        void MapFrame::ensureInspectorVisible() {
+            if (m_hSplitter->isMaximized(m_vSplitter))
+                m_hSplitter->restore();
         }
 
         void MapFrame::OnViewToggleMaximizeCurrentView(wxCommandEvent& event) {
