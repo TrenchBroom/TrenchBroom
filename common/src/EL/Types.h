@@ -32,6 +32,7 @@ namespace TrenchBroom {
         typedef bool BooleanType;
         typedef String StringType;
         typedef double NumberType;
+        typedef long IntegerType;
         typedef std::vector<Value> ArrayType;
         typedef std::map<String, Value> MapType;
         typedef std::vector<long> RangeType;

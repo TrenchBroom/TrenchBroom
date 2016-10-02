@@ -30,7 +30,8 @@ namespace TrenchBroom {
         m_hasDescription(false),
         m_hasColor(false),
         m_size(BBox3(-8.0, 8.0)),
-        m_hasSize(false) {}
+        m_hasSize(false),
+        m_hasModelDefinition(false) {}
         
         EntityDefinitionClassInfo::EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor) :
         m_line(line),
@@ -39,7 +40,8 @@ namespace TrenchBroom {
         m_color(defaultColor),
         m_hasColor(false),
         m_size(BBox3(-8.0, 8.0)),
-        m_hasSize(false) {}
+        m_hasSize(false),
+        m_hasModelDefinition(false) {}
         
         
         size_t EntityDefinitionClassInfo::line() const {
@@ -90,8 +92,12 @@ namespace TrenchBroom {
             return m_attributes;
         }
         
-        const Assets::ModelDefinitionList& EntityDefinitionClassInfo::models() const {
-            return m_models;
+        const Assets::ModelDefinition& EntityDefinitionClassInfo::modelDefinition() const {
+            return m_modelDefinition;
+        }
+
+        bool EntityDefinitionClassInfo::hasModelDefinition() const {
+            return m_hasModelDefinition;
         }
 
         void EntityDefinitionClassInfo::setName(const String& name) {
@@ -117,22 +123,13 @@ namespace TrenchBroom {
             m_attributes[attributeDefinition->name()] = attributeDefinition;
         }
         
-        void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionList& attributeDefinitions) {
-            Assets::AttributeDefinitionList::const_iterator it, end;
-            for (it = attributeDefinitions.begin(), end = attributeDefinitions.end(); it != end; ++it)
-                addAttributeDefinition(*it);
-        }
-
         void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions) {
             m_attributes.insert(attributeDefinitions.begin(), attributeDefinitions.end());
         }
-
-        void EntityDefinitionClassInfo::addModelDefinition(Assets::ModelDefinitionPtr modelDefinition) {
-            m_models.push_back(modelDefinition);
-        }
-
-        void EntityDefinitionClassInfo::addModelDefinitions(const Assets::ModelDefinitionList& modelDefinitions) {
-            m_models.insert(m_models.end(), modelDefinitions.begin(), modelDefinitions.end());
+        
+        void EntityDefinitionClassInfo::setModelDefinition(const Assets::ModelDefinition& modelDefinition) {
+            m_modelDefinition = modelDefinition;
+            m_hasModelDefinition = true;
         }
 
         void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames) {
@@ -164,12 +161,7 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    const Assets::ModelDefinitionList& baseModels = baseClass.models();
-                    Assets::ModelDefinitionList::const_iterator modelIt, modelEnd;
-                    for (modelIt = baseModels.begin(), modelEnd = baseModels.end(); modelIt != modelEnd; ++modelIt) {
-                        const Assets::ModelDefinitionPtr model = *modelIt;
-                        addModelDefinition(model);
-                    }
+                    m_modelDefinition.append(baseClass.modelDefinition());
                 }
             }
         }

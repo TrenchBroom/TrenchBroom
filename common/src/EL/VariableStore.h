@@ -56,6 +56,17 @@ namespace TrenchBroom {
             void doDeclare(const String& name, const Value& value);
             void doAssign(const String& name, const Value& value);
         };
+        
+        class NullVariableStore : public VariableStore {
+        public:
+            NullVariableStore();
+        private:
+            VariableStore* doClone() const;
+            Value doGetValue(const String& name) const;
+            StringSet doGetNames() const;
+            void doDeclare(const String& name, const Value& value);
+            void doAssign(const String& name, const Value& value);
+        };
     }
 }
 

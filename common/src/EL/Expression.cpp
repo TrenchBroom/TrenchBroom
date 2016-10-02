@@ -29,16 +29,39 @@ namespace TrenchBroom {
             assert(m_expression.get() != NULL);
         }
         
-        void Expression::optimize() {
+        bool Expression::optimize() {
             ExpressionBase* optimized = m_expression->optimize();
-            if (optimized != NULL && optimized != m_expression.get())
+            if (optimized != NULL && optimized != m_expression.get()) {
                 m_expression.reset(optimized);
+                return true;
+            }
+            return false;
         }
         
         Value Expression::evaluate(const EvaluationContext& context) const {
             return m_expression->evaluate(context);
         }
         
+        ExpressionBase* Expression::clone() const {
+            return m_expression->clone();
+        }
+
+        size_t Expression::line() const {
+            return m_expression->m_line;
+        }
+
+        size_t Expression::column() const {
+            return m_expression->m_column;
+        }
+
+        String Expression::asString() const {
+            return m_expression->asString();
+        }
+
+        std::ostream& operator<<(std::ostream& stream, const Expression& expression) {
+            return stream << *(expression.m_expression.get());
+        }
+
         void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
             if (newExpression != NULL && newExpression != oldExpression) {
                 delete oldExpression;
@@ -69,6 +92,21 @@ namespace TrenchBroom {
             return doEvaluate(context);
         }
         
+        String ExpressionBase::asString() const {
+            StringStream result;
+            appendToStream(result);
+            return result.str();
+        }
+        
+        void ExpressionBase::appendToStream(std::ostream& str) const {
+            doAppendToStream(str);
+        }
+
+        std::ostream& operator<<(std::ostream& stream, const ExpressionBase& expression) {
+            expression.appendToStream(stream);
+            return stream;
+        }
+
         ExpressionBase* ExpressionBase::doReorderByPrecedence() {
             return this;
         }
@@ -97,6 +135,10 @@ namespace TrenchBroom {
             return m_value;
         }
         
+        void LiteralExpression::doAppendToStream(std::ostream& str) const {
+            m_value.appendToStream(str, false);
+        }
+
         VariableExpression::VariableExpression(const String& variableName, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_variableName(variableName) {}
@@ -117,6 +159,10 @@ namespace TrenchBroom {
             return context.variableValue(m_variableName);
         }
         
+        void VariableExpression::doAppendToStream(std::ostream& str) const {
+            str << m_variableName;
+        }
+
         ArrayExpression::ArrayExpression(const ExpressionBase::List& elements, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_elements(elements) {}
@@ -176,6 +222,22 @@ namespace TrenchBroom {
             return Value(array, m_line, m_column);
         }
         
+        void ArrayExpression::doAppendToStream(std::ostream& str) const {
+            str << "[ ";
+            
+            ExpressionBase::List::const_iterator it, end;
+            size_t i = 0;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const ExpressionBase* expression = *it;
+                str << *expression;
+                if (i < m_elements.size() - 1)
+                    str << ", ";
+                ++i;
+            }
+            
+            str << "] ";
+        }
+
         MapExpression::MapExpression(const ExpressionBase::Map& elements, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_elements(elements) {}
@@ -230,6 +292,22 @@ namespace TrenchBroom {
             return Value(map, m_line, m_column);
         }
         
+        void MapExpression::doAppendToStream(std::ostream& str) const {
+            str << "{ ";
+            ExpressionBase::Map::const_iterator it, end;
+            size_t i = 0;
+            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+                const String& key = it->first;
+                const ExpressionBase* value = it->second;
+                
+                str << "\"" << key << "\": " << *value;
+                if (i < m_elements.size() - 1)
+                    str << ", ";
+                ++i;
+            }
+            str << " }";
+        }
+
         UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_operand(operand) {
@@ -265,6 +343,10 @@ namespace TrenchBroom {
             return Value(+m_operand->evaluate(context), m_line, m_column);
         }
         
+        void UnaryPlusOperator::doAppendToStream(std::ostream& str) const {
+            str << "+" << *m_operand;
+        }
+
         UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         UnaryOperator(operand, line, column) {}
         
@@ -280,21 +362,48 @@ namespace TrenchBroom {
             return Value(-m_operand->evaluate(context), m_line, m_column);
         }
         
-        NegationOperator::NegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        void UnaryMinusOperator::doAppendToStream(std::ostream& str) const {
+            str << "-" << *m_operand;
+        }
+
+        LogicalNegationOperator::LogicalNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         UnaryOperator(operand, line, column) {}
         
-        ExpressionBase* NegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new NegationOperator(operand, line, column);
+        ExpressionBase* LogicalNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new LogicalNegationOperator(operand, line, column);
         }
         
-        ExpressionBase* NegationOperator::doClone() const  {
-            return new NegationOperator(m_operand->clone(), m_line, m_column);
+        ExpressionBase* LogicalNegationOperator::doClone() const  {
+            return new LogicalNegationOperator(m_operand->clone(), m_line, m_column);
         }
         
-        Value NegationOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalNegationOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(!m_operand->evaluate(context), m_line, m_column);
         }
         
+        void LogicalNegationOperator::doAppendToStream(std::ostream& str) const {
+            str << "!" << *m_operand;
+        }
+
+        BitwiseNegationOperator::BitwiseNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
+        UnaryOperator(operand, line, column) {}
+
+        ExpressionBase* BitwiseNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
+            return new BitwiseNegationOperator(operand, line, column);
+        }
+
+        ExpressionBase* BitwiseNegationOperator::doClone() const {
+            return new BitwiseNegationOperator(m_operand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseNegationOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(~m_operand->evaluate(context), m_line, m_column);
+        }
+
+        void BitwiseNegationOperator::doAppendToStream(std::ostream& str) const {
+            str << "~" << *m_operand;
+        }
+
         GroupingOperator::GroupingOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         UnaryOperator(operand, line, column) {}
         
@@ -310,6 +419,10 @@ namespace TrenchBroom {
             return Value(m_operand->evaluate(context), m_line, m_column);
         }
         
+        void GroupingOperator::doAppendToStream(std::ostream& str) const {
+            str << "( " << *m_operand << " )";
+        }
+
         SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_indexableOperand(indexableOperand),
@@ -354,6 +467,10 @@ namespace TrenchBroom {
             return indexableValue[indexValue];
         }
         
+        void SubscriptOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_indexableOperand << "[" << *m_indexOperand << "]";
+        }
+
         BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_leftOperand(leftOperand),
@@ -459,8 +576,12 @@ namespace TrenchBroom {
             return Value(leftValue + rightValue, m_line, m_column);
         }
         
+        void AdditionOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " + " << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits AdditionOperator::doGetTraits() const {
-            return Traits(4, true, true);
+            return Traits(10, true, true);
         }
         
         SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -480,8 +601,12 @@ namespace TrenchBroom {
             return Value(leftValue - rightValue, m_line, m_column);
         }
         
+        void SubtractionOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " - " << *m_rightOperand;
+        }
+
         BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
-            return Traits(4, false, false);
+            return Traits(10, false, false);
         }
         
         MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -501,8 +626,12 @@ namespace TrenchBroom {
             return Value(leftValue * rightValue, m_line, m_column);
         }
         
+        void MultiplicationOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " * " << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
-            return Traits(5, true, true);
+            return Traits(11, true, true);
         }
         
         DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -522,8 +651,12 @@ namespace TrenchBroom {
             return Value(leftValue / rightValue, m_line, m_column);
         }
         
+        void DivisionOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " / " << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits DivisionOperator::doGetTraits() const {
-            return Traits(5, false, false);
+            return Traits(11, false, false);
         }
         
         ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
@@ -543,8 +676,12 @@ namespace TrenchBroom {
             return Value(leftValue % rightValue, m_line, m_column);
         }
         
+        void ModulusOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " % " << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits ModulusOperator::doGetTraits() const {
-            return Traits(5, false, false);
+            return Traits(11, false, false);
         }
         
         const String& RangeOperator::AutoRangeParameterName() {
@@ -552,70 +689,193 @@ namespace TrenchBroom {
             return Name;
         }
         
-        ConjunctionOperator::ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        LogicalAndOperator::LogicalAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* ConjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ConjunctionOperator(leftOperand, rightOperand, line, column);
+        ExpressionBase* LogicalAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new LogicalAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* ConjunctionOperator::doClone() const {
-            return new ConjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        ExpressionBase* LogicalAndOperator::doClone() const {
+            return new LogicalAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
-        Value ConjunctionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalAndOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_line, m_column);
         }
         
-        BinaryOperator::Traits ConjunctionOperator::doGetTraits() const {
-            return Traits(2, true, true);
+        void LogicalAndOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " && " << *m_rightOperand;
         }
         
-        DisjunctionOperator::DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator::Traits LogicalAndOperator::doGetTraits() const {
+            return Traits(3, true, true);
+        }
+        
+        LogicalOrOperator::LogicalOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column) {}
         
-        ExpressionBase* DisjunctionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new DisjunctionOperator(leftOperand, rightOperand, line, column);
+        ExpressionBase* LogicalOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new LogicalOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
         }
         
-        ExpressionBase* DisjunctionOperator::doClone() const {
-            return new DisjunctionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        ExpressionBase* LogicalOrOperator::doClone() const {
+            return new LogicalOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
         }
         
-        Value DisjunctionOperator::doEvaluate(const EvaluationContext& context) const {
+        Value LogicalOrOperator::doEvaluate(const EvaluationContext& context) const {
             return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_line, m_column);
         }
         
-        BinaryOperator::Traits DisjunctionOperator::doGetTraits() const {
-            return Traits(1, true, true);
+        void LogicalOrOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " || " << *m_rightOperand;
         }
         
+        BinaryOperator::Traits LogicalOrOperator::doGetTraits() const {
+            return Traits(2, true, true);
+        }
+
+        BitwiseAndOperator::BitwiseAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseAndOperator::doClone() const {
+            return new BitwiseAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseAndOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) & m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        void BitwiseAndOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " & " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits BitwiseAndOperator::doGetTraits() const {
+            return Traits(6, true, true);
+        }
+        
+        BitwiseXorOperator::BitwiseXorOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseXorOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseXorOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseXorOperator::doClone() const {
+            return new BitwiseXorOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseXorOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) ^ m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        void BitwiseXorOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " ^ " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits BitwiseXorOperator::doGetTraits() const {
+            return Traits(5, true, true);
+        }
+        
+        BitwiseOrOperator::BitwiseOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseOrOperator::doClone() const {
+            return new BitwiseOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseOrOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) | m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        void BitwiseOrOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " | " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits BitwiseOrOperator::doGetTraits() const {
+            return Traits(4, true, true);
+        }
+
+        BitwiseShiftLeftOperator::BitwiseShiftLeftOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseShiftLeftOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseShiftLeftOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseShiftLeftOperator::doClone() const {
+            return new BitwiseShiftLeftOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseShiftLeftOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) << m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        void BitwiseShiftLeftOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " << " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits BitwiseShiftLeftOperator::doGetTraits() const {
+            return Traits(9, true, true);
+        }
+
+        BitwiseShiftRightOperator::BitwiseShiftRightOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
+        BinaryOperator(leftOperand, rightOperand, line, column) {}
+        
+        ExpressionBase* BitwiseShiftRightOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
+            return (new BitwiseShiftRightOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        }
+        
+        ExpressionBase* BitwiseShiftRightOperator::doClone() const {
+            return new BitwiseShiftRightOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value BitwiseShiftRightOperator::doEvaluate(const EvaluationContext& context) const {
+            return Value(m_leftOperand->evaluate(context) >> m_rightOperand->evaluate(context), m_line, m_column);
+        }
+        
+        void BitwiseShiftRightOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " >> " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits BitwiseShiftRightOperator::doGetTraits() const {
+            return Traits(9, true, true);
+        }
+
         ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
         BinaryOperator(leftOperand, rightOperand, line, column),
         m_op(op) {}
         
         ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column);
+            return (new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column))->reorderByPrecedence();
         }
         
         ExpressionBase* ComparisonOperator::doClone() const {
@@ -640,16 +900,42 @@ namespace TrenchBroom {
             }
         }
         
+        void ComparisonOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand;
+            switch (m_op) {
+                case Op_Less:
+                    str << " < ";
+                    break;
+                case Op_LessOrEqual:
+                    str << " <= ";
+                    break;
+                case Op_Equal:
+                    str << " == ";
+                    break;
+                case Op_Inequal:
+                    str << " != ";
+                    break;
+                case Op_GreaterOrEqual:
+                    str << " >= ";
+                    break;
+                case Op_Greater:
+                    str << " > ";
+                    break;
+                switchDefault()
+            }
+            str << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits ComparisonOperator::doGetTraits() const {
             switch (m_op) {
                 case Op_Less:
                 case Op_LessOrEqual:
                 case Op_Greater:
                 case Op_GreaterOrEqual:
-                    return Traits(3, false, false);
+                    return Traits(8, false, false);
                 case Op_Equal:
                 case Op_Inequal:
-                    return Traits(3, true, false);
+                    return Traits(7, true, false);
                     switchDefault()
             }
         }
@@ -699,8 +985,102 @@ namespace TrenchBroom {
             return Value(range, m_line, m_column);
         }
         
+        void RangeOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << ".." << *m_rightOperand;
+        }
+        
         BinaryOperator::Traits RangeOperator::doGetTraits() const {
+            return Traits(1, false, false);
+        }
+
+        CaseOperator::CaseOperator(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) :
+        BinaryOperator(premise, conclusion, line, column) {}
+
+        ExpressionBase* CaseOperator::create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) {
+            return (new CaseOperator(premise, conclusion, line, column))->reorderByPrecedence();
+        }
+
+        ExpressionBase* CaseOperator::doClone() const {
+            return new CaseOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
+        }
+        
+        Value CaseOperator::doEvaluate(const EvaluationContext& context) const {
+            const Value premise = m_leftOperand->evaluate(context);
+            if (premise.convertTo(Type_Boolean))
+                return m_rightOperand->evaluate(context);
+            return Value::Undefined;
+        }
+        
+        void CaseOperator::doAppendToStream(std::ostream& str) const {
+            str << *m_leftOperand << " -> " << *m_rightOperand;
+        }
+        
+        BinaryOperator::Traits CaseOperator::doGetTraits() const {
             return Traits(0, false, false);
+        }
+
+        SwitchOperator::SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column) :
+        ExpressionBase(line, column),
+        m_cases(cases) {}
+
+        SwitchOperator::~SwitchOperator() {
+            ListUtils::clearAndDelete(m_cases);
+        }
+        
+        ExpressionBase* SwitchOperator::create(const ExpressionBase::List& cases, size_t line, size_t column) {
+            return new SwitchOperator(cases, line, column);
+        }
+
+        ExpressionBase* SwitchOperator::doOptimize() {
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+                ExpressionBase* case_ = *it;
+                ExpressionBase* optimized = case_->optimize();
+                
+                if (optimized != NULL && optimized != case_) {
+                    const Value result = optimized->evaluate(EvaluationContext());
+                    if (!result.undefined())
+                        return LiteralExpression::create(result, m_line, m_column);
+                    
+                    delete case_;
+                    case_ = optimized;
+                }
+            }
+            
+            return NULL;
+        }
+
+        ExpressionBase* SwitchOperator::doClone() const {
+            ExpressionBase::List caseClones;
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it)
+                caseClones.push_back((*it)->clone());
+            return new SwitchOperator(caseClones, m_line, m_column);
+        }
+        
+        Value SwitchOperator::doEvaluate(const EvaluationContext& context) const {
+            ExpressionBase::List::const_iterator it, end;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+                const ExpressionBase* case_ = *it;
+                const Value result = case_->evaluate(context);
+                if (!result.undefined())
+                    return result;
+            }
+            return Value::Undefined;
+        }
+
+        void SwitchOperator::doAppendToStream(std::ostream& str) const {
+            str << "{{ ";
+            ExpressionBase::List::const_iterator it, end;
+            size_t i = 0;
+            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+                const ExpressionBase* expression = *it;
+                str << *expression;
+                if (i < m_cases.size() - 1)
+                    str << ", ";
+                ++i;
+            }
+            str << " }}";
         }
     }
 }

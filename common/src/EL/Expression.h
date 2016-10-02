@@ -39,8 +39,14 @@ namespace TrenchBroom {
         public:
             Expression(ExpressionBase* expression);
             
-            void optimize();
+            bool optimize();
             Value evaluate(const EvaluationContext& context) const;
+            ExpressionBase* clone() const;
+            
+            size_t line() const;
+            size_t column() const;
+            String asString() const;
+            friend std::ostream& operator<<(std::ostream& stream, const Expression& expression);
         };
         
         class BinaryOperator;
@@ -50,6 +56,8 @@ namespace TrenchBroom {
             typedef std::auto_ptr<ExpressionBase> Ptr;
             typedef std::list<ExpressionBase*> List;
             typedef std::map<String, ExpressionBase*> Map;
+            
+            friend class Expression;
         protected:
             size_t m_line;
             size_t m_column;
@@ -65,12 +73,17 @@ namespace TrenchBroom {
             ExpressionBase* clone() const;
             ExpressionBase* optimize();
             Value evaluate(const EvaluationContext& context) const;
+            
+            String asString() const;
+            void appendToStream(std::ostream& str) const;
+            friend std::ostream& operator<<(std::ostream& stream, const ExpressionBase& expression);
         private:
             virtual ExpressionBase* doReorderByPrecedence();
             virtual ExpressionBase* doReorderByPrecedence(BinaryOperator* parent);
             virtual ExpressionBase* doClone() const = 0;
             virtual ExpressionBase* doOptimize() = 0;
             virtual Value doEvaluate(const EvaluationContext& context) const = 0;
+            virtual void doAppendToStream(std::ostream& str) const = 0;
             
             deleteCopyAndAssignment(ExpressionBase)
         };
@@ -86,6 +99,7 @@ namespace TrenchBroom {
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(LiteralExpression)
         };
@@ -101,6 +115,7 @@ namespace TrenchBroom {
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(VariableExpression)
         };
@@ -117,6 +132,7 @@ namespace TrenchBroom {
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(ArrayExpression)
         };
@@ -133,6 +149,7 @@ namespace TrenchBroom {
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(MapExpression)
         };
@@ -157,6 +174,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(UnaryPlusOperator)
         };
@@ -169,20 +187,35 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(UnaryMinusOperator)
         };
         
-        class NegationOperator : public UnaryOperator {
+        class LogicalNegationOperator : public UnaryOperator {
         private:
-            NegationOperator(ExpressionBase* operand, size_t line, size_t column);
+            LogicalNegationOperator(ExpressionBase* operand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
-            deleteCopyAndAssignment(NegationOperator)
+            deleteCopyAndAssignment(LogicalNegationOperator)
+        };
+        
+        class BitwiseNegationOperator : public UnaryOperator {
+        private:
+            BitwiseNegationOperator(ExpressionBase* operand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            
+            deleteCopyAndAssignment(BitwiseNegationOperator)
         };
         
         class GroupingOperator : public UnaryOperator {
@@ -193,6 +226,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(GroupingOperator)
         };
@@ -211,6 +245,7 @@ namespace TrenchBroom {
             ExpressionBase* doClone() const;
             ExpressionBase* doOptimize();
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             
             deleteCopyAndAssignment(SubscriptOperator)
         };
@@ -252,6 +287,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(AdditionOperator)
@@ -265,6 +301,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(SubtractionOperator)
@@ -278,6 +315,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(MultiplicationOperator)
@@ -291,6 +329,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(DivisionOperator)
@@ -304,35 +343,108 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ModulusOperator)
         };
         
-        class ConjunctionOperator : public BinaryOperator {
+        class LogicalAndOperator : public BinaryOperator {
         private:
-            ConjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            LogicalAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
-            deleteCopyAndAssignment(ConjunctionOperator)
+            deleteCopyAndAssignment(LogicalAndOperator)
         };
         
-        class DisjunctionOperator : public BinaryOperator {
+        class LogicalOrOperator : public BinaryOperator {
         private:
-            DisjunctionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+            LogicalOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
-            deleteCopyAndAssignment(DisjunctionOperator)
+            deleteCopyAndAssignment(LogicalOrOperator)
+        };
+        
+        class BitwiseAndOperator : public BinaryOperator {
+        private:
+            BitwiseAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseAndOperator)
+        };
+        
+        class BitwiseXorOperator : public BinaryOperator {
+        private:
+            BitwiseXorOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseXorOperator)
+        };
+        
+        class BitwiseOrOperator : public BinaryOperator {
+        private:
+            BitwiseOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseOrOperator)
+        };
+        
+        class BitwiseShiftLeftOperator : public BinaryOperator {
+        private:
+            BitwiseShiftLeftOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseShiftLeftOperator)
+        };
+        
+        class BitwiseShiftRightOperator : public BinaryOperator {
+        private:
+            BitwiseShiftRightOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(BitwiseShiftRightOperator)
         };
         
         class ComparisonOperator : public BinaryOperator {
@@ -358,6 +470,7 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(ComparisonOperator)
@@ -375,9 +488,42 @@ namespace TrenchBroom {
         private:
             ExpressionBase* doClone() const;
             Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
             Traits doGetTraits() const;
             
             deleteCopyAndAssignment(RangeOperator)
+        };
+
+        class CaseOperator : public BinaryOperator {
+        private:
+            CaseOperator(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column);
+        public:
+            static ExpressionBase* create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            void doAppendToStream(std::ostream& str) const;
+            Traits doGetTraits() const;
+            
+            deleteCopyAndAssignment(CaseOperator)
+        };
+        
+        class SwitchOperator : public ExpressionBase {
+        private:
+            ExpressionBase::List m_cases;
+        private:
+            SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column);
+        public:
+            ~SwitchOperator();
+        public:
+            static ExpressionBase* create(const ExpressionBase::List& cases, size_t line, size_t column);
+        private:
+            ExpressionBase* doClone() const;
+            ExpressionBase* doOptimize();
+            void doAppendToStream(std::ostream& str) const;
+            Value doEvaluate(const EvaluationContext& context) const;
+            
+            deleteCopyAndAssignment(SwitchOperator)
         };
     }
 }

@@ -87,7 +87,6 @@ namespace TrenchBroom {
         private:
             void setFormat(Model::MapFormat::Type format);
             
-            void parseEntityOrBrush();
             void parseEntity();
             void parseEntityAttribute(Model::EntityAttribute::List& attributes);
             void parseBrush();

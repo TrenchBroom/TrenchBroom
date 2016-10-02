@@ -32,6 +32,7 @@ namespace TrenchBroom {
     namespace Assets {
         class AttributeDefinition;
         class FlagsAttributeDefinition;
+        class ModelDefinition;
         
         class EntityDefinition {
         public:
@@ -83,15 +84,15 @@ namespace TrenchBroom {
         class PointEntityDefinition : public EntityDefinition {
         private:
             BBox3 m_bounds;
-            ModelDefinitionList m_modelDefinitions;
+            ModelDefinition m_modelDefinition;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinitionList& modelDefinitions = EmptyModelDefinitionList);
+            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
             
             Type type() const;
             const BBox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
-            const ModelDefinitionList& modelDefinitions() const;
+            const ModelDefinition& modelDefinition() const;
         };
     
         class BrushEntityDefinition : public EntityDefinition {

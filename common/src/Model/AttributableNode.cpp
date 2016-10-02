@@ -137,14 +137,7 @@ namespace TrenchBroom {
         }
         
         AttributeNameSet AttributableNode::attributeNames() const {
-            AttributeNameSet result;
-            EntityAttribute::List::const_iterator it, end;
-            const EntityAttribute::List& oldAttributes = m_attributes.attributes();
-            for (it = oldAttributes.begin(), end = oldAttributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
-                result.insert(attribute.name());
-            }
-            return result;
+            return m_attributes.names();
         }
 
         bool AttributableNode::hasAttribute(const AttributeName& name) const {

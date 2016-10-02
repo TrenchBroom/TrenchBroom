@@ -50,9 +50,6 @@ namespace TrenchBroom {
         typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
         
         class ModelDefinition;
-        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
-        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
-        static const ModelDefinitionList EmptyModelDefinitionList;
         
         class EntityModel;
         typedef std::vector<EntityModel*> EntityModelList;

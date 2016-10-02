@@ -213,8 +213,7 @@ namespace TrenchBroom {
             const String file =
             "/*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG\n"
             "{\n"
-            "model(\":maps/b_batt0.bsp\");\n"
-            "model(\":maps/b_batt1.bsp\" 0 0 spawnflags = 1);\n"
+            "model(\":maps/b_batt0.bsp\", \":maps/b_batt1.bsp\" 0 0 spawnflags = 1);\n"
             "}\n"
             "6 ammo points (cells) for the\n"
             "Thunderbolt (Lightning).\n"
@@ -234,9 +233,6 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(2u, models.size());
         }
         
         TEST(DefParserTest, parseDynamicModelAttribute) {
@@ -263,9 +259,6 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(1u, models.size());
         }
     }
 }

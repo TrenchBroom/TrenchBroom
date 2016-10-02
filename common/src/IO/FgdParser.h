@@ -89,9 +89,7 @@ namespace TrenchBroom {
             void skipMainClass(ParserStatus& status);
             
             StringList parseSuperClasses(ParserStatus& status);
-            Assets::ModelDefinitionList parseModels(ParserStatus& status);
-            Assets::ModelDefinitionPtr parseStaticModel(ParserStatus& status);
-            Assets::ModelDefinitionPtr parseDynamicModel(ParserStatus& status);
+            Assets::ModelDefinition parseModel(ParserStatus& status);
             String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
             

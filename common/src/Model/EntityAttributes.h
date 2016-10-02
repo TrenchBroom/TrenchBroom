@@ -128,6 +128,7 @@ namespace TrenchBroom {
         private:
             bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
         public:
+            const AttributeNameSet names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
             

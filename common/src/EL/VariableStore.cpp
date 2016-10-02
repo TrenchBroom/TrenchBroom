@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Table::const_iterator it = m_variables.find(name);
             if (it != m_variables.end())
                 return it->second;
-            throw EvaluationError("Variable '" + name + "' is undefined");
+            return Value::Undefined;
         }
         
         StringSet VariableTable::doGetNames() const {
@@ -77,5 +77,22 @@ namespace TrenchBroom {
                 throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
             it->second = value;
         }
+
+        NullVariableStore::NullVariableStore() {}
+
+        VariableStore* NullVariableStore::doClone() const {
+            return new NullVariableStore();
+        }
+        
+        Value NullVariableStore::doGetValue(const String& name) const {
+            return Value::Null;
+        }
+        
+        StringSet NullVariableStore::doGetNames() const {
+            return StringSet();
+        }
+        
+        void NullVariableStore::doDeclare(const String& name, const Value& value) {}
+        void NullVariableStore::doAssign(const String& name, const Value& value) {}
     }
 }

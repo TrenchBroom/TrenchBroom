@@ -111,12 +111,18 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(-1.0, "-1.0");
         }
         
-        TEST(ELParserTest, parseNegation) {
+        TEST(ELParserTest, parseLogicalNegation) {
             ASSERT_EL_EQ(false, "!true");
             ASSERT_EL_EQ(true, "!false");
             ASSERT_EL_THROW("!0", EL::ConversionError);
             ASSERT_EL_THROW("!1", EL::ConversionError);
             ASSERT_EL_THROW("!'true'", EL::ConversionError);
+        }
+        
+        TEST(ELParserTest, parseBitwiseNegation) {
+            ASSERT_EL_EQ(~393, "~393");
+            ASSERT_EL_THROW("~", ParserException);
+            ASSERT_EL_THROW("~~", ParserException);
         }
         
         TEST(ELParserTest, parseAddition) {
@@ -150,18 +156,39 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(2.0, "12 % 5 % 3 % 3");
         }
         
-        TEST(ELParserTest, parseConjunction) {
+        TEST(ELParserTest, parseLogicalAnd) {
             ASSERT_EL_EQ(true, "true && true");
             ASSERT_EL_EQ(false, "false && true");
             ASSERT_EL_EQ(false, "true && false");
             ASSERT_EL_EQ(false, "false && false");
         }
         
-        TEST(ELParserTest, parseDisjunction) {
+        TEST(ELParserTest, parseLogicalOr) {
             ASSERT_EL_EQ(true, "true || true");
             ASSERT_EL_EQ(true, "false || true");
             ASSERT_EL_EQ(true, "true || false");
             ASSERT_EL_EQ(false, "false || false");
+        }
+        
+        TEST(ELParserTest, parseBitwiseAnd) {
+            ASSERT_EL_EQ(23 & 24, "23 & 24");
+        }
+        
+        TEST(ELParserTest, parseBitwiseOr) {
+            ASSERT_EL_EQ(23 | 24, "23 | 24");
+        }
+        
+        TEST(ELParserTest, parseBitwiseXor) {
+            ASSERT_EL_EQ(23 ^ 24, "23 ^ 24");
+            ASSERT_EL_THROW("23 ^^ 23", ParserException);
+        }
+        
+        TEST(ELParserTest, parseBitwiseShiftLeft) {
+            ASSERT_EL_EQ(1 << 7, "1 << 7");
+        }
+        
+        TEST(ELParserTest, parseBitwiseShiftRight) {
+            ASSERT_EL_EQ(8 >> 2, "8 >> 2");
         }
         
         TEST(ELParserTest, parseSubscript) {
@@ -197,6 +224,25 @@ namespace TrenchBroom {
 
             ASSERT_EL_EQ("tset", "\"test\"[..0]");
             ASSERT_EL_EQ("est", "\"test\"[1..]");
+        }
+        
+        TEST(ELParserTest, parseCaseOperator) {
+            ASSERT_EL_EQ(false, "true -> false");
+            ASSERT_EL_EQ(true, "true -> true && true");
+            ASSERT_EL_EQ(5, "1 < 3 -> 2 + 3");
+            ASSERT_EL_EQ(EL::Value::Undefined, "false -> true");
+        }
+        
+        TEST(ELParserTest, parseBinaryNegation) {
+            ASSERT_EL_EQ(~1l, "~1");
+        }
+        
+        TEST(ELParserTest, parseSwitchExpression) {
+            ASSERT_EL_EQ(EL::Value::Undefined, "{{}}");
+            ASSERT_EL_EQ("asdf", "{{'asdf'}}");
+            ASSERT_EL_EQ("fdsa", "{{'fdsa', 'asdf'}}");
+            ASSERT_EL_EQ("asdf", "{{false -> 'fdsa', 'asdf'}}");
+            ASSERT_EL_EQ(EL::Value::Undefined, "{{false -> false}}");
         }
         
         TEST(ELParserTest, testComparisonOperators) {

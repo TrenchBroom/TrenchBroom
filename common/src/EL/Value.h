@@ -36,6 +36,7 @@ namespace TrenchBroom {
             virtual const BooleanType& booleanValue() const;
             virtual const StringType&  stringValue()  const;
             virtual const NumberType&  numberValue()  const;
+                          IntegerType  integerValue() const;
             virtual const ArrayType&   arrayValue()   const;
             virtual const MapType&     mapValue()     const;
             virtual const RangeType&   rangeValue()   const;
@@ -60,18 +61,38 @@ namespace TrenchBroom {
             ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
         };
-        
-        class StringValueHolder : public ValueHolder {
-        private:
-            StringType m_value;
+
+        class StringHolder : public ValueHolder {
         public:
-            StringValueHolder(const StringType& value);
+            virtual ~StringHolder();
+            
             ValueType type() const;
             const StringType& stringValue() const;
             size_t length() const;
             ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
             void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+        private:
+            virtual const StringType& doGetValue() const = 0;
+        };
+        
+        class StringValueHolder : public StringHolder {
+        private:
+            StringType m_value;
+        public:
+            StringValueHolder(const StringType& value);
+            ValueHolder* clone() const;
+        private:
+            const StringType& doGetValue() const;
+        };
+        
+        class StringReferenceHolder : public StringHolder {
+        private:
+            const StringType& m_value;
+        public:
+            StringReferenceHolder(const StringType& value);
+            ValueHolder* clone() const;
+        private:
+            const StringType& doGetValue() const;
         };
         
         class NumberValueHolder : public ValueHolder {
@@ -221,6 +242,9 @@ namespace TrenchBroom {
             Value(const Value& other);
             
             Value();
+            
+            static Value ref(const StringType& value, size_t line, size_t column);
+            static Value ref(const StringType& value);
         private:
             template <typename T>
             ArrayType makeArray(const std::vector<T>& value) {
@@ -251,10 +275,12 @@ namespace TrenchBroom {
             const StringType& stringValue() const;
             const BooleanType& booleanValue() const;
             const NumberType& numberValue() const;
+                  IntegerType integerValue() const;
             const ArrayType& arrayValue() const;
             const MapType& mapValue() const;
             const RangeType& rangeValue() const;
             bool null() const;
+            bool undefined() const;
             
             const StringList asStringList() const;
             const StringSet asStringSet() const;
@@ -262,6 +288,7 @@ namespace TrenchBroom {
             size_t length() const;
             Value convertTo(ValueType toType) const;
             
+            String asString(bool multiline = false) const;
             void appendToStream(std::ostream& str, bool multiline = true, const String& indent = "") const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
             
@@ -303,6 +330,14 @@ namespace TrenchBroom {
             friend int compare(const Value& lhs, const Value& rhs);
             friend int compareAsBooleans(const Value& lhs, const Value& rhs);
             friend int compareAsNumbers(const Value& lhs, const Value& rhs);
+        public:
+            Value operator~() const;
+            
+            friend Value operator&(const Value& lhs, const Value& rhs);
+            friend Value operator|(const Value& lhs, const Value& rhs);
+            friend Value operator^(const Value& lhs, const Value& rhs);
+            friend Value operator<<(const Value& lhs, const Value& rhs);
+            friend Value operator>>(const Value& lhs, const Value& rhs);
         };
     }
 }

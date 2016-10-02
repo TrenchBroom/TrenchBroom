@@ -103,40 +103,50 @@
 @PointClass 
     base(Ammo) 
     model(
-        ":maps/b_batt0.bsp", 
-        ":maps/b_batt1.bsp" spawnflags = 1
-    ) = 
+        {{
+            spawnflags == 1 -> ":maps/b_batt1.bsp",
+                               ":maps/b_batt0.bsp"
+        }}
+    ) =
     item_cells : "Thunderbolt ammo" []
     
 @PointClass 
     base(Ammo) 
     model(
-        ":maps/b_rock0.bsp",
-        ":maps/b_rock1.bsp" spawnflags = 1
+        {{
+            spawnflags == 1 -> ":maps/b_rock1.bsp",
+                               ":maps/b_rock0.bsp"
+        }}
     ) =
     item_rockets : "Rockets" []
 
 @PointClass
     base(Ammo)
     model(
-        ":maps/b_shell0.bsp",
-        ":maps/b_shell1.bsp" spawnflags = 1
+        {{
+            spawnflags == 1 -> ":maps/b_shell1.bsp",
+                               ":maps/b_shell0.bsp"
+        }}
     ) = item_shells : "Shells" []
     
 @PointClass 
     base(Ammo) 
     model(
-        ":maps/b_nail0.bsp",
-        ":maps/b_nail1.bsp" spawnflags = 1
+        {{
+            spawnflags == 1 -> ":maps/b_nail1.bsp",
+                               ":maps/b_nail0.bsp"
+        }}
     ) = item_spikes : "Nailgun/Perforator ammo" []
 
 @PointClass
     size(0 0 0, 32 32 56)
     base(Appearflags) 
     model(
-        ":maps/b_bh25.bsp",
-        ":maps/b_bh10.bsp" spawnflags = 1,
-        ":maps/b_bh100.bsp" spawnflags = 2
+        {{
+            spawnflags == 2 -> ":maps/b_bh100.bsp",
+            spawnflags == 1 -> ":maps/b_bh10.bsp",
+                               ":maps/b_bh25.bsp"
+        }}
     ) =
     item_health : "Health pack" 
 [
@@ -156,9 +166,9 @@
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/invisibl.mdl") = 
 	item_artifact_invisibility : "Ring of Shadows" []
 
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 2) = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl", "skin": 2 }) =
 	item_armorInv : "Red armor (200%)" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 1) = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl", "skin": 1 }) =
 	item_armor2 : "Yellow armor (150%)" []
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl") =
 	item_armor1 : "Green armor (100%)" []
