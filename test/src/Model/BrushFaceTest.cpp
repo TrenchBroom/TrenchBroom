@@ -348,28 +348,32 @@ namespace TrenchBroom {
         
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const BBox3 worldBounds(8192.0);
+            Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            const Brush* cube = builder.createCube(128.0, "someName");
+            const Brush* cube = builder.createCube(128.0, "");
             const BrushFaceList& faces = cube->faces();
             
             for (size_t i = 0; i < faces.size(); ++i) {
-                const BrushFace *face = faces[i];
+                BrushFace *face = faces[i];
+                face->setTexture(&texture);
                 checkTextureLockForFace(face, false);
             }
         }
 
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const BBox3 worldBounds(8192.0);
+            Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Valve, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            const Brush* cube = builder.createCube(128.0, "someName");
+            const Brush* cube = builder.createCube(128.0, "");
             const BrushFaceList& faces = cube->faces();
             
             for (size_t i = 0; i < faces.size(); ++i) {
-                const BrushFace *face = faces[i];
+                BrushFace *face = faces[i];
+                face->setTexture(&texture);
                 checkTextureLockForFace(face, true);
             }
         }
