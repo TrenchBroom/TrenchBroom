@@ -104,6 +104,9 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& origTransformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
 
+            if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+                return;
+            
             // when texture lock is off, don't compensate for the translation part of the transformation
             const Mat4x4 transformation = lockTexture ? origTransformation : stripTranslation(origTransformation);
             
