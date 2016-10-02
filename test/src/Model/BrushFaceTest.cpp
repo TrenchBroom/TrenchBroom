@@ -235,12 +235,6 @@ namespace TrenchBroom {
 
             delete face;
         }
-        
-        static void checkTextureLockWithTransform(const Mat4x4 &transform,
-                                                  const BrushFace *origFace) {
-            checkTextureLockOffWithTransform(transform, origFace);
-            checkTextureLockOnWithTransform(transform, origFace);
-        }
 
         /**
          * Given a face and three reference verts and their UVs,
@@ -277,7 +271,7 @@ namespace TrenchBroom {
                 if (pitchPlus90) xform = rotationMatrix(0.0, Math::radians(90.0), 0.0) * xform;
                 if (yawPlus90) xform = rotationMatrix(0.0, 0.0, Math::radians(90.0)) * xform;
 
-                checkTextureLockWithTransform(xform, origFace);
+                checkTextureLockOnWithTransform(xform, origFace);
             }
         }
 
@@ -306,7 +300,7 @@ namespace TrenchBroom {
                     xform = rotationMatrix(0.0, 0.0, rotateRadians) * xform;
                 }
 
-                checkTextureLockWithTransform(xform, origFace);
+                checkTextureLockOnWithTransform(xform, origFace);
             }
         }
         
@@ -329,18 +323,27 @@ namespace TrenchBroom {
                     case 5: xform = rotationMatrix(0.0, 0.0, -rotateRadians) * xform; break;
                 }
                 
-                checkTextureLockWithTransform(xform, origFace);
+                checkTextureLockOnWithTransform(xform, origFace);
             }
+        }
+        
+        static void checkTextureLockOffWithTranslation(const BrushFace *origFace) {
+            Mat4x4 xform = translationMatrix(Vec3(100.0, 100.0, 100.0));
+            checkTextureLockOffWithTransform(xform, origFace);
         }
         
         static void checkTextureLockForFace(const BrushFace *origFace, bool doParallelTests) {
             checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
             checkTextureLockWithSingleAxisRotations(origFace, 30);
             checkTextureLockWithSingleAxisRotations(origFace, 45);
+            
+            // rotation on multiple axes simultaneously is only expected to work on ParallelTexCoordSystem
             if (doParallelTests) {
                 checkTextureLockWithMultiAxisRotations(origFace, 30);
                 checkTextureLockWithMultiAxisRotations(origFace, 45);
             }
+            
+            checkTextureLockOffWithTranslation(origFace);
         }
         
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
