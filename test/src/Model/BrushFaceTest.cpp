@@ -121,20 +121,86 @@ namespace TrenchBroom {
             BrushFace::VertexList verts = face->vertices();
             for (it = verts.begin(); it != verts.end(); ++it) {
                 vertPositions->push_back(it->position());
-                vertTexCoords->push_back(face->textureCoords(it->position()));
+                if (vertTexCoords != NULL) {
+                    vertTexCoords->push_back(face->textureCoords(it->position()));
+                }
+            }
+        }
+        
+        static void resetFaceTextureAlignment(BrushFace *face) {
+            face->resetTextureAxes();
+            face->setXOffset(0.0);
+            face->setYOffset(0.0);
+            face->setRotation(0.0);
+            face->setXScale(1.0);
+            face->setYScale(1.0);
+        }
+        
+        static void checkUVListsEqual(const std::vector<Vec2> &uvs,
+                                      const std::vector<Vec2> &transformedVertUVs) {
+            ASSERT_EQ(uvs.size(), transformedVertUVs.size());
+            ASSERT_GE(uvs.size(), 3);
+            
+            EXPECT_TC_EQ(uvs[0], transformedVertUVs[0]);
+            
+            for (size_t i=1; i<uvs.size(); i++) {
+                // note, just checking:
+                //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
+                // would be too lenient.
+                EXPECT_VEC_EQ(uvs[i] - uvs[0], transformedVertUVs[i] - transformedVertUVs[0]);
             }
         }
         
         /**
-         * Applies the given transform to a copy of origFace, and also
-         * the three reference verts.
+         * Incomplete test for transforming a face with texture lock off.
          *
-         * Checks that the UV coordinates of the 3 transformed points
-         * are equivelant to the UV coordinates of the non-transformed points,
+         * It only tests that texture lock off works when the face's texture
+         * alignment is reset before applying the transform.
+         */
+        static void checkTextureLockOffWithTransform(const Mat4x4 &transform,
+                                                     const BrushFace *origFace) {
+            
+            // reset alignment, transform the face (texture lock off)
+            BrushFace *face = origFace->clone();
+            resetFaceTextureAlignment(face);
+            face->transform(transform, false);
+            
+            // reset alignment, transform the face (texture lock off), then reset the alignment again
+            BrushFace *resetFace = origFace->clone();
+            resetFaceTextureAlignment(resetFace);
+            resetFace->transform(transform, false);
+            resetFaceTextureAlignment(resetFace);
+            
+            // UVs of the verts of `face` and `resetFace` should be the same now
+            
+            std::vector<Vec3> verts;
+            getFaceVertsAndTexCoords(origFace, &verts, NULL);
+            
+            // transform the verts
+            std::vector<Vec3> transformedVerts;
+            for (size_t i=0; i<verts.size(); i++) {
+                transformedVerts.push_back(transform * verts[i]);
+            }
+            
+            // get UV of each transformed vert using `face` and `resetFace`
+            std::vector<Vec2> face_UVs, resetFace_UVs;
+            for (size_t i=0; i<verts.size(); i++) {
+                face_UVs.push_back(face->textureCoords(transformedVerts[i]));
+                resetFace_UVs.push_back(resetFace->textureCoords(transformedVerts[i]));
+            }
+            
+            checkUVListsEqual(face_UVs, resetFace_UVs);
+        }
+        
+        /**
+         * Applies the given transform to a copy of origFace.
+         *
+         * Checks that the UV coordinates of the verts
+         * are equivelant to the UV coordinates of the non-transformed verts,
          * i.e. checks that texture lock worked.
          */
-        static void checkTextureLockWithTransform(const Mat4x4 &transform,
-                                                  const BrushFace *origFace) {
+        static void checkTextureLockOnWithTransform(const Mat4x4 &transform,
+                                                    const BrushFace *origFace) {
             std::vector<Vec3> verts;
             std::vector<Vec2> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
@@ -165,16 +231,15 @@ namespace TrenchBroom {
                    face->attribs().offset().y());
 #endif
             
-            EXPECT_TC_EQ(uvs[0], transformedVertUVs[0]);
-            
-            for (size_t i=1; i<verts.size(); i++) {
-                // note, just checking:
-                //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
-                // would be too lenient.
-                EXPECT_VEC_EQ(uvs[i] - uvs[0], transformedVertUVs[i] - transformedVertUVs[0]);
-            }
-            
+            checkUVListsEqual(uvs, transformedVertUVs);
+
             delete face;
+        }
+        
+        static void checkTextureLockWithTransform(const Mat4x4 &transform,
+                                                  const BrushFace *origFace) {
+            checkTextureLockOffWithTransform(transform, origFace);
+            checkTextureLockOnWithTransform(transform, origFace);
         }
 
         /**
@@ -183,34 +248,24 @@ namespace TrenchBroom {
          * stable after these transformations.
          */
         static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace *origFace) {
-            for (int i=0; i<(1 << 12); i++) {
+            for (int i=0; i<(1 << 7); i++) {
                 Mat4x4 xform;
                 
-                const bool xMinus50 = (i & (1 << 0)) != 0;
-                const bool yMinus50 = (i & (1 << 1)) != 0;
-                const bool zMinus50 = (i & (1 << 2)) != 0;
+                const bool translate = (i & (1 << 0)) != 0;
                 
-                const bool xPlus100 = (i & (1 << 3)) != 0;
-                const bool yPlus100 = (i & (1 << 4)) != 0;
-                const bool zPlus100 = (i & (1 << 5)) != 0;
+                const bool rollMinus180  = (i & (1 << 1)) != 0;
+                const bool pitchMinus180 = (i & (1 << 2)) != 0;
+                const bool yawMinus180   = (i & (1 << 3)) != 0;
                 
-                const bool rollMinus180  = (i & (1 << 6)) != 0;
-                const bool pitchMinus180 = (i & (1 << 7)) != 0;
-                const bool yawMinus180   = (i & (1 << 8)) != 0;
-                
-                const bool rollPlus90    = (i & (1 << 9)) != 0;
-                const bool pitchPlus90   = (i & (1 << 10)) != 0;
-                const bool yawPlus90     = (i & (1 << 11)) != 0;
+                const bool rollPlus90    = (i & (1 << 4)) != 0;
+                const bool pitchPlus90   = (i & (1 << 5)) != 0;
+                const bool yawPlus90     = (i & (1 << 6)) != 0;
                 
                 // translations
                 
-                if (xMinus50) xform = translationMatrix(Vec3(-50.0, 0.0,   0.0)) * xform;
-                if (yMinus50) xform = translationMatrix(Vec3(0.0,   -50.0, 0.0)) * xform;
-                if (zMinus50) xform = translationMatrix(Vec3(0.0,   0.0,   -50.0)) * xform;
-                
-                if (xPlus100) xform = translationMatrix(Vec3(100.0, 0.0,   0.0)) * xform;
-                if (yPlus100) xform = translationMatrix(Vec3(0.0,   100.0, 0.0)) * xform;
-                if (zPlus100) xform = translationMatrix(Vec3(0.0,   0.0,   100.0)) * xform;
+                if (translate) {
+                    xform = translationMatrix(Vec3(100.0, 100.0, 100.0)) * xform;
+                }
                 
                 // -180 / -90 / 90 degree rotations
                 
