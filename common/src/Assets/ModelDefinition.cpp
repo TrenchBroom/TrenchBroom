@@ -21,6 +21,7 @@
 
 #include <cassert>
 
+#include "MathUtils.h"
 #include "Model/EntityAttributesVariableStore.h"
 
 namespace TrenchBroom {
@@ -88,11 +89,11 @@ namespace TrenchBroom {
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
             switch (value.type()) {
                 case EL::Type_Map:
-                    return ModelSpecification(cleanModelPath(value["path"]),
-                                              static_cast<size_t>(value["skin"].numberValue()),
-                                              static_cast<size_t>(value["frame"].numberValue()));
+                    return ModelSpecification( path(value["path"]),
+                                              index(value["skin"]),
+                                              index(value["frame"]));
                 case EL::Type_String:
-                    return ModelSpecification(cleanModelPath(value));
+                    return ModelSpecification(path(value));
                 case EL::Type_Boolean:
                 case EL::Type_Number:
                 case EL::Type_Array:
@@ -103,9 +104,17 @@ namespace TrenchBroom {
             }
         }
 
-        String ModelDefinition::cleanModelPath(const EL::Value& value) const {
+        String ModelDefinition::path(const EL::Value& value) const {
+            if (value.type() != EL::Type_String)
+                return "";
             const String& path = value.stringValue();
             return StringUtils::isPrefix(path, ":") ? path.substr(1) : path;
+        }
+
+        size_t ModelDefinition::index(const EL::Value& value) const {
+            if (value.type() != EL::Type_Number)
+                return 0;
+            return static_cast<size_t>(Math::max(0l, value.integerValue()));
         }
     }
 }
