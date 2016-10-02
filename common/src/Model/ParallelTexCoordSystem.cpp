@@ -104,6 +104,9 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
 
+            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+                return;
+            
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, transformation);
             const float newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
