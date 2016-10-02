@@ -102,10 +102,10 @@ namespace TrenchBroom {
             m_yAxis = rot * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
+        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& origTransformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
 
-            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
-                return;
+            // when texture lock is off, don't compensate for the translation part of the transformation
+            const Mat4x4 transformation = lockTexture ? origTransformation : stripTranslation(origTransformation);
             
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, transformation);
