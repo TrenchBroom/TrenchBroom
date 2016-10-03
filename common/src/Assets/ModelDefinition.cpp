@@ -37,16 +37,38 @@ namespace TrenchBroom {
         frameIndex(i_frameIndex) {}
 
         bool ModelSpecification::operator<(const ModelSpecification& rhs) const {
-            const int pathCmp = path.compare(rhs.path);
-            if (pathCmp < 0)
-                return true;
-            if (pathCmp > 0)
-                return false;
-            if (skinIndex < rhs.skinIndex)
-                return true;
-            if (skinIndex > rhs.skinIndex)
-                return false;
-            return frameIndex < rhs.frameIndex;
+            return compare(rhs) < 0;
+        }
+
+        bool ModelSpecification::operator>(const ModelSpecification& rhs) const {
+            return compare(rhs) > 0;
+        }
+        
+        bool ModelSpecification::operator<=(const ModelSpecification& rhs) const {
+            return compare(rhs) <= 0;
+        }
+        
+        bool ModelSpecification::operator>=(const ModelSpecification& rhs) const {
+            return compare(rhs) >= 0;
+        }
+        
+        bool ModelSpecification::operator==(const ModelSpecification& rhs) const {
+            return compare(rhs) == 0;
+        }
+
+        bool ModelSpecification::operator!=(const ModelSpecification& rhs) const {
+            return compare(rhs) != 0;
+        }
+        
+        int ModelSpecification::compare(const ModelSpecification& other) const {
+            const int pathCmp = path.compare(other.path);
+            if (pathCmp != 0)
+                return pathCmp;
+            if (skinIndex != other.skinIndex)
+                return static_cast<int>(skinIndex) - static_cast<int>(other.skinIndex);
+            if (frameIndex != other.frameIndex)
+                return static_cast<int>(frameIndex) - static_cast<int>(other.frameIndex);
+            return 0;
         }
 
         const String ModelSpecification::asString() const {
@@ -112,9 +134,12 @@ namespace TrenchBroom {
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {
-            if (value.type() != EL::Type_Number)
+            try {
+                const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
+                return static_cast<size_t>(Math::max(0l, intValue));
+            } catch (...) {
                 return 0;
-            return static_cast<size_t>(Math::max(0l, value.integerValue()));
+            }
         }
     }
 }

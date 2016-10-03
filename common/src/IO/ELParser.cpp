@@ -225,6 +225,10 @@ namespace TrenchBroom {
         ELParser::ELParser(const String& str) :
         m_tokenizer(str) {}
         
+        EL::Expression ELParser::parse(const String& str) {
+            return ELParser(str).parse();
+        }
+
         EL::Expression ELParser::parse() {
             return EL::Expression(parseExpression());
         }
