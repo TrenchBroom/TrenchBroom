@@ -357,7 +357,10 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateTool(Tool* tool) {
-            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
+            if (dragging())
+                cancelMouseDrag();
+                
+                ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
             if (mapIt != m_deactivateWhen.end()) {
                 const ToolList& slaves = mapIt->second;
                 ToolList::const_iterator listIt, listEnd;
