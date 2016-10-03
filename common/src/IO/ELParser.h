@@ -105,6 +105,8 @@ namespace TrenchBroom {
             ELParser(const char* begin, const char* end);
             ELParser(const String& str);
             
+            static EL::Expression parse(const String& str);
+
             template <typename OtherToken>
             ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
             m_tokenizer(nestedTokenizer) {}
