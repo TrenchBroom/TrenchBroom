@@ -547,6 +547,7 @@ namespace TrenchBroom {
         void ClipTool::performClip() {
             assert(canClip());
             
+            const SetBool ignoreNotifications(m_ignoreNotifications);
             MapDocumentSPtr document = lock(m_document);
             const Transaction transaction(document, "Clip Brushes");
             
@@ -558,6 +559,8 @@ namespace TrenchBroom {
             document->deselectAll();
             document->removeNodes(toRemove);
             document->select(addedNodes);
+            
+            update();
         }
         
         Model::ParentChildrenMap ClipTool::clipBrushes() {
@@ -769,15 +772,20 @@ namespace TrenchBroom {
         }
         
         void ClipTool::updateRenderers() {
-            if (keepFrontBrushes())
+            if (canClip()) {
+                if (keepFrontBrushes())
+                    addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
+                else
+                    addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
+                
+                if (keepBackBrushes())
+                    addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                else
+                    addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+            } else {
                 addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
-            else
-                addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
-            
-            if (keepBackBrushes())
                 addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
-            else
-                addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+            }
         }
         
         void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
