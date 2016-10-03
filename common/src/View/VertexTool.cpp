@@ -580,8 +580,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::isVertexCommand(const Command::Ptr command) const {
-            return (command->type() == SnapBrushVerticesCommand::Type ||
-                    command->type() == MoveBrushVerticesCommand::Type ||
+            return (command->type() == MoveBrushVerticesCommand::Type ||
                     command->type() == MoveBrushEdgesCommand::Type ||
                     command->type() == MoveBrushFacesCommand::Type ||
                     command->type() == SplitBrushEdgesCommand::Type ||
