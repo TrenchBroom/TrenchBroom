@@ -204,9 +204,11 @@ namespace TrenchBroom {
         EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const String& name) {
             Token token;
             expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
-            assert(StringUtils::caseInsensitiveEqual(name, token.data()));
+            
             const size_t line = token.line();
             const size_t column = token.column();
+            if (!StringUtils::caseInsensitiveEqual(name, token.data()))
+                throw ParserException(line, column, "Expected '" + name + "', but got '" + token.data() + "'");
             
             expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
             expect(status, MdlToken::String, token = m_tokenizer.nextToken());
