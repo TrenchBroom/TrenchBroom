@@ -155,7 +155,6 @@ namespace TrenchBroom {
             evaluateAndAssert("2 / 3", 2.0 / 3.0);
             evaluateAndAssert("-2 / 3", -2.0 / 3.0);
             evaluateAndAssert("2 / 3 / 4", 2.0 / 3.0 / 4.0);
-            evaluateAndAssert("2 / 0", 2.0 / 0.0);
             assertOptimizable("2 / 3");
         }
         
@@ -247,7 +246,9 @@ namespace TrenchBroom {
         
         TEST(ExpressionTest, testBitwiseShiftLeftOperator) {
             evaluateAndAssert("1 << 2", 1 << 2);
+#ifndef _WIN32
             evaluateAndAssert("1 << 33", 1l << 33);
+#endif
             evaluateAndThrow<EvaluationError>("true << 2");
             evaluateAndThrow<EvaluationError>("1 << false");
             evaluateAndThrow<EvaluationError>("'asdf' << 2");
@@ -262,7 +263,9 @@ namespace TrenchBroom {
         
         TEST(ExpressionTest, testBitwiseShiftRightOperator) {
             evaluateAndAssert("1 >> 2", 1 >> 2);
+#ifndef _WIN32
             evaluateAndAssert("1 >> 33", 1l >> 33);
+#endif
             evaluateAndThrow<EvaluationError>("true >> 2");
             evaluateAndThrow<EvaluationError>("1 >> false");
             evaluateAndThrow<EvaluationError>("'asdf' >> 2");
