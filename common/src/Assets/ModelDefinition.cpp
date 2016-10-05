@@ -134,12 +134,10 @@ namespace TrenchBroom {
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {
-            try {
-                const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
-                return static_cast<size_t>(Math::max(0l, intValue));
-            } catch (...) {
+            if (!value.convertibleTo(EL::Type_Number))
                 return 0;
-            }
+            const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
+            return static_cast<size_t>(Math::max(0l, intValue));
         }
     }
 }

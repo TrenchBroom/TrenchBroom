@@ -46,6 +46,23 @@ namespace TrenchBroom {
         const BooleanType& BooleanValueHolder::booleanValue() const { return m_value; }
         size_t BooleanValueHolder::length() const { return 1; }
         
+        bool BooleanValueHolder::convertibleTo(ValueType toType) const {
+            switch (toType) {
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                    return true;
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Undefined:
+                case Type_Null:
+                    break;
+            }
+            
+            return false;
+        }
+
         ValueHolder* BooleanValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -72,6 +89,32 @@ namespace TrenchBroom {
         ValueType StringHolder::type() const { return Type_String; }
         const StringType& StringHolder::stringValue() const { return doGetValue(); }
         size_t StringHolder::length() const { return doGetValue().length(); }
+        
+        bool StringHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Boolean:
+                case Type_String:
+                    return true;
+                case Type_Number: {
+                    if (doGetValue().empty())
+                        return false;
+                    const char* begin = doGetValue().c_str();
+                    char* end;
+                    const NumberType value = std::strtod(begin, &end);
+                    if (value == 0.0 && end == begin)
+                        return false;
+                    return true;
+                }
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
         
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -124,6 +167,23 @@ namespace TrenchBroom {
         const NumberType& NumberValueHolder::numberValue() const { return m_value; }
         size_t NumberValueHolder::length() const { return 1; }
         
+        bool NumberValueHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                    return true;
+                case Type_Array:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
+        
         ValueHolder* NumberValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -161,6 +221,23 @@ namespace TrenchBroom {
         ValueType ArrayValueHolder::type() const { return Type_Array; }
         const ArrayType& ArrayValueHolder::arrayValue() const { return m_value; }
         size_t ArrayValueHolder::length() const { return m_value.size(); }
+        
+        bool ArrayValueHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Array:
+                    return true;
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                case Type_Map:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
         
         ValueHolder* ArrayValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -215,6 +292,23 @@ namespace TrenchBroom {
         ValueType MapValueHolder::type() const { return Type_Map; }
         const MapType& MapValueHolder::mapValue() const { return m_value; }
         size_t MapValueHolder::length() const { return m_value.size(); }
+        
+        bool MapValueHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Map:
+                    return true;
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                case Type_Array:
+                case Type_Range:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
         
         ValueHolder* MapValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
@@ -272,6 +366,23 @@ namespace TrenchBroom {
         const RangeType& RangeValueHolder::rangeValue() const { return m_value; }
         size_t RangeValueHolder::length() const { return m_value.size(); }
         
+        bool RangeValueHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Range:
+                    return true;
+                case Type_Boolean:
+                case Type_String:
+                case Type_Number:
+                case Type_Array:
+                case Type_Map:
+                case Type_Null:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
+        
         ValueHolder* RangeValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Range:
@@ -310,6 +421,23 @@ namespace TrenchBroom {
         const ArrayType& NullValueHolder::arrayValue() const     { static const ArrayType result(0);       return result; }
         const MapType& NullValueHolder::mapValue() const         { static const MapType result;            return result; }
         
+        bool NullValueHolder::convertibleTo(const ValueType toType) const {
+            switch (toType) {
+                case Type_Boolean:
+                case Type_Null:
+                case Type_Number:
+                case Type_String:
+                case Type_Array:
+                case Type_Map:
+                    return true;
+                case Type_Range:
+                case Type_Undefined:
+                    break;
+            }
+
+            return false;
+        }
+        
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case Type_Boolean:
@@ -338,6 +466,7 @@ namespace TrenchBroom {
         
         ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
         size_t UndefinedValueHolder::length() const { return 0; }
+        bool UndefinedValueHolder::convertibleTo(const ValueType toType) const { return false; }
         ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
         ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
         void UndefinedValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "undefined"; }
@@ -477,6 +606,12 @@ namespace TrenchBroom {
         
         size_t Value::length() const {
             return m_value->length();
+        }
+        
+        bool Value::convertibleTo(const ValueType toType) const {
+            if (type() == toType)
+                return true;
+            return m_value->convertibleTo(toType);
         }
         
         Value Value::convertTo(const ValueType toType) const {
