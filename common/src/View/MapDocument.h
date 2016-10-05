@@ -385,10 +385,7 @@ namespace TrenchBroom {
             void unsetEntityDefinitions(const Model::NodeList& nodes);
             void reloadEntityDefinitions();
             
-            void setEntityModels();
-            void setEntityModels(const Model::NodeList& nodes);
             void clearEntityModels();
-            void unsetEntityModels();
 
             void setTextures();
             void setTextures(const Model::NodeList& nodes);

@@ -1303,7 +1303,6 @@ namespace TrenchBroom {
             loadEntityDefinitions();
             setEntityDefinitions();
             loadEntityModels();
-            setEntityModels();
             loadTextures();
             setTextures();
         }
@@ -1415,65 +1414,10 @@ namespace TrenchBroom {
             clearEntityModels();
             loadEntityDefinitions();
             setEntityDefinitions();
-            setEntityModels();
         }
-        
-        class SetEntityModel : public Model::NodeVisitor {
-        private:
-            Assets::EntityModelManager& m_manager;
-            Logger& m_logger;
-        public:
-            SetEntityModel(Assets::EntityModelManager& manager, Logger& logger) :
-            m_manager(manager),
-            m_logger(logger) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {
-                try {
-                    const Assets::ModelSpecification spec = entity->modelSpecification();
-                    if (spec.path.isEmpty()) {
-                        entity->setModel(NULL);
-                    } else {
-                        Assets::EntityModel* model = m_manager.model(spec.path);
-                        entity->setModel(model);
-                    }
-                } catch (const GameException& e) {
-                    m_logger.error(String(e.what()));
-                }
-                
-            }
-            void doVisit(Model::Brush* brush)   {}
-        };
-        
-        class UnsetEntityModel : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { entity->setModel(NULL); }
-            void doVisit(Model::Brush* brush)   {}
-        };
-        
-        void MapDocument::setEntityModels() {
-            SetEntityModel visitor(*m_entityModelManager, *this);
-            m_world->acceptAndRecurse(visitor);
-        }
-        
-        void MapDocument::setEntityModels(const Model::NodeList& nodes) {
-            SetEntityModel visitor(*m_entityModelManager, *this);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-        }
-        
+
         void MapDocument::clearEntityModels() {
-            unsetEntityModels();
             m_entityModelManager->clear();
-        }
-        
-        void MapDocument::unsetEntityModels() {
-            UnsetEntityModel visitor;
-            m_world->acceptAndRecurse(visitor);
         }
         
         class SetTextures : public Model::NodeVisitor {
@@ -1663,7 +1607,6 @@ namespace TrenchBroom {
                 m_game->setGamePath(newGamePath);
                 
                 clearEntityModels();
-                setEntityModels();
                 
                 unsetTextures();
                 loadTextures();

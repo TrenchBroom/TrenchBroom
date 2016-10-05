@@ -49,6 +49,7 @@ namespace TrenchBroom {
         private:
             class EntityClassnameAnchor;
 
+            Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
             Model::EntityList m_entities;
             
@@ -70,8 +71,6 @@ namespace TrenchBroom {
             bool m_showAngles;
             Color m_angleColor;
             bool m_showHiddenEntities;
-            
-            Vbo m_vbo;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 

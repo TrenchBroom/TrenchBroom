@@ -51,6 +51,7 @@ namespace TrenchBroom {
         
         class ModelDefinition;
         
+        class EntityModelManager;
         class EntityModel;
         typedef std::vector<EntityModel*> EntityModelList;
     }

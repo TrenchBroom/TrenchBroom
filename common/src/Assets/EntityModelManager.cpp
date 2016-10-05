@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
+#include "Model/Entity.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 namespace TrenchBroom {
@@ -120,6 +121,14 @@ namespace TrenchBroom {
             return renderer;
         }
         
+        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
+            return hasModel(entity->modelSpecification());
+        }
+        
+        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
+            return renderer(spec) != NULL;
+        }
+
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             assert(m_loader != NULL);
             return m_loader->loadEntityModel(path);

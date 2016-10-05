@@ -25,6 +25,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityModelManager.h"
 #include "Assets/ModelDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/EditorContext.h"
@@ -50,15 +51,8 @@ namespace TrenchBroom {
             m_entity(entity) {}
         private:
             Vec3f basePosition() const {
-                const Assets::EntityModel* model = m_entity->model();
                 Vec3f position = m_entity->bounds().center();
                 position[2] = float(m_entity->bounds().max.z());
-                if (model != NULL) {
-                    const Assets::ModelSpecification spec = m_entity->modelSpecification();
-                    const BBox3f modelBounds = model->bounds(spec.skinIndex, spec.frameIndex);
-                    const Vec3f origin = m_entity->origin();
-                    position[2] = std::max(position[2], modelBounds.max.z() + origin.z());
-                }
                 position[2] += 2.0f;
                 return position;
             }
@@ -69,8 +63,9 @@ namespace TrenchBroom {
         };
         
         EntityRenderer::EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
-        m_modelRenderer(entityModelManager, m_editorContext),
+        m_modelRenderer(m_entityModelManager, m_editorContext),
         m_boundsValid(false),
         m_showOverlays(true),
         m_showOccludedOverlays(false),
@@ -78,17 +73,17 @@ namespace TrenchBroom {
         m_overrideBoundsColor(false),
         m_showOccludedBounds(false),
         m_showAngles(false),
-        m_showHiddenEntities(false),
-        m_vbo(0xFFF) {}
+        m_showHiddenEntities(false) {}
         
         void EntityRenderer::setEntities(const Model::EntityList& entities) {
             m_entities = entities;
-            reloadModels();
+            m_modelRenderer.setEntities(m_entities.begin(), m_entities.end());
             invalidate();
         }
 
         void EntityRenderer::invalidate() {
             invalidateBounds();
+            reloadModels();
         }
 
         void EntityRenderer::clear() {
@@ -99,7 +94,7 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::reloadModels() {
-            m_modelRenderer.setEntities(m_entities.begin(), m_entities.end());
+            m_modelRenderer.updateEntities(m_entities.begin(), m_entities.end());
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {
@@ -326,7 +321,7 @@ namespace TrenchBroom {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
                         eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
-                        if (!entity->hasChildren() && entity->model() == NULL) {
+                        if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         }
@@ -342,7 +337,7 @@ namespace TrenchBroom {
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
-                        if (!entity->hasChildren() && entity->model() == NULL) {
+                        if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         } else {

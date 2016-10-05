@@ -40,8 +40,7 @@ namespace TrenchBroom {
         Entity::Entity() :
         AttributableNode(),
         Object(),
-        m_boundsValid(false),
-        m_model(NULL) {}
+        m_boundsValid(false) {}
 
         bool Entity::pointEntity() const {
             if (definition() == NULL)
@@ -84,14 +83,6 @@ namespace TrenchBroom {
                 return Assets::ModelSpecification();
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
             return pointDefinition->model(m_attributes);
-        }
-        
-        Assets::EntityModel* Entity::model() const {
-            return m_model;
-        }
-        
-        void Entity::setModel(Assets::EntityModel* model) {
-            m_model = model;
         }
 
         const BBox3& Entity::doGetBounds() const {

@@ -47,15 +47,30 @@ namespace TrenchBroom {
         }
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const Assets::ModelSpecification modelSpec = entity->modelSpecification();
-            Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
-            if (model != NULL) {
-                TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
-                if (renderer != NULL)
-                    m_entities.insert(std::make_pair(entity, renderer));
-            }
+            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
+            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            if (renderer != NULL)
+                m_entities.insert(std::make_pair(entity, renderer));
         }
         
+        void EntityModelRenderer::updateEntity(Model::Entity* entity) {
+            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
+            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            EntityMap::iterator it = m_entities.find(entity);
+            
+            if (renderer == NULL && it == m_entities.end())
+                return;
+            
+            if (it == m_entities.end()) {
+                m_entities.insert(std::make_pair(entity, renderer));
+            } else {
+                if (renderer == NULL)
+                    m_entities.erase(it);
+                else if (it->second != renderer)
+                    it->second = renderer;
+            }
+        }
+
         void EntityModelRenderer::clear() {
             m_entities.clear();
         }

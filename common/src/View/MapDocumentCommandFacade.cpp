@@ -274,7 +274,6 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(addedNodes);
-            setEntityModels(addedNodes);
             setTextures(addedNodes);
             invalidateSelectionBounds();
 
@@ -906,7 +905,6 @@ namespace TrenchBroom {
             m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
             updateGameSearchPaths();
             setEntityDefinitions();
-            setEntityModels();
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
