@@ -114,7 +114,7 @@ namespace TrenchBroom {
 
         void PopupWindow::OnActivate(wxActivateEvent& event) {
             if (!event.GetActive()) {
-                if (!FindFocus()->IsDescendant(this))
+                if (!IsDescendant(FindFocus()))
                     Dismiss();
             }
         }
