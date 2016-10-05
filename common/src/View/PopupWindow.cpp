@@ -114,7 +114,9 @@ namespace TrenchBroom {
 
         void PopupWindow::OnActivate(wxActivateEvent& event) {
             if (!event.GetActive()) {
+#ifndef _WIN32
                 if (!IsDescendant(FindFocus()))
+#endif
                     Dismiss();
             }
         }
