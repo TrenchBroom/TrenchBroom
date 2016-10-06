@@ -178,10 +178,4 @@ namespace TrenchBroom {
     };
 }
 
-// These are ugly but necessary to stringify an expression, see: https://en.wikipedia.org/wiki/C_preprocessor#Token_stringification
-#define stringification(expression) #expression
-#define stringification2(expression) stringification(expression)
-
-#define ensure(condition, message) do { if (!(condition)) { throw ConditionFailedException(__FILE__, __LINE__, stringification2(condition), message); } } while (0)
-
 #endif

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Exceptions.h"
+#include "Macros.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
