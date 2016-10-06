@@ -376,6 +376,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
+			SetSizer(NULL);
             DestroyChildren();
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
@@ -384,8 +385,9 @@ namespace TrenchBroom {
             sizer->Add(createBrushesPanel(this),           wxGBPosition(1,1), wxDefaultSpan);
             sizer->Add(createRendererPanel(this),          wxGBPosition(2,1), wxDefaultSpan);
 
-            SetSizerAndFit(sizer);
-            GetParent()->GetParent()->Fit();
+			SetSizerAndFit(sizer);
+			Layout();
+			GetParent()->GetParent()->Fit();
 
 #ifdef __WXGTK20__
             // For some reason, the popup window is too small on GTK, so we add a few pixels.
