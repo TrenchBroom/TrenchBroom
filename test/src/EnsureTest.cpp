@@ -23,17 +23,17 @@
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    namespace Exceptions {
-        TEST(ExceptionsTest, successfulEnsure) {
+    namespace Ensure {
+        TEST(EnsureTest, successfulEnsure) {
             EXPECT_NO_THROW(ensure(true, "this shouldn't fail"));
         }
         
-        TEST(ExceptionsTest, failingEnsure) {
+        TEST(EnsureTest, failingEnsure) {
             EXPECT_ANY_THROW(ensure(false, "this should fail"));
             EXPECT_THROW(ensure(false, "this should fail"), TrenchBroom::ConditionFailedException);
         }
         
-        TEST(ExceptionsTest, failingEnsureMessage) {
+        TEST(EnsureTest, failingEnsureMessage) {
             bool caught = false;
             int lineNumber;
             
