@@ -21,6 +21,7 @@
 #define TrenchBroom_Tool
 
 #include "Notifier.h"
+#include "StringUtils.h"
 
 class wxBitmap;
 class wxBookCtrlBase;

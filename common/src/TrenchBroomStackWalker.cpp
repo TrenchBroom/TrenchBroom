@@ -26,6 +26,7 @@
 #endif
 
 #include "TrenchBroomStackWalker.h"
+#include "StringUtils.h"
 
 #include <wx/thread.h>
 #include <cstdlib>
