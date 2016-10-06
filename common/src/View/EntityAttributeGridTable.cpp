@@ -49,7 +49,7 @@ namespace TrenchBroom {
         m_maxCount(maxCount),
         m_count(1),
         m_multi(false) {
-            assert(!m_default || m_valueMutable);
+            ensure(!m_default || m_valueMutable, "must be non-default, or mutable");
         }
         
         const String& EntityAttributeGridTable::AttributeRow::name() const {
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::RowManager::isDefaultRow(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].isDefault();
         }
 
@@ -126,43 +126,43 @@ namespace TrenchBroom {
         }
 
         const String& EntityAttributeGridTable::RowManager::name(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].name();
         }
         
         const String& EntityAttributeGridTable::RowManager::value(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             const AttributeRow& row = m_rows[rowIndex];
             return row.multi() ? EmptyString : row.value();
         }
         
         bool EntityAttributeGridTable::RowManager::nameMutable(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].nameMutable();
         }
         
         bool EntityAttributeGridTable::RowManager::valueMutable(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].valueMutable();
         }
 
         const String& EntityAttributeGridTable::RowManager::tooltip(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].tooltip();
         }
 
         bool EntityAttributeGridTable::RowManager::multi(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].multi();
         }
 
         bool EntityAttributeGridTable::RowManager::subset(const size_t rowIndex) const {
-            assert(rowIndex < totalRowCount());
+            ensure(rowIndex < totalRowCount(), "row index must be < totalRowCount()");
             return m_rows[rowIndex].subset();
         }
 
         const StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
-            assert(rowIndex + count <= totalRowCount());
+            ensure(rowIndex + count <= totalRowCount(), "range of rows must not exceed totalRowCount()");
             
             StringList result(count);
             for (size_t i = 0; i < count; ++i)
@@ -233,10 +233,10 @@ namespace TrenchBroom {
         }
 
         StringList EntityAttributeGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex <= attributeRowCount());
+            ensure(rowIndex <= attributeRowCount(), "rowIndex for insertRows must be <= attributeRowCount()");
             
             const StringList attributeNames = newAttributeNames(count, attributables);
-            assert(attributeNames.size() == count);
+            ensure(attributeNames.size() == count, "list returned by newAttributeNames() must have `count` elements");
             
             AttributeRow::List::iterator entryIt = m_rows.begin();
             std::advance(entryIt, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
@@ -250,7 +250,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
-            assert(rowIndex + count <= attributeRowCount());
+            ensure(rowIndex + count <= attributeRowCount(), "range of rows must not exceed attributeRowCount()");
             
             AttributeRow::List::iterator first = m_rows.begin();
             AttributeRow::List::iterator last = first;
@@ -331,8 +331,8 @@ namespace TrenchBroom {
             if (row < 0 || col < 0)
                 return wxEmptyString;
             
-            assert(row >= 0 && row < GetRowsCount());
-            assert(col >= 0 && col < GetColsCount());
+            ensure(row >= 0 && row < GetRowsCount(), "row must nonnegative and less than GetRowsCount()");
+            ensure(col >= 0 && col < GetColsCount(), "col must nonnegative and less than GetColsCount()");
             
             const size_t rowIndex = static_cast<size_t>(row);
             if (col == 0)
@@ -344,14 +344,14 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::SetValue(const int row, const int col, const wxString& value) {
-            assert(row >= 0 && row < GetRowsCount());
-            assert(col >= 0 && col < GetColsCount());
+            ensure(row >= 0 && row < GetRowsCount(), "row must nonnegative and less than GetRowsCount()");
+            ensure(col >= 0 && col < GetColsCount(), "col must nonnegative and less than GetColsCount()");
             
             MapDocumentSPtr document = lock(m_document);
             
             const size_t rowIndex = static_cast<size_t>(row);
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            assert(!attributables.empty());
+            ensure(!attributables.empty(), "document->allSelectedAttributableNodes() must be nonempty");
             
             // Ignoring the updates here fails if the user changes the entity classname because in that
             // case, we must really refresh everything from the entity.
@@ -367,12 +367,12 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::InsertRows(const size_t pos, const size_t numRows) {
-            assert(pos <= m_rows.totalRowCount());
+            ensure(pos <= m_rows.totalRowCount(), "insertion pos must be <= m_rows.totalRowCount()");
             
             MapDocumentSPtr document = lock(m_document);
 
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            assert(!attributables.empty());
+            ensure(!attributables.empty(), "document->allSelectedAttributableNodes() must be nonempty");
             
             const StringList newKeys = m_rows.insertRows(pos, numRows, attributables);
 
@@ -402,15 +402,15 @@ namespace TrenchBroom {
                 return false;
             
             numRows = std::min(m_rows.totalRowCount() - pos, numRows);
-            assert(pos + numRows <= m_rows.totalRowCount());
+            ensure(pos + numRows <= m_rows.totalRowCount(), "range to delete must not exceed totalRowCount()");
             
             MapDocumentSPtr document = lock(m_document);
 
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            assert(!attributables.empty());
+            ensure(!attributables.empty(), "document->allSelectedAttributableNodes() must be nonempty");
             
             const StringList names = m_rows.names(pos, numRows);
-            assert(names.size() == numRows);
+            ensure(names.size() == numRows, "m_rows.names(pos, numRows) must return `numRows` rows");
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
             
@@ -431,7 +431,7 @@ namespace TrenchBroom {
         }
         
         wxString EntityAttributeGridTable::GetColLabelValue(const int col) {
-            assert(col >= 0 && col < GetColsCount());
+            ensure(col >= 0 && col < GetColsCount(), "col must be nonnegative and < GetColsCount()");
             if (col == 0)
                 return "Key";
             return "Value";
@@ -533,7 +533,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex < m_rows.attributeRowCount());
+            ensure(rowIndex < m_rows.attributeRowCount(), "row index must be < attributeRowCount()");
             
             const String& oldName = m_rows.name(rowIndex);
             if (!m_rows.nameMutable(rowIndex)) {
@@ -551,7 +551,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex < m_rows.totalRowCount());
+            ensure(rowIndex < m_rows.totalRowCount(), "row index must be < totalRowCount()");
 
             const String& name = m_rows.name(rowIndex);
             Model::AttributableNodeList::const_iterator it, end;
