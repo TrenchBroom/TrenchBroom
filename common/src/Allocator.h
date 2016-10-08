@@ -179,7 +179,7 @@ public:
             }
         }
         
-        ensure(chunk != NULL, "chunk is null");
+        assert(chunk != NULL);
         
         if (chunk->full()) {
             fullChunks().erase((fullIt + 1).base());
