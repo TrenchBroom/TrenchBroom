@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const size_t groupIndex = static_cast<size_t>(variant->GetLong());
 
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
-            assert(groupIndex < m_entityDefinitionManager.groups().size());
+            ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
             const Assets::EntityDefinitionList& definitions = group.definitions();

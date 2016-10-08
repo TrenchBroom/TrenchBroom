@@ -21,6 +21,7 @@
 
 #include "View/FlagChangedCommand.h"
 #include "View/ViewConstants.h"
+#include "Macros.h"
 
 #include <cassert>
 #include <wx/checkbox.h>
@@ -91,12 +92,12 @@ namespace TrenchBroom {
         }
 
         bool FlagsEditor::isFlagSet(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_CHECKED;
         }
         
         bool FlagsEditor::isFlagMixed(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_UNDETERMINED;
         }
 
@@ -119,7 +120,7 @@ namespace TrenchBroom {
         }
 
         wxString FlagsEditor::getFlagLabel(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->GetLabel();
         }
 
@@ -132,7 +133,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t index = getIndexFromEvent(event);
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             
             FlagChangedCommand command;
             command.setValues(index, getSetFlagValue(), getMixedFlagValue());

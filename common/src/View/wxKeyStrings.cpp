@@ -133,7 +133,7 @@ namespace TrenchBroom {
         }
         
         String wxKeyStrings::operator[](const size_t index) const {
-            assert(index < m_strings.size());
+            ensure(index < m_strings.size(), "index out of range");
             return m_strings[index];
         }
 

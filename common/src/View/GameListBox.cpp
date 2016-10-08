@@ -97,18 +97,18 @@ namespace TrenchBroom {
         }
 
         bool GameListBox::image(const size_t n, wxBitmap& result) const {
-            assert(n < m_gameInfos.size());
+            ensure(n < m_gameInfos.size(), "index out of range");
             result = m_gameInfos[n].image;
             return true;
         }
         
         wxString GameListBox::title(const size_t n) const {
-            assert(n < m_gameInfos.size());
+            ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].title;
         }
         
         wxString GameListBox::subtitle(const size_t n) const {
-            assert(n < m_gameInfos.size());
+            ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].subtitle;
         }
 

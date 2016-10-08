@@ -29,6 +29,7 @@
 #include <set>
 #include <vector>
 #include "SharedPointer.h"
+#include "Macros.h"
 
 namespace Utils {
     template <typename T>
@@ -386,7 +387,7 @@ namespace VectorUtils {
 
     template <typename T>
     void erase(std::vector<T>& vec, const size_t index) {
-        assert(index < vec.size());
+        ensure(index < vec.size(), "index out of range");
         typename std::vector<T>::iterator it = vec.begin();
         std::advance(it, index);
         vec.erase(it);
