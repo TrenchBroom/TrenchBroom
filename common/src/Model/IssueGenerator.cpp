@@ -69,7 +69,7 @@ namespace TrenchBroom {
         m_description(description) {}
         
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
-            assert(quickFix != NULL);
+            ensure(quickFix != NULL, "quickFix is null");
             assert(!VectorUtils::contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }

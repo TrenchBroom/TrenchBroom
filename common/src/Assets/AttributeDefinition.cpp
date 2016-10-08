@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {
-            assert(other != NULL);
+            ensure(other != NULL, "other is null");
             if (type() != other->type())
                 return false;
             if (name() != other->name())

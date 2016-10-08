@@ -117,7 +117,7 @@ namespace TrenchBroom {
         }
 
         void EditorContext::pushGroup(Model::Group* group) {
-            assert(group != NULL);
+            ensure(group != NULL, "group is null");
             assert(m_currentGroup == NULL || group->group() == m_currentGroup);
             
             if (m_currentGroup != NULL)
@@ -127,7 +127,7 @@ namespace TrenchBroom {
         }
         
         void EditorContext::popGroup() {
-            assert(m_currentGroup != NULL);
+            ensure(m_currentGroup != NULL, "currentGroup is null");
             m_currentGroup->close();
             m_currentGroup = m_currentGroup->group();
             if (m_currentGroup != NULL)

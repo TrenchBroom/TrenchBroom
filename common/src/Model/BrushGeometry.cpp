@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace Model {
         void restoreFaceLinks(BrushGeometry* geometry) {
-            assert(geometry != NULL);
+            ensure(geometry != NULL, "geometry is null");
             restoreFaceLinks(*geometry);
         }
         
@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         SetTempFaceLinks::SetTempFaceLinks(Brush* brush, BrushGeometry& tempGeometry) :
         m_brush(brush) {
-            assert(m_brush != NULL);
+            ensure(m_brush != NULL, "brush is null");
             restoreFaceLinks(tempGeometry);
         }
         

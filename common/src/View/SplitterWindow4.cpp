@@ -64,13 +64,13 @@ namespace TrenchBroom {
                                     const wxSize& topRightMin,
                                     const wxSize& bottomRightMin,
                                     const wxSize& bottomLeftMin) {
-            assert(topLeft != NULL);
+            ensure(topLeft != NULL, "topLeft is null");
             assert(topLeft->GetParent() == this);
-            assert(topRight != NULL);
+            ensure(topRight != NULL, "topRight is null");
             assert(topRight->GetParent() == this);
-            assert(bottomRight != NULL);
+            ensure(bottomRight != NULL, "bottomRight is null");
             assert(bottomRight->GetParent() == this);
-            assert(bottomLeft != NULL);
+            ensure(bottomLeft != NULL, "bottomLeft is null");
             assert(bottomLeft->GetParent() == this);
             
             m_windows[Window_TopLeft] = topLeft;
@@ -176,7 +176,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::bindMouseEvents(wxWindow* window) {
-            assert(window != NULL);
+            ensure(window != NULL, "window is null");
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow4::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow4::OnMouseLeave, this);
             window->Bind(wxEVT_MOTION, &SplitterWindow4::OnMouseMotion, this);

@@ -67,7 +67,7 @@ namespace TrenchBroom {
         m_tabBook(tabBook),
         m_barBook(new wxSimplebook(this)),
         m_controlSizer(new wxBoxSizer(wxHORIZONTAL)) {
-            assert(m_tabBook != NULL);
+            ensure(m_tabBook != NULL, "tabBook is null");
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBar::OnTabBookPageChanged, this);
 
             m_controlSizer->AddSpacer(LayoutConstants::TabBarBarLeftMargin);
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
         
         void TabBar::addTab(TabBookPage* bookPage, const wxString& title) {
-            assert(bookPage != NULL);
+            ensure(bookPage != NULL, "bookPage is null");
             
             TabBarButton* button = new TabBarButton(this, title);
             button->Bind(wxEVT_BUTTON, &TabBar::OnButtonClicked, this);

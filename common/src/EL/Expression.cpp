@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace EL {
         Expression::Expression(ExpressionBase* expression) :
         m_expression(expression) {
-            assert(m_expression.get() != NULL);
+            ensure(m_expression.get() != NULL, "expression is null");
         }
         
         bool Expression::optimize() {
@@ -311,7 +311,7 @@ namespace TrenchBroom {
         UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_operand(operand) {
-            assert(m_operand != NULL);
+            ensure(m_operand != NULL, "operand is null");
         }
         
         UnaryOperator::~UnaryOperator() {
@@ -427,8 +427,8 @@ namespace TrenchBroom {
         ExpressionBase(line, column),
         m_indexableOperand(indexableOperand),
         m_indexOperand(indexOperand) {
-            assert(m_indexableOperand != NULL);
-            assert(m_indexOperand != NULL);
+            ensure(m_indexableOperand != NULL, "indexableOperand is null");
+            ensure(m_indexOperand != NULL, "indexOperand is null");
         }
         
         SubscriptOperator::~SubscriptOperator() {
@@ -475,8 +475,8 @@ namespace TrenchBroom {
         ExpressionBase(line, column),
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {
-            assert(m_leftOperand != NULL);
-            assert(m_rightOperand != NULL);
+            ensure(m_leftOperand != NULL, "leftOperand is null");
+            ensure(m_rightOperand != NULL, "rightOperand is null");
         }
         
         BinaryOperator::~BinaryOperator() {

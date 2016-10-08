@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->hidden())
                 document->hide(Model::NodeList(1, layer));
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->locked())
                 document->lock(Model::NodeList(1, layer));
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
 
             MapDocumentSPtr document = lock(m_document);
             Transaction transaction(document, "Move Nodes to " + layer->name());
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             
             MapDocumentSPtr document = lock(m_document);
             
@@ -323,7 +323,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();

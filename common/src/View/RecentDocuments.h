@@ -61,14 +61,14 @@ namespace TrenchBroom {
             }
 
             void addMenu(wxMenu* menu) {
-                assert(menu != NULL);
+                ensure(menu != NULL, "menu is null");
                 clearMenu(menu);
                 createMenuItems(menu);
                 m_menus.push_back(menu);
             }
             
             void removeMenu(wxMenu* menu) {
-                assert(menu != NULL);
+                ensure(menu != NULL, "menu is null");
                 clearMenu(menu);
                 VectorUtils::erase(m_menus, menu);
             }

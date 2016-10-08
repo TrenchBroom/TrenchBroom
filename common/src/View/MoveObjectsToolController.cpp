@@ -35,7 +35,7 @@ namespace TrenchBroom {
         MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool) :
         MoveToolController(tool->grid()),
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
         
         MoveObjectsToolController::~MoveObjectsToolController() {}

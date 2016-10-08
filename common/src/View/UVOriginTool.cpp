@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return delta;
             
             const Model::BrushFace* face = m_helper.face();
-            assert(face != NULL);
+            ensure(face != NULL, "face is null");
             
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
             // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because

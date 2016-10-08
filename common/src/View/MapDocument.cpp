@@ -166,12 +166,12 @@ namespace TrenchBroom {
         }
         
         Model::Layer* MapDocument::currentLayer() const {
-            assert(m_currentLayer != NULL);
+            ensure(m_currentLayer != NULL, "currentLayer is null");
             return m_currentLayer;
         }
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
-            assert(currentLayer != NULL);
+            ensure(currentLayer != NULL, "currentLayer is null");
             assert(!currentLayer->locked());
             assert(!currentLayer->hidden());
             m_currentLayer = currentLayer;
@@ -257,8 +257,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::saveDocumentTo(const IO::Path& path) {
-            assert(m_game.get() != NULL);
-            assert(m_world != NULL);
+            ensure(m_game.get() != NULL, "game is null");
+            ensure(m_world != NULL, "world is null");
             m_game->writeMap(m_world, path);
         }
         
@@ -542,9 +542,9 @@ namespace TrenchBroom {
         }
         
         void MapDocument::addNode(Model::Node* node, Model::Node* parent) {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
             assert(node->parent() == NULL);
-            assert(parent != NULL);
+            ensure(parent != NULL, "parent is null");
             assert(parent != node);
             
             Model::ParentChildrenMap map;
@@ -595,7 +595,7 @@ namespace TrenchBroom {
                 Model::Node* node = it->first;
                 if (node->removeIfEmpty() && !node->hasChildren()) {
                     Model::Node* parent = node->parent();
-                    assert(parent != NULL);
+                    ensure(parent != NULL, "parent is null");
                     result[parent].push_back(node);
                 }
             }
@@ -1526,8 +1526,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::registerIssueGenerators() {
-            assert(m_world != NULL);
-            assert(m_game.get() != NULL);
+            ensure(m_world != NULL, "world is null");
+            ensure(m_game.get() != NULL, "game is null");
             
             m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
             m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());

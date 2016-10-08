@@ -98,12 +98,12 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::OnNameChanged(wxCommandEvent& event) {
-            assert(m_profile != NULL);
+            ensure(m_profile != NULL, "profile is null");
             m_profile->setName(m_nameText->GetValue().ToStdString());
         }
 
         void GameEngineProfileEditor::OnPathChanged(wxCommandEvent& event) {
-            assert(m_profile != NULL);
+            ensure(m_profile != NULL, "profile is null");
             updatePath(m_pathText->GetValue());
         }
 

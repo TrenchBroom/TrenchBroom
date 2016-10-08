@@ -33,7 +33,7 @@ public:
     typedef typename List::const_iterator const_iterator;
 public:
     void push_back(Edge* edge) {
-        assert(edge != NULL);
+        ensure(edge != NULL, "edge is null");
         assert(empty() || edge != last());
         assert(checkEdge(edge));
         m_edges.push_back(edge);
@@ -222,14 +222,14 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex) {
-    assert(vertex != NULL);
+    ensure(vertex != NULL, "vertex is null");
     Callback c;
     removeVertex(vertex, c);
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
-    assert(vertex != NULL);
+    ensure(vertex != NULL, "vertex is null");
     assert(findVertexByPosition(vertex->position()) == vertex);
     assert(checkInvariant());
     
@@ -403,8 +403,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
         curEdge = curEdge->next();
     } while (curEdge != firstEdge && (firstVisibleEdge == NULL || lastVisibleEdge == NULL));
     
-    assert(firstVisibleEdge != NULL);
-    assert(lastVisibleEdge != NULL);
+    ensure(firstVisibleEdge != NULL, "firstVisibleEdge is null");
+    ensure(lastVisibleEdge != NULL, "lastVisibleEdge is null");
     
     // Now we know which edges are visible from the point. These will have to be replaced with two new edges.
     Vertex* newVertex = new Vertex(position);
@@ -646,7 +646,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
     if (first != NULL) {
         Edge* current = first;
         do {
-            assert(current != NULL);
+            ensure(current != NULL, "current is null");
             seam.push_back(current);
             current = criterion.findNextSplittingEdge(current);
         } while (current != first);
@@ -1026,7 +1026,7 @@ public:
     
     // finds the next seam edge in counter clockwise orientation
     Edge* findNextSplittingEdge(Edge* last) const {
-        assert(last != NULL);
+        ensure(last != NULL, "last is null");
         
         HalfEdge* halfEdge = last->firstEdge()->previous();
         Edge* next = halfEdge->edge();

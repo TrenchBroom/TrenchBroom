@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Functor
 #define TrenchBroom_Functor
 
+#include "Macros.h"
+
 #include <cassert>
 #include <iostream> // for NULL
 
@@ -135,7 +137,7 @@ namespace TrenchBroom {
         }
         
         R operator()() {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)();
         }
     };
@@ -251,7 +253,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1);
         }
     };
@@ -367,7 +369,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2);
         }
     };
@@ -483,7 +485,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3);
         }
     };
@@ -599,7 +601,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4);
         }
     };
@@ -715,7 +717,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5);
         }
     };
@@ -831,7 +833,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6);
         }
     };
@@ -947,7 +949,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7);
         }
     };
@@ -1063,7 +1065,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7, a8);
         }
     };
@@ -1179,7 +1181,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) {
-            assert(m_func != NULL);
+            ensure(m_func != NULL, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     };

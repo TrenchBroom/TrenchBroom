@@ -445,7 +445,7 @@ namespace TrenchBroom {
             m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
 
-            assert(inner->GetSizer() != NULL);
+            ensure(inner->GetSizer() != NULL, "inner sizer is null");
             inner->GetSizer()->Prepend(m_showBrushesCheckBox);
 
             return panel;

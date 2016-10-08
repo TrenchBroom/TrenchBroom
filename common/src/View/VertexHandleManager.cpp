@@ -243,7 +243,7 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::addBrush(Model::Brush* brush) {
-            assert(brush != NULL);
+            ensure(brush != NULL, "brush is null");
             
             const Model::Brush::VertexList brushVertices = brush->vertices();
             Model::Brush::VertexList::const_iterator vIt, vEnd;

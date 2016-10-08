@@ -30,14 +30,14 @@ namespace TrenchBroom {
         m_textCtrl(textCtrl),
         m_lastNewLine(0),
         m_lastOutputTime(::wxGetLocalTimeMillis()) {
-            assert(m_textCtrl != NULL);
+            ensure(m_textCtrl != NULL, "textCtrl is null");
             bindEvents();
         }
 
         TextCtrlOutputAdapter::TextCtrlOutputAdapter(const TextCtrlOutputAdapter& other) :
         m_textCtrl(other.m_textCtrl),
         m_lastNewLine(other.m_lastNewLine) {
-            assert(m_textCtrl != NULL);
+            ensure(m_textCtrl != NULL, "textCtrl is null");
             bindEvents();
         }
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         TextCtrlOutputAdapter& TextCtrlOutputAdapter::operator=(const TextCtrlOutputAdapter& other) {
             m_textCtrl = other.m_textCtrl;
             m_lastNewLine = other.m_lastNewLine;
-            assert(m_textCtrl != NULL);
+            ensure(m_textCtrl != NULL, "textCtrl is null");
             bindEvents();
             return *this;
         }

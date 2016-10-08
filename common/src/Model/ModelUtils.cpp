@@ -52,7 +52,7 @@ namespace TrenchBroom {
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 Model::Node* parent = node->parent();
-                assert(parent != NULL);
+                ensure(parent != NULL, "parent is null");
                 result[parent].push_back(node);
             }
             

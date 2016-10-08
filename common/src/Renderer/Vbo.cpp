@@ -28,8 +28,8 @@
 namespace TrenchBroom {
     namespace Renderer {
         bool CompareVboBlocksByCapacity::operator() (const VboBlock* lhs, const VboBlock* rhs) const {
-            assert(lhs != NULL);
-            assert(rhs != NULL);
+            ensure(lhs != NULL, "lhs is null");
+            ensure(rhs != NULL, "rhs is null");
             return lhs->capacity() < rhs->capacity();
         }
 
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             
             assert(it != m_freeBlocks.end());
             VboBlock* block = *it;
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             removeFreeBlock(it);
             
             if (block->capacity() > capacity) {
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::freeBlock(VboBlock* block) {
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             assert(!block->isFree());
             assert(checkBlockChain());
             
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
             unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
-            assert(buffer != NULL);
+            ensure(buffer != NULL, "buffer is null");
             m_state = State_FullyMapped;
             
             return buffer;
@@ -321,7 +321,7 @@ namespace TrenchBroom {
 
         bool Vbo::checkBlockChain() const {
             VboBlock* block = m_firstBlock;
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             
             size_t count = 0;
             VboBlock* next = block->next();

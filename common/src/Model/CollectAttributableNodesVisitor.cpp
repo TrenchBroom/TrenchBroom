@@ -43,7 +43,7 @@ namespace TrenchBroom {
         
         void CollectAttributableNodesVisitor::doVisit(Brush* brush) {
             Model::AttributableNode* entity = brush->entity();
-            assert(entity != NULL);
+            ensure(entity != NULL, "entity is null");
             addNode(entity);
         }
 

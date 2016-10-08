@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
         
         const Renderer::Camera& PickRequest::camera() const {
-            assert(m_camera != NULL);
+            ensure(m_camera != NULL, "camera is null");
             return *m_camera;
         }
     }

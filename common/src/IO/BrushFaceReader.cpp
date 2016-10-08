@@ -32,7 +32,7 @@ namespace TrenchBroom {
         BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory* factory, Logger* logger) :
         MapReader(str, logger),
         m_factory(factory) {
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
         const Model::BrushFaceList& BrushFaceReader::read(const BBox3& worldBounds) {

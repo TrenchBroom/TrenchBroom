@@ -70,12 +70,12 @@ namespace TrenchBroom {
         }
 
         void Game::writeMap(World* world, const IO::Path& path) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             doWriteMap(world, path);
         }
 
         void Game::exportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             doExportMap(world, format, path);
         }
 
@@ -112,12 +112,12 @@ namespace TrenchBroom {
         }
         
         IO::Path::List Game::extractTextureCollections(const World* world) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             return doExtractTextureCollections(world);
         }
         
         void Game::updateTextureCollections(World* world, const IO::Path::List& paths) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             doUpdateTextureCollections(world, paths);
         }
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const World* world) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             return doExtractEntityDefinitionFile(world);
         }
         
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         }
 
         StringList Game::extractEnabledMods(const World* world) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             return doExtractEnabledMods(world);
         }
         

@@ -90,7 +90,7 @@ namespace TrenchBroom {
         
         void CompilationProfile::insertTask(const size_t index, CompilationTask* task) {
             assert(index <= m_tasks.size());
-            assert(task != NULL);
+            ensure(task != NULL, "task is null");
             
             if (index == m_tasks.size()) {
                 m_tasks.push_back(task);

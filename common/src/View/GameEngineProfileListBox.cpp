@@ -61,7 +61,7 @@ namespace TrenchBroom {
             m_profile(profile),
             m_nameText(NULL),
             m_pathText(NULL) {
-                assert(m_profile != NULL);
+                ensure(m_profile != NULL, "profile is null");
                 
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);

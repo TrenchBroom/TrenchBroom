@@ -96,8 +96,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
-            assert(frameManager != NULL);
-            assert(document.get() != NULL);
+            ensure(frameManager != NULL, "frameManager is null");
+            ensure(document.get() != NULL, "document is null");
 
             m_frameManager = frameManager;
             m_document = document;
@@ -328,7 +328,7 @@ namespace TrenchBroom {
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            assert(recentDocumentsMenu != NULL);
+            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.addRecentDocumentMenu(recentDocumentsMenu);
@@ -337,7 +337,7 @@ namespace TrenchBroom {
         void MapFrame::removeRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            assert(recentDocumentsMenu != NULL);
+            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(recentDocumentsMenu);
@@ -1164,7 +1164,7 @@ namespace TrenchBroom {
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
-                    assert(item != NULL);
+                    ensure(item != NULL, "item is null");
                     if (canUndo()) {
                         event.Enable(true);
                         event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
@@ -1521,7 +1521,7 @@ namespace TrenchBroom {
                 if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
                     event.Veto();
                 } else {
-                    assert(m_frameManager != NULL);
+                    ensure(m_frameManager != NULL, "frameManager is null");
                     if (event.CanVeto() && !confirmOrDiscardChanges())
                         event.Veto();
                     else

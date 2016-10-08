@@ -77,7 +77,7 @@ namespace TrenchBroom {
             
             try {
                 EntityModel* model = loadModel(path);
-                assert(model != NULL);
+                ensure(model != NULL, "model is null");
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
                 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         }
 
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
-            assert(m_loader != NULL);
+            ensure(m_loader != NULL, "loader is null");
             return m_loader->loadEntityModel(path);
         }
 

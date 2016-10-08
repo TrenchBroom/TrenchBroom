@@ -33,7 +33,7 @@ namespace TrenchBroom {
             IndexedRenderableWrapper(Vbo& indexBuffer, IndexedRenderable* wrappee) :
             m_indexBuffer(indexBuffer),
             m_wrappee(wrappee) {
-                assert(m_wrappee != NULL);
+                ensure(m_wrappee != NULL, "wrappee is null");
             }
         private:
             void doPrepareVertices(Vbo& vertexVbo) {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::doAdd(Renderable* renderable) {
-            assert(renderable != NULL);
+            ensure(renderable != NULL, "renderable is null");
             m_batch.push_back(renderable);
         }
 

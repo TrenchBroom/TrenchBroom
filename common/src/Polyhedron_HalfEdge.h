@@ -45,7 +45,7 @@ m_link(this)
 m_link(this)
 #endif
 {
-    assert(m_origin != NULL);
+    ensure(m_origin != NULL, "origin is null");
     setAsLeaving();
 }
 
@@ -102,7 +102,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::previous(
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::twin() const {
-    assert(m_edge != NULL);
+    ensure(m_edge != NULL, "edge is null");
     return m_edge->twin(this);
 }
 
@@ -153,7 +153,7 @@ bool Polyhedron<T,FP,VP>::HalfEdge::isLeavingEdge() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
-    assert(other != NULL);
+    ensure(other != NULL, "other is null");
     assert(other != this);
     assert(destination() == other->origin());
     
@@ -179,34 +179,34 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setOrigin(Vertex* origin) {
-    assert(origin != NULL);
+    ensure(origin != NULL, "origin is null");
     m_origin = origin;
     setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setEdge(Edge* edge) {
-    assert(edge != NULL);
+    ensure(edge != NULL, "edge is null");
     assert(m_edge == NULL);
     m_edge = edge;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetEdge() {
-    assert(m_edge != NULL);
+    ensure(m_edge != NULL, "edge is null");
     m_edge = NULL;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setFace(Face* face) {
-    assert(face != NULL);
+    ensure(face != NULL, "face is null");
     assert(m_face == NULL);
     m_face = face;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetFace() {
-    assert(m_face != NULL);
+    ensure(m_face != NULL, "face is null");
     m_face = NULL;
 }
 

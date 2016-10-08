@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
         void MapReader::onFormatSet(const Model::MapFormat::Type format) {
             m_factory = initialize(format, m_worldBounds);
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
         void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {

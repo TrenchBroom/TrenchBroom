@@ -77,8 +77,8 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::leaving() c
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
-    assert(face != NULL);
-    assert(m_leaving != NULL);
+    ensure(face != NULL, "face is null");
+    ensure(m_leaving != NULL, "leaving is null");
     
     HalfEdge* curEdge = m_leaving;
     do {
@@ -91,8 +91,8 @@ bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnectingEdge(const Vertex* vertex) const {
-    assert(vertex != NULL);
-    assert(m_leaving != NULL);
+    ensure(vertex != NULL, "vertex is null");
+    ensure(m_leaving != NULL, "leaving is null");
     
     HalfEdge* curEdge = m_leaving;
     do {
@@ -105,8 +105,8 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnect
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinearEdge(const HalfEdge* arriving) const {
-    assert(arriving != NULL);
-    assert(m_leaving != NULL);
+    ensure(arriving != NULL, "arriving is null");
+    ensure(m_leaving != NULL, "leaving is null");
     assert(arriving->destination() == this);
     
     HalfEdge* curEdge = m_leaving;

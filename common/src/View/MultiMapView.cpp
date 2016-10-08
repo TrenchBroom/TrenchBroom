@@ -32,7 +32,7 @@ namespace TrenchBroom {
         MultiMapView::~MultiMapView() {}
 
         void MultiMapView::addMapView(MapView* mapView) {
-            assert(mapView != NULL);
+            ensure(mapView != NULL, "mapView is null");
             m_mapViews.push_back(mapView);
         }
 
