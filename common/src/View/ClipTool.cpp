@@ -443,7 +443,7 @@ namespace TrenchBroom {
             void doCancelDragPoint() {}
             
             bool doSetFace(const Model::BrushFace* face) {
-                assert(face != NULL);
+                ensure(face != NULL, "face is null");
                 m_face = face;
                 return true; }
             
@@ -632,12 +632,12 @@ namespace TrenchBroom {
         }
         
         void ClipTool::beginDragLastPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->beginDragLastPoint();
         }
 
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
             update();
@@ -645,13 +645,13 @@ namespace TrenchBroom {
         }
         
         void ClipTool::endDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->endDragPoint();
             refreshViews();
         }
 
         void ClipTool::cancelDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->cancelDragPoint();
             refreshViews();
         }
@@ -760,8 +760,8 @@ namespace TrenchBroom {
                 ++faceIt;
             }
             
-            assert(bestFrontFace != NULL);
-            assert(bestBackFace != NULL);
+            ensure(bestFrontFace != NULL, "bestFrontFace is null");
+            ensure(bestBackFace != NULL, "bestBackFace is null");
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }

@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
-            assert(listCtrl != NULL);
+            ensure(listCtrl != NULL, "listCtrl is null");
 
 
             std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
@@ -161,7 +161,7 @@ namespace TrenchBroom {
         }
 
         void setWindowIcon(wxTopLevelWindow* window) {
-            assert(window != NULL);
+            ensure(window != NULL, "window is null");
             window->SetIcon(IO::loadIconResource(IO::Path("AppIcon")));
         }
 

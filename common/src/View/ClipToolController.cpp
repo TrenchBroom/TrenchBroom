@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         ClipToolController::Callback::Callback(ClipTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
         
         ClipToolController::Callback::~Callback() {}
@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
         ClipToolController::PartBase::PartBase(Callback* callback) :
         m_callback(callback) {
-            assert(m_callback != NULL);
+            ensure(m_callback != NULL, "callback is null");
         }
         
         ClipToolController::PartBase::~PartBase() {
@@ -272,7 +272,7 @@ namespace TrenchBroom {
         }
         
         Vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) {
-            assert(face != NULL);
+            ensure(face != NULL, "face is null");
             
             Vec3::List result;
             const Model::BrushFaceList incidentFaces = selectIncidentFaces(face, hitPoint);

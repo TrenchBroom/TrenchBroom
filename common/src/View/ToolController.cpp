@@ -227,8 +227,8 @@ namespace TrenchBroom {
         restricter(i_restricter),
         snapper(i_snapper),
         setInitialPoint(false) {
-            assert(restricter != NULL);
-            assert(snapper != NULL);
+            ensure(restricter != NULL, "restricter is null");
+            ensure(snapper != NULL, "snapper is null");
         }
 
         RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialPoint) :
@@ -236,8 +236,8 @@ namespace TrenchBroom {
         snapper(i_snapper),
         setInitialPoint(true),
         initialPoint(i_initialPoint) {
-            assert(restricter != NULL);
-            assert(snapper != NULL);
+            ensure(restricter != NULL, "restricter is null");
+            ensure(snapper != NULL, "snapper is null");
         }
 
         bool RestrictedDragPolicy::DragInfo::skip() const {
@@ -315,7 +315,7 @@ namespace TrenchBroom {
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
-            assert(m_restricter != NULL);
+            ensure(m_restricter != NULL, "restricter is null");
             
             if (!hitPoint(inputState, m_curPoint))
                 return true;
@@ -335,14 +335,14 @@ namespace TrenchBroom {
         }
         
         void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            assert(m_restricter != NULL);
+            ensure(m_restricter != NULL, "restricter is null");
             doEndDrag(inputState);
             deleteRestricter();
             deleteSnapper();
         }
         
         void RestrictedDragPolicy::doCancelMouseDrag() {
-            assert(m_restricter != NULL);
+            ensure(m_restricter != NULL, "restricter is null");
             doCancelDrag();
             deleteRestricter();
             deleteSnapper();
@@ -350,7 +350,7 @@ namespace TrenchBroom {
         
         void RestrictedDragPolicy::setRestricter(const InputState& inputState, DragRestricter* restricter, const bool resetInitialPoint) {
             assert(dragging());
-            assert(restricter != NULL);
+            ensure(restricter != NULL, "restricter is null");
             
             deleteRestricter();
             m_restricter = restricter;
@@ -363,7 +363,7 @@ namespace TrenchBroom {
         
         void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper) {
             assert(dragging());
-            assert(snapper != NULL);
+            ensure(snapper != NULL, "snapper is null");
             
             deleteSnapper();
             m_snapper = snapper;
@@ -399,7 +399,7 @@ namespace TrenchBroom {
         ToolControllerGroup::~ToolControllerGroup() {}
 
         void ToolControllerGroup::addController(ToolController* controller) {
-            assert(controller != NULL);
+            ensure(controller != NULL, "controller is null");
             m_chain.append(controller);
         }
 
@@ -446,7 +446,7 @@ namespace TrenchBroom {
         }
         
         bool ToolControllerGroup::doMouseDrag(const InputState& inputState) {
-            assert(m_dragReceiver != NULL);
+            ensure(m_dragReceiver != NULL, "dragReceiver is null");
             if (m_dragReceiver->mouseDrag(inputState)) {
                 doMouseDragged(inputState);
                 return true;
@@ -455,14 +455,14 @@ namespace TrenchBroom {
         }
         
         void ToolControllerGroup::doEndMouseDrag(const InputState& inputState) {
-            assert(m_dragReceiver != NULL);
+            ensure(m_dragReceiver != NULL, "dragReceiver is null");
             m_dragReceiver->endMouseDrag(inputState);
             m_dragReceiver = NULL;
             doMouseDragEnded(inputState);
         }
         
         void ToolControllerGroup::doCancelMouseDrag() {
-            assert(m_dragReceiver != NULL);
+            ensure(m_dragReceiver != NULL, "dragReceiver is null");
             m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
             doMouseDragCancelled();
@@ -485,18 +485,18 @@ namespace TrenchBroom {
         }
         
         bool ToolControllerGroup::doDragMove(const InputState& inputState) {
-            assert(m_dropReceiver != NULL);
+            ensure(m_dropReceiver != NULL, "dropReceiver is null");
             return m_dropReceiver->dragMove(inputState);
         }
         
         void ToolControllerGroup::doDragLeave(const InputState& inputState) {
-            assert(m_dropReceiver != NULL);
+            ensure(m_dropReceiver != NULL, "dropReceiver is null");
             m_dropReceiver->dragLeave(inputState);
             m_dropReceiver = NULL;
         }
         
         bool ToolControllerGroup::doDragDrop(const InputState& inputState) {
-            assert(m_dropReceiver != NULL);
+            ensure(m_dropReceiver != NULL, "dropReceiver is null");
             const bool result = m_dropReceiver->dragDrop(inputState);
             m_dropReceiver = NULL;
             return result;

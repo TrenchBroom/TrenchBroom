@@ -179,7 +179,7 @@ namespace TrenchBroom {
         }
         
         void NodeCollection::addNode(Node* node) {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
             AddNode visitor(*this);
             node->accept(visitor);
         }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         }
         
         void NodeCollection::removeNode(Node* node) {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
             RemoveNode visitor(*this);
             node->accept(visitor);
         }

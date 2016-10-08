@@ -101,7 +101,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
     
     // First, we find a half edge that is intersected by the given plane.
     HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
-    assert(initialEdge != NULL);
+    ensure(initialEdge != NULL, "initialEdge is null");
 
     // Now we split the face to which this initial half edge belongs. The call returns the newly inserted edge
     // that connects the (possibly newly inserted) vertices which are now within the plane.
@@ -114,7 +114,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
     do {
         // First we find the next face that is either split by the plane or which has an edge completely in the plane.
         currentEdge = findNextIntersectingEdge(currentEdge, plane);
-        assert(currentEdge != NULL);
+        ensure(currentEdge != NULL, "currentEdge is null");
         
         // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
         // face which are now inside the plane.
@@ -210,7 +210,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             currentBoundaryEdge = currentBoundaryEdge->next();
         }
     } while (seamDestination == NULL && currentBoundaryEdge != firstBoundaryEdge);
-    assert(seamOrigin != NULL);
+    ensure(seamOrigin != NULL, "seamOrigin is null");
     
     // The plane only touches one vertex of the face.
     if (seamDestination == NULL)

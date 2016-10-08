@@ -83,7 +83,7 @@ namespace TrenchBroom {
         Issue::Issue(Node* node) :
         m_seqId(nextSeqId()),
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
         }
 
         size_t Issue::nextSeqId() {

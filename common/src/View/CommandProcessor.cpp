@@ -119,7 +119,7 @@ namespace TrenchBroom {
         m_clearRepeatableCommandStack(false),
         m_lastCommandTimestamp(0),
         m_groupLevel(0) {
-            assert(m_document != NULL);
+            ensure(m_document != NULL, "document is null");
         }
         
         bool CommandProcessor::hasLastCommand() const {

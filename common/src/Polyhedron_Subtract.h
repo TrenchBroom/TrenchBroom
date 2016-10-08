@@ -351,8 +351,8 @@ private:
         neighbour(i_neighbour),
         face(i_face),
         neighbourFace(i_neighbourFace) {
-            assert(face != NULL);
-            assert(neighbourFace != NULL);
+            ensure(face != NULL, "face is null");
+            ensure(neighbourFace != NULL, "neighbourFace is null");
         }
         
         bool operator<(const NeighbourEntry& other) const {

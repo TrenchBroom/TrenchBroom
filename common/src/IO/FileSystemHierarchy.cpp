@@ -34,7 +34,7 @@ namespace TrenchBroom {
         }
         
         void FileSystemHierarchy::addFileSystem(FileSystem* fileSystem) {
-            assert(fileSystem != NULL);
+            ensure(fileSystem != NULL, "fileSystem is null");
             m_fileSystems.push_back(fileSystem);
         }
 
@@ -120,27 +120,27 @@ namespace TrenchBroom {
         }
 
         void WritableFileSystemHierarchy::doCreateFile(const Path& path, const String& contents) {
-            assert(m_writableFileSystem != NULL);
+            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
             m_writableFileSystem->createFile(path, contents);
         }
 
         void WritableFileSystemHierarchy::doCreateDirectory(const Path& path) {
-            assert(m_writableFileSystem != NULL);
+            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
             m_writableFileSystem->createDirectory(path);
         }
         
         void WritableFileSystemHierarchy::doDeleteFile(const Path& path) {
-            assert(m_writableFileSystem != NULL);
+            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
             m_writableFileSystem->deleteFile(path);
         }
         
         void WritableFileSystemHierarchy::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            assert(m_writableFileSystem != NULL);
+            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
             m_writableFileSystem->copyFile(sourcePath, destPath, overwrite);
         }
         
         void WritableFileSystemHierarchy::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            assert(m_writableFileSystem != NULL);
+            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
             m_writableFileSystem->moveFile(sourcePath, destPath, overwrite);
         }
     }

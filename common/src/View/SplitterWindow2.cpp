@@ -121,9 +121,9 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
-            assert(window1 != NULL);
+            ensure(window1 != NULL, "window1 is null");
             assert(window1->GetParent() == this);
-            assert(window2 != NULL);
+            ensure(window2 != NULL, "window2 is null");
             assert(window2->GetParent() == this);
             assert(m_splitMode == SplitMode_Unset);
             
@@ -304,7 +304,7 @@ namespace TrenchBroom {
         }
  
         wxWindow* SplitterWindow2::unmaximizedWindow() {
-            assert(m_maximizedWindow != NULL);
+            ensure(m_maximizedWindow != NULL, "maximizedWindow is null");
             return m_windows[0] == m_maximizedWindow ? m_windows[1] : m_windows[0];
         }
     }

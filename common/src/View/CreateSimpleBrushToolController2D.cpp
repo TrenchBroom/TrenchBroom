@@ -33,7 +33,7 @@ namespace TrenchBroom {
         CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
 
         Tool* CreateSimpleBrushToolController2D::doGetTool() {

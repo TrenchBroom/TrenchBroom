@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
 
         ResizeBrushesToolController::~ResizeBrushesToolController() {}

@@ -19,6 +19,7 @@
 
 #include "TabBook.h"
 
+#include "Macros.h"
 #include "View/TabBar.h"
 
 #include <wx/simplebook.h>
@@ -47,7 +48,7 @@ namespace TrenchBroom {
         }
         
         void TabBook::addPage(TabBookPage* page, const wxString& title) {
-            assert(page != NULL);
+            ensure(page != NULL, "page is null");
             assert(page->GetParent() == this);
             
             RemoveChild(page);

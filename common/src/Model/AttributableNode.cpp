@@ -268,7 +268,7 @@ namespace TrenchBroom {
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
             m_node->attributesWillChange();
         }
         
@@ -661,43 +661,43 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addLinkSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_linkSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addLinkTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_linkTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_killSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_killTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_linkSources, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_linkTargets, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_killSources, attributable);
             invalidateIssues();
         }
@@ -712,7 +712,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_killTargets, attributable);
         }
     }

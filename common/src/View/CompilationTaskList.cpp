@@ -58,8 +58,8 @@ namespace TrenchBroom {
             m_profile(profile),
             m_task(task),
             m_panel(NULL) {
-                assert(m_profile != NULL);
-                assert(m_task != NULL);
+                ensure(m_profile != NULL, "profile is null");
+                ensure(m_task != NULL, "task is null");
             }
         public:
             void initialize() {
@@ -354,7 +354,7 @@ namespace TrenchBroom {
         };
 
         ControlListBox::Item* CompilationTaskList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            assert(m_profile != NULL);
+            ensure(m_profile != NULL, "profile is null");
 
             CompilationTaskEditorFactory factory(parent, margins, m_document, m_profile);
             Model::CompilationTask* task = m_profile->task(index);

@@ -163,13 +163,13 @@ namespace TrenchBroom {
         
         void EntityBrowserView::dndWillStart() {
             MapFrame* mapFrame = findMapFrame(this);
-            assert(mapFrame != NULL);
+            ensure(mapFrame != NULL, "mapFrame is null");
             mapFrame->setToolBoxDropTarget();
         }
         
         void EntityBrowserView::dndDidEnd() {
             MapFrame* mapFrame = findMapFrame(this);
-            assert(mapFrame != NULL);
+            ensure(mapFrame != NULL, "mapFrame is null");
             mapFrame->clearDropTarget();
         }
 

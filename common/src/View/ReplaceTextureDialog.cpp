@@ -48,10 +48,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            assert(subject != NULL);
+            ensure(subject != NULL, "subject is null");
 
             Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            assert(replacement != NULL);
+            ensure(replacement != NULL, "replacement is null");
             
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList faces = getApplicableFaces();
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             }
             
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            assert(subject != NULL);
+            ensure(subject != NULL, "subject is null");
             
             Model::BrushFaceList result;
             

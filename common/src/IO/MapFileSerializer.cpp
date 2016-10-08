@@ -223,7 +223,7 @@ namespace TrenchBroom {
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
         m_stream(stream) {
-            assert(m_stream != NULL);
+            ensure(m_stream != NULL, "stream is null");
         }
         
         void MapFileSerializer::doBeginFile() {}

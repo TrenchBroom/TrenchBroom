@@ -763,8 +763,8 @@ bool Polyhedron<T,FP,VP>::checkFaceNeighbours() const {
         do {
             HalfEdge* twin = currentEdge->twin();
             unused(twin);
-            assert(twin != NULL);
-            assert(twin->face() != NULL);
+            ensure(twin != NULL, "twin is null");
+            ensure(twin->face() != NULL, "twin face is null");
             assert(hasFace(twin->face()));
             
             currentEdge = currentEdge->next();
@@ -934,9 +934,9 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
-    assert(v != NULL);
+    ensure(v != NULL, "v is null");
     const HalfEdge* firstEdge = v->leaving();
-    assert(firstEdge != NULL);
+    ensure(firstEdge != NULL, "firstEdge is null");
     const HalfEdge* curEdge = firstEdge;
     
     do {

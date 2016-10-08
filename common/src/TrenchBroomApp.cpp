@@ -106,7 +106,7 @@ namespace TrenchBroom {
             wxMenuBar::MacSetCommonMenuBar(menuBar);
 
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            assert(recentDocumentsMenu != NULL);
+            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
             addRecentDocumentMenu(recentDocumentsMenu);
 
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
@@ -193,7 +193,7 @@ namespace TrenchBroom {
 
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
-            assert(game.get() != NULL);
+            ensure(game.get() != NULL, "game is null");
 
             MapFrame* frame = m_frameManager->newFrame();
             frame->newDocument(game, mapFormat);
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 }
 
                 Model::GamePtr game = gameFactory.createGame(gameName);
-                assert(game.get() != NULL);
+                ensure(game.get() != NULL, "game is null");
 
                 frame = m_frameManager->newFrame();
                 frame->openDocument(game, mapFormat, path);
@@ -431,7 +431,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnFileOpenRecent(wxCommandEvent& event) {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
-            assert(object != NULL);
+            ensure(object != NULL, "object is null");
             const wxString data = object->GetString();
 
             openDocument(data.ToStdString());

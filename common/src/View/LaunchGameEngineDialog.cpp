@@ -180,7 +180,7 @@ namespace TrenchBroom {
         
         void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
             const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
-            assert(profile != NULL);
+            ensure(profile != NULL, "profile is null");
             
             const IO::Path& path = profile->path();
             const String& parameterSpec = profile->parameterSpec();

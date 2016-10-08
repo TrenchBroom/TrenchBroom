@@ -41,7 +41,7 @@ namespace TrenchBroom {
         CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
-            assert(tool != NULL);
+            ensure(tool != NULL, "tool is null");
         }
 
         Tool* CreateSimpleBrushToolController3D::doGetTool() {

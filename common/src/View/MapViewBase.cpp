@@ -634,7 +634,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
@@ -645,7 +645,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
@@ -665,7 +665,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             
             MapDocumentSPtr document = lock(m_document);
             Model::Entity* entity = document->world()->createEntity();
@@ -684,7 +684,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             
             MapDocumentSPtr document = lock(m_document);
             
@@ -984,7 +984,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
-            assert(newGroup != NULL);
+            ensure(newGroup != NULL, "newGroup is null");
             
             Transaction transaction(document, "Add Objects to Group");
             reparentNodes(nodes, newGroup);
@@ -996,7 +996,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
-            assert(currentGroup != NULL);
+            ensure(currentGroup != NULL, "currentGroup is null");
             
             Transaction transaction(document, "Remove Objects from Group");
             if (currentGroup->childCount() == nodes.size())
@@ -1025,7 +1025,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
-            assert(newParent != NULL);
+            ensure(newParent != NULL, "newParent is null");
             reparentNodes(nodes, newParent);
         }
         
@@ -1055,7 +1055,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent) {
-            assert(newParent != NULL);
+            ensure(newParent != NULL, "newParent is null");
             
             const Model::NodeList reparentableNodes = collectReparentableNodes(nodes, newParent);
             assert(!reparentableNodes.empty());

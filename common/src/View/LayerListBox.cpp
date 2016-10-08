@@ -289,7 +289,7 @@ namespace TrenchBroom {
         ControlListBox::Item* LayerListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
             
             const Model::LayerList layers = world->allLayers();
             ensure(index < layers.size(), "index out of range");

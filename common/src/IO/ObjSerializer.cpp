@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
         ObjFileSerializer::ObjFileSerializer(FILE* stream) :
         m_stream(stream) {
-            assert(m_stream != NULL);
+            ensure(m_stream != NULL, "stream is null");
         }
 
         void ObjFileSerializer::doBeginFile() {}

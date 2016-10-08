@@ -72,21 +72,21 @@ namespace TrenchBroom {
         }
         
         void CreateEntityTool::removeEntity() {
-            assert(m_entity != NULL);
+            ensure(m_entity != NULL, "entity is null");
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
             m_entity = NULL;
         }
         
         void CreateEntityTool::commitEntity() {
-            assert(m_entity != NULL);
+            ensure(m_entity != NULL, "entity is null");
             MapDocumentSPtr document = lock(m_document);
             document->commitTransaction();
             m_entity = NULL;
         }
         
         void CreateEntityTool::updateEntityPosition2D(const Ray3& pickRay) {
-            assert(m_entity != NULL);
+            ensure(m_entity != NULL, "entity is null");
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
-            assert(m_entity != NULL);
+            ensure(m_entity != NULL, "entity is null");
             
             MapDocumentSPtr document = lock(m_document);
             

@@ -55,7 +55,7 @@ namespace TrenchBroom {
             m_profile(profile),
             m_nameText(NULL),
             m_taskCountText(NULL) {
-                assert(m_profile != NULL);
+                ensure(m_profile != NULL, "profile is null");
 
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);

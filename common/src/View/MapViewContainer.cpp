@@ -50,13 +50,13 @@ namespace TrenchBroom {
         
         void MapViewContainer::doFlipObjects(const Math::Direction direction) {
             MapView* current = currentMapView();
-            assert(current != NULL);
+            ensure(current != NULL, "current is null");
             current->flipObjects(direction);
         }
 
         Vec3 MapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
             MapView* current = currentMapView();
-            assert(current != NULL);
+            ensure(current != NULL, "current is null");
             return current->pasteObjectsDelta(bounds, referenceBounds);
         }
 

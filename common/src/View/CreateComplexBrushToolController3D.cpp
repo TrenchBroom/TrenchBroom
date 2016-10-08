@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
             m_oldPolyhedron() {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
         public:
             virtual ~Part() {}
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         
         CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
             addController(new DrawFacePart(m_tool));
             addController(new DuplicateFacePart(m_tool));
         }

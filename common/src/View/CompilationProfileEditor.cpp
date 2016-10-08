@@ -139,12 +139,12 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::OnNameChanged(wxCommandEvent& event) {
-            assert(m_profile != NULL);
+            ensure(m_profile != NULL, "profile is null");
             m_profile->setName(m_nameTxt->GetValue().ToStdString());
         }
         
         void CompilationProfileEditor::OnWorkDirChanged(wxCommandEvent& event) {
-            assert(m_profile != NULL);
+            ensure(m_profile != NULL, "profile is null");
             m_profile->setWorkDirSpec(m_workDirTxt->GetValue().ToStdString());
         }
 
@@ -170,7 +170,7 @@ namespace TrenchBroom {
                     return;
             }
             
-            assert(task != NULL);
+            ensure(task != NULL, "task is null");
             const int index = m_taskList->GetSelection();
             if (index == wxNOT_FOUND) {
                 m_profile->addTask(task);

@@ -40,7 +40,7 @@ namespace TrenchBroom {
         m_enabled(true) {}
 
         void ToolBox::addWindow(wxWindow* window) {
-            assert(window != NULL);
+            ensure(window != NULL, "window is null");
 
             window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
             window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
 
         void ToolBox::addTool(Tool* tool) {
-            assert(tool != NULL);
+            ensure(tool != NULL, "tool is null");
             tool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
         }
 
@@ -273,8 +273,8 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateWhen(Tool* master, Tool* slave) {
-            assert(master != NULL);
-            assert(slave != NULL);
+            ensure(master != NULL, "master is null");
+            ensure(slave != NULL, "slave is null");
             assert(master != slave);
             m_deactivateWhen[master].push_back(slave);
         }

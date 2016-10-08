@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
         

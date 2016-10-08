@@ -234,7 +234,7 @@ namespace TrenchBroom {
                 const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
-                assert(texture != NULL);
+                ensure(texture != NULL, "texture is null");
 
                 texture->activate();
                 

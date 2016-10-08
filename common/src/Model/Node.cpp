@@ -193,7 +193,7 @@ namespace TrenchBroom {
         }
 
         void Node::doAddChild(Node* child) {
-            assert(child != NULL);
+            ensure(child != NULL, "child is null");
             assert(!VectorUtils::contains(m_children, child));
             assert(child->parent() == NULL);
             assert(canAddChild(child));
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
 
         void Node::doRemoveChild(Node* child) {
-            assert(child != NULL);
+            ensure(child != NULL, "child is null");
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
@@ -345,7 +345,7 @@ namespace TrenchBroom {
         
         Node::NotifyNodeChange::NotifyNodeChange(Node* node) :
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
             m_node->nodeWillChange();
         }
         

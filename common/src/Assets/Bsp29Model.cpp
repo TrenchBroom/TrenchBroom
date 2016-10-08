@@ -71,7 +71,7 @@ namespace TrenchBroom {
         Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :
         m_name(name),
         m_textureCollection(textureCollection) {
-            assert(textureCollection != NULL);
+            ensure(textureCollection != NULL, "textureCollection is null");
         }
 
         Bsp29Model::~Bsp29Model() {

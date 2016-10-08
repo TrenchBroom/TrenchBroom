@@ -176,10 +176,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            assert(data != NULL);
+            ensure(data != NULL, "data is null");
             
             const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
-            assert(quickFix != NULL);
+            ensure(quickFix != NULL, "quickFix is null");
 
             MapDocumentSPtr document = lock(m_document);
             const Model::IssueList issues = collectIssues(getSelection());

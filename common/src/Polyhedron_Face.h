@@ -96,7 +96,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const Vertex* origin) const {
-    assert(origin != NULL);
+    ensure(origin != NULL, "origin is null");
     HalfEdge* firstEdge = m_boundary.front();
     HalfEdge* currentEdge = firstEdge;
     do {
@@ -222,7 +222,7 @@ typename Polyhedron<T,FP,VP>::Vertex::Set Polyhedron<T,FP,VP>::Face::vertexSet()
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
-    assert(other != NULL);
+    ensure(other != NULL, "other is null");
     if (!normal().colinearTo(other->normal()))
         return false;
 
@@ -265,8 +265,8 @@ void Polyhedron<T,FP,VP>::Face::flip() {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge) {
-    assert(before != NULL);
-    assert(edge != NULL);
+    ensure(before != NULL, "before is null");
+    ensure(edge != NULL, "edge is null");
     assert(before->face() == this);
     assert(edge->face() == NULL);
     
@@ -276,8 +276,8 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryBefore(HalfEdge* before, HalfE
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge) {
-    assert(after != NULL);
-    assert(edge != NULL);
+    ensure(after != NULL, "after is null");
+    ensure(edge != NULL, "edge is null");
     assert(after->face() == this);
     assert(edge->face() == NULL);
     
@@ -287,8 +287,8 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdg
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* to) {
-    assert(from != NULL);
-    assert(to != NULL);
+    ensure(from != NULL, "from is null");
+    ensure(to != NULL, "to is null");
     assert(from->face() == this);
     assert(to->face() == this);
     
@@ -310,9 +310,9 @@ size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* edge, HalfEdge* with
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
-    assert(from != NULL);
-    assert(to != NULL);
-    assert(with != NULL);
+    ensure(from != NULL, "from is null");
+    ensure(to != NULL, "to is null");
+    ensure(with != NULL, "with is null");
     assert(from->face() == this);
     assert(to->face() == this);
     assert(with->face() == NULL);
@@ -402,7 +402,7 @@ void Polyhedron<T,FP,VP>::Face::setLeavingEdges() {
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
-    assert(other != NULL);
+    ensure(other != NULL, "other is null");
     assert(other != this);
 
     typename Vertex::Set intersection = SetUtils::intersection(vertexSet(), other->vertexSet());

@@ -45,7 +45,7 @@ namespace TrenchBroom {
         protected:
             RotateObjectsBase(RotateObjectsTool* tool) :
             m_tool(tool) {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
         private:
             Tool* doGetTool() {
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             MoveCenterBase(RotateObjectsTool* tool) :
             MoveToolController(tool->grid()),
             m_tool(tool) {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
 
             Tool* doGetTool() {
