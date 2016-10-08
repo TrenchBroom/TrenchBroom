@@ -237,6 +237,34 @@ TEST(PolyhedronTest, convexHullWithFailingPoints7) {
     p.addPoint(p8);
 }
 
+TEST(PolyhedronTest, convexHullWithFailingPoints8) {
+    // Cause of https://github.com/kduske/TrenchBroom/issues/1469
+    // See also BrushTest.subtractTruncatedCones
+    
+    const Vec3d  p1(-22.364439661516872, 9.2636542228362799, 32);
+    const Vec3d  p2(-21.333333333333332, 11.049582771255995, 32);
+    const Vec3d  p3(-20.235886048009661, 12.95041722806517, 32);
+    const Vec3d  p4(-19.126943405596094, 11.042945924655637, 32);
+    const Vec3d  p5(-18.31934864142023, 14.056930615671543, 32);
+    const Vec3d  p6(-17.237604305873624, 9.9521354859295226, 7.4256258352417603);
+    const Vec3d  p7(-16, 6.6274169975893429, -0);
+    const Vec3d  p8(-15.999999999999998, 9.2376043067828455, -0);
+    const Vec3d  p9(-14.345207554102323, 8.2822094434885454, -0);
+    const Vec3d p10(-13.739511480972288, 10.542697961743528, -0);
+    
+    Polyhedron3d p;
+    p.addPoint( p1);
+    p.addPoint( p2);
+    p.addPoint( p3);
+    p.addPoint( p4);
+    p.addPoint( p5);
+    p.addPoint( p6);
+    p.addPoint( p7);
+    p.addPoint( p8);
+    p.addPoint( p9);
+    p.addPoint(p10);
+}
+
 /*
 TEST(PolyhedronTest, testImpossibleSplit) {
     const Vec3d p1( 0.0, 4.0, 8.0);
