@@ -36,6 +36,7 @@ namespace TrenchBroom {
         public:
             NodeReader(const String& str, Model::ModelFactory* factory, Logger* logger = NULL);
             
+            static Model::NodeList read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds);
             const Model::NodeList& read(const BBox3& worldBounds);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds);
