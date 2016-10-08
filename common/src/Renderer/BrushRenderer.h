@@ -135,7 +135,7 @@ namespace TrenchBroom {
             BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
             m_valid(true),
-            m_showEdges(true),
+            m_showEdges(false),
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),

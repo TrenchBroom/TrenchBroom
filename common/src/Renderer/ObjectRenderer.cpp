@@ -114,6 +114,10 @@ namespace TrenchBroom {
             m_entityRenderer.setBoundsColor(color);
         }
         
+        void ObjectRenderer::setShowBrushEdges(const bool showBrushEdges) {
+            m_brushRenderer.setShowEdges(showBrushEdges);
+        }
+
         void ObjectRenderer::setBrushFaceColor(const Color& brushFaceColor) {
             m_brushRenderer.setFaceColor(brushFaceColor);
         }
