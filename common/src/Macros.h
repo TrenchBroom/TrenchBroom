@@ -42,6 +42,6 @@
 #define stringification(expression) #expression
 #define stringification2(expression) stringification(expression)
 
-#define ensure(condition, message) do { if (!(condition)) { throw ConditionFailedException(__FILE__, __LINE__, stringification2(condition), message); } } while (0)
+#define ensure(condition, message) do { if (!(condition)) { throw TrenchBroom::ConditionFailedException(__FILE__, __LINE__, stringification2(condition), message); } } while (0)
 
 #endif

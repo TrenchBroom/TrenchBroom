@@ -184,7 +184,7 @@ namespace TrenchBroom {
             const Model::LayerList layers = world->allLayers();
 
             const size_t index = static_cast<size_t>(GetSelection());
-            assert(index < layers.size());
+            ensure(index < layers.size(), "index out of range");
             return layers[index];
         }
 
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             assert(world != NULL);
             
             const Model::LayerList layers = world->allLayers();
-            assert(index < layers.size());
+            ensure(index < layers.size(), "index out of range");
             
             return new LayerItem(parent, document, layers[index], margins);
         }

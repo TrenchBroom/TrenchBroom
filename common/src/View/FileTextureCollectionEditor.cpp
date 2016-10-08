@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < selections.size(); ++i) {
                 const size_t index = static_cast<size_t>(selections[i]);
-                assert(index < collections.size());
+                ensure(index < collections.size(), "index out of range");
                 toRemove.push_back(collections[index]);
             }
 

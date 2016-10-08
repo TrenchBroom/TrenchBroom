@@ -19,6 +19,7 @@
 
 #include "ControlListBox.h"
 
+#include "Macros.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 
@@ -136,7 +137,7 @@ namespace TrenchBroom {
 
         void ControlListBox::MakeVisible(const size_t index) {
             validate();
-            assert(index < m_items.size());
+            ensure(index < m_items.size(), "index out of range");
             MakeVisible(m_items[index]);
         }
 
@@ -318,7 +319,7 @@ namespace TrenchBroom {
 
         void ControlListBox::setSelection(const size_t index) {
             validate();
-            assert(index <= m_items.size());
+            ensure(index <= m_items.size(), "index out of range");
             const bool changed = m_selectionIndex != index;
             m_selectionIndex = index;
 

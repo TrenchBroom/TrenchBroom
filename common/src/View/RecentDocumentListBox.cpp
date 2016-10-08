@@ -81,14 +81,14 @@ namespace TrenchBroom {
         wxString RecentDocumentListBox::title(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            assert(n < recentDocuments.size());
+            ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].lastComponent().asString();
         }
         
         wxString RecentDocumentListBox::subtitle(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            assert(n < recentDocuments.size());
+            ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].asString();
         }
     }

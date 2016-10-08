@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 using std::swap;
 
                 assert(m_key.size() > 1);
-                assert(index < m_key.size());
+                ensure(index < m_key.size(), "index out of range");
                 
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);

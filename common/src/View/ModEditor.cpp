@@ -121,7 +121,7 @@ namespace TrenchBroom {
             StringList mods = document->mods();
 
             const size_t index = static_cast<size_t>(selections.front());
-            assert(index > 0 && index < mods.size());
+            ensure(index > 0 && index < mods.size(), "index out of range");
             
             using std::swap;
             swap(mods[index - 1], mods[index]);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             StringList mods = document->mods();
             
             const size_t index = static_cast<size_t>(selections.front());
-            assert(index < mods.size() - 1);
+            ensure(index < mods.size() - 1, "index out of range");
             
             using std::swap;
             swap(mods[index + 1], mods[index]);

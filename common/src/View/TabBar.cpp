@@ -19,6 +19,7 @@
 
 #include "TabBar.h"
 
+#include "Macros.h"
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
 
@@ -105,7 +106,7 @@ namespace TrenchBroom {
 
             wxWindow* button = static_cast<wxWindow*>(event.GetEventObject());
             const size_t index = findButtonIndex(button);
-            assert(index < m_buttons.size());
+            ensure(index < m_buttons.size(), "index out of range");
             m_tabBook->switchToPage(index);
         }
 

@@ -125,7 +125,7 @@ namespace TrenchBroom {
         }
 
         String GameConfig::FlagsConfig::flagName(const size_t index) const {
-            assert(index < flags.size());
+            ensure(index < flags.size(), "index out of range");
             return flags[index].name;
         }
         
