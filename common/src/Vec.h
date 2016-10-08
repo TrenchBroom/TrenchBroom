@@ -1176,7 +1176,7 @@ bool linearlyDependent1(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c)
         l += ba * ba;
     }
     
-    return (j * j - k * l) == 0.0;
+    return Math::zero(j * j - k * l, Math::Constants<T>::colinearEpsilon());
 }
 
 
