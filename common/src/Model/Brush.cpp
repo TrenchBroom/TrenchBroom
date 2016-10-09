@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void faceWillBeDeleted(BrushFaceGeometry* face) {
                 BrushFace* brushFace = face->payload();
                 if (brushFace != NULL) {
-                    assert(!brushFace->selected());
+                    ensure(!brushFace->selected(), "brush face is selected");
                     
                     delete brushFace;
                     face->setPayload(NULL);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 
                 BrushFace* faceToDelete = geometryToDelete->payload();
                 ensure(faceToDelete != NULL, "faceToDelete is null");
-                assert(!faceToDelete->selected());
+                ensure(!faceToDelete->selected(), "brush face is selected");
                 
                 delete faceToDelete;
                 geometryToDelete->setPayload(NULL);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             void faceWillBeDeleted(BrushFaceGeometry* face) {
                 BrushFace* brushFace = face->payload();
                 ensure(brushFace != NULL, "brushFace is null");
-                assert(!brushFace->selected());
+                ensure(!brushFace->selected(), "brush face is selected");
                 
                 delete brushFace;
                 face->setPayload(NULL);
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             }
             
             void faceDidChange(BrushFaceGeometry* faceGeometry) {
-                assert(false);
+                ensure(false, "faceDidChange called");
             }
             
             void faceWasFlipped(BrushFaceGeometry* faceGeometry) {
@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 
                 BrushFace* originalFace = originalGeometry->payload();
                 ensure(originalFace != NULL, "originalFace is null");
-                assert(cloneGeometry->payload() == NULL);
+                ensure(cloneGeometry->payload() == NULL, "clone face is non-null");
                 
                 BrushFace* clonedFace = originalFace->clone();
                 cloneGeometry->setPayload(clonedFace);
@@ -288,14 +288,14 @@ namespace TrenchBroom {
             }
             
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
-                assert(false);
+                ensure(false, "facesWillBeMerged called");
             }
             
             typedef std::map<BrushFace*, size_t> SharedIncidentFaceCounts;
             
             BrushFace* findMatchingFace(BrushFaceGeometry* geometry) const {
                 const SharedIncidentFaceCounts counts = findSharedIncidentFaces(geometry);
-                assert(!counts.empty());
+                ensure(!counts.empty(), "empty shared incident face counts");
                 
                 size_t bestCount = 0;
                 BrushFace* bestFace = NULL;
@@ -476,7 +476,7 @@ namespace TrenchBroom {
 
         void Brush::addFace(BrushFace* face) {
             ensure(face != NULL, "face is null");
-            assert(face->brush() == NULL);
+            ensure(face->brush() == NULL, "face brush is null");
             assert(!VectorUtils::contains(m_faces, face));
             
             m_faces.push_back(face);
@@ -494,7 +494,7 @@ namespace TrenchBroom {
             ensure(face != NULL, "face is null");
 
             BrushFaceList::iterator it = std::remove(begin, end, face);
-            assert(it != m_faces.end());
+            ensure(it != m_faces.end(), "face to remove not found");
             detachFace(face);
             return it;
         }
@@ -507,7 +507,7 @@ namespace TrenchBroom {
 
         void Brush::detachFace(BrushFace* face) {
             ensure(face != NULL, "face is null");
-            assert(face->brush() == this);
+            ensure(face->brush() == this, "invalid face brush");
 
             if (face->selected())
                 decChildSelectionCount(1);
@@ -654,7 +654,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!vertexPositions.empty());
+            ensure(!vertexPositions.empty(), "no vertex positions");
             if (delta.null())
                 return false;
             
@@ -667,7 +667,7 @@ namespace TrenchBroom {
         
         Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!vertexPositions.empty());
+            ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
             
             const NotifyNodeChange nodeChange(this);
@@ -682,7 +682,7 @@ namespace TrenchBroom {
         
         bool Brush::canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!vertexPositions.empty());
+            ensure(!vertexPositions.empty(), "no vertex positions");
             
             BrushGeometry testGeometry(*m_geometry);
             
@@ -701,7 +701,7 @@ namespace TrenchBroom {
         
         void Brush::removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!vertexPositions.empty());
+            ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canRemoveVertices(worldBounds, vertexPositions));
 
             const NotifyNodeChange nodeChange(this);
@@ -798,7 +798,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!edgePositions.empty());
+            ensure(!edgePositions.empty(), "no edge positions");
             if (delta.null())
                 return true;
             
@@ -823,7 +823,7 @@ namespace TrenchBroom {
         
         Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!edgePositions.empty());
+            ensure(!edgePositions.empty(), "no edge positions");
             assert(canMoveEdges(worldBounds, edgePositions, delta));
             
             const NotifyNodeChange nodeChange(this);
@@ -879,7 +879,7 @@ namespace TrenchBroom {
 
         bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!facePositions.empty());
+            ensure(!facePositions.empty(), "no face positions");
             if (delta.null())
                 return false;
             
@@ -905,7 +905,7 @@ namespace TrenchBroom {
         
         Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
-            assert(!facePositions.empty());
+            ensure(!facePositions.empty(), "no face positions");
             assert(canMoveFaces(worldBounds, facePositions, delta));
             
             const NotifyNodeChange nodeChange(this);
@@ -1122,7 +1122,7 @@ namespace TrenchBroom {
         }
         
         void Brush::validateContentType() const {
-            assert(!m_contentTypeValid);
+            ensure(!m_contentTypeValid, "content type already valid");
             if (m_contentTypeBuilder != NULL) {
                 const BrushContentTypeBuilder::Result result = m_contentTypeBuilder->buildContentType(this);
                 m_contentType = result.contentType;
@@ -1192,7 +1192,7 @@ namespace TrenchBroom {
         void Brush::doPick(const Ray3& ray, PickResult& pickResult) const {
             const BrushFaceHit hit = findFaceHit(ray);
             if (hit.face != NULL) {
-                assert(!Math::isnan(hit.distance));
+                ensure(!Math::isnan(hit.distance), "nan hit distance");
                 const Vec3 hitPoint = ray.pointAtDistance(hit.distance);
                 pickResult.addHit(Hit(BrushHit, hit.distance, hitPoint, hit.face));
             }
