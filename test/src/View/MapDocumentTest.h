@@ -22,6 +22,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Model/MapFormat.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -31,8 +32,13 @@ namespace TrenchBroom {
     
     namespace View {
         class MapDocumentTest : public ::testing::Test {
+        private:
+            Model::MapFormat::Type m_mapFormat;
         protected:
             MapDocumentSPtr document;
+        protected:
+            MapDocumentTest();
+            MapDocumentTest(Model::MapFormat::Type mapFormat);
             
             void SetUp();
             

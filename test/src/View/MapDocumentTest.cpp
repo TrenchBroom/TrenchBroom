@@ -30,9 +30,17 @@
 
 namespace TrenchBroom {
     namespace View {
+        MapDocumentTest::MapDocumentTest() :
+        ::testing::Test(),
+        m_mapFormat(Model::MapFormat::Standard) {}
+        
+        MapDocumentTest::MapDocumentTest(const Model::MapFormat::Type mapFormat) :
+        ::testing::Test(),
+        m_mapFormat(mapFormat) {}
+
         void MapDocumentTest::SetUp() {
             document = MapDocumentCommandFacade::newMapDocument();
-            document->newDocument(Model::MapFormat::Standard, BBox3(8192.0), Model::GamePtr(new Model::TestGame()));
+            document->newDocument(m_mapFormat, BBox3(8192.0), Model::GamePtr(new Model::TestGame()));
         }
 
         Model::Brush* MapDocumentTest::createBrush() {
