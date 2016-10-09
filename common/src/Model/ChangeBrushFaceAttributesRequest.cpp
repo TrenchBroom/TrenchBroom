@@ -268,6 +268,13 @@ namespace TrenchBroom {
             }
         }
 
+        void ChangeBrushFaceAttributesRequest::resetAll() {
+            resetTextureAxes();
+            setOffset(Vec2f::Null);
+            setRotation(0.0f);
+            setScale(Vec2f::One);
+        }
+
         void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {
             m_texture = texture;
             m_setTexture = true;
