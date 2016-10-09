@@ -331,7 +331,7 @@ namespace TrenchBroom {
                 SurfaceDragSnapper(grid) {}
             private:
                 Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const {
-                    assert(hit.type() == Model::Brush::BrushHit);
+                    ensure(hit.type() == Model::Brush::BrushHit, "invalid hit type");
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     return face->boundary();
                 }
@@ -347,7 +347,7 @@ namespace TrenchBroom {
             
             Vec3::List getHelpVectors(const InputState& inputState) const {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-                assert(hit.isMatch());
+                ensure(hit.isMatch(), "hit is not a match");
                 
                 Model::BrushFace* face = Model::hitToFace(hit);
                 return selectHelpVectors(face, hit.hitPoint());
