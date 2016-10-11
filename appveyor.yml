@@ -1,0 +1,29 @@
+version: 2.0.0-appveyor-{build}
+install:
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0-headers.7z' -OutFile 'headers.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc100_Dev.7z' -OutFile 'dev.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc100_ReleaseDLL.7z' -OutFile 'dll.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc100_ReleasePDB.7z' -OutFile 'pdb.7z'
+- ps: if ("c1b33a1e9c245b76031461b8cdc1fea8f6c68904" -ne (Get-FileHash -Path "headers.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("f8400a2b4d3fb23576dd8139073abdd1519ccf0a" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("02c5b459b0618a6cf43a651cdf9d8f725c9350b6" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("ac401f050a6f89277af2d7097f141db5c66a3007" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
+- ps: 7z x headers.7z -oc:\wxWidgets-3.1.0
+- ps: 7z x dev.7z -oc:\wxWidgets-3.1.0
+- ps: 7z x dll.7z -oc:\wxWidgets-3.1.0
+- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.0
+build_script:
+- ps: >-
+    $env:Path += ";c:\wxWidgets-3.1.0\lib\vc100_dll"
+
+    $env:WXWIN="c:\wxWidgets-3.1.0"
+
+    mkdir cmakebuild
+
+    cd cmakebuild
+
+    cmake .. -G"Visual Studio 10" -DCMAKE_BUILD_TYPE=Debug
+
+    msbuild TrenchBroom-Test.vcxproj /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    .\Debug\TrenchBroom-Test.exe
