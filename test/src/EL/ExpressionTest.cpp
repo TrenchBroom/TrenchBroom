@@ -19,6 +19,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 #include "CollectionUtils.h"
 #include "EL.h"
 #include "IO/ELParser.h"
