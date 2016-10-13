@@ -124,6 +124,7 @@ namespace TrenchBroom {
             }
         }
         
+        
         bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const {
             return m_transparent;
         }
