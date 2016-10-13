@@ -30,7 +30,9 @@ int main(int argc, char **argv) {
 
     wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
     wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
+    ensure(wxEntryStart(argc, argv), "wxWidgets initialization failed");
+
+    ensure(wxApp::GetInstance() == pApp, "invalid app instance");
 
     // use an empty file config so that we always use the default preferences
     wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
