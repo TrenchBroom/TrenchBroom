@@ -23,5 +23,5 @@ cd ..
 mkdir build
 cd build
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-debug/install || exit 1
-ninja TrenchBroom-Test || exit 1
+ninja || exit 1
 ./TrenchBroom-Test
