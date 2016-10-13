@@ -3,7 +3,7 @@
 set -o verbose
 
 brew update
-brew install cmake ninja p7zip
+brew install cmake ninja p7zip pandoc
 
 # Patch and build wxWidgets
 
