@@ -122,8 +122,10 @@ namespace TrenchBroom {
                 case EL::Type_Range:
                 case EL::Type_Null:
                 case EL::Type_Undefined:
-                    return ModelSpecification();
+                    break;
             }
+            
+            return ModelSpecification();
         }
 
         String ModelDefinition::path(const EL::Value& value) const {
