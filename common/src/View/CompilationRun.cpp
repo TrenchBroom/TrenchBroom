@@ -66,9 +66,9 @@ namespace TrenchBroom {
         }
 
         void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, const bool test) {
-            assert(profile != NULL);
-            assert(document.get() != NULL);
-            assert(currentOutput != NULL);
+            ensure(profile != NULL, "profile is null");
+            ensure(document.get() != NULL, "document is null");
+            ensure(currentOutput != NULL, "currentOutput is null");
             
             wxCriticalSectionLocker lock(m_currentRunSection);
             assert(!doIsRunning());

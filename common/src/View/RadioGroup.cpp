@@ -19,6 +19,8 @@
 
 #include "RadioGroup.h"
 
+#include "Macros.h"
+
 #include <wx/radiobut.h>
 #include <wx/sizer.h>
 
@@ -83,7 +85,7 @@ namespace TrenchBroom {
         void RadioGroup::SetSelection(const int index) {
             assert(index >= 0);
             const size_t indexS = static_cast<size_t>(index);
-            assert(indexS < m_buttons.size());
+            ensure(indexS < m_buttons.size(), "index out of range");
             m_buttons[indexS]->SetValue(true);
         }
 

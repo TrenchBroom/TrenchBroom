@@ -271,8 +271,8 @@ namespace TrenchBroom {
             }
             
             void end() {
-                assert(m_process != NULL);
-                assert(m_timer != NULL);
+                ensure(m_process != NULL, "process is null");
+                ensure(m_timer != NULL, "timer is null");
 
                 delete m_timer;
                 m_timer = NULL;
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             }
             
             wxString readStream(wxInputStream* stream) {
-                assert(stream != NULL);
+                ensure(stream != NULL, "stream is null");
                 wxStringOutputStream out;
                 if (stream->CanRead()) {
                     static const size_t BUF_SIZE = 8192;

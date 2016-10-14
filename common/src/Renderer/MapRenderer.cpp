@@ -69,7 +69,9 @@ namespace TrenchBroom {
             }
             
             void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
+                const bool brushEditable = editable(brush);
                 
                 const Model::Brush::EdgeList& edges = brush->edges();
                 Model::Brush::EdgeList::const_iterator it, end;
@@ -80,7 +82,7 @@ namespace TrenchBroom {
                     const Model::BrushFace* second = edge->secondFace()->payload();
                     assert(second->brush() == brush);
                     
-                    if (brushSelected || selected(first) || selected(second)) {
+                    if (brushEditable && (brushSelected || selected(first) || selected(second)) && brushVisible) {
                          provideEdges.accept(edge);
                     }
                 }
@@ -383,6 +385,7 @@ namespace TrenchBroom {
         void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
             renderer->setOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderer->setShowBrushEdges(true);
             renderer->setShowOccludedObjects(true);
             renderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
             renderer->setTint(true);

@@ -31,9 +31,14 @@ namespace TrenchBroom {
         NodeReader::NodeReader(const String& str, Model::ModelFactory* factory, Logger* logger) :
         MapReader(str, logger),
         m_factory(factory) {
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
+        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds) {
+            NodeReader reader(str, factory);
+            return reader.read(worldBounds);
+        }
+
         const Model::NodeList& NodeReader::read(const BBox3& worldBounds) {
             try {
                 readEntities(m_factory->format(), worldBounds);

@@ -77,8 +77,8 @@ namespace TrenchBroom {
         }
         
         void SmartChoiceEditor::doDestroyVisual() {
-            assert(m_panel != NULL);
-            assert(m_comboBox != NULL);
+            ensure(m_panel != NULL, "panel is null");
+            ensure(m_comboBox != NULL, "comboBox is null");
             
             m_panel->Destroy();
             m_panel = NULL;
@@ -86,8 +86,8 @@ namespace TrenchBroom {
         }
         
         void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            assert(m_panel != NULL);
-            assert(m_comboBox != NULL);
+            ensure(m_panel != NULL, "panel is null");
+            ensure(m_comboBox != NULL, "comboBox is null");
             
             wxWindowUpdateLocker locker(m_panel);
             m_comboBox->Clear();

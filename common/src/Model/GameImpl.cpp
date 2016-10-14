@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 for (it = packages.begin(), end = packages.end(); it != end; ++it) {
                     const IO::Path& packagePath = *it;
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
-                    assert(packageFile.get() != NULL);
+                    ensure(packageFile.get() != NULL, "packageFile is null");
 
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
                         m_gameFS.addFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
@@ -232,7 +232,7 @@ namespace TrenchBroom {
         }
 
         IO::Path::List GameImpl::doExtractTextureCollections(const World* world) const {
-            assert(world != NULL);
+            ensure(world != NULL, "world is null");
 
             const String& property = m_config.textureConfig().attribute;
             if (property.empty())
@@ -328,7 +328,7 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
                 const IO::MappedFile::Ptr file = m_gameFS.openFile(path);
-                assert(file.get() != NULL);
+                ensure(file.get() != NULL, "file is null");
 
                 const String modelName = path.lastComponent().asString();
                 const String extension = StringUtils::toLower(path.extension());
@@ -429,7 +429,7 @@ namespace TrenchBroom {
         }
 
         String GameImpl::readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
 
             size_t index = 1;
             StringStream nameStr;

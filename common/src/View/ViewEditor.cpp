@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const size_t groupIndex = static_cast<size_t>(variant->GetLong());
 
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
-            assert(groupIndex < m_entityDefinitionManager.groups().size());
+            ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
             const Assets::EntityDefinitionList& definitions = group.definitions();
@@ -445,7 +445,7 @@ namespace TrenchBroom {
             m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
 
-            assert(inner->GetSizer() != NULL);
+            ensure(inner->GetSizer() != NULL, "inner sizer is null");
             inner->GetSizer()->Prepend(m_showBrushesCheckBox);
 
             return panel;

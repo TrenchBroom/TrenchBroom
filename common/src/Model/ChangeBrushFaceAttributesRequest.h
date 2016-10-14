@@ -82,6 +82,8 @@ namespace TrenchBroom {
             const String name() const;
             void evaluate(const BrushFaceList& faces) const;
             
+            void resetAll();
+            
             void setTexture(Assets::Texture* texture);
             
             void resetTextureAxes();

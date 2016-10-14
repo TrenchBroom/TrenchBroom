@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
         Vec2f UVOffsetTool::snapDelta(const Vec2f& delta) const {
             const Model::BrushFace* face = m_helper.face();
-            assert(face != NULL);
+            ensure(face != NULL, "face is null");
             
             const Assets::Texture* texture = face->texture();
             if (texture == NULL)

@@ -38,7 +38,7 @@ namespace TrenchBroom {
         public:
             VertexPartBase(VertexTool* tool) :
             m_tool(tool) {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
         protected:
             Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
@@ -115,20 +115,20 @@ namespace TrenchBroom {
             }
             
             DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 m_lasso->setPoint(curPoint);
                 return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
                 delete m_lasso;
                 m_lasso = NULL;
             }
             
             void doCancelDrag() {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 delete m_lasso;
                 m_lasso = NULL;
             }
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             public:
                 VertexDragRestricter(VertexTool* tool) :
                 m_tool(tool) {
-                    assert(m_tool != NULL);
+                    ensure(m_tool != NULL, "tool is null");
                 }
             private:
                 bool doComputeHitPoint(const InputState& inputState, Vec3& point) const {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
         
         VertexToolController::VertexToolController(VertexTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
             addController(new MoveVertexPart(tool));
             addController(new SnapVertexPart(tool));
             addController(new SelectVertexPart(tool));

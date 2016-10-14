@@ -31,7 +31,7 @@ namespace TrenchBroom {
         const Command::CommandType AddRemoveNodesCommand::Type = Command::freeType();
         
         AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::add(Model::Node* parent, const Model::NodeList& children) {
-            assert(parent != NULL);
+            ensure(parent != NULL, "parent is null");
             Model::ParentChildrenMap nodes;
             nodes[parent] = children;
             

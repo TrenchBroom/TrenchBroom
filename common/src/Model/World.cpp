@@ -41,7 +41,7 @@ namespace TrenchBroom {
         }
 
         Layer* World::defaultLayer() const {
-            assert(m_defaultLayer != NULL);
+            ensure(m_defaultLayer != NULL, "defaultLayer is null");
             return m_defaultLayer;
         }
 

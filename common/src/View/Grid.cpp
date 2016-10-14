@@ -112,23 +112,28 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
-            const Vec3 halfSize = bounds.size() / 2.0;
-            FloatType offsetLength = halfSize.dot(dragPlane.normal);
-            if (offsetLength < 0.0)
-                offsetLength = -offsetLength;
-            const Vec3 offset = dragPlane.normal * offsetLength;
             
+            // First, compute the snapped position under the mouse:
             const FloatType dist = dragPlane.intersectWithRay(ray);
-            const Vec3 newPos = ray.pointAtDistance(dist);
-            Vec3 delta = moveDeltaForPoint(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
+            const Vec3 hitPoint = ray.pointAtDistance(dist);
+            const Vec3 newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
+            const Vec3 offset = newPos - hitPoint;
             
-            const Math::Axis::Type a = dragPlane.normal.firstComponent();
-            if (dragPlane.normal[a] > 0.0)
-                delta[a] = position[a] - bounds.min[a];
-            else
-                delta[a] = position[a] - bounds.max[a];
+            const Vec3 normal = dragPlane.normal;
+            const Vec3 size = bounds.size();
             
-            return delta;
+            Vec3 newMinPos = newPos;
+            for (size_t i = 0; i < 3; ++i) {
+                if (Math::zero(offset[i])) {
+                    if (normal[i] < 0.0)
+                        newMinPos[i] -= size[i];
+                } else {
+                    if ((size[i] >= 0.0) != (ray.direction[i] >= 0.0))
+                        newMinPos[i] -= size[i];
+                }
+            }
+
+            return newMinPos - bounds.min;
         }
         
         Vec3 Grid::moveDelta(const BBox3& bounds, const BBox3& worldBounds, const Vec3& delta) const {

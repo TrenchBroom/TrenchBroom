@@ -109,6 +109,12 @@ namespace Math {
     }
     
     template <typename T>
+    bool isinf(const T f) {
+        return (f ==  std::numeric_limits<T>::infinity() ||
+                f == -std::numeric_limits<T>::infinity());
+    }
+    
+    template <typename T>
     T nan() {
         return std::numeric_limits<T>::quiet_NaN();
     }

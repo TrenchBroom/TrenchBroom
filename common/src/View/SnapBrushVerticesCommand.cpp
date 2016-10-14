@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
         
         bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot != NULL);
+            ensure(m_snapshot != NULL, "snapshot is null");
             document->restoreSnapshot(m_snapshot);
             delete m_snapshot;
             m_snapshot = NULL;

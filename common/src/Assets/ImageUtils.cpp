@@ -35,13 +35,13 @@ namespace TrenchBroom {
                 unsigned char* oldPtr = buffers[i].ptr();
                 
                 FIBITMAP* oldBitmap = FreeImage_ConvertFromRawBits(oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-                assert(oldBitmap != NULL);
+                ensure(oldBitmap != NULL, "oldBitmap is null");
                 
                 const int newWidth = static_cast<int>(newSize.x() / div);
                 const int newHeight = static_cast<int>(newSize.y() / div);
                 const int newPitch = newWidth * 3;
                 FIBITMAP* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
-                assert(newBitmap != NULL);
+                ensure(newBitmap != NULL, "newBitmap is null");
                 
                 buffers[i] = TextureBuffer(3 * newSize.x() * newSize.y());
                 unsigned char* newPtr = buffers[i].ptr();

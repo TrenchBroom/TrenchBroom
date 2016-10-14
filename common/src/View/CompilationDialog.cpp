@@ -129,7 +129,7 @@ namespace TrenchBroom {
                 m_run.terminate();
             } else {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
-                assert(profile != NULL);
+                ensure(profile != NULL, "profile is null");
                 m_output->Clear();
                 
                 if (testRun())

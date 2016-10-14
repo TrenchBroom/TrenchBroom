@@ -168,7 +168,7 @@ namespace TrenchBroom {
         public:
             MatchFaceBoundary(const Model::BrushFace* reference) :
             m_reference(reference) {
-                assert(m_reference != NULL);
+                ensure(m_reference != NULL, "reference is null");
             }
             
             bool operator()(Model::BrushFace* face) const {

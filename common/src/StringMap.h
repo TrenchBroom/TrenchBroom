@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 using std::swap;
 
                 assert(m_key.size() > 1);
-                assert(index < m_key.size());
+                ensure(index < m_key.size(), "index out of range");
                 
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
@@ -336,12 +336,12 @@ namespace TrenchBroom {
         }
         
         void insert(const String& key, const V& value) {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             m_root->insert(key, value);
         }
         
         void remove(const String& key, const V& value) {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             m_root->remove(key, value);
         }
         
@@ -351,21 +351,21 @@ namespace TrenchBroom {
         }
         
         QueryResult queryPrefixMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
         
         QueryResult queryNumberedMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
         
         QueryResult queryExactMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;

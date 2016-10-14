@@ -246,17 +246,6 @@ namespace TrenchBroom {
                 if (m_setTexture)
                     face->setTexture(m_texture);
                 
-                switch (m_axisOp) {
-                    case AxisOp_Reset:
-                        face->resetTextureAxes();
-                        break;
-                    case AxisOp_None:
-                    case AxisOp_ToParaxial:
-                    case AxisOp_ToParallel:
-                        break;
-                    switchDefault()
-                }
-                
                 face->setXOffset(evaluateValueOp(face->xOffset(), m_xOffset, m_xOffsetOp));
                 face->setYOffset(evaluateValueOp(face->yOffset(), m_yOffset, m_yOffsetOp));
                 face->setRotation(evaluateValueOp(face->rotation(), m_rotation, m_rotationOp));
@@ -265,7 +254,25 @@ namespace TrenchBroom {
                 face->setSurfaceFlags(evaluateFlagOp(face->surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
                 face->setSurfaceContents(evaluateFlagOp(face->surfaceContents(), m_contentFlags, m_contentFlagsOp));
                 face->setSurfaceValue(evaluateValueOp(face->surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                
+                switch (m_axisOp) {
+                    case AxisOp_Reset:
+                        face->resetTextureAxes();
+                        break;
+                    case AxisOp_None:
+                    case AxisOp_ToParaxial:
+                    case AxisOp_ToParallel:
+                        break;
+                        switchDefault()
+                }
             }
+        }
+
+        void ChangeBrushFaceAttributesRequest::resetAll() {
+            resetTextureAxes();
+            setOffset(Vec2f::Null);
+            setRotation(0.0f);
+            setScale(Vec2f::One);
         }
 
         void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {

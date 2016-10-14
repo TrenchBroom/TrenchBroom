@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 size_t indexOffset() const {
                     if (m_indexCount == 0)
                         return 0;
-                    assert(m_block != NULL);
+                    ensure(m_block != NULL, "block is null");
                     return m_block->offset();
                     
                 }

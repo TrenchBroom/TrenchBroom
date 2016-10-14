@@ -243,7 +243,7 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::addBrush(Model::Brush* brush) {
-            assert(brush != NULL);
+            ensure(brush != NULL, "brush is null");
             
             const Model::Brush::VertexList brushVertices = brush->vertices();
             Model::Brush::VertexList::const_iterator vIt, vEnd;
@@ -297,13 +297,13 @@ namespace TrenchBroom {
             for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
                 if (removeHandle(vertex->position(), brush, m_selectedVertexHandles)) {
-                    assert(m_selectedVertexCount > 0);
+                    ensure(m_selectedVertexCount > 0, "no selected vertices");
                     m_selectedVertexCount--;
                 } else {
                     removeHandle(vertex->position(), brush, m_unselectedVertexHandles);
                 }
             }
-            assert(m_totalVertexCount >= brushVertices.size());
+            ensure(m_totalVertexCount >= brushVertices.size(), "brush vertices exceed total vertices");
             m_totalVertexCount -= brushVertices.size();
             
             const Model::Brush::EdgeList brushEdges = brush->edges();
@@ -312,13 +312,13 @@ namespace TrenchBroom {
                 Model::BrushEdge* edge = *eIt;
                 const Vec3 position = edge->center();
                 if (removeHandle(position, edge, m_selectedEdgeHandles)) {
-                    assert(m_selectedEdgeCount > 0);
+                    ensure(m_selectedEdgeCount > 0, "no selected edges");
                     m_selectedEdgeCount--;
                 } else {
                     removeHandle(position, edge, m_unselectedEdgeHandles);
                 }
             }
-            assert(m_totalEdgeCount >= brushEdges.size());
+            ensure(m_totalEdgeCount >= brushEdges.size(), "brush edges exceed total edges");
             m_totalEdgeCount -= brushEdges.size();
             
             const Model::BrushFaceList& brushFaces = brush->faces();
@@ -327,13 +327,13 @@ namespace TrenchBroom {
                 Model::BrushFace* face = *fIt;
                 const Vec3 position = face->center();
                 if (removeHandle(position, face, m_selectedFaceHandles)) {
-                    assert(m_selectedFaceCount > 0);
+                    ensure(m_selectedFaceCount > 0, "no selected faces");
                     m_selectedFaceCount--;
                 } else {
                     removeHandle(position, face, m_unselectedFaceHandles);
                 }
             }
-            assert(m_totalFaceCount >= brushFaces.size());
+            ensure(m_totalFaceCount >= brushFaces.size(), "brush faces exceed total faces");
             m_totalFaceCount -= brushFaces.size();
             m_renderStateValid = false;
         }
@@ -365,7 +365,7 @@ namespace TrenchBroom {
         void VertexHandleManager::deselectVertexHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles)) > 0) {
-                assert(m_selectedVertexCount >= count);
+                ensure(m_selectedVertexCount >= count, "deselected vertices exceeds selected vertices");
                 m_selectedVertexCount -= count;
                 m_renderStateValid = false;
             }
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                 m_selectedVertexCount += count;
                 m_renderStateValid = false;
             } else if ((count = moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles)) > 0) {
-                assert(m_selectedVertexCount >= count);
+                ensure(m_selectedVertexCount >= count, "deselected vertices exceeds selected vertices");
                 m_selectedVertexCount -= count;
                 m_renderStateValid = false;
             }
@@ -419,7 +419,7 @@ namespace TrenchBroom {
         void VertexHandleManager::deselectEdgeHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles)) > 0) {
-                assert(m_selectedEdgeCount >= count);
+                ensure(m_selectedEdgeCount >= count, "deselected edges exceeds selected edges");
                 m_selectedEdgeCount -= count;
                 m_renderStateValid = false;
             }
@@ -431,7 +431,7 @@ namespace TrenchBroom {
                 m_selectedEdgeCount += count;
                 m_renderStateValid = false;
             } else if ((count = moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles)) > 0) {
-                assert(m_selectedEdgeCount >= count);
+                ensure(m_selectedEdgeCount >= count, "deselected edges exceeds selected edges");
                 m_selectedEdgeCount -= count;
                 m_renderStateValid = false;
             }
@@ -475,7 +475,7 @@ namespace TrenchBroom {
         void VertexHandleManager::deselectFaceHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedFaceHandles, m_unselectedFaceHandles)) > 0) {
-                assert(m_selectedFaceCount >= count);
+                ensure(m_selectedFaceCount >= count, "deselected faces exceeds selected faces");
                 m_selectedFaceCount -= count;
                 m_renderStateValid = false;
             }
@@ -487,7 +487,7 @@ namespace TrenchBroom {
                 m_selectedFaceCount += count;
                 m_renderStateValid = false;
             } else if ((count = moveHandle(position, m_selectedFaceHandles, m_unselectedFaceHandles)) > 0) {
-                assert(m_selectedFaceCount >= count);
+                ensure(m_selectedFaceCount >= count, "deselected faces exceeds selected faces");
                 m_selectedFaceCount -= count;
                 m_renderStateValid = false;
             }
@@ -659,7 +659,7 @@ namespace TrenchBroom {
             Model::VertexToEdgesMap::const_iterator it = m_unselectedEdgeHandles.find(handlePosition);
             if (it != m_unselectedEdgeHandles.end()) {
                 const Model::BrushEdgeSet& edges = it->second;
-                assert(!edges.empty());
+                ensure(!edges.empty(), "no unselected edge handles");
                 
                 const Model::BrushEdge* edge = *edges.begin();
                 renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
@@ -673,7 +673,7 @@ namespace TrenchBroom {
             Model::VertexToFacesMap::const_iterator it = m_unselectedFaceHandles.find(handlePosition);
             if (it != m_unselectedFaceHandles.end()) {
                 const Model::BrushFaceSet& faces = it->second;
-                assert(!faces.empty());
+                ensure(!faces.empty(), "no unselected face handles");
                 
                 const Model::BrushFace* face = *faces.begin();
                 const Model::BrushFace::VertexList& vertices = face->vertices();
@@ -760,7 +760,7 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::validateRenderState(const bool splitMode) {
-            assert(!m_renderStateValid);
+            ensure(!m_renderStateValid, "render state already valid");
             
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::VertexToEdgesMap::const_iterator eIt, eEnd;

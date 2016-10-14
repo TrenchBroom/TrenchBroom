@@ -66,7 +66,7 @@ namespace TrenchBroom {
             VectorUtils::sort(specs);
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            assert(index < specs.size());
+            ensure(index < specs.size(), "index out of range");
             const Assets::EntityDefinitionFileSpec& spec = specs[index];
             
             document->setEntityDefinitionFile(spec);

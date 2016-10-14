@@ -1080,7 +1080,7 @@ const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
  * 0------v1----2
  */
 template <typename T>
-bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
     normal = crossed(v1, v2);
@@ -1088,10 +1088,9 @@ bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point
     // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
     // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
     const T sin_theta = Math::abs(normal.length() / (v1.length() * v2.length()));
-    if (sin_theta < Math::Constants<T>::angleEpsilon()
-        || Math::isnan(sin_theta)
-        || sin_theta == std::numeric_limits<T>::infinity()
-        || sin_theta == -std::numeric_limits<T>::infinity())
+    if (Math::isnan(sin_theta) ||
+        Math::isinf(sin_theta) ||
+        sin_theta < epsilon)
         return false;
     
     normal.normalize();
@@ -1177,7 +1176,7 @@ bool linearlyDependent1(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c)
         l += ba * ba;
     }
     
-    return (j * j - k * l) == 0.0;
+    return Math::zero(j * j - k * l, Math::Constants<T>::colinearEpsilon());
 }
 
 

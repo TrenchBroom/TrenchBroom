@@ -22,6 +22,7 @@
 
 #include "Exceptions.h"
 #include "Functor.h"
+#include "StringUtils.h"
 
 #include <cstddef>
 #include <vector>

@@ -163,7 +163,7 @@ namespace TrenchBroom {
             }
 
             bool doComputeThirdPoint(Vec3& point) const {
-                assert(m_numPoints == 2);
+                ensure(m_numPoints == 2, "invalid numPoints");
                 point = m_points[1].point + 128.0 * computeHelpVector();
                 return !linearlyDependent(m_points[0].point, m_points[1].point, point);
             }
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             }
 
             void doRemoveLastPoint() {
-                assert(canRemoveLastPoint());
+                ensure(canRemoveLastPoint(), "can't remove last point");
                 --m_numPoints;
             }
             
@@ -260,13 +260,13 @@ namespace TrenchBroom {
             }
             
             void doBeginDragLastPoint() {
-                assert(m_numPoints > 0);
+                ensure(m_numPoints > 0, "invalid numPoints");
                 m_dragIndex = m_numPoints - 1;
                 m_originalPoint = m_points[m_dragIndex];
             }
 
             bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-                assert(m_dragIndex < m_numPoints);
+                ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
                 if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
                     return false;
@@ -306,7 +306,7 @@ namespace TrenchBroom {
             }
 
             void doCancelDragPoint() {
-                assert(m_dragIndex < m_numPoints);
+                ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 m_points[m_dragIndex] = m_originalPoint;
                 m_dragIndex = 4;
                 std::cout << "Cancel Drag" << std::endl;
@@ -339,7 +339,7 @@ namespace TrenchBroom {
                         point3 = m_points[2].point;
                         return 3;
                     default:
-                        assert(false);
+                        ensure(false, "invalid numPoints");
                         return 0;
                 }
             }
@@ -443,7 +443,7 @@ namespace TrenchBroom {
             void doCancelDragPoint() {}
             
             bool doSetFace(const Model::BrushFace* face) {
-                assert(face != NULL);
+                ensure(face != NULL, "face is null");
                 m_face = face;
                 return true; }
             
@@ -632,12 +632,12 @@ namespace TrenchBroom {
         }
         
         void ClipTool::beginDragLastPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->beginDragLastPoint();
         }
 
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
             update();
@@ -645,13 +645,13 @@ namespace TrenchBroom {
         }
         
         void ClipTool::endDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->endDragPoint();
             refreshViews();
         }
 
         void ClipTool::cancelDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->cancelDragPoint();
             refreshViews();
         }
@@ -701,7 +701,7 @@ namespace TrenchBroom {
                 Vec3 point1, point2, point3;
                 const size_t numPoints = m_strategy->getPoints(point1, point2, point3);
                 unused(numPoints);
-                assert(numPoints == 3);
+                ensure(numPoints == 3, "invalid number of points");
                 
                 Model::World* world = document->world();
                 Model::BrushList::const_iterator bIt, bEnd;
@@ -738,7 +738,7 @@ namespace TrenchBroom {
         }
         
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
-            assert(!faces.empty());
+            ensure(!faces.empty(), "no faces");
             
             Model::BrushFaceList::const_iterator faceIt = faces.begin();
             Model::BrushFaceList::const_iterator faceEnd = faces.end();
@@ -760,8 +760,8 @@ namespace TrenchBroom {
                 ++faceIt;
             }
             
-            assert(bestFrontFace != NULL);
-            assert(bestBackFace != NULL);
+            ensure(bestFrontFace != NULL, "bestFrontFace is null");
+            ensure(bestBackFace != NULL, "bestBackFace is null");
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }

@@ -20,15 +20,15 @@
 #ifndef TrenchBroomStackWalker_h
 #define TrenchBroomStackWalker_h
 
-#include "StringUtils.h"
+#include <string>
 
 namespace TrenchBroom {
     class TrenchBroomStackWalker {
     public:
 #if defined(_WIN32) && defined(_MSC_VER)
-        static String getStackTraceFromContext(void *context);
+        static std::string getStackTraceFromContext(void *context);
 #endif
-        static String getStackTrace();
+        static std::string getStackTrace();
     };
 }
 

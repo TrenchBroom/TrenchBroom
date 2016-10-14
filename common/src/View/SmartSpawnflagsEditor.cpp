@@ -112,7 +112,7 @@ namespace TrenchBroom {
         }
         
         void SmartSpawnflagsEditor::doDestroyVisual() {
-            assert(m_scrolledWindow != NULL);
+            ensure(m_scrolledWindow != NULL, "scrolledWindow is null");
             m_lastScrollPos = m_scrolledWindow->GetViewStart();
             m_scrolledWindow->Destroy();
             m_scrolledWindow = NULL;
