@@ -22,7 +22,7 @@ build_script:
 
     cd cmakebuild
 
-    cmake .. -G"Visual Studio 10" -DCMAKE_BUILD_TYPE=Debug
+    cmake .. -G"Visual Studio 10" -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_CXX_FLAGS=/WX
 
     msbuild TrenchBroom-Test.vcxproj /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
