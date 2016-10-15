@@ -39,7 +39,8 @@ namespace TrenchBroom {
         
         Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             Wad wad(spec.path());
-            const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
+            const WadEntryList mipEntries = wad.entriesWithType((wad.type() == WadType::WTWad3) ? WadEntryType::WEConsole : WadEntryType::WEMip);
+
             const size_t textureCount = mipEntries.size();
             
             Assets::TextureList textures;
@@ -64,11 +65,13 @@ namespace TrenchBroom {
 
             const MipSize mipSize = wad.mipSize(entry);
             Assets::setMipBufferSize(buffers, mipSize.width, mipSize.height);
-            
+            Assets::Palette palette = (wad.type() == WadType::WTWad3) ? wad.mipPalette(entry) : m_palette;
+
             for (size_t j = 0; j < 4; ++j) {
                 const MipData mipData = wad.mipData(entry, j);
                 const size_t size = static_cast<size_t>(std::distance(mipData.begin, mipData.end));
-                m_palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
+
+                palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
                 if (j == 0)
                     averageColor = tempColor;
             }

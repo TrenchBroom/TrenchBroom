@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
+#include "Assets/Palette.h"
 
 #include <map>
 #include <vector>
@@ -34,6 +35,12 @@ namespace TrenchBroom {
             static const char WEConsole   = 'C';
             static const char WEMip       = 'D';
             static const char WEPalette   = '@';
+        }
+
+        namespace WadType
+        {
+            static const int32_t WTWad3 = (('3'<<24)+('D'<<16)+('A'<<8)+'W');
+            static const int32_t WTWad2 = (('2'<<24)+('D'<<16)+('A'<<8)+'W');
         }
         
         class WadEntry {
@@ -72,13 +79,16 @@ namespace TrenchBroom {
         private:
             MappedFile::Ptr m_file;
             WadEntryList m_entries;
+            int32_t m_type;
         public:
             Wad(const Path& path);
+            int32_t type() const;
             
             const WadEntryList& allEntries() const;
             const WadEntryList entriesWithType(const char type) const;
             const MipSize mipSize(const WadEntry& entry) const;
             const MipData mipData(const WadEntry& entry, const size_t mipLevel) const;
+            const Assets::Palette mipPalette(const WadEntry& entry) const;
         private:
             void loadEntries();
         };

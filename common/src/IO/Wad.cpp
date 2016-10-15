@@ -88,6 +88,10 @@ namespace TrenchBroom {
             loadEntries();
         }
 
+        int32_t Wad::type() const {
+            return m_type;
+        }
+
         const WadEntryList& Wad::allEntries() const {
             return m_entries;
         }
@@ -108,7 +112,8 @@ namespace TrenchBroom {
                 WadLayout::DirOffsetAddress + sizeof(int32_t) >= m_file->size())
                 throw AssetException("Invalid wad layout");
             
-            const char* cursor = m_file->begin() + WadLayout::NumEntriesAddress;
+            const char* cursor = m_file->begin();
+            m_type = readSize<int32_t>(cursor);
             const size_t entryCount = readSize<int32_t>(cursor);
             cursor = m_file->begin() + WadLayout::DirOffsetAddress;
             const size_t directoryAddr = readSize<int32_t>(cursor);
@@ -139,9 +144,15 @@ namespace TrenchBroom {
         }
 
         const MipSize Wad::mipSize(const WadEntry& entry) const {
-            if (entry.type() != WadEntryType::WEMip)
-                throw AssetException(entry.name() + " is not a Mip entry");
-            
+            if (m_type == WadType::WTWad3) {
+                if (entry.type() != WadEntryType::WEConsole)
+                    throw AssetException(entry.name() + " is not a WAD3 Mip entry");
+            }
+            else {
+                if (entry.type() != WadEntryType::WEMip)
+                    throw AssetException(entry.name() + " is not a Mip entry");
+            }
+
             const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
             const size_t width = readSize<int32_t>(cursor);
             const size_t height = readSize<int32_t>(cursor);
@@ -154,8 +165,14 @@ namespace TrenchBroom {
         const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) const {
             assert(mipLevel < 4);
             
-            if (entry.type() != WadEntryType::WEMip)
-                throw AssetException(entry.name() + " is not a Mip entry");
+            if (m_type == WadType::WTWad3) {
+                if (entry.type() != WadEntryType::WEConsole)
+                    throw AssetException(entry.name() + " is not a WAD3 Mip entry");
+            }
+            else {
+                if (entry.type() != WadEntryType::WEMip)
+                    throw AssetException(entry.name() + " is not a Mip entry");
+            }
 
             const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
             const size_t width = readSize<int32_t>(cursor);
@@ -175,6 +192,24 @@ namespace TrenchBroom {
             
             cursor = m_file->begin() + entry.address() + offset;
             return MipData(cursor, cursor + size);
+        }
+
+        const Assets::Palette Wad::mipPalette(const WadEntry& entry) const {
+            if (m_type != WadType::WTWad3) {
+                 throw AssetException("Wad::mipPalette on non-WAD3 file");
+            }
+
+
+            const char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
+            const size_t width = readSize<int32_t>(cursor);
+            const size_t height = readSize<int32_t>(cursor);
+            if (width == 0 || height == 0
+//                || width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize
+                )
+                throw AssetException(entry.name() + " has invalid dimensions");
+
+            const size_t offset = (width * height * 85 >> 6) + readSize<int32_t>(cursor) + 2;
+            return Assets::Palette((unsigned char *)m_file->begin() + entry.address() + offset, entry.size() - offset );
         }
     }
 }
