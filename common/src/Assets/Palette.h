@@ -36,6 +36,7 @@ namespace TrenchBroom {
         public:
             Palette(const IO::Path& path);
             Palette(const Palette& other);
+            Palette(unsigned char *data, size_t size);
             ~Palette();
             
             void operator=(Palette other);

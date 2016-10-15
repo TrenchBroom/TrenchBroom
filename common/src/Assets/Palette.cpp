@@ -44,6 +44,13 @@ namespace TrenchBroom {
             memcpy(m_data, other.m_data, m_size);
         }
 
+        Palette::Palette(unsigned char *data, size_t size) :
+        m_data(NULL),
+        m_size(size) {
+            m_data = new unsigned char[m_size];
+            memcpy(m_data, data, m_size);
+        }
+
         void Palette::operator=(Palette other) {
             using std::swap;
             swap(m_data, other.m_data);
