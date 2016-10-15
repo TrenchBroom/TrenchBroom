@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
@@ -48,15 +49,24 @@ namespace TrenchBroom {
             AttributeValue m_classname;
         public:
             virtual ~AttributableNode();
-            
+        public: // definition
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
+        public: // notification
+            typedef Notifier2<AttributableNode*, const AttributeName&> AttributeNotifier;
+            
+            AttributeNotifier attributeWasAddedNotifier;
+            AttributeNotifier attributeWillBeRemovedNotifier;
+            AttributeNotifier attributeWillChangeNotifier;
+            AttributeNotifier attributeDidChangeNotifier;
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
             
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
+            AttributeNameSet attributeNames() const;
+            
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
@@ -78,13 +88,14 @@ namespace TrenchBroom {
             }
             
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
-            void addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
+            bool addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
             
             bool canRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             void renameAttribute(const AttributeName& name, const AttributeName& newName);
             
             bool canRemoveAttribute(const AttributeName& name) const;
             void removeAttribute(const AttributeName& name);
+            void removeNumberedAttribute(const AttributeName& prefix);
             
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;

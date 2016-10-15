@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -26,8 +26,8 @@ namespace TrenchBroom {
         MatchSelectableNodes::MatchSelectableNodes(const Model::EditorContext& editorContext) :
         m_editorContext(editorContext) {}
 
-        bool MatchSelectableNodes::operator()(const Model::World* world) const   { return false; }
-        bool MatchSelectableNodes::operator()(const Model::Layer* layer) const   { return false; }
+        bool MatchSelectableNodes::operator()(const Model::World* world) const   { return m_editorContext.selectable(world); }
+        bool MatchSelectableNodes::operator()(const Model::Layer* layer) const   { return m_editorContext.selectable(layer); }
         bool MatchSelectableNodes::operator()(const Model::Group* group) const   { return m_editorContext.selectable(group); }
         bool MatchSelectableNodes::operator()(const Model::Entity* entity) const { return m_editorContext.selectable(entity); }
         bool MatchSelectableNodes::operator()(const Model::Brush* brush) const   { return m_editorContext.selectable(brush); }

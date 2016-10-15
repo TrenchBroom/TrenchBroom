@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -49,6 +49,10 @@ namespace TrenchBroom {
             bool zoom(const InputState& inputState) const;
             bool look(const InputState& inputState) const;
             bool pan(const InputState& inputState) const;
+            
+            bool dragZoom(const InputState& inputState) const;
+            
+            void zoom(const InputState& inputState, const Vec2f& mousePos, float factor);
             
             bool doCancel();
         };

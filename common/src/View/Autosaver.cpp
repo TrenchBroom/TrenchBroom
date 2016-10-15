@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 assert(backups.size() < m_maxBackups);
                 const size_t backupNo = backups.size() + 1;
                 
-                const IO::Path backupFilePath = fs.getPath() + makeBackupName(mapBasename, backupNo);
+                const IO::Path backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
                 m_lastSaveTime = time(NULL);
                 m_lastModificationCount = document->modificationCount();

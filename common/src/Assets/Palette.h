@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,25 +21,36 @@
 #define TrenchBroom_Palette
 
 #include "Color.h"
-#include "StringUtils.h"
 #include "ByteBuffer.h"
-#include "IO/Path.h"
+#include "IO/MappedFile.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
+    namespace IO {
+        class FileSystem;
+        class Path;
+    }
+    
     namespace Assets {
         class Palette {
-        private:
-            unsigned char* m_data;
-            size_t m_size;
         public:
-            Palette(const IO::Path& path);
+            typedef std::tr1::shared_ptr<Palette> Ptr;
+        private:
+            size_t m_size;
+            unsigned char* m_data;
+        public:
+            Palette(const size_t size, unsigned char* data);
             Palette(const Palette& other);
             ~Palette();
             
-            void operator=(Palette other);
+            Palette& operator=(Palette other);
+            friend void swap(Palette& lhs, Palette& rhs);
 
+            static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
+            static Palette loadLmp(IO::MappedFile::Ptr file);
+            static Palette loadPcx(IO::MappedFile::Ptr file);
+            
             template <typename IndexT, typename ColorT>
             void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
                 indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
@@ -63,9 +74,6 @@ namespace TrenchBroom {
                     averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
                 averageColor[3] = 1.0f;
             }
-        private:
-            void loadLmpPalette(const IO::Path& path);
-            void loadPcxPalette(const IO::Path& path);
         };
     }
 }

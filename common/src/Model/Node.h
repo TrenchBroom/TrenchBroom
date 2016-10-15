@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -87,7 +87,11 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
+            bool isAncestorOf(const NodeList& nodes) const;
             bool isDescendantOf(const Node* node) const;
+            bool isDescendantOf(const NodeList& nodes) const;
+            NodeList findDescendants(const NodeList& nodes) const;
+            
             bool removeIfEmpty() const;
             
             bool hasChildren() const;
@@ -127,8 +131,26 @@ namespace TrenchBroom {
             
             void removeChild(Node* child);
 
-            bool canAddChild(Node* child) const;
-            bool canRemoveChild(Node* child) const;
+            bool canAddChild(const Node* child) const;
+            bool canRemoveChild(const Node* child) const;
+
+            template <typename I>
+            bool canAddChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canAddChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
+            
+            template <typename I>
+            bool canRemoveChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canRemoveChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
         private:
             void doAddChild(Node* child);
             void doRemoveChild(Node* child);

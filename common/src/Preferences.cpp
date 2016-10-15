@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -110,13 +110,7 @@ namespace TrenchBroom {
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
 
         Preference<IO::Path>& RendererFontPath() {
-#if defined __APPLE__
-            static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("LucidaGrande"));
-#elif defined _WIN32
-            static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("Tahoma"));
-#else
             static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
-#endif
             return fontPath;
         }
     

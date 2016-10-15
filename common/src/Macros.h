@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,5 +33,7 @@
 #endif
 
 #define assertResult(funexp) if (!(funexp)) assert(false);
+
+#define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
 
 #endif

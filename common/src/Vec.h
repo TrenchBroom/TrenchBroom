@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2014 Kristian Duske
+Copyright (C) 2010-2016 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -264,7 +264,9 @@ public:
     
     static Vec<T,S> parse(const std::string& str) {
         size_t pos = 0;
-        return doParse(str, pos);
+        Vec<T,S> result;
+        doParse(str, pos, result);
+        return result;
     }
     
     static List parseList(const std::string& str) {
@@ -274,7 +276,9 @@ public:
         List result;
 
         while (pos != std::string::npos) {
-            result.push_back(doParse(str, pos));
+            Vec<T,S> temp;
+            if (doParse(str, pos, temp))
+                result.push_back(temp);
             pos = str.find_first_of(blank, pos);
         }
         
@@ -282,19 +286,18 @@ public:
     }
 
 private:
-    static Vec<T,S> doParse(const std::string& str, size_t& pos) {
+    static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
         static const std::string blank(" \t\n\r()");
 
-        Vec<T,S> result;
         const char* cstr = str.c_str();
         for (size_t i = 0; i < S; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
-                break;
+                return false;
             result[i] = static_cast<T>(std::atof(cstr + pos));
             if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
-                break;
+                return false;;
         }
-        return result;
+        return true;
     }
 public:
     T v[S];

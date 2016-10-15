@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,12 +33,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
-            Model::BrushFaceList m_faces;
+            Vec3 m_normal;
             Vec3 m_delta;
         public:
-            static Ptr resize(const Model::BrushFaceList& faces, const Vec3& delta);
+            static Ptr resize(const Vec3& normal, const Vec3& delta);
         private:
-            ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta);
+            ResizeBrushesCommand(const Vec3& normal, const Vec3& delta);
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

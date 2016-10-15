@@ -274,7 +274,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     # Find wxWidgets multilib base libraries.
     find_library(WX_base${_DBG}
       NAMES
-#      wxbase31${_UCD}${_DBG}
+      wxbase31${_UCD}${_DBG}
       wxbase30${_UCD}${_DBG}
       wxbase29${_UCD}${_DBG}
       wxbase28${_UCD}${_DBG}
@@ -288,7 +288,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     foreach(LIB net odbc xml)
       find_library(WX_${LIB}${_DBG}
         NAMES
-#        wxbase31${_UCD}${_DBG}_${LIB}
+        wxbase31${_UCD}${_DBG}_${LIB}
         wxbase30${_UCD}${_DBG}_${LIB}
         wxbase29${_UCD}${_DBG}_${LIB}
         wxbase28${_UCD}${_DBG}_${LIB}
@@ -304,7 +304,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     # Find wxWidgets monolithic library.
     find_library(WX_mono${_DBG}
       NAMES
-#      wxmsw${_UNV}31${_UCD}${_DBG}
+      wxmsw${_UNV}31${_UCD}${_DBG}
       wxmsw${_UNV}30${_UCD}${_DBG}
       wxmsw${_UNV}29${_UCD}${_DBG}
       wxmsw${_UNV}28${_UCD}${_DBG}
@@ -321,7 +321,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
                 stc ribbon propgrid webview)
       find_library(WX_${LIB}${_DBG}
         NAMES
-#        wxmsw${_UNV}31${_UCD}${_DBG}_${LIB}
+        wxmsw${_UNV}31${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}30${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}29${_UCD}${_DBG}_${LIB}
         wxmsw${_UNV}28${_UCD}${_DBG}_${LIB}
@@ -436,11 +436,11 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
       D:/
       ENV ProgramFiles
     PATH_SUFFIXES
-#      wxWidgets-3.1.4
-#      wxWidgets-3.1.3
-#      wxWidgets-3.1.2
-#      wxWidgets-3.1.1
-#      wxWidgets-3.1.0
+      wxWidgets-3.1.4
+      wxWidgets-3.1.3
+      wxWidgets-3.1.2
+      wxWidgets-3.1.1
+      wxWidgets-3.1.0
       wxWidgets-3.0.6
       wxWidgets-3.0.5
       wxWidgets-3.0.4
@@ -503,6 +503,8 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
 		set(WX_LIB_DIR_PREFIX vc110)
 	  elseif(CMAKE_GENERATOR STREQUAL "Visual Studio 12 2013")
 		set(WX_LIB_DIR_PREFIX vc120)
+	  elseif(CMAKE_GENERATOR STREQUAL "Visual Studio 14 2015")
+		set(WX_LIB_DIR_PREFIX vc140)
 	  else()
 		set(WX_LIB_DIR_PREFIX vc)
 	  endif()
@@ -697,7 +699,7 @@ else()
       string(TOUPPER ${_OPT_NAME} _UPPER_OPT_NAME)
       if(_wx_result_yes EQUAL 0 AND _wx_result_no EQUAL 0)
         option(wxWidgets_USE_${_UPPER_OPT_NAME}
-          ${_OPT_HELP} ${wxWidgets_DEFAULT_${_UPPER_OPT_NAME}})
+          ${_OPT_HELP} ${wxWidgets_USE_${_UPPER_OPT_NAME}})
       else()
         # If option exists (already in cache), force to available one.
         if(DEFINED wxWidgets_USE_${_UPPER_OPT_NAME})
@@ -732,9 +734,15 @@ else()
     # UNIX: Start actual work.
     #-----------------------------------------------------------------
     # Support cross-compiling, only search in the target platform.
+
+    SET(wxWidgets_CONFIG_OPTIONS "--prefix=${wxWidgets_PREFIX}")
+
     find_program(wxWidgets_CONFIG_EXECUTABLE wx-config
-      ONLY_CMAKE_FIND_ROOT_PATH
+      PATHS "${wxWidgets_PREFIX}/bin"
+      NO_DEFAULT_PATH
       )
+
+    find_program(wxWidgets_CONFIG_EXECUTABLE wx-config)
 
     if(wxWidgets_CONFIG_EXECUTABLE)
       set(wxWidgets_FOUND TRUE)

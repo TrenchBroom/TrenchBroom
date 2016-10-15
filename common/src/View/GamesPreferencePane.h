@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,8 +24,10 @@
 
 #include "View/PreferencePane.h"
 
+class wxSimplebook;
 class wxButton;
-class wxStaticText;
+class wxListBox;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,18 +37,22 @@ namespace TrenchBroom {
         class GamesPreferencePane : public PreferencePane {
         private:
             GameListBox* m_gameListBox;
-            wxStaticText* m_gamePathValueLabel;
+            wxSimplebook* m_book;
+            wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
             GamesPreferencePane(wxWindow* parent);
-
+        private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
+            void OnGamePathChanged(wxCommandEvent& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
+            void updateGamePath(const wxString& str);
+            void OnUpdateGamePathText(wxIdleEvent& event);
+            bool isValidGamePath(const wxString& str) const;
+            void OnConfigureenginesClicked(wxCommandEvent& event);
         private:
             void createGui();
-            wxWindow* createGamePreferences();
-            
-            void bindEvents();
+            wxWindow* createGamePreferencesPage(wxWindow* parent);
             
             bool doCanResetToDefaults();
             void doResetToDefaults();

@@ -14,22 +14,22 @@ SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
-    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/graphics/icons/AppIcon.icns" "${APP_DIR}/resources/graphics/icons/DocIcon.icns")
+    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/mac/icons/AppIcon.icns" "${APP_DIR}/resources/mac/icons/DocIcon.icns")
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_ICON_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/)
 
 	# Configure button bitmaps etc.
 	FILE(GLOB_RECURSE MACOSX_IMAGE_FILES
         "${APP_DIR}/resources/graphics/images/*.png"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images/)
 
     FILE(GLOB_RECURSE MACOSX_FONT_FILES
         "${APP_DIR}/resources/fonts/*.*"
     )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts/)
 
 	# Configure game resources
 	# Collect all game resources
@@ -37,25 +37,31 @@ IF(APPLE)
         "${APP_DIR}/resources/games/Quake/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake/)
 
 	FILE(GLOB_RECURSE MACOSX_QUAKE2_FILES
         "${APP_DIR}/resources/games/Quake2/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE2_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2/)
 
 	FILE(GLOB_RECURSE MACOSX_HEXEN2_FILES
         "${APP_DIR}/resources/games/Hexen2/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HEXEN2_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HEXEN2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Hexen2)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HEXEN2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Hexen2/)
+
+    FILE(GLOB_RECURSE MACOSX_DAIKATANA_FILES
+        "${APP_DIR}/resources/games/Daikatana/*.*"
+    )
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_DAIKATANA_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_DAIKATANA_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Daikatana/)
 
 	FILE(GLOB_RECURSE MACOSX_GAME_CONFIG_FILES
         "${APP_DIR}/resources/games/*.cfg"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_GAME_CONFIG_FILES})
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games)
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/)
 
 	# Configure shaders
 	# Collect all shaders
@@ -63,17 +69,17 @@ IF(APPLE)
         "${APP_DIR}/resources/shader/*.fragsh"
         "${APP_DIR}/resources/shader/*.vertsh"
 	)
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader/)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure help files
-    SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help)
+    SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help/)
 ENDIF()
 
 # Set up resource compilation for Windows
 IF(WIN32)
     # CONFIGURE_FILE("${APP_SOURCE_DIR}/TrenchBroom.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc" @ONLY)
-    IF(MSVC)
+    IF(COMPILER_IS_MSVC)
         SET(APP_SOURCE ${APP_SOURCE} "${APP_SOURCE_DIR}/TrenchBroom.rc")
     ELSEIF(MINGW)
         SET(CMAKE_RC_COMPILER_INIT windres)
@@ -85,6 +91,9 @@ ENDIF()
 ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE} $<TARGET_OBJECTS:common>)
 
 TARGET_LINK_LIBRARIES(TrenchBroom glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
+IF (COMPILER_IS_MSVC)
+    TARGET_LINK_LIBRARIES(TrenchBroom stackwalker)
+ENDIF()
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
@@ -126,24 +135,37 @@ ENDIF()
 IF(WIN32)
 	# Copy Windows icons to target dir
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
 	)
 
     # Copy DLLs to app directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
 	)
+
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
+    )
 ENDIF()
 
-# Properly link to OpenGL libraries on Linux
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+# Properly link to OpenGL libraries on Unix-like systems
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
+    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
 ENDIF()
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/linux/icons/icon_16.png" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.png"
+    )
+ENDIF()
+
 # Set up the resources and DLLs for the executable
-IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 	# Copy button images to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/images"
@@ -183,25 +205,49 @@ SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 SET(CPACK_PACKAGE_VENDOR "Kristian Duske")
+IF (CMAKE_BUILD_TYPE STREQUAL "Release")
+    SET(CPACK_STRIP_FILES YES)
+ELSE()
+    SET(CPACK_STRIP_FILES FALSE)
+ENDIF()
 
 # Platform specific CPack configuration
 IF(WIN32)
-    IF(MSVC)
+    IF(COMPILER_IS_MSVC)
         # SET(CMAKE_INSTALLL_DEBUG_LIBRARIES OFF)
         # INCLUDE(InstallRequiredSystemLibraries)
-    ENDIF(MSVC)
+    ENDIF()
 
     FILE(GLOB WIN_LIBS "${LIB_BIN_DIR}/win32/*.dll")
     IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        LIB_TO_DLL(${WX_cored} _vc100 WIN_LIB_WX_core)
-        LIB_TO_DLL(${WX_based} _vc100 WIN_LIB_WX_base)
-        LIB_TO_DLL(${WX_advd}  _vc100 WIN_LIB_WX_adv)
-        LIB_TO_DLL(${WX_gld}   _vc100 WIN_LIB_WX_gl)
+        WX_LIB_TO_DLL(${WX_cored} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_core)
+        WX_LIB_TO_DLL(${WX_based} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_base)
+        WX_LIB_TO_DLL(${WX_advd}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
+        WX_LIB_TO_DLL(${WX_gld}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ELSE()
-        LIB_TO_DLL(${WX_core} _vc100 WIN_LIB_WX_core)
-        LIB_TO_DLL(${WX_base} _vc100 WIN_LIB_WX_base)
-        LIB_TO_DLL(${WX_adv}  _vc100 WIN_LIB_WX_adv)
-        LIB_TO_DLL(${WX_gl}   _vc100 WIN_LIB_WX_gl)
+        WX_LIB_TO_DLL(${WX_core} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_core)
+        WX_LIB_TO_DLL(${WX_base} _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_base)
+        WX_LIB_TO_DLL(${WX_adv}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
+        WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
+    ENDIF()
+    
+    # Copy PDB files (msvc debug symbols)
+    IF(COMPILER_IS_MSVC)
+        IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            # Get paths to wxwidgets debug symbols
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_core ${WIN_LIB_WX_core})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_base ${WIN_LIB_WX_base})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_adv ${WIN_LIB_WX_adv})
+            STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
+        
+            INSTALL(FILES
+                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                ${WIN_PDB_WX_core}
+                ${WIN_PDB_WX_base}
+                ${WIN_PDB_WX_adv}
+                ${WIN_PDB_WX_gl}
+                DESTINATION . COMPONENT TrenchBroom)
+        ENDIF()
     ENDIF()
 
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
@@ -219,10 +265,11 @@ IF(WIN32)
         DESTINATION Resources/help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
+        "${APP_DIR}/resources/fonts"
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
         DESTINATION Resources COMPONENT TrenchBroom)
-    SET(CPACK_GENERATOR "ZIP")
+    SET(CPACK_GENERATOR "7Z")
     SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 ELSEIF(APPLE)
     INSTALL(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
@@ -268,6 +315,7 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
     SET(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
     SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
+    SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -251,6 +251,7 @@ namespace TrenchBroom {
                 return VertexArray(holder);
             }
 
+            VertexArray(const VertexArray& other);
             VertexArray& operator=(VertexArray other);
             friend void swap(VertexArray& left, VertexArray& right);
             

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,6 +41,7 @@ namespace TrenchBroom {
         
         class TexCoordSystem {
         public:
+            TexCoordSystem();
             virtual ~TexCoordSystem();
             
             TexCoordSystem* clone() const;
@@ -100,6 +101,9 @@ namespace TrenchBroom {
             Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(factor);
             }
+        private:
+            TexCoordSystem(const TexCoordSystem& other);
+            TexCoordSystem& operator=(const TexCoordSystem& other);
         };
     }
 }

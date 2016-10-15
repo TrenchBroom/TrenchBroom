@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,15 +27,15 @@ namespace TrenchBroom {
     namespace Model {
         class EditorContext;
         
-        template <typename C>
-        class CollectSelectableNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched> {
+        template <typename C, typename S>
+        class CollectSelectableNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectableNodes, C, S> {
         public:
-            CollectSelectableNodesTemplate(const Model::EditorContext& editorContext) :
-            CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched>(MatchSelectableNodes(editorContext)) {}
+            CollectSelectableNodesTemplate(const EditorContext& editorContext) :
+            CollectMatchingNodesVisitor<MatchSelectableNodes, C, S>(MatchSelectableNodes(editorContext)) {}
         };
         
-        typedef CollectSelectableNodesTemplate<StandardNodeCollectionStrategy> CollectSelectableNodesVisitor;
-        typedef CollectSelectableNodesTemplate<UniqueNodeCollectionStrategy> CollectSelectableUniqueNodesVisitor;
+        typedef CollectSelectableNodesTemplate<StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableNodesVisitor;
+        typedef CollectSelectableNodesTemplate<UniqueNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableUniqueNodesVisitor;
     }
 }
 

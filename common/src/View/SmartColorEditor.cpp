@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,6 +35,7 @@
 #include <wx/radiobut.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/wupdlock.h>
 
 #include <iomanip>
 
@@ -132,6 +133,7 @@ namespace TrenchBroom {
             assert(m_colorPicker != NULL);
             assert(m_colorHistory != NULL);
             
+            wxWindowUpdateLocker locker(m_panel);
             updateColorRange(attributables);
             updateColorHistory();
         }

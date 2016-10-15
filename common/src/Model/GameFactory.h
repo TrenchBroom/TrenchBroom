@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Preference.h"
+#include "IO/FileSystemHierarchy.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
@@ -40,15 +41,20 @@ namespace TrenchBroom {
             typedef std::map<String, GameConfig> ConfigMap;
             typedef std::map<String, Preference<IO::Path> > GamePathMap;
             
+            IO::WritableFileSystemHierarchy m_configFS;
+            
             StringList m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
+            mutable GamePathMap m_defaultEngines;
         public:
+            ~GameFactory();
+            
             static GameFactory& instance();
             
             const StringList& gameList() const;
             size_t gameCount() const;
-            GamePtr createGame(const String& gameName) const;
+            GamePtr createGame(const String& gameName);
             
             const StringList& fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
@@ -56,12 +62,23 @@ namespace TrenchBroom {
             void setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
+            GameConfig& gameConfig(const String& gameName);
+            const GameConfig& gameConfig(const String& gameName) const;
+            
             std::pair<String, MapFormat::Type> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
+            void initializeFileSystem();
             void loadGameConfigs();
-            void loadGameConfig(const IO::DiskFileSystem& fs, const IO::Path& path);
-            const GameConfig& gameConfig(const String& name) const;
+            void loadGameConfig(const IO::Path& path);
+            void loadCompilationConfig(GameConfig& gameConfig);
+            void loadGameEngineConfig(GameConfig& gameConfig);
+            
+            void writeCompilationConfigs();
+            void writeCompilationConfig(const GameConfig& gameConfig);
+
+            void writeGameEngineConfigs();
+            void writeGameEngineConfig(const GameConfig& gameConfig);
         };
     }
 }

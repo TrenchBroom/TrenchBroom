@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, buildAttribs()),
+        RenderView(parent, contextManager, GLAttribs::attribs()),
         ToolBoxConnector(this),
         m_document(document),
         m_helper(m_camera) {

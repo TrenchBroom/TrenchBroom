@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,8 +22,10 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/GetVersion.h"
+#include "View/OpenClipboard.h"
 
 #include <wx/bitmap.h>
+#include <wx/clipbrd.h>
 #include <wx/sizer.h>
 #include <wx/statbmp.h>
 #include <wx/statline.h>
@@ -59,7 +61,11 @@ namespace TrenchBroom {
             version->SetForegroundColour(wxColor(128, 128, 128));
             build->SetForegroundColour(wxColor(128, 128, 128));
             
-            SetBackgroundColour(*wxWHITE);
+            version->SetToolTip("Click to copy to clipboard");
+            build->SetToolTip("Click to copy to clipboard");
+            
+            version->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
+            build->Bind(wxEVT_LEFT_DOWN, &AppInfoPanel::OnClickVersionInfo, this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
@@ -70,6 +76,15 @@ namespace TrenchBroom {
             sizer->Add(build, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->AddStretchSpacer();
             SetSizerAndFit(sizer);
+        }
+
+        void AppInfoPanel::OnClickVersionInfo(wxMouseEvent& event) {
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened()) {
+                wxString str;
+                str << "TrenchBroom " << getBuildVersion() << " " << getBuildChannel() << " Build " << getBuildId() << " " << getBuildType();
+                wxTheClipboard->SetData(new wxTextDataObject(str));
+            }
         }
     }
 }

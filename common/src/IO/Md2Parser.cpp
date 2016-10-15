@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
@@ -317,7 +317,7 @@ namespace TrenchBroom {
                 Md2SkinList::const_iterator it, end;
                 for (it = skins.begin(), end = skins.end(); it != end; ++it) {
                     const Md2Skin& skin = *it;
-                    Assets::Texture* texture = loadTexture(skin);
+                    Assets::Texture* texture = readTexture(skin);
                     textures.push_back(texture);
                 }
                 return textures;
@@ -327,7 +327,7 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
+        Assets::Texture* Md2Parser::readTexture(const Md2Skin& skin) {
             const Path skinPath(String(skin.name));
             MappedFile::Ptr file = m_fs.openFile(skinPath);
             

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
@@ -50,6 +51,8 @@ namespace TrenchBroom {
             String m_description;
             size_t m_usageCount;
             AttributeDefinitionList m_attributeDefinitions;
+        public:
+            Notifier0 usageCountDidChangeNotifier;
         public:
             virtual ~EntityDefinition();
             

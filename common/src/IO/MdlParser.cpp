@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         m_begin(begin),
         m_end(end),
         m_palette(palette) {
-            assert(begin < end);
+            assert(m_begin < m_end);
             unused(m_end);
         }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -173,6 +173,7 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
+            void exportDocumentAs(Model::ExportFormat format, const IO::Path& path);
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
@@ -185,8 +186,7 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            bool canLoadPointFile() const;
-            void loadPointFile();
+            void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             void unloadPointFile();
         public: // selection
@@ -231,10 +231,21 @@ namespace TrenchBroom {
 
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
             Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
+            
             void removeNodes(const Model::NodeList& nodes);
-
-            void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
-            void reparentNodes(const Model::ParentChildrenMap& nodes);
+        private:
+            Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
+            
+            struct CompareByAncestry;
+            Model::NodeList removeImplicitelyRemovedNodes(Model::NodeList nodes) const;
+            
+            void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
+        public:
+            bool reparentNodes(Model::Node* newParent, const Model::NodeList& children);
+            bool reparentNodes(const Model::ParentChildrenMap& nodesToAdd);
+        private:
+            bool checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const;
+        public:
             bool deleteObjects();
             bool duplicateObjects();
         public: // group management
@@ -265,6 +276,8 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
+        public:
+            bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
@@ -272,7 +285,7 @@ namespace TrenchBroom {
             
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
+            bool resizeBrushes(const Vec3& normal, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
@@ -311,7 +324,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(UndoableCommand::Ptr command);
+            bool submit(Command::Ptr command);
+            bool submitAndStore(UndoableCommand::Ptr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -326,7 +340,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(UndoableCommand::Ptr command) = 0;
+            virtual bool doSubmit(Command::Ptr command) = 0;
+            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -342,11 +357,9 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             
-            const StringList externalTextureCollectionNames() const;
-            void addTextureCollection(const String& name);
-            void moveTextureCollectionUp(const String& name);
-            void moveTextureCollectionDown(const String& name);
-            void removeTextureCollections(const StringList& names);
+            IO::Path::List enabledTextureCollections() const;
+            IO::Path::List availableTextureCollections() const;
+            void setEnabledTextureCollections(const IO::Path::List& paths);
         private:
             void loadAssets();
             void unloadAssets();
@@ -356,15 +369,10 @@ namespace TrenchBroom {
             
             void loadEntityModels();
             void unloadEntityModels();
-            
+        protected:
             void loadTextures();
-            void loadBuiltinTextures();
-            void loadExternalTextures();
             void unloadTextures();
             void reloadTextures();
-        protected:
-            void addExternalTextureCollections(const StringList& names);
-            void updateExternalTextureCollectionProperty();
             
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
@@ -389,6 +397,10 @@ namespace TrenchBroom {
         public:
             StringList mods() const;
             void setMods(const StringList& mods);
+            String defaultMod() const;
+        public: // game engine parameter specs
+            ::StringMap gameEngineParameterSpecs() const;
+            void setGameEngineParameterSpec(const String& name, const String& spec);
         private: // issue management
             void registerIssueGenerators();
         public:
@@ -396,7 +408,8 @@ namespace TrenchBroom {
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // document path
-            const String filename() const;
+            bool persistent() const;
+            String filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);

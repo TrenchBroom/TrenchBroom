@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,6 +25,7 @@
 #include <cassert>
 #include <wx/checkbox.h>
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,14 +43,18 @@ namespace TrenchBroom {
         }
 
         void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
+            wxWindowUpdateLocker locker(this);
+            
             const size_t count = values.size();
             setCheckBoxCount(count);
             
             const size_t numRows = count / m_numCols;
+
             wxFlexGridSizer* sizer = new wxFlexGridSizer(static_cast<int>(numRows),
                                                          static_cast<int>(m_numCols),
                                                          0, LayoutConstants::WideHMargin);
             
+            SetSizer(NULL); // delete the old sizer, otherwise we cannot add the checkboxes to the new sizer
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;
@@ -66,6 +71,7 @@ namespace TrenchBroom {
         }
         
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
+            wxWindowUpdateLocker locker(this);
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 wxCheckBox* checkBox = m_checkBoxes[i];
                 const int value = m_values[i];

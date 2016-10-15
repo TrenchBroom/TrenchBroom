@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -143,6 +143,16 @@ namespace TrenchBroom {
             return result;
         }
 
+        Path::List Path::asPaths(const StringList& strs) {
+            Path::List result;
+            result.reserve(strs.size());
+            
+            StringList::const_iterator it, end;
+            for (it = strs.begin(), end = strs.end(); it != end; ++it)
+                result.push_back(Path(*it));
+            return result;
+        }
+
         size_t Path::length() const {
             return m_components.size();
         }
@@ -211,23 +221,37 @@ namespace TrenchBroom {
         }
         
         Path Path::subPath(const size_t index, const size_t count) const {
-            if (isEmpty())
-                throw PathException("Cannot get sub path of empty path");
             if (index + count > m_components.size())
                 throw PathException("Sub path out of bounds");
             if (count == 0)
                 return Path("");
             
             StringList::const_iterator begin = m_components.begin();
-            std::advance(begin, index);
+            std::advance(begin, static_cast<StringList::const_iterator::difference_type>(index));
             StringList::const_iterator end = begin;
-            std::advance(end, count);
+            std::advance(end, static_cast<StringList::const_iterator::difference_type>(count));
             StringList newComponents(count);
             std::copy(begin, end, newComponents.begin());
             return Path(m_absolute && index == 0, newComponents);
         }
 
-        const String Path::extension() const {
+        String Path::filename() const {
+            if (isEmpty())
+                throw PathException("Cannot get filename of empty path");
+            return m_components.back();
+        }
+        
+        String Path::basename() const {
+            if (isEmpty())
+                throw PathException("Cannot get basename of empty path");
+            const String& lastComponent = m_components.back();
+            const size_t dotIndex = lastComponent.rfind('.');
+            if (dotIndex == String::npos)
+                return lastComponent;
+            return lastComponent.substr(0, dotIndex);
+        }
+
+        String Path::extension() const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
             const String& lastComponent = m_components.back();
@@ -238,13 +262,7 @@ namespace TrenchBroom {
         }
         
         Path Path::deleteExtension() const {
-            if (isEmpty())
-                throw PathException("Cannot get extension of empty path");
-            const String& lastComponent = m_components.back();
-            const size_t dotIndex = lastComponent.rfind('.');
-            if (dotIndex == String::npos)
-                return *this;
-            return deleteLastComponent() + Path(lastComponent.substr(0, dotIndex));
+            return deleteLastComponent() + Path(basename());
         }
 
         Path Path::addExtension(const String& extension) const {
@@ -254,6 +272,10 @@ namespace TrenchBroom {
             String& lastComponent = components.back();
             lastComponent += "." + extension;
             return Path(m_absolute, components);
+        }
+
+        Path Path::replaceExtension(const String& extension) const {
+            return deleteExtension().addExtension(extension);
         }
 
         bool Path::isAbsolute() const {

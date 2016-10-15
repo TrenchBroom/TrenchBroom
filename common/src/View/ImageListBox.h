@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,37 +20,23 @@
 #ifndef TrenchBroom_ImageListBox
 #define TrenchBroom_ImageListBox
 
-#include <wx/vlbox.h>
+#include "ControlListBox.h"
+
+class wxStaticText;
+class wxStaticBitmap;
 
 namespace TrenchBroom {
     namespace View {
-        class ImageListBox : public wxVListBox {
-        private:
-            wxSize m_imageSize;
-            bool m_empty;
-            wxString m_emptyText;
-			wxSize m_border;
+        class ImageListBox : public ControlListBox {
         public:
-            ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, long style = wxBORDER_NONE);
-            
-            size_t selection() const;
-            bool hasSelection() const;
-			wxCoord itemWidth(const wxString& subtitle) const;
-            wxCoord itemHeight() const;
-            
-            void SetItemCount(size_t itemCount);
+            ImageListBox(wxWindow* parent, const wxString& emptyText);
         private:
-            void OnDrawItem(wxDC& dc, const wxRect& rect, size_t n) const;
-            void drawItem(wxDC& dc, const wxRect& rect, size_t n) const;
-            void drawEmptyItem(wxDC& dc, const wxRect& rect) const;
-            
-            void OnDrawBackground(wxDC& dc, const wxRect& rect, size_t n) const;
-            void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const;
-            wxCoord OnMeasureItem(size_t n) const;
-            
-            virtual const wxBitmap& image(const size_t n) const = 0;
-            virtual wxString title(const size_t n) const = 0;
-            virtual wxString subtitle(const size_t n) const = 0;
+            class ImageListBoxItem;
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+        private:
+            virtual bool image(size_t index, wxBitmap& result) const;
+            virtual wxString title(size_t index) const = 0;
+            virtual wxString subtitle(size_t index) const = 0;
         };
     }
 }

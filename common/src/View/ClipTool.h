@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -64,6 +64,7 @@ namespace TrenchBroom {
                 bool computeThirdPoint(Vec3& point) const;
 
                 bool canClip() const;
+                bool hasPoints() const;
                 bool canAddPoint(const Vec3& point) const;
                 void addPoint(const Vec3& point, const Vec3::List& helpVectors);
                 bool removeLastPoint();
@@ -87,6 +88,7 @@ namespace TrenchBroom {
                 virtual bool doComputeThirdPoint(Vec3& point) const = 0;
 
                 virtual bool doCanClip() const = 0;
+                virtual bool doHasPoints() const = 0;
                 virtual bool doCanAddPoint(const Vec3& point) const = 0;
                 virtual void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) = 0;
                 virtual bool doRemoveLastPoint() = 0;
@@ -125,7 +127,6 @@ namespace TrenchBroom {
             const Grid& grid() const;
             
             void toggleSide();
-            void resetSide();
             
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
@@ -144,6 +145,7 @@ namespace TrenchBroom {
             Vec3 defaultClipPointPos() const;
 
             bool canAddPoint(const Vec3& point) const;
+            bool hasPoints() const;
             void addPoint(const Vec3& point, const Vec3::List& helpVectors);
             bool removeLastPoint();
             

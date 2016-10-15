@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -45,11 +45,12 @@ namespace TrenchBroom {
             IssueGenerator(IssueType type, const String& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
-            virtual void doGenerate(World* world,   IssueList& issues) const;
-            virtual void doGenerate(Layer* layer,   IssueList& issues) const;
-            virtual void doGenerate(Group* group,   IssueList& issues) const;
-            virtual void doGenerate(Entity* entity, IssueList& issues) const;
-            virtual void doGenerate(Brush* brush,   IssueList& issues) const;
+            virtual void doGenerate(World* world,           IssueList& issues) const;
+            virtual void doGenerate(Layer* layer,           IssueList& issues) const;
+            virtual void doGenerate(Group* group,           IssueList& issues) const;
+            virtual void doGenerate(Entity* entity,         IssueList& issues) const;
+            virtual void doGenerate(Brush* brush,           IssueList& issues) const;
+            virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }
 }

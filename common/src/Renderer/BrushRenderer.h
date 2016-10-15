@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -39,7 +39,11 @@ namespace TrenchBroom {
         public:
             class Filter {
             public:
+                Filter();
+                Filter(const Filter& other);
                 virtual ~Filter();
+                
+                Filter& operator=(const Filter& other);
                 
                 bool show(const Model::BrushFace* face) const;
                 bool show(const Model::BrushEdge* edge) const;
@@ -57,6 +61,7 @@ namespace TrenchBroom {
                 virtual ~DefaultFilter();
             protected:
                 DefaultFilter(const Model::EditorContext& context);
+                DefaultFilter(const DefaultFilter& other);
                 
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;
@@ -69,6 +74,8 @@ namespace TrenchBroom {
                 bool selected(const Model::BrushFace* face) const;
                 bool selected(const Model::BrushEdge* edge) const;
                 bool hasSelectedFaces(const Model::Brush* brush) const;
+            private:
+                DefaultFilter& operator=(const DefaultFilter& other);
             };
             
             class NoFilter : public Filter {
@@ -80,6 +87,9 @@ namespace TrenchBroom {
                 bool doShow(const Model::BrushFace* face) const;
                 bool doShow(const Model::BrushEdge* edge) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
+            private:
+                NoFilter(const NoFilter& other);
+                NoFilter& operator=(const NoFilter& other);
             };
         private:
             class FilterWrapper;
@@ -148,6 +158,9 @@ namespace TrenchBroom {
             void validate();
             void validateVertices();
             void validateIndices();
+        private:
+            BrushRenderer(const BrushRenderer& other);
+            BrushRenderer& operator=(const BrushRenderer& other);
         };
     }
 }

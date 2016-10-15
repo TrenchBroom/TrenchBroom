@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,8 +52,9 @@ namespace TrenchBroom {
         }
         
         bool ChoosePathTypeDialog::Create() {
+            setWindowIcon(this);
+
             wxPanel* panel = new wxPanel(this);
-            panel->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* infoText = new wxStaticText(panel, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
             infoText->Wrap(370);
@@ -123,6 +124,9 @@ namespace TrenchBroom {
             
             SetSizerAndFit(outerSizer);
             CentreOnParent();
+            
+            Bind(wxEVT_CLOSE_WINDOW, &ChoosePathTypeDialog::OnClose, this);
+            
             return true;
        }
 
@@ -134,6 +138,12 @@ namespace TrenchBroom {
             if (m_gameRelativeRadio->GetValue())
                 return m_gameRelativePath;
             return m_absPath;
+        }
+
+        void ChoosePathTypeDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
         }
 
         IO::Path ChoosePathTypeDialog::makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath) {

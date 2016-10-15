@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -133,6 +133,10 @@ namespace TrenchBroom {
         
         class Game;
         typedef std::tr1::shared_ptr<Game> GamePtr;
+        
+        typedef enum {
+            EF_WavefrontObj
+        } ExportFormat;
     }
 }
 

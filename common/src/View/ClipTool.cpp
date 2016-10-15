@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,6 +61,10 @@ namespace TrenchBroom {
             return doCanClip();
         }
         
+        bool ClipTool::ClipStrategy::hasPoints() const {
+            return doHasPoints();
+        }
+
         bool ClipTool::ClipStrategy::canAddPoint(const Vec3& point) const {
             return doCanAddPoint(point);
         }
@@ -207,6 +211,10 @@ namespace TrenchBroom {
                 return true;
             }
             
+            bool doHasPoints() const {
+                return m_numPoints > 0;
+            }
+
             bool doCanAddPoint(const Vec3& point) const {
                 if (m_numPoints == 3)
                     return false;
@@ -242,6 +250,7 @@ namespace TrenchBroom {
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
+                std::cout << "Begin Drag" << std::endl;
             }
             
             void doBeginDragLastPoint() {
@@ -256,6 +265,28 @@ namespace TrenchBroom {
                 if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
                     return false;
 
+                if (m_numPoints == 3) {
+                    size_t index0, index1;
+                    switch (m_dragIndex) {
+                        case 0:
+                            index0 = 1;
+                            index1 = 2;
+                            break;
+                        case 1:
+                            index0 = 0;
+                            index1 = 2;
+                            break;
+                        case 2:
+                        default:
+                            index0 = 0;
+                            index1 = 1;
+                            break;
+                    }
+                    
+                    if (linearlyDependent(m_points[index0].point, m_points[index1].point, newPosition))
+                        return false;
+                }
+                
                 if (helpVectors.empty())
                     m_points[m_dragIndex] = ClipPoint(newPosition, m_points[m_dragIndex].helpVectors);
                 else
@@ -265,11 +296,14 @@ namespace TrenchBroom {
             
             void doEndDragPoint() {
                 m_dragIndex = 4;
+                std::cout << "End Drag" << std::endl;
             }
 
             void doCancelDragPoint() {
+                assert(m_dragIndex < m_numPoints);
                 m_points[m_dragIndex] = m_originalPoint;
                 m_dragIndex = 4;
+                std::cout << "Cancel Drag" << std::endl;
             }
 
             bool doSetFace(const Model::BrushFace* face) {
@@ -389,6 +423,7 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(Vec3& point) const { return false; }
 
             bool doCanClip() const { return m_face != NULL; }
+            bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
             bool doRemoveLastPoint() { return false; }
@@ -454,11 +489,6 @@ namespace TrenchBroom {
                     m_clipSide = ClipSide_Front;
                     break;
             }
-            update();
-        }
-        
-        void ClipTool::resetSide() {
-            m_clipSide = ClipSide_Front;
             update();
         }
         
@@ -543,7 +573,7 @@ namespace TrenchBroom {
                 }
             }
             
-            reset();
+            resetStrategy();
             return result;
         }
         
@@ -556,6 +586,10 @@ namespace TrenchBroom {
             return m_strategy == NULL || m_strategy->canAddPoint(point);
         }
         
+        bool ClipTool::hasPoints() const {
+            return m_strategy != NULL && m_strategy->hasPoints();
+        }
+
         void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == NULL)
@@ -615,16 +649,17 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::reset() {
-            const bool result = (m_strategy != NULL);
-            if (m_strategy != NULL)
+            if (m_strategy != NULL) {
                 resetStrategy();
-            resetSide();
-            return result;
+                return true;
+            }
+            return false;
         }
         
         void ClipTool::resetStrategy() {
             delete m_strategy;
             m_strategy = NULL;
+            update();
         }
         
         void ClipTool::update() {
@@ -758,13 +793,13 @@ namespace TrenchBroom {
             if (!document->selectedNodes().hasOnlyBrushes())
                 return false;
             bindObservers();
-            reset();
+            resetStrategy();
             return true;
         }
         
         bool ClipTool::doDeactivate() {
-            reset();
             unbindObservers();
+            resetStrategy();
             return true;
         }
         

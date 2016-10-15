@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -232,13 +232,10 @@ namespace TrenchBroom {
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-
-            SetBackgroundColour(*wxWHITE);
         }
         
         wxWindow* MousePreferencePane::createCameraPreferences() {
             wxPanel* box = new wxPanel(this);
-            box->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* lookPrefsHeader = new wxStaticText(box, wxID_ANY, "Mouse Look");
             lookPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());

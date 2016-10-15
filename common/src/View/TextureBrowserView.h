@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -51,6 +51,11 @@ namespace TrenchBroom {
         };
 
         class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
+        public:
+            typedef enum {
+                SO_Name,
+                SO_Usage
+            } SortOrder;
         private:
             typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
             typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;
@@ -59,7 +64,7 @@ namespace TrenchBroom {
 
             bool m_group;
             bool m_hideUnused;
-            Assets::TextureManager::SortOrder m_sortOrder;
+            SortOrder m_sortOrder;
             String m_filterText;
             
             Assets::Texture* m_selectedTexture;
@@ -70,7 +75,7 @@ namespace TrenchBroom {
                                Assets::TextureManager& textureManager);
             ~TextureBrowserView();
 
-            void setSortOrder(Assets::TextureManager::SortOrder sortOrder);
+            void setSortOrder(SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
@@ -78,9 +83,23 @@ namespace TrenchBroom {
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
         private:
+            void usageCountDidChange();
+
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
             void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
+            
+            struct CompareByUsageCount;
+            struct CompareByName;
+            struct MatchUsageCount;
+            struct MatchName;
+            
+            Assets::TextureCollectionList getCollections() const;
+            Assets::TextureList getTextures(const Assets::TextureCollection* collection) const;
+            Assets::TextureList getTextures() const;
+            
+            void filterTextures(Assets::TextureList& textures) const;
+            void sortTextures(Assets::TextureList& textures) const;
             
             void doClear();
             void doRender(Layout& layout, float y, float height);

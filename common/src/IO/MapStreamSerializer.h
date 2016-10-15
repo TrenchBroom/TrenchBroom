@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,6 +37,9 @@ namespace TrenchBroom {
         public:
             virtual ~MapStreamSerializer();
         private:
+            void doBeginFile();
+            void doEndFile();
+
             void doBeginEntity(const Model::Node* node);
             void doEndEntity(Model::Node* node);
             void doEntityAttribute(const Model::EntityAttribute& attribute);

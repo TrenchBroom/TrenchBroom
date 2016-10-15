@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -45,6 +45,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            RotateTexturesCommand(const RotateTexturesCommand& other);
+            RotateTexturesCommand& operator=(const RotateTexturesCommand& other);
         };
     }
 }

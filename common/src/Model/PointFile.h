@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -46,8 +46,6 @@ namespace TrenchBroom {
             const Vec3f currentDirection() const;
             void advance();
             void retreat();
-
-            static IO::Path pointFilePath(const IO::Path& mapFilePath);
         private:
             void load(const IO::Path& pointFilePath);
         };

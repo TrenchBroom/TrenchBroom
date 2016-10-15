@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,8 @@
 
 #include "View/ImageListBox.h"
 
+#include <wx/bitmap.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,9 +39,9 @@ namespace TrenchBroom {
         private:
             void recentDocumentsDidChange();
             
-            const wxBitmap& image(const size_t n) const;
-            wxString title(const size_t n) const;
-            wxString subtitle(const size_t n) const;
+            bool image(size_t n, wxBitmap& result) const;
+            wxString title(size_t n) const;
+            wxString subtitle(size_t n) const;
         };
     }
 }

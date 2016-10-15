@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -49,7 +49,8 @@ namespace TrenchBroom {
         T m_newValue;
     public:
         SetLate(T& value, T newValue) :
-        m_value(value) {}
+        m_value(value),
+        m_newValue(newValue) {}
         
         ~SetLate() {
             m_value = m_newValue;

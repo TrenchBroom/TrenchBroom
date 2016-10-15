@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new ShearTexturesCommand(*this));
+            return UndoableCommand::Ptr(new ShearTexturesCommand(m_factors));
         }
         
         bool ShearTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {

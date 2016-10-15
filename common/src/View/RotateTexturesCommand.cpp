@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new RotateTexturesCommand(*this));
+            return UndoableCommand::Ptr(new RotateTexturesCommand(m_angle));
         }
         
         bool RotateTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {

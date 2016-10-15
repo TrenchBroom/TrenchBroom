@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
         void ExecutableEvent::execute() {
-            if (m_executable != NULL)
+            if (m_executable.get() != NULL)
                 (*m_executable)();
         }
     }

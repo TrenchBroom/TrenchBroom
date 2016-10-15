@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,19 +23,25 @@
 #include <exception>
 
 #include "StringUtils.h"
+#include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
     
     class Exception : public std::exception {
     protected:
         String m_msg;
+        String m_trace;
     public:
-        Exception() throw() {}
-        Exception(const String& str) throw() : m_msg(str) {}
+        Exception() throw() : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
+        Exception(const String& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
         virtual ~Exception() throw() {}
 
         const char* what() const throw() {
             return m_msg.c_str();
+        }
+        
+        const String stackTrace() {
+            return m_trace;
         }
     };
     
@@ -74,7 +80,9 @@ namespace TrenchBroom {
         ParserException() throw() {}
         ParserException(const String& str) throw() : ExceptionStream(str) {}
         ParserException(const size_t line, const size_t column, const String& str = "") throw() : ExceptionStream() {
-            *this << str << " (line " << line << ", column " << column << ")";
+            if (!str.empty())
+                *this << str << " ";
+            *this << "[line " << line << ", column " << column << "]";
         }
         ~ParserException() throw() {}
     };

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -125,7 +125,7 @@ namespace TrenchBroom {
         void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexList& indices) {
             const size_t offset = m_ranges.add(texture, primType, indices.size());
             IndexList::iterator dest = m_indices.begin();
-            std::advance(dest, offset);
+            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
             std::copy(indices.begin(), indices.end(), dest);
         }
     }

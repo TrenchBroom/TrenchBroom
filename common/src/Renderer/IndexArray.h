@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -186,6 +186,8 @@ namespace TrenchBroom {
                 return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
             }
 
+            IndexArray(const IndexArray& other);
+            
             IndexArray& operator=(IndexArray other);
             friend void swap(IndexArray& left, IndexArray& right);
             

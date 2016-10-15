@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -106,9 +106,15 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world->format(), stream)) {}
 
+        NodeWriter::NodeWriter(Model::World* world, NodeSerializer* serializer) :
+        m_world(world),
+        m_serializer(serializer) {}
+
         void NodeWriter::writeMap() {
+            m_serializer->beginFile();
             writeDefaultLayer();
             writeCustomLayers();
+            m_serializer->endFile();
         }
         
         void NodeWriter::writeDefaultLayer() {
@@ -139,6 +145,8 @@ namespace TrenchBroom {
         void NodeWriter::writeNodes(const Model::NodeList& nodes) {
             typedef Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy> CollectNodes;
             
+            m_serializer->beginFile();
+            
             CollectNodes collect;
             Model::Node::accept(nodes.begin(), nodes.end(), collect);
             
@@ -151,6 +159,8 @@ namespace TrenchBroom {
             WriteNode visitor(*m_serializer);
             Model::Node::accept(groups.begin(), groups.end(), visitor);
             Model::Node::accept(entities.begin(), entities.end(), visitor);
+            
+            m_serializer->endFile();
         }
         
         void NodeWriter::writeWorldBrushes(const Model::BrushList& brushes) {
@@ -168,7 +178,9 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {
+            m_serializer->beginFile();
             m_serializer->brushFaces(faces);
+            m_serializer->endFile();
         }
     }
 }

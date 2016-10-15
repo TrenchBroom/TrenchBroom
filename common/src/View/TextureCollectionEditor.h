@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,52 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureCollectionEditor
-#define TrenchBroom_TextureCollectionEditor
+#ifndef TextureCollectionEditor_h
+#define TextureCollectionEditor_h
 
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
-class wxBitmapButton;
-class wxListBox;
-
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class TextureCollectionEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_collections;
         public:
             TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
             ~TextureCollectionEditor();
-            
-            void OnAddTextureCollectionsClicked(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
         private:
-            void createGui();
-            
-            void bindObservers();
-            void unbindObservers();
-            
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void textureCollectionsDidChange();
-            void preferenceDidChange(const IO::Path& path);
             
-            void updateControls();
+            void createGui();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_TextureCollectionEditor) */
+#endif /* TextureCollectionEditor_h */

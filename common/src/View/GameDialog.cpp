@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -106,6 +106,12 @@ namespace TrenchBroom {
             event.Enable(isOkEnabled());
         }
 
+        void GameDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
+        }
+
         GameDialog::GameDialog() :
         wxDialog(),
         m_gameListBox(NULL),
@@ -120,6 +126,8 @@ namespace TrenchBroom {
         }
         
         void GameDialog::createGui(const wxString& title, const wxString& infoText) {
+            setWindowIcon(this);
+
             wxWindow* infoPanel = createInfoPanel(this, title, infoText);
             wxWindow* selectionPanel = createSelectionPanel(this);
 
@@ -137,11 +145,12 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
+            
+            Bind(wxEVT_CLOSE_WINDOW, &GameDialog::OnClose, this);
         }
 
         wxWindow* GameDialog::createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText) {
             wxPanel* infoPanel = new wxPanel(parent);
-            infoPanel->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* header = new wxStaticText(infoPanel, wxID_ANY, title);
             header->SetFont(header->GetFont().Larger().Larger().Bold());
@@ -153,7 +162,7 @@ namespace TrenchBroom {
             setupMsg->Wrap(250);
             
             m_openPreferencesButton = new wxButton(infoPanel, wxID_ANY, "Open preferences...");
-            m_openPreferencesButton->SetToolTip("Open the preferences dialog to edit game paths");
+            m_openPreferencesButton->SetToolTip("Open the preferences dialog to manage game paths,");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);
@@ -206,7 +215,7 @@ namespace TrenchBroom {
         }
         
         bool GameDialog::isOkEnabled() const {
-            return m_gameListBox->GetSelectedCount() > 0;
+            return m_gameListBox->GetSelection() != wxNOT_FOUND;
         }
         
         void GameDialog::gameSelectionChanged(const String& gameName) {

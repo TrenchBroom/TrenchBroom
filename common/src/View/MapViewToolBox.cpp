@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -207,11 +207,21 @@ namespace TrenchBroom {
         void MapViewToolBox::bindObservers() {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
+            
+            MapDocumentSPtr document = lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
         
         void MapViewToolBox::unbindObservers() {
             toolActivatedNotifier.removeObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
+            
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
+            }
         }
         
         void MapViewToolBox::toolActivated(Tool* tool) {
@@ -228,6 +238,10 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setBlockSelection(createComplexBrushToolActive());
+        }
+
+        void MapViewToolBox::documentWasNewedOrLoaded(MapDocument* document) {
+            deactivateAllTools();
         }
     }
 }

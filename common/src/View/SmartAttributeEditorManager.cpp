@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
         
         void SmartAttributeEditorManager::deactivateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 m_activeEditor->deactivate();
                 m_activeEditor = EditorPtr();
                 m_name = "";
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::updateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 MapDocumentSPtr document = lock(m_document);
                 m_activeEditor->update(document->allSelectedAttributableNodes());
             }

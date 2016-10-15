@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         m_transparent(transparent),
         m_flagValue(flagValue),
         m_evaluator(evaluator) {
-            assert(m_evaluator != NULL);
+            assert(m_evaluator.get() != NULL);
         }
         
         const String& BrushContentType::name() const {

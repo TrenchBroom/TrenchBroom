@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,14 +20,14 @@
 #include "BitmapToggleButton.h"
 
 #include <wx/dcclient.h>
-#include <wx/log.h> 
+#include <wx/log.h>
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
         BitmapToggleButton::BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
-        wxPanel(parent, windowId),
+        wxControl(parent, windowId, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_upBitmap(upBitmap),
         m_downBitmap(downBitmap),
         m_upDisabledBitmap(m_upBitmap.ConvertToDisabled()),
@@ -36,6 +36,8 @@ namespace TrenchBroom {
             assert(m_upBitmap.IsOk());
             assert(m_downBitmap.IsOk());
 
+            SetBackgroundColour(parent->GetBackgroundColour());
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             SetMinClientSize(bitmapSize());
             
             Bind(wxEVT_PAINT, &BitmapToggleButton::OnPaint, this);
@@ -51,6 +53,9 @@ namespace TrenchBroom {
             const wxPoint offset(delta.x / 2, delta.y / 2);
             
             wxPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
             dc.DrawBitmap(currentBitmap(), offset);
         }
         

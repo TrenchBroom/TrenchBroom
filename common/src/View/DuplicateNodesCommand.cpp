@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -38,7 +38,6 @@ namespace TrenchBroom {
             typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
             
             Model::NodeMap newParentMap;
-            Model::ParentChildrenMap nodesToAdd;
             Model::NodeList nodesToSelect;
 
             const BBox3& worldBounds = document->worldBounds();
@@ -58,18 +57,18 @@ namespace TrenchBroom {
                     } else {
                         newParent = parent->clone(worldBounds);
                         newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
-                        nodesToAdd[parent->parent()].push_back(newParent);
+                        m_addedNodes[parent->parent()].push_back(newParent);
                     }
                     
                     newParent->addChild(clone);
                 } else {
-                    nodesToAdd[parent].push_back(clone);
+                    m_addedNodes[parent].push_back(clone);
                 }
                 
                 nodesToSelect.push_back(clone);
             }
             
-            m_addedNodes = document->performAddNodes(nodesToAdd);
+            document->performAddNodes(m_addedNodes);
             document->performDeselectAll();
             document->performSelect(nodesToSelect);
             return true;
@@ -81,7 +80,7 @@ namespace TrenchBroom {
             document->performSelect(m_previouslySelectedNodes);
             
             m_previouslySelectedNodes.clear();
-            VectorUtils::clearAndDelete(m_addedNodes);
+            MapUtils::clearAndDelete(m_addedNodes);
             return true;
         }
         

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,12 +31,12 @@
 namespace TrenchBroom {
     namespace Assets {
         MdlSkin::MdlSkin(Texture* texture) :
-        m_textures("", TextureList(1, texture)) {
+        m_textures(TextureList(1, texture)) {
             m_times.push_back(0.0f);
         }
         
         MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeList& times) :
-        m_textures("", textures),
+        m_textures(textures),
         m_times(times) {
             assert(textures.size() == times.size());
         }

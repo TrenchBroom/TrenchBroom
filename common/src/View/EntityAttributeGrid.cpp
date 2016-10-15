@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,6 +28,7 @@
 
 #include <wx/bmpbuttn.h>
 #include <wx/checkbox.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -146,7 +147,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
 
         void EntityAttributeGrid::OnAddAttributeButton(wxCommandEvent& event) {
@@ -195,7 +196,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
         
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
@@ -221,7 +222,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_table = new EntityAttributeGridTable(document);
             
@@ -230,7 +231,7 @@ namespace TrenchBroom {
             // m_grid->SetUseNativeColLabels();
             // m_grid->UseNativeColHeader();
             m_grid->SetColLabelSize(18);
-            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
             m_grid->DisableColResize(0);

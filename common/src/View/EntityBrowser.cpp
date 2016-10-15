@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -47,8 +47,8 @@ namespace TrenchBroom {
         
         void EntityBrowser::reload() {
             if (m_view != NULL) {
-                m_view->clear();
-                m_view->reload();
+                m_view->invalidate();
+                m_view->Refresh();
             }
         }
         
@@ -128,7 +128,6 @@ namespace TrenchBroom {
             outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);
         }
         

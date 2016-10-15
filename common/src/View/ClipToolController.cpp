@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -140,14 +140,16 @@ namespace TrenchBroom {
         }
         
         void ClipToolController::AddClipPointPart::doEndDrag(const InputState& inputState) {
-            m_callback->tool()->endDragPoint();
+            if (m_secondPointSet)
+                m_callback->tool()->endDragPoint();
         }
         
         void ClipToolController::AddClipPointPart::doCancelDrag() {
-            m_callback->tool()->cancelDragPoint();
-            m_callback->tool()->removeLastPoint();
-            if (m_secondPointSet)
+            if (m_secondPointSet) {
+                m_callback->tool()->cancelDragPoint();
                 m_callback->tool()->removeLastPoint();
+            }
+            m_callback->tool()->removeLastPoint();
         }
         
         void ClipToolController::AddClipPointPart::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -221,7 +223,12 @@ namespace TrenchBroom {
         }
         
         bool ClipToolController::doCancel() {
-            return m_tool->removeLastPoint() || m_tool->reset();
+            if (m_tool->removeLastPoint()) {
+                if (!m_tool->hasPoints())
+                    m_tool->reset();
+                return true;
+            }
+            return false;
         }
 
         class ClipToolController2D::Callback2D : public Callback {

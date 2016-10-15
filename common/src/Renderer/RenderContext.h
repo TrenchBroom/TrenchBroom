@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -132,6 +132,9 @@ namespace TrenchBroom {
             void setForceHideSelectionGuide();
         private:
             void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
+        private:
+            RenderContext(const RenderContext& other);
+            RenderContext& operator=(const RenderContext& other);
         };
     }
 }

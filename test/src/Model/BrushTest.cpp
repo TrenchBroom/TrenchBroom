@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -1141,6 +1141,34 @@ namespace TrenchBroom {
             Vec3::List initialPositions = vertexPositions(brush);
             
             ASSERT_FALSE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+        }
+        
+        TEST(BrushTest, invalidBrush1332) {
+            // https://github.com/kduske/TrenchBroom/issues/1332
+            const String data("{\n"
+                              "( 91.428573608  0  4.57144165 ) ( 96 16  0 ) ( 82.285690308  0  0          ) rock5_2 0 0 0 1 1\n"
+                              "( 95.238098145  0 16          ) ( 96  2 16 ) ( 91.428573608  0  4.57144165 ) rock5_2 0 0 0 1 1\n"
+                              "( 96           16 16          ) ( 96 16  0 ) ( 96            2 16          ) rock5_2 0 0 0 1 1\n"
+                              "(  0           16 16          ) (  0  0  0 ) ( 96           16  0          ) rock5_2 0 0 90 1 1\n"
+                              "(  0            0 16          ) (  0  0  0 ) (  0           16 16          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // The next face causes an assertion failure. It's the back face, the normal is +Y.
+                              "( 96           16 16          ) (  0 16 16 ) ( 96           16  0          ) rock5_2 0 0 90 1 1\n"
+                              
+                              // Normal -Y (roughly)
+                              "(  0            0  0          ) (  0  0 16 ) ( 82.285690308  0  0          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // Normal +Z (roughly)
+                              "(  0            0 16          ) (  0 16 16 ) ( 95.238098145  0 16          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // Normal -Z (roughly)
+                              "( 82.285690308  0  0          ) ( 96 16  0 ) (  0            0  0          ) rock5_2 0 0 0 1 1\n"
+                              "}");
+
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            IO::NodeReader reader(data, &world);
+            const NodeList nodes = reader.read(worldBounds); // assertion failure
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityDefinitionManager
 #define TrenchBroom_EntityDefinitionManager
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
@@ -42,6 +43,8 @@ namespace TrenchBroom {
             EntityDefinitionGroup::List m_groups;
             Cache m_cache;
         public:
+            Notifier0 usageCountDidChangeNotifier;
+        public:
             ~EntityDefinitionManager();
 
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
@@ -56,6 +59,7 @@ namespace TrenchBroom {
             void updateIndices();
             void updateGroups();
             void updateCache();
+            void bindObservers();
             void clearCache();
             void clearGroups();
         };

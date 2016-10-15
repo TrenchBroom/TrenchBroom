@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,6 +32,7 @@
 #include <wx/settings.h>
 #include <wx/scrolwin.h>
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 
@@ -123,6 +124,8 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
+            wxWindowUpdateLocker locker(m_scrolledWindow);
+
             wxArrayString labels;
             wxArrayString tooltips;
             getFlags(attributables, labels, tooltips);

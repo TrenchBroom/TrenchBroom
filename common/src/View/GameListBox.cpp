@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameListBox::GameListBox(wxWindow* parent, const long style) :
-        ImageListBox(parent, wxSize(32, 32), "No Games Found", style) {
+        GameListBox::GameListBox(wxWindow* parent) :
+        ImageListBox(parent, "No Games Found") {
             reloadGameInfos();
             Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
@@ -96,9 +96,10 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        const wxBitmap& GameListBox::image(const size_t n) const {
+        bool GameListBox::image(const size_t n, wxBitmap& result) const {
             assert(n < m_gameInfos.size());
-            return m_gameInfos[n].image;
+            result = m_gameInfos[n].image;
+            return true;
         }
         
         wxString GameListBox::title(const size_t n) const {

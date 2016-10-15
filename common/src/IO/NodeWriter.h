@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -42,6 +42,7 @@ namespace TrenchBroom {
         public:
             NodeWriter(Model::World* world, FILE* stream);
             NodeWriter(Model::World* world, std::ostream& stream);
+            NodeWriter(Model::World* world, NodeSerializer* serializer);
             
             void writeMap();
         private:

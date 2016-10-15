@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,
                                              Logger& logger) :
-        CellView(parent, contextManager, buildAttribs(), scrollBar),
+        CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
         m_logger(logger),
@@ -66,6 +66,8 @@ namespace TrenchBroom {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
+            
+            m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
         }
         
         EntityBrowserView::~EntityBrowserView() {
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -92,7 +94,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -100,7 +102,12 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
+            Refresh();
+        }
+
+        void EntityBrowserView::usageCountDidChange() {
+            invalidate();
             Refresh();
         }
 
@@ -312,7 +319,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
-            Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
             
             Renderer::ActivateVbo activate(vertexVbo());
             
@@ -339,7 +346,7 @@ namespace TrenchBroom {
             }
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::ActivateVbo activate(vertexVbo());

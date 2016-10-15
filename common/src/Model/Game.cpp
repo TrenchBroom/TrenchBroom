@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -53,6 +53,14 @@ namespace TrenchBroom {
             doSetAdditionalSearchPaths(searchPaths);
         }
 
+        CompilationConfig& Game::compilationConfig() {
+            return doCompilationConfig();
+        }
+
+        size_t Game::maxPropertyLength() const {
+            return doMaxPropertyLength();
+        }
+
         World* Game::newMap(const MapFormat::Type format, const BBox3& worldBounds) const {
             return doNewMap(format, worldBounds);
         }
@@ -64,6 +72,11 @@ namespace TrenchBroom {
         void Game::writeMap(World* world, const IO::Path& path) const {
             assert(world != NULL);
             doWriteMap(world, path);
+        }
+
+        void Game::exportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
+            assert(world != NULL);
+            doExportMap(world, format, path);
         }
 
         NodeList Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
@@ -82,22 +95,30 @@ namespace TrenchBroom {
             doWriteBrushFacesToStream(world, faces, stream);
         }
     
+        Game::TexturePackageType Game::texturePackageType() const {
+            return doTexturePackageType();
+        }
+
+        void Game::loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            doLoadTextureCollections(world, documentPath, textureManager);
+        }
+
         bool Game::isTextureCollection(const IO::Path& path) const {
             return doIsTextureCollection(path);
         }
 
-        IO::Path::List Game::findBuiltinTextureCollections() const {
-            return doFindBuiltinTextureCollections();
+        IO::Path::List Game::findTextureCollections() const {
+            return doFindTextureCollections();
         }
         
-        StringList Game::extractExternalTextureCollections(const World* world) const {
+        IO::Path::List Game::extractTextureCollections(const World* world) const {
             assert(world != NULL);
-            return doExtractExternalTextureCollections(world);
+            return doExtractTextureCollections(world);
         }
         
-        void Game::updateExternalTextureCollections(World* world, const StringList& collections) const {
+        void Game::updateTextureCollections(World* world, const IO::Path::List& paths) const {
             assert(world != NULL);
-            doUpdateExternalTextureCollections(world, collections);
+            doUpdateTextureCollections(world, paths);
         }
 
         bool Game::isEntityDefinitionFile(const IO::Path& path) const {
@@ -136,6 +157,20 @@ namespace TrenchBroom {
             return doExtractEnabledMods(world);
         }
         
+        String Game::defaultMod() const {
+            return doDefaultMod();
+        }
+
+        ::StringMap Game::extractGameEngineParameterSpecs(const World* world) const {
+            assert(world != NULL);
+            return doExtractGameEngineParameterSpecs(world);
+        }
+
+        void Game::setGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {
+            assert(world != NULL);
+            doSetGameEngineParameterSpecs(world, specs);
+        }
+
         const GameConfig::FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }

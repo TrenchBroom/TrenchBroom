@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,7 +25,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const String QuakeMapTokenizer::NumberDelim = Whitespace + ")";
+        const String& QuakeMapTokenizer::NumberDelim() {
+            static const String numberDelim(Whitespace() + ")");
+            return numberDelim;
+        }
 
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end),
@@ -88,18 +91,18 @@ namespace TrenchBroom {
                     case '\r':
                     case ' ':
                     case '\t':
-                        discardWhile(Whitespace);
+                        discardWhile(Whitespace());
                         break;
                     default: { // whitespace, integer, decimal or word
-                        const char* e = readInteger(NumberDelim);
+                        const char* e = readInteger(NumberDelim());
                         if (e != NULL)
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
                         
-                        e = readDecimal(NumberDelim);
+                        e = readDecimal(NumberDelim());
                         if (e != NULL)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
-                        e = readString(Whitespace);
+                        e = readUntil(Whitespace());
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
@@ -356,7 +359,7 @@ namespace TrenchBroom {
             }
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
-            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace);
+            String textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
@@ -388,7 +391,7 @@ namespace TrenchBroom {
             attribs.setYScale(token.toFloat<float>());
             
             // We'll be pretty lenient when parsing additional face attributes.
-            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.peekToken())) {
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
                 // There's more stuff - let's examine it!
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 // It could be a Hexen 2 face attribute or Quake 2 content and surface flags and surface values

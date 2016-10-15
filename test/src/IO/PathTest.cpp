@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, subPath) {
-            ASSERT_THROW(Path("").subPath(0, 0), PathException);
+            ASSERT_EQ(Path(""), Path("").subPath(0, 0));
             ASSERT_THROW(Path("test\\blah").subPath(1, 2), PathException);
             ASSERT_EQ(Path("test\\blah"), Path("test\\blah").subPath(0, 2));
             ASSERT_EQ(Path("test"), Path("test\\blah").subPath(0, 1));
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
         
         TEST(PathTest, subPath) {
-            ASSERT_THROW(Path("").subPath(0, 0), PathException);
+            ASSERT_EQ(Path(""), Path("").subPath(0, 0));
             ASSERT_THROW(Path("test/blah").subPath(1, 2), PathException);
             ASSERT_EQ(Path("test/blah"), Path("test/blah").subPath(0, 2));
             ASSERT_EQ(Path("test"), Path("test/blah").subPath(0, 1));

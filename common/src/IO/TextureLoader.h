@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,25 +17,52 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureLoader_h
-#define TrenchBroom_TextureLoader_h
+#ifndef TextureLoader_h
+#define TextureLoader_h
 
-#include "SharedPointer.h"
+#include "Macros.h"
+#include "EL.h"
+#include "StringUtils.h"
 #include "Assets/AssetTypes.h"
+#include "IO/Path.h"
+#include "Model/GameConfig.h"
 
 namespace TrenchBroom {
+    class VariableTable;
+
+    namespace Assets {
+        class Palette;
+        class TextureManager;
+    }
+    
     namespace IO {
-        class Path;
+        class FileSystem;
+        class TextureCollectionLoader;
+        class TextureReader;
         
         class TextureLoader {
-        public:
-            virtual ~TextureLoader();
-            
-            Assets::TextureCollection* loadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
         private:
-            virtual Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const = 0;
+            const EL::VariableStore* m_variables;
+            const FileSystem& m_gameFS;
+            const IO::Path::List m_fileSearchPaths;
+            String m_textureExtension;
+            TextureReader* m_textureReader;
+            TextureCollectionLoader* m_textureCollectionLoader;
+        public:
+            TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
+            ~TextureLoader();
+        private:
+            String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const;
+            TextureReader* createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const;
+            Assets::Palette loadPalette(const Model::GameConfig::TextureConfig& textureConfig) const;
+            TextureCollectionLoader* createTextureCollectionLoader(const Model::GameConfig::TextureConfig& textureConfig) const;
+        public:
+            Assets::TextureCollection* loadTextureCollection(const Path& path);
+            void loadTextures(const Path::List& paths, Assets::TextureManager& textureManager);
+
+            deleteCopyAndAssignment(TextureLoader)
         };
     }
 }
 
-#endif
+#endif /* TextureLoader_h */

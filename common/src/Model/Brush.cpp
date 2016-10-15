@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -105,19 +105,22 @@ namespace TrenchBroom {
             AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false),
-            m_brushValid(false) {
+            m_brushValid(true) {
+                HealEdgesCallback healCallback;
+
                 BrushFaceList::const_iterator it, end;
-                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
+                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     BrushFace* face = *it;
-                    AddFaceToGeometryCallback callback(face);
-                    const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
+                    AddFaceToGeometryCallback addCallback(face);
+                    const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), addCallback);
                     if (result.empty())
                         m_brushEmpty = true;
+                    m_brushValid = m_geometry.healEdges(healCallback);
                 }
-                m_geometry.correctVertexPositions();
-                
-                HealEdgesCallback callback;
-                m_brushValid = m_geometry.healEdges(callback);
+                if (!m_brushEmpty && m_brushValid) {
+                    m_geometry.correctVertexPositions();
+                    m_brushValid = m_geometry.healEdges(healCallback);
+                }
             }
             
             bool brushEmpty() const {
@@ -293,6 +296,16 @@ namespace TrenchBroom {
             if (!visitor.hasResult())
                 return NULL;
             return visitor.result();
+        }
+
+        BrushFace* Brush::findFace(const Vec3& normal) const {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                if (face->boundary().normal.equals(normal))
+                    return face;
+            }
+            return NULL;
         }
 
         const BrushFaceList& Brush::faces() const {

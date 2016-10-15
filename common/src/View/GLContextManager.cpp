@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
             GLContext::Ptr context(new GLContext(canvas, this));
-            if (m_mainContext == NULL)
+            if (m_mainContext.get() == NULL)
                 m_mainContext = context;
             return context;
         }

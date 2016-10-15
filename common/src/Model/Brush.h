@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -78,6 +78,7 @@ namespace TrenchBroom {
             
             AttributableNode* entity() const;
         public: // face management:
+            BrushFace* findFace(const Vec3& normal) const;
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
 

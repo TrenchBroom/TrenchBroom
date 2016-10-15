@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,6 +32,7 @@ namespace TrenchBroom {
             const AttributeName Wad               = "wad";
             const AttributeName Textures          = "_tb_textures";
             const AttributeName Mods              = "_tb_mod";
+            const AttributeName GameEngineParameterSpecs = "_tb_engines";
             const AttributeName Spawnflags        = "spawnflags";
             const AttributeName EntityDefinitions = "_tb_def";
             const AttributeName Angle             = "angle";
@@ -176,12 +177,12 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition) {
-            EntityAttribute::List::iterator it = findAttribute(name);
-            if (it == m_attributes.end())
+            if (!hasAttribute(name))
                 return;
-            m_index.remove(it->name(), it);
-            it->setName(newName, newDefinition);
-            m_index.insert(it->name(), it);
+            
+            const AttributeValue value = *attribute(name);
+            removeAttribute(name);
+            addOrUpdateAttribute(newName, value, newDefinition);
         }
 
         void EntityAttributes::removeAttribute(const AttributeName& name) {

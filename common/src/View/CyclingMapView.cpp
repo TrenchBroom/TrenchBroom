@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -75,18 +75,17 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
-            mapView->Show();
-            mapView->SetFocus();
+            MapViewBase* previousMapView = m_currentMapView;
+            m_currentMapView = mapView;
+            m_currentMapView->Show();
+            if (previousMapView != NULL)
+                previousMapView->Hide();
+            m_currentMapView->SetFocus();
 
-            if (m_currentMapView != NULL)
-                m_currentMapView->Hide();
-            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(mapView, 1, wxEXPAND);
+            sizer->Add(m_currentMapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
-
-            m_currentMapView = mapView;
         }
 
         void CyclingMapView::doFlashSelection() {

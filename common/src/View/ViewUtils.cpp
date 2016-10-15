@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -65,23 +65,6 @@ namespace TrenchBroom {
             wxPaths.Add(wxPath);
             return loadTextureCollections(document, parent, wxPaths) == 1;
         }
-
-        bool containsLoadableTextureCollections(MapDocumentWPtr i_document, const wxArrayString& wxPaths) {
-            MapDocumentSPtr document = lock(i_document);
-            Model::GamePtr game = document->game();
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
-            const IO::Path docPath = document->path();
-            
-            for (size_t i = 0; i < wxPaths.size(); ++i) {
-                const wxString& wxPath = wxPaths[i];
-                const IO::Path absPath(wxPath.ToStdString());
-                if (!game->isTextureCollection(absPath))
-                    return true;
-            }
-            
-            return false;
-        }
         
         size_t loadTextureCollections(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
             if (wxPaths.empty())
@@ -90,29 +73,28 @@ namespace TrenchBroom {
             size_t count = 0;
             
             MapDocumentSPtr document = lock(i_document);
+            IO::Path::List collections = document->enabledTextureCollections();
+            
             Model::GamePtr game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
 
-            Transaction transaction(document);
-            try {
-                for (size_t i = 0; i < wxPaths.size(); ++i) {
-                    const wxString& wxPath = wxPaths[i];
-                    const IO::Path absPath(wxPath.ToStdString());
-                    if (game->isTextureCollection(absPath)) {
-                        ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                        if (pathDialog.ShowModal() == wxID_OK) {
-                            const IO::Path collectionPath = pathDialog.path();
-                            document->addTextureCollection(collectionPath.asString());
-                            ++count;
-                        }
+            for (size_t i = 0; i < wxPaths.size(); ++i) {
+                const wxString& wxPath = wxPaths[i];
+                const IO::Path absPath(wxPath.ToStdString());
+                if (game->isTextureCollection(absPath)) {
+                    ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
+                    if (pathDialog.ShowModal() == wxID_CANCEL) {
+                        return 0;
+                    } else if (pathDialog.ShowModal() == wxID_OK) {
+                        collections.push_back(pathDialog.path());
+                        ++count;
                     }
                 }
-            } catch (...) {
-                transaction.rollback();
-                throw;
             }
+
+            document->setEnabledTextureCollections(collections);
             
             return count;
         }
@@ -123,23 +105,6 @@ namespace TrenchBroom {
             return loadEntityDefinitionFile(document, parent, wxPaths) == 0;
         }
 
-        bool containsLoadableEntityDefinitionFile(MapDocumentWPtr i_document, const wxArrayString& wxPaths) {
-            MapDocumentSPtr document = lock(i_document);
-            Model::GamePtr game = document->game();
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
-            const IO::Path docPath = document->path();
-            
-            for (size_t i = 0; i < wxPaths.size(); ++i) {
-                const wxString& wxPath = wxPaths[i];
-                const IO::Path absPath(wxPath.ToStdString());
-                if (game->isEntityDefinitionFile(absPath))
-                    return true;
-            }
-            
-            return false;
-        }
-        
         size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
             if (wxPaths.empty())
                 return 0;

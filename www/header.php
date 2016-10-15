@@ -10,5 +10,14 @@
 		<div id="container">
 			<img src="images/logo.png" width="256" height="256" alt="TrenchBroom Logo" />
 			<h1>TrenchBroom</h1>
-			<p class="subtitle">A Modern Level Editor for Quake.</p>
+			<p class="subtitle">Level Editor</p>
+			<hr />
+			<ul class="menu">
+				<li><a href="index.php">About</a></li>
+				<li><a href="downloads.php">Download</a></li>
+				<li><a href="http://github.com/kduske/TrenchBroom">Source</a></li>
+				<li><a href="http://celephais.net/board/view_thread.php?id=60908">Discuss</a></li>
+				<li><a href="https://twitter.com/kristianduske" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow</a>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script></li>
+			</ul>
 			<hr />

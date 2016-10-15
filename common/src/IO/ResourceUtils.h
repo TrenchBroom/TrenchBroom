@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,12 +22,14 @@
 
 #include "StringUtils.h"
 #include <wx/bitmap.h>
+#include <wx/icon.h>
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
         wxBitmap loadImageResource(const String& name);
         wxBitmap loadImageResource(const IO::Path& imagePath);
+        wxIcon loadIconResource(const IO::Path& imagePath);
     }
 }
 

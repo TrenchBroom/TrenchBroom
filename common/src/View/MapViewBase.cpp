@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -42,7 +42,6 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
@@ -60,10 +59,24 @@
 
 namespace TrenchBroom {
     namespace View {
+        static wxString GLVendor, GLRenderer, GLVersion;
+        
+        const wxString &MapViewBase::glRendererString() {
+            return GLRenderer;
+        }
+        
+        const wxString &MapViewBase::glVendorString() {
+            return GLVendor;
+        }
+        
+        const wxString &MapViewBase::glVersionString() {
+            return GLVersion;
+        }
+        
         const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, buildAttribs()),
+        RenderView(parent, contextManager, GLAttribs::attribs()),
         ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
@@ -808,11 +821,11 @@ namespace TrenchBroom {
         
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
-                const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-                const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-                const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+                GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+                GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+                GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
-                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
+                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
                 m_logger->info("Depth buffer bits: %d", depthBits());
 
                 if (multisample())
@@ -831,7 +844,22 @@ namespace TrenchBroom {
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
-            Renderer::RenderContext renderContext = createRenderContext();
+            MapDocumentSPtr document = lock(m_document);
+            const MapViewConfig& mapViewConfig = document->mapViewConfig();
+            const Grid& grid = document->grid();
+
+            Renderer::RenderContext renderContext(doGetRenderMode(), doGetCamera(), fontManager(), shaderManager());
+            renderContext.setShowTextures(mapViewConfig.showTextures());
+            renderContext.setShowFaces(mapViewConfig.showFaces());
+            renderContext.setShowEdges(mapViewConfig.showEdges());
+            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
+            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
+            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
+            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
+            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowFog(mapViewConfig.showFog());
+            renderContext.setShowGrid(grid.visible());
+            renderContext.setGridSize(grid.actualSize());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);
@@ -847,26 +875,6 @@ namespace TrenchBroom {
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
-        }
-
-        Renderer::RenderContext MapViewBase::createRenderContext() {
-            MapDocumentSPtr document = lock(m_document);
-            const MapViewConfig& mapViewConfig = document->mapViewConfig();
-            const Grid& grid = document->grid();
-
-            Renderer::RenderContext renderContext = doCreateRenderContext();
-            renderContext.setShowTextures(mapViewConfig.showTextures());
-            renderContext.setShowFaces(mapViewConfig.showFaces());
-            renderContext.setShowEdges(mapViewConfig.showEdges());
-            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
-            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
-            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
-            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
-            renderContext.setShowFog(mapViewConfig.showFog());
-            renderContext.setShowGrid(grid.visible());
-            renderContext.setGridSize(grid.actualSize());
-            return renderContext;
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {

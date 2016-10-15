@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         class NonIntegerVerticesIssueGenerator::NonIntegerVerticesIssueQuickFix : public IssueQuickFix {
         public:
             NonIntegerVerticesIssueQuickFix() :
-            IssueQuickFix("Convert vertices to integer") {}
+            IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->snapVertices(1);

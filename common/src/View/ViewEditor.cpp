@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,6 +37,7 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/scrolwin.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -132,7 +133,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionCheckBoxList::createGui() {
             BorderPanel* border = new BorderPanel(this);
-            border->SetBackgroundColour(*wxWHITE);
+            border->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             wxScrolledWindow* scrollWindow = new wxScrolledWindow(border);
             int checkBoxHeight = 1;
@@ -252,7 +253,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
             
-            if (game != NULL) {
+            if (game.get() != NULL) {
                 Model::BrushContentType::FlagType hiddenFlags = 0;
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 
@@ -452,7 +453,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
-            if (game == NULL) {
+            if (game.get() == NULL) {
                 createEmptyBrushContentTypeFilter(parent);
             } else {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
@@ -574,7 +575,7 @@ namespace TrenchBroom {
             const Model::BrushContentType::FlagType hiddenFlags = editorContext.hiddenBrushContentTypes();
             
             Model::GamePtr game = document->game();
-            if (game != NULL) {
+            if (game.get() != NULL) {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 for (size_t i = 0; i < contentTypes.size(); ++i) {
                     const Model::BrushContentType& contentType = contentTypes[i];

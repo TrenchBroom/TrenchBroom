@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 return MoveInfo();
             
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).selected().occluded().first();
             if (!hit.isMatch())
                 return MoveInfo();
             

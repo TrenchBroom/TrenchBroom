@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -99,6 +99,16 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
+        bool Node::isAncestorOf(const NodeList& nodes) const {
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (isAncestorOf(node))
+                    return true;
+            }
+            return false;
+        }
+
         bool Node::isDescendantOf(const Node* node) const {
             Node* parent = m_parent;
             while (parent != NULL) {
@@ -107,6 +117,27 @@ namespace TrenchBroom {
                 parent = parent->parent();
             }
             return false;
+        }
+
+        bool Node::isDescendantOf(const NodeList& nodes) const {
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (isDescendantOf(node))
+                    return true;
+            }
+            return false;
+        }
+
+        NodeList Node::findDescendants(const NodeList& nodes) const {
+            NodeList result;
+            NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Node* node = *it;
+                if (node->isDescendantOf(this))
+                    result.push_back(node);
+            }
+            return result;
         }
 
         bool Node::removeIfEmpty() const {
@@ -151,11 +182,13 @@ namespace TrenchBroom {
             decDescendantSelectionCount(child->descendantSelectionCount());
         }
 
-        bool Node::canAddChild(Node* child) const {
+        bool Node::canAddChild(const Node* child) const {
+            if (child == this || isDescendantOf(child))
+                return false;
             return doCanAddChild(child);
         }
 
-        bool Node::canRemoveChild(Node* child) const {
+        bool Node::canRemoveChild(const Node* child) const {
             return doCanRemoveChild(child);
         }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -227,10 +227,10 @@ namespace TrenchBroom {
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const MapDocumentSPtr document = lock(m_document);
-            if (document->selectedNodes().empty()) {
-                const BBox3& bounds = document->selectionBounds();
-                moveCameraToPosition(bounds.center(), animate);
-            }
+            const BBox3& bounds = document->referenceBounds();
+            const Vec3 diff = bounds.center() - m_camera.position();
+            const Vec3 delta = diff * (m_camera.up() + m_camera.right());
+            moveCameraToPosition(m_camera.position() + delta, animate);
         }
         
         void MapView2D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
@@ -318,8 +318,12 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView2D::doCreateRenderContext() {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
+        Renderer::RenderContext::RenderMode MapView2D::doGetRenderMode() {
+            return Renderer::RenderContext::RenderMode_2D;
+        }
+        
+        Renderer::Camera& MapView2D::doGetCamera() {
+            return m_camera;
         }
         
         void MapView2D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

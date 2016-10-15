@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,11 +23,13 @@
 #include "VecMath.h"
 #include "Exceptions.h"
 #include "ByteBuffer.h"
+#include "Macros.h"
 #include "StringUtils.h"
 
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <vector>
@@ -43,18 +45,28 @@ namespace TrenchBroom {
         class Path;
         
         class OpenFile {
-        private:
-            FILE* m_file;
+        public:
+            FILE* file;
         public:
             OpenFile(const Path& path, bool write);
             ~OpenFile();
             
-            FILE* file() const;
+            deleteCopyAndAssignment(OpenFile)
         };
         
-        String readGameComment(FILE* stream);
-        String readFormatComment(FILE* stream);
-        String readInfoComment(FILE* stream, const String& name);
+        class OpenStream {
+        public:
+            std::fstream stream;
+        public:
+            OpenStream(const Path& path, bool write);
+            ~OpenStream();
+
+            deleteCopyAndAssignment(OpenStream)
+        };
+        
+        String readGameComment(std::istream& stream);
+        String readFormatComment(std::istream& stream);
+        String readInfoComment(std::istream& stream, const String& name);
         
         void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat);
         

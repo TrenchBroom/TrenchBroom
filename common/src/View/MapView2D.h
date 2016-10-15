@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -86,7 +86,8 @@ namespace TrenchBroom {
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
             
-            Renderer::RenderContext doCreateRenderContext();
+            Renderer::RenderContext::RenderMode doGetRenderMode();
+            Renderer::Camera& doGetCamera();
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

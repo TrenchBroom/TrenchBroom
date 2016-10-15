@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,6 +28,11 @@ namespace TrenchBroom {
         m_prepared(false),
         m_setup(false) {}
         
+        VertexArray::VertexArray(const VertexArray& other) :
+        m_holder(other.m_holder),
+        m_prepared(other.m_prepared),
+        m_setup(other.m_setup) {}
+
         VertexArray& VertexArray::operator=(VertexArray other) {
             using std::swap;
             swap(*this, other);
@@ -46,11 +51,11 @@ namespace TrenchBroom {
         }
 
         size_t VertexArray::sizeInBytes() const {
-            return m_holder == NULL ? 0 : m_holder->sizeInBytes();
+            return m_holder.get() == NULL ? 0 : m_holder->sizeInBytes();
         }
 
         size_t VertexArray::vertexCount() const {
-            return m_holder == NULL ? 0 : m_holder->vertexCount();
+            return m_holder.get() == NULL ? 0 : m_holder->vertexCount();
         }
 
         bool VertexArray::prepared() const {

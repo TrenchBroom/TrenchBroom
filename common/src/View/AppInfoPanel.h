@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,6 +31,8 @@ namespace TrenchBroom {
             AppInfoPanel(wxWindow* parent);
         private:
             void createGui();
+            
+            void OnClickVersionInfo(wxMouseEvent& event);
         };
     }
 }

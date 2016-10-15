@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
         private:
-            static const String NumberDelim;
+            static const String& NumberDelim();
             bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);

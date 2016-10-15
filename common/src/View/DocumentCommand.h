@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,6 +36,9 @@ namespace TrenchBroom {
             bool collateWith(UndoableCommand::Ptr command);
         private:
             size_t documentModificationCount() const;
+        private:
+            DocumentCommand(const DocumentCommand& other);
+            DocumentCommand& operator=(const DocumentCommand& other);
         };
     }
 }

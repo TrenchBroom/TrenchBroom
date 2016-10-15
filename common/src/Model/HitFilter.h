@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,8 +34,12 @@ namespace TrenchBroom {
             static HitFilter* never();
             
             virtual ~HitFilter();
+            
+            HitFilter* clone() const;
+            
             bool matches(const Hit& hit) const;
         private:
+            virtual HitFilter* doClone() const = 0;
             virtual bool doMatches(const Hit& hit) const = 0;
         };
         
@@ -47,6 +51,7 @@ namespace TrenchBroom {
             HitFilterChain(const HitFilter* filter, const HitFilter* next);
             ~HitFilterChain();
         private:
+            HitFilter* doClone() const;
             bool doMatches(const Hit& hit) const;
         };
         
@@ -56,11 +61,13 @@ namespace TrenchBroom {
         public:
             TypedHitFilter(Hit::HitType typeMask);
         private:
+            HitFilter* doClone() const;
             bool doMatches(const Hit& hit) const;
         };
 
         class SelectionHitFilter : public HitFilter {
         private:
+            HitFilter* doClone() const;
             bool doMatches(const Hit& hit) const;
         };
         
@@ -70,6 +77,7 @@ namespace TrenchBroom {
         public:
             MinDistanceHitFilter(FloatType minDistance);
         private:
+            HitFilter* doClone() const;
             bool doMatches(const Hit& hit) const;
         };
         
@@ -81,6 +89,7 @@ namespace TrenchBroom {
         public:
             ContextHitFilter(const EditorContext& context);
         private:
+            HitFilter* doClone() const;
             bool doMatches(const Hit& hit) const;
         };
     }

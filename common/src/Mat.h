@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -88,9 +88,15 @@ public:
     
     template <typename U>
     Mat<T,R,C>(const Mat<U,R,C>& other) {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
+        for (size_t c = 0; c < C; ++c)
+            for (size_t r = 0; r < R; ++r)
                 v[c][r] = static_cast<T>(other[c][r]);
+    }
+    
+    Mat(const Mat& other) {
+        for (size_t c = 0; c < C; ++c)
+            for (size_t r = 0; r < R; ++r)
+                v[c][r] = other[c][r];
     }
     
     Mat<T,R,C>& operator=(const Mat<T,R,C>& right) {

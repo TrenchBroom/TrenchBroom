@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,7 +25,9 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/Bsp29Model.h"
 #include "Assets/Palette.h"
+#include "IO/MappedFile.h"
 #include "IO/IOUtils.h"
+#include "IO/IdMipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -97,35 +99,24 @@ namespace TrenchBroom {
             Assets::TextureList textures;
             textures.reserve(textureCount);
             
+            const TextureReader::TextureNameStrategy nameStrategy;
+            IdMipTextureReader textureReader(nameStrategy, m_palette);
+
             const char* base = cursor;
             for (size_t i = 0; i < textureCount; ++i) {
                 cursor = base + (i + 1)*sizeof(int32_t);
                 const size_t textureOffset = readSize<int32_t>(cursor);
                 cursor = base + textureOffset;
                 readBytes(cursor, textureName, BspLayout::TextureNameLength);
-                
                 const size_t width = readSize<int32_t>(cursor);
                 const size_t height = readSize<int32_t>(cursor);
-                const size_t mipOffsets[] = {readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor),
-                    readSize<int32_t>(cursor)};
+                const size_t mipFileSize = IdMipTextureReader::mipFileSize(width, height, 4);
                 
-                size_t mipWidth = width;
-                size_t mipHeight = height;
-                Assets::TextureBuffer::List textureBuffers;
-                textureBuffers.reserve(4);
+                const char* const begin = base + textureOffset;
+                const char* const end = begin + mipFileSize;
                 
-                for (size_t j = 0; j < 4; ++j) {
-                    Assets::TextureBuffer textureBuffer(3 * mipWidth * mipHeight);
-                    cursor = base + textureOffset + mipOffsets[j];
-                    m_palette.indexedToRgb(cursor, mipWidth * mipHeight, textureBuffer, averageColor);
-                    mipWidth /= 2;
-                    mipHeight /= 2;
-                    textureBuffers.push_back(textureBuffer);
-                }
-                
-                textures.push_back(new Assets::Texture(textureName, width, height, averageColor, textureBuffers));
+                Assets::Texture* texture = textureReader.readTexture(begin, end, Path(""));
+                textures.push_back(texture);
             }
             
             return new Assets::TextureCollection(m_name, textures);

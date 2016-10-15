@@ -10,7 +10,6 @@ p, div {
 p {
 	margin-bottom: 20px;
 	text-align: justify;
-	text-indent: 30px;
 }
 
 p.subtitle {
@@ -36,9 +35,14 @@ h3 {
 	text-align: left;
 }
 
-div.image {
+div.screenshot {
 	text-align: center;
-	margin-bottom: 50px;
+}
+
+div.screenshot img {
+	padding: 20px;
+	border-radius: 10px;
+	background-color: #dddddd;
 }
 
 a {
@@ -58,13 +62,29 @@ div#content {
 	text-align: left;
 }
 
+div.platforms {
+
+}
+
+div.platforms  h2 {
+	text-align: center;
+}
+
+div.platforms  ul {
+	text-align: center;
+	list-style-type: none;
+}
+
+div.platforms ul a {
+	color: rgb(235,125,0);
+}
 div.downloads {
-	float: left;
-	width: 462px;
 	background-color: #dddddd;
 	border-radius: 10px;
 	padding: 20px;
 	margin-top: 20px;
+	margin-left: 10%;
+	margin-right: 10%;
 }
 
 div.downloads  h2 {
@@ -105,19 +125,29 @@ div.requirements ul {
 	margin: 0px;
 }
 
+div.releases {
+	background-color: #cccccc;
+	padding: 10px 20px 20px 20px;
+	margin-top: 20px;
+}
+
+div.releases h2 {
+	margin: 0px;
+	padding: 0px;
+}
+
 div.latest {
 	border: 2px solid #0B5F19;
 	background-color: #83DE93;
 	border-radius: 5px;
 	padding: 10px;
-	text-align: center;
 }
 
 div.latest h3 {
 	margin: 0px;
 	margin-bottom: 2px;
 	border-bottom: 0px;
-	text-align: center;
+	display: inline;
 }
 
 div.latest a {
