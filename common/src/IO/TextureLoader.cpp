@@ -57,12 +57,10 @@ namespace TrenchBroom {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return new IdMipTextureReader(nameStrategy, loadPalette(textureConfig));
-            }
-            else if (textureConfig.format.format == "hlmip") {
+            } else if (textureConfig.format.format == "hlmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return new HlMipTextureReader(nameStrategy);
-            }
-            else if (textureConfig.format.format == "idwal") {
+            } else if (textureConfig.format.format == "idwal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
             } else {

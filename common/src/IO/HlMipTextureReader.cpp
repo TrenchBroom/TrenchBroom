@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 offset[i] = reader.readSize<int32_t>();
 
             const char *paletteStart = begin + offset[0] + (width * height * 85 >> 6) + 2;
-            size_t paletteSize = end - paletteStart;
+            size_t paletteSize = (size_t)(end - paletteStart);
             unsigned char *paletteCopy = new unsigned char[paletteSize];
             memcpy(paletteCopy, paletteStart, paletteSize);
 
