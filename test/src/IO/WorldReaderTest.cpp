@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -54,32 +55,45 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            ASSERT_TRUE(reader.read(Model::MapFormat::Standard, worldBounds) != NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            delete world;
         }
         
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
             ASSERT_EQ(1u, world->children().front()->childCount());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawn) {
@@ -89,8 +103,10 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -98,6 +114,8 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("yay", world->attribute("message").c_str());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
@@ -112,8 +130,10 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
@@ -130,6 +150,8 @@ namespace TrenchBroom {
             ASSERT_STREQ("1 22 -3", entity->attribute("origin").c_str());
             ASSERT_TRUE(entity->hasAttribute("angle"));
             ASSERT_STREQ(" -1 ", entity->attribute("angle").c_str());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawnAndOneBrush) {
@@ -146,8 +168,10 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -171,6 +195,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != NULL);
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseMapAndCheckFaceFlags) {
@@ -187,8 +213,10 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -205,6 +233,8 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(56.2f, face->rotation());
             ASSERT_FLOAT_EQ(1.03433f, face->xScale());
             ASSERT_FLOAT_EQ(-0.55f, face->yScale());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseBrushWithCurlyBraceInTextureName) {
@@ -221,8 +251,10 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -238,6 +270,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != NULL);
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseProblematicBrush1) {
@@ -254,8 +288,10 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -270,6 +306,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)) != NULL);
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseProblematicBrush2) {
@@ -286,12 +324,16 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseProblematicBrush3) {
@@ -308,12 +350,16 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            
+            delete world;
         }
 
         TEST(WorldReaderTest, parseValveBrush) {
@@ -330,12 +376,16 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Valve, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Valve, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseQuake2Brush) {
@@ -352,12 +402,16 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
@@ -374,12 +428,16 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseBrushesWithLayer) {
@@ -419,12 +477,16 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount());
             ASSERT_EQ(1u, world->children().back()->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
@@ -476,13 +538,17 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount()); // default layer
             ASSERT_EQ(2u, world->children().back()->childCount()); // My Layer
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
+            
+            delete world;
         }
         
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
@@ -549,8 +615,10 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
+            IO::TestParserStatus status;
             WorldReader reader(data, NULL);
-            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds);
+            
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
             
             ASSERT_EQ(1u, world->childCount());
             
@@ -562,6 +630,26 @@ namespace TrenchBroom {
             
             Model::Node* mySubGroup = myGroup->children().back();
             ASSERT_EQ(1u, mySubGroup->childCount());
+            
+            delete world;
+        }
+        
+        TEST(WorldReaderTest, parseMultipleClassnames) {
+            // See https://github.com/kduske/TrenchBroom/issues/1485
+            
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "}\n");
+
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            
+            delete world;
         }
 
         /*
