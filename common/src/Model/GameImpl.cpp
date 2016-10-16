@@ -39,6 +39,7 @@
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
 #include "IO/WorldReader.h"
+#include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
 #include "Model/AttributableNodeVariableStore.h"
@@ -133,9 +134,10 @@ namespace TrenchBroom {
         }
 
         World* GameImpl::doLoadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+            IO::SimpleParserStatus parserStatus(logger);
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
-            return reader.read(format, worldBounds);
+            IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
+            return reader.read(format, worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
@@ -159,13 +161,15 @@ namespace TrenchBroom {
         }
 
         NodeList GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
-            IO::NodeReader reader(str, world, logger);
-            return reader.read(worldBounds);
+            IO::SimpleParserStatus parserStatus(logger);
+            IO::NodeReader reader(str, world);
+            return reader.read(worldBounds, parserStatus);
         }
 
         BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
-            IO::BrushFaceReader reader(str, world, logger);
-            return reader.read(worldBounds);
+            IO::SimpleParserStatus parserStatus(logger);
+            IO::BrushFaceReader reader(str, world);
+            return reader.read(worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {

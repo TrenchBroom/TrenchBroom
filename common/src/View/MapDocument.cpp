@@ -27,6 +27,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -97,7 +98,6 @@
 #include "View/SetModsCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
-#include "View/SimpleParserStatus.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
@@ -1317,7 +1317,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
             try {
                 const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-                SimpleParserStatus status(this);
+                IO::SimpleParserStatus status(this);
                 m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
                 info("Loaded entity definition file " + path.lastComponent().asString());
             } catch (const Exception& e) {

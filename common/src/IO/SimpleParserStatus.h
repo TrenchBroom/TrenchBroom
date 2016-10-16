@@ -23,8 +23,8 @@
 #include "IO/ParserStatus.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class SimpleParserStatus : public IO::ParserStatus {
+    namespace IO {
+        class SimpleParserStatus : public ParserStatus {
         public:
             SimpleParserStatus(Logger* logger);
         private:

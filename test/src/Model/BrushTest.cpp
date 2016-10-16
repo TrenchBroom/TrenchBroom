@@ -22,6 +22,7 @@
 #include "TestUtils.h"
 
 #include "IO/NodeReader.h"
+#include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushContentTypeBuilder.h"
@@ -375,8 +376,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+            
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
         
@@ -397,8 +401,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
         
@@ -417,8 +424,11 @@ namespace TrenchBroom {
 
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_TRUE(nodes.empty());
         }
         
@@ -901,8 +911,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+
+            const NodeList nodes = reader.read(worldBounds, status);
             assert(nodes.size() == 1);
             
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -1061,8 +1074,9 @@ namespace TrenchBroom {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Valve, NULL, worldBounds);
             
-            Brush* minuend    = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds).front());
-            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds).front());
+            IO::TestParserStatus status;
+            Brush* minuend    = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
             
             const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_FALSE(result.empty());
@@ -1082,16 +1096,22 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0, nodes.size());
         }
         
         static void assertCannotSnapTo(const String& data, size_t gridSize) {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
             
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -1105,8 +1125,11 @@ namespace TrenchBroom {
         static void assertSnapTo(const String& data, size_t gridSize) {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
             
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -1331,8 +1354,12 @@ namespace TrenchBroom {
 
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds); // assertion failure
+
+            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            VectorUtils::clearAndDelete(nodes);
         }
         
         
@@ -1378,8 +1405,12 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds); // assertion failure
+            
+            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            VectorUtils::clearAndDelete(nodes);
         }
 
         TEST(BrushTest, snapToGrid64) {

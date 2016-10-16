@@ -20,7 +20,7 @@
 #include "SimpleParserStatus.h"
 
 namespace TrenchBroom {
-    namespace View {
+    namespace IO {
         SimpleParserStatus::SimpleParserStatus(Logger* logger) :
         ParserStatus(logger) {}
 

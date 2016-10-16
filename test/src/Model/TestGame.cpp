@@ -22,6 +22,7 @@
 #include "IO/BrushFaceReader.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
+#include "IO/TestParserStatus.h"
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
@@ -62,13 +63,15 @@ namespace TrenchBroom {
         void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
         
         NodeList TestGame::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
-            IO::NodeReader reader(str, world, logger);
-            return reader.read(worldBounds);
+            IO::TestParserStatus status;
+            IO::NodeReader reader(str, world);
+            return reader.read(worldBounds, status);
         }
         
         BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
-            IO::BrushFaceReader reader(str, world, logger);
-            return reader.read(worldBounds);
+            IO::TestParserStatus status;
+            IO::BrushFaceReader reader(str, world);
+            return reader.read(worldBounds, status);
         }
         
         void TestGame::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
