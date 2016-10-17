@@ -175,7 +175,7 @@ namespace TrenchBroom {
             assert(!currentLayer->locked());
             assert(!currentLayer->hidden());
             m_currentLayer = currentLayer;
-            currentLayerDidChangeNotifier();
+            currentLayerDidChangeNotifier(m_currentLayer);
         }
         
         Model::Group* MapDocument::currentGroup() const {
@@ -420,6 +420,13 @@ namespace TrenchBroom {
             return m_currentTextureName;
         }
         
+        void MapDocument::setCurrentTextureName(const String& currentTextureName) {
+            if (m_currentTextureName == currentTextureName)
+                return;
+            m_currentTextureName = currentTextureName;
+            currentTextureNameDidChangeNotifier(m_currentTextureName);
+        }
+
         void MapDocument::selectAllNodes() {
             submitAndStore(SelectionCommand::selectAllNodes());
         }
@@ -497,7 +504,7 @@ namespace TrenchBroom {
         
         void MapDocument::select(Model::BrushFace* face) {
             submitAndStore(SelectionCommand::select(Model::BrushFaceList(1, face)));
-            m_currentTextureName = face->textureName();
+            setCurrentTextureName(face->textureName());
         }
         
         void MapDocument::convertToFaceSelection() {
@@ -1046,22 +1053,40 @@ namespace TrenchBroom {
             return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
         }
         
-        bool MapDocument::setTexture(Assets::Texture* texture) {
-            if (hasSelectedBrushFaces() || m_selectedNodes.hasOnlyBrushes()) {
+        void MapDocument::setTexture(Assets::Texture* texture) {
+            assert(texture != NULL);
+            
+            const Model::BrushFaceList faces = allSelectedBrushFaces();
+            if (faces.empty()) {
+                if (currentTextureName() == texture->name())
+                    setCurrentTextureName(Model::BrushFace::NoTextureName);
+                else
+                    setCurrentTextureName(texture->name());
+            } else {
+                if (hasTexture(faces, texture)) {
+                    texture = NULL;
+                    setCurrentTextureName(Model::BrushFace::NoTextureName);
+                } else {
+                    setCurrentTextureName(texture->name());
+                }
+                
                 Model::ChangeBrushFaceAttributesRequest request;
                 request.setTexture(texture);
-                if (submitAndStore(ChangeBrushFaceAttributesCommand::command(request))) {
-                    if (texture != NULL)
-                        m_currentTextureName = texture->name();
-                    return true;
-                }
-            } else if (texture != NULL) {
-                m_currentTextureName = texture->name();
-                return true;
+                submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
             }
-            return false;
         }
         
+        bool MapDocument::hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                if (face->texture() != texture)
+                    return false;
+            }
+            
+            return true;
+        }
+
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setAll(attributes);

@@ -111,7 +111,8 @@ namespace TrenchBroom {
             
             Notifier0 editorContextDidChangeNotifier;
             Notifier0 mapViewConfigDidChangeNotifier;
-            Notifier0 currentLayerDidChangeNotifier;
+            Notifier1<const Model::Layer*> currentLayerDidChangeNotifier;
+            Notifier1<const String&> currentTextureNameDidChangeNotifier;
             
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
@@ -201,6 +202,7 @@ namespace TrenchBroom {
             const BBox3& lastSelectionBounds() const;
             const BBox3& selectionBounds() const;
             const String& currentTextureName() const;
+            void setCurrentTextureName(const String& currentTextureName);
             
             void selectAllNodes();
             void selectSiblings();
@@ -289,7 +291,10 @@ namespace TrenchBroom {
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
-            bool setTexture(Assets::Texture* texture);
+            void setTexture(Assets::Texture* texture);
+        private:
+            bool hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const;
+        public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);

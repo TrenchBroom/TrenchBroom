@@ -158,7 +158,7 @@ namespace TrenchBroom {
             }
 
             bool hitTest(const float x, const float y) const {
-                return m_cellBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
+                return m_itemBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
             }
 
             float scale() const {

@@ -270,7 +270,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerListBox::currentLayerDidChange() {
+        void LayerListBox::currentLayerDidChange(const Model::Layer* layer) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             if (world != NULL) {

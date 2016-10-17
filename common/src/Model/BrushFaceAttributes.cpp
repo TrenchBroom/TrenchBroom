@@ -19,6 +19,7 @@
 
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -146,6 +147,8 @@ namespace TrenchBroom {
             if (m_texture != NULL) {
                 m_texture->incUsageCount();
                 m_textureName = m_texture->name();
+            } else {
+                m_textureName = BrushFace::NoTextureName;
             }
         }
         

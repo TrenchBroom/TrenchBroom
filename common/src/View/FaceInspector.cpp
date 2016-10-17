@@ -52,8 +52,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setTexture(event.texture()))
-                event.Veto();
+            document->setTexture(event.texture());
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {

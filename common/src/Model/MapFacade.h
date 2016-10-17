@@ -95,7 +95,7 @@ namespace TrenchBroom {
         public: // brush resizing
             virtual bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta) = 0;
         public: // modifying face attributes
-            virtual bool setTexture(Assets::Texture* texture) = 0;
+            virtual void setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
             virtual bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request) = 0;
             virtual bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) = 0;

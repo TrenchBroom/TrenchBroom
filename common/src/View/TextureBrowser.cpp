@@ -183,6 +183,7 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &TextureBrowser::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &TextureBrowser::brushFacesDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            document->currentTextureNameDidChangeNotifier.addObserver(this, &TextureBrowser::currentTextureNameDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
@@ -198,6 +199,7 @@ namespace TrenchBroom {
                 document->nodesWereRemovedNotifier.removeObserver(this, &TextureBrowser::nodesWereRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &TextureBrowser::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &TextureBrowser::brushFacesDidChange);
+                document->currentTextureNameDidChangeNotifier.removeObserver(this, &TextureBrowser::currentTextureNameDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -232,6 +234,10 @@ namespace TrenchBroom {
             reload();
         }
 
+        void TextureBrowser::currentTextureNameDidChange(const String& textureName) {
+            updateSelectedTexture();
+        }
+
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
@@ -243,9 +249,17 @@ namespace TrenchBroom {
         
         void TextureBrowser::reload() {
             if (m_view != NULL) {
+                updateSelectedTexture();
                 m_view->invalidate();
                 m_view->Refresh();
             }
+        }
+
+        void TextureBrowser::updateSelectedTexture() {
+            MapDocumentSPtr document = lock(m_document);
+            const String& textureName = document->currentTextureName();
+            Assets::Texture* texture = document->textureManager().texture(textureName);
+            m_view->setSelectedTexture(texture);
         }
     }
 }

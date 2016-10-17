@@ -86,9 +86,11 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void textureCollectionsDidChange();
+            void currentTextureNameDidChange(const String& textureName);
             void preferenceDidChange(const IO::Path& path);
 
             void reload();
+            void updateSelectedTexture();
         };
     }
 }

@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
             void documentDidChange(MapDocument* document);
             void nodesDidChange(const Model::NodeList& nodes);
-            void currentLayerDidChange();
+            void currentLayerDidChange(const Model::Layer* layer);
 
             void bindEvents();
         private:
