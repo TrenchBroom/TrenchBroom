@@ -175,7 +175,8 @@ namespace TrenchBroom {
                 if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                       (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                        inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKShift))))
+                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift))))
                     return MoveInfo();
                 
                 static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
