@@ -60,6 +60,8 @@
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
+#include <wx/frame.h>
+
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :

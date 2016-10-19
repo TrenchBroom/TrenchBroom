@@ -25,6 +25,9 @@
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
+#include <wx/window.h>
+#include <wx/event.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

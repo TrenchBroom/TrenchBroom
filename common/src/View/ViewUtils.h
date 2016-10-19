@@ -23,7 +23,9 @@
 #include "View/ViewTypes.h"
 #include "StringUtils.h"
 
-#include <wx/wx.h>
+class wxString;
+class wxWindow;
+class wxArrayString;
 
 namespace TrenchBroom {
     class Logger;
