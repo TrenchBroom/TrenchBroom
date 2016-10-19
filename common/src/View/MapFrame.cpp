@@ -64,6 +64,7 @@
 #include <wx/textentry.h>
 #include <wx/choice.h>
 #include <wx/choicdlg.h>
+#include <wx/toolbar.h>
 
 #include <cassert>
 
