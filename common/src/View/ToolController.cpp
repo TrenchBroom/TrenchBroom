@@ -367,6 +367,7 @@ namespace TrenchBroom {
             
             deleteSnapper();
             m_snapper = snapper;
+            doMouseDrag(inputState);
         }
 
         bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
