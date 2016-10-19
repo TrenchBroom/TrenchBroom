@@ -49,6 +49,8 @@
 #include <wx/platinfo.h>
 #include <wx/utils.h>
 #include <wx/stdpaths.h>
+#include <wx/msgdlg.h>
+#include <wx/time.h>
 
 namespace TrenchBroom {
     namespace View {

@@ -26,6 +26,10 @@
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
 
+#include <wx/time.h>
+#include <wx/window.h>
+#include <wx/app.h>
+
 namespace TrenchBroom {
     namespace View {
         class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {

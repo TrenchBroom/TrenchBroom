@@ -27,7 +27,6 @@
 
 #include <algorithm>
 
-#include <wx/wx.h>
 #include <wx/dir.h>
 #include <wx/file.h>
 #include <wx/filefn.h>

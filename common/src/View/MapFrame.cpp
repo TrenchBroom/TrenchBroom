@@ -56,10 +56,14 @@
 #include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/filedlg.h>
+#include <wx/textdlg.h>
 #include <wx/msgdlg.h>
 #include <wx/persist.h>
 #include <wx/sizer.h>
 #include <wx/timer.h>
+#include <wx/textentry.h>
+#include <wx/choice.h>
+#include <wx/choicdlg.h>
 
 #include <cassert>
 
