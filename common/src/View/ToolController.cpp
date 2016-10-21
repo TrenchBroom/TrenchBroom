@@ -157,18 +157,18 @@ namespace TrenchBroom {
 
         DragSnapper::~DragSnapper() {}
         
-        bool DragSnapper::snap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
-            return doSnap(inputState, lastPoint, curPoint);
+        bool DragSnapper::snap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+            return doSnap(inputState, initialPoint, lastPoint, curPoint);
         }
         
-        bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             return true;
         }
 
         AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             curPoint = m_grid.snap(curPoint);
             return true;
         }
@@ -176,8 +176,8 @@ namespace TrenchBroom {
         DeltaDragSnapper::DeltaDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
-            curPoint = lastPoint + m_grid.snap(curPoint - lastPoint);
+        bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+            curPoint = initialPoint + m_grid.snap(curPoint - initialPoint);
             return true;
         }
 
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             assert(m_radius > 0.0);
         }
 
-        bool CircleDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool CircleDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             if (curPoint == m_center)
                 return false;
             
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         SurfaceDragSnapper::SurfaceDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             const Model::Hit& hit = query(inputState).first();
             if (!hit.isMatch())
                 return false;
@@ -372,7 +372,7 @@ namespace TrenchBroom {
 
         bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
             assert(dragging());
-            return m_snapper->snap(inputState, lastPoint, point);
+            return m_snapper->snap(inputState, m_initialPoint, lastPoint, point);
         }
 
         RenderPolicy::~RenderPolicy() {}
