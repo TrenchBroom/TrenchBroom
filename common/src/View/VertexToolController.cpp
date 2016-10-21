@@ -262,6 +262,7 @@ namespace TrenchBroom {
                             else if (hit.type() == VertexHandleManager::FaceHandleHit)
                                 m_tool->renderFaceHighlight(renderContext, renderBatch, position);
                         }
+                        
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                             m_tool->renderGuide(renderContext, renderBatch, position);
                     }
