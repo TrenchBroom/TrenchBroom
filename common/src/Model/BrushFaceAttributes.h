@@ -71,6 +71,8 @@ namespace TrenchBroom {
             float surfaceValue() const;
             
             void setTexture(Assets::Texture* texture);
+            void unsetTexture();
+            
             void setOffset(const Vec2f& offset);
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);

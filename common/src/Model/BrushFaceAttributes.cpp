@@ -147,11 +147,16 @@ namespace TrenchBroom {
             if (m_texture != NULL) {
                 m_texture->incUsageCount();
                 m_textureName = m_texture->name();
-            } else {
-                m_textureName = BrushFace::NoTextureName;
             }
         }
         
+        void BrushFaceAttributes::unsetTexture() {
+            if (m_texture != NULL)
+                m_texture->decUsageCount();
+            m_texture = NULL;
+            m_textureName = BrushFace::NoTextureName;
+        }
+
         void BrushFaceAttributes::setOffset(const Vec2f& offset) {
             m_offset = offset;
         }
