@@ -17,18 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFacade.h"
+#ifndef PushSelection_h
+#define PushSelection_h
 
-#include "Model/NodeCollection.h"
-
-#include <cassert>
+#include "SharedPointer.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        MapFacade::~MapFacade() {}
-
-        MapFacade::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
-        success(i_success),
-        hasRemainingVertices(i_hasRemainingVertices) {}
+        class MapFacade;
+        
+        class PushSelection {
+        private:
+            MapFacade* m_facade;
+            NodeList m_nodes;
+            BrushFaceList m_faces;
+        public:
+            template <typename T>
+            PushSelection(std::tr1::shared_ptr<T> facade) {
+                initialize(facade.get());
+            }
+            
+            PushSelection(MapFacade* facade);
+            ~PushSelection();
+        private:
+            void initialize(MapFacade* facade);
+        };
     }
 }
+
+#endif /* PushSelection_h */

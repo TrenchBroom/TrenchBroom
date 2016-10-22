@@ -118,16 +118,6 @@ namespace TrenchBroom {
             virtual bool splitEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
             virtual bool splitFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
         };
-        
-        class PushSelection {
-        private:
-            MapFacade* m_facade;
-            NodeList m_nodes;
-            BrushFaceList m_faces;
-        public:
-            PushSelection(MapFacade* facade);
-            ~PushSelection();
-        };
     }
 }
 

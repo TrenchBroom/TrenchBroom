@@ -36,6 +36,7 @@
 #include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
+#include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -1005,8 +1006,6 @@ namespace TrenchBroom {
             if (currentGroup->childCount() == nodes.size())
                 document->closeGroup();
             reparentNodes(nodes, document->currentLayer());
-            document->deselectAll();
-            document->select(nodes);
         }
 
         Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
@@ -1029,7 +1028,10 @@ namespace TrenchBroom {
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != NULL, "newParent is null");
+
+            const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent);
+            document->select(newParent->children());
         }
         
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
@@ -1059,11 +1061,12 @@ namespace TrenchBroom {
 
         void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent) {
             ensure(newParent != NULL, "newParent is null");
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::PushSelection pushSelection(document);
             
             const Model::NodeList reparentableNodes = collectReparentableNodes(nodes, newParent);
             assert(!reparentableNodes.empty());
-
-            MapDocumentSPtr document = lock(m_document);
             
             StringStream name;
             name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
@@ -1071,7 +1074,6 @@ namespace TrenchBroom {
             const Transaction transaction(document, name.str());
             document->deselectAll();
             document->reparentNodes(newParent, reparentableNodes);
-            document->select(reparentableNodes);
         }
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
