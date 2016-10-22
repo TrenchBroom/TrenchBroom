@@ -1071,7 +1071,10 @@ namespace TrenchBroom {
                 }
                 
                 Model::ChangeBrushFaceAttributesRequest request;
-                request.setTexture(texture);
+                if (texture == NULL)
+                    request.unsetTexture();
+                else
+                    request.setTexture(texture);
                 submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
             }
         }

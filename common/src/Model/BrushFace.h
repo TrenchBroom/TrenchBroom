@@ -145,6 +145,7 @@ namespace TrenchBroom {
 
             void updateTexture(Assets::TextureManager* textureManager);
             void setTexture(Assets::Texture* texture);
+            void unsetTexture();
             
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);

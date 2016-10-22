@@ -299,6 +299,15 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        void BrushFace::unsetTexture() {
+            if (m_attribs.texture() == NULL)
+                return;
+            m_attribs.unsetTexture();
+            if (m_brush != NULL)
+                m_brush->faceDidChange();
+            invalidateVertexCache();
+        }
+
         void BrushFace::setXOffset(const float i_xOffset) {
             if (i_xOffset == xOffset())
                 return;
