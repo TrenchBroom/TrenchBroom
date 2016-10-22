@@ -57,6 +57,9 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <wx/frame.h>
+#include <wx/menu.h>
+
 namespace TrenchBroom {
     namespace View {
         static wxString GLVendor, GLRenderer, GLVersion;

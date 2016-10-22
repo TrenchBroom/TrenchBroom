@@ -21,7 +21,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include <wx/wx.h>
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <clocale>

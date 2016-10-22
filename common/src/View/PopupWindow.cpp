@@ -20,7 +20,8 @@
 #include "PopupWindow.h"
 
 #include <wx/display.h>
-#include <wx/wx.h>
+#include <wx/window.h>
+#include <wx/app.h>
 
 namespace TrenchBroom {
     namespace View {

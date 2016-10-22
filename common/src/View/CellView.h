@@ -29,9 +29,9 @@
 #include "View/GLAttribs.h"
 #include "View/RenderView.h"
 
-#include <wx/wx.h>
 #include <wx/dnd.h>
 #include <wx/event.h>
+#include <wx/scrolbar.h>
 
 namespace TrenchBroom {
     namespace View {

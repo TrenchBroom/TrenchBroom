@@ -36,6 +36,7 @@
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
+#include <wx/layout.h>
 
 namespace TrenchBroom {
     namespace View {
