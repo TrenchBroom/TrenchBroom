@@ -26,6 +26,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
+#include "Model/PushSelection.h"
 
 #include <cassert>
 
