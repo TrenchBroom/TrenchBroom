@@ -19,6 +19,8 @@
 
 #include "TestUtils.h"
 
+#include "MathUtils.h"
+
 #include <cmath>
 #include <gmock/gmock.h>
 
@@ -64,7 +66,7 @@ namespace TrenchBroom {
         ASSERT_TRUE(pointExactlyIntegral(Vec3d(1024.0, 1204.0, 1024.0)));
         ASSERT_TRUE(pointExactlyIntegral(Vec3d(-10000.0, -10000.0, -10000.0)));
         
-        const double near1024 = nextafter(1024.0, 1025.0);
+        const double near1024 = Math::nextgreater(1024.0);
         ASSERT_FALSE(pointExactlyIntegral(Vec3d(1024.0, near1024, 1024.0)));
         ASSERT_FALSE(pointExactlyIntegral(Vec3d(1024.5, 1024.5, 1024.5)));
     }
