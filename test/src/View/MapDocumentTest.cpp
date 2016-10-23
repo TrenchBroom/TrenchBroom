@@ -19,8 +19,10 @@
 
 #include "MapDocumentTest.h"
 
+#include "TestUtils.h"
 #include "MathUtils.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
 #include "Model/MapFormat.h"
 #include "Model/TestGame.h"
@@ -46,6 +48,82 @@ namespace TrenchBroom {
         Model::Brush* MapDocumentTest::createBrush() {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             return builder.createCube(32.0, "texture");
+        }
+        
+        static void checkPlanePointsIntegral(const Model::Brush *brush) {
+            const Model::BrushFaceList& faces = brush->faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::BrushFace* face = *it;
+                
+                for (size_t i=0; i<3; i++) {
+                    Vec3 point = face->points()[i];
+                    ASSERT_POINT_INTEGRAL(point);
+                }
+            }
+        }
+        
+        TEST_F(MapDocumentTest, flip) {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(30.0, 31.0, 31.0)), "texture");
+            Model::Brush *brush2 = builder.createCuboid(BBox3(Vec3(30.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), "texture");
+            
+            checkPlanePointsIntegral(brush1);
+            checkPlanePointsIntegral(brush2);
+            
+            document->addNode(brush1, document->currentParent());
+            document->addNode(brush2, document->currentParent());
+            
+            Model::NodeList brushes;
+            brushes.push_back(brush1);
+            brushes.push_back(brush2);
+            document->select(brushes);
+            
+            Vec3 center = document->selectionBounds().rounded().center();
+            ASSERT_EQ(Vec3(15.5, 15.5, 15.5), center);
+            
+            document->flipObjects(center, Math::Axis::AX);
+            
+            checkPlanePointsIntegral(brush1);
+            checkPlanePointsIntegral(brush2);
+         
+            ASSERT_EQ(BBox3(Vec3(1.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), brush1->bounds());
+            ASSERT_EQ(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 31.0, 31.0)), brush2->bounds());
+        }
+        
+        TEST_F(MapDocumentTest, rotate) {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(30.0, 31.0, 31.0)), "texture");
+            Model::Brush *brush2 = builder.createCuboid(BBox3(Vec3(30.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), "texture");
+            
+            checkPlanePointsIntegral(brush1);
+            checkPlanePointsIntegral(brush2);
+            
+            document->addNode(brush1, document->currentParent());
+            document->addNode(brush2, document->currentParent());
+            
+            Model::NodeList brushes;
+            brushes.push_back(brush1);
+            brushes.push_back(brush2);
+            document->select(brushes);
+            
+            Vec3 center = document->selectionBounds().rounded().center();
+            ASSERT_EQ(Vec3(15.5, 15.5, 15.5), center);
+            
+            // 90 degrees CCW about the Z axis through the center of the selection
+            document->rotateObjects(center, Vec3::PosZ, Math::radians(90.0));
+            
+            checkPlanePointsIntegral(brush1);
+            checkPlanePointsIntegral(brush2);
+            
+            const BBox3 brush1ExpectedBounds(Vec3(0.0, 0.0, 0.0), Vec3(31.0, 30.0, 31.0));
+            const BBox3 brush2ExpectedBounds(Vec3(0.0, 30.0, 0.0), Vec3(31.0, 31.0, 31.0));
+            
+            // these won't be exactly integral
+            ASSERT_TRUE(brush1ExpectedBounds.min.equals(brush1->bounds().min));
+            ASSERT_TRUE(brush1ExpectedBounds.max.equals(brush1->bounds().max));
+            ASSERT_TRUE(brush2ExpectedBounds.min.equals(brush2->bounds().min));
+            ASSERT_TRUE(brush2ExpectedBounds.max.equals(brush2->bounds().max));
         }
     }
 }
