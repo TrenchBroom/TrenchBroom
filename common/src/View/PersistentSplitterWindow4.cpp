@@ -21,6 +21,8 @@
 
 #include "View/SplitterWindow4.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         const double PersistentSplitterWindow4::Scaling = 10000.0;
