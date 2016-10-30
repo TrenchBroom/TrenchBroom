@@ -186,7 +186,7 @@ namespace TrenchBroom {
             typedef std::set<Value> Set;
         private:
             typedef std::vector<size_t> IndexList;
-            typedef std::tr1::shared_ptr<ValueHolder> ValuePtr;
+            typedef std::shared_ptr<ValueHolder> ValuePtr;
             ValuePtr m_value;
             size_t m_line;
             size_t m_column;

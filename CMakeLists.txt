@@ -4,7 +4,7 @@ INCLUDE(cmake/Utils.cmake)
 
 # Mac OS X specific configuration, must be done before the PROJECT directive
 # These settings are ignored on other platforms
-SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
+SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 SET(CMAKE_OSX_SYSROOT "macosx")
 SET(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
 
@@ -44,10 +44,12 @@ INCLUDE(cmake/StackWalker.cmake)
 
 
 # Compiler configuration
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c++11-long-long -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -stdlib=libstdc++")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c++11-long-long -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion")
 ELSEIF(COMPILER_IS_GNU)
     MESSAGE(STATUS "Compiler is GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")

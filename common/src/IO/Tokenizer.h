@@ -99,7 +99,7 @@ namespace TrenchBroom {
         private:
             typedef std::stack<Token> TokenStack;
 
-            typedef std::tr1::shared_ptr<TokenizerState> StatePtr;
+            typedef std::shared_ptr<TokenizerState> StatePtr;
 
             class SaveState {
             private:

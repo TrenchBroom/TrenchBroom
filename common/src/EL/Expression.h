@@ -34,7 +34,7 @@ namespace TrenchBroom {
         
         class Expression {
         private:
-            typedef std::tr1::shared_ptr<ExpressionBase> ExpressionPtr;
+            typedef std::shared_ptr<ExpressionBase> ExpressionPtr;
             ExpressionPtr m_expression;
         public:
             Expression(ExpressionBase* expression);

@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace IO {
         class MappedFile {
         public:
-            typedef std::tr1::shared_ptr<MappedFile> Ptr;
+            typedef std::shared_ptr<MappedFile> Ptr;
             typedef std::vector<Ptr> List;
         private:
             Path m_path;

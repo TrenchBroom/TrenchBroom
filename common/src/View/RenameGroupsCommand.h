@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class RenameGroupsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<RenameGroupsCommand> Ptr;
+            typedef std::shared_ptr<RenameGroupsCommand> Ptr;
         private:
             const String m_newName;
             Model::GroupNameMap m_oldNames;

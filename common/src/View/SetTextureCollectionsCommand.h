@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class SetTextureCollectionsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SetTextureCollectionsCommand> Ptr;
+            typedef std::shared_ptr<SetTextureCollectionsCommand> Ptr;
         private:
             IO::Path::List m_paths;
             IO::Path::List m_oldPaths;

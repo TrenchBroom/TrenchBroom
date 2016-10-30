@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class RemoveBrushEdgesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<RemoveBrushEdgesCommand> Ptr;
+            typedef std::shared_ptr<RemoveBrushEdgesCommand> Ptr;
         private:
             Edge3::List m_oldEdgePositions;
         public:
