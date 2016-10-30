@@ -37,16 +37,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void assertTexture(String expected, Brush* brush, const Vec3& faceNormal);
-        
-        void assertTexture(String expected, Brush* brush, const Vec3& faceNormal) {
-            assert(brush != NULL);
-            BrushFace* face = brush->findFace(faceNormal);
-            assert(face != NULL);
-            
-            ASSERT_EQ(expected, face->textureName());
-        }
-        
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const BBox3 worldBounds(4096.0);
             
@@ -746,16 +736,42 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
             const Vec3 vertex(32.0, 32.0, 32.0);
             Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, vertex), Vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), newVertexPositions[0]);
             
+            const Vec3 p1(-32.0, -32.0, -32.0);
+            const Vec3 p2(-32.0, -32.0, +32.0);
+            const Vec3 p3(-32.0, +32.0, -32.0);
+            const Vec3 p4(-32.0, +32.0, +32.0);
+            const Vec3 p5(+32.0, -32.0, -32.0);
+            const Vec3 p6(+32.0, -32.0, +32.0);
+            const Vec3 p7(+32.0, +32.0, -32.0);
+            const Vec3 p8(+16.0, +16.0, +32.0);
+            const Vec3 p9(+32.0, +32.0, +32.0);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p6);
+            assertTexture("right",  brush, p6, p7, p8);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p7);
+            assertTexture("back",   brush, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+            
             newVertexPositions = brush->moveVertices(worldBounds, newVertexPositions, Vec3(16.0, 16.0, 0.0));
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(vertex, newVertexPositions[0]);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p9, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p9, p7);
+            assertTexture("top",    brush, p2, p6, p9, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
             
             delete brush;
         }
