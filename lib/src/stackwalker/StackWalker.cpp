@@ -92,7 +92,11 @@
 // If VC7 and later, then use the shipped 'dbghelp.h'-file
 #pragma pack(push,8)
 #if _MSC_VER >= 1300
+#pragma warning( push )
+// Disable the 'typedef ': ignored on left of '' when no variable is declared warning
+#pragma warning( disable : 4091 )
 #include <dbghelp.h>
+#pragma warning( pop )
 #else
 // inline the important dbghelp.h-declarations...
 typedef enum {
