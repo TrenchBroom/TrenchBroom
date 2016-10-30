@@ -35,7 +35,6 @@ namespace TrenchBroom {
     public:
         Exception() throw() : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
         Exception(const std::string& str) throw() : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
-        virtual ~Exception() throw() {}
 
         const char* what() const throw() {
             return m_msg.c_str();
@@ -51,7 +50,6 @@ namespace TrenchBroom {
     public:
         ExceptionStream() throw() {}
         ExceptionStream(const std::string& str) throw() : Exception(str) {}
-        virtual ~ExceptionStream() throw() {}
         
         template <typename T>
         C& operator<< (T value) {
@@ -66,14 +64,12 @@ namespace TrenchBroom {
     public:
         GeometryException() throw() {}
         GeometryException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~GeometryException() throw() {}
     };
             
     class EntityAttributeException : public ExceptionStream<EntityAttributeException> {
     public:
         EntityAttributeException() throw() {}
         EntityAttributeException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~EntityAttributeException() throw() {}
     };
 
     class ParserException : public ExceptionStream<ParserException> {
@@ -85,21 +81,18 @@ namespace TrenchBroom {
                 *this << str << " ";
             *this << "[line " << line << ", column " << column << "]";
         }
-        ~ParserException() throw() {}
     };
             
     class VboException : public ExceptionStream<VboException> {
     public:
         VboException() throw() {}
         VboException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~VboException() throw() {}
     };
             
     class PathException : public ExceptionStream<PathException> {
     public:
         PathException() throw() {}
         PathException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~PathException() throw() {}
     };
             
     class FileSystemException : public ExceptionStream<FileSystemException> {
@@ -107,7 +100,6 @@ namespace TrenchBroom {
         FileSystemException() throw() {}
         FileSystemException(const std::string& str) throw() : ExceptionStream(str) {}
         FileSystemException(const std::string& str, const PathException& e) throw() : ExceptionStream(str + " (" + e.what() + ")") {}
-        ~FileSystemException() throw() {}
     };
             
     class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
@@ -115,56 +107,48 @@ namespace TrenchBroom {
         FileNotFoundException() throw() {}
         FileNotFoundException(const std::string& str) throw() : ExceptionStream(str) {}
         FileNotFoundException(const std::string& str, const PathException& e) throw() : ExceptionStream(str + " (" + e.what() + ")") {}
-        ~FileNotFoundException() throw() {}
     };
     
     class AssetException : public ExceptionStream<AssetException> {
     public:
         AssetException() throw() {}
         AssetException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~AssetException() throw() {}
     };
         
     class CommandProcessorException : public ExceptionStream<CommandProcessorException> {
     public:
         CommandProcessorException() throw() {}
         CommandProcessorException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~CommandProcessorException() throw() {}
     };
 
     class RenderException : public ExceptionStream<RenderException> {
     public:
         RenderException() throw() {}
         RenderException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~RenderException() throw() {}
     };
             
     class OctreeException : public ExceptionStream<OctreeException> {
     public:
         OctreeException() throw() {}
         OctreeException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~OctreeException() throw() {}
     };
             
     class GameException : public ExceptionStream<GameException> {
     public:
         GameException() throw() {}
         GameException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~GameException() throw() {}
     };
             
     class ResourceNotFoundException : public ExceptionStream<ResourceNotFoundException> {
     public:
         ResourceNotFoundException() throw() {}
         ResourceNotFoundException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~ResourceNotFoundException() throw() {}
     };
             
     class FileFormatException : public ExceptionStream<FileFormatException> {
     public:
         FileFormatException() throw() {}
         FileFormatException(const std::string& str) throw() : ExceptionStream(str) {}
-        ~FileFormatException() throw() {}
     };
 
     class ConditionFailedException : public ExceptionStream<ConditionFailedException> {
@@ -174,7 +158,6 @@ namespace TrenchBroom {
         ConditionFailedException(const char *file, const int line, const char *condition, const std::string& message) throw() : ExceptionStream() {
             *this << file << ":" << line << ": Condition '" << condition << "' failed: " << message;
         }
-        ~ConditionFailedException() throw() {}
     };
 }
 

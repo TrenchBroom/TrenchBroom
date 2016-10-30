@@ -29,7 +29,6 @@ namespace TrenchBroom {
         public:
             Exception() throw();
             Exception(const String& str) throw();
-            ~Exception() throw();
         };
         
         class ConversionError : public Exception {
