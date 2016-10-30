@@ -1,15 +1,10 @@
+cmake_minimum_required (VERSION 3.1)
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 INCLUDE(cmake/Utils.cmake)
 
-# Mac OS X specific configuration, must be done before the PROJECT directive
-# These settings are ignored on other platforms
-SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-SET(CMAKE_OSX_SYSROOT "macosx")
-SET(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
-
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
-PROJECT(TrenchBroom)
+# Using C and CXX because GLEW is C
+PROJECT(TrenchBroom C CXX)
 
 # Compiler detection
 SET(COMPILER_IS_CLANG FALSE)
@@ -25,6 +20,15 @@ ENDIF()
 IF(MSVC EQUAL 1)
     SET(COMPILER_IS_MSVC TRUE)
 ENDIF()
+
+# Compiler configuration
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
+# These settings are ignored on other platforms
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 
 # Library configuration
 SET(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
@@ -42,14 +46,10 @@ INCLUDE(cmake/Glew.cmake)
 INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
 
-
-# Compiler configuration
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c++11-long-long -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c++11-long-long -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-implicit-fallthrough")
 ELSEIF(COMPILER_IS_GNU)
     MESSAGE(STATUS "Compiler is GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
