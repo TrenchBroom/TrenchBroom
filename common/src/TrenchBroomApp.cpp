@@ -354,7 +354,7 @@ namespace TrenchBroom {
             
             // save the map
             MapDocumentSPtr doc = topDocument();
-            if (doc != NULL) {
+            if (doc) {
                 doc->saveDocumentTo(mapPath);
                 std::cout << "wrote map to " << mapPath.asString() << std::endl;
             } else {
