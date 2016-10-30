@@ -401,9 +401,7 @@ namespace TrenchBroom {
         }
 
         BrushFace* Brush::findFace(const Vec3& normal) const {
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
+            for (BrushFace* face : m_faces) {
                 if (face->boundary().normal.equals(normal))
                     return face;
             }
