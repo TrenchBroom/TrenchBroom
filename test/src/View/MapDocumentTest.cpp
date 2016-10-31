@@ -79,7 +79,7 @@ namespace TrenchBroom {
             brushes.push_back(brush2);
             document->select(brushes);
             
-            Vec3 center = document->selectionBounds().rounded().center();
+            Vec3 center = document->selectionBounds().center();
             ASSERT_EQ(Vec3(15.5, 15.5, 15.5), center);
             
             document->flipObjects(center, Math::Axis::AX);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             brushes.push_back(brush2);
             document->select(brushes);
             
-            Vec3 center = document->selectionBounds().rounded().center();
+            Vec3 center = document->selectionBounds().center();
             ASSERT_EQ(Vec3(15.5, 15.5, 15.5), center);
             
             // 90 degrees CCW about the Z axis through the center of the selection
