@@ -130,13 +130,13 @@ Build environment
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 
-  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
+  ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
 - Run
   make
   make install
 - Change into wxwidgets/build-debug
 - Run 
-  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
+  ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6 --prefix=$(pwd)/install
 - Run
   make
   make install
