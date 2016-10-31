@@ -961,6 +961,8 @@ void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T 
         currentVertex->correctPosition(decimals, epsilon);
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
+    
+    updateBounds();
 }
 
 template <typename T, typename FP, typename VP>
@@ -1000,7 +1002,9 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     }
     
     assert(!polyhedron() || checkEdgeLengths(minLength));
-    
+
+    updateBounds();
+
     return polyhedron();
 }
 
