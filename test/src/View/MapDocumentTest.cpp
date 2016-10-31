@@ -63,13 +63,33 @@ namespace TrenchBroom {
             }
         }
         
+        static void checkVerticesIntegral(const Model::Brush *brush) {            
+            const Model::Brush::VertexList& vertices = brush->vertices();
+            Model::Brush::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const Model::BrushVertex* vertex = *it;
+                ASSERT_POINT_INTEGRAL(vertex->position());
+            }
+        }
+        
+        static void checkBoundsIntegral(const Model::Brush *brush) {
+            ASSERT_POINT_INTEGRAL(brush->bounds().min);
+            ASSERT_POINT_INTEGRAL(brush->bounds().max);
+        }
+        
+        static void checkBrushIntegral(const Model::Brush *brush) {
+            checkPlanePointsIntegral(brush);
+            checkVerticesIntegral(brush);
+            checkBoundsIntegral(brush);
+        }
+        
         TEST_F(MapDocumentTest, flip) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(30.0, 31.0, 31.0)), "texture");
             Model::Brush *brush2 = builder.createCuboid(BBox3(Vec3(30.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), "texture");
             
-            checkPlanePointsIntegral(brush1);
-            checkPlanePointsIntegral(brush2);
+            checkBrushIntegral(brush1);
+            checkBrushIntegral(brush2);
             
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
@@ -84,8 +104,8 @@ namespace TrenchBroom {
             
             document->flipObjects(center, Math::Axis::AX);
             
-            checkPlanePointsIntegral(brush1);
-            checkPlanePointsIntegral(brush2);
+            checkBrushIntegral(brush1);
+            checkBrushIntegral(brush2);
          
             ASSERT_EQ(BBox3(Vec3(1.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), brush1->bounds());
             ASSERT_EQ(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(1.0, 31.0, 31.0)), brush2->bounds());
@@ -96,8 +116,8 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(0.0, 0.0, 0.0), Vec3(30.0, 31.0, 31.0)), "texture");
             Model::Brush *brush2 = builder.createCuboid(BBox3(Vec3(30.0, 0.0, 0.0), Vec3(31.0, 31.0, 31.0)), "texture");
             
-            checkPlanePointsIntegral(brush1);
-            checkPlanePointsIntegral(brush2);
+            checkBrushIntegral(brush1);
+            checkBrushIntegral(brush2);
             
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
@@ -113,8 +133,8 @@ namespace TrenchBroom {
             // 90 degrees CCW about the Z axis through the center of the selection
             document->rotateObjects(center, Vec3::PosZ, Math::radians(90.0));
             
-            checkPlanePointsIntegral(brush1);
-            checkPlanePointsIntegral(brush2);
+            checkBrushIntegral(brush1);
+            checkBrushIntegral(brush2);
             
             const BBox3 brush1ExpectedBounds(Vec3(0.0, 0.0, 0.0), Vec3(31.0, 30.0, 31.0));
             const BBox3 brush2ExpectedBounds(Vec3(0.0, 30.0, 0.0), Vec3(31.0, 31.0, 31.0));
