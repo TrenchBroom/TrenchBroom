@@ -448,7 +448,7 @@ namespace TrenchBroom {
             const Vec3 axis = rotationAxis(axisSpec, clockwise);
             const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : Math::C::piOverTwo();
 
-            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : document->selectionBounds().rounded().center();
+            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : document->selectionBounds().center();
 
             document->rotateObjects(center, axis, angle);
         }
@@ -808,7 +808,7 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
             
-            const Vec3 center = document->selectionBounds().rounded().center();
+            const Vec3 center = document->selectionBounds().center();
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
