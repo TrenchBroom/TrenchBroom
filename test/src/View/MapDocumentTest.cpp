@@ -119,11 +119,9 @@ namespace TrenchBroom {
             const BBox3 brush1ExpectedBounds(Vec3(0.0, 0.0, 0.0), Vec3(31.0, 30.0, 31.0));
             const BBox3 brush2ExpectedBounds(Vec3(0.0, 30.0, 0.0), Vec3(31.0, 31.0, 31.0));
             
-            // these won't be exactly integral
-            ASSERT_TRUE(brush1ExpectedBounds.min.equals(brush1->bounds().min));
-            ASSERT_TRUE(brush1ExpectedBounds.max.equals(brush1->bounds().max));
-            ASSERT_TRUE(brush2ExpectedBounds.min.equals(brush2->bounds().min));
-            ASSERT_TRUE(brush2ExpectedBounds.max.equals(brush2->bounds().max));
+            // these should be exactly integral
+            ASSERT_EQ(brush1ExpectedBounds, brush1->bounds());
+            ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
         }
     }
 }
