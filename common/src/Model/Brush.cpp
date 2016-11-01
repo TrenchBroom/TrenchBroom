@@ -313,13 +313,16 @@ namespace TrenchBroom {
                 
                 SharedIncidentFaceCounts::const_iterator it, end;
                 for (it = counts.begin(), end = counts.end(); it != end; ++it) {
+                    BrushFace* face = it->first;
                     const size_t count = it->second;
                     if (count > bestCount) {
-                        bestFace = it->first;
+                        bestFace = face;
                         bestCount = count;
+                    } else if (count == bestCount && face->geometry() == NULL) {
+                        bestFace = face;
                     }
                 }
-                
+
                 ensure(bestFace != NULL, "bestFace is null");
                 return bestFace;
             }
