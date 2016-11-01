@@ -405,19 +405,6 @@ public:
     
     MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
     MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
-    
-    MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta);
-    MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta, Callback& callback);
-    
-    MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta);
-    MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta, Callback& callback);
-private: // Splitting edges and faces
-    struct SplitResult;
-    SplitResult splitEdge(const V& v1, const V& v2, Callback& callback);
-    SplitResult splitFace(const typename V::List& vertexPositions, Callback& callback);
-
-    void splitFace(Face* face, HalfEdge* halfEdge, Callback& callback);
-    void chopFace(Face* face, HalfEdge* halfEdge, Callback& callback);
 private:
     MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
 
