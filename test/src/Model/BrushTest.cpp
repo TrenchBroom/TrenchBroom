@@ -953,22 +953,49 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
+            const Vec3 p1(-32.0, -32.0, -32.0);
+            const Vec3 p2(-32.0, -32.0, +32.0);
+            const Vec3 p3(-32.0, +32.0, -32.0);
+            const Vec3 p4(-32.0, +32.0, +32.0);
+            const Vec3 p5(+32.0, -32.0, -32.0);
+            const Vec3 p6(+32.0, -32.0, +32.0);
+            const Vec3 p7(+32.0, +32.0, -32.0);
+            const Vec3 p8(+32.0, +32.0, +32.0);
+            const Vec3 p9(  0.0,   0.0, +48.0);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
             Vec3::List vertexPositions(4);
-            vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
-            vertexPositions[1] = Vec3(+32.0, -32.0, +32.0);
-            vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
-            vertexPositions[3] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[0] = p2;
+            vertexPositions[1] = p6;
+            vertexPositions[2] = p8;
+            vertexPositions[3] = p4;
             
             const Polygon3 face(vertexPositions);
             
-            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(-16.0, +8.0, +4.0));
+            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(0.0, 0.0, +16.0));
             
-            ASSERT_VEC_EQ(Vec3(-16.0, +8.0, 36.0), newVertexPosition);
+            ASSERT_VEC_EQ(p9, newVertexPosition);
             ASSERT_EQ(9u, brush->vertexCount());
             ASSERT_EQ(16u, brush->edgeCount());
             
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p9);
+            assertTexture("top",    brush, p6, p8, p9);
+            assertTexture("top",    brush, p8, p4, p9);
+            assertTexture("top",    brush, p4, p2, p9);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
             delete brush;
         }
         
