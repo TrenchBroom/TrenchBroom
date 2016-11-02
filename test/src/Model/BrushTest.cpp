@@ -948,6 +948,55 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, moveFaceFailure) {
+            // https://github.com/kduske/TrenchBroom/issues/1499
+            
+            const Vec3 p1 (-4408.0, 16.0, 288.0);
+            const Vec3 p2 (-4384.0, 40.0, 288.0);
+            const Vec3 p3 (-4384.0, 64.0, 288.0);
+            const Vec3 p4 (-4416.0, 64.0, 288.0);
+            const Vec3 p5 (-4424.0, 48.0, 288.0); // left back  top
+            const Vec3 p6 (-4424.0, 16.0, 288.0); // left front top
+            const Vec3 p7 (-4416.0, 64.0, 224.0);
+            const Vec3 p8 (-4384.0, 64.0, 224.0);
+            const Vec3 p9 (-4384.0, 40.0, 224.0);
+            const Vec3 p10(-4408.0, 16.0, 224.0);
+            const Vec3 p11(-4424.0, 16.0, 224.0);
+            const Vec3 p12(-4424.0, 48.0, 224.0);
+
+            Vec3::List points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+            points.push_back(p4);
+            points.push_back(p5);
+            points.push_back(p6);
+            points.push_back(p7);
+            points.push_back(p8);
+            points.push_back(p9);
+            points.push_back(p10);
+            points.push_back(p11);
+            points.push_back(p12);
+            
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(points, "asdf");
+            
+            Vec3::List topFacePos;
+            topFacePos.push_back(p1);
+            topFacePos.push_back(p2);
+            topFacePos.push_back(p3);
+            topFacePos.push_back(p4);
+            topFacePos.push_back(p5);
+            topFacePos.push_back(p6);
+            
+            const Polygon3 topFace(topFacePos);
+            
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(-16.0, 0.0, 0.0)));
+        }
+    
         TEST(BrushTest, splitFace) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
