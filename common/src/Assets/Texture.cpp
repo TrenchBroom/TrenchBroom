@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                       static_cast<GLsizei>(mipWidth),
                                       static_cast<GLsizei>(mipHeight),
-                                      0, GL_RGB, GL_UNSIGNED_BYTE, data));
+                                      0, m_format, GL_UNSIGNED_BYTE, data));
                 mipWidth  /= 2;
                 mipHeight /= 2;
             }
