@@ -26,6 +26,7 @@
 #include "IO/Path.h"
 
 #include "FreeImage.h"
+#include <string.h>
 
 namespace TrenchBroom {
 
@@ -56,10 +57,10 @@ namespace TrenchBroom {
                 image = tempImage;
             }
 
-            std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
+            ::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
             for (size_t mip = 1; mip < buffers.size(); ++mip) {
                 FIBITMAP* mipImage = FreeImage_Rescale(image, imageWidth >> mip, imageHeight >> mip, FILTER_BICUBIC);
-                std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
+                ::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
                 FreeImage_Unload(mipImage);
             }
 
