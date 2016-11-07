@@ -47,14 +47,14 @@ namespace TrenchBroom {
             size_t m_usageCount;
             bool m_overridden;
 
-            GLenum m_format = GL_RGB;
+            GLenum m_format;
 
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer);
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers);
-            Texture(const String& name, const size_t width, const size_t height);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format = GL_RGB);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format = GL_RGB);
+            Texture(const String& name, const size_t width, const size_t height, GLenum format = GL_RGB);
             ~Texture();
 
             const String& name() const;
@@ -72,9 +72,6 @@ namespace TrenchBroom {
             bool isPrepared() const;
             void prepare(GLuint textureId, int minFilter, int magFilter);
             void setMode(int minFilter, int magFilter);
-
-            void setFormat(GLenum newFormat);
-            GLenum format() const;
 
             void activate() const;
             void deactivate() const;

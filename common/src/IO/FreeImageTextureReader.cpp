@@ -66,9 +66,7 @@ namespace TrenchBroom {
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            Assets::Texture* texture = new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers);
-            texture->setFormat(0x80E0 /* GL_BGR */);
-            return texture;
+            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, GL_BGR);
         }
     }
 
