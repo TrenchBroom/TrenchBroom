@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2013, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,22 +27,32 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Author: mheule@google.com (Markus Heule)
-//
-// Google C++ Testing Framework (Google Test)
-//
-// Sometimes it's desirable to build Google Test by compiling a single file.
-// This file serves this purpose.
+// Author: marcus.boerger@google.com (Marcus Boerger)
 
-// This line ensures that gtest.h can be compiled on its own, even
-// when it's fused.
-#include "gtest/gtest.h"
+// Google Mock - a framework for writing C++ mock classes.
+//
+// This file implements some matchers that depend on gmock-generated-matchers.h.
+//
+// Note that tests are implemented in gmock-matchers_test.cc rather than
+// gmock-more-matchers-test.cc.
 
-// The following lines pull in the real gtest *.cc files.
-#include "src/gtest.cc"
-#include "src/gtest-death-test.cc"
-#include "src/gtest-filepath.cc"
-#include "src/gtest-port.cc"
-#include "src/gtest-printers.cc"
-#include "src/gtest-test-part.cc"
-#include "src/gtest-typed-test.cc"
+#ifndef GMOCK_GMOCK_MORE_MATCHERS_H_
+#define GMOCK_GMOCK_MORE_MATCHERS_H_
+
+#include "gmock/gmock-generated-matchers.h"
+
+namespace testing {
+
+// Defines a matcher that matches an empty container. The container must
+// support both size() and empty(), which all STL-like containers provide.
+MATCHER(IsEmpty, negation ? "isn't empty" : "is empty") {
+  if (arg.empty()) {
+    return true;
+  }
+  *result_listener << "whose size is " << arg.size();
+  return false;
+}
+
+}  // namespace testing
+
+#endif  // GMOCK_GMOCK_MORE_MATCHERS_H_

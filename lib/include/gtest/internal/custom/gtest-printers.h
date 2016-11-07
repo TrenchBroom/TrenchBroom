@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2015, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,22 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Author: mheule@google.com (Markus Heule)
+// This file provides an injection point for custom printers in a local
+// installation of gTest.
+// It will be included from gtest-printers.h and the overrides in this file
+// will be visible to everyone.
+// See documentation at gtest/gtest-printers.h for details on how to define a
+// custom printer.
 //
-// Google C++ Testing Framework (Google Test)
-//
-// Sometimes it's desirable to build Google Test by compiling a single file.
-// This file serves this purpose.
+// ** Custom implementation starts here **
 
-// This line ensures that gtest.h can be compiled on its own, even
-// when it's fused.
-#include "gtest/gtest.h"
+#ifndef GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PRINTERS_H_
+#define GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PRINTERS_H_
 
-// The following lines pull in the real gtest *.cc files.
-#include "src/gtest.cc"
-#include "src/gtest-death-test.cc"
-#include "src/gtest-filepath.cc"
-#include "src/gtest-port.cc"
-#include "src/gtest-printers.cc"
-#include "src/gtest-test-part.cc"
-#include "src/gtest-typed-test.cc"
+#endif  // GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PRINTERS_H_

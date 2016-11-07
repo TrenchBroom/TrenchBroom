@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2015, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,22 +27,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Author: mheule@google.com (Markus Heule)
+// Injection point for custom user configurations.
+// The following macros can be defined:
 //
-// Google C++ Testing Framework (Google Test)
+//   Flag related macros:
+//     GMOCK_DECLARE_bool_(name)
+//     GMOCK_DECLARE_int32_(name)
+//     GMOCK_DECLARE_string_(name)
+//     GMOCK_DEFINE_bool_(name, default_val, doc)
+//     GMOCK_DEFINE_int32_(name, default_val, doc)
+//     GMOCK_DEFINE_string_(name, default_val, doc)
 //
-// Sometimes it's desirable to build Google Test by compiling a single file.
-// This file serves this purpose.
+// ** Custom implementation starts here **
 
-// This line ensures that gtest.h can be compiled on its own, even
-// when it's fused.
-#include "gtest/gtest.h"
+#ifndef GMOCK_INCLUDE_GMOCK_INTERNAL_CUSTOM_GMOCK_PORT_H_
+#define GMOCK_INCLUDE_GMOCK_INTERNAL_CUSTOM_GMOCK_PORT_H_
 
-// The following lines pull in the real gtest *.cc files.
-#include "src/gtest.cc"
-#include "src/gtest-death-test.cc"
-#include "src/gtest-filepath.cc"
-#include "src/gtest-port.cc"
-#include "src/gtest-printers.cc"
-#include "src/gtest-test-part.cc"
-#include "src/gtest-typed-test.cc"
+#endif  // GMOCK_INCLUDE_GMOCK_INTERNAL_CUSTOM_GMOCK_PORT_H_
