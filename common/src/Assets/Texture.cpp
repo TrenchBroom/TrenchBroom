@@ -34,7 +34,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -42,6 +42,7 @@ namespace TrenchBroom {
         m_averageColor(averageColor),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             m_buffers.push_back(buffer);
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -57,6 +58,7 @@ namespace TrenchBroom {
         m_averageColor(averageColor),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             }
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -74,6 +76,7 @@ namespace TrenchBroom {
         m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f)),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0) {}
 
         Texture::~Texture() {
