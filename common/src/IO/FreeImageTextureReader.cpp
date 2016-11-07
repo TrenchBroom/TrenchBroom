@@ -38,7 +38,7 @@ namespace TrenchBroom {
         Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
             BYTE*                   imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
             size_t                  imageSize       = static_cast<size_t>(end - begin);
-            FIMEMORY*               imageMemory     = FreeImage_OpenMemory(imageBegin, imageSize);
+            FIMEMORY*               imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
             FREE_IMAGE_FORMAT       imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
             FIBITMAP*               image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             ::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
             for (size_t mip = 1; mip < buffers.size(); ++mip) {
-                FIBITMAP* mipImage = FreeImage_Rescale(image, imageWidth >> mip, imageHeight >> mip, FILTER_BICUBIC);
+                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
                 ::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
                 FreeImage_Unload(mipImage);
             }
