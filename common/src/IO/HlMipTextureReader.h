@@ -22,18 +22,19 @@
 
 #include "IO/TextureReader.h"
 #include "Assets/Palette.h"
+#include "IO/IdMipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
+        class CharArrayReader;
         
-        class HlMipTextureReader : public TextureReader {
+        class HlMipTextureReader : public IdMipTextureReader {
         private:
         public:
             HlMipTextureReader(const NameStrategy& nameStrategy);
-            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
-        private:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+        protected:
+            virtual const Assets::Palette getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const;
         };
     }
 }

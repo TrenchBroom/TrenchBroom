@@ -26,15 +26,19 @@
 namespace TrenchBroom {
     namespace IO {
         class Path;
-        
+        class CharArrayReader;
+
         class IdMipTextureReader : public TextureReader {
-        private:
+        protected:
             const Assets::Palette m_palette;
         public:
             IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
+            IdMipTextureReader(const NameStrategy& nameStrategy);
+
             static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
-        private:
+        protected:
             Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            virtual const Assets::Palette getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const;
         };
     }
 }

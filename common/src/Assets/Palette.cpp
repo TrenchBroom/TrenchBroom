@@ -43,6 +43,11 @@ namespace TrenchBroom {
             std::memcpy(m_data, other.m_data, m_size);
         }
 
+        Palette::Palette() {
+            m_data = NULL;
+            m_size = 0;
+        }
+
         Palette::~Palette() {
             delete[] m_data;
         }

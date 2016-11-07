@@ -34,50 +34,19 @@ namespace TrenchBroom {
             static const size_t TextureNameLength = 16;
         }
 
-        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
-        TextureReader(nameStrategy) {}
-
-        size_t HlMipTextureReader::mipFileSize(const size_t width, const size_t height, const size_t mipLevels) {
-            size_t result = 0;
-            for (size_t i = 0; i < mipLevels; ++i)
-                result += mipSize(width, height, i);
-            return result + 770;
+        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) : IdMipTextureReader(nameStrategy) {
         }
 
-        Assets::Texture* HlMipTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            static const size_t MipLevels = 4;
-            
-            static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
-            static size_t offset[MipLevels];
-            
-            CharArrayReader reader(begin, end);
-            const String name = reader.readString(MipLayout::TextureNameLength);
-            const size_t width = reader.readSize<int32_t>();
-            const size_t height = reader.readSize<int32_t>();
-            for (size_t i = 0; i < MipLevels; ++i)
-                offset[i] = reader.readSize<int32_t>();
-
-            const char *paletteStart = begin + offset[0] + (width * height * 85 >> 6) + 2;
-            size_t paletteSize = static_cast<size_t>(end - paletteStart);
+        const Assets::Palette HlMipTextureReader::getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const {
+            const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
+            reader.seekFromBegin(start);
+            size_t paletteSize = reader.size() - start;
             unsigned char *paletteCopy = new unsigned char[paletteSize];
-            memcpy(paletteCopy, paletteStart, paletteSize);
+            reader.read(paletteCopy, paletteSize);
 
-            Assets::Palette palette(paletteSize, paletteCopy);
+            const Assets::Palette palette(paletteSize, paletteCopy);
 
-            Assets::setMipBufferSize(buffers, width, height);
-            
-            for (size_t i = 0; i < MipLevels; ++i) {
-                const char* data = begin + offset[i];
-                const size_t size = mipSize(width, height, i);
-                
-                palette.indexedToRgb(data, size, buffers[i], tempColor);
-                if (i == 0)
-                    averageColor = tempColor;
-                
-            }
-
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+            return palette;
         }
     }
 }

@@ -35,6 +35,8 @@ namespace TrenchBroom {
         IdMipTextureReader::IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette) :
         TextureReader(nameStrategy),
         m_palette(palette) {}
+        IdMipTextureReader::IdMipTextureReader(const NameStrategy& nameStrategy) :
+        TextureReader(nameStrategy) {}
 
         size_t IdMipTextureReader::mipFileSize(const size_t width, const size_t height, const size_t mipLevels) {
             size_t result = 0;
@@ -58,18 +60,22 @@ namespace TrenchBroom {
                 offset[i] = reader.readSize<int32_t>();
             
             Assets::setMipBufferSize(buffers, width, height);
+            Assets::Palette palette = getPalette(reader, offset, width, height);
             
             for (size_t i = 0; i < MipLevels; ++i) {
                 const char* data = begin + offset[i];
                 const size_t size = mipSize(width, height, i);
                 
-                m_palette.indexedToRgb(data, size, buffers[i], tempColor);
+                palette.indexedToRgb(data, size, buffers[i], tempColor);
                 if (i == 0)
                     averageColor = tempColor;
                 
             }
 
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+        }
+        const Assets::Palette IdMipTextureReader::getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const {
+            return m_palette;
         }
     }
 }
