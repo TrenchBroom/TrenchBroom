@@ -248,7 +248,6 @@ namespace TrenchBroom {
             explicit Value(const RangeType& value);
             
             Value(const Value& other, size_t line, size_t column);
-            Value(const Value& other);
             
             Value();
             
