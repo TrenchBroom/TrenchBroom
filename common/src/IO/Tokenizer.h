@@ -134,6 +134,9 @@ namespace TrenchBroom {
             Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
             m_state(nestedTokenizer.m_state) {}
             
+            Tokenizer(const Tokenizer& other) :
+            m_state(other.m_state) {}
+            
             virtual ~Tokenizer() {}
 
             Token nextToken() {
