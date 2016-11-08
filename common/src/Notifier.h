@@ -51,6 +51,15 @@ namespace TrenchBroom {
         bool m_notifying;
     public:
         NotifierState() : m_notifying(false) {}
+        // FIXME: These match the auto-generated constructor and copy assignment operators, but do they make sense given the destructor? 
+        NotifierState(const NotifierState &other)
+        : m_observers(other.m_observers), m_toAdd(other.m_toAdd), m_toRemove(other.m_toRemove), m_notifying(other.m_notifying) {}
+        NotifierState& operator=(const NotifierState &other) {
+            m_observers = other.m_observers;
+            m_toAdd = other.m_toAdd;
+            m_toRemove = other.m_toRemove;
+            return *this;
+        }
         ~NotifierState() {
             ListUtils::clearAndDelete(m_observers);
             ListUtils::clearAndDelete(m_toAdd);
