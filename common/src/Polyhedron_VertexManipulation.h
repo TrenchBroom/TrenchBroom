@@ -30,20 +30,19 @@ Polyhedron<T,FP,VP>::MoveVerticesResult::MoveVerticesResult(const typename V::Li
 movedVertices(i_movedVertices) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::MoveVerticesResult::add(const MoveVertexResult& result) {
-    switch (result.type) {
-        case MoveVertexResult::Type_VertexMoved:
-            movedVertices.push_back(result.originalPosition);
-            newVertexPositions.push_back(result.vertex->position());
-            break;
-        case MoveVertexResult::Type_VertexDeleted:
-            deletedVertices.push_back(result.originalPosition);
-            break;
-        case MoveVertexResult::Type_VertexUnchanged:
-            unchangedVertices.push_back(result.originalPosition);
-            break;
-        switchDefault()
-    }
+void Polyhedron<T,FP,VP>::MoveVerticesResult::addMoved(const V& originalPosition, const V& newPosition) {
+    movedVertices.push_back(originalPosition);
+    newVertexPositions.push_back(newPosition);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::MoveVerticesResult::addDeleted(const V& position) {
+    deletedVertices.push_back(position);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::MoveVerticesResult::addUnchanged(const V& position) {
+    unchangedVertices.push_back(position);
 }
 
 template <typename T, typename FP, typename VP>
@@ -89,19 +88,32 @@ typename Polyhedron<T,FP,VP>::MoveVerticesResult Polyhedron<T,FP,VP>::moveVertic
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::MoveVerticesResult Polyhedron<T,FP,VP>::doMoveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, Callback& callback) {
-    std::sort(positions.begin(), positions.end(), typename V::InverseDotOrder(delta));
-    MoveVerticesResult totalResult;
+
+    typename V::List removedVertices;
     
+    // We must ensure that all vertices can be moved first. Maybe it's better to just build the new polyhedron and swap it with this if it is still valid, i.e., it's actually a polyhedron?
+    // But if we do that, we must still take care that all of the vertex moves are valid.
+    // See validPolyhedronVertexMove and validPolyhedronVertexMoveDestination for the rules. Can they be implemented if vertices are batch moved?
+    
+    MoveVerticesResult totalResult;
     for (size_t i = 0; i < positions.size(); ++i) {
         // Possibly be more precise here?
         Vertex* vertex = findVertexByPosition(positions[i]);
         if (vertex == NULL) {
             totalResult.addUnknown(positions[i]);
         } else {
-            const V destination = vertex->position() + delta;
-            const MoveVertexResult currentResult = moveVertex(vertex, destination, allowMergeIncidentVertices, callback);
-            totalResult.add(currentResult);
+            removedVertices.push_back(vertex->position());
+            removeVertex(vertex, callback);
         }
+    }
+    
+    for (size_t i = 0; i < removedVertices.size(); ++i) {
+        const V originalPosition = removedVertices[i];
+        const Vertex* vertex = addPoint(originalPosition + delta, callback);
+        if (vertex != NULL)
+            totalResult.addMoved(originalPosition, vertex->position());
+        else
+            totalResult.addDeleted(originalPosition);
     }
     
     updateBounds();

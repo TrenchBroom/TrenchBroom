@@ -395,7 +395,9 @@ public:
         MoveVerticesResult();
         MoveVerticesResult(const typename V::List& i_movedVertices);
 
-        void add(const MoveVertexResult& result);
+        void addMoved(const V& originalPosition, const V& newPosition);
+        void addDeleted(const V& position);
+        void addUnchanged(const V& position);
         void addUnknown(const V& position);
         bool allVerticesMoved() const;
         bool hasDeletedVertices() const;
