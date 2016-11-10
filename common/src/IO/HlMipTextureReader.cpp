@@ -30,9 +30,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace MipLayout {
-            static const size_t TextureNameLength = 16;
-        }
 
         HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) : IdMipTextureReader(nameStrategy) {
         }
