@@ -448,7 +448,8 @@ namespace TrenchBroom {
             const Vec3 axis = rotationAxis(axisSpec, clockwise);
             const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : Math::C::piOverTwo();
 
-            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : document->selectionBounds().center();
+            const Grid& grid = document->grid();
+            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
 
             document->rotateObjects(center, axis, angle);
         }
