@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
             } else if (textureConfig.format.format == "image") {
-                TextureReader::PathSuffixNameStrategy nameStrategy(3, true);
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new FreeImageTextureReader(nameStrategy);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
