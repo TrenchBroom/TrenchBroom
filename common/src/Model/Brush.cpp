@@ -20,6 +20,8 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Relation.h"
+#include "Polyhedron_Matcher.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -361,6 +363,19 @@ namespace TrenchBroom {
             }
         };
         
+        class Brush::FaceMatchingCallback {
+        public:
+            void operator()(BrushFaceGeometry* left, BrushFaceGeometry* right) const {
+                BrushFace* leftFace = left->payload();
+                BrushFace* rightFace = leftFace->clone();
+                
+                right->setPayload(rightFace);
+                rightFace->setGeometry(right);
+                rightFace->updatePointsFromVertices();
+            }
+        };
+        
+
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(NULL),
         m_contentTypeBuilder(NULL),
@@ -666,35 +681,149 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
-            ensure(m_geometry != NULL, "geometry is null");
-            ensure(!vertexPositions.empty(), "no vertex positions");
-            if (delta.null())
+        /*
+         The following table shows all cases to consider.
+         
+         REMAINING  || Empty   | Point  | Edge   | Polygon | Polyhedron
+         ===========||=========|========|========|=========|============
+         MOVING     ||         |        |        |         |
+         -----------||---------|--------|--------|---------|------------
+         Empty      || n/a     | n/a    | n/a    | n/a     | no
+         -----------||---------|--------|--------|---------|------------
+         Point      || n/a     | n/a    | n/a    | ok      | check
+         -----------||---------|--------|--------|---------|------------
+         Edge       || n/a     | n/a    | ok     | check   | check
+         -----------||---------|--------|--------|---------|------------
+         Polygon    || n/a     | invert | invert | check   | check
+         -----------||---------|--------|--------|---------|------------
+         Polyhedron || ok      | invert | invert | invert  | check
+         
+         n/a    - This case can never occur.
+         ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a polyhedron.
+         no     - This case is always forbidden.
+         invert - This case is handled by swapping the remaining and the moving fragments and inverting the delta. This takes us from a cell at (column, row) to the cell at (row, column).
+         check  - Check whether any of the moved vertices would travel into or through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+         */
+        bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta) const {
+            // Should never occur, takes care of the first row.
+            if (vertices.empty() || delta.null())
                 return false;
             
-            BrushGeometry testGeometry(*m_geometry);
-            const SetTempFaceLinks setFaceLinks(this, testGeometry);
+            // Special case, takes care of the first column.
+            if (vertices.size() == vertexCount())
+                return true;
             
-            const BrushGeometry::MoveVerticesResult result = testGeometry.moveVertices(vertexPositions, delta, true);
-            return !result.hasUnchangedVertices() && !result.hasUnknownVertices() && worldBounds.contains(testGeometry.bounds());
+            const Vec3::Set vertexSet(vertices.begin(), vertices.end());
+            BrushGeometry remaining;
+            BrushGeometry moving;
+            BrushGeometry result;
+            
+            BrushVertex* firstVertex = m_geometry->vertices().front();
+            BrushVertex* curVertex = firstVertex;
+            do {
+                const Vec3& position = curVertex->position();
+                if (vertexSet.count(position) == 0) {
+                    remaining.addPoint(position);
+                    result.addPoint(position);
+                } else {
+                    moving.addPoint(position);
+                    result.addPoint(position + delta);
+                }
+                curVertex = curVertex->next();
+            } while (curVertex != firstVertex);
+            
+            assert(moving.vertexCount() == vertices.size());
+            assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
+            
+            // Will the brush become invalid?
+            if (!result.polyhedron())
+                return false;
+            
+            // One of the remaining two ok cases?
+            if ((moving.point() && remaining.polygon()) ||
+                (moving.edge() && remaining.edge()))
+                return true;
+            
+            // Invert if necessary.
+            if (remaining.point() || remaining.edge() || (remaining.polygon() && moving.polyhedron())) {
+                using std::swap;
+                swap(remaining, moving);
+                delta = -delta;
+            }
+            
+            // Now check if any of the moving vertices would travel into or through the remaining fragment.
+            firstVertex = moving.vertices().front();
+            curVertex = firstVertex;
+            do {
+                const Vec3& oldPos = curVertex->position();
+                const Vec3 newPos = oldPos + delta;
+                
+                BrushFaceGeometry* firstFace = remaining.faces().front();
+                BrushFaceGeometry* curFace = firstFace;
+                do {
+                    if (curFace->pointStatus(oldPos) == Math::PointStatus::PSAbove &&
+                        curFace->pointStatus(newPos) == Math::PointStatus::PSBelow) {
+                        const Ray3 ray(oldPos, (newPos - oldPos).normalized());
+                        const FloatType distance = curFace->intersectWithRay(ray, Math::Side_Front);
+                        if (!Math::isnan(distance)) {
+                            const FloatType distance2 = distance * distance;
+                            if (distance2 <= ray.squaredDistanceToPoint(newPos).rayDistance)
+                                return false;
+                        }
+                    }
+                } while (curFace != firstFace);
+            } while (curVertex != firstVertex);
+            
+            return true;
         }
         
         Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
+
+            BrushGeometry newGeometry;
+            Vec3::Set vertexSet(vertexPositions.begin(), vertexPositions.end());
+            
+            BrushVertex* firstVertex = m_geometry->vertices().front();
+            BrushVertex* currentVertex = firstVertex;
+            do {
+                const Vec3& position = currentVertex->position();
+                if (vertexSet.count(position) > 0)
+                    newGeometry.addPoint(position + delta);
+                else
+                    newGeometry.addPoint(position);
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+
+            Vec3::List result;
+            Vec3::Map vertexMapping;
+            currentVertex = firstVertex;
+            do {
+                const Vec3& oldPosition = currentVertex->position();
+                const bool moved = vertexSet.count(oldPosition) > 0;
+                const Vec3 newPosition = moved ? oldPosition + delta : oldPosition;
+                if (newGeometry.hasVertex(newPosition)) {
+                    vertexMapping.insert(std::make_pair(oldPosition, newPosition));
+                    if (moved)
+                        result.push_back(newPosition);
+                }
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+
+            const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+            matcher.processRightFaces(FaceMatchingCallback());
             
             const NotifyNodeChange nodeChange(this);
-            MoveVerticesCallback callback(m_geometry, vertexPositions.begin(), vertexPositions.end(), delta);
-            const BrushGeometry::MoveVerticesResult result = m_geometry->moveVertices(vertexPositions, delta, true, callback);
-            callback.updateFaces();
+            using std::swap; swap(*m_geometry, newGeometry);
+            VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
             assert(fullySpecified());
             nodeBoundsDidChange();
             
-            return result.newVertexPositions;
+            return result;
         }
-        
+
         bool Brush::canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
@@ -718,98 +847,78 @@ namespace TrenchBroom {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canRemoveVertices(worldBounds, vertexPositions));
-
-            const NotifyNodeChange nodeChange(this);
             
-            Vec3::List::const_iterator it, end;
-            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
-                const Vec3& position = *it;
-                BrushVertex* vertex = m_geometry->findVertexByPosition(position);
-                ensure(vertex != NULL, "vertex is null");
-                
-                MoveVerticesCallback callback(m_geometry);
-                m_geometry->removeVertex(vertex, callback);
-                callback.updateFaces();
-            }
-
+            BrushGeometry newGeometry;
+            const Vec3::Set vertexSet(vertexPositions.begin(), vertexPositions.end());
+            
+            BrushVertex* firstVertex = m_geometry->vertices().front();
+            BrushVertex* currentVertex = firstVertex;
+            do {
+                const Vec3& position = currentVertex->position();
+                if (vertexSet.count(position) == 0)
+                    newGeometry.addPoint(position);
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+            
+            const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
+            matcher.processRightFaces(FaceMatchingCallback());
+            
+            const NotifyNodeChange nodeChange(this);
+            using std::swap; swap(*m_geometry, newGeometry);
+            VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
             assert(fullySpecified());
             nodeBoundsDidChange();
         }
 
         bool Brush::canSnapVertices(const BBox3& worldBounds, const size_t snapTo) {
-            Brush* clone = this->clone(worldBounds);
-            try {
-                clone->snapVertices(worldBounds, snapTo);
-                
-                const VertexList& vertices = clone->vertices();
-                VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                    const BrushGeometry::Vertex* vertex = *it;
-                    const Vec3& position = vertex->position();
-                    if (!position.isInteger())
-                        return false;
-                }
-                
-                delete clone;
-                return true;
-            } catch (...) {
-                delete clone;
-                return false;
-            }
-            
-            /*
-            ensure(m_geometry != NULL, "geometry is null");
-            
             const FloatType snapToF = static_cast<FloatType>(snapTo);
-
-            BrushGeometry testGeometry(*m_geometry);
-            const SetTempFaceLinks setFaceLinks(this, testGeometry);
+            BrushGeometry newGeometry;
             
-            Vec3::List::const_iterator it, end;
-            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
-                const Vec3 origin = *it;
-                const Vec3 destination = snapToF * origin.rounded() / snapToF;
-                if (!origin.equals(destination)) {
-                    const Vec3 delta = destination - origin;
-                    const BrushGeometry::MoveVerticesResult result = testGeometry.moveVertices(Vec3::List(1, origin), delta, true);
-                    if (result.hasUnchangedVertices())
-                        return false;
-                }
-            }
+            BrushVertex* firstVertex = m_geometry->vertices().front();
+            BrushVertex* currentVertex = firstVertex;
+            do {
+                const Vec3& origin = currentVertex->position();
+                const Vec3 destination = snapToF * (origin / snapToF).rounded();
+                newGeometry.addPoint(destination);
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
             
-            // Might still fail if, after updating the face points and rebuilding the brush geometry, the vertices become
-            // non-integer again due to precision problems. There's really not much to do about that.
-            
-            return true;
-             */
+            return newGeometry.polyhedron();
         }
 
         void Brush::snapVertices(const BBox3& worldBounds, const size_t snapTo) {
             ensure(m_geometry != NULL, "geometry is null");
 
             const FloatType snapToF = static_cast<FloatType>(snapTo);
-            const Vec3::List vertexPositions = m_geometry->vertexPositions();
+            BrushGeometry newGeometry;
+            
+            BrushVertex* firstVertex = m_geometry->vertices().front();
+            BrushVertex* currentVertex = firstVertex;
+            do {
+                const Vec3& origin = currentVertex->position();
+                const Vec3 destination = snapToF * (origin / snapToF).rounded();
+                newGeometry.addPoint(destination);
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+
+            Vec3::Map vertexMapping;
+            currentVertex = firstVertex;
+            do {
+                const Vec3& origin = currentVertex->position();
+                const Vec3 destination = snapToF * (origin / snapToF).rounded();
+                if (newGeometry.hasVertex(destination))
+                    vertexMapping.insert(std::make_pair(origin, destination));
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+
+            const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
+            matcher.processRightFaces(FaceMatchingCallback());
             
             const NotifyNodeChange nodeChange(this);
-
-            Vec3::List::const_iterator it, end;
-            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
-                const Vec3 origin = *it;
-                if (m_geometry->hasVertex(origin)) {
-                    const Vec3 destination = snapToF * (origin / snapToF).rounded();
-                    if (!origin.equals(destination)) {
-                        const Vec3 delta = destination - origin;
-                        
-                        MoveVerticesCallback callback(m_geometry, origin, delta);
-                        m_geometry->moveVertices(Vec3::List(1, origin), delta, true, callback);
-                        callback.updateFaces();
-                    }
-                }
-            }
-
+            using std::swap; swap(*m_geometry, newGeometry);
+            VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
-            updatePointsFromVertices(worldBounds);
             assert(fullySpecified());
             nodeBoundsDidChange();
         }
@@ -981,7 +1090,7 @@ namespace TrenchBroom {
             
             return newVertex->position();
         }
-
+       
         BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
             const BrushGeometry::SubtractResult result = m_geometry->subtract(*subtrahend->m_geometry);
             

@@ -947,6 +947,7 @@ namespace SetUtils {
         return result;
     }
     
+    // TODO: In C++11, std::set::erase already returns an iterator to the next element
     template <typename T, typename C>
     typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
         typename std::set<T,C>::iterator tmp = it;
@@ -993,14 +994,28 @@ namespace MapUtils {
     };
 
     template <typename K, typename V, typename C>
-    std::set<K> keySet(const std::map<K, V, C>& map) {
-        std::set<K> result;
+    std::set<K, C> keySet(const std::map<K, V, C>& map) {
+        std::set<K, C> result;
         typename std::map<K, V, C>::const_iterator it, end;
         for (it = map.begin(), end = map.end(); it != end; ++it)
             result.insert(it->first);
         return result;
     }
+    
+    template <typename K, typename V, typename C_K, typename C_V>
+    std::set<V, C_V> valueSet(const std::map<K, V, C_K>& map) {
+        std::set<V, C_V> result;
+        typename std::map<K, V, C_K>::const_iterator it, end;
+        for (it = map.begin(), end = map.end(); it != end; ++it)
+            result.insert(it->second);
+        return result;
+    }
 
+    template <typename K, typename V, typename C>
+    std::set<V, std::less<V> > valueSet(const std::map<K, V, C>& map) {
+        return valueSet<K, V, C, std::less<V> >(map);
+    }
+    
     template <typename K, typename V, typename C, typename D>
     int compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp) {
         typedef std::map<K, V, C> Map;

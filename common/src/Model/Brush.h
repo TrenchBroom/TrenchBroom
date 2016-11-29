@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
+#include "Relation.h"
 #include "Model/BrushContentType.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
@@ -58,6 +59,7 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
+            class FaceMatchingCallback;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
@@ -142,8 +144,9 @@ namespace TrenchBroom {
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
-            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta) const;
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+
             bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
             void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
             
@@ -161,7 +164,7 @@ namespace TrenchBroom {
             Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
-            
+        public:
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
             void intersect(const BBox3& worldBounds, const Brush* brush);

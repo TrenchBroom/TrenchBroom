@@ -30,8 +30,9 @@
 
 template <typename T, typename FP, typename VP>
 class Polyhedron {
-private:
+public:
     typedef Vec<T,3> V;
+private:
     typedef typename Vec<T,3>::List PosList;
 public:
     typedef std::list<Polyhedron> List;
@@ -82,11 +83,12 @@ private:
     typedef std::set<Face*> FaceSet;
 public:
     class Vertex : public Allocator<Vertex> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
+    public:
         typedef std::set<Vertex*> Set;
         typedef std::vector<Vertex*> List;
-        
+    private:
+        friend class Polyhedron<T,FP,VP>;
+    private:
         V m_position;
         VertexLink m_link;
         HalfEdge* m_leaving;

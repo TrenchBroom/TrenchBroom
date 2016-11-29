@@ -1437,7 +1437,6 @@ namespace TrenchBroom {
                               "  ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 379.90191 2072 ) wbord05 497 2072 0 -1.03033 1 //TX1\n"
                               " }\n");
 
-            // This case is expected to fail to snap
             assertSnapToInteger(data);
         }
         
@@ -1456,7 +1455,6 @@ namespace TrenchBroom {
                               "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
                               "}\n");
 
-            // This case is expected to fail to snap
             assertSnapToInteger(data);
         }
         
@@ -1484,7 +1482,6 @@ namespace TrenchBroom {
                               "}\n"
                               "\n");
             
-            // This case is expected to fail to snap
             assertSnapToInteger(data);
         }
         
@@ -1585,7 +1582,7 @@ namespace TrenchBroom {
             
             // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
             // If it was able to snap, that would be OK too.
-            assertSnapTo(data, 64);
+            assertCannotSnapTo(data, 64);
         }
         
         TEST(BrushTest, removeSingleVertex) {
