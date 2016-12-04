@@ -348,12 +348,11 @@ public: // Accessors
     FaceHit pickFace(const Ray<T,3>& ray) const;
 public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = NULL, T epsilon = Math::Constants<T>::almostZero()) const;
-private:
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
-    
+private:
     template <typename O>
     void getVertexPositions(O output) const;
     
@@ -384,41 +383,6 @@ private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
     void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
-private:  // Moving vertices
-    struct MoveVertexResult;
-public:
-    struct MoveVerticesResult {
-        typename V::List movedVertices;
-        typename V::List deletedVertices;
-        typename V::List unchangedVertices;
-        typename V::List newVertexPositions;
-        typename V::List unknownVertices;
-        
-        MoveVerticesResult();
-        MoveVerticesResult(const typename V::List& i_movedVertices);
-
-        void addMoved(const V& originalPosition, const V& newPosition);
-        void addDeleted(const V& position);
-        void addUnchanged(const V& position);
-        void addUnknown(const V& position);
-        bool allVerticesMoved() const;
-        bool hasDeletedVertices() const;
-        bool hasUnchangedVertices() const;
-        bool hasUnknownVertices() const;
-    };
-    
-    MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
-    MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
-private:
-    MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
-
-    MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePointVertex(Vertex* vertex, const V& destination, Callback& callback);
-    MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    bool validPolyhedronVertexMove(Vertex* vertex, const V& destination) const;
-    bool validPolyhedronVertexMoveDestination(const V& origin, const V& destination) const;
 public: // Convex hull; adding and removing points
     void addPoints(const typename V::List& points);
     void addPoints(const typename V::List& points, Callback& callback);

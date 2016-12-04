@@ -93,6 +93,8 @@ namespace TrenchBroom {
             swap(m_start, m_end);
         }
     };
+    
+    typedef Edge<double, 3> Edge3d;
 }
 
 #endif
