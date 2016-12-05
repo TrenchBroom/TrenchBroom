@@ -399,7 +399,10 @@ public:
 private:
     Vertex* addFirstPoint(const V& position, Callback& callback);
     Vertex* addSecondPoint(const V& position, Callback& callback);
+    
     Vertex* addThirdPoint(const V& position, Callback& callback);
+    Vertex* addLinearlyDependentThirdPoint(const V& position, Callback& callback);
+    Vertex* addLinearlyIndependentThirdPoint(const V& position, Callback& callback);
     
     Vertex* addFurtherPoint(const V& position, Callback& callback);
     Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);

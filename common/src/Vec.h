@@ -922,9 +922,12 @@ public:
     }
 
     bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        const Vec<T,S> dir = end - start;
-        const T d = (*this - start).dot(dir);
-        return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
+        assert(linearlyDependent(*this, start, end));
+        const Vec<T,S> toStart = start - *this;
+        const Vec<T,S> toEnd   =   end - *this;
+
+        const T d = toEnd.dot(toStart.normalized());
+        return !Math::pos(d);
     }
 
     template <typename I, typename G>
