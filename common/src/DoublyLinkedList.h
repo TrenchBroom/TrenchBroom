@@ -252,6 +252,7 @@ public:
         clear();
     }
     
+    // FIXME iterators may report version change after swapping since they store a reference to their list!
     friend void swap(DoublyLinkedList& first, DoublyLinkedList& second) {
         using std::swap;
         swap(first.m_head, second.m_head);

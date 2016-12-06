@@ -198,6 +198,17 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::S
     return intersectPolygonWithRay(ray, plane, m_boundary.begin(), m_boundary.end(), GetVertexPosition());
 }
 
+template <typename T, typename FP, typename VP>
+Math::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
+    const V norm = normal();
+    const T distance = (point - origin()).dot(norm);
+    if (distance > epsilon)
+        return Math::PointStatus::PSAbove;
+    if (distance < -epsilon)
+        return Math::PointStatus::PSBelow;
+    return Math::PointStatus::PSInside;
+}
+
 template <typename T, typename FP, typename VP> template <typename O>
 void Polyhedron<T,FP,VP>::Face::getVertexPositions(O output) const {
     HalfEdge* firstEdge = m_boundary.front();
@@ -245,17 +256,6 @@ bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const Plane<T,3>& plane) const {
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return true;
-}
-
-template <typename T, typename FP, typename VP>
-Math::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
-    const V norm = normal();
-    const T distance = (point - origin()).dot(norm);
-    if (distance > epsilon)
-        return Math::PointStatus::PSAbove;
-    if (distance < -epsilon)
-        return Math::PointStatus::PSBelow;
-    return Math::PointStatus::PSInside;
 }
 
 template <typename T, typename FP, typename VP>

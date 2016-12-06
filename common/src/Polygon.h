@@ -123,6 +123,11 @@ namespace TrenchBroom {
             std::rotate(vertices.begin(), smallest, vertices.end());
         }
     };
+    
+    typedef Polygon<float,2> Polygon2f;
+    typedef Polygon<double,2> Polygon2d;
+    typedef Polygon<float,3> Polygon3f;
+    typedef Polygon<double,3> Polygon3d;
 }
 
 #endif

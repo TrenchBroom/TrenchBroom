@@ -303,47 +303,77 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const V
     
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
-    if (linearlyDependent(v1->position(), v2->position(), position)) {
-        if (position.containedWithinSegment(v1->position(), v2->position()))
-            return NULL;
-        v2->setPosition(position);
-        return v2;
-    } else {
-        HalfEdge* h1 = v1->leaving();
-        HalfEdge* h2 = v2->leaving();
-        assert(h1->next() == h1);
-        assert(h1->previous() == h1);
-        assert(h2->next() == h2);
-        assert(h2->previous() == h2);
-        
-        Vertex* v3 = new Vertex(position);
-        HalfEdge* h3 = new HalfEdge(v3);
-        
-        Edge* e1 = m_edges.front();
-        e1->makeFirstEdge(h1);
-        e1->unsetSecondEdge();
-        
-        HalfEdgeList boundary;
-        boundary.append(h1, 1);
-        boundary.append(h2, 1);
-        boundary.append(h3, 1);
-        
-        Face* face = new Face(boundary);
-        
-        Edge* e2 = new Edge(h2);
-        Edge* e3 = new Edge(h3);
-        
-        m_vertices.append(v3, 1);
-        m_edges.append(e2, 1);
-        m_edges.append(e3, 1);
-        m_faces.append(face, 1);
-        
-        callback.vertexWasCreated(v1);
-        callback.faceWasCreated(face);
-        
-        return v3;
-    }
+    
+    if (linearlyDependent(v1->position(), v2->position(), position))
+        return addLinearlyDependentThirdPoint(position, callback);
+    else
+        return addLinearlyIndependentThirdPoint(position, callback);
 }
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyDependentThirdPoint(const V& position, Callback& callback) {
+    assert(edge());
+    
+    Vertex* v1 = m_vertices.front();
+    Vertex* v2 = v1->next();
+    assert(linearlyDependent(v1->position(), v2->position(), position));
+    
+    if (position.containedWithinSegment(v1->position(), v2->position()))
+        return NULL;
+    
+    if (v1->position().containedWithinSegment(position, v2->position())) {
+        v1->setPosition(position);
+        return v1;
+    }
+
+    assert(v2->position().containedWithinSegment(position, v1->position()));
+    v2->setPosition(position);
+    return v2;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyIndependentThirdPoint(const V& position, Callback& callback) {
+    assert(edge());
+
+    Vertex* v1 = m_vertices.front();
+    Vertex* v2 = v1->next();
+    assert(!linearlyDependent(v1->position(), v2->position(), position));
+    
+    HalfEdge* h1 = v1->leaving();
+    HalfEdge* h2 = v2->leaving();
+    assert(h1->next() == h1);
+    assert(h1->previous() == h1);
+    assert(h2->next() == h2);
+    assert(h2->previous() == h2);
+    
+    Vertex* v3 = new Vertex(position);
+    HalfEdge* h3 = new HalfEdge(v3);
+    
+    Edge* e1 = m_edges.front();
+    e1->makeFirstEdge(h1);
+    e1->unsetSecondEdge();
+    
+    HalfEdgeList boundary;
+    boundary.append(h1, 1);
+    boundary.append(h2, 1);
+    boundary.append(h3, 1);
+    
+    Face* face = new Face(boundary);
+    
+    Edge* e2 = new Edge(h2);
+    Edge* e3 = new Edge(h3);
+    
+    m_vertices.append(v3, 1);
+    m_edges.append(e2, 1);
+    m_edges.append(e3, 1);
+    m_faces.append(face, 1);
+    
+    callback.vertexWasCreated(v1);
+    callback.faceWasCreated(face);
+    
+    return v3;
+}
+
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
 template <typename T, typename FP, typename VP>

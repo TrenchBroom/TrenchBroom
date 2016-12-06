@@ -22,10 +22,21 @@
 
 #include <gtest/gtest.h>
 
+#include "StringUtils.h"
 #include "VecMath.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2);
+
+    namespace Model {
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d& faceNormal);
+        
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3);
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const Vec3d& v4);
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d::List& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const Polygon3d& vertices);
+    }
 }
 
 #define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))

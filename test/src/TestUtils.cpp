@@ -21,6 +21,10 @@
 
 #include <gmock/gmock.h>
 
+#include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+
 namespace TrenchBroom {
     bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2) {
         for (size_t i = 0; i < 2; ++i) {
@@ -46,5 +50,36 @@ namespace TrenchBroom {
         
         ASSERT_FALSE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(0.1, 0.1)));
         ASSERT_FALSE(texCoordsEqual(Vec2f(-0.25, 0.0), Vec2f(0.25, 0.0)));
+    }
+
+    
+    namespace Model {
+        void assertTexture(const String& expected, const Brush* brush, const Vec3& faceNormal) {
+            assert(brush != NULL);
+            BrushFace* face = brush->findFace(faceNormal);
+            assert(face != NULL);
+            
+            ASSERT_EQ(expected, face->textureName());
+        }
+
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3) {
+            return assertTexture(expected, brush, VectorUtils::create<Vec3d>(v1, v2, v3));
+        }
+        
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const Vec3d& v4) {
+            return assertTexture(expected, brush, VectorUtils::create<Vec3d>(v1, v2, v3, v4));
+        }
+        
+        void assertTexture(const String& expected, const Brush* brush, const Vec3d::List& vertices) {
+            return assertTexture(expected, brush, Polygon3d(vertices));
+        }
+
+        void assertTexture(const String& expected, const Brush* brush, const Polygon3d& vertices) {
+            assert(brush != NULL);
+            BrushFace* face = brush->findFace(vertices);
+            assert(face != NULL);
+            
+            ASSERT_EQ(expected, face->textureName());
+        }
     }
 }

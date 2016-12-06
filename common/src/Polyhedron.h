@@ -30,8 +30,9 @@
 
 template <typename T, typename FP, typename VP>
 class Polyhedron {
-private:
+public:
     typedef Vec<T,3> V;
+private:
     typedef typename Vec<T,3>::List PosList;
 public:
     typedef std::list<Polyhedron> List;
@@ -82,11 +83,12 @@ private:
     typedef std::set<Face*> FaceSet;
 public:
     class Vertex : public Allocator<Vertex> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
+    public:
         typedef std::set<Vertex*> Set;
         typedef std::vector<Vertex*> List;
-        
+    private:
+        friend class Polyhedron<T,FP,VP>;
+    private:
         V m_position;
         VertexLink m_link;
         HalfEdge* m_leaving;
@@ -219,6 +221,7 @@ public:
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
+        Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
     private:
         // Template methods must remain private!
         template <typename O>
@@ -227,7 +230,6 @@ public:
         
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const Plane<T,3>& plane) const;
-        Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
         void flip();
         void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);
         void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
@@ -346,12 +348,11 @@ public: // Accessors
     FaceHit pickFace(const Ray<T,3>& ray) const;
 public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = NULL, T epsilon = Math::Constants<T>::almostZero()) const;
-private:
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
-    
+private:
     template <typename O>
     void getVertexPositions(O output) const;
     
@@ -382,52 +383,6 @@ private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
     void mergeNeighbours(HalfEdge* borderFirst, Callback& callback);
-private:  // Moving vertices
-    struct MoveVertexResult;
-public:
-    struct MoveVerticesResult {
-        typename V::List movedVertices;
-        typename V::List deletedVertices;
-        typename V::List unchangedVertices;
-        typename V::List newVertexPositions;
-        typename V::List unknownVertices;
-        
-        MoveVerticesResult();
-        MoveVerticesResult(const typename V::List& i_movedVertices);
-
-        void add(const MoveVertexResult& result);
-        void addUnknown(const V& position);
-        bool allVerticesMoved() const;
-        bool hasDeletedVertices() const;
-        bool hasUnchangedVertices() const;
-        bool hasUnknownVertices() const;
-    };
-    
-    MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
-    MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
-    
-    MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta);
-    MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta, Callback& callback);
-    
-    MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta);
-    MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta, Callback& callback);
-private: // Splitting edges and faces
-    struct SplitResult;
-    SplitResult splitEdge(const V& v1, const V& v2, Callback& callback);
-    SplitResult splitFace(const typename V::List& vertexPositions, Callback& callback);
-
-    void splitFace(Face* face, HalfEdge* halfEdge, Callback& callback);
-    void chopFace(Face* face, HalfEdge* halfEdge, Callback& callback);
-private:
-    MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, Callback& callback);
-
-    MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePointVertex(Vertex* vertex, const V& destination, Callback& callback);
-    MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, Callback& callback);
-    bool validPolyhedronVertexMove(Vertex* vertex, const V& destination) const;
-    bool validPolyhedronVertexMoveDestination(const V& origin, const V& destination) const;
 public: // Convex hull; adding and removing points
     void addPoints(const typename V::List& points);
     void addPoints(const typename V::List& points, Callback& callback);
@@ -444,7 +399,10 @@ public:
 private:
     Vertex* addFirstPoint(const V& position, Callback& callback);
     Vertex* addSecondPoint(const V& position, Callback& callback);
+    
     Vertex* addThirdPoint(const V& position, Callback& callback);
+    Vertex* addLinearlyDependentThirdPoint(const V& position, Callback& callback);
+    Vertex* addLinearlyIndependentThirdPoint(const V& position, Callback& callback);
     
     Vertex* addFurtherPoint(const V& position, Callback& callback);
     Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);
