@@ -809,8 +809,7 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
             
-            const Grid& grid = document->grid();
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Vec3 center = document->selectionBounds().center();
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
