@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ChangeBrushFaceAttributesCommand> Ptr;
+            typedef std::shared_ptr<ChangeBrushFaceAttributesCommand> Ptr;
         private:
             
             Model::ChangeBrushFaceAttributesRequest m_request;

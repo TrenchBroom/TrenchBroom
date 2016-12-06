@@ -508,7 +508,6 @@ namespace TrenchBroom {
         Value::Value(const RangeType& value)                                           : m_value(new RangeValueHolder(value)), m_line(0), m_column(0) {}
         
         Value::Value(const Value& other, const size_t line, const size_t column)       : m_value(other.m_value), m_line(line), m_column(column) {}
-        Value::Value(const Value& other)                                               : m_value(other.m_value), m_line(other.m_line), m_column(other.m_column) {}
         
         Value::Value()                                                                 : m_value(new NullValueHolder()), m_line(0), m_column(0) {}
         

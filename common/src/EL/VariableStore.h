@@ -27,6 +27,8 @@ namespace TrenchBroom {
     namespace EL {
         class VariableStore {
         public:
+            VariableStore();
+            VariableStore(const VariableStore &other);
             virtual ~VariableStore();
             
             VariableStore* clone() const;

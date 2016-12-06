@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class SplitBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SplitBrushFacesCommand> Ptr;
+            typedef std::shared_ptr<SplitBrushFacesCommand> Ptr;
         private:
             Model::BrushFacesMap m_faces;
             Polygon3::List m_oldFacePositions;

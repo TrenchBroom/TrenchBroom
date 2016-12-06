@@ -24,42 +24,41 @@
 
 namespace TrenchBroom {
     namespace EL {
-        Exception::Exception() throw() {}
-        Exception::Exception(const String& str) throw() : ExceptionStream(str) {}
-        Exception::~Exception() throw() {}
+        Exception::Exception() noexcept {}
+        Exception::Exception(const String& str) noexcept : ExceptionStream(str) {}
         
-        ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) throw() :
+        ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) noexcept :
         Exception("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
         
-        DereferenceError::DereferenceError(const String& value, const ValueType from, const ValueType to) throw() :
+        DereferenceError::DereferenceError(const String& value, const ValueType from, const ValueType to) noexcept :
         Exception("Cannot dereference value '" + value + "' of type '" + typeName(from) + "' as type '" + typeName(to) + "'") {}
         
-        EvaluationError::EvaluationError(const String& msg) throw() :
+        EvaluationError::EvaluationError(const String& msg) noexcept :
         Exception(msg) {}
         
-        IndexError::IndexError(const Value& indexableValue, const Value& indexValue) throw() :
+        IndexError::IndexError(const Value& indexableValue, const Value& indexValue) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "'") {}
         
-        IndexError::IndexError(const Value& indexableValue, const size_t index) throw() :
+        IndexError::IndexError(const Value& indexableValue, const size_t index) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with integral index") {}
         
-        IndexError::IndexError(const Value& indexableValue, const String& key) throw() :
+        IndexError::IndexError(const Value& indexableValue, const String& key) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + " with string index") {}
         
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) throw() :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) noexcept :
         IndexError(indexableValue, indexValue) {
             *this << ": Index value " << outOfBoundsIndex << " is out of bounds";
         }
         
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) throw() :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) noexcept :
         IndexError(indexableValue, indexValue) {
             *this << ": Key '" << outOfBoundsIndex << "' not found";
         }
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const size_t index) throw() :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const size_t index) noexcept :
         IndexError(indexableValue, index) {
             *this << ": Index value " << index << " is out of bounds";
         }
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const String& key) throw() :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const String& key) noexcept :
         IndexError(indexableValue, key) {
             *this << ": Key '" << key << "' not found";
         }

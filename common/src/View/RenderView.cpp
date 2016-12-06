@@ -45,6 +45,8 @@ namespace TrenchBroom {
             bindEvents();
         }
         
+        RenderView::~RenderView() {}
+        
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 

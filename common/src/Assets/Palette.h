@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::tr1::shared_ptr<Data> DataPtr;
+            typedef std::shared_ptr<Data> DataPtr;
             DataPtr m_data;
         public:
             Palette(const size_t size, unsigned char* data);

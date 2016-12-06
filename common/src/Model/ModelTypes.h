@@ -132,7 +132,7 @@ namespace TrenchBroom {
         typedef std::vector<IssueGenerator*> IssueGeneratorList;
         
         class Game;
-        typedef std::tr1::shared_ptr<Game> GamePtr;
+        typedef std::shared_ptr<Game> GamePtr;
         
         typedef enum {
             EF_WavefrontObj

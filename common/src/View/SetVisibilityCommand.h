@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class SetVisibilityCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SetVisibilityCommand> Ptr;
+            typedef std::shared_ptr<SetVisibilityCommand> Ptr;
         private:
             typedef enum {
                 Action_Reset,

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             BrushFaceList m_faces;
         public:
             template <typename T>
-            PushSelection(std::tr1::shared_ptr<T> facade) {
+            PushSelection(std::shared_ptr<T> facade) {
                 initialize(facade.get());
             }
             
