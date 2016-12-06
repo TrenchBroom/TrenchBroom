@@ -33,6 +33,7 @@
 #include "Renderer/PerspectiveCamera.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {

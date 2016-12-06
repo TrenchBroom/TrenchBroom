@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 m_tasks.push_back(task);
             } else {
                 CompilationTask::List::iterator it = m_tasks.begin();
-                std::advance(it, index);
+                std::advance(it, static_cast<int>(index));
                 m_tasks.insert(it, task);
                 
             }
@@ -117,10 +117,10 @@ namespace TrenchBroom {
             assert(index < taskCount());
             
             CompilationTask::List::iterator it = m_tasks.begin();
-            std::advance(it, index);
+            std::advance(it, static_cast<int>(index));
             
             CompilationTask::List::iterator pr = m_tasks.begin();
-            std::advance(pr, index - 1);
+            std::advance(pr, static_cast<int>(index) - 1);
             
             std::iter_swap(it, pr);
             profileDidChange();
@@ -130,10 +130,10 @@ namespace TrenchBroom {
             assert(index < taskCount() - 1);
             
             CompilationTask::List::iterator it = m_tasks.begin();
-            std::advance(it, index);
+            std::advance(it, static_cast<int>(index));
             
             CompilationTask::List::iterator nx = m_tasks.begin();
-            std::advance(nx, index + 1);
+            std::advance(nx, static_cast<int>(index) + 1);
             
             std::iter_swap(it, nx);
             profileDidChange();

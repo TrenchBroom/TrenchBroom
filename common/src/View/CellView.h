@@ -32,6 +32,7 @@
 #include <wx/dnd.h>
 #include <wx/event.h>
 #include <wx/scrolbar.h>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {

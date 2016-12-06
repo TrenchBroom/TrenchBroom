@@ -30,6 +30,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
