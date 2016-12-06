@@ -20,25 +20,21 @@
 #ifndef IdMipTextureReader_h
 #define IdMipTextureReader_h
 
-#include "IO/TextureReader.h"
 #include "Assets/Palette.h"
+#include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
         class CharArrayReader;
 
-        class IdMipTextureReader : public TextureReader {
+        class IdMipTextureReader : public MipTextureReader {
         protected:
             const Assets::Palette m_palette;
         public:
             IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
-            IdMipTextureReader(const NameStrategy& nameStrategy);
-
-            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
         protected:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
-            virtual const Assets::Palette getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const;
+            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
         };
     }
 }

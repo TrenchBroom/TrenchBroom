@@ -30,20 +30,18 @@
 
 namespace TrenchBroom {
     namespace IO {
+        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
+        MipTextureReader(nameStrategy) {}
 
-        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) : IdMipTextureReader(nameStrategy) {
-        }
-
-        const Assets::Palette HlMipTextureReader::getPalette(CharArrayReader &reader, const size_t offset[], const size_t width, const size_t height) const {
+        Assets::Palette HlMipTextureReader::doGetPalette(CharArrayReader& reader, const size_t offset[], const size_t width, const size_t height) const {
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
             reader.seekFromBegin(start);
-            size_t paletteSize = reader.size() - start;
-            unsigned char *paletteCopy = new unsigned char[paletteSize];
-            reader.read(paletteCopy, paletteSize);
+            
+            const size_t paletteSize = reader.size() - start;
+            unsigned char* paletteData = new unsigned char[paletteSize];
+            reader.read(paletteData, paletteSize);
 
-            const Assets::Palette palette(paletteSize, paletteCopy);
-
-            return palette;
+            return Assets::Palette(paletteSize, paletteData);
         }
     }
 }

@@ -17,25 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HlMipTextureReader_h
-#define HlMipTextureReader_h
+#ifndef MipTextureReader_h
+#define MipTextureReader_h
 
+#include "IO/TextureReader.h"
 #include "Assets/Palette.h"
-#include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
         class CharArrayReader;
         
-        class HlMipTextureReader : public MipTextureReader {
-        private:
-        public:
-            HlMipTextureReader(const NameStrategy& nameStrategy);
+        class MipTextureReader : public TextureReader {
         protected:
-            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
+            MipTextureReader(const NameStrategy& nameStrategy);
+        public:
+            virtual ~MipTextureReader();
+        public:
+            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
+        protected:
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            virtual Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const = 0;
         };
     }
 }
 
-#endif /* HlMipTextureReader_h */
+#endif /* MipTextureReader_h */
