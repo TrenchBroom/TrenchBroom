@@ -46,6 +46,8 @@ namespace TrenchBroom {
         protected:
             RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
         public:
+            virtual ~RenderView();
+        public:
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnSetFocus(wxFocusEvent& event);
