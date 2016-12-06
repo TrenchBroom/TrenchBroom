@@ -45,7 +45,7 @@ namespace TrenchBroom {
         class EntityDefinitionFileSpec;
         
         class AttributeDefinition;
-        typedef std::tr1::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
+        typedef std::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
         typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
         typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
         

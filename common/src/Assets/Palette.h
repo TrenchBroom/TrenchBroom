@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Assets {
         class Palette {
         public:
-            typedef std::tr1::shared_ptr<Palette> Ptr;
+            typedef std::shared_ptr<Palette> Ptr;
         private:
             size_t m_size;
             unsigned char* m_data;

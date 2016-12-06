@@ -29,7 +29,7 @@ namespace TrenchBroom {
         
         class UndoableCommand : public Command {
         public:
-            typedef std::tr1::shared_ptr<UndoableCommand> Ptr;
+            typedef std::shared_ptr<UndoableCommand> Ptr;
         public:
             UndoableCommand(CommandType type, const String& name);
             virtual ~UndoableCommand();

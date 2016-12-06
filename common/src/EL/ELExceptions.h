@@ -27,39 +27,38 @@ namespace TrenchBroom {
     namespace EL {
         class Exception : public ExceptionStream<Exception> {
         public:
-            Exception() throw();
-            Exception(const String& str) throw();
-            ~Exception() throw();
+            Exception() noexcept;
+            Exception(const String& str) noexcept;
         };
         
         class ConversionError : public Exception {
         public:
-            ConversionError(const String& value, const ValueType from, const ValueType to) throw();
+            ConversionError(const String& value, const ValueType from, const ValueType to) noexcept;
         };
         
         class DereferenceError : public Exception {
         public:
-            DereferenceError(const String& value, const ValueType from, const ValueType to) throw();
+            DereferenceError(const String& value, const ValueType from, const ValueType to) noexcept;
         };
         
         class EvaluationError : public Exception {
         public:
-            EvaluationError(const String& msg) throw();
+            EvaluationError(const String& msg) noexcept;
         };
         
         class IndexError : public EvaluationError {
         public:
-            IndexError(const Value& indexableValue, const Value& indexValue) throw();
-            IndexError(const Value& indexableValue, size_t index) throw();
-            IndexError(const Value& indexableValue, const String& key) throw();
+            IndexError(const Value& indexableValue, const Value& indexValue) noexcept;
+            IndexError(const Value& indexableValue, size_t index) noexcept;
+            IndexError(const Value& indexableValue, const String& key) noexcept;
         };
         
         class IndexOutOfBoundsError : public IndexError {
         public:
-            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex) throw();
-            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) throw();
-            IndexOutOfBoundsError(const Value& indexableValue, size_t index) throw();
-            IndexOutOfBoundsError(const Value& indexableValue, const String& key) throw();
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex) noexcept;
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) noexcept;
+            IndexOutOfBoundsError(const Value& indexableValue, size_t index) noexcept;
+            IndexOutOfBoundsError(const Value& indexableValue, const String& key) noexcept;
         };
     }
 }

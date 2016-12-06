@@ -139,7 +139,7 @@ namespace TrenchBroom {
         static void checkUVListsEqual(const std::vector<Vec2> &uvs,
                                       const std::vector<Vec2> &transformedVertUVs) {
             ASSERT_EQ(uvs.size(), transformedVertUVs.size());
-            ASSERT_GE(uvs.size(), 3);
+            ASSERT_GE(uvs.size(), 3U);
             
             EXPECT_TC_EQ(uvs[0], transformedVertUVs[0]);
             
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             std::vector<Vec3> verts;
             std::vector<Vec2> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
-            ASSERT_GE(verts.size(), 3);
+            ASSERT_GE(verts.size(), 3U);
 
             // transform the face
             BrushFace *face = origFace->clone();

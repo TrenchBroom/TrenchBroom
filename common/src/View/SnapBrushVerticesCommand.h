@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class SnapBrushVerticesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SnapBrushVerticesCommand> Ptr;
+            typedef std::shared_ptr<SnapBrushVerticesCommand> Ptr;
         private:
             size_t m_snapTo;
             Model::Snapshot* m_snapshot;

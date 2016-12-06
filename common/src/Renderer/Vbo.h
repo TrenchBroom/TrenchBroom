@@ -48,7 +48,7 @@ namespace TrenchBroom {
         
         class Vbo {
         public:
-            typedef std::tr1::shared_ptr<Vbo> Ptr;
+            typedef std::shared_ptr<Vbo> Ptr;
         private:
             typedef enum {
                 State_Inactive = 0,

@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
+            typedef std::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
             Polygon3::List m_faces;
             Vec3 m_delta;

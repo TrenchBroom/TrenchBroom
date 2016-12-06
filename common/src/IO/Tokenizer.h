@@ -99,7 +99,7 @@ namespace TrenchBroom {
         private:
             typedef std::stack<Token> TokenStack;
 
-            typedef std::tr1::shared_ptr<TokenizerState> StatePtr;
+            typedef std::shared_ptr<TokenizerState> StatePtr;
 
             class SaveState {
             private:
@@ -133,6 +133,9 @@ namespace TrenchBroom {
             template <typename OtherType>
             Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
             m_state(nestedTokenizer.m_state) {}
+            
+            Tokenizer(const Tokenizer& other) :
+            m_state(other.m_state) {}
             
             virtual ~Tokenizer() {}
 

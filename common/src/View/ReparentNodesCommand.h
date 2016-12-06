@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class ReparentNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ReparentNodesCommand> Ptr;
+            typedef std::shared_ptr<ReparentNodesCommand> Ptr;
         private:
             Model::ParentChildrenMap m_nodesToAdd;
             Model::ParentChildrenMap m_nodesToRemove;

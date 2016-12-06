@@ -38,7 +38,7 @@ namespace TrenchBroom {
             typedef int Type;
             static const Type NoType = -1;
             
-            typedef std::tr1::shared_ptr<Animation> Ptr;
+            typedef std::shared_ptr<Animation> Ptr;
             typedef std::vector<Ptr> List;
             
             typedef enum {

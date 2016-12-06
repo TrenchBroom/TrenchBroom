@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         class PickResult {
         public:
-            typedef std::tr1::shared_ptr<CompareHits> ComparePtr;
+            typedef std::shared_ptr<CompareHits> ComparePtr;
         private:
             const EditorContext* m_editorContext;
             Hit::List m_hits;

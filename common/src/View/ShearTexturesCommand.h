@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class ShearTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ShearTexturesCommand> Ptr;
+            typedef std::shared_ptr<ShearTexturesCommand> Ptr;
         private:
             Vec2f m_factors;
         public:

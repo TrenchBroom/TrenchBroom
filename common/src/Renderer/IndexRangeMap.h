@@ -43,7 +43,7 @@ namespace TrenchBroom {
             };
             
             typedef std::map<PrimType, IndicesAndCounts> PrimTypeToIndexData;
-            typedef std::tr1::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
+            typedef std::shared_ptr<PrimTypeToIndexData> PrimTypeToIndexDataPtr;
         public:
             class Size {
             private:

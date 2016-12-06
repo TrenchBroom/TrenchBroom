@@ -24,6 +24,10 @@
 
 namespace TrenchBroom {
     namespace EL {
+        VariableStore::VariableStore() {}
+        
+        VariableStore::VariableStore(const VariableStore &other) {}
+        
         VariableStore::~VariableStore() {}
         
         VariableStore* VariableStore::clone() const {

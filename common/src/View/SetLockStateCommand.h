@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class SetLockStateCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SetLockStateCommand> Ptr;
+            typedef std::shared_ptr<SetLockStateCommand> Ptr;
         private:
             Model::NodeList m_nodes;
             Model::LockState m_state;
