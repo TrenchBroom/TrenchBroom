@@ -28,6 +28,7 @@
 
 namespace TrenchBroom {
     bool texCoordsEqual(const Vec2f& tc1, const Vec2f& tc2);
+    bool pointExactlyIntegral(const Vec3d &point);
 
     namespace Model {
         void assertTexture(const String& expected, const Brush* brush, const Vec3d& faceNormal);
@@ -48,5 +49,7 @@ namespace TrenchBroom {
 
 #define ASSERT_TC_EQ(tc1, tc2) ASSERT_TRUE(texCoordsEqual(tc1, tc2));
 #define EXPECT_TC_EQ(tc1, tc2) EXPECT_TRUE(texCoordsEqual(tc1, tc2));
+
+#define ASSERT_POINT_INTEGRAL(vec) ASSERT_TRUE(pointExactlyIntegral(vec))
 
 #endif

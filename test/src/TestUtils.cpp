@@ -19,6 +19,9 @@
 
 #include "TestUtils.h"
 
+#include "MathUtils.h"
+
+#include <cmath>
 #include <gmock/gmock.h>
 
 #include "CollectionUtils.h"
@@ -37,6 +40,16 @@ namespace TrenchBroom {
         return true;
     }
     
+    bool pointExactlyIntegral(const Vec3d &point) {
+        for (size_t i=0; i<3; i++) {
+            const double value = point[i];
+            if (static_cast<double>(static_cast<int>(value)) != value) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     TEST(TestUtilsTest, testTexCoordsEqual) {
         ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(0.0, 0.0)));
         ASSERT_TRUE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(1.0, 0.0)));
@@ -51,8 +64,17 @@ namespace TrenchBroom {
         ASSERT_FALSE(texCoordsEqual(Vec2f(0.0, 0.0), Vec2f(0.1, 0.1)));
         ASSERT_FALSE(texCoordsEqual(Vec2f(-0.25, 0.0), Vec2f(0.25, 0.0)));
     }
-
     
+    TEST(TestUtilsTest, pointExactlyIntegral) {
+        ASSERT_TRUE(pointExactlyIntegral(Vec3d(0.0, 0.0, 0.0)));
+        ASSERT_TRUE(pointExactlyIntegral(Vec3d(1024.0, 1204.0, 1024.0)));
+        ASSERT_TRUE(pointExactlyIntegral(Vec3d(-10000.0, -10000.0, -10000.0)));
+        
+        const double near1024 = Math::nextgreater(1024.0);
+        ASSERT_FALSE(pointExactlyIntegral(Vec3d(1024.0, near1024, 1024.0)));
+        ASSERT_FALSE(pointExactlyIntegral(Vec3d(1024.5, 1024.5, 1024.5)));
+    }
+
     namespace Model {
         void assertTexture(const String& expected, const Brush* brush, const Vec3& faceNormal) {
             assert(brush != NULL);

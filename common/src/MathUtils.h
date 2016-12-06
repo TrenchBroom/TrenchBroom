@@ -409,6 +409,8 @@ namespace Math {
         static const Type PSBelow = 1;
         static const Type PSInside = 2;
     }
+    
+    double nextgreater(double value);
 }
 
 #endif
