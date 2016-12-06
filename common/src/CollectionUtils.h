@@ -357,7 +357,8 @@ namespace VectorUtils {
     template <typename T>
     void swapPred(std::vector<T>& vec, const size_t i) {
         typename std::vector<T>::iterator it = vec.begin();
-        std::advance(it, i);
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        std::advance(it, static_cast<DiffType>(i));
         swapPred(vec, it);
     }
 
@@ -370,7 +371,8 @@ namespace VectorUtils {
     template <typename T>
     void swapSucc(std::vector<T>& vec, const size_t i) {
         typename std::vector<T>::iterator it = vec.begin();
-        std::advance(it, i);
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        std::advance(it, static_cast<DiffType>(i));
         swapSucc(vec, it);
     }
 
@@ -389,7 +391,8 @@ namespace VectorUtils {
     void erase(std::vector<T>& vec, const size_t index) {
         ensure(index < vec.size(), "index out of range");
         typename std::vector<T>::iterator it = vec.begin();
-        std::advance(it, index);
+        typedef typename std::vector<T>::iterator::difference_type DiffType;
+        std::advance(it, static_cast<DiffType>(index));
         vec.erase(it);
     }
 
