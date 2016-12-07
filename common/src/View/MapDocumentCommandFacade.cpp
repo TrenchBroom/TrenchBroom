@@ -63,9 +63,7 @@ namespace TrenchBroom {
             Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
                     node->escalate(ancestors);
                     node->recurse(descendants);
@@ -97,9 +95,7 @@ namespace TrenchBroom {
             
             Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : faces) {
                 if (!face->selected() && m_editorContext->selectable(face)) {
                     face->brush()->acceptAndEscalate(visitor);
                     face->select();
@@ -153,9 +149,7 @@ namespace TrenchBroom {
             Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
             
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 if (node->selected()) {
                     node->deselect();
                     deselected.push_back(node);
@@ -187,9 +181,7 @@ namespace TrenchBroom {
             
             Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : faces) {
                 if (face->selected()) {
                     face->deselect();
                     deselected.push_back(face);
@@ -222,9 +214,7 @@ namespace TrenchBroom {
 
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
-            Model::NodeList::const_iterator it, end;
-            for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : m_selectedNodes) {
                 node->deselect();
                 node->recurse(descendants);
             }
@@ -244,11 +234,8 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::deselectAllBrushFaces() {
             selectionWillChangeNotifier();
             
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : m_selectedBrushFaces)
                 face->deselect();
-            }
             
             Selection selection;
             selection.addDeselectedBrushFaces(m_selectedBrushFaces);
@@ -265,10 +252,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             
             Model::NodeList addedNodes;
-            Model::ParentChildrenMap::const_iterator pIt, pEnd;
-            for (pIt = nodes.begin(), pEnd = nodes.end(); pIt != pEnd; ++pIt) {
-                Model::Node* parent = pIt->first;
-                const Model::NodeList& children = pIt->second;
+            for (const auto& entry : nodes) {
+                Model::Node* parent = entry.first;
+                const Model::NodeList& children = entry.second;
                 parent->addChildren(children);
                 VectorUtils::append(addedNodes, children);
             }
@@ -287,10 +273,9 @@ namespace TrenchBroom {
             const Model::NodeList allChildren = collectChildren(nodes);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
             
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* parent = it->first;
-                const Model::NodeList& children = it->second;
+            for (const auto& entry : nodes) {
+                Model::Node* parent = entry.first;
+                const Model::NodeList& children = entry.second;
                 unsetEntityDefinitions(children);
                 unsetTextures(children);
                 parent->removeChildren(children.begin(), children.end());
@@ -305,9 +290,7 @@ namespace TrenchBroom {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());
             
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 const Model::VisibilityState oldState = node->visibilityState();
                 if (node->setVisiblityState(visibilityState)) {
                     changedNodes.push_back(node);
@@ -325,9 +308,7 @@ namespace TrenchBroom {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());
             
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 const Model::VisibilityState oldState = node->visibilityState();
                 if (node->ensureVisible()) {
                     changedNodes.push_back(node);
@@ -342,11 +323,10 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::restoreVisibilityState(const Model::VisibilityMap& nodes) {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());
-            
-            Model::VisibilityMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = it->first;
-                const Model::VisibilityState state = it->second;
+
+            for (const auto& entry : nodes) {
+                Model::Node* node = entry.first;
+                const Model::VisibilityState state = entry.second;
                 if (node->setVisiblityState(state))
                     changedNodes.push_back(node);
             }
@@ -360,9 +340,7 @@ namespace TrenchBroom {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());
             
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 const Model::LockState oldState = node->lockState();
                 if (node->setLockState(lockState)) {
                     changedNodes.push_back(node);
@@ -377,11 +355,10 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::restoreLockState(const Model::LockStateMap& nodes) {
             Model::NodeList changedNodes;
             changedNodes.reserve(nodes.size());
-            
-            Model::LockStateMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = it->first;
-                const Model::LockState state = it->second;
+
+            for (const auto& entry : nodes) {
+                Model::Node* node = entry.first;
+                const Model::LockState state = entry.second;
                 if (node->setLockState(state))
                     changedNodes.push_back(node);
             }
