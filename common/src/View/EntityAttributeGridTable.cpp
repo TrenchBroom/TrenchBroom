@@ -395,9 +395,6 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::DeleteRows(const size_t pos, size_t numRows) {
-            // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
-            // of default properties...
-
             if (pos >= m_rows.totalRowCount())
                 return false;
             
@@ -412,21 +409,27 @@ namespace TrenchBroom {
             const StringList names = m_rows.names(pos, numRows);
             ensure(names.size() == numRows, "invalid number of row names");
             
-            const SetBool ignoreUpdates(m_ignoreUpdates);
-            
-            Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
-            
-            bool success = true;
-            for (size_t i = 0; i < numRows && success; i++)
-                success = document->removeAttribute(names[i]);
-            
-            if (!success) {
-                transaction.rollback();
-                return false;
-            }
+            {
+                const SetBool ignoreUpdates(m_ignoreUpdates);
+                
+                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
+                
+                bool success = true;
+                for (size_t i = 0; i < numRows && success; i++)
+                    success = document->removeAttribute(names[i]);
+                
+                if (!success) {
+                    transaction.rollback();
+                    return false;
+                }
 
-            m_rows.deleteRows(pos, numRows);
-            notifyRowsDeleted(pos, numRows);
+                m_rows.deleteRows(pos, numRows);
+                notifyRowsDeleted(pos, numRows);
+            }
+            
+            // Force an update in case we deleted a property with a default value
+            update();
+            
             return true;
         }
         
