@@ -481,9 +481,7 @@ namespace TrenchBroom {
             
             Model::EntityAttributeSnapshot::Map snapshot;
             
-            Model::AttributableNodeList::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
+            for (Model::AttributableNode* node : attributableNodes) {
                 snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
                 node->addOrUpdateAttribute(name, value);
             }
@@ -504,9 +502,7 @@ namespace TrenchBroom {
             static const Model::AttributeValue DefaultValue = "";
             Model::EntityAttributeSnapshot::Map snapshot;
             
-            Model::AttributableNodeList::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
+            for (Model::AttributableNode* node : attributableNodes) {
                 snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
                 node->removeAttribute(name);
             }
@@ -527,10 +523,7 @@ namespace TrenchBroom {
             static const Model::AttributeValue DefaultValue = "";
             Model::EntityAttributeSnapshot::Map snapshot;
 
-            Model::AttributableNodeList::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
-                
+            for (Model::AttributableNode* node : attributableNodes) {
                 const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
                     snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
@@ -549,11 +542,8 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Model::AttributableNodeList::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
+            for (Model::AttributableNode* node : attributableNodes)
                 node->renameAttribute(oldName, newName);
-            }
 
             setEntityDefinitions(nodes);
         }
@@ -566,12 +556,11 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            Model::EntityAttributeSnapshot::Map::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                Model::AttributableNode* node = it->first;
+            for (const auto& entry : attributes) {
+                Model::AttributableNode* node = entry.first;
                 assert(node->parent() == NULL || node->selected() || node->descendantSelected());
                 
-                const Model::EntityAttributeSnapshot& snapshot = it->second;
+                const Model::EntityAttributeSnapshot& snapshot = entry.second;
                 snapshot.restore(node);
             }
 
@@ -585,9 +574,7 @@ namespace TrenchBroom {
             Model::NodeList changedNodes;
             Model::BrushFaceList faces;
             
-            Model::BrushList::const_iterator bIt, bEnd;
-            for (bIt = selectedBrushes.begin(), bEnd = selectedBrushes.end(); bIt != bEnd; ++bIt) {
-                Model::Brush* brush = *bIt;
+            for (Model::Brush* brush : selectedBrushes) {
                 Model::BrushFace* face = brush->findFace(polygons);
                 if (face != NULL) {
                     if (!brush->canMoveBoundary(m_worldBounds, face, delta))
@@ -601,10 +588,8 @@ namespace TrenchBroom {
             const Model::NodeList parents = collectParents(changedNodes.begin(), changedNodes.end());
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
-            
-            Model::BrushFaceList::iterator fIt, fEnd;
-            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
-                Model::BrushFace* face = *fIt;
+
+            for (Model::BrushFace* face : faces) {
                 Model::Brush* brush = face->brush();
                 assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
@@ -617,29 +602,20 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : m_selectedBrushFaces)
                 face->moveTexture(cameraUp, cameraRight, delta);
-            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
         void MapDocumentCommandFacade::performRotateTextures(const float angle) {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : m_selectedBrushFaces)
                 face->rotateTexture(angle);
-            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
         void MapDocumentCommandFacade::performShearTextures(const Vec2f& factors) {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : m_selectedBrushFaces)
                 face->shearTexture(factors);
-            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
@@ -660,11 +636,8 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
-                Model::Brush* brush = *it;
+            for (Model::Brush* brush : brushes)
                 brush->findIntegerPlanePoints(m_worldBounds);
-            }
             
             return snapshot;
         }
@@ -682,9 +655,7 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
-                Model::Brush* brush = *it;
+            for (Model::Brush* brush : brushes) {
                 if (brush->canSnapVertices(m_worldBounds, snapTo)) {
                     brush->snapVertices(m_worldBounds, snapTo);
                     succeededBrushCount += 1;
@@ -717,10 +688,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Vec3::List newVertexPositions;
-            Model::BrushVerticesMap::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Vec3::List& oldPositions = it->second;
+            for (const auto& entry : vertices) {
+                Model::Brush* brush = entry.first;
+                const Vec3::List& oldPositions = entry.second;
                 const Vec3::List newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newVertexPositions, newPositions);
             }
@@ -738,10 +708,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Edge3::List newEdgePositions;
-            Model::BrushEdgesMap::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Edge3::List& oldPositions = it->second;
+            for (const auto& entry : edges) {
+                Model::Brush* brush = entry.first;
+                const Edge3::List& oldPositions = entry.second;
                 const Edge3::List newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newEdgePositions, newPositions);
             }
@@ -757,10 +726,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Polygon3::List newFacePositions;
-            Model::BrushFacesMap::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Polygon3::List& oldPositions = it->second;
+            for (const auto& entry : faces) {
+                Model::Brush* brush = entry.first;
+                const Polygon3::List& oldPositions = entry.second;
                 const Polygon3::List newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newFacePositions, newPositions);
             }
@@ -778,12 +746,10 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Vec3::List newVertexPositions;
-            Model::BrushEdgesMap::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Edge3::List& oldPositions = it->second;
-                for (size_t i = 0; i < oldPositions.size(); ++i) {
-                    const Edge3& edgePosition = oldPositions[i];
+            for (const auto& entry : edges) {
+                Model::Brush* brush = entry.first;
+                const Edge3::List& oldPositions = entry.second;
+                for (const Edge3& edgePosition : oldPositions) {
                     const Vec3 vertexPosition = brush->splitEdge(m_worldBounds, edgePosition, delta);
                     newVertexPositions.push_back(vertexPosition);
                 }
@@ -802,12 +768,10 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Vec3::List newVertexPositions;
-            Model::BrushFacesMap::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Polygon3::List& oldPositions = it->second;
-                for (size_t i = 0; i < oldPositions.size(); ++i) {
-                    const Polygon3& facePosition = oldPositions[i];
+            for (const auto& entry : faces) {
+                Model::Brush* brush = entry.first;
+                const Polygon3::List& oldPositions = entry.second;
+                for (const Polygon3& facePosition : oldPositions) {
                     const Vec3 vertexPosition = brush->splitFace(m_worldBounds, facePosition, delta);
                     newVertexPositions.push_back(vertexPosition);
                 }
@@ -826,10 +790,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             Vec3::List newVertexPositions;
-            Model::BrushVerticesMap::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Vec3::List& positions = it->second;
+            for (const auto& entry : vertices) {
+                Model::Brush* brush = entry.first;
+                const Vec3::List& positions = entry.second;
                 brush->removeVertices(m_worldBounds, positions);
             }
             
@@ -843,11 +806,8 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
-                Model::Brush* brush = *it;
+            for (Model::Brush* brush : brushes)
                 brush->rebuildGeometry(m_worldBounds);
-            }
 
             invalidateSelectionBounds();
         }
