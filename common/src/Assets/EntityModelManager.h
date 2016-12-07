@@ -77,6 +77,7 @@ namespace TrenchBroom {
             void setLoader(const IO::EntityModelLoader* loader);
             
             EntityModel* model(const IO::Path& path) const;
+            EntityModel* safeGetModel(const IO::Path& path) const;
             Renderer::TexturedIndexRangeRenderer* renderer(const Assets::ModelSpecification& spec) const;
             
             bool hasModel(const Model::Entity* entity) const;

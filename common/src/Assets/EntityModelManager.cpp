@@ -93,8 +93,17 @@ namespace TrenchBroom {
             }
         }
         
+        EntityModel* EntityModelManager::safeGetModel(const IO::Path& path) const {
+            try {
+                return model(path);
+            } catch (const GameException&) {
+                return NULL;
+            }
+        }
+        
         Renderer::TexturedIndexRangeRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
-            EntityModel* entityModel = model(spec.path);
+            EntityModel* entityModel = safeGetModel(spec.path);
+
             if (entityModel == NULL)
                 return NULL;
             
