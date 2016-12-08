@@ -488,6 +488,39 @@ namespace TrenchBroom {
 
             return snapshot;
         }
+       
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performUpdateSpawnflag(const Model::AttributeName& name, size_t flagIndex, bool setFlag) {
+            const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::EntityAttributeSnapshot::Map snapshot;
+            
+            Model::AttributableNodeList::const_iterator it, end;
+            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
+                Model::AttributableNode* node = *it;
+                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                
+                int intValue = node->hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
+                const int flagValue = (1 << flagIndex);
+                
+                if (setFlag)
+                    intValue |= flagValue;
+                else
+                    intValue &= ~flagValue;
+                
+                StringStream str;
+                str << intValue;
+                node->addOrUpdateAttribute(name, str.str());
+            }
+            
+            setEntityDefinitions(nodes);
+            
+            return snapshot;
+        }
         
         Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();

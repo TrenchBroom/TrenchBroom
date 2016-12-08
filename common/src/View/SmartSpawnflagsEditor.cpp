@@ -51,25 +51,11 @@ namespace TrenchBroom {
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
             
-            void doVisit(Model::World* world)   { m_document->setAttribute(m_name, attributeValue(world)); }
+            void doVisit(Model::World* world)   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Layer* layer)   {}
             void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { m_document->setAttribute(m_name, attributeValue(entity)); }
+            void doVisit(Model::Entity* entity) { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Brush* brush)   {}
-
-            Model::AttributeValue attributeValue(Model::AttributableNode* attributable) const {
-                int intValue = attributable->hasAttribute(m_name) ? std::atoi(attributable->attribute(m_name).c_str()) : 0;
-                const int flagValue = (1 << m_flagIndex);
-                
-                if (m_setFlag)
-                    intValue |= flagValue;
-                else
-                    intValue &= ~flagValue;
-                
-                StringStream str;
-                str << intValue;
-                return str.str();
-            }
         };
         
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document) :
