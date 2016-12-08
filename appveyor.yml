@@ -34,3 +34,12 @@ build_script:
     .\RelWithDebInfo\TrenchBroom-Test.exe
 artifacts:
 - path: cmakebuild\*.7z
+deploy:
+  description: 'release description'
+  provider: GitHub
+  auth_token:
+    secure: 'kTa/cPIBtiixoSjXq1WoVD04ZFzbGhTPcPChAkh99Kf5Sqhy+kE8E3jUYe28nPDO'
+  draft: true
+  prerelease: false
+  on:
+    appveyor_repo_tag: true

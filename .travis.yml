@@ -8,3 +8,16 @@ matrix:
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis-linux.sh; fi
+deploy:
+  provider: releases
+  file_glob: true
+  skip_cleanup: true
+  api_key:
+    secure: "PeOyb+P9/FbBzDhGdGsAUoiQyWga6H+wR282zQzUOboP9kT2hMT3o2M4E+rWqPn4np7QjJ3aqHTrIO0pTV5rIEfaWeYWvQGxwTORecFQLGCwx2/cy+yJy5Xzo6Do5IxHBdmaswBc8tdrPgQOSwkSdfrS3DCAUIMOAvB9F/mTLtg="
+  file:
+    - "build/*.deb"
+    - "build/*.rpm"
+    - "build/*.dmg"
+  on:
+    repo: kduske/TrenchBroom
+    tags: true
