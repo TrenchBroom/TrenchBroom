@@ -77,7 +77,7 @@ namespace TrenchBroom {
         
         IO::Path GameFactory::gamePath(const String& gameName) const {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
-            if (it == m_gamePaths.end())
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
             Preference<IO::Path>& pref = it->second;
             return PreferenceManager::instance().get(pref);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         
         void GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
-            if (it == m_gamePaths.end())
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
             Preference<IO::Path>& pref = it->second;
             PreferenceManager::instance().set(pref, gamePath);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
         bool GameFactory::isGamePathPreference(const String& gameName, const IO::Path& prefPath) const {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
-            if (it == m_gamePaths.end())
+            if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
             Preference<IO::Path>& pref = it->second;
             return pref.path() == prefPath;
@@ -101,14 +101,14 @@ namespace TrenchBroom {
         
         GameConfig& GameFactory::gameConfig(const String& name) {
             ConfigMap::iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
+            if (cIt == std::end(m_configs))
                 throw GameException("Unknown game: " + name);
             return cIt->second;
         }
         
         const GameConfig& GameFactory::gameConfig(const String& name) const {
             ConfigMap::const_iterator cIt = m_configs.find(name);
-            if (cIt == m_configs.end())
+            if (cIt == std::end(m_configs))
                 throw GameException("Unknown game: " + name);
             return cIt->second;
         }
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             const IO::Path::List configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
             
             IO::Path::List::const_iterator it, end;
-            for (it = configFiles.begin(), end = configFiles.end(); it != end; ++it) {
+            for (it = std::begin(configFiles), end = std::end(configFiles); it != end; ++it) {
                 const IO::Path& configFilePath = *it;
                 loadGameConfig(configFilePath);
             }
@@ -208,7 +208,7 @@ namespace TrenchBroom {
         
         void GameFactory::writeCompilationConfigs() {
             ConfigMap::const_iterator it, end;
-            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+            for (it = std::begin(m_configs), end = std::end(m_configs); it != end; ++it) {
                 const GameConfig& gameConfig = it->second;
                 writeCompilationConfig(gameConfig);
             }
@@ -225,7 +225,7 @@ namespace TrenchBroom {
 
         void GameFactory::writeGameEngineConfigs() {
             ConfigMap::const_iterator it, end;
-            for (it = m_configs.begin(), end = m_configs.end(); it != end; ++it) {
+            for (it = std::begin(m_configs), end = std::end(m_configs); it != end; ++it) {
                 const GameConfig& gameConfig = it->second;
                 writeGameEngineConfig(gameConfig);
             }

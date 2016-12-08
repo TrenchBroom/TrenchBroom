@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
             size_t offset = baseOffset;
             PrimTypeToSize::const_iterator primIt, primEnd;
-            for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
+            for (primIt = std::begin(m_sizes), primEnd = std::end(m_sizes); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const size_t size = primIt->second;
                 data.insert(std::make_pair(primType, IndexArrayRange(offset, size)));

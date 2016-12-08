@@ -62,7 +62,7 @@ TEST(RelationTest, testInsertMultipleRight) {
     right_1.push_back("a");
     right_1.push_back("b");
     
-    r.insert(left_1, right_1.begin(), right_1.end());
+    r.insert(left_1, std::begin(right_1), std::end(right_1));
     
     ASSERT_EQ(2u, r.size());
     ASSERT_TRUE(r.contains(left_1, right_1[0]));
@@ -70,14 +70,14 @@ TEST(RelationTest, testInsertMultipleRight) {
     ASSERT_EQ(1u, r.count_left(right_1[0]));
     ASSERT_EQ(1u, r.count_left(right_1[1]));
     ASSERT_EQ(2u, r.count_right(left_1));
-    ASSERT_TRUE(std::equal(right_1.begin(), right_1.end(), r.right_begin(left_1)));
+    ASSERT_TRUE(std::equal(std::begin(right_1), std::end(right_1), r.right_begin(left_1)));
     
     const size_t left_2 = 2;
     std::vector<std::string> right_2;
     right_2.push_back("b");
     right_2.push_back("c");
     
-    r.insert(left_2, right_2.begin(), right_2.end());
+    r.insert(left_2, std::begin(right_2), std::end(right_2));
     
     ASSERT_EQ(4u, r.size());
     ASSERT_TRUE(r.contains(left_2, right_2[0]));
@@ -85,10 +85,10 @@ TEST(RelationTest, testInsertMultipleRight) {
     ASSERT_EQ(2u, r.count_left(right_2[0]));
     ASSERT_EQ(1u, r.count_left(right_2[1]));
     ASSERT_EQ(2u, r.count_right(left_2));
-    ASSERT_TRUE(std::equal(right_2.begin(), right_2.end(), r.right_begin(left_2)));
+    ASSERT_TRUE(std::equal(std::begin(right_2), std::end(right_2), r.right_begin(left_2)));
     
     right_1.push_back("c");
-    r.insert(left_1, right_1.begin(), right_1.end());
+    r.insert(left_1, std::begin(right_1), std::end(right_1));
     
     ASSERT_EQ(5u, r.size());
     ASSERT_TRUE(r.contains(left_1, right_1[0]));
@@ -98,7 +98,7 @@ TEST(RelationTest, testInsertMultipleRight) {
     ASSERT_EQ(2u, r.count_left(right_1[1]));
     ASSERT_EQ(2u, r.count_left(right_1[2]));
     ASSERT_EQ(3u, r.count_right(left_1));
-    ASSERT_TRUE(std::equal(right_1.begin(), right_1.end(), r.right_begin(left_1)));
+    ASSERT_TRUE(std::equal(std::begin(right_1), std::end(right_1), r.right_begin(left_1)));
 }
 
 TEST(RelationTest, testInsertMultipleLeft) {
@@ -111,7 +111,7 @@ TEST(RelationTest, testInsertMultipleLeft) {
     left_1.push_back("b");
     const size_t right_1 = 1;
     
-    r.insert(left_1.begin(), left_1.end(), right_1);
+    r.insert(std::begin(left_1), std::end(left_1), right_1);
     
     ASSERT_EQ(2u, r.size());
     ASSERT_TRUE(r.contains(left_1[0], right_1));
@@ -119,14 +119,14 @@ TEST(RelationTest, testInsertMultipleLeft) {
     ASSERT_EQ(1u, r.count_right(left_1[0]));
     ASSERT_EQ(1u, r.count_right(left_1[1]));
     ASSERT_EQ(2u, r.count_left(right_1));
-    ASSERT_TRUE(std::equal(left_1.begin(), left_1.end(), r.left_begin(right_1)));
+    ASSERT_TRUE(std::equal(std::begin(left_1), std::end(left_1), r.left_begin(right_1)));
     
     std::vector<std::string> left_2;
     left_2.push_back("b");
     left_2.push_back("c");
     const size_t right_2 = 2;
     
-    r.insert(left_2.begin(), left_2.end(), right_2);
+    r.insert(std::begin(left_2), std::end(left_2), right_2);
     
     ASSERT_EQ(4u, r.size());
     ASSERT_TRUE(r.contains(left_2[0], right_2));
@@ -134,10 +134,10 @@ TEST(RelationTest, testInsertMultipleLeft) {
     ASSERT_EQ(2u, r.count_right(left_2[0]));
     ASSERT_EQ(1u, r.count_right(left_2[1]));
     ASSERT_EQ(2u, r.count_left(right_2));
-    ASSERT_TRUE(std::equal(left_2.begin(), left_2.end(), r.left_begin(right_2)));
+    ASSERT_TRUE(std::equal(std::begin(left_2), std::end(left_2), r.left_begin(right_2)));
     
     left_1.push_back("c");
-    r.insert(left_1.begin(), left_1.end(), right_1);
+    r.insert(std::begin(left_1), std::end(left_1), right_1);
     
     ASSERT_EQ(5u, r.size());
     ASSERT_TRUE(r.contains(left_1[0], right_1));
@@ -147,7 +147,7 @@ TEST(RelationTest, testInsertMultipleLeft) {
     ASSERT_EQ(2u, r.count_right(left_1[1]));
     ASSERT_EQ(2u, r.count_right(left_1[2]));
     ASSERT_EQ(3u, r.count_left(right_1));
-    ASSERT_TRUE(std::equal(left_1.begin(), left_1.end(), r.left_begin(right_1)));
+    ASSERT_TRUE(std::equal(std::begin(left_1), std::end(left_1), r.left_begin(right_1)));
 }
 
 TEST(RelationTest, testEraseSingle) {

@@ -68,7 +68,7 @@ namespace TrenchBroom {
             if (path.isEmpty())
                 return true;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
-            if (it == m_directories.end())
+            if (it == std::end(m_directories))
                 return false;
             return it->second->directoryExists(path.deleteFirstComponent());
         }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             if (path.length() == 1)
                 return m_files.count(path.asString()) > 0;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
-            if (it == m_directories.end())
+            if (it == std::end(m_directories))
                 return false;
             return it->second->fileExists(path.deleteFirstComponent());
         }
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             if (path.isEmpty())
                 return *this;
             DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
-            if (it == m_directories.end())
+            if (it == std::end(m_directories))
                 throw new FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
             return it->second->findDirectory(path.deleteFirstComponent());
         }
@@ -97,12 +97,12 @@ namespace TrenchBroom {
             const String name = path.firstComponent().asString();
             if (path.length() == 1) {
                 FileMap::const_iterator it = m_files.find(name);
-                if (it == m_files.end())
+                if (it == std::end(m_files))
                     throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
                 return it->second->open();
             }
             DirMap::const_iterator it = m_directories.find(name);
-            if (it == m_directories.end())
+            if (it == std::end(m_directories))
                 throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
             return it->second->findFile(path.deleteFirstComponent());
         }
@@ -111,11 +111,11 @@ namespace TrenchBroom {
             Path::List contents;
             
             DirMap::const_iterator dIt, dEnd;
-            for (dIt = m_directories.begin(), dEnd = m_directories.end(); dIt != dEnd; ++dIt)
+            for (dIt = std::begin(m_directories), dEnd = std::end(m_directories); dIt != dEnd; ++dIt)
                 contents.push_back(Path(dIt->first));
             
             FileMap::const_iterator fIt, fEnd;
-            for (fIt = m_files.begin(), fEnd = m_files.end(); fIt != fEnd; ++fIt)
+            for (fIt = std::begin(m_files), fEnd = std::end(m_files); fIt != fEnd; ++fIt)
                 contents.push_back(Path(fIt->first));
             
             return contents;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                 return *this;
             const String name = path.firstComponent().asString();
             DirMap::iterator it = m_directories.lower_bound(name);
-            if (it == m_directories.end() || name != it->first)
+            if (it == std::end(m_directories) || name != it->first)
                 it = m_directories.insert(it, std::make_pair(name, new Directory(m_path + Path(name))));
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }

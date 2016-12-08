@@ -68,8 +68,8 @@ namespace TrenchBroom {
         
         bool addObserver(O* observer) {
             if (!m_observers.empty()) {
-                typename List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(observer));
-                if (it != m_observers.end()) {
+                typename List::iterator it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer));
+                if (it != std::end(m_observers)) {
                     delete observer;
                     return false;
                 }
@@ -83,8 +83,8 @@ namespace TrenchBroom {
         }
         
         bool removeObserver(O* observer) {
-            typename List::iterator it = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(observer));
-            if (it == m_observers.end()) {
+            typename List::iterator it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer));
+            if (it == std::end(m_observers)) {
                 delete observer;
                 return false;
             } else {
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer();
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer(a1);
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer(a1, a2);
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer(a1, a2, a3);
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer(a1, a2, a3, a4);
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             const SetBool notifying(m_notifying);
             
             typename List::const_iterator it, end;
-            for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
+            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
                 O& observer = **it;
                 if (!observer.skip())
                     observer(a1, a2, a3, a4, a5);
@@ -192,15 +192,15 @@ namespace TrenchBroom {
         }
     private:
         void addPending() {
-            m_observers.insert(m_observers.end(), m_toAdd.begin(), m_toAdd.end());
+            m_observers.insert(std::end(m_observers), std::begin(m_toAdd), std::end(m_toAdd));
             m_toAdd.clear();
         }
         
         void removePending() {
             typename List::iterator it, end, elem;
-            for (it = m_toRemove.begin(), end = m_toRemove.end(); it != end; ++it) {
-                elem = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*it));
-                assert(elem != m_observers.end());
+            for (it = std::begin(m_toRemove), end = std::end(m_toRemove); it != end; ++it) {
+                elem = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(*it));
+                assert(elem != std::end(m_observers));
                 delete *elem;
                 m_observers.erase(elem);
             }

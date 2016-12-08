@@ -124,9 +124,9 @@ namespace TrenchBroom {
 
         void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexList& indices) {
             const size_t offset = m_ranges.add(texture, primType, indices.size());
-            IndexList::iterator dest = m_indices.begin();
+            IndexList::iterator dest = std::begin(m_indices);
             std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
-            std::copy(indices.begin(), indices.end(), dest);
+            std::copy(std::begin(indices), std::end(indices), dest);
         }
     }
 }

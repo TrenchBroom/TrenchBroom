@@ -259,7 +259,7 @@ namespace TrenchBroom {
                 ArrayType result;
                 result.reserve(value.size());
                 typename std::vector<T>::const_iterator it, end;
-                for (it = value.begin(), end = value.end(); it != end; ++it)
+                for (it = std::begin(value), end = std::end(value); it != end; ++it)
                     result.push_back(EL::Value(*it));
                 return result;
             }
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             MapType makeMap(const std::map<String, T, C>& value) {
                 MapType result;
                 typename std::map<String, T, C>::const_iterator it, end;
-                for (it = value.begin(), end = value.end(); it != end; ++it)
+                for (it = std::begin(value), end = std::end(value); it != end; ++it)
                     result.insert(std::make_pair(it->first, EL::Value(it->second)));
                 return result;
             }

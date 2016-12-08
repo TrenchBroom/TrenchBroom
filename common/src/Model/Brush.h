@@ -107,13 +107,13 @@ namespace TrenchBroom {
             
             template <typename I>
             void removeFaces(I cur, I end) {
-                BrushFaceList::iterator rem = m_faces.end();
+                BrushFaceList::iterator rem = std::end(m_faces);
                 while (cur != end) {
-                    rem = doRemoveFace(m_faces.begin(), rem, *cur);
+                    rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
                 }
                 
-                m_faces.erase(rem, m_faces.end());
+                m_faces.erase(rem, std::end(m_faces));
             }
             
             void removeFace(BrushFace* face);

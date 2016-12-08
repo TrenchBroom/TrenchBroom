@@ -212,7 +212,7 @@ namespace TrenchBroom {
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
             FlagsAttributeOption::List::const_iterator it, end;
-            for (it = m_options.begin(), end = m_options.end(); it != end; ++it) {
+            for (it = std::begin(m_options), end = std::end(m_options); it != end; ++it) {
                 const FlagsAttributeOption& option = *it;
                 if (option.isDefault())
                     value |= option.value();

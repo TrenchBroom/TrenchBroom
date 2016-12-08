@@ -42,7 +42,7 @@ namespace TrenchBroom {
             const MappedFile::List files = doFindTextures(path, textureExtension);
             
             MappedFile::List::const_iterator it, end;
-            for (it = files.begin(), end = files.end(); it != end; ++it) {
+            for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                 const MappedFile::Ptr file = *it;
                 Assets::Texture* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
                 collection->addTexture(texture);
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             
             MappedFile::List result;
             Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it)
+            for (it = std::begin(paths), end = std::end(paths); it != end; ++it)
                 result.push_back(wadFS.openFile(*it));
             
             return result;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             
             MappedFile::List result;
             Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it)
+            for (it = std::begin(paths), end = std::end(paths); it != end; ++it)
                 result.push_back(m_gameFS.openFile(*it));
             
             return result;

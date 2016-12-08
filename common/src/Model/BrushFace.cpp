@@ -97,8 +97,8 @@ namespace TrenchBroom {
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
-            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
-            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(true)));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(false)));
         }
 
         BrushFace::~BrushFace() {
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         Vec3 BrushFace::center() const {
             ensure(m_geometry != NULL, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
-            return Vec3::center(boundary.begin(), boundary.end(), BrushGeometry::GetVertexPosition());
+            return Vec3::center(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
         Vec3 BrushFace::boundsCenter() const {

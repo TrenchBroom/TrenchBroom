@@ -69,7 +69,7 @@ namespace TrenchBroom {
         
         void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
             assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(nodes.begin(), nodes.end());
+            m_snapshot = new Model::Snapshot(std::begin(nodes), std::end(nodes));
         }
         
         void TransformObjectsCommand::deleteSnapshot() {

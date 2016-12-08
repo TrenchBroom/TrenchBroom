@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
         
         bool contains(const Vec<T,S>& vertex) const {
-            return std::find(m_vertices.begin(), m_vertices.end(), vertex) != m_vertices.end();
+            return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
         }
         
         size_t vertexCount() const {
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
             typename Vec<T,S>::List result;
             for (size_t i = 0; i < polygons.size(); ++i)
-                result.insert(result.end(), polygons[i].m_vertices.begin(), polygons[i].m_vertices.end());
+                result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
         }
         
@@ -110,8 +110,8 @@ namespace TrenchBroom {
                 return;
             
             typedef typename Vec<T,S>::List::iterator Iter;
-            Iter it = vertices.begin();
-            Iter end = vertices.end();
+            Iter it = std::begin(vertices);
+            Iter end = std::end(vertices);
             Iter smallest = it++;
             
             while (it != end) {
@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 ++it;
             }
 
-            std::rotate(vertices.begin(), smallest, vertices.end());
+            std::rotate(std::begin(vertices), smallest, std::end(vertices));
         }
     };
     

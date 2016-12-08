@@ -109,7 +109,7 @@ namespace TrenchBroom {
         
         void NodeSerializer::entityAttributes(const Model::EntityAttribute::List& attributes) {
             Model::EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it)
+            for (it = std::begin(attributes), end = std::end(attributes); it != end; ++it)
                 entityAttribute(*it);
         }
 
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         
         void NodeSerializer::brushes(const Model::BrushList& brushes) {
             Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+            for (it = std::begin(brushes), end = std::end(brushes); it != end; ++it)
                 brush(*it);
         }
         
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         
         void NodeSerializer::brushFaces(const Model::BrushFaceList& faces) {
             Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it)
                 brushFace(*it);
         }
 

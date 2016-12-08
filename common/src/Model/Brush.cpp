@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 HealEdgesCallback healCallback;
 
                 BrushFaceList::const_iterator it, end;
-                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty && m_brushValid; ++it) {
+                for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     BrushFace* face = *it;
                     AddFaceToGeometryCallback addCallback(face);
                     const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), addCallback);
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             m_hasRedundandFaces(false),
             m_brushEmpty(false) {
                 BrushFaceList::const_iterator it, end;
-                for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
+                for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty; ++it) {
                     BrushFace* face = *it;
                     CanMoveBoundaryCallback callback(face);
                     const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
@@ -291,7 +291,7 @@ namespace TrenchBroom {
         public:
             void updateFaces() {
                 BrushFaceGeometrySet::const_iterator it, end;
-                for (it = m_addedGeometries.begin(), end = m_addedGeometries.end(); it != end; ++it) {
+                for (it = std::begin(m_addedGeometries), end = std::end(m_addedGeometries); it != end; ++it) {
                     BrushFaceGeometry* geometry = *it;
                     
                     BrushFace* original = findMatchingFace(geometry);
@@ -312,7 +312,7 @@ namespace TrenchBroom {
                 BrushFace* bestFace = NULL;
                 
                 SharedIncidentFaceCounts::const_iterator it, end;
-                for (it = counts.begin(), end = counts.end(); it != end; ++it) {
+                for (it = std::begin(counts), end = std::end(counts); it != end; ++it) {
                     BrushFace* face = it->first;
                     const size_t count = it->second;
                     if (count > bestCount) {
@@ -335,13 +335,13 @@ namespace TrenchBroom {
                 do {
                     const BrushGeometry::Vertex* origin = curEdge->origin();
                     const IncidenceMap::const_iterator iIt = m_incidences.find(origin->position());
-                    if (iIt != m_incidences.end()) {
+                    if (iIt != std::end(m_incidences)) {
                         const BrushFaceList& incidentFaces = iIt->second;
                         BrushFaceList::const_iterator fIt, fEnd;
-                        for (fIt = incidentFaces.begin(), fEnd = incidentFaces.end(); fIt != fEnd; ++fIt) {
+                        for (fIt = std::begin(incidentFaces), fEnd = std::end(incidentFaces); fIt != fEnd; ++fIt) {
                             BrushFace* curFace = *fIt;
                             SharedIncidentFaceCounts::iterator qIt = result.find(curFace);
-                            if (qIt == result.end())
+                            if (qIt == std::end(result))
                                 result.insert(qIt, std::make_pair(curFace, 1));
                             else
                                 ++qIt->second;
@@ -437,7 +437,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const Plane3& boundary) const {
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* face = *it;
                 if (face->boundary().equals(boundary))
                     return face;
@@ -447,7 +447,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const Polygon3& vertices) const {
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* face = *it;
                 if (face->hasVertices(vertices))
                     return face;
@@ -457,7 +457,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const Polygon3::List& candidates) const {
             Polygon3::List::const_iterator it, end;
-            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+            for (it = std::begin(candidates), end = std::end(candidates); it != end; ++it) {
                 const Polygon3& vertices = *it;
                 BrushFace* face = findFace(vertices);
                 if (face != NULL)
@@ -500,7 +500,7 @@ namespace TrenchBroom {
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {
-            addFaces(faces.begin(), faces.end(), faces.size());
+            addFaces(std::begin(faces), std::end(faces), faces.size());
         }
 
         void Brush::addFace(BrushFace* face) {
@@ -516,21 +516,21 @@ namespace TrenchBroom {
         }
 
         void Brush::removeFace(BrushFace* face) {
-            m_faces.erase(doRemoveFace(m_faces.begin(), m_faces.end(), face), m_faces.end());
+            m_faces.erase(doRemoveFace(std::begin(m_faces), std::end(m_faces), face), std::end(m_faces));
         }
 
         BrushFaceList::iterator Brush::doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face) {
             ensure(face != NULL, "face is null");
 
             BrushFaceList::iterator it = std::remove(begin, end, face);
-            ensure(it != m_faces.end(), "face to remove not found");
+            ensure(it != std::end(m_faces), "face to remove not found");
             detachFace(face);
             return it;
         }
 
         void Brush::detachFaces(const BrushFaceList& faces) {
             BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it)
                 detachFace(*it);
         }
 
@@ -546,7 +546,7 @@ namespace TrenchBroom {
         
         void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
             BrushList::const_iterator bIt, bEnd;
-            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+            for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
                 const Brush* brush = *bIt;
                 cloneFaceAttributesFrom(brush);
             }
@@ -554,7 +554,7 @@ namespace TrenchBroom {
 
         void Brush::cloneFaceAttributesFrom(const Brush* brush) {
             BrushFaceList::iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(m_faces), fEnd = std::end(m_faces); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
                 const BrushFace* source = brush->findFace(destination->boundary());
                 if (source != NULL) {
@@ -565,7 +565,7 @@ namespace TrenchBroom {
 
         void Brush::cloneInvertedFaceAttributesFrom(const BrushList& brushes) {
             BrushList::const_iterator bIt, bEnd;
-            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+            for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
                 const Brush* brush = *bIt;
                 cloneInvertedFaceAttributesFrom(brush);
             }
@@ -573,7 +573,7 @@ namespace TrenchBroom {
 
         void Brush::cloneInvertedFaceAttributesFrom(const Brush* brush) {
             BrushFaceList::iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(m_faces), fEnd = std::end(m_faces); fIt != fEnd; ++fIt) {
                 BrushFace* destination = *fIt;
                 const BrushFace* source = brush->findFace(destination->boundary().flipped());
                 if (source != NULL) {
@@ -602,7 +602,7 @@ namespace TrenchBroom {
             testFaces.push_back(testFace);
             
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* brushFace = *it;
                 if (brushFace != face)
                     testFaces.push_back(brushFace);
@@ -647,7 +647,7 @@ namespace TrenchBroom {
         bool Brush::hasVertices(const Vec3::List positions) const {
             ensure(m_geometry != NULL, "geometry is null");
             Vec3::List::const_iterator it, end;
-            for (it = positions.begin(), end = positions.end(); it != end; ++it) {
+            for (it = std::begin(positions), end = std::end(positions); it != end; ++it) {
                 if (m_geometry->hasVertex(*it))
                     return false;
             }
@@ -656,13 +656,13 @@ namespace TrenchBroom {
         
         bool Brush::hasEdge(const Edge3& edge) const {
             ensure(m_geometry != NULL, "geometry is null");
-            return m_geometry->findEdgeByPositions(edge.start(), edge.end());
+            return m_geometry->findEdgeByPositions(edge.start(), std::end(edge));
         }
         
         bool Brush::hasEdges(const Edge3::List& edges) const {
             ensure(m_geometry != NULL, "geometry is null");
             Edge3::List::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                 if (!m_geometry->hasEdge(it->start(), it->end()))
                     return false;
             }
@@ -677,7 +677,7 @@ namespace TrenchBroom {
         bool Brush::hasFaces(const Polygon3::List& faces) const {
             ensure(m_geometry != NULL, "geometry is null");
             Polygon3::List::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 if (!m_geometry->hasFace(it->vertices()))
                     return false;
             }
@@ -712,7 +712,7 @@ namespace TrenchBroom {
                 return false;
             
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 const BrushFace* face = *it;
                 if (face->boundary().pointStatus(point) == Math::PointStatus::PSAbove)
                     return false;
@@ -744,7 +744,7 @@ namespace TrenchBroom {
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
 
             BrushGeometry newGeometry;
-            Vec3::Set vertexSet(vertexPositions.begin(), vertexPositions.end());
+            Vec3::Set vertexSet(std::begin(vertexPositions), std::end(vertexPositions));
             
             BrushVertex* firstVertex = m_geometry->vertices().front();
             BrushVertex* currentVertex = firstVertex;
@@ -804,7 +804,7 @@ namespace TrenchBroom {
             BrushGeometry testGeometry(*m_geometry);
             
             Vec3::List::const_iterator it, end;
-            for (it = vertexPositions.begin(), end = vertexPositions.end(); it != end; ++it) {
+            for (it = std::begin(vertexPositions), end = std::end(vertexPositions); it != end; ++it) {
                 const Vec3& position = *it;
                 BrushVertex* vertex = testGeometry.findVertexByPosition(position);
                 if (vertex == NULL)
@@ -822,7 +822,7 @@ namespace TrenchBroom {
             assert(canRemoveVertices(worldBounds, vertexPositions));
             
             BrushGeometry newGeometry;
-            const Vec3::Set vertexSet(vertexPositions.begin(), vertexPositions.end());
+            const Vec3::Set vertexSet(std::begin(vertexPositions), std::end(vertexPositions));
             
             BrushVertex* firstVertex = m_geometry->vertices().front();
             BrushVertex* currentVertex = firstVertex;
@@ -900,10 +900,10 @@ namespace TrenchBroom {
             result.reserve(edgePositions.size());
             
             Edge3::List::const_iterator it, end;
-            for (it = edgePositions.begin(), end = edgePositions.end(); it != end; ++it) {
+            for (it = std::begin(edgePositions), end = std::end(edgePositions); it != end; ++it) {
                 const Edge3& edge = *it;
-                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
-                assert(m_geometry->hasEdge(newEdge.start(), newEdge.end()));
+                const Edge3 newEdge(edge.start() + delta, std::end(edge) + delta);
+                assert(m_geometry->hasEdge(newEdge.start(), std::end(newEdge)));
                 result.push_back(newEdge);
             }
             
@@ -936,7 +936,7 @@ namespace TrenchBroom {
             result.reserve(facePositions.size());
             
             Polygon3::List::const_iterator fIt, fEnd;
-            for (fIt = facePositions.begin(), fEnd = facePositions.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(facePositions), fEnd = std::end(facePositions); fIt != fEnd; ++fIt) {
                 const Polygon3& face = *fIt;
                 const Polygon3 newFace(face.vertices() + delta);
                 assert(m_geometry->hasFace(newFace.vertices()));
@@ -986,7 +986,7 @@ namespace TrenchBroom {
             if (vertices.size() == vertexCount())
                 return true;
             
-            const Vec3::Set vertexSet(vertices.begin(), vertices.end());
+            const Vec3::Set vertexSet(std::begin(vertices), std::end(vertices));
             BrushGeometry remaining;
             BrushGeometry moving;
             BrushGeometry result;
@@ -1076,7 +1076,7 @@ namespace TrenchBroom {
             brushes.reserve(result.size());
             
             BrushGeometry::SubtractResult::const_iterator it, end;
-            for (it = result.begin(), end = result.end(); it != end; ++it) {
+            for (it = std::begin(result), end = std::end(result); it != end; ++it) {
                 const BrushGeometry& geometry = *it;
                 Brush* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahend);
                 brushes.push_back(brush);
@@ -1089,7 +1089,7 @@ namespace TrenchBroom {
             const BrushFaceList& theirFaces = brush->faces();
             
             BrushFaceList::const_iterator it, end;
-            for (it = theirFaces.begin(), end = theirFaces.end(); it != end; ++it) {
+            for (it = std::begin(theirFaces), end = std::end(theirFaces); it != end; ++it) {
                 const BrushFace* theirFace = *it;
                 addFace(theirFace->clone());
             }
@@ -1174,7 +1174,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* brushFace = *it;
                 brushFace->findIntegerPlanePoints();
             }
@@ -1183,7 +1183,7 @@ namespace TrenchBroom {
 
         bool Brush::checkGeometry() const {
             BrushFaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(m_faces), fEnd = std::end(m_faces); fIt != fEnd; ++fIt) {
                 const BrushFace* face = *fIt;
                 if (face->geometry() == NULL)
                     return false;
@@ -1193,7 +1193,7 @@ namespace TrenchBroom {
             
             const BrushGeometry::FaceList& faceGeometries = m_geometry->faces();
             BrushGeometry::FaceList::const_iterator gIt, gEnd;
-            for (gIt = faceGeometries.begin(), gEnd = faceGeometries.end(); gIt != gEnd; ++gIt) {
+            for (gIt = std::begin(faceGeometries), gEnd = std::end(faceGeometries); gIt != gEnd; ++gIt) {
                 const BrushFaceGeometry* geometry = *gIt;
                 if (geometry->payload() == NULL)
                     return false;
@@ -1258,7 +1258,7 @@ namespace TrenchBroom {
             faceClones.reserve(m_faces.size());
             
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 const BrushFace* face = *it;
                 faceClones.push_back(face->clone());
             }
@@ -1329,7 +1329,7 @@ namespace TrenchBroom {
                 return BrushFaceHit();
             
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* face = *it;
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math::isnan(distance))
@@ -1360,7 +1360,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
 
             BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
                 BrushFace* face = *it;
                 face->transform(transformation, lockTextures);
             }

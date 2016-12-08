@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             Model::EntityAttributes attributes;
             EL::MapType::const_iterator it, end;
-            for (it = entityPropertiesMap.begin(), end = entityPropertiesMap.end(); it != end; ++it) {
+            for (it = std::begin(entityPropertiesMap), end = std::end(entityPropertiesMap); it != end; ++it) {
                 const String& key = it->first;
                 const EL::Value& value = it->second;
                 attributes.addOrUpdateAttribute(key, value.convertTo(EL::Type_String).stringValue(), NULL);

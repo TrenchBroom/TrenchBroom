@@ -241,7 +241,7 @@ namespace TrenchBroom {
             const Model::EditorContext& editorContext = document->editorContext();
             
             const bool forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-            const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(hits.begin(), hits.end(), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
+            const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(std::begin(hits), std::end(hits), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
             
             Model::Node* selectedNode = nodePair.first;
             Model::Node* nextNode = nodePair.second;

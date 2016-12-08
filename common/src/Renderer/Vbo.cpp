@@ -86,12 +86,12 @@ namespace TrenchBroom {
             }
 
             VboBlockList::iterator it = findFreeBlock(capacity);
-            if (it == m_freeBlocks.end()) {
+            if (it == std::end(m_freeBlocks)) {
                 increaseCapacityToAccomodate(capacity);
                 it = findFreeBlock(capacity);
             }
             
-            assert(it != m_freeBlocks.end());
+            assert(it != std::end(m_freeBlocks));
             VboBlock* block = *it;
             ensure(block != NULL, "block is null");
             removeFreeBlock(it);
@@ -243,12 +243,12 @@ namespace TrenchBroom {
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
             VboBlock query(*this, 0, minCapacity, NULL, NULL);
-            return std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), &query, CompareVboBlocksByCapacity());
+            return std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), &query, CompareVboBlocksByCapacity());
         }
 
         void Vbo::insertFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
-            if (it == m_freeBlocks.end())
+            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            if (it == std::end(m_freeBlocks))
                 m_freeBlocks.push_back(block);
             else
                 m_freeBlocks.insert(it, block);
@@ -257,10 +257,10 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
-            assert(it != m_freeBlocks.end());
+            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            assert(it != std::end(m_freeBlocks));
             if (*it != block) {
-                const VboBlockList::iterator end = std::upper_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
+                const VboBlockList::iterator end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
                 while (it != end && *it != block)
                     ++it;
                 assert(it != end);

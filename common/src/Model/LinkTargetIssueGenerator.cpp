@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
         void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
             Model::AttributeNameList::const_iterator it, end;
-            for (it = names.begin(), end = names.end(); it != end; ++it) {
+            for (it = std::begin(names), end = std::end(names); it != end; ++it) {
                 const Model::AttributeName& name = *it;
                 issues.push_back(new LinkTargetIssue(node, name));
             }

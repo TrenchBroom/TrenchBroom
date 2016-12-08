@@ -62,7 +62,7 @@ namespace TrenchBroom {
             m_menuBar->getShortcutEntries(entries);
             
             ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
+            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
                 ViewShortcut& shortcut = *it;
                 entries.push_back(&shortcut);
             }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             ShortcutEntryList entries;
             m_menuBar->getShortcutEntries(entries);
             ShortcutEntryList::const_iterator it, end;
-            for (it = entries.begin(), end = entries.end(); it != end; ++it) {
+            for (it = std::begin(entries), end = std::end(entries); it != end; ++it) {
                 const KeyboardShortcutEntry& entry = **it;
                 str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;;
             }
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             str << "var actions = {};" << std::endl;
             
             ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
+            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
                 ViewShortcut& entry = *it;
                 str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
             }
@@ -137,7 +137,7 @@ namespace TrenchBroom {
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
             ViewShortcut::List::const_iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
+            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
                 const ViewShortcut& shortcut = *it;
                 if (shortcut.appliesToContext(context))
                     accelerators.push_back(shortcut.acceleratorEntry(view));
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             ShortcutEntryList menuShortcuts;
             m_menuBar->getShortcutEntries(menuShortcuts);
             ShortcutEntryList::const_iterator it, end;
-            for (it = menuShortcuts.begin(), end = menuShortcuts.end(); it != end; ++it) {
+            for (it = std::begin(menuShortcuts), end = std::end(menuShortcuts); it != end; ++it) {
                 const KeyboardShortcutEntry* entry = *it;
                 if (entry->appliesToContext(context))
                     accelerators.push_back(entry->acceleratorEntry(view));
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             m_menuBar->resetShortcuts();
 
             ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
+            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
                 ViewShortcut& shortcut = *it;
                 shortcut.resetShortcut();
             }

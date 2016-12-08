@@ -35,7 +35,7 @@ namespace TrenchBroom {
         void BoundsIntersectsNodeVisitor::doVisit(const Brush* brush)   {
             const Brush::VertexList vertices = brush->vertices();
             Brush::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                 const BrushVertex* vertex = *it;
                 if (m_bounds.contains(vertex->position())) {
                     setResult(true);

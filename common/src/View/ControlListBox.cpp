@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
             const wxWindowList& children = window->GetChildren();
             wxWindowList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
+            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
                 wxWindow* child = *it;
                 setColours(child, foreground, background);
             }
@@ -257,7 +257,7 @@ namespace TrenchBroom {
 
             const wxWindowList& children = window->GetChildren();
             wxWindowList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
+            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
                 wxWindow* child = *it;
                 bindEvents(child, itemIndex);
             }

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             result.reserve(points.size());
             
             Vec3::List::const_iterator it, end;
-            for (it = points.begin(), end = points.end(); it != end; ++it) {
+            for (it = std::begin(points), end = std::end(points); it != end; ++it) {
                 const Vec3& point = *it;
                 if (containsPoint(point, plane, box))
                     result.push_back(point);

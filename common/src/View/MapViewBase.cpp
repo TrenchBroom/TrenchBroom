@@ -658,7 +658,7 @@ namespace TrenchBroom {
             size_t count = 0;
             const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
             Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+            for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
                 const Assets::EntityDefinitionGroup& group = *groupIt;
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
@@ -696,8 +696,8 @@ namespace TrenchBroom {
             assert(!brushes.empty());
             
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = brushes.begin();
-            Model::BrushList::const_iterator end = brushes.end();
+            Model::BrushList::const_iterator it = std::begin(brushes);
+            Model::BrushList::const_iterator end = std::end(brushes);
             Model::AttributableNode* entityTemplate = (*it++)->entity();
             while (it != end && entityTemplate != NULL)
                 if ((*it++)->parent() != entityTemplate)
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition->name();
             
-            const Model::NodeList nodes(brushes.begin(), brushes.end());
+            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
@@ -952,7 +952,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Assets::EntityDefinitionGroup::List& groups = document->entityDefinitionManager().groups();
             Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+            for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
                 const Assets::EntityDefinitionGroup& group = *groupIt;
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
@@ -960,7 +960,7 @@ namespace TrenchBroom {
                 filteredDefinitions.reserve(definitions.size());
                 
                 Assets::EntityDefinitionList::const_iterator dIt, dEnd;
-                for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
+                for (dIt = std::begin(definitions), dEnd = std::end(definitions); dIt != dEnd; ++dIt) {
                     Assets::EntityDefinition* definition = *dIt;
                     if (definition->name() != Model::AttributeValues::WorldspawnClassname)
                         filteredDefinitions.push_back(definition);
@@ -971,7 +971,7 @@ namespace TrenchBroom {
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
                     
-                    for (dIt = filteredDefinitions.begin(), dEnd = filteredDefinitions.end(); dIt != dEnd; ++dIt) {
+                    for (dIt = std::begin(filteredDefinitions), dEnd = std::end(filteredDefinitions); dIt != dEnd; ++dIt) {
                         const Assets::EntityDefinition* definition = *dIt;
                         groupMenu->Append(id++, definition->shortName());
                     }
@@ -1050,7 +1050,7 @@ namespace TrenchBroom {
 
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
                 const Model::Node* node = *it;
                 if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
                     return true;
@@ -1078,7 +1078,7 @@ namespace TrenchBroom {
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             Model::NodeList result;
             Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
                 Model::Node* node = *it;
                 if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
                     result.push_back(node);

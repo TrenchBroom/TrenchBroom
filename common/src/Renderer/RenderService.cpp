@@ -111,7 +111,7 @@ namespace TrenchBroom {
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {
             Vec3f::List::const_iterator it, end;
-            for (it = positions.begin(), end = positions.end(); it != end; ++it)
+            for (it = std::begin(positions), end = std::end(positions); it != end; ++it)
                 renderPointHandle(*it);
         }
         

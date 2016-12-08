@@ -22,13 +22,13 @@
 namespace TrenchBroom {
     namespace Model {
         Model::NodeList collectParents(const Model::NodeList& nodes) {
-            return collectParents(nodes.begin(), nodes.end());
+            return collectParents(std::begin(nodes), std::end(nodes));
         }
         
         Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) {
             Model::CollectUniqueNodesVisitor visitor;
             Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
                 Model::Node* parent = it->first;
                 parent->acceptAndEscalate(visitor);
             }
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) {
             Model::NodeList result;
             Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
                 const Model::NodeList& children = it->second;
                 VectorUtils::append(result, children);
             }
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Model::ParentChildrenMap result;
             
             Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
                 Model::Node* node = *it;
                 Model::Node* parent = node->parent();
                 ensure(parent != NULL, "parent is null");

@@ -110,7 +110,7 @@ namespace TrenchBroom {
             Vec2f distance = Vec2f::Max;
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                 const Model::BrushVertex* vertex = *it;
                 const Vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
                 distance = absMin(distance, temp);

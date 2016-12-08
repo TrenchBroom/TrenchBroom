@@ -61,7 +61,7 @@ namespace TrenchBroom {
         
         Value VariableTable::doGetValue(const String& name) const {
             Table::const_iterator it = m_variables.find(name);
-            if (it != m_variables.end())
+            if (it != std::end(m_variables))
                 return it->second;
             return Value::Undefined;
         }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         
         void VariableTable::doAssign(const String& name, const Value& value) {
             Table::iterator it = m_variables.find(name);
-            if (it == m_variables.end())
+            if (it == std::end(m_variables))
                 throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
             it->second = value;
         }

@@ -119,7 +119,7 @@ namespace TrenchBroom {
                                              std::vector<Vec2> *vertTexCoords) {
             BrushFace::VertexList::const_iterator it;
             BrushFace::VertexList verts = face->vertices();
-            for (it = verts.begin(); it != verts.end(); ++it) {
+            for (it = std::begin(verts); it != std::end(verts); ++it) {
                 vertPositions->push_back(it->position());
                 if (vertTexCoords != NULL) {
                     vertTexCoords->push_back(face->textureCoords(it->position()));

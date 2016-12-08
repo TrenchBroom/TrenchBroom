@@ -52,7 +52,7 @@ namespace TrenchBroom {
                     
                     const Model::Hit::List matches = pickResult.query().type(any).all();
                     Model::Hit::List::const_iterator hIt, hEnd;
-                    for (hIt = matches.begin(), hEnd = matches.end(); hIt != hEnd; ++hIt) {
+                    for (hIt = std::begin(matches), hEnd = std::end(matches); hIt != hEnd; ++hIt) {
                         const Model::Hit& hit = *hIt;
                         const Vec3 hitPosition = hit.target<Vec3>();
                         

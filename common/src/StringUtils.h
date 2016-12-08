@@ -86,14 +86,14 @@ namespace StringUtils {
         bool operator()(const String& lhs, const String& rhs) const {
             if (lhs.size() != rhs.size())
                 return false;
-            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), CharEqual<Cmp>());
+            return std::equal(std::begin(lhs), std::end(lhs), std::begin(rhs), CharEqual<Cmp>());
         }
     };
     
     template <typename Cmp>
     struct StringLess {
         bool operator()(const String& lhs, const String& rhs) const {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), CharLess<Cmp>());
+            return std::lexicographical_compare(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), CharLess<Cmp>());
         }
     };
     
@@ -352,7 +352,7 @@ namespace StringUtils {
     
     template <typename T, typename D1, typename D2, typename D3, typename S>
     String join(const std::vector<T>& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
-        return join(objs.begin(), objs.end(), delim, lastDelim, delimForTwo, toString);
+        return join(std::begin(objs), std::end(objs), delim, lastDelim, delimForTwo, toString);
     }
     
     template <typename T, typename D, typename S>

@@ -124,14 +124,14 @@ namespace TrenchBroom {
             if (m_group) {
                 const Assets::TextureCollectionList collections = getCollections();
                 Assets::TextureCollectionList::const_iterator cIt, cEnd;
-                for (cIt = collections.begin(), cEnd = collections.end(); cIt != cEnd; ++cIt) {
+                for (cIt = std::begin(collections), cEnd = std::end(collections); cIt != cEnd; ++cIt) {
                     const Assets::TextureCollection* collection = *cIt;
                     const Assets::TextureList textures = getTextures(collection);
                     
                     layout.addGroup(collection->name(), fontSize + 2.0f);
                     
                     Assets::TextureList::const_iterator tIt, tEnd;
-                    for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
+                    for (tIt = std::begin(textures), tEnd = std::end(textures); tIt != tEnd; ++tIt) {
                         Assets::Texture* texture = *tIt;
                         addTextureToLayout(layout, texture, font);
                     }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             } else {
                 const Assets::TextureList textures = getTextures();
                 Assets::TextureList::const_iterator it, end;
-                for (it = textures.begin(), end = textures.end(); it != end; ++it) {
+                for (it = std::begin(textures), end = std::end(textures); it != end; ++it) {
                     Assets::Texture* texture = *it;
                     addTextureToLayout(layout, texture, font);
                 }
@@ -396,7 +396,7 @@ namespace TrenchBroom {
             { // create and upload all vertex arrays
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 StringMap::const_iterator it, end;
-                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
+                for (it = std::begin(stringVertices), end = std::end(stringVertices); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const TextVertex::List& vertices = it->second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
@@ -408,7 +408,7 @@ namespace TrenchBroom {
             shader.set("Texture", 0);
             
             StringRendererMap::iterator it, end;
-            for (it = stringRenderers.begin(), end = stringRenderers.end(); it != end; ++it) {
+            for (it = std::begin(stringRenderers), end = std::end(stringRenderers); it != end; ++it) {
                 const Renderer::FontDescriptor& descriptor = it->first;
                 Renderer::VertexArray& vertexArray = it->second;
                 
@@ -438,7 +438,7 @@ namespace TrenchBroom {
                         const Vec2f::List quads = font.quads(title, false, offset);
                         const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         TextVertex::List& vertices = stringVertices[defaultDescriptor];
-                        vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                        vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
                     
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -453,7 +453,7 @@ namespace TrenchBroom {
                                 const Vec2f::List quads = font.quads(cell.item().texture->name(), false, offset);
                                 const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 TextVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
-                                vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                                vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                             }
                         }
                     }

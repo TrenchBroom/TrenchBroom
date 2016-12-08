@@ -70,7 +70,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
     size_t inside = 0;
     
     typename VertexList::const_iterator it, end;
-    for (it = m_vertices.begin(), end = m_vertices.end(); it != end; ++it) {
+    for (it = std::begin(m_vertices), end = std::end(m_vertices); it != end; ++it) {
         const Vertex* vertex = *it;
         const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
         switch (status) {

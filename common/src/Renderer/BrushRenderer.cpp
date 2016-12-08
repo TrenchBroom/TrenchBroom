@@ -109,7 +109,7 @@ namespace TrenchBroom {
         void BrushRenderer::NoFilter::doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
             const Model::BrushFaceList& faces = brush->faces();
             Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 const Model::BrushFace* face = *it;
                 faceAcceptor.accept(face);
             }
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
             const Model::Brush::EdgeList& edges = brush->edges();
             Model::Brush::EdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
                 edgeAcceptor.accept(edge);
             }
@@ -453,10 +453,10 @@ namespace TrenchBroom {
         void BrushRenderer::validateVertices() {
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountVertices countVertices(wrapper);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countVertices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countVertices);
             
             CollectVertices collectVertices(wrapper, countVertices.vertexCount());
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectVertices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectVertices);
             
             m_vertexArray = collectVertices.vertexArray();
         }
@@ -464,10 +464,10 @@ namespace TrenchBroom {
         void BrushRenderer::validateIndices() {
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountIndices countIndices(wrapper);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countIndices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countIndices);
             
             CollectIndices collectIndices(wrapper, countIndices);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectIndices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectIndices);
             
             const IndexArray opaqueIndices = IndexArray::swap(collectIndices.opaqueFaceIndices().indices());
             const TexturedIndexArrayMap& opaqueRanges = collectIndices.opaqueFaceIndices().ranges();

@@ -126,7 +126,7 @@ namespace TrenchBroom {
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
                 Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
+                for (it = std::begin(m_groups), end = std::end(m_groups); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {
                         const GroupNameAnchor anchor(group);
@@ -177,7 +177,7 @@ namespace TrenchBroom {
                 
                 BuildBoundsVertices boundsBuilder(vertices);
                 Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
+                for (it = std::begin(m_groups), end = std::end(m_groups); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {
                         eachBBoxEdge(group->bounds(), boundsBuilder);
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
                 
                 Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
+                for (it = std::begin(m_groups), end = std::end(m_groups); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));

@@ -277,7 +277,7 @@ namespace TrenchBroom {
             edgeVertices.reserve(faceVertices.size());
             
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
+            for (it = std::begin(faceVertices), end = std::end(faceVertices); it != end; ++it)
                 edgeVertices.push_back(Vertex((*it)->position()));
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference

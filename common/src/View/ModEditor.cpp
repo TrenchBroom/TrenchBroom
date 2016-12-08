@@ -98,13 +98,13 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             StringList mods = document->mods();
-            std::sort(selections.begin(), selections.end());
+            std::sort(std::begin(selections), std::end(selections));
             
             wxArrayInt::const_reverse_iterator it, end;
             for (it = selections.rbegin(), end = selections.rend(); it != end; ++it) {
                 const size_t index = static_cast<size_t>(*it);
                 const String mod = mods[index];
-                mods.erase(mods.begin() + *it);
+                mods.erase(std::begin(mods) + *it);
             }
 
             document->setMods(mods);

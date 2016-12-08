@@ -196,7 +196,7 @@ namespace TrenchBroom {
             std::vector<Ray3> edgeRays;
             
             Model::Brush::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
+            for (eIt = std::begin(brushEdges), eEnd = std::end(brushEdges); eIt != eEnd; ++eIt) {
                 const Model::BrushEdge* edge = *eIt;
                 size_t c = 0;
                 bool originAtStart = true;
@@ -205,7 +205,7 @@ namespace TrenchBroom {
                 bool endFound = false;
                 
                 Model::BrushFace::VertexList::const_iterator fIt, fEnd;
-                for (fIt = faceVertices.begin(), fEnd = faceVertices.end(); fIt != fEnd; ++fIt) {
+                for (fIt = std::begin(faceVertices), fEnd = std::end(faceVertices); fIt != fEnd; ++fIt) {
                     const Model::BrushVertex* vertex = *fIt;
                     startFound |= (vertex->position() == edge->firstVertex()->position());
                     endFound |= (vertex->position() == edge->secondVertex()->position());

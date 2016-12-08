@@ -66,9 +66,9 @@ namespace TrenchBroom {
             if (event.GetActive()) {
                 MapFrame* frame = static_cast<MapFrame*>(event.GetEventObject());
 
-                FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
-                assert(it != m_frames.end());
-                if (it != m_frames.begin()) {
+                FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
+                assert(it != std::end(m_frames));
+                if (it != std::begin(m_frames)) {
                     assert(topFrame() != frame);
                     m_frames.erase(it);
                     m_frames.push_front(frame);
@@ -118,8 +118,8 @@ namespace TrenchBroom {
         }
 
         void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
-            FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
-            if (it == m_frames.end())
+            FrameList::iterator it = std::find(std::begin(m_frames), std::end(m_frames), frame);
+            if (it == std::end(m_frames))
                 // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
                 return;
 

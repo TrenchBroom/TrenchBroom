@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
         void TextureCollection::addTextures(const TextureList& textures) {
             TextureList::const_iterator it, end;
-            for (it = textures.begin(), end = textures.end(); it != end; ++it) {
+            for (it = std::begin(textures), end = std::end(textures); it != end; ++it) {
                 Texture* texture = *it;
                 addTexture(texture);
             }

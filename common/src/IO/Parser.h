@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 
                 StringList names;
                 typename TokenNameMap::const_iterator it, end;
-                for (it = m_tokenNames.begin(), end = m_tokenNames.end(); it != end; ++it) {
+                for (it = std::begin(m_tokenNames), end = std::end(m_tokenNames); it != end; ++it) {
                     const TokenType type = it->first;
                     const String& name = it->second;
                     if ((typeMask & type) != 0)

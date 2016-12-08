@@ -37,7 +37,7 @@ namespace TrenchBroom {
         void BrushSnapshot::takeSnapshot(Brush* brush) {
             const BrushFaceList& faces = brush->faces();
             BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 BrushFace* face = *it;
                 m_faces.push_back(face->clone());
             }

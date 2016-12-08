@@ -57,11 +57,11 @@ namespace TrenchBroom {
             result.min = result.max = faces.front().vertices().front().v1;
             
             FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+            for (faceIt = std::begin(faces), faceEnd = std::end(faces); faceIt != faceEnd; ++faceIt) {
                 const Face& face = *faceIt;
                 const Face::VertexList& vertices = face.vertices();
                 Face::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt)
+                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt)
                     result.mergeWith(vIt->v1);
             }
             
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             size_t vertexCount = 0;
             Renderer::TexturedIndexRangeMap::Size size;
             
-            for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
+            for (it = std::begin(model.faces), end = std::end(model.faces); it != end; ++it) {
                 const Face& face = *it;
                 const size_t faceVertexCount = face.vertices().size();
                 size.inc(face.texture(), GL_POLYGON, faceVertexCount);
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             }
 
             Renderer::TexturedIndexRangeMapBuilder<Face::Vertex::Spec> builder(vertexCount, size);
-            for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
+            for (it = std::begin(model.faces), end = std::end(model.faces); it != end; ++it) {
                 const Face& face = *it;
                 builder.addPolygon(face.texture(), face.vertices());
             }

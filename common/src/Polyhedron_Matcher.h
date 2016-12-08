@@ -79,12 +79,12 @@ public:
         ensure(!matchingFaces.empty(), "No matching face found");
         
         typename MatchingFaces::const_iterator it;
-        it = matchingFaces.begin();
+        it = std::begin(matchingFaces);
         
         Face* result = *it++;
         FloatType bestDot = rightFace->normal().dot(result->normal());
         
-        while (it != matchingFaces.end()) {
+        while (it != std::end(matchingFaces)) {
             Face* currentFace = *it;
             const FloatType dot = rightFace->normal().dot(currentFace->normal());
             if (dot < bestDot) {
@@ -158,7 +158,7 @@ private:
     }
     
     static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::List& vertices, const V& delta) {
-        return buildVertexRelation(left, right, typename V::Set(vertices.begin(), vertices.end()), delta);
+        return buildVertexRelation(left, right, typename V::Set(std::begin(vertices), std::end(vertices)), delta);
     }
     
     static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Set& vertices, const V& delta) {
@@ -186,7 +186,7 @@ private:
         
         typedef typename V::Map::const_iterator MapIter;
         MapIter it, end;
-        for (it = vertexMap.begin(), end = vertexMap.end(); it != end; ++it) {
+        for (it = std::begin(vertexMap), end = std::end(vertexMap); it != end; ++it) {
             const V& leftPosition = it->first;
             const V& rightPosition = it->second;
             
@@ -216,7 +216,7 @@ private:
         do {
             previousSize = result.size();
             typename VertexSet::const_iterator it, end;
-            for (it = addedVertices.begin(), end = addedVertices.end(); it != end; ++it) {
+            for (it = std::begin(addedVertices), end = std::end(addedVertices); it != end; ++it) {
                 Vertex* addedVertex = *it;
                 
                 // consider all adjacent vertices
@@ -241,7 +241,7 @@ private:
         do {
             previousSize = result.size();
             typename VertexSet::const_iterator it, end;
-            for (it = removedVertices.begin(), end = removedVertices.end(); it != end; ++it) {
+            for (it = std::begin(removedVertices), end = std::end(removedVertices); it != end; ++it) {
                 Vertex* removedVertex = *it;
                 
                 // consider all adjacent vertices

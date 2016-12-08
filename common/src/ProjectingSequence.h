@@ -95,11 +95,11 @@ public:
     }
     
     iterator begin() {
-        return iterator(m_container.begin());
+        return iterator(std::begin(m_container));
     }
     
     iterator end() {
-        return iterator(m_container.end());
+        return iterator(std::end(m_container));
     }
 
     const_iterator begin() const {
@@ -129,11 +129,11 @@ public:
     }
     
     const_iterator begin() const {
-        return const_iterator(m_container.begin());
+        return const_iterator(std::begin(m_container));
     }
     
     const_iterator end() const {
-        return const_iterator(m_container.end());
+        return const_iterator(std::end(m_container));
     }
 };
 

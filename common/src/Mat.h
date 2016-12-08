@@ -201,7 +201,7 @@ public:
         result.reserve(right.size());
         
         typename Vec<T,C>::List::const_iterator it, end;
-        for (it = right.begin(), end = right.end(); it != end; ++it)
+        for (it = std::begin(right), end = std::end(right); it != end; ++it)
             result.push_back(*this * *it);
         return result;
     }
@@ -211,7 +211,7 @@ public:
         result.reserve(right.size());
         
         typename Vec<T,C-1>::List::const_iterator it, end;
-        for (it = right.begin(), end = right.end(); it != end; ++it)
+        for (it = std::begin(right), end = std::end(right); it != end; ++it)
             result.push_back(*this * *it);
         return result;
     }
@@ -293,7 +293,7 @@ const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, con
     result.reserve(left.size());
     
     typename Vec<T,R>::List::const_iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
+    for (it = std::begin(left), end = std::end(left); it != end; ++it)
         result.push_back(*it * right);
     return result;
 }
@@ -301,7 +301,7 @@ const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, con
 template <typename T, size_t R, size_t C>
 const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R>::List::iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
+    for (it = std::begin(left), end = std::end(left); it != end; ++it)
         *it *= right;
     return left;
 }
@@ -324,7 +324,7 @@ const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left,
     result.reserve(left.size());
     
     typename Vec<T,R-1>::List::const_iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
+    for (it = std::begin(left), end = std::end(left); it != end; ++it)
         result.push_back(*it * right);
     return result;
 }
@@ -332,7 +332,7 @@ const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left,
 template <typename T, size_t R, size_t C>
 typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R-1>::List::iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
+    for (it = std::begin(left), end = std::end(left); it != end; ++it)
         *it *= right;
     return left;
 }

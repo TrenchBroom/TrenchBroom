@@ -198,7 +198,7 @@ namespace TrenchBroom {
             tallBrushes.reserve(selectionBrushes.size());
             
             Model::BrushList::const_iterator sIt, sEnd;
-            for (sIt = selectionBrushes.begin(), sEnd = selectionBrushes.end(); sIt != sEnd; ++sIt) {
+            for (sIt = std::begin(selectionBrushes), sEnd = std::end(selectionBrushes); sIt != sEnd; ++sIt) {
                 const Model::Brush* selectionBrush = *sIt;
                 const Model::Brush::VertexList& vertices = selectionBrush->vertices();
 
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                 tallVertices.reserve(2 * vertices.size());
                 
                 Model::Brush::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
                     const Model::BrushVertex* vertex = *vIt;
                     tallVertices.push_back(minPlane.projectPoint(vertex->position()));
                     tallVertices.push_back(maxPlane.projectPoint(vertex->position()));
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(tallBrushes.begin(), tallBrushes.end(), document->editorContext());
+            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 

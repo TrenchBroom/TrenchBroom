@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             const StringSet variables = m_variables->names();
             StringSet::const_iterator it, end;
-            for (it = variables.begin(), end = variables.end(); it != end; ++it) {
+            for (it = std::begin(variables), end = std::end(variables); it != end; ++it) {
                 const String& variableName = *it;
                 const String variableValue = m_variables->value(variableName).describe();
                 result.Add(variableName, variableValue);
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             const wxString prefix = str.Mid(startIndex, count);
             const StringSet variables = m_variableTable.declaredVariables(prefix.ToStdString(), false);
             StringSet::const_iterator it, end;
-            for (it = variables.begin(), end = variables.end(); it != end; ++it) {
+            for (it = std::begin(variables), end = std::end(variables); it != end; ++it) {
                 const String& variableName = *it;
                 const String variableStr = m_variableTable.buildVariableString(variableName);
                 const String& variableValue = m_variableTable.value(variableName);

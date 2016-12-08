@@ -86,7 +86,7 @@ namespace TrenchBroom {
         void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             const EntityAttribute::List& attributes = node->attributes();
             EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+            for (it = std::begin(attributes), end = std::end(attributes); it != end; ++it) {
                 const EntityAttribute& attribute = *it;
                 const AttributeName& attributeName = attribute.name();
                 if (attributeName.size() >= m_maxLength)

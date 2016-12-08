@@ -119,7 +119,7 @@ void Polyhedron<T,FP,VP>::Face::printBoundary() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
-    const HalfEdge* edge = *m_boundary.begin();
+    const HalfEdge* edge = *std::begin(m_boundary);
     return edge->origin()->position();
 }
 
@@ -177,7 +177,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
-    return V::center(m_boundary.begin(), m_boundary.end(), GetVertexPosition());
+    return V::center(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
 }
 
 template <typename T, typename FP, typename VP>
@@ -195,7 +195,7 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::S
         }
     }
     
-    return intersectPolygonWithRay(ray, plane, m_boundary.begin(), m_boundary.end(), GetVertexPosition());
+    return intersectPolygonWithRay(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
 }
 
 template <typename T, typename FP, typename VP>

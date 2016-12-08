@@ -315,7 +315,7 @@ namespace TrenchBroom {
             
             try {
                 Md2SkinList::const_iterator it, end;
-                for (it = skins.begin(), end = skins.end(); it != end; ++it) {
+                for (it = std::begin(skins), end = std::end(skins); it != end; ++it) {
                     const Md2Skin& skin = *it;
                     Assets::Texture* texture = readTexture(skin);
                     textures.push_back(texture);
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             modelFrames.reserve(frames.size());
             
             Md2FrameList::const_iterator it, end;
-            for (it = frames.begin(), end = frames.end(); it != end; ++it) {
+            for (it = std::begin(frames), end = std::end(frames); it != end; ++it) {
                 const Md2Frame& frame = *it;
                 Assets::Md2Model::Frame* modelFrame = buildFrame(frame, meshes);
                 modelFrames.push_back(modelFrame);
@@ -359,7 +359,7 @@ namespace TrenchBroom {
 
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
+            for (mIt = std::begin(meshes), mEnd = std::end(meshes); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan)
@@ -369,7 +369,7 @@ namespace TrenchBroom {
             }
 
             Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
+            for (mIt = std::begin(meshes), mEnd = std::end(meshes); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
                 if (md2Mesh.vertices.size() > 0) {
                     vertexCount += md2Mesh.vertices.size();
@@ -390,7 +390,7 @@ namespace TrenchBroom {
             result.reserve(meshVertices.size());
             
             Md2MeshVertexList::const_iterator it, end;
-            for (it = meshVertices.begin(), end = meshVertices.end(); it != end; ++it) {
+            for (it = std::begin(meshVertices), end = std::end(meshVertices); it != end; ++it) {
                 const Md2MeshVertex& md2MeshVertex = *it;
                 
                 const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);

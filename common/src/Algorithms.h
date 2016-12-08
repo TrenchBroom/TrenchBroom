@@ -249,7 +249,7 @@ private:
         std::sort(std::begin(m_points) + 1, std::end(m_points), LessThanByAngle(anchor));
         
         // now remove the duplicates
-        auto i = m_points.begin() + 1;
+        auto i = std::begin(m_points) + 1;
         while (i != std::end(m_points)) {
             const Vec<T,3>& p1 = *(i++);
             while (i != std::end(m_points)) {

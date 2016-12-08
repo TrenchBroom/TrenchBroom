@@ -163,8 +163,8 @@ public:
             if (lhs.size() > rhs.size())
                 return 1;
             
-            typename Set::const_iterator lIt = lhs.begin();
-            typename Set::const_iterator rIt = rhs.begin();
+            typename Set::const_iterator lIt = std::begin(lhs);
+            typename Set::const_iterator rIt = std::begin(rhs);
             for (size_t i = 0; i < lhs.size(); ++i) {
                 const Vec& lPos = *lIt++;
                 const Vec& rPos = *rIt++;
@@ -750,10 +750,10 @@ public:
         std::vector<size_t> heap;
         for (size_t i = 0; i < S; ++i) {
             heap.push_back(i);
-            std::push_heap(heap.begin(), heap.end(), cmp);
+            std::push_heap(std::begin(heap), std::end(heap), cmp);
         }
         
-        std::sort_heap(heap.begin(), heap.end(), cmp);
+        std::sort_heap(std::begin(heap), std::end(heap), cmp);
         return heap[S - k - 1];
     }
 

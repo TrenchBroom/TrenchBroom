@@ -45,7 +45,7 @@ namespace TrenchBroom {
         
         bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
             CommandList::iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 m_commandDoNotifier(command);
                 if (!command->performDo(document))
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         
         bool CommandGroup::doIsRepeatDelimiter() const {
             CommandList::const_iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (command->isRepeatDelimiter())
                     return true;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
         
         bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
             CommandList::const_iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (!command->isRepeatable(document))
                     return false;
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         UndoableCommand::Ptr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
             CommandList clones;
             CommandList::const_iterator it, end;
-            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 assert(command->isRepeatable(document));
                 UndoableCommand::Ptr clone = command->repeat(document);
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         bool CommandProcessor::repeatLastCommands() {
             CommandList commands;
             CommandStack::iterator it, end;
-            for (it = m_repeatableCommandStack.begin(), end = m_repeatableCommandStack.end(); it != end; ++it) {
+            for (it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (command->isRepeatable(m_document))
                     commands.push_back(UndoableCommand::Ptr(command->repeat(m_document)));

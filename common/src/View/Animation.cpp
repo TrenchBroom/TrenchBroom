@@ -75,7 +75,7 @@ namespace TrenchBroom {
         
         void ExecutableAnimation::execute() {
             Animation::List::const_iterator it, end;
-            for (it = m_animations.begin(), end = m_animations.end(); it != end; ++it) {
+            for (it = std::begin(m_animations), end = std::end(m_animations); it != end; ++it) {
                 Animation& animation = **it;
                 animation.update();
             }
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                             if (animation->step(elapsed))
                                 listIt = list.erase(listIt);
                             updateAnimations.push_back(animation);
-                            if (listIt != list.end())
+                            if (listIt != std::end(list))
                                 ++listIt;
                         }
                         

@@ -277,7 +277,7 @@ namespace TrenchBroom {
             Vec3::List result;
             const Model::BrushFaceList incidentFaces = selectIncidentFaces(face, hitPoint);
             Model::BrushFaceList::const_iterator it, end;
-            for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
+            for (it = std::begin(incidentFaces), end = std::end(incidentFaces); it != end; ++it) {
                 const Model::BrushFace* incidentFace = *it;
                 const Vec3& normal = incidentFace->boundary().normal;
                 result.push_back(normal.firstAxis());
@@ -289,7 +289,7 @@ namespace TrenchBroom {
         Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) {
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator vIt, vEnd;
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+            for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
                 if (vertex->position().equals(hitPoint)) {
                     const Model::Brush* brush = face->brush();
@@ -299,7 +299,7 @@ namespace TrenchBroom {
             
             const Model::BrushFace::EdgeList edges = face->edges();
             Model::BrushFace::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+            for (eIt = std::begin(edges), eEnd = std::end(edges); eIt != eEnd; ++eIt) {
                 Model::BrushEdge* edge = *eIt;
                 if (edge->contains(hitPoint)) {
                     Model::BrushFaceList result;

@@ -61,12 +61,12 @@ namespace TrenchBroom {
             modifierSet.insert(key3);
             
             key1 = key2 = key3 = WXK_NONE;
-            ModifierSet::iterator it = modifierSet.begin();
-            if (it != modifierSet.end()) {
+            ModifierSet::iterator it = std::begin(modifierSet);
+            if (it != std::end(modifierSet)) {
                 key1 = *it++;
-                if (it != modifierSet.end()) {
+                if (it != std::end(modifierSet)) {
                     key2 = *it++;
-                    if (it != modifierSet.end()) {
+                    if (it != std::end(modifierSet)) {
                         key3 = *it++;
                     }
                 }

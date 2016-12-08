@@ -58,7 +58,7 @@ namespace TrenchBroom {
             
             const StringSet mandatoryKeys = mandatory.keys();
             StringSet::const_iterator keyIt, keyEnd;
-            for (keyIt = mandatoryKeys.begin(), keyEnd = mandatoryKeys.end(); keyIt != keyEnd; ++keyIt) {
+            for (keyIt = std::begin(mandatoryKeys), keyEnd = std::end(mandatoryKeys); keyIt != keyEnd; ++keyIt) {
                 const String& key = *keyIt;
                 const String& typeName = mandatory[key].stringValue();
                 const EL::ValueType type = EL::typeForName(typeName);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             }
             
             const StringSet mapKeys = value.keys();
-            for (keyIt = mapKeys.begin(), keyEnd = mapKeys.end(); keyIt != keyEnd; ++keyIt) {
+            for (keyIt = std::begin(mapKeys), keyEnd = std::end(mapKeys); keyIt != keyEnd; ++keyIt) {
                 const String& key = *keyIt;
                 if (!mandatory.contains(key) && !optional.contains(key))
                     throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         void ConfigParserBase::expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const {
             const EL::MapType& map = value.mapValue();
             const EL::MapType::const_iterator it = map.find(key);
-            if (it == map.end())
+            if (it == std::end(map))
                 throw ParserException(value.line(), value.column(), "Expected map entry '" + key + "'");
             expectType(it->second, type);
         }

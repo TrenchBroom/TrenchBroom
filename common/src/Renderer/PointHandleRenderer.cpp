@@ -77,12 +77,12 @@ namespace TrenchBroom {
             HandleMap::const_iterator hIt, hEnd;
             Vec3f::List::const_iterator pIt, pEnd;
             
-            for (hIt = map.begin(), hEnd = map.end(); hIt != hEnd; ++hIt) {
+            for (hIt = std::begin(map), hEnd = std::end(map); hIt != hEnd; ++hIt) {
                 const Color& color = hIt->first;
                 shader.set("Color", color);
                 
                 const Vec3f::List& positions = hIt->second;
-                for (pIt = positions.begin(), pEnd = positions.end(); pIt != pEnd; ++pIt) {
+                for (pIt = std::begin(positions), pEnd = std::end(positions); pIt != pEnd; ++pIt) {
                     const Vec3f& position = *pIt;
                     const Vec3f offset = camera.project(position);
                     MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));

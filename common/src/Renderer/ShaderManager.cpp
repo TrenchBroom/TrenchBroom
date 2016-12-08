@@ -34,7 +34,7 @@ namespace TrenchBroom {
         
         ShaderProgram& ShaderManager::program(const ShaderConfig& config) {
             ShaderProgramCache::iterator it = m_programs.find(&config);
-            if (it != m_programs.end())
+            if (it != std::end(m_programs))
                 return *it->second;
             
             ShaderProgram* program = createProgram(config);
@@ -49,13 +49,13 @@ namespace TrenchBroom {
                 const StringList& fragmentShaders = config.fragmentShaders();
                 StringList::const_iterator stringIt, stringEnd;
                 
-                for (stringIt = vertexShaders.begin(), stringEnd = vertexShaders.end(); stringIt != stringEnd; ++stringIt) {
+                for (stringIt = std::begin(vertexShaders), stringEnd = std::end(vertexShaders); stringIt != stringEnd; ++stringIt) {
                     const String& path = *stringIt;
                     Shader& shader = loadShader(path, GL_VERTEX_SHADER);
                     program->attach(shader);
                 }
                 
-                for (stringIt = fragmentShaders.begin(), stringEnd = fragmentShaders.end(); stringIt != stringEnd; ++stringIt) {
+                for (stringIt = std::begin(fragmentShaders), stringEnd = std::end(fragmentShaders); stringIt != stringEnd; ++stringIt) {
                     const String& path = *stringIt;
                     Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
                     program->attach(shader);
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         Shader& ShaderManager::loadShader(const String& name, const GLenum type) {
             ShaderCache::iterator it = m_shaders.find(name);
-            if (it != m_shaders.end())
+            if (it != std::end(m_shaders))
                 return *it->second;
             
             const IO::Path resourceDirectory = IO::SystemPaths::resourceDirectory();

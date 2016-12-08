@@ -341,7 +341,7 @@ namespace TrenchBroom {
                     str << " ";
                 MapType::const_iterator it, end;
                 size_t i = 0;
-                for (it = m_value.begin(), end = m_value.end(); it != end; ++it) {
+                for (it = std::begin(m_value), end = std::end(m_value); it != end; ++it) {
                     str << childIndent << "\"" << it->first << "\"" << ": ";
                     it->second.appendToStream(str, multiline, childIndent);
                     if (i++ < m_value.size() - 1) {
@@ -582,7 +582,7 @@ namespace TrenchBroom {
             result.reserve(array.size());
             
             ArrayType::const_iterator it, end;
-            for (it = array.begin(), end = array.end(); it != end; ++it) {
+            for (it = std::begin(array), end = std::end(array); it != end; ++it) {
                 const Value& entry = *it;
                 result.push_back(entry.convertTo(Type_String).stringValue());
             }
@@ -595,7 +595,7 @@ namespace TrenchBroom {
             StringSet result;
             
             ArrayType::const_iterator it, end;
-            for (it = array.begin(), end = array.end(); it != end; ++it) {
+            for (it = std::begin(array), end = std::end(array); it != end; ++it) {
                 const Value& entry = *it;
                 result.insert(entry.convertTo(Type_String).stringValue());
             }
@@ -691,7 +691,7 @@ namespace TrenchBroom {
                             const MapType& map = mapValue();
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
-                            return it != map.end();
+                            return it != std::end(map);
                         }
                         case Type_Array: {
                             const MapType& map = mapValue();
@@ -702,7 +702,7 @@ namespace TrenchBroom {
                                     throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
-                                if (it == map.end())
+                                if (it == std::end(map))
                                     return false;
                             }
                             return true;
@@ -745,7 +745,7 @@ namespace TrenchBroom {
         bool Value::contains(const String& key) const {
             const MapType& map = mapValue();
             const MapType::const_iterator it = map.find(key);
-            return it != map.end();
+            return it != std::end(map);
         }
         
         StringSet Value::keys() const {
@@ -821,7 +821,7 @@ namespace TrenchBroom {
                             const MapType& map = mapValue();
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
-                            if (it == map.end())
+                            if (it == std::end(map))
                                 return Value::Undefined;
                             return it->second;
                         }
@@ -835,7 +835,7 @@ namespace TrenchBroom {
                                     throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
-                                if (it != map.end())
+                                if (it != std::end(map))
                                     result.insert(std::make_pair(key, it->second));
                             }
                             return Value(result, m_line, m_column);
@@ -901,7 +901,7 @@ namespace TrenchBroom {
                 case Type_Map: {
                     const MapType& map = mapValue();
                     const MapType::const_iterator it = map.find(key);
-                    if (it == map.end())
+                    if (it == std::end(map))
                         return Value::Null;
                     return it->second;
                 }

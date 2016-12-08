@@ -22,7 +22,7 @@
 namespace TrenchBroom {
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder) {
         UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
-        if (it == m_unsavedPreferences.end())
+        if (it == std::end(m_unsavedPreferences))
             m_unsavedPreferences[preference] = valueHolder;
         else
             delete valueHolder;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;
-        for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+        for (it = std::begin(m_unsavedPreferences), end = std::end(m_unsavedPreferences); it != end; ++it) {
             PreferenceBase* pref = it->first;
             ValueHolderBase* value = it->second;
             
@@ -58,7 +58,7 @@ namespace TrenchBroom {
     PreferenceBase::Set PreferenceManager::discardChanges() {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;
-        for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+        for (it = std::begin(m_unsavedPreferences), end = std::end(m_unsavedPreferences); it != end; ++it) {
             PreferenceBase* pref = it->first;
             ValueHolderBase* value = it->second;
 

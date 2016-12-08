@@ -154,7 +154,7 @@ namespace TrenchBroom {
             rectVertices.reserve(collection.rectVertexCount);
             
             EntryList::const_iterator it, end;
-            for (it = collection.entries.begin(), end = collection.entries.end(); it != end; ++it) {
+            for (it = std::begin(collection.entries), end = std::end(collection.entries); it != end; ++it) {
                 const Entry& entry = *it;
                 addEntry(entry, onTop, textVertices, rectVertices);
             }

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         m_workDirSpec(workDirSpec),
         m_tasks(tasks) {
             CompilationTask::List::iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 CompilationTask* task = *it;
                 task->taskDidChange.addObserver(taskDidChange);
             }
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             clones.reserve(m_tasks.size());
             
             CompilationTask::List::const_iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 const CompilationTask* original = *it;
                 clones.push_back(original->clone());
             }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             if (index == m_tasks.size()) {
                 m_tasks.push_back(task);
             } else {
-                CompilationTask::List::iterator it = m_tasks.begin();
+                CompilationTask::List::iterator it = std::begin(m_tasks);
                 std::advance(it, static_cast<int>(index));
                 m_tasks.insert(it, task);
                 
@@ -116,10 +116,10 @@ namespace TrenchBroom {
             assert(index > 0);
             assert(index < taskCount());
             
-            CompilationTask::List::iterator it = m_tasks.begin();
+            CompilationTask::List::iterator it = std::begin(m_tasks);
             std::advance(it, static_cast<int>(index));
             
-            CompilationTask::List::iterator pr = m_tasks.begin();
+            CompilationTask::List::iterator pr = std::begin(m_tasks);
             std::advance(pr, static_cast<int>(index) - 1);
             
             std::iter_swap(it, pr);
@@ -129,10 +129,10 @@ namespace TrenchBroom {
         void CompilationProfile::moveTaskDown(const size_t index) {
             assert(index < taskCount() - 1);
             
-            CompilationTask::List::iterator it = m_tasks.begin();
+            CompilationTask::List::iterator it = std::begin(m_tasks);
             std::advance(it, static_cast<int>(index));
             
-            CompilationTask::List::iterator nx = m_tasks.begin();
+            CompilationTask::List::iterator nx = std::begin(m_tasks);
             std::advance(nx, static_cast<int>(index) + 1);
             
             std::iter_swap(it, nx);
@@ -141,7 +141,7 @@ namespace TrenchBroom {
 
         void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
             CompilationTask::List::iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 CompilationTask* task = *it;
                 task->accept(visitor);
             }
@@ -149,7 +149,7 @@ namespace TrenchBroom {
         
         void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const {
             CompilationTask::List::const_iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 CompilationTask* task = *it;
                 task->accept(visitor);
             }
@@ -157,7 +157,7 @@ namespace TrenchBroom {
         
         void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor) {
             CompilationTask::List::iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 CompilationTask* task = *it;
                 task->accept(visitor);
             }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         
         void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
             CompilationTask::List::const_iterator it, end;
-            for (it = m_tasks.begin(), end = m_tasks.end(); it != end; ++it) {
+            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
                 CompilationTask* task = *it;
                 task->accept(visitor);
             }

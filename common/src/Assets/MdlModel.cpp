@@ -76,8 +76,8 @@ namespace TrenchBroom {
             if (m_triangles.empty())
                 return BBox3f(-8.0f, 8.0f);
             
-            VertexList::const_iterator it = m_triangles.begin();
-            VertexList::const_iterator end = m_triangles.end();
+            VertexList::const_iterator it = std::begin(m_triangles);
+            VertexList::const_iterator end = std::end(m_triangles);
             
             BBox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;

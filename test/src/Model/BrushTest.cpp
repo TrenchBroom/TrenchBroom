@@ -592,8 +592,8 @@ namespace TrenchBroom {
         
         static void assertHasFace(const Brush& brush, const BrushFace& face) {
             const BrushFaceList& faces = brush.faces();
-            const BrushFaceList::const_iterator it = std::find_if(faces.begin(), faces.end(), MatchFace(face));
-            ASSERT_TRUE(it != faces.end());
+            const BrushFaceList::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
+            ASSERT_TRUE(it != std::end(faces));
         }
         
         TEST(BrushTest, clone) {
@@ -1997,7 +1997,7 @@ namespace TrenchBroom {
             Brush* top = NULL;
             Brush* right = NULL;
             BrushList::const_iterator it, end;
-            for (it = result.begin(), end = result.end(); it != end; ++it) {
+            for (it = std::begin(result), end = std::end(result); it != end; ++it) {
                 Brush* brush = *it;
                 if (brush->findFace(Vec3::PosZ) != NULL)
                     top = brush;
@@ -2191,7 +2191,7 @@ namespace TrenchBroom {
                 const Brush::VertexList vertices = brush->vertices();
                 size_t i = 0;
                 Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it, ++i) {
+                for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it, ++i) {
                     Vec3 pos = (*it)->position();
                     ASSERT_TRUE(pos.isInteger()) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
                 }
