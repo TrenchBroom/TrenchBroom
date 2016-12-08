@@ -28,8 +28,7 @@ namespace TrenchBroom {
         const Command::CommandType UpdateEntitySpawnflagCommand::Type = Command::freeType();
 
         UpdateEntitySpawnflagCommand::Ptr UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
-            Ptr command(new UpdateEntitySpawnflagCommand(name, flagIndex, setFlag));
-            return command;
+            return Ptr(new UpdateEntitySpawnflagCommand(name, flagIndex, setFlag));
         }
         
         UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
