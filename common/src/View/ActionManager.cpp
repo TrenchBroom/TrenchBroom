@@ -61,11 +61,8 @@ namespace TrenchBroom {
         void ActionManager::getShortcutEntries(ShortcutEntryList& entries) {
             m_menuBar->getShortcutEntries(entries);
             
-            ViewShortcut::List::iterator it, end;
-            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
-                ViewShortcut& shortcut = *it;
+            for (ViewShortcut& shortcut : m_viewShortcuts)
                 entries.push_back(&shortcut);
-            }
         }
 
         String ActionManager::getJSTable() {
@@ -89,11 +86,9 @@ namespace TrenchBroom {
             
             ShortcutEntryList entries;
             m_menuBar->getShortcutEntries(entries);
-            ShortcutEntryList::const_iterator it, end;
-            for (it = std::begin(entries), end = std::end(entries); it != end; ++it) {
-                const KeyboardShortcutEntry& entry = **it;
-                str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;;
-            }
+            
+            for (const KeyboardShortcutEntry* entry : entries)
+                str << "menu[\"" << entry->preferencePath().asString() << "\"] = " << entry->asJsonString() << ";" << std::endl;;
         }
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
@@ -104,11 +99,8 @@ namespace TrenchBroom {
         void ActionManager::getActionJSTable(StringStream& str) {
             str << "var actions = {};" << std::endl;
             
-            ViewShortcut::List::iterator it, end;
-            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
-                ViewShortcut& entry = *it;
+            for (ViewShortcut& entry : m_viewShortcuts)
                 str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
-            }
             
             printActionPreference(str, Preferences::CameraFlyForward);
             printActionPreference(str, Preferences::CameraFlyBackward);
@@ -136,9 +128,7 @@ namespace TrenchBroom {
         }
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            ViewShortcut::List::const_iterator it, end;
-            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
-                const ViewShortcut& shortcut = *it;
+            for (const ViewShortcut& shortcut : m_viewShortcuts) {
                 if (shortcut.appliesToContext(context))
                     accelerators.push_back(shortcut.acceleratorEntry(view));
             }
@@ -147,9 +137,8 @@ namespace TrenchBroom {
         void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
             ShortcutEntryList menuShortcuts;
             m_menuBar->getShortcutEntries(menuShortcuts);
-            ShortcutEntryList::const_iterator it, end;
-            for (it = std::begin(menuShortcuts), end = std::end(menuShortcuts); it != end; ++it) {
-                const KeyboardShortcutEntry* entry = *it;
+            
+            for (const KeyboardShortcutEntry* entry : menuShortcuts) {
                 if (entry->appliesToContext(context))
                     accelerators.push_back(entry->acceleratorEntry(view));
             }
@@ -158,11 +147,8 @@ namespace TrenchBroom {
         void ActionManager::resetShortcutsToDefaults() {
             m_menuBar->resetShortcuts();
 
-            ViewShortcut::List::iterator it, end;
-            for (it = std::begin(m_viewShortcuts), end = std::end(m_viewShortcuts); it != end; ++it) {
-                ViewShortcut& shortcut = *it;
+            for (ViewShortcut& shortcut : m_viewShortcuts)
                 shortcut.resetShortcut();
-            }
         }
 
         ActionManager::ActionManager() :

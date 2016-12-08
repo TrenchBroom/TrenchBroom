@@ -74,11 +74,8 @@ namespace TrenchBroom {
         m_animations(animations) {}
         
         void ExecutableAnimation::execute() {
-            Animation::List::const_iterator it, end;
-            for (it = std::begin(m_animations), end = std::end(m_animations); it != end; ++it) {
-                Animation& animation = **it;
-                animation.update();
-            }
+            for (Animation::Ptr animation : m_animations)
+                animation->update();
         }
         
         AnimationManager::AnimationManager() :
