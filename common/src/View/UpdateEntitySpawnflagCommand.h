@@ -37,10 +37,10 @@ namespace TrenchBroom {
             Model::AttributeName m_name;
             size_t m_flagIndex;
         public:
-            static Ptr update(const Model::AttributeName& name, size_t flagIndex, bool setFlag);
+            static Ptr update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         private:
-            UpdateEntitySpawnflagCommand(const Model::AttributeName& name, size_t flagIndex, bool setFlag);
-            static String makeName(bool setFlag);
+            UpdateEntitySpawnflagCommand(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            static String makeName(const bool setFlag);
 
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

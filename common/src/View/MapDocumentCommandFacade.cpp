@@ -489,7 +489,7 @@ namespace TrenchBroom {
             return snapshot;
         }
        
-        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performUpdateSpawnflag(const Model::AttributeName& name, size_t flagIndex, bool setFlag) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());

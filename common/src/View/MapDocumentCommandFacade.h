@@ -81,7 +81,7 @@ namespace TrenchBroom {
         public: // entity attributes
             Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
-            Model::EntityAttributeSnapshot::Map performUpdateSpawnflag(const Model::AttributeName& name, size_t flagIndex, bool setFlag);
+            Model::EntityAttributeSnapshot::Map performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
             Model::EntityAttributeSnapshot::Map performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange);
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);

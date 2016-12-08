@@ -1050,7 +1050,7 @@ namespace TrenchBroom {
             return submitAndStore(ConvertEntityColorCommand::convert(name, range));
         }
         
-        bool MapDocument::updateSpawnflag(const Model::AttributeName& name, size_t flagIndex, bool setFlag) {
+        bool MapDocument::updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
             return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
         }
         
