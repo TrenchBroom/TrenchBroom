@@ -265,7 +265,7 @@ namespace TrenchBroom {
 
             nodesWereAddedNotifier(addedNodes);
         }
-        
+
         void MapDocumentCommandFacade::performRemoveNodes(const Model::ParentChildrenMap& nodes) {
             const Model::NodeList parents = collectParents(nodes);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -435,17 +435,23 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
-            const Model::NodeList parents = collectParents(nodes);
-            
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            Model::TransformObjectVisitor visitor(transform, lockTextures, m_worldBounds);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
-            
-            invalidateSelectionBounds();
+        void
+        MapDocumentCommandFacade::performTransform(const Mat4x4 &transform,
+                                                   const bool lockTextures) {
+          const Model::NodeList &nodes = m_selectedNodes.nodes();
+          const Model::NodeList parents = collectParents(nodes);
+
+          Notifier1<const Model::NodeList &>::NotifyBeforeAndAfter
+              notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier,
+                            parents);
+          Notifier1<const Model::NodeList &>::NotifyBeforeAndAfter notifyNodes(
+              nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+          Model::TransformObjectVisitor visitor(transform, lockTextures,
+                                                m_worldBounds);
+          Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+
+          invalidateSelectionBounds();
         }
 
         Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {

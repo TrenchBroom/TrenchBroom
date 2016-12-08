@@ -101,11 +101,11 @@ namespace TrenchBroom {
                 
                 Animation::List updateAnimations;
                 if (!m_animations.empty()) {
-                    AnimationMap::iterator mapIt = m_animations.begin();
-                    while (mapIt != m_animations.end()) {
+                    auto mapIt = std::begin(m_animations);
+                    while (mapIt != std::end(m_animations)) {
                         Animation::List& list = mapIt->second;
-                        Animation::List::iterator listIt = list.begin();
-                        while (listIt != list.end()) {
+                        auto listIt = std::begin(list);
+                        while (listIt != std::end(list)) {
                             Animation::Ptr animation = *listIt;
                             if (animation->step(elapsed))
                                 listIt = list.erase(listIt);
