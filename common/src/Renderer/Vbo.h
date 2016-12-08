@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 assert(address + size <= m_totalCapacity);
                 
                 typename std::vector<T>::const_iterator it, end;
-                for (it = elements.begin(), end = elements.end(); it != end; ++it)
+                for (it = std::begin(elements), end = std::end(elements); it != end; ++it)
                     reinterpret_cast<T>(m_buffer + address) = *it;
                 return size;
             }

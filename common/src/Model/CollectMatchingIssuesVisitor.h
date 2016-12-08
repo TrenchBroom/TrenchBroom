@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void collectIssues(Node* node) {
                 const IssueList& issues = node->issues(m_issueGenerators);
                 IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
+                for (it = std::begin(issues), end = std::end(issues); it != end; ++it) {
                     Issue* issue = *it;
                     if (m_p(issue))
                         m_issues.push_back(issue);

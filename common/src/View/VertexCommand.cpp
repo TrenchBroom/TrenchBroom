@@ -44,10 +44,10 @@ namespace TrenchBroom {
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::BrushSet::const_iterator bIt, bEnd;
             
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+            for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
                 const Vec3& position = vIt->first;
                 const Model::BrushSet& vertexBrushes = vIt->second;
-                for (bIt = vertexBrushes.begin(), bEnd = vertexBrushes.end(); bIt != bEnd; ++bIt) {
+                for (bIt = std::begin(vertexBrushes), bEnd = std::end(vertexBrushes); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     BrushVerticesMapInsertResult result = brushVertices.insert(std::make_pair(brush, Vec3::List()));
                     if (result.second)
@@ -61,10 +61,10 @@ namespace TrenchBroom {
         void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
             typedef std::pair<Model::BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
             Model::VertexToEdgesMap::const_iterator vIt, vEnd;
-            for (vIt = edges.begin(), vEnd = edges.end(); vIt != vEnd; ++vIt) {
+            for (vIt = std::begin(edges), vEnd = std::end(edges); vIt != vEnd; ++vIt) {
                 const Model::BrushEdgeSet& mappedEdges = vIt->second;
                 Model::BrushEdgeSet::const_iterator eIt, eEnd;
-                for (eIt = mappedEdges.begin(), eEnd = mappedEdges.end(); eIt != eEnd; ++eIt) {
+                for (eIt = std::begin(mappedEdges), eEnd = std::end(mappedEdges); eIt != eEnd; ++eIt) {
                     Model::BrushEdge* edge = *eIt;
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
                     const Edge3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
@@ -84,10 +84,10 @@ namespace TrenchBroom {
         void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
             typedef std::pair<Model::BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
             Model::VertexToFacesMap::const_iterator vIt, vEnd;
-            for (vIt = faces.begin(), vEnd = faces.end(); vIt != vEnd; ++vIt) {
+            for (vIt = std::begin(faces), vEnd = std::end(faces); vIt != vEnd; ++vIt) {
                 const Model::BrushFaceSet& mappedFaces = vIt->second;
                 Model::BrushFaceSet::const_iterator eIt, eEnd;
-                for (eIt = mappedFaces.begin(), eEnd = mappedFaces.end(); eIt != eEnd; ++eIt) {
+                for (eIt = std::begin(mappedFaces), eEnd = std::end(mappedFaces); eIt != eEnd; ++eIt) {
                     Model::BrushFace* face = *eIt;
                     Model::Brush* brush = face->brush();
                     const Polygon3 facePosition(Vec3::asList(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         Model::BrushVerticesMap VertexCommand::brushVertexMap(const Model::BrushEdgesMap& edges) {
             Model::BrushVerticesMap result;
             Model::BrushEdgesMap::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Edge3::List& edgeList = it->second;
                 
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         Model::BrushVerticesMap VertexCommand::brushVertexMap(const Model::BrushFacesMap& faces) {
             Model::BrushVerticesMap result;
             Model::BrushFacesMap::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Polygon3::List& faceList = it->second;
                 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
 
         void VertexCommand::takeSnapshot() {
             assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(m_brushes.begin(), m_brushes.end());
+            m_snapshot = new Model::Snapshot(std::begin(m_brushes), std::end(m_brushes));
         }
         
         void VertexCommand::deleteSnapshot() {
@@ -165,11 +165,11 @@ namespace TrenchBroom {
         }
 
         void VertexCommand::removeBrushes(VertexHandleManager& manager) {
-            manager.removeBrushes(m_brushes.begin(), m_brushes.end());
+            manager.removeBrushes(std::begin(m_brushes), std::end(m_brushes));
         }
         
         void VertexCommand::addBrushes(VertexHandleManager& manager) {
-            manager.addBrushes(m_brushes.begin(), m_brushes.end());
+            manager.addBrushes(std::begin(m_brushes), std::end(m_brushes));
         }
         
         void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) {

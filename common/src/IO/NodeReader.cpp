@@ -66,7 +66,7 @@ namespace TrenchBroom {
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
             
-            m_nodes.insert(m_nodes.begin(), worldspawn);
+            m_nodes.insert(std::begin(m_nodes), worldspawn);
             return worldspawn;
         }
         

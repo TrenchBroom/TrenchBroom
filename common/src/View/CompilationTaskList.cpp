@@ -121,7 +121,7 @@ namespace TrenchBroom {
 
             void profileDidChange() {
                 AutoCompleteTextControlList::const_iterator it,end;
-                for (it = m_autoCompleteTextControls.begin(), end = m_autoCompleteTextControls.end(); it != end; ++it) {
+                for (it = std::begin(m_autoCompleteTextControls), end = std::end(m_autoCompleteTextControls); it != end; ++it) {
                     AutoCompleteTextControl* control = *it;
                     updateAutoComplete(control);
                 }

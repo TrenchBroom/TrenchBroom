@@ -382,7 +382,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Brush* brush)   {
                 const Model::Brush::VertexList vertices = brush->vertices();
                 Model::Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it)
                     addPoint((*it)->position());
             }
             
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Brush* brush)   {
                 const Model::Brush::VertexList vertices = brush->vertices();
                 Model::Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                     const Model::BrushVertex* vertex = *it;
                     for (size_t j = 0; j < 4; ++j)
                         addPoint(vertex->position(), m_frustumPlanes[j]);
@@ -448,7 +448,7 @@ namespace TrenchBroom {
 
         Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
             ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), center);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 
             const Vec3 newPosition = center.position();
             
@@ -460,7 +460,7 @@ namespace TrenchBroom {
             m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
             ComputeCameraCenterOffsetVisitor offset(m_camera.position(), m_camera.direction(), frustumPlanes);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), offset);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), offset);
             
             // jump back
             m_camera.moveTo(oldPosition);

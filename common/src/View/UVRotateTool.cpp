@@ -167,7 +167,7 @@ namespace TrenchBroom {
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Model::BrushFace::EdgeList edges = face->edges();
             Model::BrushFace::EdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
                 
                 const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();

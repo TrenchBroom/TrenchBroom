@@ -299,7 +299,7 @@ namespace TrenchBroom {
 
         void MapReader::resolveNodes(ParserStatus& status) {
             NodeParentList::const_iterator it, end;
-            for (it = m_unresolvedNodes.begin(), end = m_unresolvedNodes.end(); it != end; ++it) {
+            for (it = std::begin(m_unresolvedNodes), end = std::end(m_unresolvedNodes); it != end; ++it) {
                 Model::Node* node = it->first;
                 const ParentInfo& info = it->second;
                 Model::Node* parent = resolveParent(info);
@@ -337,7 +337,7 @@ namespace TrenchBroom {
         void MapReader::setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes) {
             ExtraAttributes::const_iterator it;
             it = extraAttributes.find("hideIssues");
-            if (it != extraAttributes.end()) {
+            if (it != std::end(extraAttributes)) {
                 const ExtraAttribute& attribute = it->second;
                 attribute.assertType(ExtraAttribute::Type_Integer);
                 // const Model::IssueType mask = attribute.intValue<Model::IssueType>();

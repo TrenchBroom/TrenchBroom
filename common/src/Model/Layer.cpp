@@ -149,7 +149,7 @@ namespace TrenchBroom {
         void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {
             const Model::NodeList candidates = m_octree.findObjects(ray);
             NodeList::const_iterator it, end;
-            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+            for (it = std::begin(candidates), end = std::end(candidates); it != end; ++it) {
                 const Node* node = *it;
                 node->pick(ray, pickResult);
             }
@@ -158,7 +158,7 @@ namespace TrenchBroom {
         void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
             const Model::NodeList candidates = m_octree.findObjects(point);
             NodeList::const_iterator it, end;
-            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+            for (it = std::begin(candidates), end = std::end(candidates); it != end; ++it) {
                 Node* node = *it;
                 node->findNodesContaining(point, result);
             }

@@ -92,7 +92,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(document(), "Set Spawnflags");
             UpdateSpawnflag visitor(document(), name(), index, set);
-            Model::Node::accept(toUpdate.begin(), toUpdate.end(), visitor);
+            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
         
         wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {
@@ -180,8 +180,8 @@ namespace TrenchBroom {
                 return;
             }
             
-            Model::AttributableNodeList::const_iterator it = attributables.begin();
-            Model::AttributableNodeList::const_iterator end = attributables.end();
+            Model::AttributableNodeList::const_iterator it = std::begin(attributables);
+            Model::AttributableNodeList::const_iterator end = std::end(attributables);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
             

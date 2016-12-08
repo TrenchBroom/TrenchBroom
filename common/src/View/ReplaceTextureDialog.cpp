@@ -85,7 +85,7 @@ namespace TrenchBroom {
             Model::BrushFaceList result;
             
             Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 if (face->texture() == subject)
                     result.push_back(face);

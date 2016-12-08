@@ -144,23 +144,23 @@ Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions) {
     Callback c;
-    addPoints(positions.begin(), positions.end(), c);
+    addPoints(std::begin(positions), std::end(positions), c);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions, Callback& callback) {
-    addPoints(positions.begin(), positions.end(), callback);
+    addPoints(std::begin(positions), std::end(positions), callback);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions) {
     Callback c;
-    addPoints(positions.begin(), positions.end(), c);
+    addPoints(std::begin(positions), std::end(positions), c);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
-    addPoints(positions.begin(), positions.end(), callback);
+    addPoints(std::begin(positions), std::end(positions), callback);
 }
 
 template <typename T, typename FP, typename VP>
@@ -320,7 +320,7 @@ public:
 private:
     void copyVertices(const VertexList& originalVertices) {
         typename VertexList::const_iterator vIt, vEnd;
-        for (vIt = originalVertices.begin(), vEnd = originalVertices.end(); vIt != vEnd; ++vIt) {
+        for (vIt = std::begin(originalVertices), vEnd = std::end(originalVertices); vIt != vEnd; ++vIt) {
             const Vertex* original = *vIt;
             Vertex* copy = new Vertex(original->position());
             assertResult(MapUtils::insertOrFail(m_vertexMap, original, copy));
@@ -330,7 +330,7 @@ private:
     
     void copyFaces(const FaceList& originalFaces) {
         typename FaceList::const_iterator fIt, fEnd;
-        for (fIt = originalFaces.begin(), fEnd = originalFaces.end(); fIt != fEnd; ++fIt) {
+        for (fIt = std::begin(originalFaces), fEnd = std::end(originalFaces); fIt != fEnd; ++fIt) {
             const Face* originalFace = *fIt;
             copyFace(originalFace);
         }
@@ -340,7 +340,7 @@ private:
         HalfEdgeList myBoundary;
 
         typename HalfEdgeList::const_iterator hIt, hEnd;
-        for (hIt = originalFace->m_boundary.begin(), hEnd = originalFace->m_boundary.end(); hIt != hEnd; ++hIt) {
+        for (hIt = std::begin(originalFace->m_boundary), hEnd = std::end(originalFace->m_boundary); hIt != hEnd; ++hIt) {
             const HalfEdge* originalHalfEdge = *hIt;
             myBoundary.append(copyHalfEdge(originalHalfEdge), 1);
         }
@@ -360,13 +360,13 @@ private:
 
     Vertex* findVertex(const Vertex* original) {
         typename VertexMap::iterator it = m_vertexMap.find(original);
-        assert(it != m_vertexMap.end());
+        assert(it != std::end(m_vertexMap));
         return it->second;
     }
     
     void copyEdges(const EdgeList& originalEdges) {
         typename EdgeList::const_iterator eIt, eEnd;
-        for (eIt = originalEdges.begin(), eEnd = originalEdges.end(); eIt != eEnd; ++eIt) {
+        for (eIt = std::begin(originalEdges), eEnd = std::end(originalEdges); eIt != eEnd; ++eIt) {
             const Edge* originalEdge = *eIt;
             Edge* copy = copyEdge(originalEdge);
             m_edges.append(copy, 1);
@@ -441,7 +441,7 @@ bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T
     if (positions.size() != vertexCount())
         return false;
     typename V::List::const_iterator it, end;
-    for (it = positions.begin(), end = positions.end(); it != end; ++it) {
+    for (it = std::begin(positions), end = std::end(positions); it != end; ++it) {
         if (!hasVertex(*it, epsilon))
             return false;
     }
@@ -783,10 +783,10 @@ bool Polyhedron<T,FP,VP>::checkConvex() const {
         return true;
     
     typename FaceList::const_iterator fIt, fEnd;
-    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+    for (fIt = std::begin(m_faces), fEnd = std::end(m_faces); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
         typename VertexList::const_iterator vIt, vEnd;
-        for (vIt = m_vertices.begin(), vEnd = m_vertices.end(); vIt != vEnd; ++vIt) {
+        for (vIt = std::begin(m_vertices), vEnd = std::end(m_vertices); vIt != vEnd; ++vIt) {
             const Vertex* vertex = *vIt;
             if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
                 return false;
@@ -801,7 +801,7 @@ bool Polyhedron<T,FP,VP>::checkClosed() const {
         return true;
     
     typename EdgeList::const_iterator eIt, eEnd;
-    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
+    for (eIt = std::begin(m_edges), eEnd = std::end(m_edges); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
         if (!edge->fullySpecified())
             return false;
@@ -823,7 +823,7 @@ bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
         return true;
     
     typename EdgeList::const_iterator eIt, eEnd;
-    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
+    for (eIt = std::begin(m_edges), eEnd = std::end(m_edges); eIt != eEnd; ++eIt) {
         const Edge* edge = *eIt;
         const Face* firstFace = edge->firstFace();
         const Face* secondFace = edge->secondFace();
@@ -842,14 +842,14 @@ bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
         return true;
     
     typename FaceList::const_iterator fIt, fEnd;
-    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+    for (fIt = std::begin(m_faces), fEnd = std::end(m_faces); fIt != fEnd; ++fIt) {
         const Face* face = *fIt;
         if (face->vertexCount() < 3)
             return false;
         
         const HalfEdgeList& boundary = face->boundary();
         typename HalfEdgeList::const_iterator hIt, hEnd;
-        for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
+        for (hIt = std::begin(boundary), hEnd = std::end(boundary); hIt != hEnd; ++hIt) {
             const HalfEdge* halfEdge = *hIt;
             const Edge* edge = halfEdge->edge();
             

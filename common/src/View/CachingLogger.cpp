@@ -32,7 +32,7 @@ namespace TrenchBroom {
             m_logger = logger;
             if (m_logger != NULL) {
                 MessageList::const_iterator it, end;
-                for (it = m_cachedMessages.begin(), end = m_cachedMessages.end(); it != end; ++it) {
+                for (it = std::begin(m_cachedMessages), end = std::end(m_cachedMessages); it != end; ++it) {
                     const Message& message = *it;
                     log(message.level, message.str);
                 }

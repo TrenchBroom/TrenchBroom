@@ -409,7 +409,7 @@ namespace TrenchBroom {
                     positions.reserve(vertices.size());
                     
                     Model::BrushFace::VertexList::const_iterator it, end;
-                    for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                    for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                         const Model::BrushVertex* vertex = *it;
                         positions.push_back(vertex->position());
                     }
@@ -705,7 +705,7 @@ namespace TrenchBroom {
                 
                 Model::World* world = document->world();
                 Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     Model::Node* parent = brush->parent();
                     
@@ -727,7 +727,7 @@ namespace TrenchBroom {
                 }
             } else {
                 Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     Model::Node* parent = brush->parent();
                     
@@ -740,8 +740,8 @@ namespace TrenchBroom {
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
             
-            Model::BrushFaceList::const_iterator faceIt = faces.begin();
-            Model::BrushFaceList::const_iterator faceEnd = faces.end();
+            Model::BrushFaceList::const_iterator faceIt = std::begin(faces);
+            Model::BrushFaceList::const_iterator faceEnd = std::end(faces);
             const Model::BrushFace* bestFrontFace = *faceIt++;
             const Model::BrushFace* bestBackFace = bestFrontFace;
             
@@ -792,9 +792,9 @@ namespace TrenchBroom {
             Model::CollectBrushesVisitor collect;
             
             Model::ParentChildrenMap::const_iterator it, end;
-            for (it = map.begin(), end = map.end(); it != end; ++it) {
+            for (it = std::begin(map), end = std::end(map); it != end; ++it) {
                 const Model::NodeList& brushes = it->second;
-                Model::Node::accept(brushes.begin(), brushes.end(), collect);
+                Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
             
             renderer->addBrushes(collect.brushes());

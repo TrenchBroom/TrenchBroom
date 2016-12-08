@@ -289,7 +289,7 @@ namespace TrenchBroom {
             
             size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
-                if (it == cache.end()) {
+                if (it == std::end(cache)) {
                     const Vec3f& vertex1 = vertices[index1];
                     const Vec3f& vertex2 = vertices[index2];
                     Vec3f midPoint = (vertex1 + vertex2) / 2.0f;
@@ -362,7 +362,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < iterations; ++i) {
                 TriangleList newTriangles;
                 TriangleList::iterator it, end;
-                for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
+                for (it = std::begin(triangles), end = std::end(triangles); it != end; ++it) {
                     SphereBuilder::Triangle& triangle = *it;
                     const size_t index1 = SphereBuilder::midPoint(vertices, cache, triangle[0], triangle[1]);
                     const size_t index2 = SphereBuilder::midPoint(vertices, cache, triangle[1], triangle[2]);
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             Vec3f::List allVertices;
             allVertices.reserve(3 * triangles.size());
             TriangleList::iterator it, end;
-            for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
+            for (it = std::begin(triangles), end = std::end(triangles); it != end; ++it) {
                 SphereBuilder::Triangle& triangle = *it;
                 for (size_t i = 0; i < 3; ++i)
                     allVertices.push_back(radius * vertices[triangle[i]]);

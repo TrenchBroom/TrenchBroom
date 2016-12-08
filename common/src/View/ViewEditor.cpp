@@ -156,7 +156,7 @@ namespace TrenchBroom {
                 checkBoxHeight = groupCB->GetSize().y;
 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
                     const String defName = definition->name();
 

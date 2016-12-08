@@ -246,13 +246,13 @@ private:
     
     void sortPoints() {
         const Vec<T,3>& anchor = m_points[0];
-        std::sort(m_points.begin() + 1, m_points.end(), LessThanByAngle(anchor));
+        std::sort(std::begin(m_points) + 1, std::end(m_points), LessThanByAngle(anchor));
         
         // now remove the duplicates
-        typename Vec<T,3>::List::iterator i = m_points.begin() + 1;
-        while (i != m_points.end()) {
+        auto i = std::begin(m_points) + 1;
+        while (i != std::end(m_points)) {
             const Vec<T,3>& p1 = *(i++);
-            while (i != m_points.end()) {
+            while (i != std::end(m_points)) {
                 const Vec<T,3>& p2 = *i;
                 if (isLeft(anchor, p1, p2) == 0)
                     i = m_points.erase(i);

@@ -214,7 +214,7 @@ namespace TrenchBroom {
                     int flagValue = 0;
 
                     StringSet::const_iterator it, end;
-                    for (it = flagSet.begin(), end = flagSet.end(); it != end; ++it) {
+                    for (it = std::begin(flagSet), end = std::end(flagSet); it != end; ++it) {
                         const String& currentName = *it;
                         const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
                         flagValue |= currentValue;

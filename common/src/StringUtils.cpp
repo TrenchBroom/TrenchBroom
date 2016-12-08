@@ -106,19 +106,19 @@ namespace StringUtils {
     }
 
     bool containsCaseSensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>()) != haystack.end();
+        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), CharEqual<CaseSensitiveCharCompare>()) != std::end(haystack);
     }
     
     bool containsCaseInsensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),  CharEqual<CaseInsensitiveCharCompare>()) != haystack.end();
+        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle),  CharEqual<CaseInsensitiveCharCompare>()) != std::end(haystack);
     }
     
     void sortCaseSensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
+        std::sort(std::begin(strs), std::end(strs), StringLess<CaseSensitiveCharCompare>());
     }
     
     void sortCaseInsensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseInsensitiveCharCompare>());
+        std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
     }
     
     bool caseSensitiveEqual(const String& str1, const String& str2) {
@@ -158,24 +158,24 @@ namespace StringUtils {
     }
 
     bool caseSensitiveMatchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end(), StringUtils::CharEqual<StringUtils::CaseSensitiveCharCompare>());
+        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseSensitiveCharCompare>());
     }
     
     bool caseInsensitiveMatchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end(), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
     }
 
     long makeHash(const String& str) {
         long hash = 0;
         String::const_iterator it, end;
-        for (it = str.begin(), end = str.end(); it != end; ++it)
+        for (it = std::begin(str), end = std::end(str); it != end; ++it)
             hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
         return hash;
     }
     
     String toLower(const String& str) {
         String result(str);
-        std::transform(result.begin(), result.end(), result.begin(), tolower);
+        std::transform(std::begin(result), std::end(result), std::begin(result), tolower);
         return result;
     }
     

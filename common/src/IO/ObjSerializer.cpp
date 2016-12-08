@@ -54,7 +54,7 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "# vertices\n");
             const IndexMap<Vec3>::List& elements = m_vertices.list();
             IndexMap<Vec3>::List::const_iterator it, end;
-            for (it = elements.begin(), end = elements.end(); it != end; ++it) {
+            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
                 const Vec3& elem = *it;
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "# texture coordinates\n");
             const IndexMap<Vec2f>::List& elements = m_texCoords.list();
             IndexMap<Vec2f>::List::const_iterator it, end;
-            for (it = elements.begin(), end = elements.end(); it != end; ++it) {
+            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
                 const Vec3& elem = *it;
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
             }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "# face normals\n");
             const IndexMap<Vec3>::List& elements = m_normals.list();
             IndexMap<Vec3>::List::const_iterator it, end;
-            for (it = elements.begin(), end = elements.end(); it != end; ++it) {
+            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
                 const Vec3& elem = *it;
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         void ObjFileSerializer::writeObjects() {
             std::fprintf(m_stream, "# objects\n");
             ObjectList::const_iterator fIt, fEnd;
-            for (fIt = m_objects.begin(), fEnd = m_objects.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(m_objects), fEnd = std::end(m_objects); fIt != fEnd; ++fIt) {
                 const Object& object = *fIt;
                 std::fprintf(m_stream, "o entity%u_brush%u\n",
                              static_cast<unsigned long>(object.entityNo),
@@ -96,12 +96,12 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeFaces(const FaceList& faces) {
             FaceList::const_iterator fIt, fEnd;
-            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
                 const IndexedVertexList& face = *fIt;
                 std::fprintf(m_stream, "f");
                 
                 IndexedVertexList::const_iterator vIt, vEnd;
-                for (vIt = face.begin(), vEnd = face.end(); vIt != vEnd; ++vIt) {
+                for (vIt = std::begin(face), vEnd = std::end(face); vIt != vEnd; ++vIt) {
                     const IndexedVertex& vertex = *vIt;
                     std::fprintf(m_stream, " %u/%u/%u",
                                  static_cast<unsigned long>(vertex.vertex) + 1,
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             indexedVertices.reserve(vertices.size());
             
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                 const Vec3& vertex = (*it)->position();
                 const Vec2f texCoords = face->textureCoords(vertex);
                 

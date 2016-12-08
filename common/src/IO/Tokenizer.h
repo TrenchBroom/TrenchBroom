@@ -153,11 +153,11 @@ namespace TrenchBroom {
                     return "";
 
                 Token token = peekToken();
-                const char* startPos = token.begin();
+                const char* startPos = std::begin(token);
                 const char* endPos = startPos;
                 do {
                     token = nextToken();
-                    endPos = token.end();
+                    endPos = std::end(token);
                 } while (peekToken().hasType(delimiterType) == 0 && !eof());
 
                 return String(startPos, static_cast<size_t>(endPos - startPos));

@@ -58,10 +58,10 @@ namespace TrenchBroom {
             TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
             EntityMap::iterator it = m_entities.find(entity);
             
-            if (renderer == NULL && it == m_entities.end())
+            if (renderer == NULL && it == std::end(m_entities))
                 return;
             
-            if (it == m_entities.end()) {
+            if (it == std::end(m_entities)) {
                 m_entities.insert(std::make_pair(entity, renderer));
             } else {
                 if (renderer == NULL)
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             glAssert(glActiveTexture(GL_TEXTURE0));
             
             EntityMap::iterator it, end;
-            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+            for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
                 Model::Entity* entity = it->first;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;

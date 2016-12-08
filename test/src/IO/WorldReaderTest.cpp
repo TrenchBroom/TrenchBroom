@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace IO {
         inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&

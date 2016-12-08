@@ -120,8 +120,8 @@ namespace TrenchBroom {
 
         size_t EntityAttributeGridTable::RowManager::indexOf(const String& name) const {
             AttributeRow::List::const_iterator propIt = findRow(m_rows, name);
-            if (propIt != m_rows.end())
-                return static_cast<size_t>(std::distance(m_rows.begin(), propIt));
+            if (propIt != std::end(m_rows))
+                return static_cast<size_t>(std::distance(std::begin(m_rows), propIt));
             return totalRowCount();
         }
 
@@ -177,15 +177,15 @@ namespace TrenchBroom {
             Model::AttributableNodeList::const_iterator attriutableIt, attributableEnd;
             Model::EntityAttribute::List::const_iterator attributeIt, attributeEnd;
             
-            for (attriutableIt = attributables.begin(),
-                 attributableEnd = attributables.end();
+            for (attriutableIt = std::begin(attributables),
+                 attributableEnd = std::end(attributables);
                  attriutableIt != attributableEnd;
                  ++attriutableIt) {
                 
                 const Model::AttributableNode* attributable = *attriutableIt;
                 const Model::EntityAttribute::List& attributes = attributable->attributes();
-                for (attributeIt = attributes.begin(),
-                     attributeEnd = attributes.end();
+                for (attributeIt = std::begin(attributes),
+                     attributeEnd = std::end(attributes);
                      attributeIt != attributeEnd;
                      ++attributeIt) {
                     
@@ -196,7 +196,7 @@ namespace TrenchBroom {
                     const bool valueMutable = attributable->isAttributeValueMutable(attribute.value());
                     
                     AttributeRow::List::iterator rowIt = findRow(m_rows, attribute.name());
-                    if (rowIt != m_rows.end()) {
+                    if (rowIt != std::end(m_rows)) {
                         rowIt->merge(attribute.value(), nameMutable, valueMutable);
                     } else {
                         const String tooltip = Assets::AttributeDefinition::safeFullDescription(attributeDefinition);
@@ -212,15 +212,15 @@ namespace TrenchBroom {
                 if (definition != NULL) {
                     const Assets::AttributeDefinitionList& attributeDefs = definition->attributeDefinitions();
                     Assets::AttributeDefinitionList::const_iterator definitionIt, definitionEnd;
-                    for (definitionIt = attributeDefs.begin(),
-                         definitionEnd = attributeDefs.end();
+                    for (definitionIt = std::begin(attributeDefs),
+                         definitionEnd = std::end(attributeDefs);
                          definitionIt != definitionEnd;
                          ++definitionIt) {
                         
                         const Assets::AttributeDefinitionPtr propertyDef = *definitionIt;
                         const String& name = propertyDef->name();
                         
-                        if (findRow(m_rows, name) != m_rows.end())
+                        if (findRow(m_rows, name) != std::end(m_rows))
                             continue;
                         
                         const String value = Assets::AttributeDefinition::defaultValue(*propertyDef);
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             const StringList attributeNames = newAttributeNames(count, attributables);
             ensure(attributeNames.size() == count, "invalid number of new attribute names");
             
-            AttributeRow::List::iterator entryIt = m_rows.begin();
+            AttributeRow::List::iterator entryIt = std::begin(m_rows);
             std::advance(entryIt, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
             for (size_t i = 0; i < count; i++) {
                 entryIt = m_rows.insert(entryIt, AttributeRow(attributeNames[i], "", true, true, "", false, attributables.size()));
@@ -252,7 +252,7 @@ namespace TrenchBroom {
         void EntityAttributeGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
             ensure(rowIndex + count <= attributeRowCount(), "row range exceeds row count");
             
-            AttributeRow::List::iterator first = m_rows.begin();
+            AttributeRow::List::iterator first = std::begin(m_rows);
             AttributeRow::List::iterator last = first;
             std::advance(first, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
             std::advance(last, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex + count));
@@ -261,7 +261,7 @@ namespace TrenchBroom {
         
         EntityAttributeGridTable::AttributeRow::List::iterator EntityAttributeGridTable::RowManager::findRow(AttributeRow::List& rows, const String& name) {
             AttributeRow::List::iterator it, end;
-            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+            for (it = std::begin(rows), end = std::end(rows); it != end; ++it) {
                 const AttributeRow& row = *it;
                 if (row.name() == name)
                     return it;
@@ -271,7 +271,7 @@ namespace TrenchBroom {
 
         EntityAttributeGridTable::AttributeRow::List::const_iterator EntityAttributeGridTable::RowManager::findRow(const AttributeRow::List& rows, const String& name) {
             AttributeRow::List::const_iterator it, end;
-            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
+            for (it = std::begin(rows), end = std::end(rows); it != end; ++it) {
                 const AttributeRow& row = *it;
                 if (row.name() == name)
                     return it;
@@ -291,7 +291,7 @@ namespace TrenchBroom {
                     
                     bool indexIsFree = true;
                     Model::AttributableNodeList::const_iterator it, end;
-                    for (it = attributables.begin(), end = attributables.end(); it != end && indexIsFree; ++it) {
+                    for (it = std::begin(attributables), end = std::end(attributables); it != end && indexIsFree; ++it) {
                         const Model::AttributableNode& attributable = **it;
                         indexIsFree = !attributable.hasAttribute(nameStream.str());
                     }
@@ -380,7 +380,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(document);
             StringList::const_iterator it, end;
-            for (it = newKeys.begin(), end = newKeys.end(); it != end; ++it) {
+            for (it = std::begin(newKeys), end = std::end(newKeys); it != end; ++it) {
                 const String& name = *it;
                 document->setAttribute(name, "");
             }
@@ -558,7 +558,7 @@ namespace TrenchBroom {
 
             const String& name = m_rows.name(rowIndex);
             Model::AttributableNodeList::const_iterator it, end;
-            for (it = attributables.begin(), end = attributables.end(); it != end; ++it) {
+            for (it = std::begin(attributables), end = std::end(attributables); it != end; ++it) {
                 const Model::AttributableNode* attributable = *it;
                 if (attributable->hasAttribute(name)) {
                     if (!attributable->canAddOrUpdateAttribute(name, newValue)) {

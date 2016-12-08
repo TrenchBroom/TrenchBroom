@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 return NULL;
             
             ModelCache::const_iterator it = m_models.find(path);
-            if (it != m_models.end())
+            if (it != std::end(m_models))
                 return it->second;
             
             if (m_modelMismatches.count(path) > 0)
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 return NULL;
             
             RendererCache::const_iterator it = m_renderers.find(spec);
-            if (it != m_renderers.end())
+            if (it != std::end(m_renderers))
                 return it->second;
             
             if (m_rendererMismatches.count(spec) > 0)
@@ -152,7 +152,7 @@ namespace TrenchBroom {
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 ModelCache::const_iterator it, end;
-                for (it = m_models.begin(), end = m_models.end(); it != end; ++it) {
+                for (it = std::begin(m_models), end = std::end(m_models); it != end; ++it) {
                     EntityModel* model = it->second;
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
@@ -162,7 +162,7 @@ namespace TrenchBroom {
         
         void EntityModelManager::prepareModels() {
             ModelList::const_iterator it, end;
-            for (it = m_unpreparedModels.begin(), end = m_unpreparedModels.end(); it != end; ++it) {
+            for (it = std::begin(m_unpreparedModels), end = std::end(m_unpreparedModels); it != end; ++it) {
                 Assets::EntityModel* model = *it;
                 model->prepare(m_minFilter, m_magFilter);
             }
@@ -171,7 +171,7 @@ namespace TrenchBroom {
         
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
             RendererList::const_iterator it, end;
-            for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
+            for (it = std::begin(m_unpreparedRenderers), end = std::end(m_unpreparedRenderers); it != end; ++it) {
                 Renderer::TexturedIndexRangeRenderer* renderer = *it;
                 renderer->prepare(vbo);
             }

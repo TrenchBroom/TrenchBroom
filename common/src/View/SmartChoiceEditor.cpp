@@ -100,7 +100,7 @@ namespace TrenchBroom {
                 const Assets::ChoiceAttributeOption::List& options = choiceDef->options();
                 
                 Assets::ChoiceAttributeOption::List::const_iterator it, end;
-                for (it = options.begin(), end = options.end(); it != end; ++it) {
+                for (it = std::begin(options), end = std::end(options); it != end; ++it) {
                     const Assets::ChoiceAttributeOption& option = *it;
                     m_comboBox->Append(option.value() + " : " + option.description());
                 }

@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
                 Path::List::const_iterator it, end;
-                for (it = list.begin(), end = list.end(); it != end; ++it) {
+                for (it = std::begin(list), end = std::end(list); it != end; ++it) {
                     const Path& entry = *it;
                     if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
                         return entry;

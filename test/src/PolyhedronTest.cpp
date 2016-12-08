@@ -1392,7 +1392,7 @@ private:
     FaceSet m_originals;
 public:
     void faceWillBeDeleted(Face* face) {
-        ASSERT_TRUE(m_originals.find(face) == m_originals.end());
+        ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
     void faceWasSplit(Face* original, Face* clone) {
@@ -1721,7 +1721,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
     Polyhedron3d::SubtractResult::iterator it, end;
-    for (it = result.begin(), end = result.end(); it != end; ++it) {
+    for (it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
         if (polyhedron.vertices().size() == vertices.size()) {
             size_t count = 0;

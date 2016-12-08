@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         void Snapshot::restoreNodes(const BBox3& worldBounds) {
             NodeSnapshotList::const_iterator it, end;
-            for (it = m_nodeSnapshots.begin(), end = m_nodeSnapshots.end(); it != end; ++it) {
+            for (it = std::begin(m_nodeSnapshots), end = std::end(m_nodeSnapshots); it != end; ++it) {
                 NodeSnapshot* snapshot = *it;
                 snapshot->restore(worldBounds);
             }
@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         void Snapshot::restoreBrushFaces() {
             BrushFaceSnapshotList::const_iterator it, end;
-            for (it = m_brushFaceSnapshots.begin(), end = m_brushFaceSnapshots.end(); it != end; ++it) {
+            for (it = std::begin(m_brushFaceSnapshots), end = std::end(m_brushFaceSnapshots); it != end; ++it) {
                 BrushFaceSnapshot* snapshot = *it;
                 snapshot->restore();
             }

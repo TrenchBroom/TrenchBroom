@@ -59,7 +59,7 @@ namespace TrenchBroom {
         
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
             Cache::const_iterator it = m_cache.find(classname);
-            if (it == m_cache.end())
+            if (it == std::end(m_cache))
                 return NULL;
             return it->second;
         }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             }
             
             GroupMap::const_iterator it, end;
-            for (it = groupMap.begin(), end = groupMap.end(); it != end; ++it) {
+            for (it = std::begin(groupMap), end = std::end(groupMap); it != end; ++it) {
                 const String& groupName = it->first;
                 const EntityDefinitionList& definitions = it->second;
                 m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::updateCache() {
             clearCache();
             EntityDefinitionList::iterator it, end;
-            for (it = m_definitions.begin(), end = m_definitions.end(); it != end; ++it) {
+            for (it = std::begin(m_definitions), end = std::end(m_definitions); it != end; ++it) {
                 EntityDefinition* definition = *it;
                 m_cache[definition->name()] = definition;
             }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         
         void EntityDefinitionManager::bindObservers() {
             EntityDefinitionList::const_iterator it, end;
-            for (it = m_definitions.begin(), end = m_definitions.end(); it != end; ++it) {
+            for (it = std::begin(m_definitions), end = std::end(m_definitions); it != end; ++it) {
                 EntityDefinition* definition = *it;
                 definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
             }

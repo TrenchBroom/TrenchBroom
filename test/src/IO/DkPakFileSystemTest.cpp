@@ -68,23 +68,23 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItems(Path(""));
             ASSERT_EQ(4u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
             
             items = fs.findItems(Path(""), FileExtensionMatcher("cfg"));
             ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
 
             items = fs.findItems(Path("pics"), FileExtensionMatcher("cfg"));
             ASSERT_TRUE(items.empty());
 
             items = fs.findItems(Path("pics"));
             ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag1.pcx")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag2.pcx")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
         }
         
         TEST(DkPakFileSystemTest, findItemsRecursively) {
@@ -99,42 +99,42 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItemsRecursively(Path(""));
             ASSERT_EQ(16u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag1.pcx")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("pics/tag2.pcx")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/box1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/brlava.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_1.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_2.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/basic1_7.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stairs1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("amnet.cfg")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("bear.cfg")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
             
             items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal"));
             ASSERT_EQ(7u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/box1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/brlava.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_1.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_2.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/basic1_7.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stairs1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
             
             items = fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL"));
             ASSERT_EQ(7u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/box1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u1/brlava.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_1.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/angle1_2.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u2/basic1_7.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stairs1_3.wal")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("textures/e1u3/stflr1_5.wal")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
         }
         
         TEST(DkPakFileSystemTest, openFile) {

@@ -162,7 +162,7 @@ namespace TrenchBroom {
             
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
                 const Vec2f vertex(toTex * (*it)->position());
                 distance = absMin(distance, position - vertex);
             }

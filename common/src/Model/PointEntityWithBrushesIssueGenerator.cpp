@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 ParentChildrenMap nodesToReparent;
                 
                 IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
+                for (it = std::begin(issues), end = std::end(issues); it != end; ++it) {
                     const Issue* issue = *it;
                     Node* node = issue->node();
                     nodesToReparent[node->parent()] = node->children();

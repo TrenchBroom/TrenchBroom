@@ -275,8 +275,8 @@ namespace TrenchBroom {
 
             BBox3 result;
             const Model::BrushFace::VertexList vertices = m_face->vertices();
-            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
-            Model::BrushFace::VertexList::const_iterator end = vertices.end();
+            Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
+            Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end)

@@ -347,7 +347,7 @@ namespace TrenchBroom {
         CompilationRunner::CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile) :
         m_context(context),
         m_taskRunners(createTaskRunners(*m_context, profile)),
-        m_currentTask(m_taskRunners.end()) {}
+        m_currentTask(std::end(m_taskRunners)) {}
         
         CompilationRunner::~CompilationRunner() {
             ListUtils::clearAndDelete(m_taskRunners);
@@ -392,7 +392,7 @@ namespace TrenchBroom {
 
         void CompilationRunner::execute() {
             assert(!running());
-            m_currentTask = m_taskRunners.begin();
+            m_currentTask = std::begin(m_taskRunners);
             bindEvents(*m_currentTask);
             (*m_currentTask)->execute();
             
@@ -404,20 +404,20 @@ namespace TrenchBroom {
             assert(running());
             unbindEvents(*m_currentTask);
             (*m_currentTask)->terminate();
-            m_currentTask = m_taskRunners.end();
+            m_currentTask = std::end(m_taskRunners);
             
             wxNotifyEvent event(wxEVT_COMPILATION_END);
             ProcessEvent(event);
         }
         
         bool CompilationRunner::running() const {
-            return m_currentTask != m_taskRunners.end();
+            return m_currentTask != std::end(m_taskRunners);
         }
         
         void CompilationRunner::OnTaskError(wxEvent& event) {
             if (running()) {
                 unbindEvents(*m_currentTask);
-                m_currentTask = m_taskRunners.end();
+                m_currentTask = std::end(m_taskRunners);
                 wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
                 ProcessEvent(endEvent);
             }
@@ -427,7 +427,7 @@ namespace TrenchBroom {
             if (running()) {
                 unbindEvents(*m_currentTask);
                 ++m_currentTask;
-                if (m_currentTask != m_taskRunners.end()) {
+                if (m_currentTask != std::end(m_taskRunners)) {
                     bindEvents(*m_currentTask);
                     (*m_currentTask)->execute();
                 } else {

@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
                 Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
                 
-                for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
                     const Assets::EntityDefinitionGroup& group = *groupIt;
                     const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
@@ -141,7 +141,7 @@ namespace TrenchBroom {
                         layout.addGroup(displayName, fontSize + 2.0f);
                         
                         Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                        for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                        for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                             Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*defIt);
                             addEntityToLayout(layout, definition, font);
                         }
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             } else {
                 const Assets::EntityDefinitionList& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                 Assets::EntityDefinitionList::const_iterator it, end;
-                for (it = definitions.begin(), end = definitions.end(); it != end; ++it) {
+                for (it = std::begin(definitions), end = std::end(definitions); it != end; ++it) {
                     Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*it);
                     addEntityToLayout(layout, definition, font);
                 }
@@ -363,7 +363,7 @@ namespace TrenchBroom {
                 
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 StringMap::const_iterator it, end;
-                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
+                for (it = std::begin(stringVertices), end = std::end(stringVertices); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
                     const TextVertex::List& vertices = it->second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
@@ -375,7 +375,7 @@ namespace TrenchBroom {
             shader.set("Texture", 0);
             
             StringRendererMap::iterator it, end;
-            for (it = stringRenderers.begin(), end = stringRenderers.end(); it != end; ++it) {
+            for (it = std::begin(stringRenderers), end = std::end(stringRenderers); it != end; ++it) {
                 const Renderer::FontDescriptor& descriptor = it->first;
                 Renderer::VertexArray& vertexArray = it->second;
                 

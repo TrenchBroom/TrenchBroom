@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   {
                 const BrushFaceList& faces = brush->faces();
                 BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                     BrushFace* face = *it;
                     if (m_p(face)) {
                         setResult(face);

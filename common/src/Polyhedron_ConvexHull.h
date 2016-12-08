@@ -59,8 +59,8 @@ public:
     
     void shift() {
         assert(!m_edges.empty());
-        iterator pos = m_edges.end();
-        iterator first = m_edges.begin();
+        iterator pos = std::end(m_edges);
+        iterator first = std::begin(m_edges);
         iterator last = first;
         std::advance(last, 1);
         
@@ -83,7 +83,7 @@ public:
     
     Edge* second() const {
         assert(size() > 1);
-        const_iterator it = m_edges.begin();
+        const_iterator it = std::begin(m_edges);
         std::advance(it, 1);
         return *it;
     }
@@ -94,19 +94,19 @@ public:
     }
     
     iterator begin() {
-        return m_edges.begin();
+        return std::begin(m_edges);
     }
     
     iterator end() {
-        return m_edges.end();
+        return std::end(m_edges);
     }
     
     const_iterator begin() const {
-        return m_edges.begin();
+        return std::begin(m_edges);
     }
 
     const_iterator end() const {
-        return m_edges.end();
+        return std::end(m_edges);
     }
     
     void clear() {
@@ -126,7 +126,7 @@ public:
         
         VertexSet visitedVertices;
         const_iterator it, end;
-        for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+        for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
             Edge* edge = *it;
             if (!visitedVertices.insert(edge->secondVertex()).second)
                 return true;
@@ -151,7 +151,7 @@ private:
         
         Edge* last = m_edges.back();
         const_iterator it, end;
-        for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+        for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
             Edge* edge = *it;
             if (last->firstVertex() != edge->secondVertex())
                 return false;
@@ -164,12 +164,12 @@ private:
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points) {
-    addPoints(points.begin(), points.end());
+    addPoints(std::begin(points), std::end(points));
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points, Callback& callback) {
-    addPoints(points.begin(), points.end(), callback);
+    addPoints(std::begin(points), std::end(points), callback);
 }
 
 template <typename T, typename FP, typename VP> template <typename I>
@@ -280,7 +280,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const V& position, Callback& callback) {
     assert(point());
     
-    Vertex* onlyVertex = *m_vertices.begin();
+    Vertex* onlyVertex = *std::begin(m_vertices);
     if (position != onlyVertex->position()) {
         Vertex* newVertex = new Vertex(position);
         m_vertices.append(newVertex, 1);
@@ -389,7 +389,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const
 // given point is not coplanar.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
-    Face* face = *m_faces.begin();
+    Face* face = *std::begin(m_faces);
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
         case Math::PointStatus::PSInside:
@@ -408,7 +408,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
     assert(polygon());
-    if (polygonContainsPoint(position, m_vertices.begin(), m_vertices.end(), GetVertexPosition()))
+    if (polygonContainsPoint(position, std::begin(m_vertices), std::end(m_vertices), GetVertexPosition()))
         return NULL;
     
     Face* face = m_faces.front();
@@ -700,7 +700,7 @@ void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     // to the portion of the polyhedron that must be removed.
     HalfEdge* first = seam.first()->secondEdge();
     typename Seam::const_iterator it, end;
-    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+    for (it = std::begin(seam), end = std::end(seam); it != end; ++it) {
         Edge* edge = *it;
         
         // Set the first edge as the leaving edge. Since the first one will remain
@@ -806,8 +806,8 @@ private:
         if (seam.size() < 5)
             return true;
         
-        typename Seam::const_iterator it = seam.begin();
-        typename Seam::const_iterator end = seam.end();
+        typename Seam::const_iterator it = std::begin(seam);
+        typename Seam::const_iterator end = std::end(seam);
         
         std::advance(it, 2);
         std::advance(end, -1);
@@ -834,7 +834,7 @@ void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& call
     
     HalfEdgeList boundary;
     typename Seam::const_iterator it, end;
-    for (it = seam.begin(), end = seam.end(); it != end; ++it) {
+    for (it = std::begin(seam), end = std::end(seam); it != end; ++it) {
         Edge* currentEdge = *it;
         assert(!currentEdge->fullySpecified());
         
@@ -867,7 +867,7 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
 
         HalfEdgeList boundary;
 
-        typename Seam::List::iterator firstIt = seam.begin();
+        typename Seam::List::iterator firstIt = std::begin(seam);
         typename Seam::List::iterator endIt = firstIt;
         Edge* firstEdge = *endIt;
         ++endIt;
@@ -895,7 +895,7 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         assertResult(setPlanePoints(plane, v1->position(), v2->position(), v3->position()));
 
         Vertex* lastVertex = v3;
-        while (endIt != seam.end() && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
+        while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
             Edge* curEdge = *endIt;
             ++endIt;
             
@@ -906,7 +906,7 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
             lastVertex = curEdge->firstVertex();
         }
         
-        if (endIt != seam.end()) {
+        if (endIt != std::end(seam)) {
             HalfEdge* lastBoundaryEdge = new HalfEdge(lastVertex);
             boundary.append(lastBoundaryEdge, 1);
 
@@ -966,8 +966,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     HalfEdge* first = NULL;
     HalfEdge* last = NULL;
     
-    typename Seam::const_iterator it = seam.begin();
-    while (it != seam.end()) {
+    typename Seam::const_iterator it = std::begin(seam);
+    while (it != std::end(seam)) {
         Edge* edge = *it++;
         
         assert(!edge->fullySpecified());
@@ -985,19 +985,19 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         boundary.append(h3, 1);
         edge->setSecondEdge(h2);
         
-        if (it != seam.end()) {
+        if (it != std::end(seam)) {
             assertResult(setPlanePoints(plane, top->position(), v2->position(), v1->position()));
             Edge* next = *it;
             
             // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-            while (it != seam.end() && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
+            while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
                 next->setSecondEdge(h);
 
                 Vertex* v = next->firstVertex();
                 h = new HalfEdge(v);
                 boundary.append(h, 1);
                 
-				if (++it != seam.end())
+				if (++it != std::end(seam))
 					next = *it;
             }
         }
@@ -1037,7 +1037,7 @@ public:
 public:
     Edge* findFirstSplittingEdge(EdgeList& edges) const {
         typename EdgeList::iterator it, end;
-        for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+        for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
             Edge* edge = *it;
             const MatchResult result = matches(edge);
             switch (result) {

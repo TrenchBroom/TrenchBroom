@@ -229,7 +229,7 @@ namespace TrenchBroom {
             bool newBrush = true;
             const Model::BrushSet& handleBrushes = m_handleManager.brushes(position);
             Model::BrushSet::const_iterator bIt, bEnd;
-            for (bIt = handleBrushes.begin(), bEnd = handleBrushes.end(); bIt != bEnd; ++bIt) {
+            for (bIt = std::begin(handleBrushes), bEnd = std::end(handleBrushes); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
                 newBrush &= brushes.insert(brush).second;
             }
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             
             size_t selected = 0;
             Model::Hit::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+            for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                 const Model::Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isVertexHandleSelected(position))
@@ -270,14 +270,14 @@ namespace TrenchBroom {
             if (selected < hits.size()) {
                 if (!addToSelection)
                     m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                     const Model::Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectVertexHandle(position);
                 }
             } else {
                 if (addToSelection) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                         const Model::Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectVertexHandle(position);
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             
             size_t selected = 0;
             Model::Hit::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+            for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                 const Model::Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isEdgeHandleSelected(position))
@@ -302,14 +302,14 @@ namespace TrenchBroom {
             if (selected < hits.size()) {
                 if (!addToSelection)
                     m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                     const Model::Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectEdgeHandle(position);
                 }
             } else {
                 if (addToSelection) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                         const Model::Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectEdgeHandle(position);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             
             size_t selected = 0;
             Model::Hit::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+            for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                 const Model::Hit& hit = *it;
                 const Vec3 position = hit.target<Vec3>();
                 if (m_handleManager.isFaceHandleSelected(position))
@@ -334,14 +334,14 @@ namespace TrenchBroom {
             if (selected < hits.size()) {
                 if (!addToSelection)
                     m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                     const Model::Hit& hit = *it;
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectFaceHandle(position);
                 }
             } else {
                 if (addToSelection) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    for (it = std::begin(hits), end = std::end(hits); it != end; ++it) {
                         const Model::Hit& hit = *it;
                         const Vec3 position = hit.target<Vec3>();
                         m_handleManager.deselectFaceHandle(position);
@@ -460,9 +460,9 @@ namespace TrenchBroom {
             
             const Model::BrushSet brushes = m_handleManager.selectedBrushes();
             
-            m_handleManager.removeBrushes(brushes.begin(), brushes.end());
-            document->rebuildBrushGeometry(Model::BrushList(brushes.begin(), brushes.end()));
-            m_handleManager.addBrushes(brushes.begin(), brushes.end());
+            m_handleManager.removeBrushes(std::begin(brushes), std::end(brushes));
+            document->rebuildBrushGeometry(Model::BrushList(std::begin(brushes), std::end(brushes)));
+            m_handleManager.addBrushes(std::begin(brushes), std::end(brushes));
 
             m_handleManager.reselectVertexHandles(brushes, selectedVertexHandles, 0.01);
             m_handleManager.reselectEdgeHandles(brushes, selectedEdgeHandles, 0.01);
@@ -475,7 +475,7 @@ namespace TrenchBroom {
             m_handleManager.clear();
             
             const Model::BrushList& selectedBrushes = document->selectedNodes().brushes();
-            m_handleManager.addBrushes(selectedBrushes.begin(), selectedBrushes.end());
+            m_handleManager.addBrushes(std::begin(selectedBrushes), std::end(selectedBrushes));
             m_changeCount = 0;
             
             bindObservers();
@@ -621,24 +621,24 @@ namespace TrenchBroom {
         void VertexTool::selectionDidChange(const Selection& selection) {
             const Model::NodeList& selectedNodes = selection.selectedNodes();
             AddToHandleManager addVisitor(m_handleManager);
-            Model::Node::accept(selectedNodes.begin(), selectedNodes.end(), addVisitor);
+            Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), addVisitor);
             
             const Model::NodeList& deselectedNodes = selection.deselectedNodes();
             RemoveFromHandleManager removeVisitor(m_handleManager);
-            Model::Node::accept(deselectedNodes.begin(), deselectedNodes.end(), removeVisitor);
+            Model::Node::accept(std::begin(deselectedNodes), std::end(deselectedNodes), removeVisitor);
         }
 
         void VertexTool::nodesWillChange(const Model::NodeList& nodes) {
             if (!m_ignoreChangeNotifications) {
                 RemoveFromHandleManager removeVisitor(m_handleManager);
-                Model::Node::accept(nodes.begin(), nodes.end(), removeVisitor);
+                Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
             }
         }
         
         void VertexTool::nodesDidChange(const Model::NodeList& nodes) {
             if (!m_ignoreChangeNotifications) {
                 AddToHandleManager addVisitor(m_handleManager);
-                Model::Node::accept(nodes.begin(), nodes.end(), addVisitor);
+                Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
             }
         }
 

@@ -40,13 +40,13 @@ namespace TrenchBroom {
             const NodeList& children = group->children();
             
             TakeSnapshotVisitor visitor;
-            Node::acceptAndRecurse(children.begin(), children.end(), visitor);
+            Node::acceptAndRecurse(std::begin(children), std::end(children), visitor);
             m_snapshots = visitor.result();
         }
         
         void GroupSnapshot::doRestore(const BBox3& worldBounds) {
             NodeSnapshotList::const_iterator it, end;
-            for (it = m_snapshots.begin(), end = m_snapshots.end(); it != end; ++it) {
+            for (it = std::begin(m_snapshots), end = std::end(m_snapshots); it != end; ++it) {
                 NodeSnapshot* snapshot = *it;
                 snapshot->restore(worldBounds);
             }

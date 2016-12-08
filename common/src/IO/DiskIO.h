@@ -46,7 +46,7 @@ namespace TrenchBroom {
             void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) {
                 const Path::List contents = getDirectoryContents(searchPath);
                 Path::List::const_iterator it, end;
-                for (it = contents.begin(), end = contents.end(); it != end; ++it) {
+                for (it = std::begin(contents), end = std::end(contents); it != end; ++it) {
                     const Path& itemPath = *it;
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void deleteFiles(const Path& sourceDirPath, const M& matcher) {
                 const Path::List files = findItems(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     deleteFile(filePath);
                 }
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             void deleteFilesRecursively(const Path& sourceDirPath, const M& matcher) {
                 const Path::List files = findItemsRecursively(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     deleteFile(filePath);
                 }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             void copyFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
                 const Path::List files = findItems(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     copyFile(filePath, destDirPath, overwrite);
                 }
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             void copyFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
                 const Path::List files = findItemsRecursively(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     copyFile(filePath, destDirPath, overwrite);
                 }
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             void moveFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
                 const Path::List files = findItems(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     moveFile(filePath, destDirPath, overwrite);
                 }
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             void moveFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
                 const Path::List files = findItemsRecursively(sourceDirPath, matcher);
                 Path::List::const_iterator it, end;
-                for (it = files.begin(), end = files.end(); it != end; ++it) {
+                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
                     const Path& filePath = *it;
                     moveFile(filePath, destDirPath, overwrite);
                 }

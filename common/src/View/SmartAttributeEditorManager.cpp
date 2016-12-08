@@ -91,7 +91,7 @@ namespace TrenchBroom {
         
         SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
             EditorList::const_iterator it, end;
-            for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it) {
+            for (it = std::begin(m_editors), end = std::end(m_editors); it != end; ++it) {
                 const MatcherEditorPair& pair = *it;
                 const MatcherPtr matcher = pair.first;
                 if (matcher->matches(name, attributables))

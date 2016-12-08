@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexArrayMap::Size::Size() :
-        m_current(m_sizes.end()),
+        m_current(std::end(m_sizes)),
         m_indexCount(0) {}
         
         size_t TexturedIndexArrayMap::Size::indexCount() const {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         bool TexturedIndexArrayMap::Size::isCurrent(const Texture* texture) const {
-            if (m_current == m_sizes.end())
+            if (m_current == std::end(m_sizes))
                 return false;
             
             typedef TextureToSize::key_compare Cmp;
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             size_t baseOffset = 0;
             
             TextureToSize::const_iterator texIt, texEnd;
-            for (texIt = m_sizes.begin(), texEnd = m_sizes.end(); texIt != texEnd; ++texIt) {
+            for (texIt = std::begin(m_sizes), texEnd = std::end(m_sizes); texIt != texEnd; ++texIt) {
                 const Texture* texture = texIt->first;
                 const IndexArrayMap::Size& size = texIt->second;
                 ranges.insert(std::make_pair(texture, IndexArrayMap(size, baseOffset)));

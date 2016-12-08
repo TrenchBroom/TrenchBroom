@@ -107,10 +107,10 @@ namespace TrenchBroom {
             const Model::BrushFaceList& dragFaces = m_tool->dragFaces();
             Model::BrushFaceList::const_iterator faceIt, faceEnd;
             Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
-            for (faceIt = dragFaces.begin(), faceEnd = dragFaces.end(); faceIt != faceEnd; ++faceIt) {
+            for (faceIt = std::begin(dragFaces), faceEnd = std::end(dragFaces); faceIt != faceEnd; ++faceIt) {
                 const Model::BrushFace* face = *faceIt;
                 const Model::BrushFace::EdgeList edges = face->edges();
-                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                for (edgeIt = std::begin(edges), edgeEnd = std::end(edges); edgeIt != edgeEnd; ++edgeIt) {
                     const Model::BrushEdge* edge = *edgeIt;
                     vertices.push_back(Vertex(edge->firstVertex()->position()));
                     vertices.push_back(Vertex(edge->secondVertex()->position()));

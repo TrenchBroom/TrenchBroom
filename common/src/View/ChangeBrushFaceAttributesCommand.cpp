@@ -46,7 +46,7 @@ namespace TrenchBroom {
             assert(!faces.empty());
             
             assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(faces.begin(), faces.end());
+            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
             
             document->performChangeBrushFaceAttributes(m_request);
             return true;

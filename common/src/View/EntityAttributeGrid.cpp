@@ -215,7 +215,7 @@ namespace TrenchBroom {
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
             const wxArrayInt selectedRows = m_grid->GetSelectedRows();
             wxArrayInt::const_iterator it, end;
-            for (it = selectedRows.begin(), end = selectedRows.end(); it != end; ++it) {
+            for (it = std::begin(selectedRows), end = std::end(selectedRows); it != end; ++it) {
                 if (!m_table->canRemove(*it))
                     return false;
             }

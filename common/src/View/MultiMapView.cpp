@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
         void MultiMapView::doFlashSelection() {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->flashSelection();
             }
@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
         bool MultiMapView::doGetIsCurrent() const {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 if (mapView->isCurrent())
                     return true;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
         void MultiMapView::doSetToolBoxDropTarget() {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->setToolBoxDropTarget();
             }
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         
         void MultiMapView::doClearDropTarget() {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->clearDropTarget();
             }
@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         void MultiMapView::doFocusCameraOnSelection(const bool animate) {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->focusCameraOnSelection(animate);
             }
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         
         void MultiMapView::doMoveCameraToPosition(const Vec3& position, const bool animate) {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->moveCameraToPosition(position, animate);
             }
@@ -99,7 +99,7 @@ namespace TrenchBroom {
         
         void MultiMapView::doMoveCameraToCurrentTracePoint() {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 mapView->moveCameraToCurrentTracePoint();
             }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
 
         MapView* MultiMapView::doGetCurrentMapView() const {
             MapViewList::const_iterator it, end;
-            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
                 MapView* mapView = *it;
                 if (mapView->isCurrent())
                     return mapView;

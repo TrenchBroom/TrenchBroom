@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushFaceList& faces = brush->faces();
                 Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     
                     if (brushEditable && (selected(face) || brushSelected) && brushVisible) {
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 
                 const Model::Brush::EdgeList& edges = brush->edges();
                 Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     
                     const Model::BrushFace* first = edge->firstFace()->payload();
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                     // collect all faces
                     const Model::BrushFaceList& faces = brush->faces();
                     Model::BrushFaceList::const_iterator it, end;
-                    for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                         const Model::BrushFace* face = *it;
                          provideFaces.accept(face);
                     }
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     // collect all edges
                     const Model::Brush::EdgeList& edges = brush->edges();
                     Model::Brush::EdgeList::const_iterator it, end;
-                    for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                    for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                         const Model::BrushEdge* edge = *it;
                          provideEdges.accept(edge);
                     }
@@ -159,7 +159,7 @@ namespace TrenchBroom {
                 // collect faces
                 const Model::BrushFaceList& faces = brush->faces();
                 Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     
                     if (brushEditable && !selected(face) && brushVisible) {
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 // collect edges
                 const Model::Brush::EdgeList& edges = brush->edges();
                 Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     
                     const Model::BrushFace* first = edge->firstFace()->payload();
@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
                 if (!nodes.empty()) {
                     CollectTutorialEntitiesVisitor collect(definition);
-                    Model::Node::accept(nodes.begin(), nodes.end(), collect);
+                    Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
                     
                     const Model::NodeList entities = collect.nodes();
                     
@@ -352,7 +352,7 @@ namespace TrenchBroom {
                     renderService.setBackgroundColor(pref(Preferences::TutorialOverlayBackgroundColor));
                     
                     Model::NodeList::const_iterator it, end;
-                    for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                    for (it = std::begin(entities), end = std::end(entities); it != end; ++it) {
                         const Model::Entity* entity = static_cast<Model::Entity*>(*it);
                         const Model::AttributeValue& message = entity->attribute(Model::Tutorial::Message);
                         if (!message.empty())
@@ -625,7 +625,7 @@ namespace TrenchBroom {
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
             Model::BrushSet result;
             Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 Model::Brush* brush = face->brush();
                 result.insert(brush);

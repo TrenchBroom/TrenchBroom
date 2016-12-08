@@ -49,7 +49,7 @@ namespace TrenchBroom {
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const BBox3& worldBounds = document->worldBounds();
             Model::BrushEdgesMap::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Edge3::List& edges = it->second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))

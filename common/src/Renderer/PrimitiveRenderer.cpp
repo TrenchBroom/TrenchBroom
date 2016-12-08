@@ -178,7 +178,7 @@ namespace TrenchBroom {
         
         void PrimitiveRenderer::prepareLines(Vbo& vertexVbo) {
             LineMeshMap::iterator it, end;
-            for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
+            for (it = std::begin(m_lineMeshes), end = std::end(m_lineMeshes); it != end; ++it) {
                 const LineRenderAttributes& attributes = it->first;
                 IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
@@ -188,7 +188,7 @@ namespace TrenchBroom {
         
         void PrimitiveRenderer::prepareTriangles(Vbo& vertexVbo) {
             TriangleMeshMap::iterator it, end;
-            for (it = m_triangleMeshes.begin(), end = m_triangleMeshes.end(); it != end; ++it) {
+            for (it = std::begin(m_triangleMeshes), end = std::end(m_triangleMeshes); it != end; ++it) {
                 const TriangleRenderAttributes& attributes = it->first;
                 IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
                 IndexRangeRenderer& renderer = m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
             
             LineMeshRendererMap::iterator it, end;
-            for (it = m_lineMeshRenderers.begin(), end = m_lineMeshRenderers.end(); it != end; ++it) {
+            for (it = std::begin(m_lineMeshRenderers), end = std::end(m_lineMeshRenderers); it != end; ++it) {
                 const LineRenderAttributes& attributes = it->first;
                 IndexRangeRenderer& renderer = it->second;
                 attributes.render(renderer, shader);
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
             
             TriangleMeshRendererMap::iterator it, end;
-            for (it = m_triangleMeshRenderers.begin(), end = m_triangleMeshRenderers.end(); it != end; ++it) {
+            for (it = std::begin(m_triangleMeshRenderers), end = std::end(m_triangleMeshRenderers); it != end; ++it) {
                 const TriangleRenderAttributes& attributes = it->first;
                 IndexRangeRenderer& renderer = it->second;
                 attributes.render(renderer, shader);

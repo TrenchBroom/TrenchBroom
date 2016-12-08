@@ -192,7 +192,7 @@ namespace TrenchBroom {
         void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::List& paths) {
             wxArrayString values;
             IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
+            for (it = std::begin(paths), end = std::end(paths); it != end; ++it) {
                 const IO::Path& path = *it;
                 values.push_back(path.asString());
             }

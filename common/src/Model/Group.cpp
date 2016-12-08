@@ -173,7 +173,7 @@ namespace TrenchBroom {
             
             const NodeList& children = Node::children();
             NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
+            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
                 const Node* child = *it;
                 child->pick(ray, pickResult);
             }
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             
             const NodeList& children = Node::children();
             NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
+            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
                 Node* child = *it;
                 child->findNodesContaining(point, result);
             }

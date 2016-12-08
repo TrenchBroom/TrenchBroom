@@ -178,7 +178,7 @@ namespace TrenchBroom {
         ExpressionBase* ArrayExpression::doClone() const {
             ExpressionBase::List clones;
             ExpressionBase::List::const_iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const ExpressionBase* element = *it;
                 clones.push_back(element->clone());
             }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             bool allOptimized = true;
             
             ExpressionBase::List::iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 ExpressionBase*& expression = *it;
                 ExpressionBase* optimized = expression->optimize();
                 replaceExpression(expression, optimized);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
         Value ArrayExpression::doEvaluate(const EvaluationContext& context) const {
             ArrayType array;
             ExpressionBase::List::const_iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const ExpressionBase* element = *it;
                 const Value value = element->evaluate(context);
                 if (value.type() == Type_Range) {
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             
             ExpressionBase::List::const_iterator it, end;
             size_t i = 0;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const ExpressionBase* expression = *it;
                 str << *expression;
                 if (i < m_elements.size() - 1)
@@ -253,7 +253,7 @@ namespace TrenchBroom {
         ExpressionBase* MapExpression::doClone() const {
             ExpressionBase::Map clones;
             ExpressionBase::Map::const_iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const String& key = it->first;
                 const ExpressionBase* value = it->second;
                 clones.insert(std::make_pair(key, value->clone()));
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             bool allOptimized = true;
             
             ExpressionBase::Map::iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 ExpressionBase*& expression = it->second;
                 ExpressionBase* optimized = expression->optimize();
                 replaceExpression(expression, optimized);
@@ -283,7 +283,7 @@ namespace TrenchBroom {
         Value MapExpression::doEvaluate(const EvaluationContext& context) const {
             MapType map;
             ExpressionBase::Map::const_iterator it, end;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const String& key = it->first;
                 const ExpressionBase* expression = it->second;
                 map.insert(std::make_pair(key, expression->evaluate(context)));
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             str << "{ ";
             ExpressionBase::Map::const_iterator it, end;
             size_t i = 0;
-            for (it = m_elements.begin(), end = m_elements.end(); it != end; ++it) {
+            for (it = std::begin(m_elements), end = std::end(m_elements); it != end; ++it) {
                 const String& key = it->first;
                 const ExpressionBase* value = it->second;
                 
@@ -1033,7 +1033,7 @@ namespace TrenchBroom {
 
         ExpressionBase* SwitchOperator::doOptimize() {
             ExpressionBase::List::const_iterator it, end;
-            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+            for (it = std::begin(m_cases), end = std::end(m_cases); it != end; ++it) {
                 ExpressionBase* case_ = *it;
                 ExpressionBase* optimized = case_->optimize();
                 
@@ -1053,14 +1053,14 @@ namespace TrenchBroom {
         ExpressionBase* SwitchOperator::doClone() const {
             ExpressionBase::List caseClones;
             ExpressionBase::List::const_iterator it, end;
-            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it)
+            for (it = std::begin(m_cases), end = std::end(m_cases); it != end; ++it)
                 caseClones.push_back((*it)->clone());
             return new SwitchOperator(caseClones, m_line, m_column);
         }
         
         Value SwitchOperator::doEvaluate(const EvaluationContext& context) const {
             ExpressionBase::List::const_iterator it, end;
-            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+            for (it = std::begin(m_cases), end = std::end(m_cases); it != end; ++it) {
                 const ExpressionBase* case_ = *it;
                 const Value result = case_->evaluate(context);
                 if (!result.undefined())
@@ -1073,7 +1073,7 @@ namespace TrenchBroom {
             str << "{{ ";
             ExpressionBase::List::const_iterator it, end;
             size_t i = 0;
-            for (it = m_cases.begin(), end = m_cases.end(); it != end; ++it) {
+            for (it = std::begin(m_cases), end = std::end(m_cases); it != end; ++it) {
                 const ExpressionBase* expression = *it;
                 str << *expression;
                 if (i < m_cases.size() - 1)

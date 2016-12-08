@@ -153,7 +153,7 @@ namespace TrenchBroom {
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
                 Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                for (it = std::begin(targets), end = std::end(targets); it != end; ++it) {
                     const Model::AttributableNode* target = *it;
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -182,7 +182,7 @@ namespace TrenchBroom {
 
             void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
                 Model::AttributableNodeList::const_iterator it, end;
-                for (it = sources.begin(), end = sources.end(); it != end; ++it) {
+                for (it = std::begin(sources), end = std::end(sources); it != end; ++it) {
                     Model::AttributableNode* source = *it;
                     if (m_editorContext.visible(source)) {
                         addLink(source, target);
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
                 Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                for (it = std::begin(targets), end = std::end(targets); it != end; ++it) {
                     Model::AttributableNode* target = *it;
                     if (m_editorContext.visible(target)) {
                         addLink(source, target);
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             
             void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
                 Model::AttributableNodeList::const_iterator it, end;
-                for (it = sources.begin(), end = sources.end(); it != end; ++it) {
+                for (it = std::begin(sources), end = std::end(sources); it != end; ++it) {
                     const Model::AttributableNode* source = *it;
                     if (!source->selected() && !source->descendantSelected() && m_editorContext.visible(source))
                         addLink(source, target);
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
                 Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                for (it = std::begin(targets), end = std::end(targets); it != end; ++it) {
                     const Model::AttributableNode* target = *it;
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -287,10 +287,10 @@ namespace TrenchBroom {
             
             const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
             CollectEntitiesVisitor collectEntities;
-            Model::Node::acceptAndEscalate(selectedNodes.begin(), selectedNodes.end(), collectEntities);
+            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collectEntities);
             
             const Model::NodeList& selectedEntities = collectEntities.nodes();
-            Model::Node::accept(selectedEntities.begin(), selectedEntities.end(), collectLinks);
+            Model::Node::accept(std::begin(selectedEntities), std::end(selectedEntities), collectLinks);
         }
     }
 }

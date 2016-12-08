@@ -205,7 +205,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const IO::Path::List collections = document->enabledTextureCollections();
             IO::Path::List::const_iterator it, end;
-            for (it = collections.begin(), end = collections.end(); it != end; ++it) {
+            for (it = std::begin(collections), end = std::end(collections); it != end; ++it) {
                 const IO::Path& path = *it;
                 m_collections->Append(path.asString());
             }

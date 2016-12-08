@@ -66,13 +66,13 @@ namespace TrenchBroom {
                 IO::Path::List::const_iterator it, end;
 
                 m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
-                for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
+                for (it = std::begin(m_additionalSearchPaths), end = std::end(m_additionalSearchPaths); it != end; ++it) {
                     const IO::Path& searchPath = *it;
                     m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
                 }
 
                 addPackages(m_gamePath + fileSystemConfig.searchPath);
-                for (it = m_additionalSearchPaths.begin(), end = m_additionalSearchPaths.end(); it != end; ++it) {
+                for (it = std::begin(m_additionalSearchPaths), end = std::end(m_additionalSearchPaths); it != end; ++it) {
                     const IO::Path& searchPath = *it;
                     addPackages(m_gamePath + searchPath);
                 }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 const IO::DiskFileSystem diskFS(searchPath);
                 const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
                 IO::Path::List::const_iterator it, end;
-                for (it = packages.begin(), end = packages.end(); it != end; ++it) {
+                for (it = std::begin(packages), end = std::end(packages); it != end; ++it) {
                     const IO::Path& packagePath = *it;
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != NULL, "packageFile is null");

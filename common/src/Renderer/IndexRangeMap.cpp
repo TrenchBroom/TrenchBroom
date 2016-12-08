@@ -75,7 +75,7 @@ namespace TrenchBroom {
         
         void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const {
             PrimTypeToSize::const_iterator primIt, primEnd;
-            for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
+            for (primIt = std::begin(m_sizes), primEnd = std::end(m_sizes); primIt != primEnd; ++primIt) {
                 const PrimType primType = primIt->first;
                 const size_t size = primIt->second;
                 data[primType].reserve(size);

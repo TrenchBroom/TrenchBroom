@@ -77,7 +77,7 @@ namespace TrenchBroom {
         
         void EntityRenderer::setEntities(const Model::EntityList& entities) {
             m_entities = entities;
-            m_modelRenderer.setEntities(m_entities.begin(), m_entities.end());
+            m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
             invalidate();
         }
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::reloadModels() {
-            m_modelRenderer.updateEntities(m_entities.begin(), m_entities.end());
+            m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
                 Model::EntityList::const_iterator it, end;
-                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         if (m_showOccludedOverlays)
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             
             Vec3f::List vertices(3);
             Model::EntityList::const_iterator it, end;
-            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+            for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
                 const Model::Entity* entity = *it;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
@@ -317,7 +317,7 @@ namespace TrenchBroom {
 
                 BuildWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices);
                 Model::EntityList::const_iterator it, end;
-                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
                         eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
@@ -334,7 +334,7 @@ namespace TrenchBroom {
                 wireframeVertices.reserve(24 * m_entities.size());
 
                 Model::EntityList::const_iterator it, end;
-                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {

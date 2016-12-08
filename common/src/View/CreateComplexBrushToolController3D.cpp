@@ -237,7 +237,7 @@ namespace TrenchBroom {
             
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it)
                 polyhedron.addPoint((*it)->position());
             m_tool->update(polyhedron);
             
@@ -263,14 +263,14 @@ namespace TrenchBroom {
                 
                 const Polyhedron3::EdgeList& edges = polyhedron.edges();
                 Polyhedron3::EdgeList::const_iterator eIt, eEnd;
-                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                for (eIt = std::begin(edges), eEnd = std::end(edges); eIt != eEnd; ++eIt) {
                     const Polyhedron3::Edge* edge = *eIt;
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 }
                 
                 const Polyhedron3::VertexList& vertices = polyhedron.vertices();
                 Polyhedron3::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
                     const Polyhedron3::Vertex* vertex = *vIt;
                     renderService.renderPointHandle(vertex->position());
                 }
@@ -285,7 +285,7 @@ namespace TrenchBroom {
                     renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
                     renderService.renderFilledPolygon(pos3f);
 
-                    std::reverse(pos3f.begin(), pos3f.end());
+                    std::reverse(std::begin(pos3f), std::end(pos3f));
                     renderService.renderFilledPolygon(pos3f);
                 }
             }
