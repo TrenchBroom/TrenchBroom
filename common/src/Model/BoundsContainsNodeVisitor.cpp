@@ -33,10 +33,8 @@ namespace TrenchBroom {
         void BoundsContainsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.contains(entity->bounds())); }
         
         void BoundsContainsNodeVisitor::doVisit(const Brush* brush)   {
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                if (!m_bounds.contains((*it)->position())) {
+            for (const BrushVertex* vertex : brush->vertices()) {
+                if (!m_bounds.contains(vertex->position())) {
                     setResult(false);
                     return;
                 }

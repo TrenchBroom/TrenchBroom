@@ -33,10 +33,7 @@ namespace TrenchBroom {
         void BoundsIntersectsNodeVisitor::doVisit(const Group* group)   { setResult(m_bounds.intersects(group->bounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.intersects(entity->bounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Brush* brush)   {
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                const BrushVertex* vertex = *it;
+            for (const BrushVertex* vertex : brush->vertices()) {
                 if (m_bounds.contains(vertex->position())) {
                     setResult(true);
                     return;

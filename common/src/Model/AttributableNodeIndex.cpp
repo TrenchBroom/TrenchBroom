@@ -76,21 +76,13 @@ namespace TrenchBroom {
         m_pattern(pattern) {}
 
         void AttributableNodeIndex::addAttributableNode(AttributableNode* attributable) {
-            const EntityAttribute::List& attributes = attributable->attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = std::begin(attributes), end = std::end(attributes); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : attributable->attributes())
                 addAttribute(attributable, attribute.name(), attribute.value());
-            }
         }
         
         void AttributableNodeIndex::removeAttributableNode(AttributableNode* attributable) {
-            const EntityAttribute::List& attributes = attributable->attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = std::begin(attributes), end = std::end(attributes); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : attributable->attributes())
                 removeAttribute(attributable, attribute.name(), attribute.value());
-            }
         }
 
         void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
