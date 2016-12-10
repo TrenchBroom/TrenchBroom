@@ -97,6 +97,9 @@ namespace TrenchBroom {
             static bool useSDI();
             void showWelcomeFrame();
         };
+
+        void reportCrashAndExit(const String &stacktrace, const String &reason);
+        bool isReportingCrash();
     }
 }
 

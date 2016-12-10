@@ -150,15 +150,6 @@ namespace TrenchBroom {
         FileFormatException() noexcept {}
         FileFormatException(const std::string& str) noexcept : ExceptionStream(str) {}
     };
-
-    class ConditionFailedException : public ExceptionStream<ConditionFailedException> {
-    public:
-        ConditionFailedException() noexcept {}
-        ConditionFailedException(const std::string& str) noexcept : ExceptionStream(str) {}
-        ConditionFailedException(const char *file, const int line, const char *condition, const std::string& message) noexcept : ExceptionStream() {
-            *this << file << ":" << line << ": Condition '" << condition << "' failed: " << message;
-        }
-    };
 }
 
 #endif

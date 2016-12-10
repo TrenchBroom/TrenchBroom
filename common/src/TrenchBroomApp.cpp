@@ -332,13 +332,14 @@ namespace TrenchBroom {
             return testCrashLogPath.asString();
         }
         
-        static void reportCrashAndExit(const String &stacktrace, const String &reason) {
-            static bool inFunction = false;
+        static bool inReportCrashAndExit = false;
+
+        void reportCrashAndExit(const String &stacktrace, const String &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-            if (inFunction) {
+            if (inReportCrashAndExit) {
                 wxAbort();
             }
-            inFunction = true;
+            inReportCrashAndExit = true;
             
             // get the crash report as a string
             String report = makeCrashReport(stacktrace, reason);
@@ -370,6 +371,10 @@ namespace TrenchBroom {
             dialog.ShowModal();
             
             wxAbort();
+        }
+
+        bool isReportingCrash() {
+            return inReportCrashAndExit;
         }
         
         void TrenchBroomApp::OnUnhandledException() {
