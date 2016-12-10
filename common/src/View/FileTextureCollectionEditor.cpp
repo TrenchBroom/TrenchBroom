@@ -203,12 +203,8 @@ namespace TrenchBroom {
             m_collections->Clear();
             
             MapDocumentSPtr document = lock(m_document);
-            const IO::Path::List collections = document->enabledTextureCollections();
-            IO::Path::List::const_iterator it, end;
-            for (it = std::begin(collections), end = std::end(collections); it != end; ++it) {
-                const IO::Path& path = *it;
+            for (const IO::Path& path : document->enabledTextureCollections())
                 m_collections->Append(path.asString());
-            }
         }
     }
 }

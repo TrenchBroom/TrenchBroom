@@ -36,9 +36,7 @@ namespace TrenchBroom {
 
         IssueQuickFixList IssueGeneratorRegistry::quickFixes(const IssueType issueTypes) const {
             IssueQuickFixList result;
-            IssueGeneratorList::const_iterator it, end;
-            for (it = std::begin(m_generators), end = std::end(m_generators); it != end; ++it) {
-                const IssueGenerator* generator = *it;
+            for (const IssueGenerator* generator : m_generators) {
                 if ((generator->type() & issueTypes) != 0)
                     VectorUtils::append(result, generator->quickFixes());
             }

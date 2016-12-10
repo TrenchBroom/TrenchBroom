@@ -293,11 +293,8 @@ namespace VectorUtils {
 
     template <typename T, typename Cmp>
     bool contains(const std::vector<T>& vec, const T& item, const Cmp& cmp) {
-        typedef std::vector<T> VecType;
-        typedef typename VecType::const_iterator VecIter;
-
-        VecIter first = std::begin(vec);
-        const VecIter last = std::end(vec);
+        auto first = std::begin(vec);
+        const auto last = std::end(vec);
         while (first != last)
             if (cmp(*(first++), item))
                 return true;
@@ -516,10 +513,7 @@ namespace VectorUtils {
 
     template <typename T>
     std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        typedef std::vector<T> VecType;
-        typedef typename VecType::const_iterator VecIter;
-
-        VecType result;
+        std::vector<T> result;
         for (const T& elem : vec1) {
             if (!VectorUtils::contains(vec2, elem))
                 result.push_back(elem);

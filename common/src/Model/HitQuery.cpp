@@ -128,9 +128,7 @@ namespace TrenchBroom {
         
         Hit::List HitQuery::all() const {
             Hit::List result;
-            Hit::List::const_iterator it, end;
-            for (it = m_hits->begin(), end = m_hits->end(); it != end; ++it) {
-                const Hit& hit = *it;
+            for (const Hit& hit : *m_hits) {
                 if (m_include->matches(hit))
                     result.push_back(hit);
             }

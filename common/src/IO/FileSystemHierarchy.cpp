@@ -50,8 +50,7 @@ namespace TrenchBroom {
         }
 
         bool FileSystemHierarchy::doDirectoryExists(const Path& path) const {
-            FileSystemList::const_reverse_iterator it, end;
-            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
+            for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->directoryExists(path))
                     return true;
@@ -64,8 +63,7 @@ namespace TrenchBroom {
         }
         
         FileSystem* FileSystemHierarchy::findFileSystemContaining(const Path& path) const {
-            FileSystemList::const_reverse_iterator it, end;
-            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
+            for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path))
                     return fileSystem;
@@ -75,8 +73,7 @@ namespace TrenchBroom {
 
         Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
             Path::List result;
-            FileSystemList::const_reverse_iterator it, end;
-            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
+            for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
                     const Path::List contents = fileSystem->getDirectoryContents(path);
@@ -89,8 +86,7 @@ namespace TrenchBroom {
         }
         
         const MappedFile::Ptr FileSystemHierarchy::doOpenFile(const Path& path) const {
-            FileSystemList::const_reverse_iterator it, end;
-            for (it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
+            for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     const MappedFile::Ptr file = fileSystem->openFile(path);

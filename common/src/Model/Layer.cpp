@@ -147,21 +147,13 @@ namespace TrenchBroom {
         }
 
         void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const Model::NodeList candidates = m_octree.findObjects(ray);
-            NodeList::const_iterator it, end;
-            for (it = std::begin(candidates), end = std::end(candidates); it != end; ++it) {
-                const Node* node = *it;
+            for (const Node* node : m_octree.findObjects(ray))
                 node->pick(ray, pickResult);
-            }
         }
         
         void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            const Model::NodeList candidates = m_octree.findObjects(point);
-            NodeList::const_iterator it, end;
-            for (it = std::begin(candidates), end = std::end(candidates); it != end; ++it) {
-                Node* node = *it;
+            for (Node* node : m_octree.findObjects(point))
                 node->findNodesContaining(point, result);
-            }
         }
 
         FloatType Layer::doIntersectWithRay(const Ray3& ray) const {

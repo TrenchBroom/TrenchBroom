@@ -45,11 +45,8 @@ namespace TrenchBroom {
         }
         
         void GroupSnapshot::doRestore(const BBox3& worldBounds) {
-            NodeSnapshotList::const_iterator it, end;
-            for (it = std::begin(m_snapshots), end = std::end(m_snapshots); it != end; ++it) {
-                NodeSnapshot* snapshot = *it;
+            for (NodeSnapshot* snapshot : m_snapshots)
                 snapshot->restore(worldBounds);
-            }
         }
     }
 }
