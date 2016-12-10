@@ -44,9 +44,7 @@ namespace TrenchBroom {
             }
             
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
-                Path::List::const_iterator it, end;
-                for (it = std::begin(list), end = std::end(list); it != end; ++it) {
-                    const Path& entry = *it;
+                for (const Path& entry : list) {
                     if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
                         return entry;
                 }
@@ -225,8 +223,7 @@ namespace TrenchBroom {
                     if (fileExists(path) || directoryExists(path))
                         return path;
                 } else {
-                    for (size_t j = 0; j < searchPaths.size(); ++j) {
-                        const Path& searchPath = searchPaths[j];
+                    for (const Path& searchPath : searchPaths) {
                         const Path fullPath = searchPath + path;
                         if (fileExists(fullPath) || directoryExists(fullPath))
                             return fullPath;

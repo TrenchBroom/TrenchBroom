@@ -144,11 +144,8 @@ namespace TrenchBroom {
         void GameFactory::loadGameConfigs() {
             const IO::Path::List configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
             
-            IO::Path::List::const_iterator it, end;
-            for (it = std::begin(configFiles), end = std::end(configFiles); it != end; ++it) {
-                const IO::Path& configFilePath = *it;
+            for (const IO::Path& configFilePath : configFiles)
                 loadGameConfig(configFilePath);
-            }
             
             StringUtils::sortCaseSensitive(m_names);
         }
@@ -207,9 +204,8 @@ namespace TrenchBroom {
         }
         
         void GameFactory::writeCompilationConfigs() {
-            ConfigMap::const_iterator it, end;
-            for (it = std::begin(m_configs), end = std::end(m_configs); it != end; ++it) {
-                const GameConfig& gameConfig = it->second;
+            for (const auto& entry : m_configs) {
+                const GameConfig& gameConfig = entry.second;
                 writeCompilationConfig(gameConfig);
             }
         }
@@ -224,9 +220,8 @@ namespace TrenchBroom {
         }
 
         void GameFactory::writeGameEngineConfigs() {
-            ConfigMap::const_iterator it, end;
-            for (it = std::begin(m_configs), end = std::end(m_configs); it != end; ++it) {
-                const GameConfig& gameConfig = it->second;
+            for (const auto& entry : m_configs) {
+                const GameConfig& gameConfig = entry.second;
                 writeGameEngineConfig(gameConfig);
             }
         }

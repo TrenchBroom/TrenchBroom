@@ -145,9 +145,7 @@ namespace TrenchBroom {
             wxArrayInt flags;
             wxArrayString labels;
             
-            Model::IssueGeneratorList::const_iterator it, end;
-            for (it = std::begin(generators), end = std::end(generators); it != end; ++it) {
-                const Model::IssueGenerator* generator = *it;
+            for (const Model::IssueGenerator* generator : generators) {
                 const Model::IssueType flag = generator->type();
                 const String& description = generator->description();
                 

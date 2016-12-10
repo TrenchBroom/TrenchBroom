@@ -32,11 +32,8 @@ namespace TrenchBroom {
         m_name(name),
         m_workDirSpec(workDirSpec),
         m_tasks(tasks) {
-            CompilationTask::List::iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                CompilationTask* task = *it;
+            for (CompilationTask* task : m_tasks)
                 task->taskDidChange.addObserver(taskDidChange);
-            }
         }
 
         CompilationProfile::~CompilationProfile() {
@@ -46,12 +43,9 @@ namespace TrenchBroom {
         CompilationProfile* CompilationProfile::clone() const {
             CompilationTask::List clones;
             clones.reserve(m_tasks.size());
-            
-            CompilationTask::List::const_iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                const CompilationTask* original = *it;
+
+            for (const CompilationTask* original : m_tasks)
                 clones.push_back(original->clone());
-            }
             
             return new CompilationProfile(m_name, m_workDirSpec, clones);
         }
@@ -140,35 +134,23 @@ namespace TrenchBroom {
         }
 
         void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
-            CompilationTask::List::iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                CompilationTask* task = *it;
+            for (CompilationTask* task : m_tasks)
                 task->accept(visitor);
-            }
         }
         
         void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const {
-            CompilationTask::List::const_iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                CompilationTask* task = *it;
+            for (CompilationTask* task : m_tasks)
                 task->accept(visitor);
-            }
         }
         
         void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor) {
-            CompilationTask::List::iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                CompilationTask* task = *it;
+            for (CompilationTask* task : m_tasks)
                 task->accept(visitor);
-            }
         }
         
         void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            CompilationTask::List::const_iterator it, end;
-            for (it = std::begin(m_tasks), end = std::end(m_tasks); it != end; ++it) {
-                CompilationTask* task = *it;
+            for (CompilationTask* task : m_tasks)
                 task->accept(visitor);
-            }
         }
     }
 }

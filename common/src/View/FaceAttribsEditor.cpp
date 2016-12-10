@@ -559,9 +559,7 @@ namespace TrenchBroom {
 
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions);
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
-            Model::GameConfig::FlagConfigList::const_iterator it, end;
-            for (it = std::begin(flags), end = std::end(flags); it != end; ++it) {
-                const Model::GameConfig::FlagConfig& flag = *it;
+            for (const auto& flag : flags) {
                 names.push_back(flag.name);
                 descriptions.push_back(flag.description);
             }

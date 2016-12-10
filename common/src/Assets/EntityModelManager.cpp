@@ -151,9 +151,8 @@ namespace TrenchBroom {
 
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
-                ModelCache::const_iterator it, end;
-                for (it = std::begin(m_models), end = std::end(m_models); it != end; ++it) {
-                    EntityModel* model = it->second;
+                for (const auto& entry : m_models) {
+                    EntityModel* model = entry.second;
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
                 m_resetTextureMode = false;
@@ -161,20 +160,14 @@ namespace TrenchBroom {
         }
         
         void EntityModelManager::prepareModels() {
-            ModelList::const_iterator it, end;
-            for (it = std::begin(m_unpreparedModels), end = std::end(m_unpreparedModels); it != end; ++it) {
-                Assets::EntityModel* model = *it;
+            for (Assets::EntityModel* model : m_unpreparedModels)
                 model->prepare(m_minFilter, m_magFilter);
-            }
             m_unpreparedModels.clear();
         }
         
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
-            RendererList::const_iterator it, end;
-            for (it = std::begin(m_unpreparedRenderers), end = std::end(m_unpreparedRenderers); it != end; ++it) {
-                Renderer::TexturedIndexRangeRenderer* renderer = *it;
+            for (Renderer::TexturedIndexRangeRenderer* renderer : m_unpreparedRenderers)
                 renderer->prepare(vbo);
-            }
             m_unpreparedRenderers.clear();
         }
     }

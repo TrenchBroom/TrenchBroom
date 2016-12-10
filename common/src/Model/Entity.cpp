@@ -153,12 +153,8 @@ namespace TrenchBroom {
 
         void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
             if (hasChildren()) {
-                const NodeList& children = Node::children();
-                NodeList::const_iterator it, end;
-                for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                    const Node* child = *it;
+                for (const Node* child : Node::children())
                     child->pick(ray, pickResult);
-                }
             } else {
                 const BBox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
@@ -173,12 +169,8 @@ namespace TrenchBroom {
         
         void Entity::doFindNodesContaining(const Vec3& point, NodeList& result) {
             if (hasChildren()) {
-                const NodeList& children = Node::children();
-                NodeList::const_iterator it, end;
-                for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                    Node* child = *it;
+                for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
-                }
             } else {
                 if (bounds().contains(point))
                     result.push_back(this);

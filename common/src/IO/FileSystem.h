@@ -67,10 +67,7 @@ namespace TrenchBroom {
         private:
             template <class M>
             void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
-                const Path::List contents = getDirectoryContents(searchPath);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(contents), end = std::end(contents); it != end; ++it) {
-                    const Path& itemPath = *it;
+                for (const Path& itemPath : getDirectoryContents(searchPath)) {
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
                         doFindItems(searchPath + itemPath, matcher, recurse, result);

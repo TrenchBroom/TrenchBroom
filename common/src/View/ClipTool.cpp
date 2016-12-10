@@ -408,11 +408,8 @@ namespace TrenchBroom {
                     Vec3f::List positions;
                     positions.reserve(vertices.size());
                     
-                    Model::BrushFace::VertexList::const_iterator it, end;
-                    for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                        const Model::BrushVertex* vertex = *it;
+                    for (const Model::BrushVertex* vertex : vertices)
                         positions.push_back(vertex->position());
-                    }
                     
                     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                     renderService.renderPolygonOutline(positions);
@@ -704,9 +701,7 @@ namespace TrenchBroom {
                 ensure(numPoints == 3, "invalid number of points");
                 
                 Model::World* world = document->world();
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                    Model::Brush* brush = *bIt;
+                for (Model::Brush* brush : brushes) {
                     Model::Node* parent = brush->parent();
                     
                     Model::BrushFace* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
@@ -726,11 +721,8 @@ namespace TrenchBroom {
                         delete backBrush;
                 }
             } else {
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                    Model::Brush* brush = *bIt;
+                for (Model::Brush* brush : brushes) {
                     Model::Node* parent = brush->parent();
-                    
                     Model::Brush* frontBrush = brush->clone(worldBounds);
                     m_frontBrushes[parent].push_back(frontBrush);
                 }
@@ -791,9 +783,8 @@ namespace TrenchBroom {
         void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
             Model::CollectBrushesVisitor collect;
             
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = std::begin(map), end = std::end(map); it != end; ++it) {
-                const Model::NodeList& brushes = it->second;
+            for (const auto& entry : map) {
+                const Model::NodeList& brushes = entry.second;
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
             

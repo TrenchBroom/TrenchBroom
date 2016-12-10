@@ -44,10 +44,7 @@ namespace TrenchBroom {
             
             template <class M>
             void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) {
-                const Path::List contents = getDirectoryContents(searchPath);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(contents), end = std::end(contents); it != end; ++it) {
-                    const Path& itemPath = *it;
+                for (const Path& itemPath : getDirectoryContents(searchPath)) {
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
                         doFindItems(searchPath + itemPath, matcher, recurse, result);
@@ -80,66 +77,42 @@ namespace TrenchBroom {
 
             template <typename M>
             void deleteFiles(const Path& sourceDirPath, const M& matcher) {
-                const Path::List files = findItems(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItems(sourceDirPath, matcher))
                     deleteFile(filePath);
-                }
             }
             
             template <typename M>
             void deleteFilesRecursively(const Path& sourceDirPath, const M& matcher) {
-                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItemsRecursively(sourceDirPath, matcher))
                     deleteFile(filePath);
-                }
             }
             
             void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             
             template <typename M>
             void copyFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
-                const Path::List files = findItems(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItems(sourceDirPath, matcher))
                     copyFile(filePath, destDirPath, overwrite);
-                }
             }
             
             template <typename M>
             void copyFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
-                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItemsRecursively(sourceDirPath, matcher))
                     copyFile(filePath, destDirPath, overwrite);
-                }
             }
             
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             
             template <typename M>
             void moveFiles(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
-                const Path::List files = findItems(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItems(sourceDirPath, matcher))
                     moveFile(filePath, destDirPath, overwrite);
-                }
             }
             
             template <typename M>
             void moveFilesRecursively(const Path& sourceDirPath, const M& matcher, const Path& destDirPath, const bool overwrite) {
-                const Path::List files = findItemsRecursively(sourceDirPath, matcher);
-                Path::List::const_iterator it, end;
-                for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                    const Path& filePath = *it;
+                for (const Path& filePath : findItemsRecursively(sourceDirPath, matcher))
                     moveFile(filePath, destDirPath, overwrite);
-                }
             }
             
             Path resolvePath(const Path::List& searchPaths, const Path& path);

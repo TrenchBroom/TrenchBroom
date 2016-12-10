@@ -58,12 +58,8 @@ namespace TrenchBroom {
                     window->SetBackgroundColour(background);
             }
 
-            const wxWindowList& children = window->GetChildren();
-            wxWindowList::const_iterator it, end;
-            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                wxWindow* child = *it;
+            for (wxWindow* child : window->GetChildren())
                 setColours(child, foreground, background);
-            }
         }
 
         class ControlListBox::Sizer : public wxBoxSizer {
@@ -255,12 +251,8 @@ namespace TrenchBroom {
                 window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
             }
 
-            const wxWindowList& children = window->GetChildren();
-            wxWindowList::const_iterator it, end;
-            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                wxWindow* child = *it;
+            for (wxWindow* child : window->GetChildren())
                 bindEvents(child, itemIndex);
-            }
         }
 
         void ControlListBox::OnIdle(wxIdleEvent& event) {

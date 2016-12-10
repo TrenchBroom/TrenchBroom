@@ -245,9 +245,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::NodeList::const_iterator it, end;
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Group* nodeGroup = Model::findGroup(node);
                 if (nodeGroup != NULL) {
                     event.Enable(false);
@@ -255,8 +253,7 @@ namespace TrenchBroom {
                 }
             }
 
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Layer* nodeLayer = Model::findLayer(node);
                 if (nodeLayer != layer) {
                     event.Enable(true);
@@ -369,9 +366,7 @@ namespace TrenchBroom {
                 return document->world()->defaultLayer();
             
             const Model::LayerList& layers = document->world()->customLayers();
-            Model::LayerList::const_iterator it, end;
-            for (it = std::begin(layers), end = std::end(layers); it != end; ++it) {
-                Model::Layer* layer = *it;
+            for (Model::Layer* layer : layers) {
                 if (layer != except && !layer->locked() && !layer->hidden())
                     return layer;
             }

@@ -38,9 +38,7 @@ namespace TrenchBroom {
         }
 
         void IssueQuickFix::doApply(MapFacade* facade, const IssueList& issues) const {
-            IssueList::const_iterator it, end;
-            for (it = std::begin(issues), end = std::end(issues); it != end; ++it) {
-                const Issue* issue = *it;
+            for (const Issue* issue : issues) {
                 if (issue->type() == m_issueType)
                     doApply(facade, issue);
             }

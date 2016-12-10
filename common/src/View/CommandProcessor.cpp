@@ -44,8 +44,7 @@ namespace TrenchBroom {
         m_commandUndoneNotifier(commandUndoneNotifier) {}
         
         bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
-            CommandList::iterator it, end;
-            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 m_commandDoNotifier(command);
                 if (!command->performDo(document))
@@ -56,8 +55,7 @@ namespace TrenchBroom {
         }
         
         bool CommandGroup::doPerformUndo(MapDocumentCommandFacade* document) {
-            CommandList::reverse_iterator it, end;
-            for (it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
+            for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 m_commandUndoNotifier(command);
                 if (!command->performUndo(document))
@@ -68,8 +66,7 @@ namespace TrenchBroom {
         }
         
         bool CommandGroup::doIsRepeatDelimiter() const {
-            CommandList::const_iterator it, end;
-            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (command->isRepeatDelimiter())
                     return true;
@@ -78,8 +75,7 @@ namespace TrenchBroom {
         }
         
         bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            CommandList::const_iterator it, end;
-            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (!command->isRepeatable(document))
                     return false;
@@ -89,8 +85,7 @@ namespace TrenchBroom {
         
         UndoableCommand::Ptr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
             CommandList clones;
-            CommandList::const_iterator it, end;
-            for (it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 assert(command->isRepeatable(document));
                 UndoableCommand::Ptr clone = command->repeat(document);
@@ -209,8 +204,7 @@ namespace TrenchBroom {
         
         bool CommandProcessor::repeatLastCommands() {
             CommandList commands;
-            CommandStack::iterator it, end;
-            for (it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
+            for (auto it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (command->isRepeatable(m_document))
                     commands.push_back(UndoableCommand::Ptr(command->repeat(m_document)));

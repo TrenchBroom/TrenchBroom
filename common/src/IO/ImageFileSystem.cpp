@@ -110,13 +110,11 @@ namespace TrenchBroom {
         Path::List ImageFileSystem::Directory::contents() const {
             Path::List contents;
             
-            DirMap::const_iterator dIt, dEnd;
-            for (dIt = std::begin(m_directories), dEnd = std::end(m_directories); dIt != dEnd; ++dIt)
-                contents.push_back(Path(dIt->first));
+            for (const auto& entry : m_directories)
+                contents.push_back(Path(entry.first));
             
-            FileMap::const_iterator fIt, fEnd;
-            for (fIt = std::begin(m_files), fEnd = std::end(m_files); fIt != fEnd; ++fIt)
-                contents.push_back(Path(fIt->first));
+            for (const auto& entry : m_files)
+                contents.push_back(Path(entry.first));
             
             return contents;
         }

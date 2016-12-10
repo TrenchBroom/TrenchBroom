@@ -178,9 +178,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
-            Assets::EntityDefinitionFileSpec::List::const_iterator it, end;
-            for (it = std::begin(specs), end = std::end(specs); it != end; ++it) {
-                const Assets::EntityDefinitionFileSpec& spec = *it;
+            for (const Assets::EntityDefinitionFileSpec& spec : specs) {
                 const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }

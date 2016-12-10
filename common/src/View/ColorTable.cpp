@@ -81,7 +81,7 @@ namespace TrenchBroom {
             dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
             dc.DrawRectangle(0, 0, virtualSize.x, virtualSize.y);
             
-            ColorList::const_iterator it = std::begin(m_colors);
+            auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != std::end(m_colors)) {

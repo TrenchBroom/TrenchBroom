@@ -75,6 +75,7 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
+#include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
@@ -1047,6 +1048,10 @@ namespace TrenchBroom {
         
         bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) {
             return submitAndStore(ConvertEntityColorCommand::convert(name, range));
+        }
+        
+        bool MapDocument::updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
+            return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
         }
         
         bool MapDocument::resizeBrushes(const Polygon3::List& faces, const Vec3& delta) {

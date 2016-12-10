@@ -107,21 +107,13 @@ namespace TrenchBroom {
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
         void BrushRenderer::NoFilter::doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
-            const Model::BrushFaceList& faces = brush->faces();
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                const Model::BrushFace* face = *it;
+            for (const Model::BrushFace* face : brush->faces())
                 faceAcceptor.accept(face);
-            }
         }
         
         void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
-            const Model::Brush::EdgeList& edges = brush->edges();
-            Model::Brush::EdgeList::const_iterator it, end;
-            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                const Model::BrushEdge* edge = *it;
+            for (const Model::BrushEdge* edge : brush->edges())
                 edgeAcceptor.accept(edge);
-            }
         }
         
         

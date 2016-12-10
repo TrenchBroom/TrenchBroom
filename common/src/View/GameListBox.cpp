@@ -74,11 +74,7 @@ namespace TrenchBroom {
             m_gameInfos.clear();
             
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
-            StringList::const_iterator it, end;
-            for (it = std::begin(gameList), end = std::end(gameList); it != end; ++it) {
-                const String& gameName = *it;
-                
+            for (const String& gameName : gameFactory.gameList()) {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
                 IO::Path iconPath = gameFactory.iconPath(gameName);
                 if (iconPath.isEmpty())

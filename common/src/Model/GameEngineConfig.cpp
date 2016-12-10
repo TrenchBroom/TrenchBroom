@@ -31,12 +31,8 @@ namespace TrenchBroom {
         GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
             
-            GameEngineProfile::List::const_iterator it, end;
-            for (it = std::begin(other.m_profiles), end = std::end(other.m_profiles); it != end; ++it) {
-                const GameEngineProfile* original = *it;
-                GameEngineProfile* clone = original->clone();
-                m_profiles.push_back(clone);
-            }
+            for (const GameEngineProfile* original : m_profiles)
+                m_profiles.push_back(original->clone());
         }
         
         GameEngineConfig::~GameEngineConfig() {

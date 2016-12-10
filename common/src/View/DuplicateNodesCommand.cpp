@@ -49,9 +49,7 @@ namespace TrenchBroom {
                 const BBox3& worldBounds = document->worldBounds();
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
                 
-                Model::NodeList::const_iterator it, end;
-                for (it = std::begin(m_previouslySelectedNodes), end = std::end(m_previouslySelectedNodes); it != end; ++it) {
-                    const Model::Node* original = *it;
+                for (const Model::Node* original : m_previouslySelectedNodes) {
                     Model::Node* clone = original->cloneRecursively(worldBounds);
                     
                     Model::Node* parent = original->parent();

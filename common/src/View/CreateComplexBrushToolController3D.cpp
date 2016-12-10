@@ -235,10 +235,8 @@ namespace TrenchBroom {
             Polyhedron3 polyhedron = m_tool->polyhedron();
             const Model::BrushFace* face = Model::hitToFace(hit);
             
-            const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it)
-                polyhedron.addPoint((*it)->position());
+            for (const Model::BrushVertex* vertex : face->vertices())
+                polyhedron.addPoint(vertex->position());
             m_tool->update(polyhedron);
             
             return true;
@@ -261,19 +259,11 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
-                const Polyhedron3::EdgeList& edges = polyhedron.edges();
-                Polyhedron3::EdgeList::const_iterator eIt, eEnd;
-                for (eIt = std::begin(edges), eEnd = std::end(edges); eIt != eEnd; ++eIt) {
-                    const Polyhedron3::Edge* edge = *eIt;
+                for (const Polyhedron3::Edge* edge : polyhedron.edges())
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
-                }
                 
-                const Polyhedron3::VertexList& vertices = polyhedron.vertices();
-                Polyhedron3::VertexList::const_iterator vIt, vEnd;
-                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                    const Polyhedron3::Vertex* vertex = *vIt;
+                for (const Polyhedron3::Vertex* vertex : polyhedron.vertices())
                     renderService.renderPointHandle(vertex->position());
-                }
                 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     const Polyhedron3::Face* face = polyhedron.faces().front();

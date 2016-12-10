@@ -34,11 +34,8 @@ namespace TrenchBroom {
         m_ignoreNotifications(false) {}
         
         CameraLinkHelper::~CameraLinkHelper() {
-            CameraList::iterator it, end;
-            for (it = std::begin(m_cameras), end = std::end(m_cameras); it != end; ++it) {
-                Renderer::Camera* camera = *it;
+            for (Renderer::Camera* camera : m_cameras)
                 camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
-            }
         }
         
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
@@ -58,9 +55,7 @@ namespace TrenchBroom {
             if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
                 const SetBool ignoreNotifications(m_ignoreNotifications);
                 
-                CameraList::iterator it, end;
-                for (it = std::begin(m_cameras), end = std::end(m_cameras); it != end; ++it) {
-                    Renderer::Camera* other = *it;
+                for (Renderer::Camera* other : m_cameras) {
                     if (camera != other) {
                         other->setZoom(camera->zoom());
                         

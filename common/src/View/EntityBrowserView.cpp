@@ -129,30 +129,24 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
-                Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-                
-                for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
-                    const Assets::EntityDefinitionGroup& group = *groupIt;
+                for (const Assets::EntityDefinitionGroup& group : m_entityDefinitionManager.groups()) {
                     const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
                     if (!definitions.empty()) {
                         const String displayName = group.displayName();
                         layout.addGroup(displayName, fontSize + 2.0f);
-                        
-                        Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                        for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
-                            Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*defIt);
-                            addEntityToLayout(layout, definition, font);
+
+                        for (Assets::EntityDefinition* definition : definitions) {
+                            Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                            addEntityToLayout(layout, pointEntityDefinition, font);
                         }
                     }
                 }
             } else {
                 const Assets::EntityDefinitionList& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
-                Assets::EntityDefinitionList::const_iterator it, end;
-                for (it = std::begin(definitions), end = std::end(definitions); it != end; ++it) {
-                    Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*it);
-                    addEntityToLayout(layout, definition, font);
+                for (Assets::EntityDefinition* definition : definitions) {
+                    Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                    addEntityToLayout(layout, pointEntityDefinition, font);
                 }
             }
         }
@@ -362,10 +356,9 @@ namespace TrenchBroom {
                 Renderer::ActivateVbo activate(vertexVbo());
                 
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
-                StringMap::const_iterator it, end;
-                for (it = std::begin(stringVertices), end = std::end(stringVertices); it != end; ++it) {
-                    const Renderer::FontDescriptor& descriptor = it->first;
-                    const TextVertex::List& vertices = it->second;
+                for (const auto& entry : stringVertices) {
+                    const Renderer::FontDescriptor& descriptor = entry.first;
+                    const TextVertex::List& vertices = entry.second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[descriptor].prepare(vertexVbo());
                 }
@@ -374,10 +367,9 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
             
-            StringRendererMap::iterator it, end;
-            for (it = std::begin(stringRenderers), end = std::end(stringRenderers); it != end; ++it) {
-                const Renderer::FontDescriptor& descriptor = it->first;
-                Renderer::VertexArray& vertexArray = it->second;
+            for (auto& entry : stringRenderers) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                Renderer::VertexArray& vertexArray = entry.second;
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
