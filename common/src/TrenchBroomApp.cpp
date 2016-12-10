@@ -333,6 +333,11 @@ namespace TrenchBroom {
         }
         
         static bool inReportCrashAndExit = false;
+        static bool crashReportGuiEnabled = true;
+
+        void setCrashReportGUIEnbled(const bool guiEnabled) {
+            crashReportGuiEnabled = guiEnabled;
+        }
 
         void reportCrashAndExit(const String &stacktrace, const String &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
@@ -351,24 +356,26 @@ namespace TrenchBroom {
             std::ofstream logStream(logPath.asString().c_str());
             logStream << report;
             logStream.close();
-            std::cout << "wrote crash log to " << logPath.asString() << std::endl;
+            std::cerr << "wrote crash log to " << logPath.asString() << std::endl;
             
             // save the map
             MapDocumentSPtr doc = topDocument();
             if (doc) {
                 doc->saveDocumentTo(mapPath);
-                std::cout << "wrote map to " << mapPath.asString() << std::endl;
+                std::cerr << "wrote map to " << mapPath.asString() << std::endl;
             } else {
                 mapPath = IO::Path();
             }
 
             // write the crash log to stdout
-            std::cout << "crash log:" << std::endl;
-            std::cout << report << std::endl;
+            std::cerr << "crash log:" << std::endl;
+            std::cerr << report << std::endl;
 
-            CrashDialog dialog;
-            dialog.Create(logPath, mapPath);
-            dialog.ShowModal();
+            if (crashReportGuiEnabled) {
+                CrashDialog dialog;
+                dialog.Create(logPath, mapPath);
+                dialog.ShowModal();
+            }
             
             wxAbort();
         }

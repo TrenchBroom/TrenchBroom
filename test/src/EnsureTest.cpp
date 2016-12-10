@@ -29,32 +29,7 @@ namespace TrenchBroom {
         }
         
         TEST(EnsureTest, failingEnsure) {
-            EXPECT_ANY_THROW(ensure(false, "this should fail"));
-            EXPECT_THROW(ensure(false, "this should fail"), TrenchBroom::ConditionFailedException);
-        }
-        
-        TEST(EnsureTest, failingEnsureMessage) {
-            bool caught = false;
-            int lineNumber;
-            
-            try {
-                lineNumber = __LINE__; ensure(1 + 1 == 3, "this should fail");
-            } catch (TrenchBroom::ConditionFailedException &exception) {
-                String message = exception.what();
-                
-                EXPECT_TRUE(message.find("something not in the exception message") == String::npos);
-                
-                EXPECT_FALSE(message.find("this should fail") == String::npos);
-                EXPECT_FALSE(message.find("1 + 1 == 3") == String::npos);
-                
-                StringStream fileLineNumberStream;
-                fileLineNumberStream << __FILE__ << ":" << lineNumber;
-                EXPECT_FALSE(message.find(fileLineNumberStream.str()) == String::npos);
-                
-                caught = true;
-            }
-            
-            EXPECT_TRUE(caught);
+            ASSERT_DEATH(ensure(false, "this should fail"), "this should fail");
         }
     }
 }
