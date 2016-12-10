@@ -28,8 +28,18 @@ namespace TrenchBroom {
             EXPECT_NO_THROW(ensure(true, "this shouldn't fail"));
         }
         
+        // Disable a clang warning when using ASSERT_DEATH
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
+#endif
+
         TEST(EnsureTest, failingEnsure) {
             ASSERT_DEATH(ensure(false, "this should fail"), "this should fail");
         }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     }
 }
