@@ -288,6 +288,7 @@ namespace TrenchBroom {
             bool removeAttribute(const Model::AttributeName& name);
             
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
+            bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
