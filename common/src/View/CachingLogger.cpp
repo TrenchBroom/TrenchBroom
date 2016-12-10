@@ -31,11 +31,8 @@ namespace TrenchBroom {
         void CachingLogger::setParentLogger(Logger* logger) {
             m_logger = logger;
             if (m_logger != NULL) {
-                MessageList::const_iterator it, end;
-                for (it = std::begin(m_cachedMessages), end = std::end(m_cachedMessages); it != end; ++it) {
-                    const Message& message = *it;
+                for (const Message& message : m_cachedMessages)
                     log(message.level, message.str);
-                }
                 m_cachedMessages.clear();
             }
         }

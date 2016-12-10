@@ -177,8 +177,7 @@ namespace TrenchBroom {
             
             int firstRowIndex = m_grid->GetNumberRows();
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::reverse_iterator it, end;
-            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
+            for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
                 m_grid->DeleteRows(*it, 1);
                 firstRowIndex = std::min(*it, firstRowIndex);
             }
@@ -213,10 +212,8 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            const wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::const_iterator it, end;
-            for (it = std::begin(selectedRows), end = std::end(selectedRows); it != end; ++it) {
-                if (!m_table->canRemove(*it))
+            for (const int rowIndex : m_grid->GetSelectedRows()) {
+                if (!m_table->canRemove(rowIndex))
                     return false;
             }
             return true;

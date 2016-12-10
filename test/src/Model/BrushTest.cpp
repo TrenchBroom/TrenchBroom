@@ -1996,9 +1996,8 @@ namespace TrenchBroom {
             Brush* left = NULL;
             Brush* top = NULL;
             Brush* right = NULL;
-            BrushList::const_iterator it, end;
-            for (it = std::begin(result), end = std::end(result); it != end; ++it) {
-                Brush* brush = *it;
+            
+            for (Brush* brush : result) {
                 if (brush->findFace(Vec3::PosZ) != NULL)
                     top = brush;
                 else if (brush->findFace(leftTopNormal) != NULL)
@@ -2188,11 +2187,9 @@ namespace TrenchBroom {
             
             // Ensure they were actually snapped
             {
-                const Brush::VertexList vertices = brush->vertices();
                 size_t i = 0;
-                Brush::VertexList::const_iterator it, end;
-                for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it, ++i) {
-                    Vec3 pos = (*it)->position();
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
+                    const Vec3& pos = vertex->position();
                     ASSERT_TRUE(pos.isInteger()) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
                 }
             }

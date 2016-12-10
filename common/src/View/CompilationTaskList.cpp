@@ -120,11 +120,8 @@ namespace TrenchBroom {
             }
 
             void profileDidChange() {
-                AutoCompleteTextControlList::const_iterator it,end;
-                for (it = std::begin(m_autoCompleteTextControls), end = std::end(m_autoCompleteTextControls); it != end; ++it) {
-                    AutoCompleteTextControl* control = *it;
+                for (AutoCompleteTextControl* control : m_autoCompleteTextControls)
                     updateAutoComplete(control);
-                }
             }
             
             virtual wxWindow* createGui(wxWindow* parent) = 0;

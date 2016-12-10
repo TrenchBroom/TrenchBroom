@@ -31,9 +31,7 @@ namespace TrenchBroom {
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
             
-            CompilationProfile::List::const_iterator it, end;
-            for (it = std::begin(other.m_profiles), end = std::end(other.m_profiles); it != end; ++it) {
-                const CompilationProfile* original = *it;
+            for (const CompilationProfile* original : other.m_profiles) {
                 CompilationProfile* clone = original->clone();
                 m_profiles.push_back(clone);
             }

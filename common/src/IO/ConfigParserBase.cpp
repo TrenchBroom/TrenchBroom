@@ -56,18 +56,13 @@ namespace TrenchBroom {
             const EL::Value& optional = expected[1];
             assert(optional.type() == EL::Type_Map);
             
-            const StringSet mandatoryKeys = mandatory.keys();
-            StringSet::const_iterator keyIt, keyEnd;
-            for (keyIt = std::begin(mandatoryKeys), keyEnd = std::end(mandatoryKeys); keyIt != keyEnd; ++keyIt) {
-                const String& key = *keyIt;
+            for (const String& key : mandatory.keys()) {
                 const String& typeName = mandatory[key].stringValue();
                 const EL::ValueType type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
             
-            const StringSet mapKeys = value.keys();
-            for (keyIt = std::begin(mapKeys), keyEnd = std::end(mapKeys); keyIt != keyEnd; ++keyIt) {
-                const String& key = *keyIt;
+            for (const String& key : value.keys()) {
                 if (!mandatory.contains(key) && !optional.contains(key))
                     throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
             }

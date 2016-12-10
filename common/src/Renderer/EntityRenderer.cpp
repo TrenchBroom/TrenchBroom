@@ -196,9 +196,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
-                Model::EntityList::const_iterator it, end;
-                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
-                    const Model::Entity* entity = *it;
+                for (const Model::Entity* entity : m_entities) {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         if (m_showOccludedOverlays)
                             renderService.setShowOccludedObjects();
@@ -222,9 +220,7 @@ namespace TrenchBroom {
             renderService.setForegroundColor(m_angleColor);
             
             Vec3f::List vertices(3);
-            Model::EntityList::const_iterator it, end;
-            for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
-                const Model::Entity* entity = *it;
+            for (const Model::Entity* entity : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
@@ -316,9 +312,7 @@ namespace TrenchBroom {
                 wireframeVertices.reserve(24 * m_entities.size());
 
                 BuildWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices);
-                Model::EntityList::const_iterator it, end;
-                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
-                    const Model::Entity* entity = *it;
+                for (const Model::Entity* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
@@ -333,9 +327,7 @@ namespace TrenchBroom {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
 
-                Model::EntityList::const_iterator it, end;
-                for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
-                    const Model::Entity* entity = *it;
+                for (const Model::Entity* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));

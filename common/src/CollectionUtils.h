@@ -486,9 +486,8 @@ namespace VectorUtils {
     template <typename T, typename K, typename C>
     void append(std::vector<T>& vec, const std::map<K,T,C>& map) {
         vec.reserve(vec.size() + map.size());
-        typename std::map<K,T,C>::const_iterator it, end;
-        for (it = std::begin(map), end = std::end(map); it != end; ++it)
-            vec.push_back(it->second);
+        for (const auto& entry : map)
+            vec.push_back(entry.second);
     }
 
     template <typename T>
@@ -521,9 +520,7 @@ namespace VectorUtils {
         typedef typename VecType::const_iterator VecIter;
 
         VecType result;
-        VecIter it, end;
-        for (it = std::begin(vec1), end = std::end(vec1); it != end; ++it) {
-            T elem = *it;
+        for (const T& elem : vec1) {
             if (!VectorUtils::contains(vec2, elem))
                 result.push_back(elem);
         }
@@ -533,19 +530,17 @@ namespace VectorUtils {
     template <typename O, typename I>
     std::vector<O> cast(const std::vector<I>& input) {
         std::vector<O> output;
-        typename std::vector<I>::const_iterator it, end;
-        for (it = std::begin(input), end = std::end(input); it != end; ++it)
-            output.push_back(O(*it));
+        output.reserve(input.size());
+        for (const I& elem : input)
+            output.push_back(O(elem));
         return output;
     }
 
     template <typename T, typename Compare>
     void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend, const Compare& cmp) {
-        typedef std::vector<T> Vec;
-
-        typename Vec::iterator mIt = std::begin(minuend);
-        typename Vec::const_iterator sIt = std::begin(subtrahend);
-        typename Vec::const_iterator sEnd = std::end(subtrahend);
+        auto mIt = std::begin(minuend);
+        auto sIt = std::begin(subtrahend);
+        auto sEnd = std::end(subtrahend);
 
         while (mIt != std::end(minuend) && sIt != sEnd) {
             const T& m = *mIt;
@@ -999,18 +994,16 @@ namespace MapUtils {
     template <typename K, typename V, typename C>
     std::set<K, C> keySet(const std::map<K, V, C>& map) {
         std::set<K, C> result;
-        typename std::map<K, V, C>::const_iterator it, end;
-        for (it = std::begin(map), end = std::end(map); it != end; ++it)
-            result.insert(it->first);
+        for (const auto& entry : map)
+            result.insert(entry.first);
         return result;
     }
     
     template <typename K, typename V, typename C_K, typename C_V>
     std::set<V, C_V> valueSet(const std::map<K, V, C_K>& map) {
         std::set<V, C_V> result;
-        typename std::map<K, V, C_K>::const_iterator it, end;
-        for (it = std::begin(map), end = std::end(map); it != end; ++it)
-            result.insert(it->second);
+        for (const auto& entry : map)
+            result.insert(entry.second);
         return result;
     }
 
@@ -1019,13 +1012,31 @@ namespace MapUtils {
         return valueSet<K, V, C, std::less<V> >(map);
     }
     
+    template <typename K, typename V, typename C>
+    std::vector<K> keyList(const std::map<K,V,C>& map) {
+        std::vector<K> result;
+        result.reserve(map.size());
+        
+        for (const auto& entry : map)
+            result.push_back(entry.first);
+        return result;
+    }
+
+    template <typename K, typename V, typename C>
+    std::vector<V> valueList(const std::map<K,V,C>& map) {
+        std::vector<V> result;
+        result.reserve(map.size());
+        for (const auto& entry : map)
+            result.push_back(entry.second);
+        return result;
+    }
+
     template <typename K, typename V, typename C, typename D>
     int compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp) {
-        typedef std::map<K, V, C> Map;
-        typename Map::const_iterator it1 = std::begin(map1);
-        typename Map::const_iterator end1 = std::end(map1);
-        typename Map::const_iterator it2 = std::begin(map2);
-        typename Map::const_iterator end2 = std::end(map2);
+        auto it1 = std::begin(map1);
+        auto end1 = std::end(map1);
+        auto it2 = std::begin(map2);
+        auto end2 = std::end(map2);
 
         while (it1 != end1 && it2 != end2) {
             const K& key1 = it1->first;
@@ -1062,13 +1073,11 @@ namespace MapUtils {
         if (map1.size() != map2.size())
             return false;
 
-        typedef std::map<K, V, C> Map;
-        typename Map::const_iterator it1, end1, it2;
-        for (it1 = std::begin(map1), end1 = std::end(map1); it1 != end1; ++it1) {
-            const K& key = it1->first;
-            const V& value1 = it1->second;
+        for (const auto& entry : map1) {
+            const K& key = entry.first;
+            const V& value1 = entry.second;
 
-            it2 = map2.find(key);
+            const auto it2 = map2.find(key);
             if (it2 == std::end(map2))
                 return false;
 
@@ -1221,10 +1230,9 @@ namespace MapUtils {
         typedef std::vector<V> Vector;
         typedef std::map<K, Vector, C> Map;
 
-        typename Map::const_iterator it, end;
-        for (it = std::begin(map2), end = std::end(map2); it != end; ++it) {
-            const K& key = it->first;
-            const Vector& vector = it->second;
+        for (const auto& entry : map2) {
+            const K& key = entry.first;
+            const Vector& vector = entry.second;
 
             Vector& into = map1[key];
             VectorUtils::append(into, vector);
@@ -1257,17 +1265,6 @@ namespace MapUtils {
         VectorDeleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(std::begin(map), std::end(map), deleter);
         map.clear();
-    }
-
-    template <typename K, typename V, typename C>
-    std::vector<K> keyList(const std::map<K,V,C>& map) {
-        std::vector<K> result;
-        result.reserve(map.size());
-
-        typename std::map<K,V,C>::const_iterator it, end;
-        for (it = std::begin(map), end = std::end(map); it != end; ++it)
-            result.push_back(it->first);
-        return result;
     }
 }
 

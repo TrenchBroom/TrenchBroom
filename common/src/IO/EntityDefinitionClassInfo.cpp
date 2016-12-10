@@ -81,11 +81,7 @@ namespace TrenchBroom {
         }
 
         Assets::AttributeDefinitionList EntityDefinitionClassInfo::attributeList() const {
-            Assets::AttributeDefinitionList list;
-            Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
-            for (attributeIt = std::begin(m_attributes), attributeEnd = std::end(m_attributes); attributeIt != attributeEnd; ++attributeIt)
-                list.push_back(attributeIt->second);
-            return list;
+            return MapUtils::valueList(m_attributes);
         }
         
         const Assets::AttributeDefinitionMap& EntityDefinitionClassInfo::attributeMap() const {
@@ -133,10 +129,9 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames) {
-            StringList::const_reverse_iterator classnameIt, classnameEnd;
-            for (classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
+            for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
                 const String& classname = *classnameIt;
-                EntityDefinitionClassInfoMap::const_iterator baseClassIt = baseClasses.find(classname);
+                const auto baseClassIt = baseClasses.find(classname);
                 if (baseClassIt != std::end(baseClasses)) {
                     const EntityDefinitionClassInfo& baseClass = baseClassIt->second;
                     if (!hasDescription() && baseClass.hasDescription())
@@ -147,9 +142,8 @@ namespace TrenchBroom {
                         setSize(baseClass.size());
                     
                     const Assets::AttributeDefinitionMap& baseProperties = baseClass.attributeMap();
-                    Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
-                    for (attributeIt = std::begin(baseProperties), attributeEnd = std::end(baseProperties); attributeIt != attributeEnd; ++attributeIt) {
-                        const Assets::AttributeDefinitionPtr baseAttribute = attributeIt->second;
+                    for (const auto& entry : baseProperties) {
+                        const Assets::AttributeDefinitionPtr baseAttribute = entry.second;
                         
                         Assets::AttributeDefinitionMap::iterator classAttributeIt = m_attributes.find(baseAttribute->name());
                         if (classAttributeIt != std::end(m_attributes)) {

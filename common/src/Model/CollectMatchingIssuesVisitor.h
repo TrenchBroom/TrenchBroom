@@ -52,10 +52,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   { collectIssues(brush);  }
             
             void collectIssues(Node* node) {
-                const IssueList& issues = node->issues(m_issueGenerators);
-                IssueList::const_iterator it, end;
-                for (it = std::begin(issues), end = std::end(issues); it != end; ++it) {
-                    Issue* issue = *it;
+                for (Issue* issue : node->issues(m_issueGenerators)) {
                     if (m_p(issue))
                         m_issues.push_back(issue);
                 }

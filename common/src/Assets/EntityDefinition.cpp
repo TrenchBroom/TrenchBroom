@@ -134,16 +134,17 @@ namespace TrenchBroom {
 
         EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
             EntityDefinitionList result;
-            EntityDefinitionList::const_iterator it, end;
-            for (it = std::begin(definitions), end = std::end(definitions); it != end; ++it) {
-                EntityDefinition* definition = *it;
+            
+            for (EntityDefinition* definition : definitions) {
                 if (definition->type() == type)
                     result.push_back(definition);
             }
+            
             if (order == Usage)
                 std::sort(std::begin(result), std::end(result), CompareByUsage());
             else
                 std::sort(std::begin(result), std::end(result), CompareByName(false));
+            
             return result;
         }
 

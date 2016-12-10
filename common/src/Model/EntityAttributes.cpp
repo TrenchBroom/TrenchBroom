@@ -128,28 +128,27 @@ namespace TrenchBroom {
         }
 
         bool isLayer(const String& classname, const EntityAttribute::List& attributes) {
-            if (classname != Model::AttributeValues::LayerClassname)
+            if (classname != AttributeValues::LayerClassname)
                 return false;
-            const AttributeValue& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-            return groupType == Model::AttributeValues::GroupTypeLayer;
+            const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
+            return groupType == AttributeValues::GroupTypeLayer;
         }
         
         bool isGroup(const String& classname, const EntityAttribute::List& attributes) {
-            if (classname != Model::AttributeValues::GroupClassname)
+            if (classname != AttributeValues::GroupClassname)
                 return false;
-            const AttributeValue& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-            return groupType == Model::AttributeValues::GroupTypeGroup;
+            const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
+            return groupType == AttributeValues::GroupTypeGroup;
         }
         
         bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes) {
-            return classname == Model::AttributeValues::WorldspawnClassname;
+            return classname == AttributeValues::WorldspawnClassname;
         }
         
         const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
-            Model::EntityAttribute::List::const_iterator it, end;
-            for (it = std::begin(attributes), end = std::end(attributes); it != end; ++it) {
-                if (name == it->name())
-                    return it->value();
+            for (const EntityAttribute& attribute : attributes) {
+                if (name == attribute.name())
+                    return attribute.value();
             }
             return defaultValue;
         }
@@ -194,9 +193,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {
-            EntityAttribute::List::iterator it, end;
-            for (it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
-                EntityAttribute& attribute = *it;
+            for (EntityAttribute& attribute : m_attributes) {
                 const AttributeName& name = attribute.name();
                 const Assets::AttributeDefinition* attributeDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(entityDefinition, name);
                 attribute.setName(name, attributeDefinition);
@@ -235,9 +232,7 @@ namespace TrenchBroom {
             if (matches.empty())
                 return false;
             
-            AttributeIndex::QueryResult::const_iterator it, end;
-            for (it = std::begin(matches), end = std::end(matches); it != end; ++it) {
-                const EntityAttribute::List::iterator attrIt = *it;
+            for (auto attrIt : matches) {
                 const EntityAttribute& attribute = *attrIt;
                 if (attribute.value() == value)
                     return true;
@@ -248,9 +243,8 @@ namespace TrenchBroom {
 
         const AttributeNameSet EntityAttributes::names() const {
             AttributeNameSet result;
-            EntityAttribute::List::const_iterator it, end;
-            for (it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it)
-                result.insert(it->name());
+            for (const EntityAttribute& attribute : m_attributes)
+                result.insert(attribute.name());
             return result;
         }
 
@@ -270,10 +264,8 @@ namespace TrenchBroom {
 
         EntityAttribute::List EntityAttributes::numberedAttributes(const String& prefix) const {
             EntityAttribute::List result;
-            
-            EntityAttribute::List::const_iterator it, end;
-            for (it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+
+            for (const EntityAttribute& attribute : m_attributes) {
                 if (isNumberedAttribute(prefix, attribute.name()))
                     result.push_back(attribute);
             }
@@ -302,8 +294,7 @@ namespace TrenchBroom {
         void EntityAttributes::rebuildIndex() {
             m_index.clear();
             
-            EntityAttribute::List::iterator it, end;
-            for (it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
+            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
                 const EntityAttribute& attribute = *it;
                 m_index.insert(attribute.name(), it);
             }

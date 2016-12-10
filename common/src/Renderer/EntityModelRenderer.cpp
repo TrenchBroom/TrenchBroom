@@ -120,13 +120,12 @@ namespace TrenchBroom {
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
             
-            EntityMap::iterator it, end;
-            for (it = std::begin(m_entities), end = std::end(m_entities); it != end; ++it) {
-                Model::Entity* entity = it->first;
+            for (const auto& entry : m_entities) {
+                Model::Entity* entity = entry.first;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                TexturedIndexRangeRenderer* renderer = it->second;
+                TexturedIndexRangeRenderer* renderer = entry.second;
                 
                 const Mat4x4f translation(translationMatrix(entity->origin()));
                 const Mat4x4f rotation(entity->rotation());

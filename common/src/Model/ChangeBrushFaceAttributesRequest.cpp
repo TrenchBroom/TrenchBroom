@@ -232,10 +232,7 @@ namespace TrenchBroom {
         }
 
         void ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceList& faces) const {
-            BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                BrushFace* face = *it;
-                
+            for (BrushFace* face : faces) {
                 switch (m_textureOp) {
                     case TextureOp_Set:
                         face->setTexture(m_texture);

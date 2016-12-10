@@ -25,42 +25,20 @@ namespace TrenchBroom {
         m_variables(variables.clone()) {}
 
         size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterInput(const wxString& str, const wxUniChar c, const size_t insertPos) const {
-            /*
-            if (c == '$')
-                return insertPos;
-            return str.Length() + 1;
-             */
-            
             return str.Length() + 1;
         }
         
         size_t ELAutoCompleteHelper::DoShouldStartCompletionAfterRequest(const wxString& str, const size_t insertPos) const {
-            // return findLastDollar(str, insertPos);
             return insertPos;
         }
 
         AutoCompleteTextControl::CompletionResult ELAutoCompleteHelper::DoGetCompletions(const wxString& str, const size_t startIndex, const size_t count) const {
             AutoCompleteTextControl::CompletionResult result;
             
-            const StringSet variables = m_variables->names();
-            StringSet::const_iterator it, end;
-            for (it = std::begin(variables), end = std::end(variables); it != end; ++it) {
-                const String& variableName = *it;
+            for (const String& variableName : m_variables->names()) {
                 const String variableValue = m_variables->value(variableName).describe();
                 result.Add(variableName, variableValue);
             }
-            
-            /*
-            const wxString prefix = str.Mid(startIndex, count);
-            const StringSet variables = m_variableTable.declaredVariables(prefix.ToStdString(), false);
-            StringSet::const_iterator it, end;
-            for (it = std::begin(variables), end = std::end(variables); it != end; ++it) {
-                const String& variableName = *it;
-                const String variableStr = m_variableTable.buildVariableString(variableName);
-                const String& variableValue = m_variableTable.value(variableName);
-                result.Add(variableStr, variableValue);
-            }
-            */
             
             return result;
         }
