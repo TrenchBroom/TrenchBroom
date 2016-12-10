@@ -1222,7 +1222,6 @@ namespace MapUtils {
     template <typename K, typename V, typename C>
     void merge(std::map<K, std::vector<V>, C>& map1, const std::map<K, std::vector<V>, C>& map2) {
         typedef std::vector<V> Vector;
-        typedef std::map<K, Vector, C> Map;
 
         for (const auto& entry : map2) {
             const K& key = entry.first;
