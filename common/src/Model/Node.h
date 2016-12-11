@@ -315,8 +315,7 @@ namespace TrenchBroom {
 
             template <class V>
             void recurse(V& visitor) {
-                NodeList::const_iterator it, end;
-                for (it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->acceptAndRecurse(visitor);
                 }
@@ -324,8 +323,7 @@ namespace TrenchBroom {
 
             template <class V>
             void recurse(V& visitor) const {
-                NodeList::const_iterator it, end;
-                for (it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->acceptAndRecurse(visitor);
                 }
@@ -341,8 +339,7 @@ namespace TrenchBroom {
             
             template <class V>
             void iterate(V& visitor) {
-                NodeList::const_iterator it, end;
-                for (it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->accept(visitor);
                 }
@@ -350,8 +347,7 @@ namespace TrenchBroom {
             
             template <class V>
             void iterate(V& visitor) const {
-                NodeList::const_iterator it, end;
-                for (it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->accept(visitor);
                 }

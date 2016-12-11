@@ -314,12 +314,8 @@ namespace TrenchBroom {
             textures.reserve(skins.size());
             
             try {
-                Md2SkinList::const_iterator it, end;
-                for (it = std::begin(skins), end = std::end(skins); it != end; ++it) {
-                    const Md2Skin& skin = *it;
-                    Assets::Texture* texture = readTexture(skin);
-                    textures.push_back(texture);
-                }
+                for (const Md2Skin& skin : skins)
+                    textures.push_back(readTexture(skin));
                 return textures;
             } catch (...) {
                 VectorUtils::clearAndDelete(textures);
@@ -345,22 +341,15 @@ namespace TrenchBroom {
             Assets::Md2Model::FrameList modelFrames;
             modelFrames.reserve(frames.size());
             
-            Md2FrameList::const_iterator it, end;
-            for (it = std::begin(frames), end = std::end(frames); it != end; ++it) {
-                const Md2Frame& frame = *it;
-                Assets::Md2Model::Frame* modelFrame = buildFrame(frame, meshes);
-                modelFrames.push_back(modelFrame);
-            }
+            for (const Md2Frame& frame : frames)
+                modelFrames.push_back(buildFrame(frame, meshes));
             return modelFrames;
         }
 
         Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            Md2MeshList::const_iterator mIt, mEnd;
-
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
-            for (mIt = std::begin(meshes), mEnd = std::end(meshes); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
+            for (const Md2Mesh& md2Mesh : meshes) {
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan)
                     size.inc(GL_TRIANGLE_FAN);
@@ -369,9 +358,8 @@ namespace TrenchBroom {
             }
 
             Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
-            for (mIt = std::begin(meshes), mEnd = std::end(meshes); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
-                if (md2Mesh.vertices.size() > 0) {
+            for (const Md2Mesh& md2Mesh : meshes) {
+                if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
                     if (md2Mesh.type == Md2Mesh::Fan)
                         builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
@@ -389,10 +377,7 @@ namespace TrenchBroom {
             Vertex::List result(0);
             result.reserve(meshVertices.size());
             
-            Md2MeshVertexList::const_iterator it, end;
-            for (it = std::begin(meshVertices), end = std::end(meshVertices); it != end; ++it) {
-                const Md2MeshVertex& md2MeshVertex = *it;
-                
+            for (const Md2MeshVertex& md2MeshVertex : meshVertices) {
                 const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
                 const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
                 const Vec2f& texCoords = md2MeshVertex.texCoords;

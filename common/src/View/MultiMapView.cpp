@@ -37,17 +37,12 @@ namespace TrenchBroom {
         }
 
         void MultiMapView::doFlashSelection() {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->flashSelection();
-            }
         }
 
         bool MultiMapView::doGetIsCurrent() const {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews) {
                 if (mapView->isCurrent())
                     return true;
             }
@@ -55,19 +50,13 @@ namespace TrenchBroom {
         }
 
         void MultiMapView::doSetToolBoxDropTarget() {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->setToolBoxDropTarget();
-            }
         }
         
         void MultiMapView::doClearDropTarget() {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->clearDropTarget();
-            }
         }
         
         bool MultiMapView::doCanSelectTall() {
@@ -82,27 +71,18 @@ namespace TrenchBroom {
         }
 
         void MultiMapView::doFocusCameraOnSelection(const bool animate) {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->focusCameraOnSelection(animate);
-            }
         }
         
         void MultiMapView::doMoveCameraToPosition(const Vec3& position, const bool animate) {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->moveCameraToPosition(position, animate);
-            }
         }
         
         void MultiMapView::doMoveCameraToCurrentTracePoint() {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews)
                 mapView->moveCameraToCurrentTracePoint();
-            }
         }
 
         bool MultiMapView::doCanMaximizeCurrentView() const {
@@ -124,9 +104,7 @@ namespace TrenchBroom {
         }
 
         MapView* MultiMapView::doGetCurrentMapView() const {
-            MapViewList::const_iterator it, end;
-            for (it = std::begin(m_mapViews), end = std::end(m_mapViews); it != end; ++it) {
-                MapView* mapView = *it;
+            for (MapView* mapView : m_mapViews) {
                 if (mapView->isCurrent())
                     return mapView;
             }

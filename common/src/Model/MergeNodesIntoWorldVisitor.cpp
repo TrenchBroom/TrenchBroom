@@ -92,9 +92,7 @@ namespace TrenchBroom {
         }
         
         void MergeNodesIntoWorldVisitor::detachNodes() const {
-            NodeList::const_iterator it, end;
-            for (it = std::begin(m_nodesToDetach), end = std::end(m_nodesToDetach); it != end; ++it) {
-                Node* node = *it;
+            for (Node* node : m_nodesToDetach) {
                 Node* parent = node->parent();
                 ensure(parent != NULL, "parent is null");
                 parent->removeChild(node);

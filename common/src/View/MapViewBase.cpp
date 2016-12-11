@@ -61,6 +61,9 @@
 #include <wx/frame.h>
 #include <wx/menu.h>
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         static wxString GLVendor, GLRenderer, GLVersion;
@@ -656,10 +659,7 @@ namespace TrenchBroom {
         
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
-            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
-            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionGroup& group = *groupIt;
+            for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
@@ -950,31 +950,21 @@ namespace TrenchBroom {
             wxMenu* menu = new wxMenu();
             
             MapDocumentSPtr document = lock(m_document);
-            const Assets::EntityDefinitionGroup::List& groups = document->entityDefinitionManager().groups();
-            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = std::begin(groups), groupEnd = std::end(groups); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionGroup& group = *groupIt;
+            for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
                 Assets::EntityDefinitionList filteredDefinitions;
-                filteredDefinitions.reserve(definitions.size());
-                
-                Assets::EntityDefinitionList::const_iterator dIt, dEnd;
-                for (dIt = std::begin(definitions), dEnd = std::end(definitions); dIt != dEnd; ++dIt) {
-                    Assets::EntityDefinition* definition = *dIt;
-                    if (definition->name() != Model::AttributeValues::WorldspawnClassname)
-                        filteredDefinitions.push_back(definition);
-                }
+                std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(filteredDefinitions),
+                             [](const Assets::EntityDefinition* definition) { return StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
+                );
 
                 if (!filteredDefinitions.empty()) {
                     const String groupName = group.displayName();
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
                     
-                    for (dIt = std::begin(filteredDefinitions), dEnd = std::end(filteredDefinitions); dIt != dEnd; ++dIt) {
-                        const Assets::EntityDefinition* definition = *dIt;
+                    for (Assets::EntityDefinition* definition : filteredDefinitions)
                         groupMenu->Append(id++, definition->shortName());
-                    }
                     
                     menu->AppendSubMenu(groupMenu, groupName);
                 }
@@ -1049,10 +1039,8 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
-            Model::NodeList::const_iterator it, end;
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                const Model::Node* node = *it;
-                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
+            for (const Model::Node* node : nodes) {
+                if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node))
                     return true;
             }
             return false;
@@ -1077,12 +1065,7 @@ namespace TrenchBroom {
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             Model::NodeList result;
-            Model::NodeList::const_iterator it, end;
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                Model::Node* node = *it;
-                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
-                    result.push_back(node);
-            }
+            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [=](const Model::Node* node) { return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node); });
             return result;
         }
 

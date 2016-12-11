@@ -298,10 +298,10 @@ namespace TrenchBroom {
         }
 
         void MapReader::resolveNodes(ParserStatus& status) {
-            NodeParentList::const_iterator it, end;
-            for (it = std::begin(m_unresolvedNodes), end = std::end(m_unresolvedNodes); it != end; ++it) {
-                Model::Node* node = it->first;
-                const ParentInfo& info = it->second;
+            for (const auto& entry : m_unresolvedNodes) {
+                Model::Node* node = entry.first;
+                const ParentInfo& info = entry.second;
+                
                 Model::Node* parent = resolveParent(info);
                 if (parent == NULL)
                     onUnresolvedNode(info, node, status);
