@@ -110,8 +110,7 @@ private:
         do {
             const Plane<T,3> plane = m_callback.plane(currentFace);
             
-            typename Polyhedron::List::iterator it, end;
-            for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
+            for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
                 Polyhedron front = *it;
                 const ClipResult clipResult = front.clip(plane);
                 if (clipResult.success()) {
@@ -128,8 +127,7 @@ private:
     void removeSubtrahend() {
         const typename V::List vertices = V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition());
         
-        typename Polyhedron::List::iterator it, end;
-        for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
+        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
             const Polyhedron& fragment = *it;
             if (fragment.hasVertices(vertices, 0.1)) {
                 m_fragments.erase(it);
@@ -152,9 +150,8 @@ private:
         if (closest.empty())
             return findFragmentVertices();
         
-        typename Polyhedron::List::iterator it, end;
-        for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            Polyhedron& fragment = *it;
+        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
+            const Polyhedron& fragment = *it;
             typename V::Set newFragmentVertices;
             
             const Vertex* firstVertex = fragment.vertices().front();
@@ -188,11 +185,8 @@ private:
         const PositionSet exclude = findExcludedVertices();
         MoveableVertices result(VertexCmp(0.1));
         
-        typename Polyhedron::List::const_iterator it, end;
-        for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            const Polyhedron& fragment = *it;
+        for (const Polyhedron& fragment : m_fragments)
             findMoveableVertices(fragment, exclude, result);
-        }
         
         return result;
     }
@@ -218,9 +212,7 @@ private:
     FragmentVertexSet findFragmentVertices() const {
         FragmentVertexSet result;
         
-        typename Polyhedron::List::const_iterator it, end;
-        for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            const Polyhedron& fragment = *it;
+        for (const Polyhedron& fragment : m_fragments) {
             typename V::Set vertices(VertexCmp(0.1));
             
             const Vertex* firstVertex = fragment.vertices().front();
@@ -238,11 +230,10 @@ private:
     
     ClosestVertices findClosestVertices(const MoveableVertices& vertices, FragmentVertexSet& fragments) {
         ClosestVertices result;
-        
-        typename MoveableVertices::const_iterator vIt, vEnd;
-        for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-            const V& vertexPosition = vIt->first;
-            const V& targetPosition = vIt->second;
+
+        for (const auto& entry : vertices) {
+            const V& vertexPosition = entry.first;
+            const V& targetPosition = entry.second;
             
             if (applyVertexMove(vertexPosition, targetPosition, fragments))
                 result[vertexPosition] = targetPosition;
@@ -253,9 +244,8 @@ private:
     
     bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
         FragmentVertexSet newFragments;
-        typename FragmentVertexSet::const_iterator fIt,fEnd;
-        for (fIt = std::begin(fragments), fEnd = std::end(fragments); fIt != fEnd; ++fIt) {
-            typename V::Set newVertices = *fIt;
+        for (const typename V::Set& vertices : fragments) {
+            typename V::Set newVertices = vertices;
             
             if (newVertices.erase(vertexPosition) > 0) {
                 newVertices.insert(targetPosition);
@@ -276,9 +266,8 @@ private:
     }
     
     bool containsIntersectingFragments(const List& fragments) const {
-        typename List::const_iterator first, second, end;
-        for (first = std::begin(fragments), end = std::end(fragments); first != end; ++first) {
-            for (second = first, std::advance(second, 1); second != end; ++second) {
+        for (auto first = std::begin(fragments), end = std::end(fragments); first != end; ++first) {
+            for (auto second = std::next(first); second != end; ++second) {
                 if (first->intersects(*second))
                     return true;
             }
@@ -315,9 +304,7 @@ private:
     void rebuildFragments(const FragmentVertexSet& newFragments) {
         m_fragments.clear();
         
-        typename FragmentVertexSet::const_iterator it, end;
-        for (it = std::begin(newFragments), end = std::end(newFragments); it != end; ++it) {
-            const typename V::Set& vertices = *it;
+        for (const typename V::Set& vertices : newFragments) {
             if (vertices.size() > 3) {
                 const Polyhedron fragment(vertices);
                 if (fragment.polyhedron())
@@ -377,8 +364,7 @@ private:
             if (lhs.size() > rhs.size())
                 return 1;
             
-            typename MergeGroup::const_iterator lIt, lEnd, rIt;
-            for (lIt = std::begin(lhs), rIt = std::begin(rhs), lEnd = std::end(lhs); lIt != lEnd; ++lIt, ++rIt) {
+            for (auto lIt = std::begin(lhs), rIt = std::begin(rhs), lEnd = std::end(lhs); lIt != lEnd; ++lIt, ++rIt) {
                 const size_t lIndex = *lIt;
                 const size_t rIndex = *rIt;
                 if (lIndex < rIndex)
@@ -410,8 +396,7 @@ public:
     }
 private:
     void initialize() {
-        typename Polyhedron::List::iterator it, end;
-        for (it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it)
+        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it)
             m_indices.push_back(it);
     }
     
@@ -458,8 +443,8 @@ private:
         }
     private:
         int compare(const FaceKey& other) const {
-            typename V::Set::const_iterator myIt = std::begin(m_vertices);
-            typename V::Set::const_iterator otIt = std::begin(other.m_vertices);
+            auto myIt = std::begin(m_vertices);
+            auto otIt = std::begin(other.m_vertices);
             
             for (size_t i = 0; i < std::min(m_vertices.size(), other.m_vertices.size()); ++i) {
                 const V& myVertex = *myIt++;
@@ -488,10 +473,8 @@ private:
      the m_neighbours map.
      */
     void findMergeableNeighbours() {
-        const NeighbourMap neighbourMap = findNeighbours();
-        typename NeighbourMap::const_iterator nIt, nEnd;
-        for (nIt = std::begin(neighbourMap), nEnd = std::end(neighbourMap); nIt != nEnd; ++nIt) {
-            const NeighbourFaceList& neighbourFaces = nIt->second;
+        for (const auto& entry : findNeighbours()) {
+            const NeighbourFaceList& neighbourFaces = entry.second;
             assert(neighbourFaces.size() == 2);
             
             const NeighbourFace& first  = neighbourFaces[0];
@@ -566,15 +549,12 @@ private:
      Finds all maximal merge groups using the information in m_neighbours.
      */
     void findMergeGroups() {
-        typename Neighbours::const_iterator it, end;
-        for (it = std::begin(m_neighbours), end = std::end(m_neighbours); it != end; ++it) {
+        for (const auto& neighbourPair : m_neighbours) {
             // The fragment under consideration and its mergeable neighbours.
-            const size_t fragmentIndex = it->first;
-            const typename NeighbourEntry::Set& neighbours = it->second;
+            const size_t fragmentIndex = neighbourPair.first;
+            const typename NeighbourEntry::Set& neighbours = neighbourPair.second;
             
-            typename NeighbourEntry::Set::const_iterator nIt, nEnd;
-            for (nIt = std::begin(neighbours), nEnd = std::end(neighbours); nIt != nEnd; ++nIt) {
-                const NeighbourEntry& entry = *nIt;
+            for (const NeighbourEntry& entry : neighbours) {
                 const size_t neighbourIndex = entry.neighbour;
                 
                 // Create a new merge group from the fragment and its neighbour.
@@ -609,7 +589,7 @@ private:
      m_mergeGroups.
      */
     bool expandMergeGroup(const MergeGroup& group, const Polyhedron& polyhedron, const size_t index1) {
-        const typename Neighbours::const_iterator it = m_neighbours.find(index1);
+        const auto it = m_neighbours.find(index1);
         
         // The fragment at index1 doesn't have any mergeable neighbours.
         if (it == std::end(m_neighbours))
@@ -619,11 +599,9 @@ private:
         const typename NeighbourEntry::Set& neighbours = it->second;
         
         // Iterate over all mergeable neighbours and attempt to expand the merge group further.
-        typename NeighbourEntry::Set::const_iterator nIt, nEnd;
-        for (nIt = std::begin(neighbours), nEnd = std::end(neighbours); nIt != nEnd; ++nIt) {
+        for (const NeighbourEntry& entry : neighbours) {
             MergeGroup newGroup = group;
             
-            const NeighbourEntry& entry = *nIt;
             const size_t neighbourIndex = entry.neighbour;
             const Face* neighbourFace = entry.neighbourFace;
             
@@ -716,19 +694,14 @@ private:
     }
     
     void applyMergeGroups() {
-        typename MergeGroups::const_iterator mIt, mEnd;
-        typename MergeGroup::const_iterator gIt, gEnd;
-        typename Polyhedron::List::iterator fIt;
-        
-        for (mIt = std::begin(m_mergeGroups), mEnd = std::end(m_mergeGroups); mIt != mEnd; ++mIt) {
-            const MergeGroup& group = *mIt;
+        for (const MergeGroup& group : m_mergeGroups) {
             if (group.size() > 1) {
-                gIt = std::begin(group);
-                gEnd = std::end(group);
+                auto gIt = std::begin(group);
+                auto gEnd = std::end(group);
                 
                 Polyhedron& master = *m_indices[*gIt++];
                 while (gIt != gEnd) {
-                    fIt = m_indices[*gIt++];
+                    auto fIt = m_indices[*gIt++];
                     master.merge(*fIt);
                     m_fragments.erase(fIt);
                 }

@@ -104,14 +104,8 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             
-            const Model::BrushFaceList& dragFaces = m_tool->dragFaces();
-            Model::BrushFaceList::const_iterator faceIt, faceEnd;
-            Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
-            for (faceIt = std::begin(dragFaces), faceEnd = std::end(dragFaces); faceIt != faceEnd; ++faceIt) {
-                const Model::BrushFace* face = *faceIt;
-                const Model::BrushFace::EdgeList edges = face->edges();
-                for (edgeIt = std::begin(edges), edgeEnd = std::end(edges); edgeIt != edgeEnd; ++edgeIt) {
-                    const Model::BrushEdge* edge = *edgeIt;
+            for (const Model::BrushFace* face : m_tool->dragFaces()) {
+                for (const Model::BrushEdge* edge : face->edges()) {
                     vertices.push_back(Vertex(edge->firstVertex()->position()));
                     vertices.push_back(Vertex(edge->secondVertex()->position()));
                 }

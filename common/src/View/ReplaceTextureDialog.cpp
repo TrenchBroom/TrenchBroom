@@ -34,6 +34,9 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         ReplaceTextureDialog::ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
@@ -83,13 +86,7 @@ namespace TrenchBroom {
             ensure(subject != NULL, "subject is null");
             
             Model::BrushFaceList result;
-            
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                if (face->texture() == subject)
-                    result.push_back(face);
-            }
+            std::copy_if(std::begin(faces), std::end(faces), std::back_inserter(result), [&subject](const Model::BrushFace* face) { return face->texture() == subject; });
             return result;
         }
         

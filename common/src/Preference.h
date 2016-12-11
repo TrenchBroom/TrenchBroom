@@ -283,10 +283,9 @@ namespace TrenchBroom {
             config->DeleteGroup(path.asString('/'));
             config->SetPath(path.asString('/'));
             
-            typename std::map<String, S>::const_iterator it, end;
-            for (it = std::begin(values), end = std::end(values); it != end; ++it) {
-                const String& name = it->first;
-                const S& value = it->second;
+            for (const auto& entry : values) {
+                const String& name = entry.first;
+                const S& value = entry.second;
                 m_serializer.write(config, IO::Path(name), value);
             }
             

@@ -28,7 +28,9 @@
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <memory>
 
 namespace TrenchBroom {
@@ -39,11 +41,7 @@ namespace TrenchBroom {
         Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const String& textureExtension, const TextureReader& textureReader) {
             std::auto_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
             
-            const MappedFile::List files = doFindTextures(path, textureExtension);
-            
-            MappedFile::List::const_iterator it, end;
-            for (it = std::begin(files), end = std::end(files); it != end; ++it) {
-                const MappedFile::Ptr file = *it;
+            for (MappedFile::Ptr file : doFindTextures(path, textureExtension)) {
                 Assets::Texture* texture = textureReader.readTexture(file->begin(), file->end(), file->path());
                 collection->addTexture(texture);
             }
@@ -61,9 +59,10 @@ namespace TrenchBroom {
             const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extension));
             
             MappedFile::List result;
-            Path::List::const_iterator it, end;
-            for (it = std::begin(paths), end = std::end(paths); it != end; ++it)
-                result.push_back(wadFS.openFile(*it));
+            result.reserve(paths.size());
+            
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [&wadFS](const Path& filePath) { return wadFS.openFile(filePath); });
             
             return result;
         }
@@ -75,9 +74,10 @@ namespace TrenchBroom {
             const Path::List paths = m_gameFS.findItems(path, FileExtensionMatcher(extension));
             
             MappedFile::List result;
-            Path::List::const_iterator it, end;
-            for (it = std::begin(paths), end = std::end(paths); it != end; ++it)
-                result.push_back(m_gameFS.openFile(*it));
+            result.reserve(paths.size());
+            
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [this](const Path& filePath) { return m_gameFS.openFile(filePath); });
             
             return result;
         }

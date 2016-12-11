@@ -99,11 +99,8 @@ namespace TrenchBroom {
                 const Assets::ChoiceAttributeDefinition* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
                 const Assets::ChoiceAttributeOption::List& options = choiceDef->options();
                 
-                Assets::ChoiceAttributeOption::List::const_iterator it, end;
-                for (it = std::begin(options), end = std::end(options); it != end; ++it) {
-                    const Assets::ChoiceAttributeOption& option = *it;
+                for (const Assets::ChoiceAttributeOption& option : options)
                     m_comboBox->Append(option.value() + " : " + option.description());
-                }
                 
                 const Model::AttributeValue value = Model::AttributableNode::selectAttributeValue(name(), attributables);
                 m_comboBox->SetValue(value);

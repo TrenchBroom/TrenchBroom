@@ -160,9 +160,7 @@ namespace TrenchBroom {
             }
             
             void updateMenus() {
-                MenuList::iterator it, end;
-                for (it = std::begin(m_menus), end = std::end(m_menus); it != end; ++it) {
-                    wxMenu* menu = *it;
+                for (wxMenu* menu : m_menus) {
                     clearMenu(menu);
                     createMenuItems(menu);
                 }

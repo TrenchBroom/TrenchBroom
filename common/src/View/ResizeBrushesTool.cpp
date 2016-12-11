@@ -34,6 +34,9 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
@@ -89,10 +92,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group)   {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush)   {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = std::begin(edges), end = std::end(edges); it != end; ++it)
-                    visitEdge(*it);
+                for (const auto edge : brush->edges())
+                    visitEdge(edge);
             }
             
             void visitEdge(Model::BrushEdge* edge) {
@@ -289,19 +290,15 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
             
-            Model::BrushFaceList::const_iterator fIt, fEnd;
-            
-            // first ensure that the drag can be applied at all
-            for (fIt = std::begin(m_dragFaces), fEnd = std::end(m_dragFaces); fIt != fEnd; ++fIt) {
-                const Model::BrushFace* face = *fIt;
-                if (!Math::pos(face->boundary().normal.dot(delta)))
-                    return false;
-            }
+            // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
+            // "up" along its normal.
+            if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
+                            [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
+                return false;
             
             Model::ParentChildrenMap newNodes;
             Model::BrushFaceList newDragFaces;
-            for (fIt = std::begin(m_dragFaces), std::end(m_dragFaces); fIt != fEnd; ++fIt) {
-                Model::BrushFace* dragFace = *fIt;
+            for (Model::BrushFace* dragFace : m_dragFaces) {
                 Model::Brush* brush = dragFace->brush();
                 
                 Model::Brush* newBrush = brush->clone(worldBounds);
@@ -337,13 +334,7 @@ namespace TrenchBroom {
         Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
             Polygon3::List result;
             result.reserve(m_dragFaces.size());
-            
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(m_dragFaces), end = std::end(m_dragFaces); it != end; ++it) {
-                const Model::BrushFace* face = *it;
-                result.push_back(face->polygon());
-            }
-            
+            std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
             return result;
         }
 

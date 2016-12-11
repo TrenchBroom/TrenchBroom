@@ -153,11 +153,8 @@ namespace TrenchBroom {
             RectVertex::List rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
             
-            EntryList::const_iterator it, end;
-            for (it = std::begin(collection.entries), end = std::end(collection.entries); it != end; ++it) {
-                const Entry& entry = *it;
+            for (const Entry& entry : collection.entries)
                 addEntry(entry, onTop, textVertices, rectVertices);
-            }
             
             collection.textArray = VertexArray::swap(textVertices);
             collection.rectArray = VertexArray::swap(rectVertices);

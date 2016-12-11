@@ -167,9 +167,8 @@ namespace StringUtils {
 
     long makeHash(const String& str) {
         long hash = 0;
-        String::const_iterator it, end;
-        for (it = std::begin(str), end = std::end(str); it != end; ++it)
-            hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
+        for (size_t i = 0; i < str.size(); ++i)
+            hash = static_cast<long>(str[i]) + (hash << 6) + (hash << 16) - hash;
         return hash;
     }
     

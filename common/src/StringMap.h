@@ -74,9 +74,8 @@ namespace TrenchBroom {
         }
         
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            typename ValueContainer::const_iterator it, end;
-            for (it = std::begin(values), end = std::end(values); it != end; ++it)
-                result.insert(it->first);
+            for (const auto& entry : values)
+                result.insert(entry.first);
         }
     };
 
@@ -221,11 +220,8 @@ namespace TrenchBroom {
             
             void collectValues(QueryResult& result) const {
                 getValues(result);
-                typename NodeSet::const_iterator it, end;
-                for (it = std::begin(m_children), end = std::end(m_children); it != end; ++it) {
-                    const Node& child = *it;
+                for (const Node& child : m_children)
                     child.collectValues(result);
-                }
             }
             
             void queryNumbered(const String& prefix, QueryResult& result) const {
@@ -240,32 +236,23 @@ namespace TrenchBroom {
                     const String remainder(m_key.substr(firstDiff));
                     if (StringUtils::isNumber(remainder)) {
                         getValues(result);
-                        typename NodeSet::const_iterator it, end;
-                        for (it = std::begin(m_children), end = std::end(m_children); it != end; ++it) {
-                            const Node& child = *it;
+                        for (const Node& child : m_children)
                             child.collectIfNumbered(result);
-                        }
                     }
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
                     const Node query(remainder);
-                    typename NodeSet::iterator it = m_children.find(query);
-                    if (it != std::end(m_children)) {
-                        const Node& child = *it;
+                    for (const Node& child : m_children)
                         child.queryNumbered(remainder, result);
-                    }
                 }
             }
             
             void collectIfNumbered(QueryResult& result) const {
                 if (StringUtils::isNumber(m_key)) {
                     getValues(result);
-                    typename NodeSet::const_iterator it, end;
-                    for (it = std::begin(m_children), end = std::end(m_children); it != end; ++it) {
-                        const Node& child = *it;
+                    for (const Node& child : m_children)
                         child.collectIfNumbered(result);
-                    }
                 }
             }
         private:

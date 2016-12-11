@@ -248,6 +248,16 @@ public:
     m_size(0),
     m_version(0) {}
     
+    DoublyLinkedList(DoublyLinkedList&& other) :
+    m_getLink(),
+    m_head(other.m_head),
+    m_size(other.m_size),
+    m_version(other.m_version) {
+        other.m_head = NULL;
+        other.m_size = 0;
+        other.m_version += 1;
+    }
+    
     virtual ~DoublyLinkedList() {
         clear();
     }
@@ -258,6 +268,16 @@ public:
         swap(first.m_head, second.m_head);
         swap(first.m_size, second.m_size);
         swap(first.m_version, second.m_version);
+    }
+    
+    DoublyLinkedList& operator=(DoublyLinkedList&& other) {
+        clear();
+        m_head = other.m_head;
+        m_size = other.m_size;
+        m_version = other.m_version;
+        other.m_head = NULL;
+        other.m_size = 0;
+        other.m_version += 1;
     }
 private:
     DoublyLinkedList(const DoublyLinkedList& other) {}

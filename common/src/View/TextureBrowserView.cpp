@@ -122,27 +122,14 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                const Assets::TextureCollectionList collections = getCollections();
-                Assets::TextureCollectionList::const_iterator cIt, cEnd;
-                for (cIt = std::begin(collections), cEnd = std::end(collections); cIt != cEnd; ++cIt) {
-                    const Assets::TextureCollection* collection = *cIt;
-                    const Assets::TextureList textures = getTextures(collection);
-                    
+                for (const Assets::TextureCollection* collection : getCollections()) {
                     layout.addGroup(collection->name(), fontSize + 2.0f);
-                    
-                    Assets::TextureList::const_iterator tIt, tEnd;
-                    for (tIt = std::begin(textures), tEnd = std::end(textures); tIt != tEnd; ++tIt) {
-                        Assets::Texture* texture = *tIt;
+                    for (Assets::Texture* texture : getTextures(collection))
                         addTextureToLayout(layout, texture, font);
-                    }
                 }
             } else {
-                const Assets::TextureList textures = getTextures();
-                Assets::TextureList::const_iterator it, end;
-                for (it = std::begin(textures), end = std::end(textures); it != end; ++it) {
-                    Assets::Texture* texture = *it;
+                for (Assets::Texture* texture : getTextures())
                     addTextureToLayout(layout, texture, font);
-                }
             }
         }
         
@@ -393,24 +380,19 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
 
-            { // create and upload all vertex arrays
-                const StringMap stringVertices = collectStringVertices(layout, y, height);
-                StringMap::const_iterator it, end;
-                for (it = std::begin(stringVertices), end = std::end(stringVertices); it != end; ++it) {
-                    const Renderer::FontDescriptor& descriptor = it->first;
-                    const TextVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[descriptor].prepare(vertexVbo());
-                }
+            for (const auto& entry : collectStringVertices(layout, y, height)) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                const TextVertex::List& vertices = entry.second;
+                stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
+                stringRenderers[descriptor].prepare(vertexVbo());
             }
             
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
-            
-            StringRendererMap::iterator it, end;
-            for (it = std::begin(stringRenderers), end = std::end(stringRenderers); it != end; ++it) {
-                const Renderer::FontDescriptor& descriptor = it->first;
-                Renderer::VertexArray& vertexArray = it->second;
+
+            for (auto& entry : stringRenderers) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                Renderer::VertexArray& vertexArray = entry.second;
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();

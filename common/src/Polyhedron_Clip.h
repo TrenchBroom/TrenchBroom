@@ -68,11 +68,11 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
     size_t above = 0;
     size_t below = 0;
     size_t inside = 0;
-    
-    typename VertexList::const_iterator it, end;
-    for (it = std::begin(m_vertices), end = std::end(m_vertices); it != end; ++it) {
-        const Vertex* vertex = *it;
-        const Math::PointStatus::Type status = plane.pointStatus(vertex->position());
+
+    const Vertex* firstVertex = m_vertices.front();
+    const Vertex* currentVertex = firstVertex;
+    do {
+        const Math::PointStatus::Type status = plane.pointStatus(currentVertex->position());
         switch (status) {
             case Math::PointStatus::PSAbove:
                 ++above;
@@ -85,7 +85,8 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
                 break;
             switchDefault()
         }
-    }
+        currentVertex = currentVertex->next();
+    } while (currentVertex != firstVertex);
     
     assert(above + below + inside == m_vertices.size());
     if (below + inside == m_vertices.size())
