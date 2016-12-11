@@ -52,39 +52,26 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeVertices() {
             std::fprintf(m_stream, "# vertices\n");
-            const IndexMap<Vec3>::List& elements = m_vertices.list();
-            IndexMap<Vec3>::List::const_iterator it, end;
-            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
-                const Vec3& elem = *it;
+            for (const Vec3& elem : m_vertices.list())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
-            }
         }
         
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
-            const IndexMap<Vec2f>::List& elements = m_texCoords.list();
-            IndexMap<Vec2f>::List::const_iterator it, end;
-            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
-                const Vec3& elem = *it;
+            for (const Vec2f& elem : m_texCoords.list())
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
-            }
         }
         
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
-            const IndexMap<Vec3>::List& elements = m_normals.list();
-            IndexMap<Vec3>::List::const_iterator it, end;
-            for (it = std::begin(elements), end = std::end(elements); it != end; ++it) {
-                const Vec3& elem = *it;
+            for (const Vec3& elem : m_normals.list())
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
-            }
         }
         
         void ObjFileSerializer::writeObjects() {
             std::fprintf(m_stream, "# objects\n");
+            for (const Object& object : m_objects) {
             ObjectList::const_iterator fIt, fEnd;
-            for (fIt = std::begin(m_objects), fEnd = std::end(m_objects); fIt != fEnd; ++fIt) {
-                const Object& object = *fIt;
                 std::fprintf(m_stream, "o entity%u_brush%u\n",
                              static_cast<unsigned long>(object.entityNo),
                              static_cast<unsigned long>(object.brushNo));
@@ -95,14 +82,9 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::writeFaces(const FaceList& faces) {
-            FaceList::const_iterator fIt, fEnd;
-            for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
-                const IndexedVertexList& face = *fIt;
+            for (const IndexedVertexList& face : faces) {
                 std::fprintf(m_stream, "f");
-                
-                IndexedVertexList::const_iterator vIt, vEnd;
-                for (vIt = std::begin(face), vEnd = std::end(face); vIt != vEnd; ++vIt) {
-                    const IndexedVertex& vertex = *vIt;
+                for (const IndexedVertex& vertex : face) {
                     std::fprintf(m_stream, " %u/%u/%u",
                                  static_cast<unsigned long>(vertex.vertex) + 1,
                                  static_cast<unsigned long>(vertex.texCoords) + 1,
@@ -134,12 +116,12 @@ namespace TrenchBroom {
             IndexedVertexList indexedVertices;
             indexedVertices.reserve(vertices.size());
             
+            for (const Model::BrushVertex* vertex : vertices) {
             Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                const Vec3& vertex = (*it)->position();
-                const Vec2f texCoords = face->textureCoords(vertex);
+                const Vec3& position = vertex->position();
+                const Vec2f texCoords = face->textureCoords(position);
                 
-                const size_t vertexIndex = m_vertices.index(vertex);
+                const size_t vertexIndex = m_vertices.index(position);
                 const size_t texCoordsIndex = m_texCoords.index(texCoords);
                 
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));

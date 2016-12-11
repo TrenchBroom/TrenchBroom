@@ -45,18 +45,12 @@ namespace TrenchBroom {
         ShaderProgram* ShaderManager::createProgram(const ShaderConfig& config) {
             ShaderProgram* program = new ShaderProgram(config.name());
             try {
-                const StringList& vertexShaders = config.vertexShaders();
-                const StringList& fragmentShaders = config.fragmentShaders();
-                StringList::const_iterator stringIt, stringEnd;
-                
-                for (stringIt = std::begin(vertexShaders), stringEnd = std::end(vertexShaders); stringIt != stringEnd; ++stringIt) {
-                    const String& path = *stringIt;
+                for (const String& path : config.vertexShaders()) {
                     Shader& shader = loadShader(path, GL_VERTEX_SHADER);
                     program->attach(shader);
                 }
-                
-                for (stringIt = std::begin(fragmentShaders), stringEnd = std::end(fragmentShaders); stringIt != stringEnd; ++stringIt) {
-                    const String& path = *stringIt;
+
+                for (const String& path : config.fragmentShaders()) {
                     Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
                     program->attach(shader);
                 }

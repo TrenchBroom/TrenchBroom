@@ -33,7 +33,9 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -180,33 +182,23 @@ namespace TrenchBroom {
         Model::BrushSet VertexHandleManager::selectedBrushes() const {
             Model::BrushSet brushSet;
             
-            Model::VertexToBrushesMap::const_iterator vMapIt, vMapEnd;
-            for (vMapIt = std::begin(m_selectedVertexHandles), vMapEnd = std::end(m_selectedVertexHandles); vMapIt != vMapEnd; ++vMapIt) {
-                const Model::BrushSet& brushes = vMapIt->second;
+            for (const auto& entry : m_selectedVertexHandles) {
+                const Model::BrushSet& brushes = entry.second;
                 brushSet.insert(std::begin(brushes), std::end(brushes));
             }
             
-            Model::VertexToEdgesMap::const_iterator eMapIt, eMapEnd;
-            Model::BrushEdgeSet::const_iterator eIt, eEnd;
-            for (eMapIt = std::begin(m_selectedEdgeHandles), eMapEnd = std::end(m_selectedEdgeHandles); eMapIt != eMapEnd; ++eMapIt) {
-                const Model::BrushEdgeSet& edges = eMapIt->second;
-                
-                for (eIt = std::begin(edges), eEnd = std::end(edges); eIt != eEnd; ++eIt) {
-                    Model::BrushEdge* edge = *eIt;
+            for (const auto& entry : m_selectedEdgeHandles) {
+                const Model::BrushEdgeSet& edges = entry.second;
+                for (Model::BrushEdge* edge : edges) {
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
                     brushSet.insert(brush);
                 }
             }
             
-            Model::VertexToFacesMap::const_iterator fMapIt, fMapEnd;
-            Model::BrushFaceSet::const_iterator fIt, fEnd;
-            for (fMapIt = std::begin(m_selectedFaceHandles), fMapEnd = std::end(m_selectedFaceHandles); fMapIt != fMapEnd; ++fMapIt) {
-                const Model::BrushFaceSet& faces = fMapIt->second;
-                
-                for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
-                    Model::BrushFace* face = *fIt;
+            for (const auto& entry : m_selectedFaceHandles) {
+                const Model::BrushFaceSet& faces = entry.second;
+                for (Model::BrushFace* face : faces)
                     brushSet.insert(face->brush());
-                }
             }
             
             return brushSet;
@@ -245,96 +237,80 @@ namespace TrenchBroom {
         void VertexHandleManager::addBrush(Model::Brush* brush) {
             ensure(brush != NULL, "brush is null");
             
-            const Model::Brush::VertexList brushVertices = brush->vertices();
-            Model::Brush::VertexList::const_iterator vIt, vEnd;
-            for (vIt = std::begin(brushVertices), vEnd = std::end(brushVertices); vIt != vEnd; ++vIt) {
-                const Model::BrushVertex* vertex = *vIt;
-                Model::VertexToBrushesMap::iterator mapIt = m_selectedVertexHandles.find(vertex->position());
+            for (const Model::BrushVertex* vertex : brush->vertices()) {
+                const auto mapIt = m_selectedVertexHandles.find(vertex->position());
                 if (mapIt != std::end(m_selectedVertexHandles)) {
                     mapIt->second.insert(brush);
-                    m_selectedVertexCount++;
+                    ++m_selectedVertexCount;
                 } else {
                     m_unselectedVertexHandles[vertex->position()].insert(brush);
                 }
             }
-            m_totalVertexCount += brushVertices.size();
+            m_totalVertexCount += brush->vertexCount();
             
-            const Model::Brush::EdgeList brushEdges = brush->edges();
-            Model::Brush::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = std::begin(brushEdges), eEnd = std::end(brushEdges); eIt != eEnd; ++eIt) {
-                Model::BrushEdge* edge = *eIt;
+            for (Model::BrushEdge* edge : brush->edges()) {
                 const Vec3 position = edge->center();
-                Model::VertexToEdgesMap::iterator mapIt = m_selectedEdgeHandles.find(position);
+                const auto mapIt = m_selectedEdgeHandles.find(position);
                 if (mapIt != std::end(m_selectedEdgeHandles)) {
                     mapIt->second.insert(edge);
-                    m_selectedEdgeCount++;
+                    ++m_selectedEdgeCount;
                 } else {
                     m_unselectedEdgeHandles[position].insert(edge);
                 }
             }
-            m_totalEdgeCount+= brushEdges.size();
-            
-            const Model::BrushFaceList& brushFaces = brush->faces();
-            Model::BrushFaceList::const_iterator fIt, fEnd;
-            for (fIt = std::begin(brushFaces), fEnd = std::end(brushFaces); fIt != fEnd; ++fIt) {
-                Model::BrushFace* face = *fIt;
+            m_totalEdgeCount += brush->edgeCount();
+
+            for (Model::BrushFace* face : brush->faces()) {
                 const Vec3 position = face->center();
-                Model::VertexToFacesMap::iterator mapIt = m_selectedFaceHandles.find(position);
+                const auto mapIt = m_selectedFaceHandles.find(position);
                 if (mapIt != std::end(m_selectedFaceHandles)) {
                     mapIt->second.insert(face);
-                    m_selectedFaceCount++;
+                    ++m_selectedFaceCount;
                 } else {
                     m_unselectedFaceHandles[position].insert(face);
                 }
             }
-            m_totalFaceCount += brushFaces.size();
+            m_totalFaceCount += brush->faceCount();
+            
             m_renderStateValid = false;
         }
         
         void VertexHandleManager::removeBrush(Model::Brush* brush) {
-            const Model::Brush::VertexList brushVertices = brush->vertices();
-            Model::Brush::VertexList::const_iterator vIt, vEnd;
-            for (vIt = std::begin(brushVertices), vEnd = std::end(brushVertices); vIt != vEnd; ++vIt) {
-                const Model::BrushVertex* vertex = *vIt;
+            for (const Model::BrushVertex* vertex : brush->vertices()) {
                 if (removeHandle(vertex->position(), brush, m_selectedVertexHandles)) {
                     ensure(m_selectedVertexCount > 0, "no selected vertices");
-                    m_selectedVertexCount--;
+                    --m_selectedVertexCount;
                 } else {
                     removeHandle(vertex->position(), brush, m_unselectedVertexHandles);
                 }
             }
-            ensure(m_totalVertexCount >= brushVertices.size(), "brush vertices exceed total vertices");
-            m_totalVertexCount -= brushVertices.size();
+            ensure(m_totalVertexCount >= brush->vertexCount(), "brush vertices exceed total vertices");
+            m_totalVertexCount -= brush->vertexCount();
             
-            const Model::Brush::EdgeList brushEdges = brush->edges();
-            Model::Brush::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = std::begin(brushEdges), eEnd = std::end(brushEdges); eIt != eEnd; ++eIt) {
-                Model::BrushEdge* edge = *eIt;
+            for (Model::BrushEdge* edge : brush->edges()) {
                 const Vec3 position = edge->center();
                 if (removeHandle(position, edge, m_selectedEdgeHandles)) {
                     ensure(m_selectedEdgeCount > 0, "no selected edges");
-                    m_selectedEdgeCount--;
+                    --m_selectedEdgeCount;
                 } else {
                     removeHandle(position, edge, m_unselectedEdgeHandles);
                 }
             }
-            ensure(m_totalEdgeCount >= brushEdges.size(), "brush edges exceed total edges");
-            m_totalEdgeCount -= brushEdges.size();
+            ensure(m_totalEdgeCount >= brush->edgeCount(), "brush edges exceed total edges");
+            m_totalEdgeCount -= brush->edgeCount();
             
-            const Model::BrushFaceList& brushFaces = brush->faces();
-            Model::BrushFaceList::const_iterator fIt, fEnd;
-            for (fIt = std::begin(brushFaces), fEnd = std::end(brushFaces); fIt != fEnd; ++fIt) {
-                Model::BrushFace* face = *fIt;
+            for (Model::BrushFace* face : brush->faces()) {
                 const Vec3 position = face->center();
                 if (removeHandle(position, face, m_selectedFaceHandles)) {
                     ensure(m_selectedFaceCount > 0, "no selected faces");
-                    m_selectedFaceCount--;
+                    --m_selectedFaceCount;
                 } else {
                     removeHandle(position, face, m_unselectedFaceHandles);
                 }
             }
-            ensure(m_totalFaceCount >= brushFaces.size(), "brush faces exceed total faces");
-            m_totalFaceCount -= brushFaces.size();
+            ensure(m_totalFaceCount >= brush->faceCount(), "brush faces exceed total faces");
+            m_totalFaceCount -= brush->faceCount();
+            
             m_renderStateValid = false;
         }
         
@@ -384,16 +360,14 @@ namespace TrenchBroom {
         }
 
         void VertexHandleManager::selectVertexHandles(const Vec3::List& positions) {
-            Vec3::List::const_iterator it, end;
-            for (it = std::begin(positions), end = std::end(positions); it != end; ++it)
-                selectVertexHandle(*it);
+            for (const Vec3& position : positions)
+                selectVertexHandle(position);
         }
         
         void VertexHandleManager::deselectAllVertexHandles() {
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            for (vIt = std::begin(m_selectedVertexHandles), vEnd = std::end(m_selectedVertexHandles); vIt != vEnd; ++vIt) {
-                const Vec3& position = vIt->first;
-                const Model::BrushSet& selectedBrushes = vIt->second;
+            for (const auto& entry : m_selectedVertexHandles) {
+                const Vec3& position = entry.first;
+                const Model::BrushSet& selectedBrushes = entry.second;
                 Model::BrushSet& unselectedBrushes = m_unselectedVertexHandles[position];
                 unselectedBrushes.insert(std::begin(selectedBrushes), std::end(selectedBrushes));
             }
@@ -403,9 +377,8 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::toggleVertexHandles(const Vec3::List& positions) {
-            Vec3::List::const_iterator it, end;
-            for (it = std::begin(positions), end = std::end(positions); it != end; ++it)
-                toggleVertexHandle(*it);
+            for (const Vec3& position : positions)
+                toggleVertexHandle(position);
         }
         
         void VertexHandleManager::selectEdgeHandle(const Vec3& position) {
@@ -438,18 +411,14 @@ namespace TrenchBroom {
         }
 
         void VertexHandleManager::selectEdgeHandles(const Edge3::List& edges) {
-            Edge3::List::const_iterator it, end;
-            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                const Edge3& edge = *it;
+            for (const Edge3& edge : edges)
                 selectEdgeHandle(edge.center());
-            }
         }
         
         void VertexHandleManager::deselectAllEdgeHandles() {
-            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-            for (eIt = std::begin(m_selectedEdgeHandles), eEnd = std::end(m_selectedEdgeHandles); eIt != eEnd; ++eIt) {
-                const Vec3& position = eIt->first;
-                const Model::BrushEdgeSet& selectedEdges = eIt->second;
+            for (const auto& entry : m_selectedEdgeHandles) {
+                const Vec3& position = entry.first;
+                const Model::BrushEdgeSet& selectedEdges = entry.second;
                 Model::BrushEdgeSet& unselectedEdges = m_unselectedEdgeHandles[position];
                 unselectedEdges.insert(std::begin(selectedEdges), std::end(selectedEdges));
             }
@@ -459,9 +428,8 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::toggleEdgeHandles(const Vec3::List& positions) {
-            Vec3::List::const_iterator it, end;
-            for (it = std::begin(positions), end = std::end(positions); it != end; ++it)
-                toggleEdgeHandle(*it);
+            for (const Vec3& position : positions)
+                toggleEdgeHandle(position);
         }
 
         void VertexHandleManager::selectFaceHandle(const Vec3& position) {
@@ -494,18 +462,14 @@ namespace TrenchBroom {
         }
 
         void VertexHandleManager::selectFaceHandles(const Polygon3::List& faces) {
-            Polygon3::List::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                const Polygon3& face = *it;
+            for (const Polygon3& face : faces)
                 selectFaceHandle(face.center());
-            }
         }
         
         void VertexHandleManager::deselectAllFaceHandles() {
-            Model::VertexToFacesMap::const_iterator fIt, fEnd;
-            for (fIt = std::begin(m_selectedFaceHandles), fEnd = std::end(m_selectedFaceHandles); fIt != fEnd; ++fIt) {
-                const Vec3& position = fIt->first;
-                const Model::BrushFaceSet& selectedFaces = fIt->second;
+            for (const auto& entry : m_selectedFaceHandles) {
+                const Vec3& position = entry.first;
+                const Model::BrushFaceSet& selectedFaces = entry.second;
                 Model::BrushFaceSet& unselectedFaces = m_unselectedFaceHandles[position];
                 unselectedFaces.insert(std::begin(selectedFaces), std::end(selectedFaces));
             }
@@ -515,9 +479,8 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::toggleFaceHandles(const Vec3::List& positions) {
-            Vec3::List::const_iterator it, end;
-            for (it = std::begin(positions), end = std::end(positions); it != end; ++it)
-                toggleFaceHandle(*it);
+            for (const Vec3& position : positions)
+                toggleFaceHandle(position);
         }
 
         bool VertexHandleManager::hasSelectedHandles() const {
@@ -531,89 +494,70 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
-            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
-            for (oIt = std::begin(positions), oEnd = std::end(positions); oIt != oEnd; ++oIt) {
-                const Vec3& oldPosition = *oIt;
-                const Vec3::List newPositions = findVertexHandlePositions(brushes, oldPosition, maxDistance);
-                for (nIt = std::begin(newPositions), nEnd = std::end(newPositions); nIt != nEnd; ++nIt) {
-                    const Vec3& newPosition = *nIt;
+            for (const Vec3& oldPosition : positions) {
+                for (const Vec3& newPosition : findVertexHandlePositions(brushes, oldPosition, maxDistance))
                     selectVertexHandle(newPosition);
-                }
             }
         }
         
         void VertexHandleManager::reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
-            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
-            for (oIt = std::begin(positions), oEnd = std::end(positions); oIt != oEnd; ++oIt) {
-                const Vec3& oldPosition = *oIt;
-                const Vec3::List newPositions = findEdgeHandlePositions(brushes, oldPosition, maxDistance);
-                for (nIt = std::begin(newPositions), nEnd = std::end(newPositions); nIt != nEnd; ++nIt) {
-                    const Vec3& newPosition = *nIt;
+            for (const Vec3& oldPosition : positions) {
+                for (const Vec3& newPosition : findEdgeHandlePositions(brushes, oldPosition, maxDistance))
                     selectEdgeHandle(newPosition);
-                }
             }
         }
         
         void VertexHandleManager::reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
-            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
-            for (oIt = std::begin(positions), oEnd = std::end(positions); oIt != oEnd; ++oIt) {
-                const Vec3& oldPosition = *oIt;
-                const Vec3::List newPositions = findFaceHandlePositions(brushes, oldPosition, maxDistance);
-                for (nIt = std::begin(newPositions), nEnd = std::end(newPositions); nIt != nEnd; ++nIt) {
-                    const Vec3& newPosition = *nIt;
+            for (const Vec3& oldPosition : positions) {
+                for (const Vec3& newPosition : findFaceHandlePositions(brushes, oldPosition, maxDistance))
                     selectFaceHandle(newPosition);
-                }
             }
         }
 
         void VertexHandleManager::pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const {
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-            Model::VertexToFacesMap::const_iterator fIt, fEnd;
-            
             if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
-                for (vIt = std::begin(m_unselectedVertexHandles), vEnd = std::end(m_unselectedVertexHandles); vIt != vEnd; ++vIt) {
-                    const Vec3& position = vIt->first;
+                for (const auto& entry : m_unselectedVertexHandles) {
+                    const Vec3& position = entry.first;
                     const Model::Hit hit = pickHandle(ray, camera, position, VertexHandleHit);
                     if (hit.isMatch())
                         pickResult.addHit(hit);
                 }
             }
-            
-            for (vIt = std::begin(m_selectedVertexHandles), vEnd = std::end(m_selectedVertexHandles); vIt != vEnd; ++vIt) {
-                const Vec3& position = vIt->first;
+
+            for (const auto& entry : m_selectedVertexHandles) {
+                const Vec3& position = entry.first;
                 const Model::Hit hit = pickHandle(ray, camera, position, VertexHandleHit);
                 if (hit.isMatch())
                     pickResult.addHit(hit);
             }
             
             if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
-                for (eIt = std::begin(m_unselectedEdgeHandles), eEnd = std::end(m_unselectedEdgeHandles); eIt != eEnd; ++eIt) {
-                    const Vec3& position = eIt->first;
+                for (const auto& entry : m_unselectedEdgeHandles) {
+                    const Vec3& position = entry.first;
                     const Model::Hit hit = pickHandle(ray, camera, position, EdgeHandleHit);
                     if (hit.isMatch())
                         pickResult.addHit(hit);
                 }
             }
             
-            for (eIt = std::begin(m_selectedEdgeHandles), eEnd = std::end(m_selectedEdgeHandles); eIt != eEnd; ++eIt) {
-                const Vec3& position = eIt->first;
+            for (const auto& entry : m_selectedEdgeHandles) {
+                const Vec3& position = entry.first;
                 const Model::Hit hit = pickHandle(ray, camera, position, EdgeHandleHit);
                 if (hit.isMatch())
                     pickResult.addHit(hit);
             }
             
             if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
-                for (fIt = std::begin(m_unselectedFaceHandles), fEnd = std::end(m_unselectedFaceHandles); fIt != fEnd; ++fIt) {
-                    const Vec3& position = fIt->first;
+                for (const auto& entry : m_unselectedFaceHandles) {
+                    const Vec3& position = entry.first;
                     const Model::Hit hit = pickHandle(ray, camera, position, FaceHandleHit);
                     if (hit.isMatch())
                         pickResult.addHit(hit);
                 }
             }
             
-            for (fIt = std::begin(m_selectedFaceHandles), fEnd = std::end(m_selectedFaceHandles); fIt != fEnd; ++fIt) {
-                const Vec3& position = fIt->first;
+            for (const auto& entry : m_selectedFaceHandles) {
+                const Vec3& position = entry.first;
                 const Model::Hit hit = pickHandle(ray, camera, position, FaceHandleHit);
                 if (hit.isMatch())
                     pickResult.addHit(hit);
@@ -695,14 +639,9 @@ namespace TrenchBroom {
         
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
-            Model::BrushSet::const_iterator bIt, bEnd;
-            Model::Brush::VertexList::const_iterator vIt, vEnd;
             
-            for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                const Model::Brush* brush = *bIt;
-                const Model::Brush::VertexList vertices = brush->vertices();
-                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                    const Model::BrushVertex* vertex = *vIt;
+            for (const Model::Brush* brush : brushes) {
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
                     if (query.squaredDistanceTo(vertex->position()) <= maxDistance * maxDistance)
                         result.push_back(vertex->position());
                 }
@@ -713,14 +652,9 @@ namespace TrenchBroom {
 
         Vec3::List VertexHandleManager::findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
-            Model::BrushSet::const_iterator bIt, bEnd;
-            Model::Brush::EdgeList::const_iterator eIt, eEnd;
-            
-            for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                const Model::Brush* brush = *bIt;
-                const Model::Brush::EdgeList edges = brush->edges();
-                for (eIt = std::begin(edges), eEnd = std::end(edges); eIt != eEnd; ++eIt) {
-                    const Model::BrushEdge* edge = *eIt;
+
+            for (const Model::Brush* brush : brushes) {
+                for (const Model::BrushEdge* edge : brush->edges()) {
                     const Vec3 center = edge->center();
                     if (query.squaredDistanceTo(center) <= maxDistance * maxDistance)
                         result.push_back(center);
@@ -732,14 +666,9 @@ namespace TrenchBroom {
         
         Vec3::List VertexHandleManager::findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
-            Model::BrushSet::const_iterator bIt, bEnd;
-            Model::BrushFaceList::const_iterator fIt, fEnd;
-            
-            for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                const Model::Brush* brush = *bIt;
-                const Model::BrushFaceList& faces = brush->faces();
-                for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
-                    const Model::BrushFace* face = *fIt;
+
+            for (const Model::Brush* brush : brushes) {
+                for (const Model::BrushFace* face : brush->faces()) {
                     const Vec3 center = face->center();
                     if (query.squaredDistanceTo(center) <= maxDistance * maxDistance)
                         result.push_back(center);
@@ -777,53 +706,46 @@ namespace TrenchBroom {
             m_unselectedFaceHandlePositions.reserve(m_unselectedFaceHandles.size());
             m_selectedHandlePositions.reserve(m_selectedVertexHandles.size() + m_selectedEdgeHandles.size() + m_selectedFaceHandles.size());
 
-            for (vIt = std::begin(m_unselectedVertexHandles), vEnd = std::end(m_unselectedVertexHandles); vIt != vEnd; ++vIt) {
-                const Vec3& position = vIt->first;
+            for (const auto& entry : m_unselectedVertexHandles) {
+                const Vec3& position = entry.first;
                 m_unselectedVertexHandlePositions.push_back(position);
             }
 
-            for (eIt = std::begin(m_unselectedEdgeHandles), eEnd = std::end(m_unselectedEdgeHandles); eIt != eEnd; ++eIt) {
-                const Vec3& position = eIt->first;
+            for (const auto& entry : m_unselectedEdgeHandles) {
+                const Vec3& position = entry.first;
                 m_unselectedEdgeHandlePositions.push_back(position);
             }
 
-            for (fIt = std::begin(m_unselectedFaceHandles), fEnd = std::end(m_unselectedFaceHandles); fIt != fEnd; ++fIt) {
-                const Vec3& position = fIt->first;
+            for (const auto& entry : m_unselectedFaceHandles) {
+                const Vec3& position = entry.first;
                 m_unselectedFaceHandlePositions.push_back(position);
             }
 
-            for (vIt = std::begin(m_selectedVertexHandles), vEnd = std::end(m_selectedVertexHandles); vIt != vEnd; ++vIt) {
-                const Vec3& position = vIt->first;
+            for (const auto& entry : m_selectedVertexHandles) {
+                const Vec3& position = entry.first;
                 m_selectedHandlePositions.push_back(position);
             }
             
             
-            for (eIt = std::begin(m_selectedEdgeHandles), eEnd = std::end(m_selectedEdgeHandles); eIt != eEnd; ++eIt) {
-                const Vec3& position = eIt->first;
+            for (const auto& entry : m_selectedEdgeHandles) {
+                const Vec3& position = entry.first;
                 m_selectedHandlePositions.push_back(position);
                 
-                const Model::BrushEdgeSet& edges = eIt->second;
-                Model::BrushEdgeSet::const_iterator edgeIt, edgeEnd;
-                for (edgeIt = std::begin(edges), edgeEnd = std::end(edges); edgeIt != edgeEnd; ++edgeIt) {
-                    const Model::BrushEdge* edge = *edgeIt;
+                const Model::BrushEdgeSet& edges = entry.second;
+                for (const Model::BrushEdge* edge : edges) {
                     m_edgeVertices.push_back(Vec3f(edge->firstVertex()->position()));
                     m_edgeVertices.push_back(Vec3f(edge->secondVertex()->position()));
                 }
             }
             
-            for (fIt = std::begin(m_selectedFaceHandles), fEnd = std::end(m_selectedFaceHandles); fIt != fEnd; ++fIt) {
-                const Vec3f& position = fIt->first;
+            for (const auto& entry : m_selectedFaceHandles) {
+                const Vec3f& position = entry.first;
                 m_selectedHandlePositions.push_back(Vec3f(position));
                 
                 const Model::BrushFaceSet& faces = fIt->second;
-                Model::BrushFaceSet::const_iterator faceIt, faceEnd;
-                for (faceIt = std::begin(faces), faceEnd = std::end(faces); faceIt != faceEnd; ++faceIt) {
-                    const Model::BrushFace* face = *faceIt;
+                for (const Model::BrushFace* face : faces) {
                     const Model::BrushFace::EdgeList edges = face->edges();
-                    
-                    Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
-                    for (edgeIt = std::begin(edges), edgeEnd = std::end(edges); edgeIt != edgeEnd; ++edgeIt) {
-                        const Model::BrushEdge* edge = *edgeIt;
+                    for (const Model::BrushEdge* edge : edges) {
                         m_edgeVertices.push_back(Vec3f(edge->firstVertex()->position()));
                         m_edgeVertices.push_back(Vec3f(edge->secondVertex()->position()));
                     }

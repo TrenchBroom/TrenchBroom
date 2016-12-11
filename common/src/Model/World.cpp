@@ -172,21 +172,13 @@ namespace TrenchBroom {
         }
 
         void World::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                const Node* child = *it;
+            for (const Node* child : Node::children())
                 child->pick(ray, pickResult);
-            }
         }
         
         void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                Node* child = *it;
+            for (Node* child : Node::children())
                 child->findNodesContaining(point, result);
-            }
         }
 
         FloatType World::doIntersectWithRay(const Ray3& ray) const {

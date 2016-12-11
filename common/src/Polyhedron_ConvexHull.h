@@ -114,20 +114,15 @@ public:
     }
     
     void print() const {
-        const_iterator it, end;
-        for (it = begin(), end = Seam::end(); it != end; ++it) {
-            const Edge* edge = *it;
+        for (const Edge* edge : m_edges)
             std::cout << edge->secondVertex()->position().asString(3) << std::endl;
-        }
     }
     
     bool hasMultipleLoops() const {
         assert(size() > 2);
         
         VertexSet visitedVertices;
-        const_iterator it, end;
-        for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
-            Edge* edge = *it;
+        for (const Edge* edge : m_edges) {
             if (!visitedVertices.insert(edge->secondVertex()).second)
                 return true;
         }
@@ -149,10 +144,8 @@ private:
     bool check() const {
         assert(size() > 2);
         
-        Edge* last = m_edges.back();
-        const_iterator it, end;
-        for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
-            Edge* edge = *it;
+        const Edge* last = m_edges.back();
+        for (const Edge* edge : m_edges) {
             if (last->firstVertex() != edge->secondVertex())
                 return false;
             
@@ -699,10 +692,7 @@ void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     // Note that all seam edges are oriented such that their second half edge belongs
     // to the portion of the polyhedron that must be removed.
     HalfEdge* first = seam.first()->secondEdge();
-    typename Seam::const_iterator it, end;
-    for (it = std::begin(seam), end = std::end(seam); it != end; ++it) {
-        Edge* edge = *it;
-        
+    for (Edge* edge : seam) {
         // Set the first edge as the leaving edge. Since the first one will remain
         // in the polyhedron, we can use this as an indicator whether or not to
         // delete a vertex in the call to deleteFaces.
@@ -833,15 +823,13 @@ void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& call
     assert(!seam.hasMultipleLoops());
     
     HalfEdgeList boundary;
-    typename Seam::const_iterator it, end;
-    for (it = std::begin(seam), end = std::end(seam); it != end; ++it) {
-        Edge* currentEdge = *it;
-        assert(!currentEdge->fullySpecified());
+    for (Edge* seamEdge : seam) {
+        assert(!seamEdge->fullySpecified());
         
-        Vertex* origin = currentEdge->secondVertex();
+        Vertex* origin = seamEdge->secondVertex();
         HalfEdge* boundaryEdge = new HalfEdge(origin);
         boundary.append(boundaryEdge, 1);
-        currentEdge->setSecondEdge(boundaryEdge);
+        seamEdge->setSecondEdge(boundaryEdge);
     }
     
     Face* face = new Face(boundary);
@@ -1036,9 +1024,7 @@ public:
     virtual ~SplittingCriterion() {}
 public:
     Edge* findFirstSplittingEdge(EdgeList& edges) const {
-        typename EdgeList::iterator it, end;
-        for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-            Edge* edge = *it;
+        for (Edge* edge : edges) {
             const MatchResult result = matches(edge);
             switch (result) {
                 case MatchResult_Second:

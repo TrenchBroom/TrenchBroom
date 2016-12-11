@@ -438,9 +438,7 @@ namespace TrenchBroom {
                 return;
             
             Model::CollectSelectableUniqueNodesVisitor visitor(*m_editorContext);
-            Model::NodeList::const_iterator it, end;
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Node* parent = node->parent();
                 parent->iterate(visitor);
             }
@@ -598,9 +596,8 @@ namespace TrenchBroom {
         
         Model::ParentChildrenMap MapDocument::collectRemovableParents(const Model::ParentChildrenMap& nodes) const {
             Model::ParentChildrenMap result;
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = std::begin(nodes), end = std::end(nodes); it != end; ++it) {
-                Model::Node* node = it->first;
+            for (const auto& entry : nodes) {
+                Model::Node* node = entry.first;
                 if (node->removeIfEmpty() && !node->hasChildren()) {
                     Model::Node* parent = node->parent();
                     ensure(parent != NULL, "parent is null");
@@ -637,11 +634,9 @@ namespace TrenchBroom {
         
         void MapDocument::closeRemovedGroups(const Model::ParentChildrenMap& toRemove) {
             Model::ParentChildrenMap::const_iterator mIt, mEnd;
-            Model::NodeList::const_iterator nIt, nEnd;
-            for (mIt = std::begin(toRemove), mEnd = std::end(toRemove); mIt != mEnd; ++mIt) {
-                const Model::NodeList& nodes = mIt->second;
-                for (nIt = std::begin(nodes), nEnd = std::end(nodes); nIt != nEnd; ++nIt) {
-                    const Model::Node* node = *nIt;
+            for (const auto& entry : toRemove) {
+                const Model::NodeList& nodes = entry.second;
+                for (const Model::Node* node : nodes) {
                     if (node == currentGroup()) {
                         closeGroup();
                         closeRemovedGroups(toRemove);
@@ -662,9 +657,8 @@ namespace TrenchBroom {
                 return false;
             
             Model::ParentChildrenMap nodesToRemove;
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = std::begin(nodesToAdd), end = std::end(nodesToAdd); it != end; ++it) {
-                const Model::NodeList& children = it->second;
+            for (const auto& entry : nodesToAdd) {
+                const Model::NodeList& children = entry.second;
                 MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
             }
 
@@ -683,10 +677,9 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const {
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = std::begin(nodesToAdd), end = std::end(nodesToAdd); it != end; ++it) {
-                const Model::Node* newParent = it->first;
-                const Model::NodeList& children = it->second;
+            for (const auto& entry : nodesToAdd) {
+                const Model::Node* newParent = entry.first;
+                const Model::NodeList& children = entry.second;
                 if (!newParent->canAddChildren(std::begin(children), std::end(children)))
                     return false;
             }
@@ -759,9 +752,7 @@ namespace TrenchBroom {
             const Transaction transaction(this, "Ungroup");
             deselectAll();
             
-            Model::NodeList::const_iterator it, end;
-            for (it = std::begin(groups), end = std::end(groups); it != end; ++it) {
-                Model::Node* group = *it;
+            for (Model::Node* group : groups) {
                 Model::Layer* layer = Model::findLayer(group);
                 const Model::NodeList& children = group->children();
                 reparentNodes(layer, children);
@@ -900,28 +891,14 @@ namespace TrenchBroom {
             Polyhedron3 polyhedron;
             
             if (hasSelectedBrushFaces()) {
-                const Model::BrushFaceList& faces = selectedBrushFaces();
-                Model::BrushFaceList::const_iterator fIt, fEnd;
-                for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
-                    const Model::BrushFace* face = *fIt;
-                    const Model::BrushFace::VertexList vertices = face->vertices();
-                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
+                for (const Model::BrushFace* face : selectedBrushFaces()) {
+                    for (const Model::BrushVertex* vertex : face->vertices())
                         polyhedron.addPoint(vertex->position());
-                    }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
-                const Model::BrushList& brushes = selectedNodes().brushes();
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                    const Model::Brush* brush = *bIt;
-                    const Model::Brush::VertexList vertices = brush->vertices();
-                    Model::Brush::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
+                for (const Model::Brush* brush : selectedNodes().brushes()) {
+                    for (const Model::BrushVertex* vertex : brush->vertices())
                         polyhedron.addPoint(vertex->position());
-                    }
                 }
             }
             
@@ -955,9 +932,7 @@ namespace TrenchBroom {
             Model::NodeList toRemove;
             toRemove.push_back(subtrahend);
             
-            Model::BrushList::const_iterator it, end;
-            for (it = std::begin(minuends), end = std::end(minuends); it != end; ++it) {
-                Model::Brush* minuend = *it;
+            for (Model::Brush* minuend : minuends) {
                 const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
                 if (!result.empty()) {
                     VectorUtils::append(toAdd[minuend->parent()], result);
@@ -1013,10 +988,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;
             
-            Model::BrushList::const_iterator it, end;
-            for (it = std::begin(brushes), end = std::end(brushes); it != end; ++it) {
-                const Model::Brush* originalBrush = *it;
-                
+            for (const Model::Brush* originalBrush : brushes) {
                 Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
                 Model::Brush* clippedBrush = originalBrush->clone(m_worldBounds);
                 if (clippedBrush->clip(m_worldBounds, clipFace))
@@ -1085,9 +1057,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                const Model::BrushFace* face = *it;
+            for (const Model::BrushFace* face : faces) {
                 if (face->texture() != texture)
                     return false;
             }
@@ -1174,30 +1144,17 @@ namespace TrenchBroom {
 
         void MapDocument::printVertices() {
             if (hasSelectedBrushFaces()) {
-                Model::BrushFaceList::const_iterator fIt, fEnd;
-                for (fIt = std::begin(m_selectedBrushFaces), fEnd = std::end(m_selectedBrushFaces); fIt != fEnd; ++fIt) {
-                    const Model::BrushFace* face = *fIt;
-                    const Model::BrushFace::VertexList vertices = face->vertices();
+                for (const Model::BrushFace* face : m_selectedBrushFaces) {
                     StringStream str;
-                    Model::BrushFace::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
+                    for (const Model::BrushVertex* vertex : face->vertices())
                         str << "(" << vertex->position().asString() << ") ";
-                    }
                     info(str.str());
                 }
             } else if (selectedNodes().hasBrushes()) {
-                const Model::BrushList& brushes = selectedNodes().brushes();
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = std::begin(brushes), bEnd = std::end(brushes); bIt != bEnd; ++bIt) {
-                    const Model::Brush* brush = *bIt;
-                    const Model::Brush::VertexList vertices = brush->vertices();
+                for (const Model::Brush* brush : selectedNodes().brushes()) {
                     StringStream str;
-                    Model::Brush::VertexList::const_iterator vIt, vEnd;
-                    for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                        const Model::BrushVertex* vertex = *vIt;
+                    for (const Model::BrushVertex* vertex : brush->vertices())
                         str << "(" << vertex->position().asString() << ") ";
-                    }
                     info(str.str());
                 }
             }
@@ -1465,12 +1422,8 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
             void doVisit(Model::Brush* brush)   {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                    Model::BrushFace* face = *it;
+                for (Model::BrushFace* face : brush->faces())
                     face->updateTexture(m_manager);
-                }
             }
         };
         
@@ -1485,11 +1438,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setTextures(const Model::BrushFaceList& faces) {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                Model::BrushFace* face = *it;
+            for (Model::BrushFace* face : faces)
                 face->updateTexture(m_textureManager);
-            }
         }
         
         class UnsetTextures : public Model::NodeVisitor {
@@ -1499,12 +1449,8 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
             void doVisit(Model::Brush* brush)   {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                    Model::BrushFace* face = *it;
+                for (Model::BrushFace* face : brush->faces())
                     face->setTexture(NULL);
-                }
             }
         };
         
@@ -1536,9 +1482,8 @@ namespace TrenchBroom {
             IO::Path::List additionalSearchPaths;
             additionalSearchPaths.reserve(modNames.size());
             
-            StringList::const_iterator it, end;
-            for (it = std::begin(modNames), end = std::end(modNames); it != end; ++it)
-                additionalSearchPaths.push_back(IO::Path(*it));
+            for (const String& modName : modNames)
+                additionalSearchPaths.push_back(IO::Path(modName));
             m_game->setAdditionalSearchPaths(additionalSearchPaths);
         }
         

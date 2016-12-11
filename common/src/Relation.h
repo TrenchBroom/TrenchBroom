@@ -46,9 +46,8 @@ public:
     relation() : m_size(0) {}
     relation(const std::map<L, R, Cmp_L>& entries) :
     m_size(0) {
-        typename std::map<L, R, Cmp_L>::const_iterator it, end;
-        for (it = std::begin(entries), end = std::end(entries); it != end; ++it)
-            insert(it->first, it->second);
+        for (const auto& entry : entries)
+            insert(entry.first, entry.second);
     }
 public:
     void insert(const relation<L, R>& other) {

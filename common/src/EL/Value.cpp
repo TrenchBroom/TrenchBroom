@@ -23,6 +23,9 @@
 #include "MathUtils.h"
 #include "EL/ELExceptions.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace EL {
         ValueHolder::~ValueHolder() {}
@@ -339,11 +342,11 @@ namespace TrenchBroom {
                     str << "\n";
                 else
                     str << " ";
-                MapType::const_iterator it, end;
+
                 size_t i = 0;
-                for (it = std::begin(m_value), end = std::end(m_value); it != end; ++it) {
-                    str << childIndent << "\"" << it->first << "\"" << ": ";
-                    it->second.appendToStream(str, multiline, childIndent);
+                for (const auto& entry : m_value) {
+                    str << childIndent << "\"" << entry.first << "\"" << ": ";
+                    entry.second.appendToStream(str, multiline, childIndent);
                     if (i++ < m_value.size() - 1) {
                         str << ",";
                         if (!multiline)
@@ -580,12 +583,9 @@ namespace TrenchBroom {
             const ArrayType& array = arrayValue();
             StringList result;
             result.reserve(array.size());
-            
-            ArrayType::const_iterator it, end;
-            for (it = std::begin(array), end = std::end(array); it != end; ++it) {
-                const Value& entry = *it;
-                result.push_back(entry.convertTo(Type_String).stringValue());
-            }
+
+            std::transform(std::begin(array), std::end(array), std::back_inserter(result),
+                           [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
             
             return result;
         }
@@ -594,11 +594,8 @@ namespace TrenchBroom {
             const ArrayType& array = arrayValue();
             StringSet result;
             
-            ArrayType::const_iterator it, end;
-            for (it = std::begin(array), end = std::end(array); it != end; ++it) {
-                const Value& entry = *it;
-                result.insert(entry.convertTo(Type_String).stringValue());
-            }
+            std::transform(std::begin(array), std::end(array), std::inserter(result, result.begin()),
+                           [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
             
             return result;
         }

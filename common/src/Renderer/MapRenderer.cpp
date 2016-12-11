@@ -57,14 +57,9 @@ namespace TrenchBroom {
                 const bool brushSelected = selected(brush);
                 const bool brushEditable = editable(brush);
                 
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    
-                    if (brushEditable && (selected(face) || brushSelected) && brushVisible) {
+                for (const Model::BrushFace* face : brush->faces()) {
+                    if (brushEditable && (selected(face) || brushSelected) && brushVisible)
                          provideFaces.accept(face);
-                    }
                 }
             }
             
@@ -73,28 +68,15 @@ namespace TrenchBroom {
                 const bool brushSelected = selected(brush);
                 const bool brushEditable = editable(brush);
                 
-                const Model::Brush::EdgeList& edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    
+                for (const Model::BrushEdge* edge : brush->edges()) {
                     const Model::BrushFace* first = edge->firstFace()->payload();
                     const Model::BrushFace* second = edge->secondFace()->payload();
                     assert(second->brush() == brush);
                     
-                    if (brushEditable && (brushSelected || selected(first) || selected(second)) && brushVisible) {
+                    if (brushEditable && (brushSelected || selected(first) || selected(second)) && brushVisible)
                          provideEdges.accept(edge);
-                    }
                 }
             }
-            
-//            bool doShow(const Model::BrushFace* face) const {
-//                return editable(face) && (selected(face) || selected(face->brush())) && visible(face);
-//            }
-//            
-//            bool doShow(const Model::BrushEdge* edge) const {
-//                return selected(edge);
-//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return false;
@@ -111,12 +93,8 @@ namespace TrenchBroom {
                 
                 if (brushVisible) {
                     // collect all faces
-                    const Model::BrushFaceList& faces = brush->faces();
-                    Model::BrushFaceList::const_iterator it, end;
-                    for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                        const Model::BrushFace* face = *it;
+                    for (const Model::BrushFace* face : brush->faces())
                          provideFaces.accept(face);
-                    }
                 }
             }
             
@@ -125,22 +103,10 @@ namespace TrenchBroom {
                 
                 if (brushVisible) {
                     // collect all edges
-                    const Model::Brush::EdgeList& edges = brush->edges();
-                    Model::Brush::EdgeList::const_iterator it, end;
-                    for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                        const Model::BrushEdge* edge = *it;
+                    for (const Model::BrushEdge* edge : brush->edges())
                          provideEdges.accept(edge);
-                    }
                 }
             }
-            
-//            bool doShow(const Model::BrushFace* face) const {
-//                return visible(face);
-//            }
-//            
-//            bool doShow(const Model::BrushEdge* edge) const {
-//                return visible(edge);
-//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return brush->transparent();
@@ -156,14 +122,10 @@ namespace TrenchBroom {
                 const bool brushVisible = visible(brush);
                 const bool brushEditable = editable(brush);
                 
-                // collect faces
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    
-                    if (brushEditable && !selected(face) && brushVisible) {
-                         provideFaces.accept(face);
+                if (brushVisible && brushEditable) {
+                    for (const Model::BrushFace* face : brush->faces()) {
+                        if (!selected(face))
+                            provideFaces.accept(face);
                     }
                 }
             }
@@ -172,31 +134,18 @@ namespace TrenchBroom {
                 const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
                 
-                // collect edges
-                const Model::Brush::EdgeList& edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    
-                    const Model::BrushFace* first = edge->firstFace()->payload();
-                    const Model::BrushFace* second = edge->secondFace()->payload();
-                    assert(second->brush() == brush);
-                    
-                    const bool edgeSelected = (brushSelected || selected(first) || selected(second));
-                    
-                    if (!edgeSelected && brushVisible) {
-                         provideEdges.accept(edge);
+                
+                if (brushVisible && !brushSelected) {
+                    for (const Model::BrushEdge* edge : brush->edges()) {
+                        const Model::BrushFace* first = edge->firstFace()->payload();
+                        const Model::BrushFace* second = edge->secondFace()->payload();
+                        assert(second->brush() == brush);
+                        
+                        if (!selected(first) && !selected(second))
+                            provideEdges.accept(edge);
                     }
                 }
             }
-            
-//            bool doShow(const Model::BrushFace* face) const {
-//                return editable(face) && !selected(face) && visible(face);
-//            }
-//            
-//            bool doShow(const Model::BrushEdge* edge) const {
-//                return !selected(edge) && visible(edge);
-//            }
             
             bool doIsTransparent(const Model::Brush* brush) const {
                 return brush->transparent();
@@ -342,18 +291,15 @@ namespace TrenchBroom {
                 const Assets::EntityDefinition* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
                 const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
                 if (!nodes.empty()) {
-                    CollectTutorialEntitiesVisitor collect(definition);
-                    Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
-                    
-                    const Model::NodeList entities = collect.nodes();
-                    
                     RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::TutorialOverlayBackgroundColor));
                     
-                    Model::NodeList::const_iterator it, end;
-                    for (it = std::begin(entities), end = std::end(entities); it != end; ++it) {
-                        const Model::Entity* entity = static_cast<Model::Entity*>(*it);
+                    CollectTutorialEntitiesVisitor collect(definition);
+                    Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
+
+                    for (const Model::Node* node : collect.nodes()) {
+                        const Model::Entity* entity = static_cast<const Model::Entity*>(node);
                         const Model::AttributeValue& message = entity->attribute(Model::Tutorial::Message);
                         if (!message.empty())
                             renderService.renderHeadsUp(message);
@@ -624,12 +570,8 @@ namespace TrenchBroom {
         
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
             Model::BrushSet result;
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                Model::Brush* brush = face->brush();
-                result.insert(brush);
-            }
+            for (const Model::BrushFace* face : faces)
+                result.insert(face->brush());
             return result;
         }
         

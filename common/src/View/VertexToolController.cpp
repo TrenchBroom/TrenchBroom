@@ -51,9 +51,7 @@ namespace TrenchBroom {
                     const Vec3 firstHitPosition = first.target<Vec3>();
                     
                     const Model::Hit::List matches = pickResult.query().type(any).all();
-                    Model::Hit::List::const_iterator hIt, hEnd;
-                    for (hIt = std::begin(matches), hEnd = std::end(matches); hIt != hEnd; ++hIt) {
-                        const Model::Hit& hit = *hIt;
+                    for (const Model::Hit& hit : matches) {
                         const Vec3 hitPosition = hit.target<Vec3>();
                         
                         if (hitPosition.distanceTo(firstHitPosition) < MaxVertexDistance) {

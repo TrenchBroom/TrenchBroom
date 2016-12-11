@@ -48,10 +48,9 @@ namespace TrenchBroom {
         
         bool SplitBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const BBox3& worldBounds = document->worldBounds();
-            Model::BrushEdgesMap::const_iterator it, end;
-            for (it = std::begin(m_edges), end = std::end(m_edges); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Edge3::List& edges = it->second;
+            for (const auto& entry : m_edges) {
+                Model::Brush* brush = entry.first;
+                const Edge3::List& edges = entry.second;
                 for (size_t i = 0; i < edges.size(); ++i) {
                     const Edge3& edge = edges[i];
                     if (!brush->canSplitEdge(worldBounds, edge, m_delta))

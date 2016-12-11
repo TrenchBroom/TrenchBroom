@@ -53,7 +53,7 @@ namespace TrenchBroom {
         
         class ExpressionBase {
         public:
-            typedef std::auto_ptr<ExpressionBase> Ptr;
+            typedef std::unique_ptr<ExpressionBase> Ptr;
             typedef std::list<ExpressionBase*> List;
             typedef std::map<String, ExpressionBase*> Map;
             

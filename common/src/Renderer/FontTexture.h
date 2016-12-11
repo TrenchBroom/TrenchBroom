@@ -32,7 +32,7 @@ namespace TrenchBroom {
         
         class FontTexture {
         public:
-            typedef std::auto_ptr<FontTexture> Ptr;
+            typedef std::unique_ptr<FontTexture> Ptr;
         private:
             size_t m_size;
             char* m_buffer;

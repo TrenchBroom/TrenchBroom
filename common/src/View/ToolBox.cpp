@@ -343,13 +343,10 @@ namespace TrenchBroom {
             if (!tool->activate())
                 return false;
 
-            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
-            if (mapIt != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = mapIt->second;
-                ToolList::const_iterator listIt, listEnd;
-                for (listIt = std::begin(slaves), listEnd = std::end(slaves); listIt != listEnd; ++listIt) {
-                    Tool* slave = *listIt;
-
+            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            if (it != std::end(m_deactivateWhen)) {
+                const ToolList& slaves = it->second;
+                for (Tool* slave : slaves) {
                     slave->deactivate();
                     toolDeactivatedNotifier(slave);
                 }
@@ -363,13 +360,10 @@ namespace TrenchBroom {
             if (dragging())
                 cancelMouseDrag();
                 
-                ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
-            if (mapIt != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = mapIt->second;
-                ToolList::const_iterator listIt, listEnd;
-                for (listIt = std::begin(slaves), listEnd = std::end(slaves); listIt != listEnd; ++listIt) {
-                    Tool* slave = *listIt;
-
+            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            if (it != std::end(m_deactivateWhen)) {
+                const ToolList& slaves = it->second;
+                for (Tool* slave : slaves) {
                     slave->activate();
                     toolActivatedNotifier(slave);
                 }

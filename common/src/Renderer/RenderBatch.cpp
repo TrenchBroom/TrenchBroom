@@ -113,35 +113,23 @@ namespace TrenchBroom {
         void RenderBatch::prepareVertices() {
             ActivateVbo activate(m_vertexVbo);
             
-            DirectRenderableList::const_iterator dIt, dEnd;
-            for (dIt = std::begin(m_directRenderables), dEnd = std::end(m_directRenderables); dIt != dEnd; ++dIt) {
-                DirectRenderable* renderable = *dIt;
+            for (DirectRenderable* renderable : m_directRenderables)
                 renderable->prepareVertices(m_vertexVbo);
-            }
             
-            IndexedRenderableList::const_iterator iIt, iEnd;
-            for (iIt = std::begin(m_indexedRenderables), iEnd = std::end(m_indexedRenderables); iIt != iEnd; ++iIt) {
-                IndexedRenderable* renderable = *iIt;
+            for (IndexedRenderable* renderable : m_indexedRenderables)
                 renderable->prepareVertices(m_vertexVbo);
-            }
         }
         
         void RenderBatch::prepareIndices() {
             ActivateVbo activate(m_indexVbo);
             
-            IndexedRenderableList::const_iterator it, end;
-            for (it = std::begin(m_indexedRenderables), end = std::end(m_indexedRenderables); it != end; ++it) {
-                IndexedRenderable* renderable = *it;
+            for (IndexedRenderable* renderable : m_indexedRenderables)
                 renderable->prepareIndices(m_indexVbo);
-            }
         }
 
         void RenderBatch::renderRenderables(RenderContext& renderContext) {
-            RenderableList::const_iterator it, end;
-            for (it = std::begin(m_batch), end = std::end(m_batch); it != end; ++it) {
-                Renderable* renderable = *it;
+            for (Renderable* renderable : m_batch)
                 renderable->render(renderContext);
-            }
         }
     }
 }

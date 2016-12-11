@@ -184,11 +184,9 @@ private:
     static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Map& vertexMap) {
         VertexRelation result;
         
-        typedef typename V::Map::const_iterator MapIter;
-        MapIter it, end;
-        for (it = std::begin(vertexMap), end = std::end(vertexMap); it != end; ++it) {
-            const V& leftPosition = it->first;
-            const V& rightPosition = it->second;
+        for (const auto& entry : vertexMap) {
+            const V& leftPosition = entry.first;
+            const V& rightPosition = entry.second;
             
             Vertex* leftVertex = left.findVertexByPosition(leftPosition);
             Vertex* rightVertex = right.findVertexByPosition(rightPosition);
@@ -215,10 +213,7 @@ private:
         size_t previousSize;
         do {
             previousSize = result.size();
-            typename VertexSet::const_iterator it, end;
-            for (it = std::begin(addedVertices), end = std::end(addedVertices); it != end; ++it) {
-                Vertex* addedVertex = *it;
-                
+            for (Vertex* addedVertex : addedVertices) {
                 // consider all adjacent vertices
                 HalfEdge* firstEdge = addedVertex->leaving();
                 HalfEdge* currentEdge = firstEdge;
@@ -240,10 +235,7 @@ private:
         size_t previousSize;
         do {
             previousSize = result.size();
-            typename VertexSet::const_iterator it, end;
-            for (it = std::begin(removedVertices), end = std::end(removedVertices); it != end; ++it) {
-                Vertex* removedVertex = *it;
-                
+            for (Vertex* removedVertex : removedVertices) {
                 // consider all adjacent vertices
                 HalfEdge* firstEdge = removedVertex->leaving();
                 HalfEdge* currentEdge = firstEdge;

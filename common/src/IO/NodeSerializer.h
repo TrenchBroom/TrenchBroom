@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
         public:
-            typedef std::auto_ptr<NodeSerializer> Ptr;
+            typedef std::unique_ptr<NodeSerializer> Ptr;
             
             NodeSerializer();
             virtual ~NodeSerializer();

@@ -51,11 +51,7 @@ namespace TrenchBroom {
         }
         
         static void checkPlanePointsIntegral(const Model::Brush *brush) {
-            const Model::BrushFaceList& faces = brush->faces();
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
-                const Model::BrushFace* face = *it;
-                
+            for (const Model::BrushFace* face : brush->faces()) {
                 for (size_t i=0; i<3; i++) {
                     Vec3 point = face->points()[i];
                     ASSERT_POINT_INTEGRAL(point);
@@ -63,13 +59,9 @@ namespace TrenchBroom {
             }
         }
         
-        static void checkVerticesIntegral(const Model::Brush *brush) {            
-            const Model::Brush::VertexList& vertices = brush->vertices();
-            Model::Brush::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                const Model::BrushVertex* vertex = *it;
+        static void checkVerticesIntegral(const Model::Brush *brush) {
+            for (const Model::BrushVertex* vertex : brush->vertices())
                 ASSERT_POINT_INTEGRAL(vertex->position());
-            }
         }
         
         static void checkBoundsIntegral(const Model::Brush *brush) {

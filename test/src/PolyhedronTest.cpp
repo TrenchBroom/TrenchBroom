@@ -1720,8 +1720,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
 
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
-    Polyhedron3d::SubtractResult::iterator it, end;
-    for (it = std::begin(result), end = std::end(result); it != end; ++it) {
+    for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
         if (polyhedron.vertices().size() == vertices.size()) {
             size_t count = 0;

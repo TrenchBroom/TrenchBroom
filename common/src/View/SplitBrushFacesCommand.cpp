@@ -48,10 +48,9 @@ namespace TrenchBroom {
         
         bool SplitBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const BBox3& worldBounds = document->worldBounds();
-            Model::BrushFacesMap::const_iterator it, end;
-            for (it = std::begin(m_faces), end = std::end(m_faces); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Polygon3::List& faces = it->second;
+            for (const auto& entry : m_faces) {
+                Model::Brush* brush = entry.first;
+                const Polygon3::List& faces = entry.second;
                 for (size_t i = 0; i < faces.size(); ++i) {
                     const Polygon3& face = faces[i];
                     if (!brush->canSplitFace(worldBounds, face, m_delta))

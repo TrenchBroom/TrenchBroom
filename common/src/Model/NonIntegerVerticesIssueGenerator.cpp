@@ -65,10 +65,7 @@ namespace TrenchBroom {
         }
 
         void NonIntegerVerticesIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = std::begin(vertices), end = std::end(vertices); it != end; ++it) {
-                const BrushVertex* vertex = *it;
+            for (const BrushVertex* vertex : brush->vertices()) {
                 if (!vertex->position().isInteger()) {
                     issues.push_back(new NonIntegerVerticesIssue(brush));
                     return;

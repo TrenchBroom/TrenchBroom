@@ -505,11 +505,8 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
-            wxArrayString::const_iterator it, end;
-            for (it = std::begin(filenames), end = std::end(filenames); it != end; ++it) {
-                const wxString& filename = *it;
+            for (const wxString& filename : filenames)
                 openDocument(filename.ToStdString());
-            }
         }
 #else
         void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {

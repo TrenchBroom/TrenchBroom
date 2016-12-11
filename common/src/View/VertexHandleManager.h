@@ -205,9 +205,8 @@ namespace TrenchBroom {
             void handlePositions(const std::map<Vec3, T, O>& handles, Vec3::List& result) const {
                 result.reserve(result.size() + handles.size());
                 
-                typename std::map<Vec3, T, O>::const_iterator it, end;
-                for (it = std::begin(handles), end = std::end(handles); it != end; ++it) {
-                    const Vec3& position = it->first;
+                for (const auto& entry : handles) {
+                    const Vec3& position = entry.first;
                     result.push_back(position);
                 }
             }

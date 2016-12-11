@@ -624,7 +624,7 @@ namespace TrenchBroom {
         
         bool Brush::hasEdge(const Edge3& edge) const {
             ensure(m_geometry != NULL, "geometry is null");
-            return m_geometry->findEdgeByPositions(edge.start(), std::end(edge));
+            return m_geometry->findEdgeByPositions(edge.start(), edge.end()) != NULL;
         }
         
         bool Brush::hasEdges(const Edge3::List& edges) const {
@@ -845,8 +845,8 @@ namespace TrenchBroom {
             result.reserve(edgePositions.size());
             
             for (const Edge3& edge : edgePositions) {
-                const Edge3 newEdge(edge.start() + delta, std::end(edge) + delta);
-                assert(m_geometry->hasEdge(newEdge.start(), std::end(newEdge)));
+                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
+                assert(m_geometry->hasEdge(newEdge.start(), newEdge.end()));
                 result.push_back(newEdge);
             }
             

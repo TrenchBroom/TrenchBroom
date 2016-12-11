@@ -197,17 +197,11 @@ namespace TrenchBroom {
             Model::BrushList tallBrushes(0);
             tallBrushes.reserve(selectionBrushes.size());
             
-            Model::BrushList::const_iterator sIt, sEnd;
-            for (sIt = std::begin(selectionBrushes), sEnd = std::end(selectionBrushes); sIt != sEnd; ++sIt) {
-                const Model::Brush* selectionBrush = *sIt;
-                const Model::Brush::VertexList& vertices = selectionBrush->vertices();
-
+            for (const Model::Brush* selectionBrush : selectionBrushes) {
                 Vec3::List tallVertices(0);
-                tallVertices.reserve(2 * vertices.size());
+                tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
-                Model::Brush::VertexList::const_iterator vIt, vEnd;
-                for (vIt = std::begin(vertices), vEnd = std::end(vertices); vIt != vEnd; ++vIt) {
-                    const Model::BrushVertex* vertex = *vIt;
+                for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
                     tallVertices.push_back(minPlane.projectPoint(vertex->position()));
                     tallVertices.push_back(maxPlane.projectPoint(vertex->position()));
                 }
