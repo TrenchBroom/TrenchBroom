@@ -52,12 +52,8 @@ namespace TrenchBroom {
         }
 
         void fitAll(wxWindow* window) {
-            const wxWindowList& children = window->GetChildren();
-            wxWindowList::const_iterator it, end;
-            for (it = std::begin(children), end = std::end(children); it != end; ++it) {
-                wxWindow* child = *it;
+            for (wxWindow* child : window->GetChildren())
                 fitAll(child);
-            }
             window->Fit();
         }
 
