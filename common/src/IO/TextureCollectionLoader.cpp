@@ -39,7 +39,7 @@ namespace TrenchBroom {
         TextureCollectionLoader::~TextureCollectionLoader() {}
 
         Assets::TextureCollection* TextureCollectionLoader::loadTextureCollection(const Path& path, const String& textureExtension, const TextureReader& textureReader) {
-            std::auto_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
+            std::unique_ptr<Assets::TextureCollection> collection(new Assets::TextureCollection(path));
             
             for (MappedFile::Ptr file : doFindTextures(path, textureExtension)) {
                 Assets::Texture* texture = textureReader.readTexture(file->begin(), file->end(), file->path());

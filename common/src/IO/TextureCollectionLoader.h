@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         class TextureCollectionLoader {
         public:
-            typedef std::auto_ptr<TextureCollectionLoader> Ptr;
+            typedef std::unique_ptr<TextureCollectionLoader> Ptr;
         protected:
             TextureCollectionLoader();
         public:
