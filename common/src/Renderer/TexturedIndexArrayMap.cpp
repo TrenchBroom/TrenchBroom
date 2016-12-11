@@ -61,10 +61,9 @@ namespace TrenchBroom {
         void TexturedIndexArrayMap::Size::initialize(TextureToIndexArrayMap& ranges) const {
             size_t baseOffset = 0;
             
-            TextureToSize::const_iterator texIt, texEnd;
-            for (texIt = std::begin(m_sizes), texEnd = std::end(m_sizes); texIt != texEnd; ++texIt) {
-                const Texture* texture = texIt->first;
-                const IndexArrayMap::Size& size = texIt->second;
+            for (const auto& entry : m_sizes) {
+                const Texture* texture = entry.first;
+                const IndexArrayMap::Size& size = entry.second;
                 ranges.insert(std::make_pair(texture, IndexArrayMap(size, baseOffset)));
                 baseOffset += size.indexCount();
             }
@@ -91,10 +90,9 @@ namespace TrenchBroom {
         }
         
         void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
-            TextureToIndexArrayMap::const_iterator texIt, texEnd;
-            for (texIt = m_ranges->begin(), texEnd = m_ranges->end(); texIt != texEnd; ++texIt) {
-                const Texture* texture = texIt->first;
-                const IndexArrayMap& indexRange = texIt->second;
+            for (const auto& entry : *m_ranges) {
+                const Texture* texture = entry.first;
+                const IndexArrayMap& indexRange = entry.second;
                 
                 func.before(texture);
                 indexRange.render(vertexArray);

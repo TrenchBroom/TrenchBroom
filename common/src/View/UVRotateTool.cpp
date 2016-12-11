@@ -165,11 +165,7 @@ namespace TrenchBroom {
             float minDelta = std::numeric_limits<float>::max();
             
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Model::BrushFace::EdgeList edges = face->edges();
-            Model::BrushFace::EdgeList::const_iterator it, end;
-            for (it = std::begin(edges), end = std::end(edges); it != end; ++it) {
-                const Model::BrushEdge* edge = *it;
-                
+            for (const Model::BrushEdge* edge : face->edges()) {
                 const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
                 const Vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
                 const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);

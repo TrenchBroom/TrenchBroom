@@ -24,6 +24,9 @@
 #include "SharedPointer.h"
 #include "EL/Types.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace EL {
         class ValueHolder {
@@ -258,18 +261,17 @@ namespace TrenchBroom {
             ArrayType makeArray(const std::vector<T>& value) {
                 ArrayType result;
                 result.reserve(value.size());
-                typename std::vector<T>::const_iterator it, end;
-                for (it = std::begin(value), end = std::end(value); it != end; ++it)
-                    result.push_back(EL::Value(*it));
+                std::transform(std::begin(value), std::end(value), std::back_inserter(result),
+                               [](const T& elem) { return EL::Value(elem); });
                 return result;
             }
             
             template <typename T, typename C>
             MapType makeMap(const std::map<String, T, C>& value) {
+                typedef typename std::map<String, T, C>::value_type Entry;
                 MapType result;
-                typename std::map<String, T, C>::const_iterator it, end;
-                for (it = std::begin(value), end = std::end(value); it != end; ++it)
-                    result.insert(std::make_pair(it->first, EL::Value(it->second)));
+                std::transform(std::begin(value), std::end(value), std::inserter(result, result.begin()),
+                               [](const Entry& entry) { return std::make_pair(entry.first, EL::Value(entry.second)); });
                 return result;
             }
         public:
