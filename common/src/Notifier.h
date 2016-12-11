@@ -105,11 +105,9 @@ namespace TrenchBroom {
         void notify() {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer();
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)();
             }
             
             removePending();
@@ -120,11 +118,10 @@ namespace TrenchBroom {
         void notify(A1 a1) {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer(a1);
+            
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)(a1);
             }
             
             removePending();
@@ -135,11 +132,9 @@ namespace TrenchBroom {
         void notify(A1 a1, A2 a2) {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer(a1, a2);
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)(a1, a2);
             }
             
             removePending();
@@ -150,11 +145,9 @@ namespace TrenchBroom {
         void notify(A1 a1, A2 a2, A3 a3) {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer(a1, a2, a3);
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)(a1, a2, a3);
             }
             
             removePending();
@@ -165,11 +158,9 @@ namespace TrenchBroom {
         void notify(A1 a1, A2 a2, A3 a3, A4 a4) {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer(a1, a2, a3, a4);
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)(a1, a2, a3, a4);
             }
             
             removePending();
@@ -180,11 +171,9 @@ namespace TrenchBroom {
         void notify(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
             const SetBool notifying(m_notifying);
             
-            typename List::const_iterator it, end;
-            for (it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                O& observer = **it;
-                if (!observer.skip())
-                    observer(a1, a2, a3, a4, a5);
+            for (O* observer : m_observers) {
+                if (!observer->skip())
+                    (*observer)(a1, a2, a3, a4, a5);
             }
             
             removePending();

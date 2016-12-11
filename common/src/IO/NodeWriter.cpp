@@ -127,11 +127,8 @@ namespace TrenchBroom {
         
         void NodeWriter::writeCustomLayers() {
             const Model::LayerList customLayers = m_world->customLayers();
-            Model::LayerList::const_iterator it, end;
-            for (it = std::begin(customLayers), end = std::end(customLayers); it != end; ++it) {
-                Model::Layer* layer = *it;
-                writeCustomLayer(layer);
-            }
+            std::for_each(std::begin(customLayers), std::end(customLayers),
+                          [this](Model::Layer* layer) { writeCustomLayer(layer); });
         }
         
         void NodeWriter::writeCustomLayer(Model::Layer* layer) {
@@ -169,12 +166,12 @@ namespace TrenchBroom {
         }
         
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            EntityBrushesMap::const_iterator it, end;
-            for (it = std::begin(entityBrushes), end = std::end(entityBrushes); it != end; ++it) {
-                Model::Entity* entity = it->first;
-                const Model::BrushList& brushes = it->second;
-                m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
-            }
+            std::for_each(std::begin(entityBrushes), std::end(entityBrushes),
+                          [this](const EntityBrushesMap::value_type& entry) {
+                              Model::Entity* entity = entry.first;
+                              const Model::BrushList& brushes = entry.second;
+                              m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
+                          });
         }
 
         void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {

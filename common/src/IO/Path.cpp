@@ -21,8 +21,9 @@
 
 #include "Exceptions.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace IO {
@@ -137,19 +138,17 @@ namespace TrenchBroom {
 
         StringList Path::asStrings(const Path::List& paths, const char separator) {
             StringList result;
-            Path::List::const_iterator it, end;
-            for (it = std::begin(paths), end = std::end(paths); it != end; ++it)
-                result.push_back(it->asString(separator));
+            result.reserve(paths.size());
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [separator](const Path& path) { return path.asString(separator); });
             return result;
         }
 
         Path::List Path::asPaths(const StringList& strs) {
             Path::List result;
             result.reserve(strs.size());
-            
-            StringList::const_iterator it, end;
-            for (it = std::begin(strs), end = std::end(strs); it != end; ++it)
-                result.push_back(Path(*it));
+            std::transform(std::begin(strs), std::end(strs), std::back_inserter(result),
+                           [](const String& str) { return Path(str); });
             return result;
         }
 
@@ -341,23 +340,17 @@ namespace TrenchBroom {
 
         Path Path::makeLowerCase() const {
             StringList lcComponents;
-            StringList::const_iterator it, end;
-            for (it = std::begin(m_components), end = std::end(m_components); it != end; ++it) {
-                const String& component = *it;
-                lcComponents.push_back(StringUtils::toLower(component));
-            }
+            lcComponents.reserve(m_components.size());
+            std::transform(std::begin(m_components), std::end(m_components), std::back_inserter(lcComponents),
+                           [](const String& component) { return StringUtils::toLower(component); });
             return Path(m_absolute, lcComponents);
         }
 
         Path::List Path::makeAbsoluteAndCanonical(const List& paths, const String& relativePath) {
             List result;
-            List::const_iterator it, end;
-            for (it = std::begin(paths), end = std::end(paths); it != end; ++it) {
-                const Path& path = *it;
-                const Path absPath = path.makeAbsolute(relativePath);
-                const Path canPath = path.makeCanonical();
-                result.push_back(canPath);
-            }
+            result.reserve(paths.size());
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [&relativePath](const Path& path) { return path.makeAbsolute(relativePath).makeCanonical(); });
             return result;
         }
 
@@ -382,21 +375,16 @@ namespace TrenchBroom {
         }
 
         StringList Path::resolvePath(const bool absolute, const StringList& components) const {
-            StringList::const_iterator it, end;
             StringList resolved;
-            for (it = std::begin(components), end = std::end(components); it != end; ++it) {
-                const String& comp = *it;
+            for (const String& comp : components) {
                 if (comp == ".")
                     continue;
                 if (comp == "..") {
-#ifdef _WIN32
                     if (resolved.empty())
                         throw PathException("Cannot resolve path");
+#ifdef _WIN32
                     if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2)
                             throw PathException("Cannot resolve path");
-#else
-                    if (resolved.empty())
-                        throw PathException("Cannot resolve path");
 #endif
                     resolved.pop_back();
                     continue;
