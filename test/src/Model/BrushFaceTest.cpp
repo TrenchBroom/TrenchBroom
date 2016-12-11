@@ -190,6 +190,9 @@ namespace TrenchBroom {
             }
             
             checkUVListsEqual(face_UVs, resetFace_UVs);
+
+            delete face;
+            delete resetFace;
         }
         
         /**
@@ -360,6 +363,8 @@ namespace TrenchBroom {
                 face->setTexture(&texture);
                 checkTextureLockForFace(face, false);
             }
+
+            delete cube;
         }
 
         TEST(BrushFaceTest, testTextureLock_Parallel) {
@@ -376,6 +381,8 @@ namespace TrenchBroom {
                 face->setTexture(&texture);
                 checkTextureLockForFace(face, true);
             }
+
+            delete cube;
         }
     }
 }
