@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -64,11 +65,27 @@ namespace TrenchBroom {
             return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
 
+        static std::vector<BrushFaceReference> faceRefs(const Model::BrushFaceList& faces) {
+            std::vector<BrushFaceReference> result;
+            for (Model::BrushFace* face : faces) {
+                result.push_back(BrushFaceReference(face));
+            }
+            return result;
+        }
+        
+        static Model::BrushFaceList resolveFaceRefs(std::vector<BrushFaceReference>& refs) {
+            Model::BrushFaceList result;
+            for (auto& ref : refs) {
+                result.push_back(ref.resolve());
+            }
+            return result;
+        }
+        
         SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
         m_nodes(nodes),
-        m_faces(faces) {}
+        m_faceRefs(faceRefs(faces)) {}
 
         String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
             StringStream result;
@@ -103,14 +120,14 @@ namespace TrenchBroom {
 
         bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_previouslySelectedNodes = document->selectedNodes().nodes();
-            m_previouslySelectedFaces = document->selectedBrushFaces();
+            m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
             
             switch (m_action) {
                 case Action_SelectNodes:
                     document->performSelect(m_nodes);
                     break;
                 case Action_SelectFaces:
-                    document->performSelect(m_faces);
+                    document->performSelect(resolveFaceRefs(m_faceRefs));
                     break;
                 case Action_SelectAllNodes:
                     document->performSelectAllNodes();
@@ -125,7 +142,7 @@ namespace TrenchBroom {
                     document->performDeselect(m_nodes);
                     break;
                 case Action_DeselectFaces:
-                    document->performDeselect(m_faces);
+                    document->performDeselect(resolveFaceRefs(m_faceRefs));
                     break;
                 case Action_DeselectAll:
                     document->performDeselectAll();
@@ -138,8 +155,8 @@ namespace TrenchBroom {
             document->performDeselectAll();
             if (!m_previouslySelectedNodes.empty())
                 document->performSelect(m_previouslySelectedNodes);
-            if (!m_previouslySelectedFaces.empty())
-                document->performSelect(m_previouslySelectedFaces);
+            if (!m_previouslySelectedFaceRefs.empty())
+                document->performSelect(resolveFaceRefs(m_previouslySelectedFaceRefs));
             return true;
         }
         
