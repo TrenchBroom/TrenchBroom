@@ -2595,12 +2595,16 @@ namespace TrenchBroom {
                 for (BrushFace *face : cube->faces()) {
                     face->setTexture(&texture);
                 }
+                ASSERT_EQ(6U, texture.usageCount());
+                
                 snapshot = dynamic_cast<BrushSnapshot *>(cube->takeSnapshot());
                 ASSERT_NE(nullptr, snapshot);
+                ASSERT_EQ(6U, texture.usageCount());
                 
                 for (BrushFace *face : cube->faces()) {
                     face->unsetTexture();
                 }
+                ASSERT_EQ(0U, texture.usageCount());
             }
             
             // Check all textures are cleared
