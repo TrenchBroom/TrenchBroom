@@ -19,22 +19,33 @@
 
 #include "BrushFaceSnapshot.h"
 
+#include "Model/Brush.h"
+
 namespace TrenchBroom {
     namespace Model {
         BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem) :
-        m_face(face),
+        m_brush(face->brush()),
+        m_faceBoundary(face->boundary()),
         m_attribs(face->attribs().takeSnapshot()),
-        m_coordSystem(coordSystem->takeSnapshot()) {}
+        m_coordSystemSnapshot(coordSystem->takeSnapshot()) {
+            ensure(m_brush != nullptr, "need a brush to snapshot a face");
+        }
         
         BrushFaceSnapshot::~BrushFaceSnapshot() {
-            delete m_coordSystem;
-            m_coordSystem = NULL;
+            delete m_coordSystemSnapshot;
+            m_coordSystemSnapshot = NULL;
         }
 
         void BrushFaceSnapshot::restore() {
-            m_face->setAttribs(m_attribs);
-            if (m_coordSystem != NULL)
-                m_coordSystem->restore();
+            for (BrushFace* face : m_brush->faces()) {
+                if (face->boundary() == m_faceBoundary) {
+                    face->setAttribs(m_attribs);
+                    if (m_coordSystemSnapshot != NULL)
+                        face->restoreTexCoordSystemSnapshot(m_coordSystemSnapshot);
+                    return;
+                }
+            }
+            ensure(false, "couldn't find face");
         }
     }
 }

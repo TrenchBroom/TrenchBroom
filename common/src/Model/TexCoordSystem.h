@@ -30,13 +30,14 @@ namespace TrenchBroom {
     
     namespace Model {
         class BrushFaceAttributes;
+        class TexCoordSystem;
         
         class TexCoordSystemSnapshot {
         public:
             virtual ~TexCoordSystemSnapshot();
-            void restore();
+            void restore(TexCoordSystem* coordSystem) const;
         private:
-            virtual void doRestore() = 0;
+            virtual void doRestore(TexCoordSystem* coordSystem) const = 0;
         };
         
         class TexCoordSystem {

@@ -26,11 +26,12 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceSnapshot {
         private:
-            BrushFace* m_face;
+            Brush* m_brush;
+            Plane3 m_faceBoundary;
             BrushFaceAttributes m_attribs;
-            TexCoordSystemSnapshot* m_coordSystem;
+            TexCoordSystemSnapshot* m_coordSystemSnapshot;
         public:
-            BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem);
+            BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystemSnapshot);
             ~BrushFaceSnapshot();
             void restore();
         };
