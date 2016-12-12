@@ -21,12 +21,14 @@
 
 #include "TestUtils.h"
 
+#include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushSnapshot.h"
 #include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactoryImpl.h"
@@ -2577,6 +2579,45 @@ namespace TrenchBroom {
                     }
                 }
             }
+        }
+        
+        TEST(BrushTest, snapshotTextureTest) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+            
+            Brush* cube = builder.createCube(128.0, "");
+            BrushSnapshot *snapshot = nullptr;
+            
+            // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
+            {
+                Assets::Texture texture("testTexture", 64, 64);
+                for (BrushFace *face : cube->faces()) {
+                    face->setTexture(&texture);
+                }
+                snapshot = dynamic_cast<BrushSnapshot *>(cube->takeSnapshot());
+                ASSERT_NE(nullptr, snapshot);
+                
+                for (BrushFace *face : cube->faces()) {
+                    face->unsetTexture();
+                }
+            }
+            
+            // Check all textures are cleared
+            for (BrushFace *face : cube->faces()) {
+                EXPECT_EQ(BrushFace::NoTextureName, face->textureName());
+            }
+            
+            snapshot->restore(worldBounds);
+            
+            // Check just the texture names are restored
+            for (BrushFace *face : cube->faces()) {
+                EXPECT_EQ("testTexture", face->textureName());
+                EXPECT_EQ(nullptr, face->texture());
+            }
+            
+            delete snapshot;
+            delete cube;
         }
     }
 }

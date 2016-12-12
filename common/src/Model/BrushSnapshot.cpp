@@ -35,8 +35,11 @@ namespace TrenchBroom {
         }
 
         void BrushSnapshot::takeSnapshot(Brush* brush) {
-            for (BrushFace* face : brush->faces())
-                m_faces.push_back(face->clone());
+            for (BrushFace* face : brush->faces()) {
+                BrushFace *faceClone = face->clone();
+                faceClone->setTexture(nullptr);
+                m_faces.push_back(faceClone);
+            }
         }
         
         void BrushSnapshot::doRestore(const BBox3& worldBounds) {
