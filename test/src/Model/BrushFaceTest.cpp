@@ -422,6 +422,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0.0, topFace->rotation());
             
             delete snapshot;
+            delete cube;
         }
     }
 }
