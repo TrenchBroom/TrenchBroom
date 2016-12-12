@@ -390,7 +390,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, NULL, worldBounds);
+            World world(MapFormat::Valve, nullptr, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             Brush* cube = builder.createCube(128.0, "");
