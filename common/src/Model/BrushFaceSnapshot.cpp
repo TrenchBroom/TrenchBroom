@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         BrushFaceSnapshot::~BrushFaceSnapshot() {
             delete m_coordSystemSnapshot;
-            m_coordSystemSnapshot = NULL;
+            m_coordSystemSnapshot = nullptr;
         }
 
         void BrushFaceSnapshot::restore() {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ensure(face != nullptr, "couldn't find face");
             
             face->setAttribs(m_attribs);
-            if (m_coordSystemSnapshot != NULL)
+            if (m_coordSystemSnapshot != nullptr)
                 face->restoreTexCoordSystemSnapshot(m_coordSystemSnapshot);
         }
     }
