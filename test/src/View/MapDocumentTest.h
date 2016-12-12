@@ -42,7 +42,7 @@ namespace TrenchBroom {
             
             void SetUp();
             
-            Model::Brush* createBrush();
+            Model::Brush* createBrush(const String& textureName = "texture");
         };
     }
 }
