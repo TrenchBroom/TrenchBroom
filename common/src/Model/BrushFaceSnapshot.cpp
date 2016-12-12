@@ -37,15 +37,12 @@ namespace TrenchBroom {
         }
 
         void BrushFaceSnapshot::restore() {
-            for (BrushFace* face : m_brush->faces()) {
-                if (face->boundary() == m_faceBoundary) {
-                    face->setAttribs(m_attribs);
-                    if (m_coordSystemSnapshot != NULL)
-                        face->restoreTexCoordSystemSnapshot(m_coordSystemSnapshot);
-                    return;
-                }
-            }
-            ensure(false, "couldn't find face");
+            BrushFace* face = m_brush->findFace(m_faceBoundary);
+            ensure(face != nullptr, "couldn't find face");
+            
+            face->setAttribs(m_attribs);
+            if (m_coordSystemSnapshot != NULL)
+                face->restoreTexCoordSystemSnapshot(m_coordSystemSnapshot);
         }
     }
 }
