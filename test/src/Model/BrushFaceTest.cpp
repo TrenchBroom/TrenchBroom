@@ -27,7 +27,9 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
+#include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
@@ -382,6 +384,44 @@ namespace TrenchBroom {
                 checkTextureLockForFace(face, true);
             }
 
+            delete cube;
+        }
+        
+        TEST(BrushFaceTest, testBrushFaceSnapshot) {
+            const BBox3 worldBounds(8192.0);
+            Assets::Texture texture("testTexture", 64, 64);
+            World world(MapFormat::Valve, nullptr, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* cube = builder.createCube(128.0, "");
+            
+            BrushFace* topFace = cube->findFace(Vec3(0.0, 0.0, 1.0));
+            ASSERT_NE(nullptr, topFace);
+            ASSERT_EQ(0.0, topFace->rotation());
+            BrushFaceSnapshot* snapshot = topFace->takeSnapshot();
+            
+            // Rotate texture of topFace
+            topFace->rotateTexture(5.0);
+            ASSERT_EQ(5.0, topFace->rotation());
+            
+            // Hack to get the Brush to delete and recreate its BrushFaces
+            {
+                NodeSnapshot* cubeSnapshot = cube->takeSnapshot();
+                cubeSnapshot->restore(worldBounds);
+                delete cubeSnapshot;
+                
+                // NOTE: topFace is a dangling pointer here
+                ASSERT_NE(topFace, cube->findFace(Vec3(0.0, 0.0, 1.0)));
+            }
+
+            // Lookup the new copy of topFace
+            topFace = cube->findFace(Vec3(0.0, 0.0, 1.0));
+            
+            // Ensure that the snapshot can be restored, despite the Brush having a new BrushFace object
+            snapshot->restore();
+            ASSERT_EQ(0.0, topFace->rotation());
+            
+            delete snapshot;
             delete cube;
         }
     }

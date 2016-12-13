@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace Model {
         TexCoordSystemSnapshot::~TexCoordSystemSnapshot() {}
 
-        void TexCoordSystemSnapshot::restore() {
-            doRestore();
+        void TexCoordSystemSnapshot::restore(TexCoordSystem* coordSystem) const {
+            coordSystem->doRestoreSnapshot(*this);
         }
 
         TexCoordSystem::TexCoordSystem() {}
