@@ -35,7 +35,7 @@ namespace TrenchBroom {
 #endif
 
         TEST(EnsureTest, failingEnsure) {
-            ASSERT_DEATH(ensure(false, "this should fail"), "this should fail");
+            ASSERT_DEATH(ensure(false, "this should fail"), "");
         }
 
 #ifdef __clang__
