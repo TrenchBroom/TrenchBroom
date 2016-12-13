@@ -690,10 +690,6 @@ namespace TrenchBroom {
         
         void VertexHandleManager::validateRenderState(const bool splitMode) {
             ensure(!m_renderStateValid, "render state already valid");
-            
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-            Model::VertexToFacesMap::const_iterator fIt, fEnd;
 
             m_unselectedVertexHandlePositions.clear();
             m_unselectedEdgeHandlePositions.clear();
@@ -742,7 +738,7 @@ namespace TrenchBroom {
                 const Vec3f& position = entry.first;
                 m_selectedHandlePositions.push_back(Vec3f(position));
                 
-                const Model::BrushFaceSet& faces = fIt->second;
+                const Model::BrushFaceSet& faces = entry.second;
                 for (const Model::BrushFace* face : faces) {
                     const Model::BrushFace::EdgeList edges = face->edges();
                     for (const Model::BrushEdge* edge : edges) {
