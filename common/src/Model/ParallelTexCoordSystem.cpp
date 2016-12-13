@@ -28,11 +28,13 @@ namespace TrenchBroom {
         m_xAxis(coordSystem->xAxis()),
         m_yAxis(coordSystem->yAxis()) {}
         
-        void ParallelTexCoordSystemSnapshot::doRestore(TexCoordSystem* coordSystem) const {
-            ParallelTexCoordSystem *parallelCoordSystem = dynamic_cast<ParallelTexCoordSystem*>(coordSystem);
-            ensure(parallelCoordSystem != nullptr, "invalid coord system");
-            parallelCoordSystem->m_xAxis = m_xAxis;
-            parallelCoordSystem->m_yAxis = m_yAxis;
+        void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem* coordSystem) const {
+            coordSystem->m_xAxis = m_xAxis;
+            coordSystem->m_yAxis = m_yAxis;
+        }
+        
+        void ParallelTexCoordSystemSnapshot::doRestore(ParaxialTexCoordSystem* coordSystem) const {
+            ensure(false, "wrong coord system type");
         }
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
@@ -51,6 +53,10 @@ namespace TrenchBroom {
         
         TexCoordSystemSnapshot* ParallelTexCoordSystem::doTakeSnapshot() {
             return new ParallelTexCoordSystemSnapshot(this);
+        }
+        
+        void ParallelTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
+            snapshot.doRestore(this);
         }
 
         Vec3 ParallelTexCoordSystem::getXAxis() const {
