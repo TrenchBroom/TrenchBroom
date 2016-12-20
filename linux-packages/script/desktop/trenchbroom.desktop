@@ -1,0 +1,10 @@
+[Desktop Entry]
+Exec=trenchbroom
+GenericName=A Modern Level Editor for Quake
+Icon=trenchbroom
+Name=TrenchBroom
+Terminal=0
+Type=Application
+Categories=Game
+Keywords=quake;level;editor;
+
