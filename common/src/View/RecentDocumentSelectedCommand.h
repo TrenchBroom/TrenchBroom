@@ -37,7 +37,7 @@ namespace TrenchBroom {
             
             virtual wxEvent* Clone() const;
             
-            DECLARE_DYNAMIC_CLASS(RecentDocumentSelectedCommand)
+            wxDECLARE_DYNAMIC_CLASS(RecentDocumentSelectedCommand);
         };
     }
 }

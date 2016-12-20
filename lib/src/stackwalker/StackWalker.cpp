@@ -92,7 +92,11 @@
 // If VC7 and later, then use the shipped 'dbghelp.h'-file
 #pragma pack(push,8)
 #if _MSC_VER >= 1300
+#pragma warning( push )
+// Disable the 'typedef ': ignored on left of '' when no variable is declared warning
+#pragma warning( disable : 4091 )
 #include <dbghelp.h>
+#pragma warning( pop )
 #else
 // inline the important dbghelp.h-declarations...
 typedef enum {
@@ -442,7 +446,7 @@ typedef struct IMAGEHLP_MODULE64_V3 {
     // new elements: 17-Dec-2003
     BOOL     SourceIndexed;          // pdb supports source server
     BOOL     Publics;                // contains public symbols
-};
+} IMAGEHLP_MODULE64_V3;
 
 typedef struct IMAGEHLP_MODULE64_V2 {
     DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
@@ -455,7 +459,7 @@ typedef struct IMAGEHLP_MODULE64_V2 {
     CHAR     ModuleName[32];         // module name
     CHAR     ImageName[256];         // image name
     CHAR     LoadedImageName[256];   // symbol file name
-};
+} IMAGEHLP_MODULE64_V2;
 #pragma pack(pop)
 
 
@@ -1037,12 +1041,7 @@ BOOL StackWalker::ShowCallstack(HANDLE hThread, const CONTEXT *context, PReadPro
   {
     // If no context is provided, capture the context
     // See: https://stackwalker.codeplex.com/discussions/446958
-#if _WIN32_WINNT <= 0x0501
-      // If we need to support XP, we need to use the "old way", because "GetThreadId" is not available!
     if (hThread == GetCurrentThread())
-#else
-    if (GetThreadId(hThread) == GetCurrentThreadId())
-#endif
     {
       GET_CURRENT_CONTEXT_STACKWALKER_CODEPLEX(c, USED_CONTEXT_FLAGS);
     }

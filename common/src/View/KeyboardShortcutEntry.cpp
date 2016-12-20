@@ -26,6 +26,14 @@ namespace TrenchBroom {
     namespace View {
         KeyboardShortcutEntry::KeyboardShortcutEntry() : m_hasConflicts(false) {}
 
+        KeyboardShortcutEntry::KeyboardShortcutEntry(const KeyboardShortcutEntry& other) :
+        m_hasConflicts(other.m_hasConflicts) {}
+        
+        KeyboardShortcutEntry& KeyboardShortcutEntry::operator=(const KeyboardShortcutEntry& other) {
+            m_hasConflicts = other.m_hasConflicts;
+            return *this;
+        }
+
         KeyboardShortcutEntry::~KeyboardShortcutEntry() {}
         
         bool KeyboardShortcutEntry::modifiable() const {

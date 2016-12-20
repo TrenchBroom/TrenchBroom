@@ -31,12 +31,12 @@
 namespace TrenchBroom {
     namespace Assets {
         MdlSkin::MdlSkin(Texture* texture) :
-        m_textures("", TextureList(1, texture)) {
+        m_textures(TextureList(1, texture)) {
             m_times.push_back(0.0f);
         }
         
         MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeList& times) :
-        m_textures("", textures),
+        m_textures(textures),
         m_times(times) {
             assert(textures.size() == times.size());
         }
@@ -76,8 +76,8 @@ namespace TrenchBroom {
             if (m_triangles.empty())
                 return BBox3f(-8.0f, 8.0f);
             
-            VertexList::const_iterator it = m_triangles.begin();
-            VertexList::const_iterator end = m_triangles.end();
+            VertexList::const_iterator it = std::begin(m_triangles);
+            VertexList::const_iterator end = std::end(m_triangles);
             
             BBox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;

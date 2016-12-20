@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_TextureCollection
 #define TrenchBroom_TextureCollection
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
+#include "IO/Path.h"
 #include "Renderer/GL.h"
 
 #include <vector>
@@ -33,20 +35,39 @@ namespace TrenchBroom {
             typedef std::vector<GLuint> TextureIdList;
             
             bool m_loaded;
-            String m_name;
+            IO::Path m_path;
             TextureList m_textures;
+            
+            size_t m_usageCount;
+            
             TextureIdList m_textureIds;
+            
+            friend class Texture;
         public:
-            TextureCollection(const String& name);
-            TextureCollection(const String& name, const TextureList& textures);
+            Notifier0 usageCountDidChange;
+        public:
+            TextureCollection();
+            TextureCollection(const TextureList& textures);
+            TextureCollection(const IO::Path& path);
+            TextureCollection(const IO::Path& path, const TextureList& textures);
             virtual ~TextureCollection();
 
+            void addTextures(const TextureList& textures);
+            void addTexture(Texture* texture);
+            
             bool loaded() const;
-            const String& name() const;
+            const IO::Path& path() const;
+            String name() const;
             const TextureList& textures() const;
 
+            size_t usageCount() const;
+            
+            bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
+        private:
+            void incUsageCount();
+            void decUsageCount();
         };
     }
 }

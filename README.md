@@ -52,7 +52,83 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
-### TrenchBroom 2.0.0
+### TrenchBroom 2.0.0 Beta 2f3c498
+- Improved vertex manipulation with more degrees of freedom.
+- Improved vertex snapping.
+- Fixed crash when applying quick fixes.
+- Added #1408: Show warning for blank entity keys and values
+- Fixed #1423: TrenchBroom 2 not working in Windows XP
+- Fixed #1418: Angle values -1 and -2 not displayed for brush entities
+- Fixed #1402: Up and down arrow keys sometimes move objects along Z axis
+- Fixed #1401: Undo crash after rotation on Y axis
+- Fixed #1397: Crash when loading a map that was saved under a different name
+- Fixed #1395: Issues manager no longer fixing issues
+- Fixed #1394: CSG redo crash
+- Fixed #1393: Crash when when pressing keyboard shortcut to snap vertices
+- Fixed #1392: Bad performance when undoing / redoing
+
+
+### TrenchBroom 2.0.0 Beta 31439f2
+- Fix rendering views flashing on Windows (#1389).
+- Don't crash when Quake 2 game path is not set or cannot be found (#1388).
+
+### TrenchBroom 2.0.0 Beta a6d2341
+- In-editor compilation support.
+- Support for launching game engines.
+- Add issue generator for long entity properties.
+- Add issue generator for empty groups.
+- Improve texture loading in Quake 2.
+- Don't allow drawing brushes outside of world bounds.
+- Reset the rotation handle position and keep a list of previously used positions.
+- Store texture lock state in the preferences and default to on.
+- Allow Shift+Drag to snap vertices to the grid.
+- Fix crash when closing the editor while the clip tool is active.
+- Fix skew bugs in UV editor.
+- Fix duplicated objects not being added to the current layer or group.
+- Fix rendering problems when duplicating entities within groups.
+- Fix handling of brush entities when grouping.
+- Fix initial point placement in the complex brush tool.
+- Fix crash when undoing CSG operations.
+- Fix crash when undoing brush resizing.
+- Fix usage indicators in entity and texture browsers.
+- Fix layout problem in game path preferences.
+- Fix ESC key behavior in preference and About dialog.
+- Fix window position and size restoration problems.
+- Fix ESC key behavior when in clip mode.
+- Fix case sensitivity problems in open file dialog on Linux.
+- Fix layout of view dropdown window on Linux.
+- Fix texture lock for faces having +Y as their normal.
+- Show correct window icons.
+- Better support for dark UI themes.
+- Performance improvements.
+- Cosmetic changes.
+
+### TrenchBroom 2.0.0 Beta e439e68
+- Fix keyboard shortcuts not working after cycling an editing viewport
+
+### TrenchBroom 2.0.0 Beta 0f4b6d2
+- Add Wavefront OBJ exporter
+- Add support for Alt+RMB drag for scrolling browser views
+- Add support for zooming 2D views with Alt+MMB
+- Add crash reporter by @ericwa
+- Write entity and brush ID comments like Radiant
+- Better support for OS themes
+- Fix a crash when undoing too many times
+- Fix a problem that made certain keyboard shortcuts unusable on Windows
+- Fix ESC key not usable in keyboard shortcut editor
+- Fix dropdown menus not working on popup windows
+- Fix a parse error when copy / pasting brush faces
+- Fix reset to defaults not working for certain keyboard shortcuts
+- Fix a crash when opening entity or texture browser on Windows with Intel hardware
+- Fix a crash in clip tool when dragging clip points
+- Fix an OpenGL related crash on Linux
+- Preliminary FreeBSD support by @danfe
+- Upgrade to wxWidgets 3.1.0
+- Support for Visual Studio 15 by @ericwa
+- Minor performance improvements
+- Minor fixes
+
+### TrenchBroom 2.0.0 Beta 93e34bf
 - Complete rewrite with many new features and bug fixes
 - New 2D views with multiple view layouts
 - Support for multiple games

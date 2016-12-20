@@ -43,6 +43,7 @@ namespace TrenchBroom {
             updateIndices();
             updateGroups();
             updateCache();
+            bindObservers();
         }
 
         void EntityDefinitionManager::clear() {
@@ -52,13 +53,13 @@ namespace TrenchBroom {
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
         
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
             Cache::const_iterator it = m_cache.find(classname);
-            if (it == m_cache.end())
+            if (it == std::end(m_cache))
                 return NULL;
             return it->second;
         }
@@ -88,23 +89,24 @@ namespace TrenchBroom {
                 groupMap[groupName].push_back(definition);
             }
             
-            GroupMap::const_iterator it, end;
-            for (it = groupMap.begin(), end = groupMap.end(); it != end; ++it) {
-                const String& groupName = it->first;
-                const EntityDefinitionList& definitions = it->second;
+            for (const auto& entry : groupMap) {
+                const String& groupName = entry.first;
+                const EntityDefinitionList& definitions = entry.second;
                 m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
             }
         }
 
         void EntityDefinitionManager::updateCache() {
             clearCache();
-            EntityDefinitionList::iterator it, end;
-            for (it = m_definitions.begin(), end = m_definitions.end(); it != end; ++it) {
-                EntityDefinition* definition = *it;
+            for (EntityDefinition* definition : m_definitions)
                 m_cache[definition->name()] = definition;
-            }
         }
         
+        void EntityDefinitionManager::bindObservers() {
+            for (EntityDefinition* definition : m_definitions)
+                definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
+        }
+
         void EntityDefinitionManager::clearCache() {
             m_cache.clear();
         }

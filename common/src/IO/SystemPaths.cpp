@@ -38,6 +38,10 @@ namespace TrenchBroom {
                 return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
 #endif
             }
+
+            Path userDataDirectory() {
+                return IO::Path(wxStandardPaths::Get().GetUserDataDir().ToStdString());
+            }
         }
     }
 }

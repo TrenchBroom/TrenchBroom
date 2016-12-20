@@ -30,6 +30,7 @@ namespace TrenchBroom {
             Path appDirectory();
             Path logDirectory();
             Path resourceDirectory();
+            Path userDataDirectory();
         }
     }
 }

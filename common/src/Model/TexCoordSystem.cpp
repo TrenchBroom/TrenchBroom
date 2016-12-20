@@ -30,6 +30,8 @@ namespace TrenchBroom {
             doRestore();
         }
 
+        TexCoordSystem::TexCoordSystem() {}
+
         TexCoordSystem::~TexCoordSystem() {}
         
         TexCoordSystem* TexCoordSystem::clone() const {

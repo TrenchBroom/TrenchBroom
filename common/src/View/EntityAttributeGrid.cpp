@@ -30,6 +30,7 @@
 #include <wx/checkbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -147,7 +148,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
 
         void EntityAttributeGrid::OnAddAttributeButton(wxCommandEvent& event) {
@@ -176,8 +177,7 @@ namespace TrenchBroom {
             
             int firstRowIndex = m_grid->GetNumberRows();
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::reverse_iterator it, end;
-            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
+            for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
                 m_grid->DeleteRows(*it, 1);
                 firstRowIndex = std::min(*it, firstRowIndex);
             }
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
         
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
@@ -212,10 +212,8 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            const wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::const_iterator it, end;
-            for (it = selectedRows.begin(), end = selectedRows.end(); it != end; ++it) {
-                if (!m_table->canRemove(*it))
+            for (const int rowIndex : m_grid->GetSelectedRows()) {
+                if (!m_table->canRemove(rowIndex))
                     return false;
             }
             return true;
@@ -315,7 +313,7 @@ namespace TrenchBroom {
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
             updateControls();
         }
-        
+
         void EntityAttributeGrid::updateControls() {
             // const SetBool ignoreSelection(m_ignoreSelection);
             wxGridUpdateLocker lockGrid(m_grid);

@@ -23,7 +23,6 @@
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 
-#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
@@ -74,14 +73,14 @@ namespace TrenchBroom {
         NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
-            clone(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
+            clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
         NodeList Node::cloneRecursively(const BBox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
-            cloneRecursively(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
+            cloneRecursively(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
@@ -99,6 +98,10 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
+        bool Node::isAncestorOf(const NodeList& nodes) const {
+            return std::any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isAncestorOf(node); });
+        }
+
         bool Node::isDescendantOf(const Node* node) const {
             Node* parent = m_parent;
             while (parent != NULL) {
@@ -107,6 +110,16 @@ namespace TrenchBroom {
                 parent = parent->parent();
             }
             return false;
+        }
+
+        bool Node::isDescendantOf(const NodeList& nodes) const {
+            return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isDescendantOf(node); });
+        }
+
+        NodeList Node::findDescendants(const NodeList& nodes) const {
+            NodeList result;
+            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [this](const Node* node) { return node->isDescendantOf(this); });
+            return result;
         }
 
         bool Node::removeIfEmpty() const {
@@ -134,7 +147,7 @@ namespace TrenchBroom {
         }
 
         void Node::addChildren(const NodeList& children) {
-            addChildren(children.begin(), children.end(), children.size());
+            addChildren(std::begin(children), std::end(children), children.size());
         }
 
         void Node::addChild(Node* child) {
@@ -151,16 +164,18 @@ namespace TrenchBroom {
             decDescendantSelectionCount(child->descendantSelectionCount());
         }
 
-        bool Node::canAddChild(Node* child) const {
+        bool Node::canAddChild(const Node* child) const {
+            if (child == this || isDescendantOf(child))
+                return false;
             return doCanAddChild(child);
         }
 
-        bool Node::canRemoveChild(Node* child) const {
+        bool Node::canRemoveChild(const Node* child) const {
             return doCanRemoveChild(child);
         }
 
         void Node::doAddChild(Node* child) {
-            assert(child != NULL);
+            ensure(child != NULL, "child is null");
             assert(!VectorUtils::contains(m_children, child));
             assert(child->parent() == NULL);
             assert(canAddChild(child));
@@ -174,7 +189,7 @@ namespace TrenchBroom {
         }
 
         void Node::doRemoveChild(Node* child) {
-            assert(child != NULL);
+            ensure(child != NULL, "child is null");
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
@@ -280,21 +295,13 @@ namespace TrenchBroom {
 
         void Node::ancestorWillChange() {
             doAncestorWillChange();
-            NodeList::const_iterator it, end;
-            for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                Node* child = *it;
-                child->ancestorWillChange();
-            }
+            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorWillChange(); });
             invalidateIssues();
         }
 
         void Node::ancestorDidChange() {
             doAncestorDidChange();
-            NodeList::const_iterator it, end;
-            for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                Node* child = *it;
-                child->ancestorDidChange();
-            }
+            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorDidChange(); });
             invalidateIssues();
         }
         
@@ -312,7 +319,7 @@ namespace TrenchBroom {
         
         Node::NotifyNodeChange::NotifyNodeChange(Node* node) :
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
             m_node->nodeWillChange();
         }
         
@@ -559,11 +566,7 @@ namespace TrenchBroom {
 
         void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
             if (!m_issuesValid) {
-                IssueGeneratorList::const_iterator it, end;
-                for (it = issueGenerators.begin(), end = issueGenerators.end(); it != end; ++it) {
-                    const IssueGenerator* generator = *it;
-                    doGenerateIssues(generator, m_issues);
-                }
+                std::for_each(std::begin(issueGenerators), std::end(issueGenerators), [this](const IssueGenerator* generator) { doGenerateIssues(generator, m_issues); });
                 m_issuesValid = true;
             }
         }

@@ -106,6 +106,8 @@ namespace TrenchBroom {
         extern Preference<int> TextureMinFilter;
         extern Preference<int> TextureMagFilter;
         
+        extern Preference<bool> TextureLock;
+        
         Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;
         

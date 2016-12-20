@@ -122,16 +122,13 @@ namespace TrenchBroom {
             
             const Model::NodeList& children = m_world->defaultLayer()->children();
             WriteNode visitor(*m_serializer);
-            Model::Node::accept(children.begin(), children.end(), visitor);
+            Model::Node::accept(std::begin(children), std::end(children), visitor);
         }
         
         void NodeWriter::writeCustomLayers() {
             const Model::LayerList customLayers = m_world->customLayers();
-            Model::LayerList::const_iterator it, end;
-            for (it = customLayers.begin(), end = customLayers.end(); it != end; ++it) {
-                Model::Layer* layer = *it;
-                writeCustomLayer(layer);
-            }
+            std::for_each(std::begin(customLayers), std::end(customLayers),
+                          [this](Model::Layer* layer) { writeCustomLayer(layer); });
         }
         
         void NodeWriter::writeCustomLayer(Model::Layer* layer) {
@@ -139,7 +136,7 @@ namespace TrenchBroom {
             
             const Model::NodeList& children = layer->children();
             WriteNode visitor(*m_serializer, layer);
-            Model::Node::accept(children.begin(), children.end(), visitor);
+            Model::Node::accept(std::begin(children), std::end(children), visitor);
         }
 
         void NodeWriter::writeNodes(const Model::NodeList& nodes) {
@@ -148,7 +145,7 @@ namespace TrenchBroom {
             m_serializer->beginFile();
             
             CollectNodes collect;
-            Model::Node::accept(nodes.begin(), nodes.end(), collect);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
             
             writeWorldBrushes(collect.worldBrushes());
             writeEntityBrushes(collect.entityBrushes());
@@ -157,8 +154,8 @@ namespace TrenchBroom {
             const Model::EntityList& entities = collect.entities();
             
             WriteNode visitor(*m_serializer);
-            Model::Node::accept(groups.begin(), groups.end(), visitor);
-            Model::Node::accept(entities.begin(), entities.end(), visitor);
+            Model::Node::accept(std::begin(groups), std::end(groups), visitor);
+            Model::Node::accept(std::begin(entities), std::end(entities), visitor);
             
             m_serializer->endFile();
         }
@@ -169,12 +166,12 @@ namespace TrenchBroom {
         }
         
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            EntityBrushesMap::const_iterator it, end;
-            for (it = entityBrushes.begin(), end = entityBrushes.end(); it != end; ++it) {
-                Model::Entity* entity = it->first;
-                const Model::BrushList& brushes = it->second;
-                m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
-            }
+            std::for_each(std::begin(entityBrushes), std::end(entityBrushes),
+                          [this](const EntityBrushesMap::value_type& entry) {
+                              Model::Entity* entity = entry.first;
+                              const Model::BrushList& brushes = entry.second;
+                              m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
+                          });
         }
 
         void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {

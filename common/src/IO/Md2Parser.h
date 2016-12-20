@@ -35,7 +35,7 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class GameFileSystem;
+        class FileSystem;
         class Path;
         
         namespace Md2Layout {
@@ -98,9 +98,9 @@ namespace TrenchBroom {
             const char* m_begin;
             /* const char* m_end; */
             const Assets::Palette& m_palette;
-            const GameFileSystem& m_fs;
+            const FileSystem& m_fs;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs);
+            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel();
             Md2SkinList parseSkins(const char* begin, const size_t skinCount);
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             Md2MeshList parseMeshes(const char* begin, const size_t commandCount);
             Assets::EntityModel* buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes);
             Assets::TextureList loadTextures(const Md2SkinList& skins);
-            Assets::Texture* loadTexture(const Md2Skin& skin);
+            Assets::Texture* readTexture(const Md2Skin& skin);
             Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes);
             Assets::Md2Model::Frame* buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
             Assets::Md2Model::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;

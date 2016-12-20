@@ -43,10 +43,7 @@ namespace TrenchBroom {
             void doVisit(Group* group)   {}
             void doVisit(Entity* entity) {}
             void doVisit(Brush* brush)   {
-                const BrushFaceList& faces = brush->faces();
-                BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    BrushFace* face = *it;
+                for (BrushFace* face : brush->faces()) {
                     if (m_p(face))
                         m_faces.push_back(face);
                 }

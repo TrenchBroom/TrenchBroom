@@ -64,9 +64,7 @@ namespace TrenchBroom {
             configs.push_back(Config(32, false, 0));
             configs.push_back(Config(24, false, 0));
 
-            List::const_iterator it, end;
-            for (it = configs.begin(), end = configs.end(); !m_initialized && it != end; ++it) {
-                const Config& config = *it;
+            for (const Config& config : configs) {
                 const wxGLAttributes attribs = config.attribs();
                 if (wxGLCanvas::IsDisplaySupported(attribs)) {
                     m_config = config;

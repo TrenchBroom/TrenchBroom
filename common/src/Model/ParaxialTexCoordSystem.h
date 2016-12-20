@@ -43,6 +43,8 @@ namespace TrenchBroom {
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis);
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis);
         private:
+            ParaxialTexCoordSystem(size_t index, const Vec3& xAxis, const Vec3& yAxis);
+        private:
             TexCoordSystem* doClone() const;
             TexCoordSystemSnapshot* doTakeSnapshot();
 
@@ -67,6 +69,9 @@ namespace TrenchBroom {
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
+        private:
+            ParaxialTexCoordSystem(const ParaxialTexCoordSystem& other);
+            ParaxialTexCoordSystem& operator=(const ParaxialTexCoordSystem& other);
         };
     }
 }

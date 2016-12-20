@@ -74,16 +74,11 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
-            HandleMap::const_iterator hIt, hEnd;
-            Vec3f::List::const_iterator pIt, pEnd;
-            
-            for (hIt = map.begin(), hEnd = map.end(); hIt != hEnd; ++hIt) {
-                const Color& color = hIt->first;
+            for (const auto& entry : map) {
+                const Color& color = entry.first;
                 shader.set("Color", color);
                 
-                const Vec3f::List& positions = hIt->second;
-                for (pIt = positions.begin(), pEnd = positions.end(); pIt != pEnd; ++pIt) {
-                    const Vec3f& position = *pIt;
+                for (const Vec3f& position : entry.second) {
                     const Vec3f offset = camera.project(position);
                     MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
                     circle.render();

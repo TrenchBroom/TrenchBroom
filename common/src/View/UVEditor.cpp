@@ -29,6 +29,7 @@
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,10 +46,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
-            request.resetTextureAxes();
-            request.setOffset(Vec2f::Null);
-            request.setRotation(0.0f);
-            request.setScale(Vec2f::One);
+            request.resetAll();
             
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);

@@ -37,9 +37,7 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
 
-            DECLARE_DYNAMIC_CLASS(BorderPanel)
-        protected:
-            virtual wxSize DoGetBestSize() const;
+            wxDECLARE_DYNAMIC_CLASS(BorderPanel);
         };
     }
 }

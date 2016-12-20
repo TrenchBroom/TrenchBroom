@@ -25,7 +25,12 @@
 #include <iostream>
 
 #include <wx/thread.h>
-#include <wx/wx.h>
+#include <wx/gdicmn.h>
+#include <wx/longlong.h>
+
+class wxWindow;
+class wxKeyEvent;
+class wxMouseEvent;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -68,6 +73,7 @@ namespace TrenchBroom {
         public:
             bool keyDown(wxKeyEvent& event);
             bool keyUp(wxKeyEvent& event);
+            void resetKeys();
         public:
             void motion(wxMouseEvent& event);
         private:

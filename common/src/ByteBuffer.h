@@ -21,6 +21,7 @@
 #define TrenchBroom_ByteBuffer_h
 
 #include "SharedPointer.h"
+#include "Macros.h"
 
 #include <cassert>
 #include <vector>
@@ -29,7 +30,7 @@ template <typename T>
 class Buffer {
 private:
     typedef std::vector<T> InternalBuffer;
-    typedef std::tr1::shared_ptr<InternalBuffer> InternalBufferPtr;
+    typedef std::shared_ptr<InternalBuffer> InternalBufferPtr;
     InternalBufferPtr m_buffer;
 public:
     typedef std::vector<Buffer<T> > List;
@@ -49,13 +50,13 @@ public:
     
     const T* ptr() const {
         const InternalBuffer* actualBuffer = m_buffer.get();
-        assert(actualBuffer != NULL);
+        ensure(actualBuffer != NULL, "actualBuffer is null");
         return &actualBuffer->front();
     }
     
     T* ptr() {
         InternalBuffer* actualBuffer = m_buffer.get();
-        assert(actualBuffer != NULL);
+        ensure(actualBuffer != NULL, "actualBuffer is null");
         return &actualBuffer->front();
     }
     

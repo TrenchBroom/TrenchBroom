@@ -109,6 +109,8 @@ namespace TrenchBroom {
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
 
+        Preference<bool> TextureLock(IO::Path("Editor/Texture lock"), true);
+
         Preference<IO::Path>& RendererFontPath() {
             static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
             return fontPath;

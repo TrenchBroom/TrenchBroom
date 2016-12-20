@@ -43,8 +43,10 @@
 #include "View/UVShearTool.h"
 #include "View/UVOriginTool.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -234,7 +236,7 @@ namespace TrenchBroom {
                 const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
-                assert(texture != NULL);
+                ensure(texture != NULL, "texture is null");
 
                 texture->activate();
                 
@@ -276,9 +278,8 @@ namespace TrenchBroom {
             Vertex::List edgeVertices;
             edgeVertices.reserve(faceVertices.size());
             
-            Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
-                edgeVertices.push_back(Vertex((*it)->position()));
+            std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
+                           [](const Model::BrushVertex* vertex) { return Vertex(vertex->position()); });
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             

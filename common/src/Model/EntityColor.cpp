@@ -60,7 +60,7 @@ namespace TrenchBroom {
         
         Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
             DetectColorRangeVisitor visitor(name);
-            Node::accept(attributables.begin(), attributables.end(), visitor);
+            Node::accept(std::begin(attributables), std::end(attributables), visitor);
             return visitor.result();
         }
         

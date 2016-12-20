@@ -22,6 +22,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
 #include "View/GLAttribs.h"
@@ -40,6 +41,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class Compass;
         class MapRenderer;
         class RenderBatch;
@@ -141,7 +143,6 @@ namespace TrenchBroom {
             
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);
-            void OnRemoveLastClipPoint(wxCommandEvent& event);
             
             void OnMoveVerticesForward(wxCommandEvent& event);
             void OnMoveVerticesBackward(wxCommandEvent& event);
@@ -199,7 +200,7 @@ namespace TrenchBroom {
             void doInitializeGL(bool firstInitialization);
             bool doShouldRenderFocusIndicator() const;
             void doRender();
-            Renderer::RenderContext createRenderContext();
+
             void setupGL(Renderer::RenderContext& renderContext);
             void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -222,12 +223,14 @@ namespace TrenchBroom {
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
             
-            virtual Renderer::RenderContext doCreateRenderContext() = 0;
+            virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
+            virtual Renderer::Camera& doGetCamera() = 0;
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
+            virtual bool doBeforePopupMenu();
             virtual void doAfterPopupMenu();
         };
     }

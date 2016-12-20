@@ -29,14 +29,13 @@
 namespace TrenchBroom {
     namespace Assets {
         class Palette;
+        class PaletteLoader;
         
         class Texture;
         typedef std::vector<Texture*> TextureList;
         
         class TextureCollection;
         typedef std::vector<TextureCollection*> TextureCollectionList;
-        
-        class TextureCollectionSpec;
         
         class EntityDefinition;
         class PointEntityDefinition;
@@ -46,15 +45,13 @@ namespace TrenchBroom {
         class EntityDefinitionFileSpec;
         
         class AttributeDefinition;
-        typedef std::tr1::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
+        typedef std::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
         typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
         typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
         
         class ModelDefinition;
-        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
-        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
-        static const ModelDefinitionList EmptyModelDefinitionList;
         
+        class EntityModelManager;
         class EntityModel;
         typedef std::vector<EntityModel*> EntityModelList;
     }

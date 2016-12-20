@@ -61,6 +61,10 @@ namespace TrenchBroom {
             return doCanClip();
         }
         
+        bool ClipTool::ClipStrategy::hasPoints() const {
+            return doHasPoints();
+        }
+
         bool ClipTool::ClipStrategy::canAddPoint(const Vec3& point) const {
             return doCanAddPoint(point);
         }
@@ -70,8 +74,12 @@ namespace TrenchBroom {
             return doAddPoint(point, helpVectors);
         }
         
-        bool ClipTool::ClipStrategy::removeLastPoint() {
-            return doRemoveLastPoint();
+        bool ClipTool::ClipStrategy::canRemoveLastPoint() const {
+            return doCanRemoveLastPoint();
+        }
+
+        void ClipTool::ClipStrategy::removeLastPoint() {
+            doRemoveLastPoint();
         }
         
         bool ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const {
@@ -155,7 +163,7 @@ namespace TrenchBroom {
             }
 
             bool doComputeThirdPoint(Vec3& point) const {
-                assert(m_numPoints == 2);
+                ensure(m_numPoints == 2, "invalid numPoints");
                 point = m_points[1].point + 128.0 * computeHelpVector();
                 return !linearlyDependent(m_points[0].point, m_points[1].point, point);
             }
@@ -207,6 +215,10 @@ namespace TrenchBroom {
                 return true;
             }
             
+            bool doHasPoints() const {
+                return m_numPoints > 0;
+            }
+
             bool doCanAddPoint(const Vec3& point) const {
                 if (m_numPoints == 3)
                     return false;
@@ -221,11 +233,13 @@ namespace TrenchBroom {
                 ++m_numPoints;
             }
             
-            bool doRemoveLastPoint() {
-                if (m_numPoints == 0)
-                    return false;
+            bool doCanRemoveLastPoint() const {
+                return m_numPoints > 0;
+            }
+
+            void doRemoveLastPoint() {
+                ensure(canRemoveLastPoint(), "can't remove last point");
                 --m_numPoints;
-                return true;
             }
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const {
@@ -246,13 +260,13 @@ namespace TrenchBroom {
             }
             
             void doBeginDragLastPoint() {
-                assert(m_numPoints > 0);
+                ensure(m_numPoints > 0, "invalid numPoints");
                 m_dragIndex = m_numPoints - 1;
                 m_originalPoint = m_points[m_dragIndex];
             }
 
             bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-                assert(m_dragIndex < m_numPoints);
+                ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
                 if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
                     return false;
@@ -292,7 +306,7 @@ namespace TrenchBroom {
             }
 
             void doCancelDragPoint() {
-                assert(m_dragIndex < m_numPoints);
+                ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 m_points[m_dragIndex] = m_originalPoint;
                 m_dragIndex = 4;
                 std::cout << "Cancel Drag" << std::endl;
@@ -325,7 +339,7 @@ namespace TrenchBroom {
                         point3 = m_points[2].point;
                         return 3;
                     default:
-                        assert(false);
+                        ensure(false, "invalid numPoints");
                         return 0;
                 }
             }
@@ -394,11 +408,8 @@ namespace TrenchBroom {
                     Vec3f::List positions;
                     positions.reserve(vertices.size());
                     
-                    Model::BrushFace::VertexList::const_iterator it, end;
-                    for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                        const Model::BrushVertex* vertex = *it;
+                    for (const Model::BrushVertex* vertex : vertices)
                         positions.push_back(vertex->position());
-                    }
                     
                     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                     renderService.renderPolygonOutline(positions);
@@ -415,9 +426,11 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(Vec3& point) const { return false; }
 
             bool doCanClip() const { return m_face != NULL; }
+            bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
-            bool doRemoveLastPoint() { return false; }
+            bool doCanRemoveLastPoint() const { return false; }
+            void doRemoveLastPoint() {}
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) {}
@@ -427,7 +440,7 @@ namespace TrenchBroom {
             void doCancelDragPoint() {}
             
             bool doSetFace(const Model::BrushFace* face) {
-                assert(face != NULL);
+                ensure(face != NULL, "face is null");
                 m_face = face;
                 return true; }
             
@@ -483,11 +496,6 @@ namespace TrenchBroom {
             update();
         }
         
-        void ClipTool::resetSide() {
-            m_clipSide = ClipSide_Front;
-            update();
-        }
-        
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             if (m_strategy != NULL)
                 m_strategy->pick(pickRay, camera, pickResult);
@@ -536,6 +544,7 @@ namespace TrenchBroom {
         void ClipTool::performClip() {
             assert(canClip());
             
+            const SetBool ignoreNotifications(m_ignoreNotifications);
             MapDocumentSPtr document = lock(m_document);
             const Transaction transaction(document, "Clip Brushes");
             
@@ -547,6 +556,8 @@ namespace TrenchBroom {
             document->deselectAll();
             document->removeNodes(toRemove);
             document->select(addedNodes);
+            
+            update();
         }
         
         Model::ParentChildrenMap ClipTool::clipBrushes() {
@@ -569,7 +580,7 @@ namespace TrenchBroom {
                 }
             }
             
-            reset();
+            resetStrategy();
             return result;
         }
         
@@ -582,6 +593,10 @@ namespace TrenchBroom {
             return m_strategy == NULL || m_strategy->canAddPoint(point);
         }
         
+        bool ClipTool::hasPoints() const {
+            return m_strategy != NULL && m_strategy->hasPoints();
+        }
+
         void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == NULL)
@@ -591,8 +606,13 @@ namespace TrenchBroom {
             update();
         }
         
+        bool ClipTool::canRemoveLastPoint() const {
+            return m_strategy != NULL && m_strategy->canRemoveLastPoint();
+        }
+
         bool ClipTool::removeLastPoint() {
-            if (m_strategy != NULL && m_strategy->removeLastPoint()) {
+            if (canRemoveLastPoint()) {
+                m_strategy->removeLastPoint();
                 update();
                 return true;
             }
@@ -609,12 +629,12 @@ namespace TrenchBroom {
         }
         
         void ClipTool::beginDragLastPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->beginDragLastPoint();
         }
 
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
             update();
@@ -622,13 +642,13 @@ namespace TrenchBroom {
         }
         
         void ClipTool::endDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->endDragPoint();
             refreshViews();
         }
 
         void ClipTool::cancelDragPoint() {
-            assert(m_strategy != NULL);
+            ensure(m_strategy != NULL, "strategy is null");
             m_strategy->cancelDragPoint();
             refreshViews();
         }
@@ -641,16 +661,17 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::reset() {
-            const bool result = (m_strategy != NULL);
-            if (m_strategy != NULL)
+            if (m_strategy != NULL) {
                 resetStrategy();
-            resetSide();
-            return result;
+                return true;
+            }
+            return false;
         }
         
         void ClipTool::resetStrategy() {
             delete m_strategy;
             m_strategy = NULL;
+            update();
         }
         
         void ClipTool::update() {
@@ -677,12 +698,10 @@ namespace TrenchBroom {
                 Vec3 point1, point2, point3;
                 const size_t numPoints = m_strategy->getPoints(point1, point2, point3);
                 unused(numPoints);
-                assert(numPoints == 3);
+                ensure(numPoints == 3, "invalid number of points");
                 
                 Model::World* world = document->world();
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                    Model::Brush* brush = *bIt;
+                for (Model::Brush* brush : brushes) {
                     Model::Node* parent = brush->parent();
                     
                     Model::BrushFace* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
@@ -702,11 +721,8 @@ namespace TrenchBroom {
                         delete backBrush;
                 }
             } else {
-                Model::BrushList::const_iterator bIt, bEnd;
-                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                    Model::Brush* brush = *bIt;
+                for (Model::Brush* brush : brushes) {
                     Model::Node* parent = brush->parent();
-                    
                     Model::Brush* frontBrush = brush->clone(worldBounds);
                     m_frontBrushes[parent].push_back(frontBrush);
                 }
@@ -714,10 +730,10 @@ namespace TrenchBroom {
         }
         
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
-            assert(!faces.empty());
+            ensure(!faces.empty(), "no faces");
             
-            Model::BrushFaceList::const_iterator faceIt = faces.begin();
-            Model::BrushFaceList::const_iterator faceEnd = faces.end();
+            Model::BrushFaceList::const_iterator faceIt = std::begin(faces);
+            Model::BrushFaceList::const_iterator faceEnd = std::end(faces);
             const Model::BrushFace* bestFrontFace = *faceIt++;
             const Model::BrushFace* bestBackFace = bestFrontFace;
             
@@ -736,8 +752,8 @@ namespace TrenchBroom {
                 ++faceIt;
             }
             
-            assert(bestFrontFace != NULL);
-            assert(bestBackFace != NULL);
+            ensure(bestFrontFace != NULL, "bestFrontFace is null");
+            ensure(bestBackFace != NULL, "bestBackFace is null");
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }
@@ -748,24 +764,28 @@ namespace TrenchBroom {
         }
         
         void ClipTool::updateRenderers() {
-            if (keepFrontBrushes())
+            if (canClip()) {
+                if (keepFrontBrushes())
+                    addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
+                else
+                    addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
+                
+                if (keepBackBrushes())
+                    addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                else
+                    addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+            } else {
                 addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
-            else
-                addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
-            
-            if (keepBackBrushes())
                 addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
-            else
-                addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+            }
         }
         
         void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
             Model::CollectBrushesVisitor collect;
             
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = map.begin(), end = map.end(); it != end; ++it) {
-                const Model::NodeList& brushes = it->second;
-                Model::Node::accept(brushes.begin(), brushes.end(), collect);
+            for (const auto& entry : map) {
+                const Model::NodeList& brushes = entry.second;
+                Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
             
             renderer->addBrushes(collect.brushes());
@@ -784,16 +804,25 @@ namespace TrenchBroom {
             if (!document->selectedNodes().hasOnlyBrushes())
                 return false;
             bindObservers();
-            reset();
+            resetStrategy();
             return true;
         }
         
         bool ClipTool::doDeactivate() {
-            reset();
             unbindObservers();
+
+            delete m_strategy;
+            m_strategy = NULL;
+            clearRenderers();
+            clearBrushes();
+            
             return true;
         }
         
+        bool ClipTool::doRemove() {
+            return removeLastPoint();
+        }
+
         void ClipTool::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);

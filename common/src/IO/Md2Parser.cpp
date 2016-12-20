@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
@@ -314,12 +314,8 @@ namespace TrenchBroom {
             textures.reserve(skins.size());
             
             try {
-                Md2SkinList::const_iterator it, end;
-                for (it = skins.begin(), end = skins.end(); it != end; ++it) {
-                    const Md2Skin& skin = *it;
-                    Assets::Texture* texture = loadTexture(skin);
-                    textures.push_back(texture);
-                }
+                for (const Md2Skin& skin : skins)
+                    textures.push_back(readTexture(skin));
                 return textures;
             } catch (...) {
                 VectorUtils::clearAndDelete(textures);
@@ -327,7 +323,7 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
+        Assets::Texture* Md2Parser::readTexture(const Md2Skin& skin) {
             const Path skinPath(String(skin.name));
             MappedFile::Ptr file = m_fs.openFile(skinPath);
             
@@ -345,22 +341,15 @@ namespace TrenchBroom {
             Assets::Md2Model::FrameList modelFrames;
             modelFrames.reserve(frames.size());
             
-            Md2FrameList::const_iterator it, end;
-            for (it = frames.begin(), end = frames.end(); it != end; ++it) {
-                const Md2Frame& frame = *it;
-                Assets::Md2Model::Frame* modelFrame = buildFrame(frame, meshes);
-                modelFrames.push_back(modelFrame);
-            }
+            for (const Md2Frame& frame : frames)
+                modelFrames.push_back(buildFrame(frame, meshes));
             return modelFrames;
         }
 
         Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            Md2MeshList::const_iterator mIt, mEnd;
-
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
+            for (const Md2Mesh& md2Mesh : meshes) {
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan)
                     size.inc(GL_TRIANGLE_FAN);
@@ -369,9 +358,8 @@ namespace TrenchBroom {
             }
 
             Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
-                if (md2Mesh.vertices.size() > 0) {
+            for (const Md2Mesh& md2Mesh : meshes) {
+                if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
                     if (md2Mesh.type == Md2Mesh::Fan)
                         builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
@@ -389,10 +377,7 @@ namespace TrenchBroom {
             Vertex::List result(0);
             result.reserve(meshVertices.size());
             
-            Md2MeshVertexList::const_iterator it, end;
-            for (it = meshVertices.begin(), end = meshVertices.end(); it != end; ++it) {
-                const Md2MeshVertex& md2MeshVertex = *it;
-                
+            for (const Md2MeshVertex& md2MeshVertex : meshVertices) {
                 const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
                 const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
                 const Vec2f& texCoords = md2MeshVertex.texCoords;

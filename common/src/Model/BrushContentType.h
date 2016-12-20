@@ -36,7 +36,7 @@ namespace TrenchBroom {
             typedef std::vector<BrushContentType> List;
             static const List EmptyList;
         private:
-            typedef std::tr1::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
+            typedef std::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
             
             String m_name;
             bool m_transparent;

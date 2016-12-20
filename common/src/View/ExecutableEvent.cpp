@@ -23,7 +23,7 @@ wxDEFINE_EVENT(EXECUTABLE_EVENT, TrenchBroom::View::ExecutableEvent);
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(ExecutableEvent, wxEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(ExecutableEvent, wxEvent)
 
         ExecutableEvent::Executable::~Executable() {}
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
         void ExecutableEvent::execute() {
-            if (m_executable != NULL)
+            if (m_executable.get() != NULL)
                 (*m_executable)();
         }
     }

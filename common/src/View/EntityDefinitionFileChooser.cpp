@@ -66,7 +66,7 @@ namespace TrenchBroom {
             VectorUtils::sort(specs);
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            assert(index < specs.size());
+            ensure(index < specs.size(), "index out of range");
             const Assets::EntityDefinitionFileSpec& spec = specs[index];
             
             document->setEntityDefinitionFile(spec);
@@ -178,9 +178,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
-            Assets::EntityDefinitionFileSpec::List::const_iterator it, end;
-            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
-                const Assets::EntityDefinitionFileSpec& spec = *it;
+            for (const Assets::EntityDefinitionFileSpec& spec : specs) {
                 const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }

@@ -29,22 +29,25 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class ParserStatus;
+        
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory* m_factory;
             Model::NodeList m_nodes;
         public:
-            NodeReader(const String& str, Model::ModelFactory* factory, Logger* logger = NULL);
+            NodeReader(const String& str, Model::ModelFactory* factory);
             
-            const Model::NodeList& read(const BBox3& worldBounds);
+            static Model::NodeList read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds, ParserStatus& status);
+            const Model::NodeList& read(const BBox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds);
-            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount);
-            void onLayer(Model::Layer* layer);
-            void onNode(Model::Node* parent, Model::Node* node);
-            void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node);
-            void onBrush(Model::Node* parent, Model::Brush* brush);
+            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status);
+            void onLayer(Model::Layer* layer, ParserStatus& status);
+            void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status);
+            void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status);
+            void onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status);
         };
     }
 }

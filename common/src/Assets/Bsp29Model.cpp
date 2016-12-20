@@ -56,13 +56,9 @@ namespace TrenchBroom {
             BBox3f result;
             result.min = result.max = faces.front().vertices().front().v1;
             
-            FaceList::const_iterator faceIt, faceEnd;
-            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                const Face& face = *faceIt;
-                const Face::VertexList& vertices = face.vertices();
-                Face::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt)
-                    result.mergeWith(vIt->v1);
+            for (const Face& face : faces) {
+                for (const Face::Vertex& vertex : face.vertices())
+                    result.mergeWith(vertex.v1);
             }
             
             return result;
@@ -71,7 +67,7 @@ namespace TrenchBroom {
         Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :
         m_name(name),
         m_textureCollection(textureCollection) {
-            assert(textureCollection != NULL);
+            ensure(textureCollection != NULL, "textureCollection is null");
         }
 
         Bsp29Model::~Bsp29Model() {
@@ -84,25 +80,20 @@ namespace TrenchBroom {
         }
 
         Renderer::TexturedIndexRangeRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-
-            FaceList::const_iterator it, end;
             const SubModel& model = m_subModels.front();
 
             size_t vertexCount = 0;
             Renderer::TexturedIndexRangeMap::Size size;
             
-            for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
-                const Face& face = *it;
+            for (const Face& face : model.faces) {
                 const size_t faceVertexCount = face.vertices().size();
                 size.inc(face.texture(), GL_POLYGON, faceVertexCount);
                 vertexCount += faceVertexCount;
             }
 
             Renderer::TexturedIndexRangeMapBuilder<Face::Vertex::Spec> builder(vertexCount, size);
-            for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
-                const Face& face = *it;
+            for (const Face& face : model.faces)
                 builder.addPolygon(face.texture(), face.vertices());
-            }
 
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(builder.vertices());
             const Renderer::TexturedIndexRangeMap& indexArray = builder.indices();

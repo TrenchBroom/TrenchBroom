@@ -26,6 +26,10 @@
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
 
+#include <wx/time.h>
+#include <wx/window.h>
+#include <wx/app.h>
+
 namespace TrenchBroom {
     namespace View {
         class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {
@@ -59,7 +63,7 @@ namespace TrenchBroom {
         m_camera(camera),
         m_enabled(false),
         m_ignoreMotionEvents(false) {
-            m_forward = m_backward = m_left = m_right = false;
+            resetKeys();
             m_lastPollTime = ::wxGetLocalTimeMillis();
 
             Run();
@@ -158,6 +162,11 @@ namespace TrenchBroom {
                 return true;
             }
             return false;
+        }
+
+        void FlyModeHelper::resetKeys() {
+            wxCriticalSectionLocker lock(m_critical);
+            m_forward = m_backward = m_left = m_right = false;
         }
 
         void FlyModeHelper::motion(wxMouseEvent& event) {

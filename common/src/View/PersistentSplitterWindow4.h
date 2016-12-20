@@ -35,6 +35,8 @@ namespace TrenchBroom {
             wxString GetKind() const;
             void Save() const;
             bool Restore();
+        private:
+            wxRealPoint getSplitRatios(const SplitterWindow4* window) const;
         };
     }
 }

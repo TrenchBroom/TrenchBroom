@@ -21,10 +21,12 @@
 
 #include "View/FlagChangedCommand.h"
 #include "View/ViewConstants.h"
+#include "Macros.h"
 
 #include <cassert>
 #include <wx/checkbox.h>
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,6 +44,8 @@ namespace TrenchBroom {
         }
 
         void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
+            wxWindowUpdateLocker locker(this);
+            
             const size_t count = values.size();
             setCheckBoxCount(count);
             
@@ -68,6 +72,7 @@ namespace TrenchBroom {
         }
         
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
+            wxWindowUpdateLocker locker(this);
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
                 wxCheckBox* checkBox = m_checkBoxes[i];
                 const int value = m_values[i];
@@ -87,12 +92,12 @@ namespace TrenchBroom {
         }
 
         bool FlagsEditor::isFlagSet(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_CHECKED;
         }
         
         bool FlagsEditor::isFlagMixed(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->Get3StateValue() == wxCHK_UNDETERMINED;
         }
 
@@ -115,7 +120,7 @@ namespace TrenchBroom {
         }
 
         wxString FlagsEditor::getFlagLabel(const size_t index) const {
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             return m_checkBoxes[index]->GetLabel();
         }
 
@@ -128,7 +133,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t index = getIndexFromEvent(event);
-            assert(index < m_checkBoxes.size());
+            ensure(index < m_checkBoxes.size(), "index out of range");
             
             FlagChangedCommand command;
             command.setValues(index, getSetFlagValue(), getMixedFlagValue());

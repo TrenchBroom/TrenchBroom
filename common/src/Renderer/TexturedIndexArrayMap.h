@@ -39,7 +39,7 @@ namespace TrenchBroom {
             typedef Assets::Texture Texture;
         private:
             typedef std::map<const Texture*, IndexArrayMap> TextureToIndexArrayMap;
-            typedef std::tr1::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
+            typedef std::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
         public:
             class Size {
             private:

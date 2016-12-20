@@ -96,6 +96,11 @@ namespace TrenchBroom {
                 const int DebugCreateBrush                   = Lowest + 128;
                 const int DebugCopyJSShortcuts               = Lowest + 129;
                 const int DebugCrash                         = Lowest + 130;
+                const int DebugCreateCube                    = Lowest + 131;
+                const int DebugClipWithFace                  = Lowest + 132;
+                
+                const int RunCompile                         = Lowest + 133;
+                const int RunLaunch                          = Lowest + 134;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 
@@ -109,7 +114,6 @@ namespace TrenchBroom {
                 const int ToggleClipTool                     = Lowest +   3;
                 const int ToggleClipSide                     = Lowest +   4;
                 const int PerformClip                        = Lowest +   5;
-                const int RemoveLastClipPoint                = Lowest +   6;
 
                 const int MoveVerticesForward                = Lowest +   8;
                 const int MoveVerticesBackward               = Lowest +   9;

@@ -25,10 +25,14 @@
 #include "StringUtils.h"
 #include "Notifier.h"
 
-#include <wx/wx.h>
+#include <wx/datetime.h>
 
 #include <map>
 #include <vector>
+
+class wxWindow;
+class wxFocusEvent;
+class wxMouseEvent;
 
 namespace TrenchBroom {
     namespace Model {

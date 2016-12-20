@@ -87,6 +87,8 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
         private:
+            void usageCountDidChange();
+            
             void doInitLayout(Layout& layout);
             void doReloadLayout(Layout& layout);
 

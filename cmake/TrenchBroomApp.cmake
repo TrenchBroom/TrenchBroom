@@ -14,22 +14,22 @@ SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
 	# Configure icons
-    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/graphics/icons/AppIcon.icns" "${APP_DIR}/resources/graphics/icons/DocIcon.icns")
+    SET(MACOSX_ICON_FILES "${APP_DIR}/resources/mac/icons/AppIcon.icns" "${APP_DIR}/resources/mac/icons/DocIcon.icns")
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_ICON_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/)
 
 	# Configure button bitmaps etc.
 	FILE(GLOB_RECURSE MACOSX_IMAGE_FILES
         "${APP_DIR}/resources/graphics/images/*.png"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images/)
 
     FILE(GLOB_RECURSE MACOSX_FONT_FILES
         "${APP_DIR}/resources/fonts/*.*"
     )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts/)
 
 	# Configure game resources
 	# Collect all game resources
@@ -37,25 +37,31 @@ IF(APPLE)
         "${APP_DIR}/resources/games/Quake/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake/)
 
 	FILE(GLOB_RECURSE MACOSX_QUAKE2_FILES
         "${APP_DIR}/resources/games/Quake2/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE2_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2/)
 
 	FILE(GLOB_RECURSE MACOSX_HEXEN2_FILES
         "${APP_DIR}/resources/games/Hexen2/*.*"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HEXEN2_FILES})
-    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HEXEN2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Hexen2)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_HEXEN2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Hexen2/)
+
+    FILE(GLOB_RECURSE MACOSX_DAIKATANA_FILES
+        "${APP_DIR}/resources/games/Daikatana/*.*"
+    )
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_DAIKATANA_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_DAIKATANA_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Daikatana/)
 
 	FILE(GLOB_RECURSE MACOSX_GAME_CONFIG_FILES
         "${APP_DIR}/resources/games/*.cfg"
 	)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_GAME_CONFIG_FILES})
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games)
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/)
 
 	# Configure shaders
 	# Collect all shaders
@@ -63,11 +69,11 @@ IF(APPLE)
         "${APP_DIR}/resources/shader/*.fragsh"
         "${APP_DIR}/resources/shader/*.vertsh"
 	)
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
+	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader/)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure help files
-    SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help)
+    SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help/)
 ENDIF()
 
 # Set up resource compilation for Windows
@@ -129,27 +135,40 @@ ENDIF()
 IF(WIN32)
 	# Copy Windows icons to target dir
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
 	)
 
     # Copy DLLs to app directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
 	)
+
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
+    )
 ENDIF()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # Properly link to OpenGL libraries on Linux
+# Properly link to OpenGL libraries on Unix-like systems
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
+    INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(TrenchBroom ${OPENGL_LIBRARIES})
 
     # make executable name conventional lowercase on linux
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES OUTPUT_NAME "trenchbroom")
 ENDIF()
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Copy application icon to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/linux/icons/icon_16.png" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.png"
+    )
+ENDIF()
+
 # Set up the resources and DLLs for the executable
-IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 	# Copy button images to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/images"
@@ -249,6 +268,7 @@ IF(WIN32)
         DESTINATION help COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
+        "${APP_DIR}/resources/fonts"
         "${APP_DIR}/resources/games"
         "${APP_DIR}/resources/shader"
         DESTINATION . COMPONENT TrenchBroom)
@@ -301,6 +321,7 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
     SET(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
     SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
+    SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
 

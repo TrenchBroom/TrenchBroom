@@ -25,6 +25,8 @@
 #include "Quat.h"
 #include "Vec.h"
 
+#include <algorithm>
+
 template <typename T, size_t S>
 class BBox {
 public:
@@ -207,6 +209,10 @@ public:
         return BBox<T,S>(*this).repair();
     }
 
+    const BBox<T,S> rounded() const {
+        return BBox<T,S>(min.rounded(), max.rounded());
+    }
+    
     bool contains(const Vec<T,S>& point) const {
         for (size_t i = 0; i < S; ++i)
             if (point[i] < min[i] || point[i] > max[i])

@@ -43,7 +43,7 @@ namespace TrenchBroom {
             double GetValue() const;
             virtual wxEvent* Clone() const;
         private:
-            DECLARE_DYNAMIC_CLASS(SpinControlEvent)
+            wxDECLARE_DYNAMIC_CLASS(SpinControlEvent);
         };
         
         class SpinControl : public wxPanel {

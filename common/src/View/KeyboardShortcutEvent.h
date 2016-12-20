@@ -41,7 +41,7 @@ namespace TrenchBroom {
             
             virtual wxEvent* Clone() const;
             
-            DECLARE_DYNAMIC_CLASS(KeyboardShortcutEvent)
+            wxDECLARE_DYNAMIC_CLASS(KeyboardShortcutEvent);
         };
     }
 }

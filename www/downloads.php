@@ -11,8 +11,9 @@ function list_downloads($dir, $exts) {
 	$files = array();
 	if (is_dir($dir) && $dir_handle = opendir($dir)) {
 		while (($file = readdir($dir_handle)) !== false) {
-			if (!is_dir($file) && has_extension($file, $exts))
-				$files[filemtime($dir . '/' . $file)] = $file;
+			$mtime = filemtime($dir . '/' . $file);
+			if (!is_dir($file) && has_extension($file, $exts) && $mtime < (time() - 10))
+				$files[$mtime] = $file;
 		}
 	}
 	krsort($files);
@@ -85,7 +86,7 @@ if ($_REQUEST["platform"] == "win32") {
 				<li>OpenGL 2.1 and GLSL 1.2 capable driver</li>
 			</ul>
 		</div>
-		<?php print_all_downloads("downloads/win32", array("zip")); ?>
+		<?php print_all_downloads("downloads/win32", array("zip", "7z")); ?>
 	</div>
 <?php	
 } else if ($_REQUEST["platform"] == "macosx") {

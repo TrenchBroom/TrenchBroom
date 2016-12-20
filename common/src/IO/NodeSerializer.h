@@ -45,7 +45,7 @@ namespace TrenchBroom {
             public:
                 const String& getId(const T& t) const {
                     typename IdMap::iterator it = m_ids.find(t);
-                    if (it == m_ids.end())
+                    if (it == std::end(m_ids))
                         it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
                     return it->second;
                 }
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
         public:
-            typedef std::auto_ptr<NodeSerializer> Ptr;
+            typedef std::unique_ptr<NodeSerializer> Ptr;
             
             NodeSerializer();
             virtual ~NodeSerializer();

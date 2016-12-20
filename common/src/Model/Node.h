@@ -87,7 +87,11 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
+            bool isAncestorOf(const NodeList& nodes) const;
             bool isDescendantOf(const Node* node) const;
+            bool isDescendantOf(const NodeList& nodes) const;
+            NodeList findDescendants(const NodeList& nodes) const;
+            
             bool removeIfEmpty() const;
             
             bool hasChildren() const;
@@ -127,8 +131,26 @@ namespace TrenchBroom {
             
             void removeChild(Node* child);
 
-            bool canAddChild(Node* child) const;
-            bool canRemoveChild(Node* child) const;
+            bool canAddChild(const Node* child) const;
+            bool canRemoveChild(const Node* child) const;
+
+            template <typename I>
+            bool canAddChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canAddChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
+            
+            template <typename I>
+            bool canRemoveChildren(I cur, I end) const {
+                while (cur != end) {
+                    if (!canRemoveChild(*cur++))
+                        return false;
+                }
+                return true;
+            }
         private:
             void doAddChild(Node* child);
             void doRemoveChild(Node* child);
@@ -254,13 +276,15 @@ namespace TrenchBroom {
             template <class V>
             void acceptAndEscalate(V& visitor) {
                 accept(visitor);
-                escalate(visitor);
+                if (!visitor.recursionStopped())
+                    escalate(visitor);
             }
             
             template <class V>
             void acceptAndEscalate(V& visitor) const {
                 accept(visitor);
-                escalate(visitor);
+                if (!visitor.recursionStopped())
+                    escalate(visitor);
             }
             
             template <typename I, typename V>
@@ -291,8 +315,7 @@ namespace TrenchBroom {
 
             template <class V>
             void recurse(V& visitor) {
-                NodeList::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->acceptAndRecurse(visitor);
                 }
@@ -300,8 +323,7 @@ namespace TrenchBroom {
 
             template <class V>
             void recurse(V& visitor) const {
-                NodeList::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->acceptAndRecurse(visitor);
                 }
@@ -317,8 +339,7 @@ namespace TrenchBroom {
             
             template <class V>
             void iterate(V& visitor) {
-                NodeList::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->accept(visitor);
                 }
@@ -326,8 +347,7 @@ namespace TrenchBroom {
             
             template <class V>
             void iterate(V& visitor) const {
-                NodeList::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end && !visitor.cancelled(); ++it) {
+                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
                     Node* node = *it;
                     node->accept(visitor);
                 }

@@ -76,21 +76,13 @@ namespace TrenchBroom {
         m_pattern(pattern) {}
 
         void AttributableNodeIndex::addAttributableNode(AttributableNode* attributable) {
-            const EntityAttribute::List& attributes = attributable->attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : attributable->attributes())
                 addAttribute(attributable, attribute.name(), attribute.value());
-            }
         }
         
         void AttributableNodeIndex::removeAttributableNode(AttributableNode* attributable) {
-            const EntityAttribute::List& attributes = attributable->attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : attributable->attributes())
                 removeAttribute(attributable, attribute.name(), attribute.value());
-            }
         }
 
         void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
@@ -113,8 +105,8 @@ namespace TrenchBroom {
             AttributableNodeList result;
             SetUtils::intersection(nameResult, valueResult, result);
             
-            AttributableNodeList::iterator it = result.begin();
-            while (it != result.end()) {
+            AttributableNodeList::iterator it = std::begin(result);
+            while (it != std::end(result)) {
                 const AttributableNode* node = *it;
                 if (!nameQuery.execute(node, value))
                     it = result.erase(it);

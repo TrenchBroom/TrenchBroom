@@ -24,11 +24,12 @@
 
 #include "GLInit.h"
 #include "Macros.h"
+#include "TrenchBroomAppTraits.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
-#include "View/AboutFrame.h"
+#include "View/AboutDialog.h"
 #include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/CrashDialog.h"
@@ -48,6 +49,8 @@
 #include <wx/platinfo.h>
 #include <wx/utils.h>
 #include <wx/stdpaths.h>
+#include <wx/msgdlg.h>
+#include <wx/time.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -105,7 +108,7 @@ namespace TrenchBroom {
             wxMenuBar::MacSetCommonMenuBar(menuBar);
 
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            assert(recentDocumentsMenu != NULL);
+            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
             addRecentDocumentMenu(recentDocumentsMenu);
 
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
@@ -150,7 +153,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::detectAndSetupUbuntu() {
             // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
-#ifdef __linux__
+#ifdef __WXGTK20__
             static const wxString varName("UBUNTU_MENUPROXY");
             if (!wxGetEnv(varName, NULL)) {
                 const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
@@ -158,6 +161,10 @@ namespace TrenchBroom {
                     wxSetEnv(varName, "1");
             }
 #endif
+        }
+
+        wxAppTraits* TrenchBroomApp::CreateTraits() {
+            return new TrenchBroomAppTraits();
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
@@ -186,9 +193,9 @@ namespace TrenchBroom {
             if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                 return false;
 
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
             Model::GamePtr game = gameFactory.createGame(gameName);
-            assert(game != NULL);
+            ensure(game.get() != NULL, "game is null");
 
             MapFrame* frame = m_frameManager->newFrame();
             frame->newDocument(game, mapFormat);
@@ -202,7 +209,7 @@ namespace TrenchBroom {
                 String gameName = "";
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 
-                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
                 gameName = detected.first;
                 mapFormat = detected.second;
@@ -213,7 +220,7 @@ namespace TrenchBroom {
                 }
 
                 Model::GamePtr game = gameFactory.createGame(gameName);
-                assert(game != NULL);
+                ensure(game.get() != NULL, "game is null");
 
                 frame = m_frameManager->newFrame();
                 frame->openDocument(game, mapFormat, path);
@@ -243,7 +250,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openAbout() {
-            AboutFrame::showAboutFrame();
+            AboutDialog::showAboutDialog();
         }
 
         bool TrenchBroomApp::OnInit() {
@@ -279,7 +286,7 @@ namespace TrenchBroom {
             if (fm == NULL)
                 return MapDocumentSPtr();
             
-            MapFrame *frame = fm->singleOrTopFrame();
+            MapFrame *frame = fm->topFrame();
             if (frame == NULL)
                 return MapDocumentSPtr();
             
@@ -326,6 +333,13 @@ namespace TrenchBroom {
         }
         
         static void reportCrashAndExit(const String &stacktrace, const String &reason) {
+            static bool inFunction = false;
+            // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
+            if (inFunction) {
+                wxAbort();
+            }
+            inFunction = true;
+            
             // get the crash report as a string
             String report = makeCrashReport(stacktrace, reason);
             
@@ -340,7 +354,7 @@ namespace TrenchBroom {
             
             // save the map
             MapDocumentSPtr doc = topDocument();
-            if (doc != NULL) {
+            if (doc) {
                 doc->saveDocumentTo(mapPath);
                 std::cout << "wrote map to " << mapPath.asString() << std::endl;
             } else {
@@ -406,14 +420,20 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
-            const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
+            const wxString pathStr = ::wxLoadFileSelector("",
+#ifdef __WXGTK20__
+                                                          "",
+#else
+                                                          "map",
+#endif
+                                                          "", NULL);
             if (!pathStr.empty())
                 openDocument(pathStr.ToStdString());
         }
 
         void TrenchBroomApp::OnFileOpenRecent(wxCommandEvent& event) {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
-            assert(object != NULL);
+            ensure(object != NULL, "object is null");
             const wxString data = object->GetString();
 
             openDocument(data.ToStdString());
@@ -485,11 +505,8 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::MacOpenFiles(const wxArrayString& filenames) {
-            wxArrayString::const_iterator it, end;
-            for (it = filenames.begin(), end = filenames.end(); it != end; ++it) {
-                const wxString& filename = *it;
+            for (const wxString& filename : filenames)
                 openDocument(filename.ToStdString());
-            }
         }
 #else
         void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {

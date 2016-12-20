@@ -36,7 +36,7 @@ namespace TrenchBroom {
             
             virtual wxEvent* Clone() const;
             
-            DECLARE_DYNAMIC_CLASS(ColorTableSelectedCommand)
+            wxDECLARE_DYNAMIC_CLASS(ColorTableSelectedCommand);
         };
     }
 }

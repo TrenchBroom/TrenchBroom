@@ -22,9 +22,11 @@
 
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "View/Inspector.h"
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
+#include <wx/dialog.h>
 #include <wx/frame.h>
 
 class wxChoice;
@@ -40,6 +42,7 @@ namespace TrenchBroom {
 
     namespace View {
         class Autosaver;
+        class CommandWindowUpdateLocker;
         class Console;
         class FrameManager;
         class GLContextManager;
@@ -65,6 +68,10 @@ namespace TrenchBroom {
             wxWindow* m_lastFocus;
 
             wxChoice* m_gridChoice;
+            
+            wxDialog* m_compilationDialog;
+            
+            CommandWindowUpdateLocker* m_updateLocker;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
@@ -184,13 +191,24 @@ namespace TrenchBroom {
             void OnViewSwitchToMapInspector(wxCommandEvent& event);
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+
+            void switchToInspectorPage(Inspector::InspectorPage page);
+            void ensureInspectorVisible();
             
             void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
             void OnViewToggleInfoPanel(wxCommandEvent& event);
             void OnViewToggleInspector(wxCommandEvent& event);
 
+            void OnRunCompile(wxCommandEvent& event);
+        public:
+            void compilationDialogWillClose();
+        private:
+            void OnRunLaunch(wxCommandEvent& event);
+
             void OnDebugPrintVertices(wxCommandEvent& event);
             void OnDebugCreateBrush(wxCommandEvent& event);
+            void OnDebugCreateCube(wxCommandEvent& event);
+            void OnDebugClipBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
             void OnDebugCrash(wxCommandEvent& event);
             
@@ -201,7 +219,6 @@ namespace TrenchBroom {
 
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
-            bool canLoadPointFile() const;
             bool canUnloadPointFile() const;
             bool canUndo() const;
             bool canRedo() const;
@@ -229,6 +246,8 @@ namespace TrenchBroom {
             bool canMoveCameraToNextPoint() const;
             bool canMoveCameraToPreviousPoint() const;
             bool canFocusCamera() const;
+            bool canCompile() const;
+            bool canLaunch() const;
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);

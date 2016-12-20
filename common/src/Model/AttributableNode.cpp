@@ -26,9 +26,7 @@ namespace TrenchBroom {
         Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const AttributableNodeList& attributables) {
             Assets::EntityDefinition* definition = NULL;
             
-            AttributableNodeList::const_iterator it, end;
-            for (it = attributables.begin(), end = attributables.end(); it != end; ++it) {
-                AttributableNode* attributable = *it;
+            for (AttributableNode* attributable : attributables) {
                 if (definition == NULL) {
                     definition = attributable->definition();
                 } else if (definition != attributable->definition()) {
@@ -41,8 +39,8 @@ namespace TrenchBroom {
         }
         
         const Assets::AttributeDefinition* AttributableNode::selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables) {
-            AttributableNodeList::const_iterator it = attributables.begin();
-            AttributableNodeList::const_iterator end = attributables.end();
+            AttributableNodeList::const_iterator it = std::begin(attributables);
+            AttributableNodeList::const_iterator end = std::end(attributables);
             if (it == end)
                 return NULL;
             
@@ -65,8 +63,8 @@ namespace TrenchBroom {
         }
         
         AttributeValue AttributableNode::selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables) {
-            AttributableNodeList::const_iterator it = attributables.begin();
-            AttributableNodeList::const_iterator end = attributables.end();
+            AttributableNodeList::const_iterator it = std::begin(attributables);
+            AttributableNodeList::const_iterator end = std::end(attributables);
             if (it == end)
                 return "";
             
@@ -117,12 +115,22 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
+            for (const EntityAttribute& attribute : m_attributes.attributes())
+                attributeWillBeRemovedNotifier(this, attribute.name());
+            
             const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
+
+            for (const EntityAttribute& attribute : m_attributes.attributes())
+                attributeWasAddedNotifier(this, attribute.name());
         }
         
+        AttributeNameSet AttributableNode::attributeNames() const {
+            return m_attributes.names();
+        }
+
         bool AttributableNode::hasAttribute(const AttributeName& name) const {
             return m_attributes.hasAttribute(name);
         }
@@ -158,12 +166,13 @@ namespace TrenchBroom {
             return isAttributeValueMutable(name);
         }
         
-        void AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
+        bool AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
             const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != NULL) {
+                attributeWillChangeNotifier(this, name);
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
             }
@@ -171,6 +180,10 @@ namespace TrenchBroom {
             m_attributes.addOrUpdateAttribute(name, value, definition);
             addAttributeToIndex(name, value);
             addLinks(name, value);
+            
+            if (oldValue == NULL)
+                attributeWasAddedNotifier(this, name);
+            return oldValue == NULL;
         }
         
         bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
@@ -185,14 +198,17 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
             
-            const NotifyAttributeChange notifyChange(this);
+            const AttributeValue value = *valuePtr;
+			const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
+            
+            attributeWillBeRemovedNotifier(this, name);
             m_attributes.renameAttribute(name, newName, newDefinition);
             
-            const AttributeValue value = *valuePtr;
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
+            attributeWasAddedNotifier(this, newName);
         }
         
         bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
@@ -204,6 +220,7 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
 
+            attributeWillBeRemovedNotifier(this, name);
             const NotifyAttributeChange notifyChange(this);
 
             const AttributeValue value = *valuePtr;
@@ -213,6 +230,23 @@ namespace TrenchBroom {
             removeLinks(name, value);
         }
         
+        void AttributableNode::removeNumberedAttribute(const AttributeName& prefix) {
+            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
+            if (!attributes.empty()) {
+                const NotifyAttributeChange notifyChange(this);
+
+                for (const EntityAttribute& attribute : m_attributes.attributes()) {
+                    const AttributeName& name = attribute.name();
+                    const AttributeValue& value = attribute.value();
+                    
+                    attributeWillBeRemovedNotifier(this, name);
+                    m_attributes.removeAttribute(name);
+                    removeAttributeFromIndex(name, value);
+                    removeLinks(name, value);
+                }
+            }
+        }
+
         bool AttributableNode::isAttributeNameMutable(const AttributeName& name) const {
             return doIsAttributeNameMutable(name);
         }
@@ -224,7 +258,7 @@ namespace TrenchBroom {
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
             m_node->attributesWillChange();
         }
         
@@ -244,21 +278,13 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addAttributesToIndex() {
-            const EntityAttribute::List& attributes = m_attributes.attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : m_attributes.attributes())
                 addAttributeToIndex(attribute.name(), attribute.value());
-            }
         }
         
         void AttributableNode::removeAttributesFromIndex() {
-            const EntityAttribute::List& attributes = m_attributes.attributes();
-            EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
+            for (const EntityAttribute& attribute : m_attributes.attributes())
                 removeAttributeFromIndex(attribute.name(), attribute.value());
-            }
         }
 
         void AttributableNode::updateAttributeIndex(const EntityAttribute::List& newAttributes) {
@@ -268,10 +294,10 @@ namespace TrenchBroom {
             oldSorted.sort();
             newSorted.sort();
             
-            EntityAttribute::List::const_iterator oldIt = oldSorted.begin();
-            EntityAttribute::List::const_iterator oldEnd = oldSorted.end();
-            EntityAttribute::List::const_iterator newIt = newSorted.begin();
-            EntityAttribute::List::const_iterator newEnd = newSorted.end();
+            auto oldIt = std::begin(oldSorted);
+            auto oldEnd = std::end(oldSorted);
+            auto newIt = std::begin(newSorted);
+            auto newEnd = std::end(newSorted);
             
             while (oldIt != oldEnd && newIt != newEnd) {
                 const EntityAttribute& oldAttr = *oldIt;
@@ -359,10 +385,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
-            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
-            EntityAttribute::List::const_iterator aIt, aEnd;
-            for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
-                const EntityAttribute& attribute = *aIt;
+            for (const EntityAttribute& attribute : m_attributes.numberedAttributes(prefix)) {
                 const AttributeValue& targetname = attribute.value();
                 if (targetname.empty()) {
                     result.push_back(attribute.name());
@@ -420,8 +443,8 @@ namespace TrenchBroom {
 
         void AttributableNode::removeLinkTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableNodeList::iterator rem = m_linkTargets.end();
-                AttributableNodeList::iterator it = m_linkTargets.begin();
+                AttributableNodeList::iterator rem = std::end(m_linkTargets);
+                AttributableNodeList::iterator it = std::begin(m_linkTargets);
                 while (it != rem) {
                     AttributableNode* target = *it;
                     const AttributeValue& targetTargetname = target->attribute(AttributeNames::Targetname);
@@ -433,14 +456,14 @@ namespace TrenchBroom {
                         ++it;
                     }
                 }
-                m_linkTargets.erase(rem, m_linkTargets.end());
+                m_linkTargets.erase(rem, std::end(m_linkTargets));
             }
         }
         
         void AttributableNode::removeKillTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableNodeList::iterator rem = m_killTargets.end();
-                AttributableNodeList::iterator it = m_killTargets.begin();
+                AttributableNodeList::iterator rem = std::end(m_killTargets);
+                AttributableNodeList::iterator it = std::begin(m_killTargets);
                 while (it != rem) {
                     AttributableNode* target = *it;
                     const AttributeValue& targetTargetname = target->attribute(AttributeNames::Targetname);
@@ -452,7 +475,7 @@ namespace TrenchBroom {
                         ++it;
                     }
                 }
-                m_killTargets.erase(rem, m_killTargets.end());
+                m_killTargets.erase(rem, std::end(m_killTargets));
             }
         }
 
@@ -465,10 +488,7 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::addAllLinkTargets() {
-            const EntityAttribute::List attributes = m_attributes.numberedAttributes(AttributeNames::Target);
-            EntityAttribute::List::const_iterator aIt, aEnd;
-            for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
-                const EntityAttribute& attribute = *aIt;
+            for (const EntityAttribute& attribute : m_attributes.numberedAttributes(AttributeNames::Target)) {
                 const String& targetname = attribute.value();
                 if (!targetname.empty()) {
                     AttributableNodeList linkTargets;
@@ -487,10 +507,7 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::addAllKillTargets() {
-            const EntityAttribute::List attributes = m_attributes.numberedAttributes(AttributeNames::Killtarget);
-            EntityAttribute::List::const_iterator aIt, aEnd;
-            for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
-                const EntityAttribute& attribute = *aIt;
+            for (const EntityAttribute& attribute : m_attributes.numberedAttributes(AttributeNames::Killtarget)) {
                 const String& targetname = attribute.value();
                 if (!targetname.empty()) {
                     AttributableNodeList killTargets;
@@ -502,10 +519,7 @@ namespace TrenchBroom {
 
         void AttributableNode::addLinkTargets(const AttributableNodeList& targets) {
             m_linkTargets.reserve(m_linkTargets.size() + targets.size());
-            
-            AttributableNodeList::const_iterator it, end;
-            for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                AttributableNode* target = *it;
+            for (AttributableNode* target : targets) {
                 target->addLinkSource(this);
                 m_linkTargets.push_back(target);
             }
@@ -514,10 +528,7 @@ namespace TrenchBroom {
         
         void AttributableNode::addKillTargets(const AttributableNodeList& targets) {
             m_killTargets.reserve(m_killTargets.size() + targets.size());
-            
-            AttributableNodeList::const_iterator it, end;
-            for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                AttributableNode* target = *it;
+            for (AttributableNode* target : targets) {
                 target->addKillSource(this);
                 m_killTargets.push_back(target);
             }
@@ -526,10 +537,7 @@ namespace TrenchBroom {
 
         void AttributableNode::addLinkSources(const AttributableNodeList& sources) {
             m_linkSources.reserve(m_linkSources.size() + sources.size());
-            
-            AttributableNodeList::const_iterator it, end;
-            for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                AttributableNode* linkSource = *it;
+            for (AttributableNode* linkSource : sources) {
                 linkSource->addLinkTarget(this);
                 m_linkSources.push_back(linkSource);
             }
@@ -538,10 +546,7 @@ namespace TrenchBroom {
         
         void AttributableNode::addKillSources(const AttributableNodeList& sources) {
             m_killSources.reserve(m_killSources.size() + sources.size());
-            
-            AttributableNodeList::const_iterator it, end;
-            for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                AttributableNode* killSource = *it;
+            for (AttributableNode* killSource : sources) {
                 killSource->addKillTarget(this);
                 m_killSources.push_back(killSource);
             }
@@ -549,41 +554,29 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeAllLinkSources() {
-            AttributableNodeList::const_iterator it, end;
-            for (it = m_linkSources.begin(), end = m_linkSources.end(); it != end; ++it) {
-                AttributableNode* linkSource = *it;
+            for (AttributableNode* linkSource : m_linkSources)
                 linkSource->removeLinkTarget(this);
-            }
             m_linkSources.clear();
             invalidateIssues();
         }
         
         void AttributableNode::removeAllLinkTargets() {
-            AttributableNodeList::const_iterator it, end;
-            for (it = m_linkTargets.begin(), end = m_linkTargets.end(); it != end; ++it) {
-                AttributableNode* linkTarget = *it;
+            for (AttributableNode* linkTarget : m_linkTargets)
                 linkTarget->removeLinkSource(this);
-            }
             m_linkTargets.clear();
             invalidateIssues();
         }
         
         void AttributableNode::removeAllKillSources() {
-            AttributableNodeList::const_iterator it, end;
-            for (it = m_killSources.begin(), end = m_killSources.end(); it != end; ++it) {
-                AttributableNode* killSource = *it;
+            for (AttributableNode* killSource : m_killSources)
                 killSource->removeKillTarget(this);
-            }
             m_killSources.clear();
             invalidateIssues();
         }
         
         void AttributableNode::removeAllKillTargets() {
-            AttributableNodeList::const_iterator it, end;
-            for (it = m_killTargets.begin(), end = m_killTargets.end(); it != end; ++it) {
-                AttributableNode* killTarget = *it;
+            for (AttributableNode* killTarget : m_killTargets)
                 killTarget->removeKillSource(this);
-            }
             m_killTargets.clear();
             invalidateIssues();
         }
@@ -617,43 +610,43 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addLinkSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_linkSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addLinkTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_linkTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_killSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             m_killTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_linkSources, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_linkTargets, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_killSources, attributable);
             invalidateIssues();
         }
@@ -668,7 +661,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
-            assert(attributable != NULL);
+            ensure(attributable != NULL, "attributable is null");
             VectorUtils::erase(m_killTargets, attributable);
         }
     }

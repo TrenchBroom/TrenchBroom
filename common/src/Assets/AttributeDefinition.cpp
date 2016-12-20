@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {
-            assert(other != NULL);
+            ensure(other != NULL, "other is null");
             if (type() != other->type())
                 return false;
             if (name() != other->name())
@@ -211,9 +211,7 @@ namespace TrenchBroom {
         
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
-            FlagsAttributeOption::List::const_iterator it, end;
-            for (it = m_options.begin(), end = m_options.end(); it != end; ++it) {
-                const FlagsAttributeOption& option = *it;
+            for (const FlagsAttributeOption& option : m_options) {
                 if (option.isDefault())
                     value |= option.value();
             }

@@ -22,7 +22,7 @@
 
 #include "View/ViewTypes.h"
 
-#include <vector>
+#include <list>
 
 #include <wx/event.h>
 
@@ -34,13 +34,12 @@ namespace TrenchBroom {
     namespace View {
         class MapFrame;
         
-        typedef std::vector<MapFrame*> FrameList;
+        typedef std::list<MapFrame*> FrameList;
         
         class FrameManager {
         private:
             bool m_singleFrame;
             FrameList m_frames;
-            MapFrame* m_topFrame;
         public:
             FrameManager(bool singleFrame);
             ~FrameManager();
@@ -49,7 +48,7 @@ namespace TrenchBroom {
             bool closeAllFrames();
 
             FrameList frames() const;
-            MapFrame *singleOrTopFrame() const;
+            MapFrame* topFrame() const;
             bool allFramesClosed() const;
             
             void OnFrameActivate(wxActivateEvent& event);
