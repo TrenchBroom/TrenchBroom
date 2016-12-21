@@ -19,18 +19,9 @@
 
 #include "SystemPaths.h"
 
-#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 
 #include <wx/stdpaths.h>
-
-#if defined __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
-#elif defined _WIN32
-#include <Windows.h>
-#elif defined __WXGTK20__
-#include <unistd.h>
-#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,10 +32,10 @@ namespace TrenchBroom {
             }
             
             Path resourceDirectory() {
-#if defined __APPLE__
-                return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
+#ifdef _WIN32
+                return appDirectory(); // Can't use standard path here because it fails in debug builds.
 #else
-                return appDirectory() + Path("Resources");
+                return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
 #endif
             }
 
