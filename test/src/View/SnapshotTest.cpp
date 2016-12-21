@@ -44,13 +44,13 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
-            assert(texture->usageCount() == 6u);
+            ASSERT_EQ(6u, texture->usageCount());
             
             for (Model::BrushFace* face : brush->faces())
-                assert(face->texture() == texture);
+                ASSERT_EQ(texture, face->texture());
             
             document->translateObjects(Vec3(1, 1, 1));
-            assert(texture->usageCount() == 6u);
+            ASSERT_EQ(6u, texture->usageCount());
             
             document->undoLastCommand();
             ASSERT_EQ(6u, texture->usageCount());
