@@ -319,23 +319,27 @@ public:
     }
 private:
     void copyVertices(const VertexList& originalVertices) {
-        const Vertex* firstVertex = originalVertices.front();
-        const Vertex* currentVertex = firstVertex;
-        do {
-            Vertex* copy = new Vertex(currentVertex->position());
-            assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy));
-            m_vertices.append(copy, 1);
-            currentVertex = currentVertex->next();
-        } while (currentVertex != firstVertex);
+        if (!originalVertices.empty()) {
+            const Vertex* firstVertex = originalVertices.front();
+            const Vertex* currentVertex = firstVertex;
+            do {
+                Vertex* copy = new Vertex(currentVertex->position());
+                assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy));
+                m_vertices.append(copy, 1);
+                currentVertex = currentVertex->next();
+            } while (currentVertex != firstVertex);
+        }
     }
     
     void copyFaces(const FaceList& originalFaces) {
-        const Face* firstFace = originalFaces.front();
-        const Face* currentFace = firstFace;
-        do {
-            copyFace(currentFace);
-            currentFace = currentFace->next();
-        } while (currentFace != firstFace);
+        if (!originalFaces.empty()) {
+            const Face* firstFace = originalFaces.front();
+            const Face* currentFace = firstFace;
+            do {
+                copyFace(currentFace);
+                currentFace = currentFace->next();
+            } while (currentFace != firstFace);
+        }
     }
     
     void copyFace(const Face* originalFace) {
@@ -354,13 +358,15 @@ private:
     
     HalfEdgeList copyBoundary(const HalfEdgeList& original) {
         HalfEdgeList result;
-
-        const HalfEdge* firstHalfEdge = original.front();
-        const HalfEdge* currentHalfEdge = firstHalfEdge;
-        do {
-            result.append(copyHalfEdge(currentHalfEdge), 1);
-            currentHalfEdge = currentHalfEdge->next();
-        } while (currentHalfEdge != firstHalfEdge);
+        
+        if (!original.empty()) {
+            const HalfEdge* firstHalfEdge = original.front();
+            const HalfEdge* currentHalfEdge = firstHalfEdge;
+            do {
+                result.append(copyHalfEdge(currentHalfEdge), 1);
+                currentHalfEdge = currentHalfEdge->next();
+            } while (currentHalfEdge != firstHalfEdge);
+        }
         
         return result;
     }
@@ -381,12 +387,14 @@ private:
     }
     
     void copyEdges(const EdgeList& originalEdges) {
-        const Edge* firstEdge = originalEdges.front();
-        const Edge* currentEdge = firstEdge;
-        do {
-            m_edges.append(copyEdge(currentEdge), 1);
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
+        if (!originalEdges.empty()) {
+            const Edge* firstEdge = originalEdges.front();
+            const Edge* currentEdge = firstEdge;
+            do {
+                m_edges.append(copyEdge(currentEdge), 1);
+                currentEdge = currentEdge->next();
+            } while (currentEdge != firstEdge);
+        }
     }
     
     Edge* copyEdge(const Edge* original) {
