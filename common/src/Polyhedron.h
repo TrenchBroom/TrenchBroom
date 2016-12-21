@@ -309,6 +309,9 @@ public: // swap function
         swap(first.m_edges, second.m_edges);
         swap(first.m_faces, second.m_faces);
     }
+public: // Operators
+    bool operator==(const Polyhedron& other) const;
+    bool operator!=(const Polyhedron& other) const;
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;

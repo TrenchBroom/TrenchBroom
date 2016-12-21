@@ -73,7 +73,7 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     assert(boundary.size() >= 3);
     
     Plane<T,3> plane;
-
+    
     const HalfEdge* firstEdge = boundary.front();
     const HalfEdge* curEdge = firstEdge;
     do {
@@ -87,7 +87,7 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
         
         if (setPlanePoints(plane, p2, p1, p3))
             return plane;
-
+        
         curEdge = curEdge->next();
     } while (curEdge != firstEdge);
     
@@ -197,7 +197,7 @@ void Polyhedron<T,FP,VP>::setBounds(const BBox<T,3>& bounds, Callback& callback)
     Vertex* v6 = new Vertex(p6);
     Vertex* v7 = new Vertex(p7);
     Vertex* v8 = new Vertex(p8);
-
+    
     m_vertices.append(v1, 1);
     m_vertices.append(v2, 1);
     m_vertices.append(v3, 1);
@@ -298,10 +298,10 @@ class Polyhedron<T,FP,VP>::Copy {
 private:
     typedef std::map<const Vertex*, Vertex*> VertexMap;
     typedef typename VertexMap::value_type VertexMapEntry;
-
+    
     typedef std::map<const HalfEdge*, HalfEdge*> HalfEdgeMap;
     typedef typename HalfEdgeMap::value_type HalfEdgeMapEntry;
-
+    
     VertexMap m_vertexMap;
     HalfEdgeMap m_halfEdgeMap;
     
@@ -344,7 +344,7 @@ private:
     
     void copyFace(const Face* originalFace) {
         HalfEdgeList myBoundary;
-
+        
         const HalfEdge* firstHalfEdge = originalFace->m_boundary.front();
         const HalfEdge* currentHalfEdge = firstHalfEdge;
         do {
@@ -359,14 +359,12 @@ private:
     HalfEdgeList copyBoundary(const HalfEdgeList& original) {
         HalfEdgeList result;
         
-        if (!original.empty()) {
-            const HalfEdge* firstHalfEdge = original.front();
-            const HalfEdge* currentHalfEdge = firstHalfEdge;
-            do {
-                result.append(copyHalfEdge(currentHalfEdge), 1);
-                currentHalfEdge = currentHalfEdge->next();
-            } while (currentHalfEdge != firstHalfEdge);
-        }
+        const HalfEdge* firstHalfEdge = original.front();
+        const HalfEdge* currentHalfEdge = firstHalfEdge;
+        do {
+            result.append(copyHalfEdge(currentHalfEdge), 1);
+            currentHalfEdge = currentHalfEdge->next();
+        } while (currentHalfEdge != firstHalfEdge);
         
         return result;
     }
@@ -379,7 +377,7 @@ private:
         m_halfEdgeMap.insert(std::make_pair(original, copy));
         return copy;
     }
-
+    
     Vertex* findVertex(const Vertex* original) {
         typename VertexMap::iterator it = m_vertexMap.find(original);
         assert(it != std::end(m_vertexMap));
@@ -401,7 +399,7 @@ private:
         HalfEdge* myFirst = findOrCopyHalfEdge(original->firstEdge());
         if (!original->fullySpecified())
             return new Edge(myFirst);
-
+        
         HalfEdge* mySecond = findOrCopyHalfEdge(original->secondEdge());
         return new Edge(myFirst, mySecond);
     }
@@ -419,7 +417,7 @@ private:
         }
         return insertPos.second->second;
     }
-
+    
     void swapContents() {
         using std::swap;
         swap(m_vertices, m_destination.m_vertices);
@@ -443,6 +441,53 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>& Polyhedron<T,FP,VP>::operator=(Polyhedron<T,FP,VP> other) {
     swap(*this, other);
     return *this;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::operator==(const Polyhedron& other) const {
+    if (vertexCount() != other.vertexCount())
+        return false;
+    if (edgeCount() != other.edgeCount())
+        return false;
+    if (faceCount() != other.faceCount())
+        return false;
+    
+    if (vertexCount() > 0) {
+        Vertex* current = m_vertices.front();
+        Vertex* first = current;
+        do {
+            if (!other.hasVertex(current->position(), 0.0))
+                return false;
+            current = current->next();
+        } while (current != first);
+    }
+    
+    if (edgeCount() > 0) {
+        Edge* current = m_edges.front();
+        Edge* first = current;
+        do {
+            if (!other.hasEdge(current->firstVertex()->position(), current->secondVertex()->position(), 0.0))
+                return false;
+            current = current->next();
+        } while (current != first);
+    }
+    
+    if (faceCount() > 0) {
+        Face* current = m_faces.front();
+        Face* first = current;
+        do {
+            if (!other.hasFace(current->vertexPositions(), 0.0))
+                return false;
+            current = current->next();
+        } while (current != first);
+    }
+    
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::operator!=(const Polyhedron& other) const {
+    return !(*this == other);
 }
 
 template <typename T, typename FP, typename VP>
@@ -700,8 +745,8 @@ bool Polyhedron<T,FP,VP>::hasFace(const Face* face) const {
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkInvariant() const {
     /*
-    if (!checkConvex())
-        return false;
+     if (!checkConvex())
+     return false;
      */
     if (!checkFaceBoundaries())
         return false;
@@ -720,8 +765,8 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
     if (!checkEdges())
         return false;
     /* This check leads to false positive with almost coplanar faces.
-    if (polyhedron() && !checkNoCoplanarFaces())
-        return false;
+     if (polyhedron() && !checkNoCoplanarFaces())
+     return false;
      */
     return true;
 }
@@ -841,7 +886,7 @@ bool Polyhedron<T,FP,VP>::checkClosed() const {
             return false;
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
-
+    
     return true;
 }
 
@@ -862,7 +907,7 @@ bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
             return false;
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
-
+    
     return true;
 }
 
@@ -888,7 +933,7 @@ bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
         
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
-
+    
     return true;
 }
 
@@ -952,7 +997,7 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
         return true;
     
     const T minLength2 = minLength * minLength;
-
+    
     const Edge* firstEdge = m_edges.front();
     const Edge* currentEdge = firstEdge;
     do {
@@ -1013,7 +1058,7 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
      can be removed in every iteration, we have to correct that number for the decrease in the total number of
      edges of the brush - this is where sizeDelta comes in. If no edges has been removed, it comes out as -1.
      If one edge has been removed, it comes out as 0, if two edges have been removed, it comes out as +1, and so on.
-
+     
      Since sizeDelta is subtracted from the number of examined edges, it corrects exactly for the change in the number
      of edges of the brush.
      */
@@ -1034,9 +1079,9 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     }
     
     assert(!polyhedron() || checkEdgeLengths(minLength));
-
+    
     updateBounds();
-
+    
     return polyhedron();
 }
 

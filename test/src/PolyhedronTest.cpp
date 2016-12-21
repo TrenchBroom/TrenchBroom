@@ -78,6 +78,35 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
 }
 
+TEST(PolyhedronTest, copy) {
+    const Vec3d p1( 0.0, 0.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+
+    Polyhedron3d original;
+    Polyhedron3d copy;
+    
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p1);
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p2);
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p3);
+    copy = original;
+    ASSERT_EQ(original, copy);
+
+    original.addPoint(p4);
+    copy = original;
+    ASSERT_EQ(original, copy);
+}
+
 TEST(PolyhedronTest, convexHullWithFailingPoints) {
     const Vec3d p1(-64.0,    -45.5049, -34.4752);
     const Vec3d p2(-64.0,    -43.6929, -48.0);
