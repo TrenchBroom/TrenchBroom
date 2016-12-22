@@ -129,7 +129,7 @@ namespace TrenchBroom {
             } else {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
                 ensure(profile != NULL, "profile is null");
-                ensure(profile->taskCount() > 0, "profile has at least one task");
+                ensure(profile->taskCount() > 0, "profile has no tasks");
                 
                 m_output->Clear();
                 
