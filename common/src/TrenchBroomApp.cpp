@@ -25,6 +25,7 @@
 #include "GLInit.h"
 #include "Macros.h"
 #include "TrenchBroomAppTraits.h"
+#include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
@@ -409,7 +410,7 @@ namespace TrenchBroom {
                 throw;
             } catch (Exception& e) {
                 const String reason = String("Exception: ") + e.what();
-                reportCrashAndExit(e.stackTrace(), reason);
+                reportCrashAndExit("", reason);
             } catch (std::exception& e) {
                 const String reason = String("std::exception: ") + e.what();
                 reportCrashAndExit("", reason);
