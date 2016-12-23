@@ -41,11 +41,7 @@ namespace TrenchBroom {
             }
             
             Path resourceDirectory() {
-#if defined _WIN32
-                return appDirectory() + Path("Resources");
-#else
                 return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
-#endif
             }
 
             Path userDataDirectory() {
