@@ -51,10 +51,10 @@ namespace TrenchBroom {
         };
         
         template <typename I>
-        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy> {
+        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy, StopRecursionIfMatched> {
         public:
                 CollectTouchingNodesVisitor(I begin, I end, const Model::EditorContext& editorContext) :
-                CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy>(NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >(MatchSelectableNodes(editorContext), MatchTouchingNodes<I>(begin, end))) {}
+                CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy, StopRecursionIfMatched>(NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >(MatchSelectableNodes(editorContext), MatchTouchingNodes<I>(begin, end))) {}
         };
     }
 }
