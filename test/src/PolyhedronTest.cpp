@@ -1216,6 +1216,34 @@ TEST(PolyhedronTest, crashWhileAddingPoints3) {
     p.addPoint(p15); // Assertion failure here.
 }
 
+TEST(PolyhedronTest, crashWhileAddingPoints4) {
+    //
+    // p2 .  |  . p3
+    //       |
+    //    -------
+    //       |
+    // p1 .  |  . p4
+    //
+    const Vec3d p1(-1, -1, 0);
+    const Vec3d p2(-1, +1, 0);
+    const Vec3d p3(+1, +1, 0);
+    const Vec3d p4(+1, -1, 0);
+    const Vec3d p5( 0,  0, 0);
+    
+    Polyhedron3d p;
+    
+    p.addPoint(p1);
+    p.addPoint(p4);
+    p.addPoint(p2);
+    ASSERT_TRUE(hasTriangleOf(p, p1, p4, p2));
+    
+    p.addPoint(p3);
+    ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
+    
+    p.addPoint(p5); // Assertion failure here.
+    ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
+}
+
 TEST(PolyhedronTest, removeVertexFromPoint) {
     const Vec3d p1(  0.0,   0.0,   0.0);
     

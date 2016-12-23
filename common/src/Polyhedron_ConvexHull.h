@@ -401,10 +401,11 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
     assert(polygon());
-    if (polygonContainsPoint(position, std::begin(m_vertices), std::end(m_vertices), GetVertexPosition()))
-        return NULL;
     
     Face* face = m_faces.front();
+    if (polygonContainsPoint(position, std::begin(face->boundary()), std::end(face->boundary()), GetVertexPosition()))
+        return nullptr;
+    
     Plane<T,3> facePlane = callback.plane(face);
     
     HalfEdge* firstVisibleEdge = NULL;
