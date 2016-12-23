@@ -122,7 +122,6 @@ namespace TrenchBroom {
         void CompilationDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
             event.Enable(!m_run.running());
         }
-        
 
         void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
             if (m_run.running()) {
@@ -130,6 +129,8 @@ namespace TrenchBroom {
             } else {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
                 ensure(profile != NULL, "profile is null");
+                ensure(profile->taskCount() > 0, "profile has no tasks");
+                
                 m_output->Clear();
                 
                 if (testRun())
@@ -151,7 +152,8 @@ namespace TrenchBroom {
                     event.SetText("Test");
                 else
                     event.SetText("Run");
-                event.Enable(m_profileManager->selectedProfile() != NULL);
+                const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
+                event.Enable(profile != NULL && profile->taskCount() > 0);
             }
         }
 
