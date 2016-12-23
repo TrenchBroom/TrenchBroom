@@ -41,10 +41,10 @@ namespace TrenchBroom {
             }
             
             Path resourceDirectory() {
-#if defined __APPLE__
-                return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
-#else
+#if defined _WIN32
                 return appDirectory() + Path("Resources");
+#else
+                return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
 #endif
             }
 
