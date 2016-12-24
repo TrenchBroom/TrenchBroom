@@ -41,11 +41,7 @@ namespace TrenchBroom {
             }
             
             Path resourceDirectory() {
-#if defined __APPLE__
                 return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
-#else
-                return appDirectory() + Path("Resources");
-#endif
             }
 
             Path userDataDirectory() {
