@@ -86,8 +86,7 @@ bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end
 
 template <typename T>
 int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
-    if ((Math::zero(v0.x()) && Math::zero(v0.y())) ||
-        (Math::zero(v1.x()) && Math::zero(v1.y()))) {
+    if (Math::zero(v0.x()) && Math::zero(v0.y())) {
         // the point is identical to a polygon vertex, cancel search
         return -1;
     }
@@ -106,24 +105,38 @@ int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
      * or zero.
      */
     
-    // do the Y coordinates have different signs?
-    if (( Math::pos(v0.y()) && !Math::pos(v1.y())) ||
-        (!Math::pos(v0.y()) &&  Math::pos(v1.y()))) {
-        // Is segment entirely on the positive side of the X axis?
-        if (Math::pos(v0.x()) && Math::pos(v1.x())) {
-            return 1; // Edge intersects with the X axis.
-        }
-        
-        // If not, do the X coordinates have different signs?
-        if (( Math::pos(v0.x()) && !Math::pos(v1.x())) ||
-            (!Math::pos(v0.x()) &&  Math::pos(v1.x()))) {
-            // Calculate the point of intersection between the edge and the X axis.
-            const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
-            if (!Math::neg(x))
-                return 1; // Edge intersects with the X axis.
-        }
+    // Does Y segment covered by the given edge touch the X axis at all?
+    if (( Math::pos(v0.y()) &&  Math::pos(v1.y())) ||
+        ( Math::neg(v0.y()) &&  Math::neg(v1.y())) ||
+        (Math::zero(v0.y()) && Math::zero(v1.y()))) {
+        return 0;
     }
     
+    
+    // Is segment entirely on the positive side of the X axis?
+    if (Math::pos(v0.x()) && Math::pos(v1.x())) {
+        return 1;
+    }
+    
+    // Is segment entirely on the negative side of the X axis?
+    if (Math::neg(v0.x()) && Math::neg(v1.x())) {
+        return 0;
+    }
+    
+    // Calculate the point of intersection between the edge and the X axis.
+    const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
+    
+    // Is the point of intersection on the given edge?
+    if (Math::zero(x)) {
+        return -1;
+    }
+    
+    // Is the point of intersection on the positive X axis?
+    if (Math::pos(x)) {
+        return 1;
+    }
+    
+    // The point of intersection is on the negative X axis.
     return 0;
 }
 
