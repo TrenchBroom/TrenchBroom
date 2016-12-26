@@ -42,6 +42,10 @@ namespace TrenchBroom {
         Object(),
         m_boundsValid(false) {}
 
+        bool Entity::brushEntity() const {
+            return !pointEntity();
+        }
+
         bool Entity::pointEntity() const {
             if (definition() == NULL)
                 return !hasChildren();
