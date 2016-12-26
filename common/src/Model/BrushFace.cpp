@@ -19,6 +19,7 @@
 
 #include "BrushFace.h"
 
+#include "Algorithms.h"
 #include "Exceptions.h"
 #include "VecMath.h"
 #include "Assets/Texture.h"

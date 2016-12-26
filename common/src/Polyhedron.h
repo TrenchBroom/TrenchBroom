@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Polyhedron_h
 #define TrenchBroom_Polyhedron_h
 
+#include "Algorithms.h"
 #include "Allocator.h"
 #include "VecMath.h"
 #include "DoublyLinkedList.h"
