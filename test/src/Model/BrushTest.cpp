@@ -841,6 +841,8 @@ namespace TrenchBroom {
             assertTexture("bottom", brush, p1_2, p3, p5);
             assertTexture("bottom", brush, p3, p7, p5);
             
+            ASSERT_TRUE(brush->canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
+            
             newEdgePositions = brush->moveEdges(worldBounds, newEdgePositions, p1 - p1_2);
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(edge, newEdgePositions[0]);
@@ -914,6 +916,8 @@ namespace TrenchBroom {
             vertexPositions[3] = Vec3(-32.0, +32.0, +32.0);
             
             const Polygon3 face(vertexPositions);
+            
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, face), Vec3(-16.0, -16.0, 0.0)));
             
             Polygon3::List newFacePositions = brush->moveFaces(worldBounds, Polygon3::List(1, face), Vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
