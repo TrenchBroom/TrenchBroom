@@ -502,11 +502,11 @@
 @PointClass base(Appearflags) color(255 128 0) size(-16 -16 0, 16 16 16) 
     model(
         {{
-            spawnflags == 32 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 5 },
-            spawnflags == 16 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 4 },
-            spawnflags ==  8 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 3 },
-            spawnflags ==  4 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 2 },
-            spawnflags ==  2 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 1 },
+            spawnflags & 32 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 5 },
+            spawnflags & 16 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 4 },
+            spawnflags &  8 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 3 },
+            spawnflags &  4 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 2 },
+            spawnflags &  2 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 1 },
                                           ":models/deadbods/dude/tris.md2"
         }}
     ) = misc_deadsoldier : "Dead guys! 6 of em!"

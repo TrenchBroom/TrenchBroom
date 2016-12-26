@@ -104,8 +104,8 @@
     base(Ammo) 
     model(
         {{
-            spawnflags == 1 -> ":maps/b_batt1.bsp",
-                               ":maps/b_batt0.bsp"
+            spawnflags & 1 ->   ":maps/b_batt1.bsp",
+                                ":maps/b_batt0.bsp"
         }}
     ) =
     item_cells : "Thunderbolt ammo" []
@@ -114,8 +114,8 @@
     base(Ammo) 
     model(
         {{
-            spawnflags == 1 -> ":maps/b_rock1.bsp",
-                               ":maps/b_rock0.bsp"
+            spawnflags & 1 ->   ":maps/b_rock1.bsp",
+                                ":maps/b_rock0.bsp"
         }}
     ) =
     item_rockets : "Rockets" []
@@ -124,8 +124,8 @@
     base(Ammo)
     model(
         {{
-            spawnflags == 1 -> ":maps/b_shell1.bsp",
-                               ":maps/b_shell0.bsp"
+            spawnflags & 1 ->   ":maps/b_shell1.bsp",
+                                ":maps/b_shell0.bsp"
         }}
     ) = item_shells : "Shells" []
     
@@ -133,8 +133,8 @@
     base(Ammo) 
     model(
         {{
-            spawnflags == 1 -> ":maps/b_nail1.bsp",
-                               ":maps/b_nail0.bsp"
+            spawnflags & 1 ->   ":maps/b_nail1.bsp",
+                                ":maps/b_nail0.bsp"
         }}
     ) = item_spikes : "Nailgun/Perforator ammo" []
 
@@ -143,9 +143,9 @@
     base(Appearflags) 
     model(
         {{
-            spawnflags == 2 -> ":maps/b_bh100.bsp",
-            spawnflags == 1 -> ":maps/b_bh10.bsp",
-                               ":maps/b_bh25.bsp"
+            spawnflags & 2 ->   ":maps/b_bh100.bsp",
+            spawnflags & 1 ->   ":maps/b_bh10.bsp",
+                                ":maps/b_bh25.bsp"
         }}
     ) =
     item_health : "Health pack" 
