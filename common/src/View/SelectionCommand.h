@@ -22,11 +22,31 @@
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
+        class BrushFaceReference {
+        private:
+            Plane3 m_facePlane;
+            Model::Brush* m_brush;
+        public:
+            BrushFaceReference(Model::BrushFace* face) :
+                m_facePlane(face->boundary()),
+                m_brush(face->brush()) {
+                    ensure(m_brush != nullptr, "face without a brush");
+                }
+            
+            Model::BrushFace* resolve() {
+                Model::BrushFace* face = m_brush->findFace(m_facePlane);
+                ensure(face != nullptr, "couldn't find face");
+                return face;
+            }
+        };
+        
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
@@ -46,10 +66,10 @@ namespace TrenchBroom {
             Action m_action;
             
             Model::NodeList m_nodes;
-            Model::BrushFaceList m_faces;
+            std::vector<BrushFaceReference> m_faceRefs;
             
             Model::NodeList m_previouslySelectedNodes;
-            Model::BrushFaceList m_previouslySelectedFaces;
+            std::vector<BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
             static Ptr select(const Model::NodeList& nodes);
             static Ptr select(const Model::BrushFaceList& faces);
