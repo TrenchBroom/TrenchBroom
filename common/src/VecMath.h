@@ -37,6 +37,5 @@
 #include "CoordinatePlane.h"
 #include "Edge.h"
 #include "Polygon.h"
-#include "Algorithms.h"
 
 #endif
