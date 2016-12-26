@@ -1244,6 +1244,24 @@ TEST(PolyhedronTest, crashWhileAddingPoints4) {
     ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
 }
 
+TEST(PolyhedronTest, crashWhileAddingPoints5) {
+    // https://github.com/kduske/TrenchBroom/issues/1573
+    
+    const Vec3d p1(2, 0, 0);
+    const Vec3d p2(0, 1, 0);
+    const Vec3d p3(2, 1, 0); // Triangle (p1, p2, p3)
+    const Vec3d p4(1, 1, 0); // Colinear along (p2, p3) edge
+    
+    Polyhedron3d p;
+    
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    p.addPoint(p2); // Assertion failure here - re-adding p2
+}
+
 TEST(PolyhedronTest, removeVertexFromPoint) {
     const Vec3d p1(  0.0,   0.0,   0.0);
     
