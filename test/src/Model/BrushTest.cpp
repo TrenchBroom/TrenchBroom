@@ -1198,6 +1198,45 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, movePolygonRemainingPolygon_DisallowVertexCombining) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            //       z = +192  //
+            // |\              //
+            // | \             //
+            // |  \  z = +64   //
+            // |   |           //
+            // |___| z = -64   //
+            //                 //
+            
+            const Vec3::List vertexPositions {
+                Vec3(-64.0, -64.0, +192.0), // top quad, slanted
+                Vec3(-64.0, +64.0, +192.0),
+                Vec3(+64.0, -64.0, +64.0),
+                Vec3(+64.0, +64.0, +64.0),
+                
+                Vec3(-64.0, -64.0, -64.0), // bottom quad
+                Vec3(-64.0, +64.0, -64.0),
+                Vec3(+64.0, -64.0, -64.0),
+                Vec3(+64.0, +64.0, -64.0),
+            };
+            
+            const Vec3 topFaceNormal(sqrt(2.0)/2.0, 0.0, sqrt(2.0)/2.0);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            BrushFace* topFace = brush->findFace(topFaceNormal);
+            ASSERT_NE(nullptr, topFace);
+            
+            assertCanMoveFace(brush, topFace, Vec3(0, 0, -127));
+            assertCanMoveFace(brush, topFace, Vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed 
+            assertCanNotMoveFace(brush, topFace, Vec3(0, 0, -129));
+            
+            delete brush;
+        }
+        
         TEST(BrushTest, movePolygonRemainingPolyhedron) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
