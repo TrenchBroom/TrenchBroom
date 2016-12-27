@@ -895,6 +895,12 @@ namespace TrenchBroom {
             return addVertex(worldBounds, facePosition.center() + delta)->position();
         }
        
+        static void removeVertexByPosition(BrushGeometry* geometry, const Vec3& pos) {
+            BrushGeometry::Vertex* vertex = geometry->findVertexByPosition(pos);
+            ensure(vertex != nullptr, "couldn't find vertex to remove");
+            geometry->removeVertex(vertex);
+        }
+        
         /*
          The following table shows all cases to consider.
          
@@ -916,7 +922,11 @@ namespace TrenchBroom {
          ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a polyhedron.
          no     - This case is always forbidden.
          invert - This case is handled by swapping the remaining and the moving fragments and inverting the delta. This takes us from a cell at (column, row) to the cell at (row, column).
-         check  - Check whether any of the moved vertices would travel into or through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+         check  - Check whether any of the moved vertices would travel through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+         
+         If `allowVertexRemoval` is false, moving a face in a way that would flip its normal will return `false`
+         If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
+         
          */
         bool Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
@@ -928,17 +938,30 @@ namespace TrenchBroom {
                 return true;
             
             const Vec3::Set vertexSet(std::begin(vertices), std::end(vertices));
-            BrushGeometry remaining;
-            BrushGeometry moving;
-            BrushGeometry result;
             
+            // Start with a copy of m_geometry, then remove the vertices that are moving.
+            //
+            // Adding vertices to an empty BrushGeometry could be dangerous, if the remaining portion is just a polygon.
+            // The order in which vertices are added would determine the polygon normal, which could be wrong.
+            BrushGeometry remaining(*m_geometry);
+            for (Vec3 movingPosition : vertexSet) {
+                removeVertexByPosition(&remaining, movingPosition);
+            }
+            
+            BrushGeometry moving(*m_geometry);
             for (const BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& position = vertex->position();
                 if (vertexSet.count(position) == 0) {
-                    remaining.addPoint(position);
+                    removeVertexByPosition(&moving, position);
+                }
+            }
+            
+            BrushGeometry result;
+            for (const BrushVertex* vertex : m_geometry->vertices()) {
+                const Vec3& position = vertex->position();
+                if (vertexSet.count(position) == 0) {
                     result.addPoint(position);
                 } else {
-                    moving.addPoint(position);
                     result.addPoint(position + delta);
                 }
             }
@@ -947,8 +970,23 @@ namespace TrenchBroom {
             assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
             
             // Will vertices be removed?
-            if (!allowVertexRemoval && result.vertexCount() < m_geometry->vertexCount())
-                return false;
+            if (!allowVertexRemoval) {
+                if (result.vertexCount() < m_geometry->vertexCount())
+                    return false;
+                
+                // All moving vertices must still be present in the result
+                for (const Vec3& movingVertex : moving.vertexPositions()) {
+                    if (result.findVertexByPosition(movingVertex + delta) == nullptr)
+                        return false;
+                }
+                
+                // Additionally, for polygons, they must still be present in the result with the same vertex order (same face normal)
+                if (moving.polygon()) {
+                    const Vec3::List newFaceVertexPositions(moving.faces().front()->vertexPositions() + delta);
+                    if (nullptr == result.findFaceByPositions(newFaceVertexPositions))
+                        return false;
+                }
+            }
             
             // Will the result go out of world bounds?
             if (!worldBounds.contains(result.bounds()))
@@ -969,11 +1007,16 @@ namespace TrenchBroom {
                 swap(remaining, moving);
                 delta = -delta;
             }
-            
-            // Now check if any of the moving vertices would travel into or through the remaining fragment.
+
+            // Now check if any of the moving vertices would travel through the remaining fragment.
             for (const BrushVertex* vertex : moving.vertices()) {
                 const Vec3& oldPos = vertex->position();
                 const Vec3 newPos = oldPos + delta;
+                
+                // Skip moving vertices that end up inside the remaining fragment.
+                // These are handled in the allowVertexRemoval section above.
+                if (remaining.contains(newPos))
+                    continue;
                 
                 for (const BrushFaceGeometry* face : remaining.faces()) {
                     if (face->pointStatus(oldPos) == Math::PointStatus::PSAbove &&
@@ -982,7 +1025,8 @@ namespace TrenchBroom {
                         const FloatType distance = face->intersectWithRay(ray, Math::Side_Front);
                         if (!Math::isnan(distance)) {
                             const FloatType distance2 = distance * distance;
-                            if (distance2 <= ray.squaredDistanceToPoint(newPos).rayDistance)
+                            const FloatType oldToNew2 = (newPos - oldPos).squaredLength();
+                            if (distance2 <= oldToNew2)
                                 return false;
                         }
                     }
