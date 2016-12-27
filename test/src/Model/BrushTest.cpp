@@ -1175,13 +1175,13 @@ namespace TrenchBroom {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             
-            //   _   z = +64
-            //  / \
-            // /   \
-            // |   | z = -64
-            // |   |
-            // |___| z = -192
-            //
+            //   _   z = +64   //
+            //  / \            //
+            // /   \           //
+            // |   | z = -64   //
+            // |   |           //
+            // |___| z = -192  //
+            //                 //
             
             const Vec3::List vertexPositions {
                 Vec3(-32.0, -32.0, +64.0), // smaller top polygon
