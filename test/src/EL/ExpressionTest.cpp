@@ -219,31 +219,31 @@ namespace TrenchBroom {
         TEST(ExpressionTest, testBitwiseAndOperator) {
             evaluateAndAssert("0 & 0", 0 & 0);
             evaluateAndAssert("123 & 456", 123 & 456);
-            evaluateAndThrow<EvaluationError>("true & 123");
+            evaluateAndAssert("true & 123", 1 & 123);
             evaluateAndThrow<EvaluationError>("'asdf' & 123");
             evaluateAndThrow<EvaluationError>("[] & 123");
             evaluateAndThrow<EvaluationError>("{} & 123");
-            evaluateAndThrow<EvaluationError>("null & 123");
+            evaluateAndAssert("null & 123", 0 & 123);
         }
         
         TEST(ExpressionTest, testBitwiseOrOperator) {
             evaluateAndAssert("0 | 0", 0 | 0);
             evaluateAndAssert("123 | 456", 123 | 456);
-            evaluateAndThrow<EvaluationError>("true | 123");
+            evaluateAndAssert("true | 123", 1 | 123);
             evaluateAndThrow<EvaluationError>("'asdf' | 123");
             evaluateAndThrow<EvaluationError>("[] | 123");
             evaluateAndThrow<EvaluationError>("{} | 123");
-            evaluateAndThrow<EvaluationError>("null | 123");
+            evaluateAndAssert("null | 123", 0 | 123);
         }
         
         TEST(ExpressionTest, testBitwiseXorOperator) {
             evaluateAndAssert("0 ^ 0", 0 ^ 0);
             evaluateAndAssert("123 ^ 456", 123 ^ 456);
-            evaluateAndThrow<EvaluationError>("true ^ 123");
+            evaluateAndAssert("true ^ 123", 1 ^ 123);
             evaluateAndThrow<EvaluationError>("'asdf' ^ 123");
             evaluateAndThrow<EvaluationError>("[] ^ 123");
             evaluateAndThrow<EvaluationError>("{} ^ 123");
-            evaluateAndThrow<EvaluationError>("null ^ 123");
+            evaluateAndAssert("null ^ 123", 0 ^ 123);
         }
         
         TEST(ExpressionTest, testBitwiseShiftLeftOperator) {
@@ -251,16 +251,16 @@ namespace TrenchBroom {
 #ifndef _WIN32
             evaluateAndAssert("1 << 33", 1l << 33);
 #endif
-            evaluateAndThrow<EvaluationError>("true << 2");
-            evaluateAndThrow<EvaluationError>("1 << false");
+            evaluateAndAssert("true << 2", 1l << 2);
+            evaluateAndAssert("1 << false", 1l << 0);
             evaluateAndThrow<EvaluationError>("'asdf' << 2");
             evaluateAndThrow<EvaluationError>("1 << 'asdf'");
             evaluateAndThrow<EvaluationError>("[] << 2");
             evaluateAndThrow<EvaluationError>("1 << []");
             evaluateAndThrow<EvaluationError>("{} << 2");
             evaluateAndThrow<EvaluationError>("1 << {}");
-            evaluateAndThrow<EvaluationError>("null << 2");
-            evaluateAndThrow<EvaluationError>("1 << null");
+            evaluateAndAssert("null << 2", 0l << 2);
+            evaluateAndAssert("1 << null", 1l << 0);
         }
         
         TEST(ExpressionTest, testBitwiseShiftRightOperator) {
@@ -268,16 +268,16 @@ namespace TrenchBroom {
 #ifndef _WIN32
             evaluateAndAssert("1 >> 33", 1l >> 33);
 #endif
-            evaluateAndThrow<EvaluationError>("true >> 2");
-            evaluateAndThrow<EvaluationError>("1 >> false");
+            evaluateAndAssert("true >> 2", 1l >> 2);
+            evaluateAndAssert("1 >> false", 1l >> 0);
             evaluateAndThrow<EvaluationError>("'asdf' >> 2");
             evaluateAndThrow<EvaluationError>("1 >> 'asdf'");
             evaluateAndThrow<EvaluationError>("[] >> 2");
             evaluateAndThrow<EvaluationError>("1 >> []");
             evaluateAndThrow<EvaluationError>("{} >> 2");
             evaluateAndThrow<EvaluationError>("1 >> {}");
-            evaluateAndThrow<EvaluationError>("null >> 2");
-            evaluateAndThrow<EvaluationError>("1 >> null");
+            evaluateAndAssert("null >> 2", 0l >> 2);
+            evaluateAndAssert("1 >> null", 1l >> 0);
         }
         
         TEST(ExpressionTest, testArithmeticPrecedence) {
