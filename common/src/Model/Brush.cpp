@@ -1010,10 +1010,10 @@ namespace TrenchBroom {
                     continue;
                 
                 for (const BrushFaceGeometry* face : remaining.faces()) {
-                    if (face->pointStatus(oldPos) == Math::PointStatus::PSAbove &&
-                        face->pointStatus(newPos) == Math::PointStatus::PSBelow) {
+                    if (face->pointStatus(oldPos) == Math::PointStatus::PSBelow &&
+                        face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
                         const Ray3 ray(oldPos, (newPos - oldPos).normalized());
-                        const FloatType distance = face->intersectWithRay(ray, Math::Side_Front);
+                        const FloatType distance = face->intersectWithRay(ray, Math::Side_Back);
                         if (!Math::isnan(distance)) {
                             const FloatType distance2 = distance * distance;
                             const FloatType oldToNew2 = (newPos - oldPos).squaredLength();
