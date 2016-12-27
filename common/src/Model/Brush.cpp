@@ -965,9 +965,6 @@ namespace TrenchBroom {
             
             // Will vertices be removed?
             if (!allowVertexRemoval) {
-                if (result.vertexCount() < m_geometry->vertexCount())
-                    return false;
-                
                 // All moving vertices must still be present in the result
                 for (const Vec3& movingVertex : moving.vertexPositions()) {
                     if (result.findVertexByPosition(movingVertex + delta) == nullptr)

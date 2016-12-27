@@ -1210,7 +1210,7 @@ namespace TrenchBroom {
             // Move top face along the X axis
             assertCanMoveTopFace(brush, Vec3(32.0, 0.0, 0.0));
             assertCanMoveTopFace(brush, Vec3(256, 0.0, 0.0));
-            assertCanNotMoveTopFace(brush, Vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
+            assertCanMoveTopFace(brush, Vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
             
             delete brush;
         }
