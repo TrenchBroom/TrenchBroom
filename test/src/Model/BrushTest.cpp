@@ -1040,13 +1040,13 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             const Vec3 peakPosition(  0.0,   0.0, +64.0);
-            const Vec3::List vertexPositions {
+            const Vec3::List baseQuadVertexPositions {
                 Vec3(-64.0, -64.0, -64.0), // base quad
                 Vec3(-64.0, +64.0, -64.0),
                 Vec3(+64.0, +64.0, -64.0),
-                Vec3(+64.0, -64.0, -64.0),
-                peakPosition
+                Vec3(+64.0, -64.0, -64.0)
             };
+            const Vec3::List vertexPositions = VectorUtils::concatenate(Vec3::List { peakPosition }, baseQuadVertexPositions);
             
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1054,6 +1054,33 @@ namespace TrenchBroom {
             assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -127.0));
             assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
             assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
+            
+            // More detailed testing of the last assertion
+            {
+                Vec3::List temp(baseQuadVertexPositions);
+                std::reverse(temp.begin(), temp.end());
+                const Vec3::List flippedBaseQuadVertexPositions(temp);
+                
+                const Vec3 delta(0.0, 0.0, -129.0);
+                Brush* brushClone = brush->clone(worldBounds);
+                
+                ASSERT_EQ(5u, brushClone->faceCount());
+                ASSERT_TRUE(brushClone->findFace(Polygon3(baseQuadVertexPositions)));
+                ASSERT_FALSE(brushClone->findFace(Polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_NE(nullptr, brushClone->findFace(Vec3::NegZ));
+                ASSERT_EQ(nullptr, brushClone->findFace(Vec3::PosZ));
+                
+                ASSERT_TRUE(brushClone->canMoveVertices(worldBounds, Vec3::List { peakPosition }, delta));
+                ASSERT_EQ(Vec3::List { peakPosition + delta }, brushClone->moveVertices(worldBounds, Vec3::List { peakPosition }, delta));
+                
+                ASSERT_EQ(5u, brushClone->faceCount());
+                ASSERT_FALSE(brushClone->findFace(Polygon3(baseQuadVertexPositions)));
+                ASSERT_TRUE(brushClone->findFace(Polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_EQ(nullptr, brushClone->findFace(Vec3::NegZ));
+                ASSERT_NE(nullptr, brushClone->findFace(Vec3::PosZ));
+                
+                delete brushClone;
+            }
             
             assertCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -127.0));
             assertCanNotMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
