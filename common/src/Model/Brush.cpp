@@ -894,12 +894,6 @@ namespace TrenchBroom {
         Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
             return addVertex(worldBounds, facePosition.center() + delta)->position();
         }
-       
-        static void removeVertexByPosition(BrushGeometry* geometry, const Vec3& pos) {
-            BrushGeometry::Vertex* vertex = geometry->findVertexByPosition(pos);
-            ensure(vertex != nullptr, "couldn't find vertex to remove");
-            geometry->removeVertex(vertex);
-        }
         
         /*
          The following table shows all cases to consider.
@@ -945,14 +939,14 @@ namespace TrenchBroom {
             // The order in which vertices are added would determine the polygon normal, which could be wrong.
             BrushGeometry remaining(*m_geometry);
             for (Vec3 movingPosition : vertexSet) {
-                removeVertexByPosition(&remaining, movingPosition);
+                remaining.removeVertexByPosition(movingPosition);
             }
             
             BrushGeometry moving(*m_geometry);
             for (const BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& position = vertex->position();
                 if (vertexSet.count(position) == 0) {
-                    removeVertexByPosition(&moving, position);
+                    moving.removeVertexByPosition(position);
                 }
             }
             
