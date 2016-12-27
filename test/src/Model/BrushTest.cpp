@@ -954,7 +954,7 @@ namespace TrenchBroom {
             delete brush;
         }
         
-        static void checkCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
             ASSERT_NE(nullptr, topFace);
@@ -974,7 +974,7 @@ namespace TrenchBroom {
             delete brushClone;
         }
         
-        static void checkCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+        static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
             ASSERT_NE(nullptr, topFace);
@@ -982,25 +982,25 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, Polygon3::List { topFace->polygon() }, delta));
         }
         
-        static void checkCanMoveTopFace(const Brush* brush, const Vec3 delta) {
-            checkCanMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
+        static void assertCanMoveTopFace(const Brush* brush, const Vec3 delta) {
+            assertCanMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
         }
         
-        static void checkCanNotMoveTopFace(const Brush* brush, const Vec3 delta) {
-            checkCanNotMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
+        static void assertCanNotMoveTopFace(const Brush* brush, const Vec3 delta) {
+            assertCanNotMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
         }
         
-        static void checkCanNotMoveTopFaceBeyond127UnitsDown(Brush *brush) {
-            checkCanMoveTopFace(brush, Vec3(0, 0, -127));
-            checkCanNotMoveTopFace(brush, Vec3(0, 0, -128));
-            checkCanNotMoveTopFace(brush, Vec3(0, 0, -129));
+        static void assertCanNotMoveTopFaceBeyond127UnitsDown(Brush *brush) {
+            assertCanMoveTopFace(brush, Vec3(0, 0, -127));
+            assertCanNotMoveTopFace(brush, Vec3(0, 0, -128));
+            assertCanNotMoveTopFace(brush, Vec3(0, 0, -129));
             
-            checkCanMoveTopFace(brush, Vec3(256, 0, -127));
-            checkCanNotMoveTopFace(brush, Vec3(256, 0, -128));
-            checkCanNotMoveTopFace(brush, Vec3(256, 0, -129));
+            assertCanMoveTopFace(brush, Vec3(256, 0, -127));
+            assertCanNotMoveTopFace(brush, Vec3(256, 0, -128));
+            assertCanNotMoveTopFace(brush, Vec3(256, 0, -129));
         }
         
-        static void checkCanMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertCanMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
@@ -1013,7 +1013,7 @@ namespace TrenchBroom {
             delete brushClone;
         }
         
-        static void checkMovingVertexDeletes(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertMovingVertexDeletes(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
@@ -1026,7 +1026,7 @@ namespace TrenchBroom {
             delete brushClone;
         }
         
-        static void checkCanNotMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertCanNotMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
         }
@@ -1051,13 +1051,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             
-            checkCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -127.0));
-            checkCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
-            checkCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
             
-            checkCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -127.0));
-            checkCanNotMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
-            checkCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
+            assertCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
             
             delete brush;
         }
@@ -1082,9 +1082,9 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             
-            checkMovingVertexDeletes(brush, peakPosition, Vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
-            checkCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
-            checkCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
+            assertMovingVertexDeletes(brush, peakPosition, Vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
             
             delete brush;
         }
@@ -1107,7 +1107,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             
-            checkCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
             
             delete brush;
         }
@@ -1129,7 +1129,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             
-            checkCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
             
             delete brush;
         }
@@ -1141,7 +1141,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128.0, Model::BrushFace::NoTextureName);
             
-            checkCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
             
             delete brush;
         }
@@ -1166,7 +1166,7 @@ namespace TrenchBroom {
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             ASSERT_EQ(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), brush->bounds());
             
-            checkCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
             
             delete brush;
         }
@@ -1204,13 +1204,13 @@ namespace TrenchBroom {
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
             
             // Try to move the top face down along the Z axis
-            checkCanNotMoveTopFaceBeyond127UnitsDown(brush);
-            checkCanNotMoveTopFace(brush, Vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFace(brush, Vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
             
             // Move top face along the X axis
-            checkCanMoveTopFace(brush, Vec3(32.0, 0.0, 0.0));
-            checkCanMoveTopFace(brush, Vec3(256, 0.0, 0.0));
-            checkCanNotMoveTopFace(brush, Vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
+            assertCanMoveTopFace(brush, Vec3(32.0, 0.0, 0.0));
+            assertCanMoveTopFace(brush, Vec3(256, 0.0, 0.0));
+            assertCanNotMoveTopFace(brush, Vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
             
             delete brush;
         }
