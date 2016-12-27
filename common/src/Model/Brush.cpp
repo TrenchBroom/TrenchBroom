@@ -943,17 +943,11 @@ namespace TrenchBroom {
             }
             
             BrushGeometry moving(*m_geometry);
-            for (const BrushVertex* vertex : m_geometry->vertices()) {
-                const Vec3& position = vertex->position();
-                if (vertexSet.count(position) == 0) {
-                    moving.removeVertexByPosition(position);
-                }
-            }
-            
             BrushGeometry result;
             for (const BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& position = vertex->position();
                 if (vertexSet.count(position) == 0) {
+                    moving.removeVertexByPosition(position);
                     result.addPoint(position);
                 } else {
                     result.addPoint(position + delta);
