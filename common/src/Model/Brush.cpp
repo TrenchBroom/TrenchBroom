@@ -926,11 +926,7 @@ namespace TrenchBroom {
             // Should never occur, takes care of the first row.
             if (vertices.empty() || delta.null())
                 return false;
-            
-            // Special case, takes care of the first column.
-            if (vertices.size() == vertexCount())
-                return true;
-            
+
             const Vec3::Set vertexSet(std::begin(vertices), std::end(vertices));
             
             // Start with a copy of m_geometry, then remove the vertices that are moving.
@@ -954,8 +950,11 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(moving.vertexCount() == vertices.size());
             assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
+            
+            // Special case, takes care of the first column.
+            if (moving.vertexCount() == vertexCount())
+                return true;
             
             // Will vertices be removed?
             if (!allowVertexRemoval) {
