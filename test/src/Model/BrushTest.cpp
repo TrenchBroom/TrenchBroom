@@ -954,6 +954,29 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        static void assertCanMoveEdges(const Brush* brush, const Edge3::List edges, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            
+            Edge3::List expectedMovedEdges;
+            for (const Edge3& edge : edges) {
+                expectedMovedEdges.push_back(Edge3(edge.start() + delta, edge.end() + delta));
+            }
+            
+            ASSERT_TRUE(brush->canMoveEdges(worldBounds, edges, delta));
+            
+            Brush* brushClone = brush->clone(worldBounds);
+            const Edge3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
+            
+            ASSERT_EQ(expectedMovedEdges, movedEdges);
+            
+            delete brushClone;
+        }
+        
+        static void assertCanNotMoveEdges(const Brush* brush, const Edge3::List edges, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
+        }
+        
         static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
@@ -1130,6 +1153,33 @@ namespace TrenchBroom {
             assertMovingVertexDeletes(brush, peakPosition, Vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
             assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
             assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
+            
+            delete brush;
+        }
+        
+        // "Move edge" tests
+        
+        TEST(BrushTest, moveEdgeRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Taller than the cube, starts to the left of the +-64 unit cube
+            const Edge3 edge(Vec3(-128,0,-128), Vec3(-128,0,+128));
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
+            
+            ASSERT_EQ(10u, brush->vertexCount());
+            
+            assertCanMoveEdges(brush, Edge3::List { edge }, Vec3(+63,0,0));
+            assertCanNotMoveEdges(brush, Edge3::List { edge }, Vec3(+64,0,0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, Edge3::List { edge }, Vec3(+128,0,0)); // Center of the cube
+            
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+63,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+64,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+128,0,0));
             
             delete brush;
         }
