@@ -1447,6 +1447,59 @@ namespace TrenchBroom {
             delete brush;
         }
 
+        // "Move polyhedron" tests
+        
+        TEST(BrushTest, movePolyhedronRemainingEdge) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Edge to the left of the cube, shorter, extends down to Z=-256
+            const Edge3 edge(Vec3(-128,0,-256), Vec3(-128,0,0));
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
+            
+            ASSERT_EQ(10u, brush->vertexCount());
+            
+            BrushFace* cubeTop = brush->findFace(Vec3::PosZ);
+            BrushFace* cubeBottom = brush->findFace(Vec3::NegZ);
+            BrushFace* cubeRight = brush->findFace(Vec3::PosX);
+            BrushFace* cubeLeft = brush->findFace(Vec3::NegX);
+            BrushFace* cubeBack = brush->findFace(Vec3::PosY);
+            BrushFace* cubeFront = brush->findFace(Vec3::NegY);
+            
+            ASSERT_NE(nullptr, cubeTop);
+            ASSERT_EQ(nullptr, cubeBottom); // no face here, part of the wedge connecting to `edge`
+            ASSERT_NE(nullptr, cubeRight);
+            ASSERT_EQ(nullptr, cubeLeft); // no face here, part of the wedge connecting to `edge`
+            ASSERT_NE(nullptr, cubeFront);
+            ASSERT_NE(nullptr, cubeBack);
+            
+            const Polygon3::List movingFaces {
+                cubeTop->polygon(),
+                cubeRight->polygon(),
+                cubeFront->polygon(),
+                cubeBack->polygon(),
+            };
+            
+            assertCanMoveFaces(brush, movingFaces, Vec3(32, 0, 0)); // away from `edge`
+            assertCanMoveFaces(brush, movingFaces, Vec3(-63, 0, 0)); // towards `edge`, not touching
+            assertCanMoveFaces(brush, movingFaces, Vec3(-64, 0, 0)); // towards `edge`, touching
+            assertCanMoveFaces(brush, movingFaces, Vec3(-65, 0, 0)); // towards `edge`, covering
+            
+            // Move the cube down 64 units, so the top vertex of `edge` is on the same plane as `cubeTop`
+            // This will turn `cubeTop` from a quad into a pentagon
+            assertCanNotMoveFaces(brush, movingFaces, Vec3(0, 0, -64));
+            assertCanMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(0, 0, -64));
+            
+            // Make edge poke through the top face
+            assertCanNotMoveFaces(brush, movingFaces, Vec3(-192, 0, -128));
+            assertCanMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(-192, 0, -128));
+            
+            delete brush;
+        }
         
         TEST(BrushTest, moveFaceFailure) {
             // https://github.com/kduske/TrenchBroom/issues/1499
