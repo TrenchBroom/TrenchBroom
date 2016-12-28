@@ -1184,6 +1184,36 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        // Same as above, but moving 2 edges
+        TEST(BrushTest, moveEdgesRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Taller than the cube, starts to the left of the +-64 unit cube
+            const Edge3 edge1(Vec3(-128,-32,-128), Vec3(-128,-32,+128));
+            const Edge3 edge2(Vec3(-128,+32,-128), Vec3(-128,+32,+128));
+            const Edge3::List movingEdges { edge1, edge2 };
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.end()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.end()));
+            
+            ASSERT_EQ(12u, brush->vertexCount());
+            
+            assertCanMoveEdges(brush, movingEdges, Vec3(+63,0,0));
+            assertCanNotMoveEdges(brush, movingEdges, Vec3(+64,0,0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, movingEdges, Vec3(+128,0,0)); // Center of the cube
+            
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+63,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+64,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+128,0,0));
+            
+            delete brush;
+        }
+        
         // "Move polygon" tests
         
         TEST(BrushTest, movePolygonRemainingPoint) {
