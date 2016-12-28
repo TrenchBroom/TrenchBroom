@@ -1000,35 +1000,53 @@ namespace TrenchBroom {
             assertCanNotMoveTopFace(brush, Vec3(256, 0, -129));
         }
         
-        static void assertCanMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertCanMoveVertices(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
 
-            ASSERT_TRUE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
             
             Brush* brushClone = brush->clone(worldBounds);
-            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, Vec3::List { vertexPosition }, delta);
             
-            ASSERT_EQ(Vec3::List { vertexPosition + delta}, movedVertexPositions);
+            // These are returned in no particular order.. need to move into Vec3::Set for assertion
+            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            
+            const Vec3::Set movedVerticesSet(movedVertexPositions.begin(), movedVertexPositions.end());
+            const Vec3::List expectedList(vertexPositions + delta);
+            const Vec3::Set expectedSet(expectedList.begin(), expectedList.end());
+            
+            ASSERT_EQ(expectedSet, movedVerticesSet);
             
             delete brushClone;
         }
         
-        static void assertMovingVertexDeletes(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertMovingVerticesDeletes(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
-            ASSERT_TRUE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
             
             Brush* brushClone = brush->clone(worldBounds);
-            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, Vec3::List { vertexPosition }, delta);
+            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
             
             ASSERT_EQ(Vec3::List(), movedVertexPositions);
             
             delete brushClone;
         }
         
-        static void assertCanNotMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+        static void assertCanNotMoveVertices(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
-            ASSERT_FALSE(brush->canMoveVertices(worldBounds, Vec3::List { vertexPosition }, delta));
+            ASSERT_FALSE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
+        }
+        
+        static void assertCanMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertCanMoveVertices(brush, Vec3::List { vertexPosition }, delta);
+        }
+        
+        static void assertMovingVertexDeletes(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertMovingVerticesDeletes(brush, Vec3::List { vertexPosition }, delta);
+        }
+        
+        static void assertCanNotMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertCanNotMoveVertices(brush, Vec3::List { vertexPosition }, delta);
         }
         
         // "Move point" tests
@@ -1249,22 +1267,27 @@ namespace TrenchBroom {
             // |___| z = -192  //
             //                 //
             
-            const Vec3::List vertexPositions {
+            const Vec3::List smallerTopPolygon {
                 Vec3(-32.0, -32.0, +64.0), // smaller top polygon
                 Vec3(-32.0, +32.0, +64.0),
                 Vec3(+32.0, -32.0, +64.0),
-                Vec3(+32.0, +32.0, +64.0),
-                
+                Vec3(+32.0, +32.0, +64.0)
+            };
+            const Vec3::List cubeTopFace {
                 Vec3(-64.0, -64.0, -64.0), // top face of cube
                 Vec3(-64.0, +64.0, -64.0),
                 Vec3(+64.0, -64.0, -64.0),
                 Vec3(+64.0, +64.0, -64.0),
-                
+            };
+            const Vec3::List cubeBottomFace {
                 Vec3(-64.0, -64.0, -192.0), // bottom face of cube
                 Vec3(-64.0, +64.0, -192.0),
                 Vec3(+64.0, -64.0, -192.0),
                 Vec3(+64.0, +64.0, -192.0),
             };
+            
+            using VectorUtils::concatenate;
+            const Vec3::List vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
             
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1272,6 +1295,12 @@ namespace TrenchBroom {
             // Try to move the top face down along the Z axis
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
             assertCanNotMoveTopFace(brush, Vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
+            
+            // Move the smaller top polygon as 4 separate vertices
+            assertCanMoveVertices(brush, smallerTopPolygon, Vec3(0, 0, -127));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, Vec3(0, 0, -128));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, Vec3(0, 0, -129));
+            assertCanNotMoveVertices(brush, smallerTopPolygon, Vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
             
             // Move top face along the X axis
             assertCanMoveTopFace(brush, Vec3(32.0, 0.0, 0.0));
