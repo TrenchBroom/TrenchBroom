@@ -827,7 +827,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 

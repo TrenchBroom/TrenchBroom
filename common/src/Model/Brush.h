@@ -168,7 +168,7 @@ namespace TrenchBroom {
             void snapVertices(const BBox3& worldBounds, size_t snapTo);
 
             // edge operations
-            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const;
             Edge3::List moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
             bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             Vec3 splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
