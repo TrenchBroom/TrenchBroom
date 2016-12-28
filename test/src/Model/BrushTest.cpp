@@ -977,15 +977,13 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
         
-        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+        static void assertCanMoveFaces(const Brush* brush, const Polygon3::List movingFaces, const Vec3 delta) {
             const BBox3 worldBounds(4096.0);
             
-            ASSERT_NE(nullptr, topFace);
-            
-            const Polygon3::List movingFaces { topFace->polygon() };
-            const Polygon3::List expectedMovedFaces {
-                Polygon3(topFace->polygon().vertices() + delta)
-            };
+            Polygon3::List expectedMovedFaces;
+            for (const Polygon3& polygon : movingFaces) {
+                expectedMovedFaces.push_back(Polygon3(polygon.vertices() + delta));
+            }
             
             ASSERT_TRUE(brush->canMoveFaces(worldBounds, movingFaces, delta));
                 
@@ -995,6 +993,15 @@ namespace TrenchBroom {
             ASSERT_EQ(expectedMovedFaces, movedFaces);
             
             delete brushClone;
+        }
+        
+        static void assertCanNotMoveFaces(const Brush* brush, const Polygon3::List movingFaces, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, movingFaces, delta));
+        }
+        
+        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+            assertCanMoveFaces(brush, Polygon3::List { topFace->polygon() }, delta);
         }
         
         static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
@@ -1434,8 +1441,8 @@ namespace TrenchBroom {
             EXPECT_TRUE(brush->hasFace(Polygon3(bottomPolygon)));
             EXPECT_TRUE(brush->hasFace(Polygon3(bottomRightPolygon)));
             
-            EXPECT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,63)));
-            EXPECT_FALSE(brush->canMoveFaces(worldBounds, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,64))); // Merges B and C
+            assertCanMoveFaces(brush, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,63));
+            assertCanNotMoveFaces(brush, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,64)); // Merges B and C
             
             delete brush;
         }
