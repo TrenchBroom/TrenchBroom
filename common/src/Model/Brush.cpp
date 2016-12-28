@@ -970,6 +970,13 @@ namespace TrenchBroom {
                     if (nullptr == result.findFaceByPositions(newFaceVertexPositions))
                         return false;
                 }
+                
+                if (moving.edge()) {
+                    BrushGeometry::Edge* movingEdge = moving.edges().front();                    
+                    if (!result.hasEdge(movingEdge->firstVertex()->position() + delta,
+                                        movingEdge->secondVertex()->position() + delta))
+                        return false;
+                }
             }
             
             // Will the result go out of world bounds?
