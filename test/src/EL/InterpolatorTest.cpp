@@ -50,5 +50,17 @@ namespace TrenchBroom {
         TEST(ELInterpolatorTest, interpolateStringWithNestedExpression) {
             ASSERT_EL(" asdfasdf nested ${TEST} expression  sdf ", " asdfasdf ${ 'nested ${TEST} expression' }  sdf ");
         }
+        
+        TEST(ELInterpolatorTest, interpolateStringWithVariable) {
+            EvaluationContext context;
+            context.declareVariable("TEST", Value("interesting"));
+            ASSERT_EL(" an interesting expression", " an ${TEST} expression", context);
+        }
+        
+        TEST(ELInterpolatorTest, interpolateStringWithBackslashAndVariable) {
+            EvaluationContext context;
+            context.declareVariable("TEST", Value("interesting"));
+            ASSERT_EL(" an \\interesting expression", " an \\${TEST} expression", context);
+        }
     }
 }
