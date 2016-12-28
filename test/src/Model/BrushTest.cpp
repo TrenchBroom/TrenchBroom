@@ -1310,6 +1310,57 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, moveTwoFaces) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            //               //
+            // |\    z = 64  //
+            // | \           //
+            // |  \          //
+            //A|   \ z = 0   //
+            // |   /         //
+            // |__/C         //
+            //  B    z = -64 //
+            //               //
+
+            
+            const Vec3::List leftPolygon { // A
+                Vec3(-32.0, -32.0, +64.0),
+                Vec3(-32.0, +32.0, +64.0),
+                Vec3(-32.0, +32.0, -64.0),
+                Vec3(-32.0, -32.0, -64.0),
+            };
+            const Vec3::List bottomPolygon { // B
+                Vec3(-32.0, -32.0, -64.0),
+                Vec3(-32.0, +32.0, -64.0),
+                Vec3( +0.0, +32.0, -64.0),
+                Vec3( +0.0, -32.0, -64.0),
+            };
+            const Vec3::List bottomRightPolygon { // C
+                Vec3( +0.0, -32.0, -64.0),
+                Vec3( +0.0, +32.0, -64.0),
+                Vec3(+32.0, +32.0,  +0.0),
+                Vec3(+32.0, -32.0,  +0.0),
+            };
+            
+            using VectorUtils::concatenate;
+            const Vec3::List vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            EXPECT_TRUE(brush->hasFace(Polygon3(leftPolygon)));
+            EXPECT_TRUE(brush->hasFace(Polygon3(bottomPolygon)));
+            EXPECT_TRUE(brush->hasFace(Polygon3(bottomRightPolygon)));
+            
+            EXPECT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,63)));
+            EXPECT_FALSE(brush->canMoveFaces(worldBounds, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,64))); // Merges B and C
+            
+            delete brush;
+        }
+
+        
         TEST(BrushTest, moveFaceFailure) {
             // https://github.com/kduske/TrenchBroom/issues/1499
             
