@@ -838,8 +838,7 @@ namespace TrenchBroom {
                 return false;
             
             for (const Edge3& edge : edgePositions) {
-                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
-                if (!result.second.hasEdge(newEdge.start(), newEdge.end()))
+                if (!result.second.hasEdge(edge.start() + delta, edge.end() + delta))
                     return false;
             }
             
@@ -883,8 +882,7 @@ namespace TrenchBroom {
                 return false;
             
             for (const Polygon3& face : facePositions) {
-                const Polygon3 newFace(face.vertices() + delta);
-                if (!result.second.hasFace(newFace.vertices()))
+                if (!result.second.hasFace(face.vertices() + delta))
                     return false;
             }
             
