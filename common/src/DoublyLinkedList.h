@@ -279,10 +279,10 @@ public:
         other.m_size = 0;
         other.m_version += 1;
     }
-private:
+public:
     // Copying is not allowed since this is an intrusive list.
-    DoublyLinkedList(const DoublyLinkedList& other) {}
-    DoublyLinkedList& operator=(const DoublyLinkedList& other) {}
+    DoublyLinkedList(const DoublyLinkedList& other) = delete;
+    DoublyLinkedList& operator=(const DoublyLinkedList& other) = delete;
 public:
     bool empty() const {
         return m_size == 0;
