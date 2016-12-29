@@ -185,7 +185,7 @@ namespace TrenchBroom {
                 BrushGeometry geometry;
                 
             private:
-                CanMoveVerticesResult(bool s, const BrushGeometry& g) : success(s), geometry(g) {}
+                CanMoveVerticesResult(const bool s, const BrushGeometry& g) : success(s), geometry(g) {}
                 
             public:
                 static CanMoveVerticesResult rejectVertexMove() {
