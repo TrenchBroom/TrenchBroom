@@ -356,9 +356,9 @@ namespace TrenchBroom {
             m_restricter = restricter;
             if (resetInitialPoint) {
                 assertResult(m_restricter->hitPoint(inputState, m_initialPoint));
-            } else {
-                doMouseDrag(inputState);
+                m_curPoint = m_lastPoint = m_initialPoint;
             }
+            doMouseDrag(inputState);
         }
         
         void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper) {
