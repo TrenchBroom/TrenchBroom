@@ -1496,7 +1496,7 @@ namespace TrenchBroom {
             
             // Make edge poke through the top face
             assertCanNotMoveFaces(brush, movingFaces, Vec3(-192, 0, -128));
-            assertCanMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(-192, 0, -128));
+            assertCanNotMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(-192, 0, -128));
             
             delete brush;
         }
