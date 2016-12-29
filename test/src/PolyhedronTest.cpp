@@ -107,6 +107,40 @@ TEST(PolyhedronTest, copy) {
     ASSERT_EQ(original, copy);
 }
 
+TEST(PolyhedronTest, swap) {
+    const Vec3d p1( 0.0, 0.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    
+    Polyhedron3d original;
+    original.addPoint(p1);
+    original.addPoint(p2);
+    original.addPoint(p3);
+    original.addPoint(p4);
+
+    Polyhedron3d other;
+    other.addPoint(p2);
+    other.addPoint(p3);
+    other.addPoint(p4);
+    
+    Polyhedron3d lhs = original;
+    Polyhedron3d rhs = other;
+    
+    // Just to be sure...
+    assert(lhs == original);
+    assert(rhs == other);
+    
+    using std::swap;
+    swap(lhs, rhs);
+    
+    ASSERT_EQ(other, lhs);
+    ASSERT_EQ(original, rhs);
+    
+    ASSERT_EQ(other.bounds(), lhs.bounds());
+    ASSERT_EQ(original.bounds(), rhs.bounds());
+}
+
 TEST(PolyhedronTest, convexHullWithFailingPoints) {
     const Vec3d p1(-64.0,    -45.5049, -34.4752);
     const Vec3d p2(-64.0,    -43.6929, -48.0);
