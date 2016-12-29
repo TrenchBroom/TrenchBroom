@@ -989,7 +989,7 @@ namespace TrenchBroom {
             if (!allowVertexRemoval) {
                 // All moving vertices must still be present in the result
                 for (const Vec3& movingVertex : moving.vertexPositions()) {
-                    if (result.findVertexByPosition(movingVertex + delta) == nullptr)
+                    if (!result.hasVertex(movingVertex + delta))
                         return rejectVertexMove();
                 }
             }
