@@ -1014,12 +1014,8 @@ namespace TrenchBroom {
                         face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
                         const Ray3 ray(oldPos, (newPos - oldPos).normalized());
                         const FloatType distance = face->intersectWithRay(ray, Math::Side_Back);
-                        if (!Math::isnan(distance)) {
-                            const FloatType distance2 = distance * distance;
-                            const FloatType oldToNew2 = (newPos - oldPos).squaredLength();
-                            if (distance2 <= oldToNew2)
-                                return CanMoveVerticesResult::rejectVertexMove();
-                        }
+                        if (!Math::isnan(distance))
+                            return CanMoveVerticesResult::rejectVertexMove();
                     }
                 }
             }
