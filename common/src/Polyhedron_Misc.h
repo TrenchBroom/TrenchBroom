@@ -164,6 +164,18 @@ Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions, Callback& call
 }
 
 template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
+    Copy copy(other.faces(), other.edges(), other.vertices(), *this);
+}
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(Polyhedron<T,FP,VP>&& other) :
+m_vertices(std::move(other.m_vertices)),
+m_edges(std::move(other.m_edges)),
+m_faces(std::move(other.m_faces)),
+m_bounds(std::move(other.m_bounds)) {}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
     addPoint(p1, callback);
     addPoint(p2, callback);
@@ -426,11 +438,6 @@ private:
         m_destination.updateBounds();
     }
 };
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
-    Copy copy(other.faces(), other.edges(), other.vertices(), *this);
-}
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::~Polyhedron() {

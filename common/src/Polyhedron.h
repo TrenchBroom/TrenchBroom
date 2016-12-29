@@ -294,14 +294,16 @@ public: // Constructors
     Polyhedron(const typename V::Set& positions, Callback& callback);
 
     Polyhedron(const Polyhedron<T,FP,VP>& other);
+    Polyhedron(Polyhedron<T,FP,VP>&& other);
 private: // Constructor helpers
     void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
     void setBounds(const BBox<T,3>& bounds, Callback& callback);
-private: // Copy constructor
+private: // Copy helper
     class Copy;
 public: // Destructor
     virtual ~Polyhedron();
 public: // operators
+    // Implements both copy and move assignment.
     Polyhedron<T,FP,VP>& operator=(Polyhedron<T,FP,VP> other);
 public: // swap function
     friend void swap(Polyhedron<T,FP,VP>& first, Polyhedron<T,FP,VP>& second) {
@@ -309,6 +311,7 @@ public: // swap function
         swap(first.m_vertices, second.m_vertices);
         swap(first.m_edges, second.m_edges);
         swap(first.m_faces, second.m_faces);
+        swap(first.m_bounds, second.m_bounds);
     }
 public: // Operators
     bool operator==(const Polyhedron& other) const;
