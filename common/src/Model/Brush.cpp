@@ -832,7 +832,7 @@ namespace TrenchBroom {
             ensure(!edgePositions.empty(), "no edge positions");
 
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
-            CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            const CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
 
             if (!result.success)
                 return false;
@@ -876,7 +876,7 @@ namespace TrenchBroom {
             ensure(!facePositions.empty(), "no face positions");
             
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
-            CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            const CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
             
             if (!result.success)
                 return false;
