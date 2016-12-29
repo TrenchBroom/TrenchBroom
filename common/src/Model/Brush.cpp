@@ -698,7 +698,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, const Vec3& delta) const {
-            return doCanMoveVertices(worldBounds, vertices, delta, true);
+            return doCanMoveVertices(worldBounds, vertices, delta, true).first;
         }
         
         Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
@@ -832,7 +832,18 @@ namespace TrenchBroom {
             ensure(!edgePositions.empty(), "no edge positions");
 
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
-            return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            std::pair<bool, BrushGeometry> result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+
+            if (!result.first)
+                return false;
+            
+            for (const Edge3& edge : edgePositions) {
+                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
+                if (!result.second.hasEdge(newEdge.start(), newEdge.end()))
+                    return false;
+            }
+            
+            return true;
         }
         
         Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
@@ -866,7 +877,18 @@ namespace TrenchBroom {
             ensure(!facePositions.empty(), "no face positions");
             
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
-            return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            std::pair<bool, BrushGeometry> result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            
+            if (!result.first)
+                return false;
+            
+            for (const Polygon3& face : facePositions) {
+                const Polygon3 newFace(face.vertices() + delta);
+                if (!result.second.hasFace(newFace.vertices()))
+                    return false;
+            }
+            
+            return true;
         }
         
         Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
@@ -893,6 +915,14 @@ namespace TrenchBroom {
         
         Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
             return addVertex(worldBounds, facePosition.center() + delta)->position();
+        }
+        
+        static std::pair<bool, BrushGeometry> rejectVertexMove() {
+            return std::make_pair(false, BrushGeometry());
+        }
+        
+        static std::pair<bool, BrushGeometry> acceptVertexMove(BrushGeometry result) {
+            return std::make_pair(true, result);
         }
         
         /*
@@ -922,10 +952,10 @@ namespace TrenchBroom {
          If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
          
          */
-        bool Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
+        std::pair<bool, BrushGeometry> Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
             if (vertices.empty() || delta.null())
-                return false;
+                return rejectVertexMove();
 
             const Vec3::Set vertexSet(std::begin(vertices), std::end(vertices));
             
@@ -954,43 +984,29 @@ namespace TrenchBroom {
             
             // Special case, takes care of the first column.
             if (moving.vertexCount() == vertexCount())
-                return true;
+                return acceptVertexMove(result);
             
             // Will vertices be removed?
             if (!allowVertexRemoval) {
                 // All moving vertices must still be present in the result
                 for (const Vec3& movingVertex : moving.vertexPositions()) {
                     if (result.findVertexByPosition(movingVertex + delta) == nullptr)
-                        return false;
-                }
-                
-                // Additionally, for polygons, they must still be present in the result with the same vertex order (same face normal)
-                if (moving.polygon()) {
-                    const Vec3::List newFaceVertexPositions(moving.faces().front()->vertexPositions() + delta);
-                    if (nullptr == result.findFaceByPositions(newFaceVertexPositions))
-                        return false;
-                }
-                
-                if (moving.edge()) {
-                    BrushGeometry::Edge* movingEdge = moving.edges().front();                    
-                    if (!result.hasEdge(movingEdge->firstVertex()->position() + delta,
-                                        movingEdge->secondVertex()->position() + delta))
-                        return false;
+                        return rejectVertexMove();
                 }
             }
             
             // Will the result go out of world bounds?
             if (!worldBounds.contains(result.bounds()))
-                return false;
+                return rejectVertexMove();
             
             // Will the brush become invalid?
             if (!result.polyhedron())
-                return false;
+                return rejectVertexMove();
             
             // One of the remaining two ok cases?
             if ((moving.point() && remaining.polygon()) ||
                 (moving.edge() && remaining.edge()))
-                return true;
+                return acceptVertexMove(result);
             
             // Invert if necessary.
             if (remaining.point() || remaining.edge() || (remaining.polygon() && moving.polyhedron())) {
@@ -1018,13 +1034,13 @@ namespace TrenchBroom {
                             const FloatType distance2 = distance * distance;
                             const FloatType oldToNew2 = (newPos - oldPos).squaredLength();
                             if (distance2 <= oldToNew2)
-                                return false;
+                                return rejectVertexMove();
                         }
                     }
                 }
             }
             
-            return true;
+            return acceptVertexMove(result);
         }
 
         void Brush::doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
