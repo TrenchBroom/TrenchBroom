@@ -948,7 +948,6 @@ namespace TrenchBroom {
          invert - This case is handled by swapping the remaining and the moving fragments and inverting the delta. This takes us from a cell at (column, row) to the cell at (row, column).
          check  - Check whether any of the moved vertices would travel through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
          
-         If `allowVertexRemoval` is false, moving a face in a way that would flip its normal will return `false`
          If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
          
          */
