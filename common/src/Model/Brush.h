@@ -179,7 +179,25 @@ namespace TrenchBroom {
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
-            std::pair<bool, BrushGeometry> doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
+            struct CanMoveVerticesResult {
+            public:
+                bool success;
+                BrushGeometry geometry;
+                
+            private:
+                CanMoveVerticesResult(bool s, BrushGeometry g) : success(s), geometry(g) {}
+                
+            public:
+                static CanMoveVerticesResult rejectVertexMove() {
+                    return CanMoveVerticesResult(false, BrushGeometry());
+                }
+                
+                static CanMoveVerticesResult acceptVertexMove(BrushGeometry result) {
+                    return CanMoveVerticesResult(true, result);
+                }
+            };
+            
+            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
         public:
             // CSG operations
