@@ -21,10 +21,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TokenizerState::TokenizerState(const char* begin, const char* end) :
+        TokenizerState::TokenizerState(const char* begin, const char* end, const char escapeChar) :
         m_begin(begin),
         m_cur(m_begin),
         m_end(end),
+        m_escapeChar(escapeChar),
         m_line(1),
         m_column(1),
         m_escaped(false) {}
@@ -94,13 +95,12 @@ namespace TrenchBroom {
                     m_column = 1;
                     m_escaped = false;
                     break;
-                case '\\':
-                    ++m_column;
-                    m_escaped = !m_escaped;
-                    break;
                 default:
                     ++m_column;
-                    m_escaped = false;
+                    if (curChar() == m_escapeChar)
+                        m_escaped = !m_escaped;
+                    else
+                        m_escaped = false;
                     break;
             }
             ++m_cur;
