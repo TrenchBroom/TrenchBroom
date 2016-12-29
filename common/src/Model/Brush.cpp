@@ -1014,16 +1014,11 @@ namespace TrenchBroom {
                 delta = -delta;
             }
 
-            // Now check if any of the moving vertices would travel through the remaining fragment.
+            // Now check if any of the moving vertices would travel through the remaining fragment and out the other side.
             for (const BrushVertex* vertex : moving.vertices()) {
                 const Vec3& oldPos = vertex->position();
                 const Vec3 newPos = oldPos + delta;
-                
-                // Skip moving vertices that end up inside the remaining fragment.
-                // These are handled in the allowVertexRemoval section above.
-                if (remaining.contains(newPos))
-                    continue;
-                
+
                 for (const BrushFaceGeometry* face : remaining.faces()) {
                     if (face->pointStatus(oldPos) == Math::PointStatus::PSBelow &&
                         face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
