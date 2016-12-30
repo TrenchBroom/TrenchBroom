@@ -121,11 +121,11 @@ namespace TrenchBroom {
         
         class ChoiceAttributeDefinition : public AttributeDefinitionWithDefaultValue<size_t> {
         private:
-            ChoiceAttributeOption::List m_options;
+            ChoiceAttributeOption::Array m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue);
-            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options);
-            const ChoiceAttributeOption::List& options() const;
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options, const size_t defaultValue);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options);
+            const ChoiceAttributeOption::Array& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const;
         };
@@ -149,13 +149,13 @@ namespace TrenchBroom {
     
         class FlagsAttributeDefinition : public AttributeDefinition {
         private:
-            FlagsAttributeOption::List m_options;
+            FlagsAttributeOption::Array m_options;
         public:
             FlagsAttributeDefinition(const String& name, const int defaultValue);
             FlagsAttributeDefinition(const String& name);
 
             int defaultValue() const;
-            const FlagsAttributeOption::List& options() const;
+            const FlagsAttributeOption::Array& options() const;
             const FlagsAttributeOption* option(const int value) const;
             void addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
         private:
