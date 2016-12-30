@@ -113,11 +113,11 @@ namespace StringUtils {
         return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle),  CharEqual<CaseInsensitiveCharCompare>()) != std::end(haystack);
     }
     
-    void sortCaseSensitive(StringList& strs) {
+    void sortCaseSensitive(StringArray& strs) {
         std::sort(std::begin(strs), std::end(strs), StringLess<CaseSensitiveCharCompare>());
     }
     
-    void sortCaseInsensitive(StringList& strs) {
+    void sortCaseInsensitive(StringArray& strs) {
         std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
     }
     
@@ -270,12 +270,12 @@ namespace StringUtils {
         return static_cast<size_t>(longValue);
     }
     
-    StringList splitAndUnescape(const String& str, const char d) {
+    StringArray splitAndUnescape(const String& str, const char d) {
         StringStream escapedStr;
         escapedStr << d << '\\';
         const String escaped = escapedStr.str();
         
-        StringList result;
+        StringArray result;
         char l = 0;
         char ll = 0;
         size_t li = 0;
@@ -297,7 +297,7 @@ namespace StringUtils {
         return result;
     }
     
-    String escapeAndJoin(const StringList& strs, const char d) {
+    String escapeAndJoin(const StringArray& strs, const char d) {
         StringStream escapedStr;
         escapedStr << d << '\\';
         const String escaped = escapedStr.str();
@@ -314,8 +314,8 @@ namespace StringUtils {
         return buffer.str();
     }
 
-    StringList makeList(const size_t count, const char* str1, ...) {
-        StringList result;
+    StringArray makeList(const size_t count, const char* str1, ...) {
+        StringArray result;
         result.reserve(count);
         result.push_back(str1);
         
