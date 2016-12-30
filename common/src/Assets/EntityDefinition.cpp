@@ -120,7 +120,7 @@ namespace TrenchBroom {
             }
         };
 
-        const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
+        const AttributeDefinitionArray& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
 
@@ -132,8 +132,8 @@ namespace TrenchBroom {
             return entityDefinition != NULL ? entityDefinition->attributeDefinition(attributeKey) : NULL;
         }
 
-        EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
-            EntityDefinitionList result;
+        EntityDefinitionArray EntityDefinition::filterAndSort(const EntityDefinitionArray& definitions, const EntityDefinition::Type type, const SortOrder order) {
+            EntityDefinitionArray result;
             
             for (EntityDefinition* definition : definitions) {
                 if (definition->type() == type)
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions) :
         m_index(0),
         m_name(name),
         m_color(color),
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionArray& attributeDefinitions, const ModelDefinition& modelDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             return m_modelDefinition;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions) {}
         
         EntityDefinition::Type BrushEntityDefinition::type() const {
