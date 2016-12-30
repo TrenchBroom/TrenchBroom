@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
 
         ColorRange::Type detectColorRange(const String& str);
-        ColorRange::Type detectColorRange(const StringList& components);
+        ColorRange::Type detectColorRange(const StringArray& components);
     }
 }
 
