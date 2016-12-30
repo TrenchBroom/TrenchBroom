@@ -34,11 +34,11 @@
 typedef std::string String;
 typedef std::stringstream StringStream;
 typedef std::set<String> StringSet;
-typedef std::vector<String> StringList;
+typedef std::vector<String> StringArray;
 typedef std::map<String, String> StringMap;
 
 static const String EmptyString("");
-static const StringList EmptyStringList(0);
+static const StringArray EmptyStringList(0);
 
 namespace StringUtils {
     struct CaseSensitiveCharCompare {
@@ -134,8 +134,8 @@ namespace StringUtils {
     
     bool containsCaseSensitive(const String& haystack, const String& needle);
     bool containsCaseInsensitive(const String& haystack, const String& needle);
-    void sortCaseSensitive(StringList& strs);
-    void sortCaseInsensitive(StringList& strs);
+    void sortCaseSensitive(StringArray& strs);
+    void sortCaseInsensitive(StringArray& strs);
     
     template <typename Cmp>
     bool isEqual(const String& str1, const String& str2, const Cmp& cmp) {
@@ -267,7 +267,7 @@ namespace StringUtils {
     size_t stringToSize(const String& str);
     
     template <typename D>
-    StringList split(const String& str, D d) {
+    StringArray split(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
         
@@ -278,7 +278,7 @@ namespace StringUtils {
         assert(last != String::npos);
         assert(first <= last);
         
-        StringList result;
+        StringArray result;
         
         size_t lastPos = first;
         size_t pos = lastPos;
@@ -292,7 +292,7 @@ namespace StringUtils {
     }
     
     template <typename D>
-    StringList splitAndTrim(const String& str, D d) {
+    StringArray splitAndTrim(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
         
@@ -303,7 +303,7 @@ namespace StringUtils {
         assert(last != String::npos);
         assert(first <= last);
         
-        StringList result;
+        StringArray result;
         
         size_t lastPos = first;
         size_t pos = lastPos;
@@ -360,7 +360,7 @@ namespace StringUtils {
         return join(objs, delim, delim, delim, toString);
     }
     
-    StringList splitAndUnescape(const String& str, char d);
+    StringArray splitAndUnescape(const String& str, char d);
     String escapeAndJoin(const StringList& strs, char d);
     
     struct StringToString {
@@ -376,16 +376,16 @@ namespace StringUtils {
     };
     
     template <typename D1, typename D2, typename D3>
-    String join(const StringList& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
+    String join(const StringArray& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
         return join(objs, delim, lastDelim, delimForTwo, StringToString());
     }
 
     template <typename D>
-    String join(const StringList& strs, const D& d) {
+    String join(const StringArray& strs, const D& d) {
         return join(strs, d, d, d);
     }
 
-    StringList makeList(size_t count, const char* str1, ...);
+    StringArray makeList(size_t count, const char* str1, ...);
     StringSet makeSet(size_t count, const char* str1, ...);
     
     template <typename Cmp>
