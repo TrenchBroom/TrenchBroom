@@ -38,7 +38,7 @@ deploy:
   description: 'release description'
   provider: GitHub
   auth_token:
-    secure: 'DI9UuWsliIJYydi6x5ykyg1X718YPyKnNG3eczUMggLF88UT9WARlmAOqXSpkWgs'
+    secure: 'xTcTfr+JiHlF5y4sSlB6so7fIGM1d+39JtNoaeeqtdEmucEqASb/xhs60ayi4mUm'
   draft: true
   prerelease: false
   on:
