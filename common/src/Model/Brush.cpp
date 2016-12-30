@@ -915,6 +915,16 @@ namespace TrenchBroom {
             return addVertex(worldBounds, facePosition.center() + delta)->position();
         }
         
+        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, const BrushGeometry& g) : success(s), geometry(g) {}
+        
+        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove() {
+            return CanMoveVerticesResult(false, BrushGeometry());
+        }
+        
+        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(const BrushGeometry& result) {
+            return CanMoveVerticesResult(true, result);
+        }
+        
         /*
          The following table shows all cases to consider.
          

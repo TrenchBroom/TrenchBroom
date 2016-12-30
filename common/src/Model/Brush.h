@@ -185,16 +185,11 @@ namespace TrenchBroom {
                 BrushGeometry geometry;
                 
             private:
-                CanMoveVerticesResult(const bool s, const BrushGeometry& g) : success(s), geometry(g) {}
+                CanMoveVerticesResult(bool s, const BrushGeometry& g);
                 
             public:
-                static CanMoveVerticesResult rejectVertexMove() {
-                    return CanMoveVerticesResult(false, BrushGeometry());
-                }
-                
-                static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result) {
-                    return CanMoveVerticesResult(true, result);
-                }
+                static CanMoveVerticesResult rejectVertexMove();
+                static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
             
             CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
