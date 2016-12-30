@@ -46,25 +46,25 @@ namespace TrenchBroom {
                 Texture* texture() const;
                 const VertexList& vertices() const;
             };
-            typedef std::vector<Face> FaceList;
+            typedef std::vector<Face> FaceArray;
         private:
             struct SubModel {
-                FaceList faces;
+                FaceArray faces;
                 BBox3f bounds;
-                SubModel(const FaceList& i_faces, const BBox3f& i_bounds);
+                SubModel(const FaceArray& i_faces, const BBox3f& i_bounds);
                 
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
             };
 
-            typedef std::vector<SubModel> SubModelList;
+            typedef std::vector<SubModel> SubModelArray;
             String m_name;
-            SubModelList m_subModels;
+            SubModeArray m_subModels;
             TextureCollection* m_textureCollection;
         public:
             Bsp29Model(const String& name, TextureCollection* textureCollection);
             ~Bsp29Model();
             
-            void addModel(const FaceList& faces, const BBox3f& bounds);
+            void addModel(const FaceArray& faces, const BBox3f& bounds);
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
