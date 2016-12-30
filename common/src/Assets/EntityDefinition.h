@@ -51,7 +51,7 @@ namespace TrenchBroom {
             Color m_color;
             String m_description;
             size_t m_usageCount;
-            AttributeDefinitionList m_attributeDefinitions;
+            AttributeDefinitionArray m_attributeDefinitions;
         public:
             Notifier0 usageCountDidChangeNotifier;
         public:
@@ -71,14 +71,14 @@ namespace TrenchBroom {
             void decUsageCount();
             
             const FlagsAttributeDefinition* spawnflags() const;
-            const AttributeDefinitionList& attributeDefinitions() const;
+            const AttributeDefinitionArray& attributeDefinitions() const;
             const AttributeDefinition* attributeDefinition(const Model::AttributeName& attributeKey) const;
             
             static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeKey);
 
-            static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
+            static EntityDefinitionArray filterAndSort(const EntityDefinitionArray& definitions, EntityDefinition::Type type, SortOrder prder = Name);
         protected:
-            EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
+            EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions);
         };
         
         class PointEntityDefinition : public EntityDefinition {
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             BBox3 m_bounds;
             ModelDefinition m_modelDefinition;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
+            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionArray& attributeDefinitions, const ModelDefinition& modelDefinition);
             
             Type type() const;
             const BBox3& bounds() const;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
     
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
+            BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions);
             Type type() const;
         };
     }
