@@ -136,26 +136,41 @@ namespace TrenchBroom {
         }
 
         void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const {
-            const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
+            wxArrayString defaultLabels;
             
+            // Initialize the labels and tooltips.
             for (size_t i = 0; i < NumFlags; ++i) {
-                wxString label;
-                wxString tooltip;
-                if (definition != NULL) {
-                    const Assets::FlagsAttributeDefinition* flagDefs = definition->spawnflags();
-                    
-                    const Assets::FlagsAttributeOption* flagDef = flagDefs != NULL ? flagDefs->option(static_cast<int>(1 << i)) : NULL;
+                wxString defaultLabel;
+                defaultLabel << (1 << i);
+
+                defaultLabels.push_back(defaultLabel);
+                labels.push_back(defaultLabel);
+                tooltips.push_back("");
+            }
+
+            for (size_t i = 0; i < NumFlags; ++i) {
+                bool firstPass = true;
+                for (const Model::AttributableNode* attributable : attributables) {
+                    wxString label = defaultLabels[i];
+                    wxString tooltip = "";
+
+                    const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
                     if (flagDef != NULL) {
-                        label << flagDef->shortDescription();
-                        tooltip << flagDef->longDescription();
-                    } else {
-                        label << (1 << i);
+                        label = flagDef->shortDescription();
+                        tooltip = flagDef->longDescription();
                     }
-                } else {
-                    label << (1 << i);
+                    
+                    if (firstPass) {
+                        labels[i] = label;
+                        tooltips[i] = tooltip;
+                        firstPass = false;
+                    } else {
+                        if (labels[i] != label) {
+                            labels[i] = defaultLabels[i];
+                            tooltips[i] = "";
+                        }
+                    }
                 }
-                labels.push_back(label);
-                tooltips.push_back(tooltip);
             }
         }
 

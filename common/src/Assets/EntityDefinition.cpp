@@ -128,10 +128,27 @@ namespace TrenchBroom {
             return VectorUtils::findIf(m_attributeDefinitions, FindAttributeDefinitionByName(attributeKey)).get();
         }
 
-        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeKey) {
-            return entityDefinition != NULL ? entityDefinition->attributeDefinition(attributeKey) : NULL;
+        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName) {
+            if (entityDefinition == nullptr)
+                return nullptr;
+            return entityDefinition->attributeDefinition(attributeName);
         }
 
+        const FlagsAttributeDefinition* EntityDefinition::safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition) {
+            if (entityDefinition == nullptr)
+                return nullptr;
+            return entityDefinition->spawnflags();
+        }
+
+        const FlagsAttributeOption* EntityDefinition::safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, const size_t flagIndex) {
+            const Assets::FlagsAttributeDefinition* flagDefinition = safeGetSpawnflagsAttributeDefinition(entityDefinition);
+            if (flagDefinition == nullptr)
+                return nullptr;
+            
+            const int flag = static_cast<int>(1 << flagIndex);
+            return flagDefinition->option(flag);
+        }
+        
         EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
             EntityDefinitionList result;
             

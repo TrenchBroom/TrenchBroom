@@ -176,38 +176,42 @@ namespace TrenchBroom {
             
             for (const Model::AttributableNode* attributable : attributables) {
                 for (const Model::EntityAttribute& attribute : attributable->attributes()) {
-                    const Assets::AttributeDefinition* attributeDefinition = attribute.definition();
+                    const Model::AttributeName& name = attribute.name();
+                    const Model::AttributeValue& value = attribute.value();
+                    const Assets::AttributeDefinition* definition = attribute.definition();
                     
                     const bool nameMutable = attributable->isAttributeNameMutable(attribute.name());
                     const bool valueMutable = attributable->isAttributeValueMutable(attribute.value());
                     
-                    AttributeRow::List::iterator rowIt = findRow(m_rows, attribute.name());
-                    if (rowIt != std::end(m_rows)) {
-                        rowIt->merge(attribute.value(), nameMutable, valueMutable);
-                    } else {
-                        const String tooltip = Assets::AttributeDefinition::safeFullDescription(attributeDefinition);
-                        m_rows.push_back(AttributeRow(attribute.name(), attribute.value(),
-                                                      nameMutable, valueMutable,
-                                                      tooltip, false, attributables.size()));
-                    }
+                    addAttribute(name, value, definition, nameMutable, valueMutable, false, attributables.size());
                 }
             }
             
             if (showDefaultRows) {
-                const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
-                if (definition != NULL) {
-                    for (Assets::AttributeDefinitionPtr propertyDef : definition->attributeDefinitions()) {
-                        const String& name = propertyDef->name();
-                        
-                        if (findRow(m_rows, name) != std::end(m_rows))
-                            continue;
-                        
-                        const String value = Assets::AttributeDefinition::defaultValue(*propertyDef);
-                        const String tooltip = Assets::AttributeDefinition::safeFullDescription(propertyDef.get());
-                        m_rows.push_back(AttributeRow(name, value, false, true, tooltip, true, attributables.size()));
-                        ++m_defaultRowCount;
+                for (const Model::AttributableNode* attributable : attributables) {
+                    const Assets::EntityDefinition* entityDefinition = attributable->definition();
+                    if (entityDefinition != NULL) {
+                        for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
+                            const String& name = attributeDefinition->name();
+                            if (findRow(m_rows, name) != std::end(m_rows))
+                                continue;
+                            
+                            const String value = Assets::AttributeDefinition::defaultValue(*attributeDefinition.get());
+                            addAttribute(name, value, attributeDefinition.get(), false, true, true, attributables.size());
+                            ++m_defaultRowCount;
+                        }
                     }
                 }
+            }
+        }
+        
+        void EntityAttributeGridTable::RowManager::addAttribute(const Model::AttributeName& name, const Model::AttributeValue& value, const Assets::AttributeDefinition* definition, const bool nameMutable, const bool valueMutable, const bool isDefault, const size_t index) {
+            AttributeRow::List::iterator rowIt = findRow(m_rows, name);
+            if (rowIt != std::end(m_rows)) {
+                rowIt->merge(value, nameMutable, valueMutable);
+            } else {
+                const String tooltip = Assets::AttributeDefinition::safeFullDescription(definition);
+                m_rows.push_back(AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault, index));
             }
         }
 

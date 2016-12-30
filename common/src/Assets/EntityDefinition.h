@@ -32,6 +32,7 @@ namespace TrenchBroom {
     namespace Assets {
         class AttributeDefinition;
         class FlagsAttributeDefinition;
+        class FlagsAttributeOption;
         class ModelDefinition;
         
         class EntityDefinition {
@@ -74,7 +75,9 @@ namespace TrenchBroom {
             const AttributeDefinitionList& attributeDefinitions() const;
             const AttributeDefinition* attributeDefinition(const Model::AttributeName& attributeKey) const;
             
-            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeKey);
+            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName);
+            static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
+            static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
 
             static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
         protected:
