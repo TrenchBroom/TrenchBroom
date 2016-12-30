@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return m_vertices;
         }
 
-        Bsp29Model::SubModel::SubModel(const FaceList& i_faces, const BBox3f& i_bounds) :
+        Bsp29Model::SubModel::SubModel(const FaceArray& i_faces, const BBox3f& i_bounds) :
         faces(i_faces),
         bounds(i_bounds) {}
 
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             m_textureCollection = NULL;
         }
         
-        void Bsp29Model::addModel(const FaceList& faces, const BBox3f& bounds) {
+        void Bsp29Model::addModel(const FaceArray& faces, const BBox3f& bounds) {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
