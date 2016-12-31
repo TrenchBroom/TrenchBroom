@@ -33,7 +33,7 @@ namespace TrenchBroom {
         Palette::Data::Data(const size_t size, unsigned char* data) :
         m_size(size),
         m_data(data) {
-            assert(m_size > 0);
+            ensure(m_size > 0, "size is 0");
             ensure(m_data != NULL, "data is null");
         }
         
