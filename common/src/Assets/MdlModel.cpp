@@ -35,7 +35,7 @@ namespace TrenchBroom {
             m_times.push_back(0.0f);
         }
         
-        MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeList& times) :
+        MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeArray& times) :
         m_textures(textures),
         m_times(times) {
             assert(textures.size() == times.size());
