@@ -33,7 +33,7 @@ private:
     typedef std::shared_ptr<InternalBuffer> InternalBufferPtr;
     InternalBufferPtr m_buffer;
 public:
-    typedef std::vector<Buffer<T> > List;
+    typedef std::vector<Buffer<T> > Array;
     
     Buffer(const size_t size = 0) :
     m_buffer(new InternalBuffer()) {
