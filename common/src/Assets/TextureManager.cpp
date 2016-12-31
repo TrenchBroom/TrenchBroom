@@ -58,7 +58,7 @@ namespace TrenchBroom {
             clear();
         }
         
-        void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
+        void TextureManager::setTextureCollections(const IO::Path::Array& paths, IO::TextureLoader& loader) {
             TextureCollectionMap collections = collectionMap();
             m_collections.clear();
             clear();
@@ -142,8 +142,8 @@ namespace TrenchBroom {
             return m_collections;
         }
         
-        const StringList TextureManager::collectionNames() const {
-            StringList result;
+        const StringArray TextureManager::collectionNames() const {
+            StringArray result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
                            [](const TextureCollection* collection) { return collection->name(); });
