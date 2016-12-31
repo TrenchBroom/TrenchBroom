@@ -61,7 +61,7 @@ namespace TrenchBroom {
             TextureManager(Logger* logger, int minFilter, int magFilter);
             ~TextureManager();
 
-            void setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader);
+            void setTextureCollections(const IO::Path::Array& paths, IO::TextureLoader& loader);
         private:
             TextureCollectionMap collectionMap() const;
             void addTextureCollection(Assets::TextureCollection* collection);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             Texture* texture(const String& name) const;
             const TextureList& textures() const;
             const TextureCollectionList& collections() const;
-            const StringList collectionNames() const;
+            const StringArray collectionNames() const;
         private:
             void resetTextureMode();
             void prepare();
