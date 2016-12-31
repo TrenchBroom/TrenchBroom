@@ -36,7 +36,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status) {
             using std::swap;
             
-            EntityDefinitionList newDefinitions = loader.loadEntityDefinitions(status, path);
+            EntityDefinitionArray newDefinitions = loader.loadEntityDefinitions(status, path);
             std::swap(m_definitions, newDefinitions);
             VectorUtils::clearAndDelete(newDefinitions);
             
@@ -64,11 +64,11 @@ namespace TrenchBroom {
             return it->second;
         }
 
-        EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        EntityDefinitionArray EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
         
-        const EntityDefinitionGroup::List& EntityDefinitionManager::groups() const {
+        const EntityDefinitionGroup::Array& EntityDefinitionManager::groups() const {
             return m_groups;
         }
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
             
-            typedef std::map<String, EntityDefinitionList> GroupMap;
+            typedef std::map<String, EntityDefinitionArray> GroupMap;
             GroupMap groupMap;
             
             for (size_t i = 0; i < m_definitions.size(); ++i) {
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             
             for (const auto& entry : groupMap) {
                 const String& groupName = entry.first;
-                const EntityDefinitionList& definitions = entry.second;
+                const EntityDefinitionArray& definitions = entry.second;
                 m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
             }
         }
