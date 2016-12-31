@@ -241,6 +241,13 @@ void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
 }
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeVertexByPosition(const V& position) {
+    Vertex* vertex = findVertexByPosition(position);
+    ensure(vertex != nullptr, "couldn't find vertex to remove");
+    removeVertex(vertex);
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::merge(const Polyhedron& other) {
     Callback c;
     merge(other, c);

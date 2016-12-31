@@ -954,6 +954,553 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        static void assertCanMoveEdges(const Brush* brush, const Edge3::List edges, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            
+            Edge3::List expectedMovedEdges;
+            for (const Edge3& edge : edges) {
+                expectedMovedEdges.push_back(Edge3(edge.start() + delta, edge.end() + delta));
+            }
+            
+            ASSERT_TRUE(brush->canMoveEdges(worldBounds, edges, delta));
+            
+            Brush* brushClone = brush->clone(worldBounds);
+            const Edge3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
+            
+            ASSERT_EQ(expectedMovedEdges, movedEdges);
+            
+            delete brushClone;
+        }
+        
+        static void assertCanNotMoveEdges(const Brush* brush, const Edge3::List edges, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
+        }
+        
+        static void assertCanMoveFaces(const Brush* brush, const Polygon3::List movingFaces, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            
+            Polygon3::List expectedMovedFaces;
+            for (const Polygon3& polygon : movingFaces) {
+                expectedMovedFaces.push_back(Polygon3(polygon.vertices() + delta));
+            }
+            
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, movingFaces, delta));
+                
+            Brush* brushClone = brush->clone(worldBounds);
+            const Polygon3::List movedFaces = brushClone->moveFaces(worldBounds, movingFaces, delta);
+            
+            ASSERT_EQ(expectedMovedFaces, movedFaces);
+            
+            delete brushClone;
+        }
+        
+        static void assertCanNotMoveFaces(const Brush* brush, const Polygon3::List movingFaces, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, movingFaces, delta));
+        }
+        
+        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+            assertCanMoveFaces(brush, Polygon3::List { topFace->polygon() }, delta);
+        }
+        
+        static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            
+            ASSERT_NE(nullptr, topFace);
+
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, Polygon3::List { topFace->polygon() }, delta));
+        }
+        
+        static void assertCanMoveTopFace(const Brush* brush, const Vec3 delta) {
+            assertCanMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
+        }
+        
+        static void assertCanNotMoveTopFace(const Brush* brush, const Vec3 delta) {
+            assertCanNotMoveFace(brush, brush->findFace(Vec3::PosZ), delta);
+        }
+        
+        static void assertCanNotMoveTopFaceBeyond127UnitsDown(Brush *brush) {
+            assertCanMoveTopFace(brush, Vec3(0, 0, -127));
+            assertCanNotMoveTopFace(brush, Vec3(0, 0, -128));
+            assertCanNotMoveTopFace(brush, Vec3(0, 0, -129));
+            
+            assertCanMoveTopFace(brush, Vec3(256, 0, -127));
+            assertCanNotMoveTopFace(brush, Vec3(256, 0, -128));
+            assertCanNotMoveTopFace(brush, Vec3(256, 0, -129));
+        }
+        
+        static void assertCanMoveVertices(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
+            
+            Brush* brushClone = brush->clone(worldBounds);
+            
+            // These are returned in no particular order.. need to move into Vec3::Set for assertion
+            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            
+            const Vec3::Set movedVerticesSet(movedVertexPositions.begin(), movedVertexPositions.end());
+            const Vec3::List expectedList(vertexPositions + delta);
+            const Vec3::Set expectedSet(expectedList.begin(), expectedList.end());
+            
+            ASSERT_EQ(expectedSet, movedVerticesSet);
+            
+            delete brushClone;
+        }
+        
+        static void assertMovingVerticesDeletes(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
+            
+            Brush* brushClone = brush->clone(worldBounds);
+            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            
+            ASSERT_EQ(Vec3::List(), movedVertexPositions);
+            
+            delete brushClone;
+        }
+        
+        static void assertCanNotMoveVertices(const Brush* brush, const Vec3::List vertexPositions, const Vec3 delta) {
+            const BBox3 worldBounds(4096.0);
+            ASSERT_FALSE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
+        }
+        
+        static void assertCanMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertCanMoveVertices(brush, Vec3::List { vertexPosition }, delta);
+        }
+        
+        static void assertMovingVertexDeletes(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertMovingVerticesDeletes(brush, Vec3::List { vertexPosition }, delta);
+        }
+        
+        static void assertCanNotMoveVertex(const Brush* brush, const Vec3 vertexPosition, const Vec3 delta) {
+            assertCanNotMoveVertices(brush, Vec3::List { vertexPosition }, delta);
+        }
+        
+        // "Move point" tests
+        
+        // NOTE: Different than movePolygonRemainingPoint, because in this case we allow
+        // point moves that flip the normal of the remaining polygon
+        TEST(BrushTest, movePointRemainingPolygon) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3 peakPosition(  0.0,   0.0, +64.0);
+            const Vec3::List baseQuadVertexPositions {
+                Vec3(-64.0, -64.0, -64.0), // base quad
+                Vec3(-64.0, +64.0, -64.0),
+                Vec3(+64.0, +64.0, -64.0),
+                Vec3(+64.0, -64.0, -64.0)
+            };
+            const Vec3::List vertexPositions = VectorUtils::concatenate(Vec3::List { peakPosition }, baseQuadVertexPositions);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
+            
+            // More detailed testing of the last assertion
+            {
+                Vec3::List temp(baseQuadVertexPositions);
+                std::reverse(temp.begin(), temp.end());
+                const Vec3::List flippedBaseQuadVertexPositions(temp);
+                
+                const Vec3 delta(0.0, 0.0, -129.0);
+                Brush* brushClone = brush->clone(worldBounds);
+                
+                ASSERT_EQ(5u, brushClone->faceCount());
+                ASSERT_TRUE(brushClone->findFace(Polygon3(baseQuadVertexPositions)));
+                ASSERT_FALSE(brushClone->findFace(Polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_NE(nullptr, brushClone->findFace(Vec3::NegZ));
+                ASSERT_EQ(nullptr, brushClone->findFace(Vec3::PosZ));
+                
+                ASSERT_TRUE(brushClone->canMoveVertices(worldBounds, Vec3::List { peakPosition }, delta));
+                ASSERT_EQ(Vec3::List { peakPosition + delta }, brushClone->moveVertices(worldBounds, Vec3::List { peakPosition }, delta));
+                
+                ASSERT_EQ(5u, brushClone->faceCount());
+                ASSERT_FALSE(brushClone->findFace(Polygon3(baseQuadVertexPositions)));
+                ASSERT_TRUE(brushClone->findFace(Polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_EQ(nullptr, brushClone->findFace(Vec3::NegZ));
+                ASSERT_NE(nullptr, brushClone->findFace(Vec3::PosZ));
+                
+                delete brushClone;
+            }
+            
+            assertCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, Vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePointRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3 peakPosition(  0.0,   0.0, 128.0);
+            const Vec3::List vertexPositions {
+                Vec3(-64.0, -64.0,   0.0), // base quad
+                Vec3(-64.0, +64.0,   0.0),
+                Vec3(+64.0, +64.0,   0.0),
+                Vec3(+64.0, -64.0,   0.0),
+                Vec3(-64.0, -64.0,  64.0), // upper quad
+                Vec3(-64.0, +64.0,  64.0),
+                Vec3(+64.0, +64.0,  64.0),
+                Vec3(+64.0, -64.0,  64.0),
+                peakPosition
+            };
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            assertMovingVertexDeletes(brush, peakPosition, Vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
+            assertCanMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
+            assertCanNotMoveVertex(brush, peakPosition, Vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
+            
+            delete brush;
+        }
+        
+        // "Move edge" tests
+        
+        TEST(BrushTest, moveEdgeRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Taller than the cube, starts to the left of the +-64 unit cube
+            const Edge3 edge(Vec3(-128,0,-128), Vec3(-128,0,+128));
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
+            
+            ASSERT_EQ(10u, brush->vertexCount());
+            
+            assertCanMoveEdges(brush, Edge3::List { edge }, Vec3(+63,0,0));
+            assertCanNotMoveEdges(brush, Edge3::List { edge }, Vec3(+64,0,0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, Edge3::List { edge }, Vec3(+128,0,0)); // Center of the cube
+            
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+63,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+64,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List { edge }), Vec3(+128,0,0));
+            
+            delete brush;
+        }
+        
+        // Same as above, but moving 2 edges
+        TEST(BrushTest, moveEdgesRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Taller than the cube, starts to the left of the +-64 unit cube
+            const Edge3 edge1(Vec3(-128,-32,-128), Vec3(-128,-32,+128));
+            const Edge3 edge2(Vec3(-128,+32,-128), Vec3(-128,+32,+128));
+            const Edge3::List movingEdges { edge1, edge2 };
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.end()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.end()));
+            
+            ASSERT_EQ(12u, brush->vertexCount());
+            
+            assertCanMoveEdges(brush, movingEdges, Vec3(+63,0,0));
+            assertCanNotMoveEdges(brush, movingEdges, Vec3(+64,0,0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, movingEdges, Vec3(+128,0,0)); // Center of the cube
+            
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+63,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+64,0,0));
+            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), Vec3(+128,0,0));
+            
+            delete brush;
+        }
+        
+        // "Move polygon" tests
+        
+        TEST(BrushTest, movePolygonRemainingPoint) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3::List vertexPositions {
+                Vec3(-64.0, -64.0, +64.0), // top quad
+                Vec3(-64.0, +64.0, +64.0),
+                Vec3(+64.0, -64.0, +64.0),
+                Vec3(+64.0, +64.0, +64.0),
+                
+                Vec3(0.0,     0.0, -64.0), // bottom point
+            };
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePolygonRemainingEdge) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3::List vertexPositions {
+                Vec3(-64.0, -64.0, +64.0), // top quad
+                Vec3(-64.0, +64.0, +64.0),
+                Vec3(+64.0, -64.0, +64.0),
+                Vec3(+64.0, +64.0, +64.0),
+                
+                Vec3(-64.0,   0.0, -64.0), // bottom edge, on the z=-64 plane
+                Vec3(+64.0,   0.0, -64.0)
+            };
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePolygonRemainingPolygon) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128.0, Model::BrushFace::NoTextureName);
+            
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePolygonRemainingPolygon2) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Same brush as movePolygonRemainingPolygon, but this particular order of vertices triggers a failure in Brush::doCanMoveVertices
+            // where the polygon inserted into the "remaining" BrushGeometry gets the wrong normal.
+            const Vec3::List vertexPositions {
+                Vec3(+64.0, +64.0, +64.0),
+                Vec3(+64.0, -64.0, +64.0),
+                Vec3(+64.0, -64.0, -64.0),
+                Vec3(+64.0, +64.0, -64.0),
+                Vec3(-64.0, -64.0, +64.0),
+                Vec3(-64.0, -64.0, -64.0),
+                Vec3(-64.0, +64.0, -64.0),
+                Vec3(-64.0, +64.0, +64.0)};
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            ASSERT_EQ(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), brush->bounds());
+            
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePolygonRemainingPolygon_DisallowVertexCombining) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            //       z = +192  //
+            // |\              //
+            // | \             //
+            // |  \  z = +64   //
+            // |   |           //
+            // |___| z = -64   //
+            //                 //
+            
+            const Vec3::List vertexPositions {
+                Vec3(-64.0, -64.0, +192.0), // top quad, slanted
+                Vec3(-64.0, +64.0, +192.0),
+                Vec3(+64.0, -64.0, +64.0),
+                Vec3(+64.0, +64.0, +64.0),
+                
+                Vec3(-64.0, -64.0, -64.0), // bottom quad
+                Vec3(-64.0, +64.0, -64.0),
+                Vec3(+64.0, -64.0, -64.0),
+                Vec3(+64.0, +64.0, -64.0),
+            };
+            
+            const Vec3 topFaceNormal(sqrt(2.0)/2.0, 0.0, sqrt(2.0)/2.0);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            BrushFace* topFace = brush->findFace(topFaceNormal);
+            ASSERT_NE(nullptr, topFace);
+            
+            assertCanMoveFace(brush, topFace, Vec3(0, 0, -127));
+            assertCanMoveFace(brush, topFace, Vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed 
+            assertCanNotMoveFace(brush, topFace, Vec3(0, 0, -129));
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, movePolygonRemainingPolyhedron) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            //   _   z = +64   //
+            //  / \            //
+            // /   \           //
+            // |   | z = -64   //
+            // |   |           //
+            // |___| z = -192  //
+            //                 //
+            
+            const Vec3::List smallerTopPolygon {
+                Vec3(-32.0, -32.0, +64.0), // smaller top polygon
+                Vec3(-32.0, +32.0, +64.0),
+                Vec3(+32.0, -32.0, +64.0),
+                Vec3(+32.0, +32.0, +64.0)
+            };
+            const Vec3::List cubeTopFace {
+                Vec3(-64.0, -64.0, -64.0), // top face of cube
+                Vec3(-64.0, +64.0, -64.0),
+                Vec3(+64.0, -64.0, -64.0),
+                Vec3(+64.0, +64.0, -64.0),
+            };
+            const Vec3::List cubeBottomFace {
+                Vec3(-64.0, -64.0, -192.0), // bottom face of cube
+                Vec3(-64.0, +64.0, -192.0),
+                Vec3(+64.0, -64.0, -192.0),
+                Vec3(+64.0, +64.0, -192.0),
+            };
+            
+            using VectorUtils::concatenate;
+            const Vec3::List vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            // Try to move the top face down along the Z axis
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
+            assertCanNotMoveTopFace(brush, Vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
+            
+            // Move the smaller top polygon as 4 separate vertices
+            assertCanMoveVertices(brush, smallerTopPolygon, Vec3(0, 0, -127));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, Vec3(0, 0, -128));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, Vec3(0, 0, -129));
+            assertCanNotMoveVertices(brush, smallerTopPolygon, Vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
+            
+            // Move top face along the X axis
+            assertCanMoveTopFace(brush, Vec3(32.0, 0.0, 0.0));
+            assertCanMoveTopFace(brush, Vec3(256, 0.0, 0.0));
+            assertCanMoveTopFace(brush, Vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, moveTwoFaces) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            //               //
+            // |\    z = 64  //
+            // | \           //
+            // |  \          //
+            //A|   \ z = 0   //
+            // |   /         //
+            // |__/C         //
+            //  B    z = -64 //
+            //               //
+
+            
+            const Vec3::List leftPolygon { // A
+                Vec3(-32.0, -32.0, +64.0),
+                Vec3(-32.0, +32.0, +64.0),
+                Vec3(-32.0, +32.0, -64.0),
+                Vec3(-32.0, -32.0, -64.0),
+            };
+            const Vec3::List bottomPolygon { // B
+                Vec3(-32.0, -32.0, -64.0),
+                Vec3(-32.0, +32.0, -64.0),
+                Vec3( +0.0, +32.0, -64.0),
+                Vec3( +0.0, -32.0, -64.0),
+            };
+            const Vec3::List bottomRightPolygon { // C
+                Vec3( +0.0, -32.0, -64.0),
+                Vec3( +0.0, +32.0, -64.0),
+                Vec3(+32.0, +32.0,  +0.0),
+                Vec3(+32.0, -32.0,  +0.0),
+            };
+            
+            using VectorUtils::concatenate;
+            const Vec3::List vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            
+            EXPECT_TRUE(brush->hasFace(Polygon3(leftPolygon)));
+            EXPECT_TRUE(brush->hasFace(Polygon3(bottomPolygon)));
+            EXPECT_TRUE(brush->hasFace(Polygon3(bottomRightPolygon)));
+            
+            assertCanMoveFaces(brush, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,63));
+            assertCanNotMoveFaces(brush, Polygon3::List { leftPolygon, bottomPolygon }, Vec3(0,0,64)); // Merges B and C
+            
+            delete brush;
+        }
+
+        // "Move polyhedron" tests
+        
+        TEST(BrushTest, movePolyhedronRemainingEdge) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            // Edge to the left of the cube, shorter, extends down to Z=-256
+            const Edge3 edge(Vec3(-128,0,-256), Vec3(-128,0,0));
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
+            ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
+            
+            ASSERT_EQ(10u, brush->vertexCount());
+            
+            BrushFace* cubeTop = brush->findFace(Vec3::PosZ);
+            BrushFace* cubeBottom = brush->findFace(Vec3::NegZ);
+            BrushFace* cubeRight = brush->findFace(Vec3::PosX);
+            BrushFace* cubeLeft = brush->findFace(Vec3::NegX);
+            BrushFace* cubeBack = brush->findFace(Vec3::PosY);
+            BrushFace* cubeFront = brush->findFace(Vec3::NegY);
+            
+            ASSERT_NE(nullptr, cubeTop);
+            ASSERT_EQ(nullptr, cubeBottom); // no face here, part of the wedge connecting to `edge`
+            ASSERT_NE(nullptr, cubeRight);
+            ASSERT_EQ(nullptr, cubeLeft); // no face here, part of the wedge connecting to `edge`
+            ASSERT_NE(nullptr, cubeFront);
+            ASSERT_NE(nullptr, cubeBack);
+            
+            const Polygon3::List movingFaces {
+                cubeTop->polygon(),
+                cubeRight->polygon(),
+                cubeFront->polygon(),
+                cubeBack->polygon(),
+            };
+            
+            assertCanMoveFaces(brush, movingFaces, Vec3(32, 0, 0)); // away from `edge`
+            assertCanMoveFaces(brush, movingFaces, Vec3(-63, 0, 0)); // towards `edge`, not touching
+            assertCanMoveFaces(brush, movingFaces, Vec3(-64, 0, 0)); // towards `edge`, touching
+            assertCanMoveFaces(brush, movingFaces, Vec3(-65, 0, 0)); // towards `edge`, covering
+            
+            // Move the cube down 64 units, so the top vertex of `edge` is on the same plane as `cubeTop`
+            // This will turn `cubeTop` from a quad into a pentagon
+            assertCanNotMoveFaces(brush, movingFaces, Vec3(0, 0, -64));
+            assertCanMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(0, 0, -64));
+            
+            // Make edge poke through the top face
+            assertCanNotMoveFaces(brush, movingFaces, Vec3(-192, 0, -128));
+            assertCanNotMoveVertices(brush, Polygon3::asVertexList(movingFaces), Vec3(-192, 0, -128));
+            
+            delete brush;
+        }
+        
         TEST(BrushTest, moveFaceFailure) {
             // https://github.com/kduske/TrenchBroom/issues/1499
             

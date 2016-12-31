@@ -401,6 +401,7 @@ public:
     Vertex* addPoint(const V& position, Callback& callback);
     void removeVertex(Vertex* vertex);
     void removeVertex(Vertex* vertex, Callback& callback);
+    void removeVertexByPosition(const V& position);
     void merge(const Polyhedron& other);
     void merge(const Polyhedron& other, Callback& callback);
 private:
