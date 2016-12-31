@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameList& frames) :
+        Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameArray& frames) :
         m_name(name),
         m_skins(new TextureCollection(name, skins)),
         m_frames(frames) {}
