@@ -53,13 +53,13 @@ namespace TrenchBroom {
                 const BBox3f& bounds() const;
             };
 
-            typedef std::vector<Frame*> FrameList;
+            typedef std::vector<Frame*> FrameArray;
         private:
             String m_name;
             TextureCollection* m_skins;
-            FrameList m_frames;
+            FrameArray m_frames;
         public:
-            Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
+            Md2Model(const String& name, const TextureList& skins, const FrameArray& frames);
             ~Md2Model();
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
