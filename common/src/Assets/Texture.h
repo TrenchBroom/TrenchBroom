@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TextureCollection;
         
         typedef Buffer<unsigned char> TextureBuffer;
-        void setMipBufferSize(TextureBuffer::List& buffers, const size_t width, const size_t height);
+        void setMipBufferSize(TextureBuffer::Array& buffers, const size_t width, const size_t height);
         
         class Texture {
         private:
@@ -50,10 +50,10 @@ namespace TrenchBroom {
             GLenum m_format;
 
             mutable GLuint m_textureId;
-            mutable TextureBuffer::List m_buffers;
+            mutable TextureBuffer::Array m_buffers;
         public:
             Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format = GL_RGB);
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format = GL_RGB);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::Array& buffers, GLenum format = GL_RGB);
             Texture(const String& name, const size_t width, const size_t height, GLenum format = GL_RGB);
             ~Texture();
 
