@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace IO {
         class Path {
         public:
-            typedef std::vector<Path> List;
+            typedef std::vector<Path> Array;
             static char separator();
             
             struct ToString {
@@ -43,10 +43,10 @@ namespace TrenchBroom {
         private:
             static const String& separators();
             
-            StringList m_components;
+            StringArray m_components;
             bool m_absolute;
             
-            Path(bool absolute, const StringList& components);
+            Path(bool absolute, const StringArray& components);
         public:
             Path(const String& path = "");
             
@@ -59,8 +59,8 @@ namespace TrenchBroom {
             
             String asString(const char sep = separator()) const;
             String asString(const String& sep) const;
-            static StringList asStrings(const Path::List& paths, const char sep = separator());
-            static List asPaths(const StringList& strs);
+            static StringArray asStrings(const Path::Array& paths, const char sep = separator());
+            static Array asPaths(const StringArray& strs);
             
             size_t length() const;
             bool isEmpty() const;
@@ -87,9 +87,9 @@ namespace TrenchBroom {
             
             static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
         private:
-            static bool hasDriveSpec(const StringList& components);
+            static bool hasDriveSpec(const StringArray& components);
             static bool hasDriveSpec(const String& component);
-            StringList resolvePath(const bool absolute, const StringList& components) const;
+            StringArray resolvePath(const bool absolute, const StringArray& components) const;
         };
     }
 }
