@@ -188,7 +188,7 @@ namespace TrenchBroom {
             static const Value Undefined;
             typedef std::set<Value> Set;
         private:
-            typedef std::vector<size_t> IndexList;
+            typedef std::vector<size_t> IndexArray;
             typedef std::shared_ptr<ValueHolder> ValuePtr;
             ValuePtr m_value;
             size_t m_line;
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             bool null() const;
             bool undefined() const;
             
-            const StringList asStringList() const;
+            const StringArray asStringList() const;
             const StringSet asStringSet() const;
             
             size_t length() const;
@@ -314,8 +314,8 @@ namespace TrenchBroom {
             Value operator[](const String& key) const;
             Value operator[](const char* key) const;
         private:
-            IndexList computeIndexArray(const Value& indexValue, size_t indexableSize) const;
-            void computeIndexArray(const Value& indexValue, size_t indexableSize, IndexList& result) const;
+            IndexArray computeIndexArray(const Value& indexValue, size_t indexableSize) const;
+            void computeIndexArray(const Value& indexValue, size_t indexableSize, IndexArray& result) const;
             size_t computeIndex(const Value& indexValue, size_t indexableSize) const;
             size_t computeIndex(long index, size_t indexableSize) const;
         public:
