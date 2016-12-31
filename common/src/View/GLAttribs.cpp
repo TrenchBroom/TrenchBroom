@@ -69,6 +69,7 @@ namespace TrenchBroom {
                 if (wxGLCanvas::IsDisplaySupported(attribs)) {
                     m_config = config;
                     m_initialized = true;
+                    break;
                 }
             }
         }

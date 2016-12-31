@@ -78,6 +78,69 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
 }
 
+TEST(PolyhedronTest, copy) {
+    const Vec3d p1( 0.0, 0.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+
+    Polyhedron3d original;
+    Polyhedron3d copy;
+    
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p1);
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p2);
+    copy = original;
+    ASSERT_EQ(original, copy);
+    
+    original.addPoint(p3);
+    copy = original;
+    ASSERT_EQ(original, copy);
+
+    original.addPoint(p4);
+    copy = original;
+    ASSERT_EQ(original, copy);
+}
+
+TEST(PolyhedronTest, swap) {
+    const Vec3d p1( 0.0, 0.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    
+    Polyhedron3d original;
+    original.addPoint(p1);
+    original.addPoint(p2);
+    original.addPoint(p3);
+    original.addPoint(p4);
+
+    Polyhedron3d other;
+    other.addPoint(p2);
+    other.addPoint(p3);
+    other.addPoint(p4);
+    
+    Polyhedron3d lhs = original;
+    Polyhedron3d rhs = other;
+    
+    // Just to be sure...
+    assert(lhs == original);
+    assert(rhs == other);
+    
+    using std::swap;
+    swap(lhs, rhs);
+    
+    ASSERT_EQ(other, lhs);
+    ASSERT_EQ(original, rhs);
+    
+    ASSERT_EQ(other.bounds(), lhs.bounds());
+    ASSERT_EQ(original.bounds(), rhs.bounds());
+}
+
 TEST(PolyhedronTest, convexHullWithFailingPoints) {
     const Vec3d p1(-64.0,    -45.5049, -34.4752);
     const Vec3d p2(-64.0,    -43.6929, -48.0);
@@ -1185,6 +1248,52 @@ TEST(PolyhedronTest, crashWhileAddingPoints3) {
     p.addPoint(p13);
     p.addPoint(p14);
     p.addPoint(p15); // Assertion failure here.
+}
+
+TEST(PolyhedronTest, crashWhileAddingPoints4) {
+    //
+    // p2 .  |  . p3
+    //       |
+    //    -------
+    //       |
+    // p1 .  |  . p4
+    //
+    const Vec3d p1(-1, -1, 0);
+    const Vec3d p2(-1, +1, 0);
+    const Vec3d p3(+1, +1, 0);
+    const Vec3d p4(+1, -1, 0);
+    const Vec3d p5( 0,  0, 0);
+    
+    Polyhedron3d p;
+    
+    p.addPoint(p1);
+    p.addPoint(p4);
+    p.addPoint(p2);
+    ASSERT_TRUE(hasTriangleOf(p, p1, p4, p2));
+    
+    p.addPoint(p3);
+    ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
+    
+    p.addPoint(p5); // Assertion failure here.
+    ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
+}
+
+TEST(PolyhedronTest, crashWhileAddingPoints5) {
+    // https://github.com/kduske/TrenchBroom/issues/1573
+    
+    const Vec3d p1(2, 0, 0);
+    const Vec3d p2(0, 1, 0);
+    const Vec3d p3(2, 1, 0); // Triangle (p1, p2, p3)
+    const Vec3d p4(1, 1, 0); // Colinear along (p2, p3) edge
+    
+    Polyhedron3d p;
+    
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    p.addPoint(p2); // Assertion failure here - re-adding p2
 }
 
 TEST(PolyhedronTest, removeVertexFromPoint) {

@@ -80,6 +80,10 @@ namespace TrenchBroom {
         TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {
             return NULL;
         }
+        
+        void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
+            ensure(false, "unsupported");
+        }
 
         Vec3 ParaxialTexCoordSystem::getXAxis() const {
             return m_xAxis;

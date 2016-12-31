@@ -33,7 +33,7 @@ public:
     typedef typename List::const_iterator const_iterator;
 public:
     void push_back(Edge* edge) {
-        ensure(edge != NULL, "edge is null");
+        ensure(edge != nullptr, "edge is null");
         assert(empty() || edge != last());
         assert(checkEdge(edge));
         m_edges.push_back(edge);
@@ -187,7 +187,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& position, Callback& callback) {
     assert(checkInvariant());
-    Vertex* result = NULL;
+    Vertex* result = nullptr;
     switch (vertexCount()) {
         case 0:
             result = addFirstPoint(position, callback);
@@ -203,26 +203,26 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
             break;
         default:
             result = addFurtherPoint(position, callback);
-            if (result != NULL)
+            if (result != nullptr)
                 m_bounds.mergeWith(position);
             break;
     }
     assert(checkInvariant());
-    if (result != NULL)
+    if (result != nullptr)
         callback.vertexWasAdded(result);
     return result;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex) {
-    ensure(vertex != NULL, "vertex is null");
+    ensure(vertex != nullptr, "vertex is null");
     Callback c;
     removeVertex(vertex, c);
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
-    ensure(vertex != NULL, "vertex is null");
+    ensure(vertex != nullptr, "vertex is null");
     assert(findVertexByPosition(vertex->position()) == vertex);
     assert(checkInvariant());
     
@@ -238,6 +238,13 @@ void Polyhedron<T,FP,VP>::removeVertex(Vertex* vertex, Callback& callback) {
         removeVertexFromPolyhedron(vertex, callback);
     
     assert(checkInvariant());
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::removeVertexByPosition(const V& position) {
+    Vertex* vertex = findVertexByPosition(position);
+    ensure(vertex != nullptr, "couldn't find vertex to remove");
+    removeVertex(vertex);
 }
 
 template <typename T, typename FP, typename VP>
@@ -285,7 +292,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const 
         m_edges.append(edge, 1);
         return newVertex;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -312,7 +319,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyDependentT
     assert(linearlyDependent(v1->position(), v2->position(), position));
     
     if (position.containedWithinSegment(v1->position(), v2->position()))
-        return NULL;
+        return nullptr;
     
     if (v1->position().containedWithinSegment(position, v2->position())) {
         v1->setPosition(position);
@@ -382,7 +389,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const
 // given point is not coplanar.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
-    Face* face = *std::begin(m_faces);
+    Face* face = m_faces.front();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
         case Math::PointStatus::PSInside:
@@ -394,21 +401,19 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
             return makePolyhedron(position, callback);
     }
     // will never be reached
-    return NULL;
+    return nullptr;
 }
 
 // Adds the given coplanar point to a polyhedron that is a polygon.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const V& position, Callback& callback) {
     assert(polygon());
-    if (polygonContainsPoint(position, std::begin(m_vertices), std::end(m_vertices), GetVertexPosition()))
-        return NULL;
     
     Face* face = m_faces.front();
     Plane<T,3> facePlane = callback.plane(face);
     
-    HalfEdge* firstVisibleEdge = NULL;
-    HalfEdge* lastVisibleEdge = NULL;
+    HalfEdge* firstVisibleEdge = nullptr;
+    HalfEdge* lastVisibleEdge = nullptr;
     
     HalfEdge* firstEdge = face->boundary().front();
     HalfEdge* curEdge = firstEdge;
@@ -424,10 +429,11 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
             lastVisibleEdge = curEdge;
         }
         curEdge = curEdge->next();
-    } while (curEdge != firstEdge && (firstVisibleEdge == NULL || lastVisibleEdge == NULL));
+    } while (curEdge != firstEdge && (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr));
     
-    ensure(firstVisibleEdge != NULL, "firstVisibleEdge is null");
-    ensure(lastVisibleEdge != NULL, "lastVisibleEdge is null");
+    // Is the point contained in the polygon?
+    if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr)
+        return nullptr;
     
     // Now we know which edges are visible from the point. These will have to be replaced with two new edges.
     Vertex* newVertex = new Vertex(position);
@@ -523,7 +529,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
     assert(polyhedron());
     if (contains(position, callback))
-        return NULL;
+        return nullptr;
     
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
     
@@ -532,7 +538,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
     // another vertex and no correct seam can be computed due to imprecision. In that case, we just
     // assume that the vertex is inside the polyhedron and skip it.
     if (seam.empty() || seam.hasMultipleLoops())
-        return NULL;
+        return nullptr;
     
     assert(checkFaceBoundaries());
     split(seam, callback);
@@ -666,10 +672,10 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
     Seam seam;
     
     Edge* first = criterion.findFirstSplittingEdge(m_edges);
-    if (first != NULL) {
+    if (first != nullptr) {
         Edge* current = first;
         do {
-            ensure(current != NULL, "current is null");
+            ensure(current != nullptr, "current is null");
             seam.push_back(current);
             current = criterion.findNextSplittingEdge(current);
         } while (current != first);
@@ -723,7 +729,7 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     HalfEdge* current = first;
     do {
         Edge* edge = current->edge();
-        if (edge != NULL) {
+        if (edge != nullptr) {
             // This indicates that the current half edge was not part of the seam before
             // the seam was opened, i.e., it may have a neighbour that should also be deleted.
             
@@ -951,8 +957,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     Plane3 plane;
     Vertex* top = new Vertex(position);
     
-    HalfEdge* first = NULL;
-    HalfEdge* last = NULL;
+    HalfEdge* first = nullptr;
+    HalfEdge* last = nullptr;
     
     typename Seam::const_iterator it = std::begin(seam);
     while (it != std::end(seam)) {
@@ -994,10 +1000,10 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
         
-        if (last != NULL)
+        if (last != nullptr)
             m_edges.append(new Edge(h1, last), 1);
         
-        if (first == NULL)
+        if (first == nullptr)
             first = h1;
         last = h;
     }
@@ -1037,12 +1043,12 @@ public:
                 switchDefault()
             }
         }
-        return NULL;
+        return nullptr;
     }
     
     // finds the next seam edge in counter clockwise orientation
     Edge* findNextSplittingEdge(Edge* last) const {
-        ensure(last != NULL, "last is null");
+        ensure(last != nullptr, "last is null");
         
         HalfEdge* halfEdge = last->firstEdge()->previous();
         Edge* next = halfEdge->edge();
@@ -1055,7 +1061,7 @@ public:
         }
         
         if (result != MatchResult_First && result != MatchResult_Second)
-            return NULL;
+            return nullptr;
         
         if (result == MatchResult_Second)
             next->flip();

@@ -28,33 +28,18 @@ namespace TrenchBroom {
             EXPECT_NO_THROW(ensure(true, "this shouldn't fail"));
         }
         
+        // Disable a clang warning when using ASSERT_DEATH
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
+#endif
+
         TEST(EnsureTest, failingEnsure) {
-            EXPECT_ANY_THROW(ensure(false, "this should fail"));
-            EXPECT_THROW(ensure(false, "this should fail"), TrenchBroom::ConditionFailedException);
+            ASSERT_DEATH(ensure(false, "this should fail"), "");
         }
-        
-        TEST(EnsureTest, failingEnsureMessage) {
-            bool caught = false;
-            int lineNumber;
-            
-            try {
-                lineNumber = __LINE__; ensure(1 + 1 == 3, "this should fail");
-            } catch (TrenchBroom::ConditionFailedException &exception) {
-                String message = exception.what();
-                
-                EXPECT_TRUE(message.find("something not in the exception message") == String::npos);
-                
-                EXPECT_FALSE(message.find("this should fail") == String::npos);
-                EXPECT_FALSE(message.find("1 + 1 == 3") == String::npos);
-                
-                StringStream fileLineNumberStream;
-                fileLineNumberStream << __FILE__ << ":" << lineNumber;
-                EXPECT_FALSE(message.find(fileLineNumberStream.str()) == String::npos);
-                
-                caught = true;
-            }
-            
-            EXPECT_TRUE(caught);
-        }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     }
 }

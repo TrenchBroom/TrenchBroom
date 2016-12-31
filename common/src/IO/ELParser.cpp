@@ -202,6 +202,9 @@ namespace TrenchBroom {
                             return Token(ELToken::Boolean, c, e, offset(c), startLine, startColumn);
                         if ((e = discard("false")) != NULL)
                             return Token(ELToken::Boolean, c, e, offset(c), startLine, startColumn);
+                        
+                        if ((e = discard("null")) != NULL)
+                            return Token(ELToken::Null, c, e, offset(c), startLine, startColumn);
 
                         if (isLetter(*c) || *c == '_') {
                             do {
@@ -319,7 +322,7 @@ namespace TrenchBroom {
 
         EL::ExpressionBase* ELParser::parseLiteral() {
             Token token = m_tokenizer.peekToken();
-            expect(ELToken::String | ELToken::Number | ELToken::Boolean | ELToken::OBracket | ELToken::OBrace, token);
+            expect(ELToken::Literal | ELToken::OBracket | ELToken::OBrace, token);
             
             if (token.hasType(ELToken::String)) {
                 m_tokenizer.nextToken();
@@ -334,6 +337,10 @@ namespace TrenchBroom {
             if (token.hasType(ELToken::Boolean)) {
                 m_tokenizer.nextToken();
                 return EL::LiteralExpression::create(EL::Value(token.data() == "true"), token.line(), token.column());
+            }
+            if (token.hasType(ELToken::Null)) {
+                m_tokenizer.nextToken();
+                return EL::LiteralExpression::create(EL::Value::Null, token.line(), token.column());
             }
             
             if (token.hasType(ELToken::OBracket))
@@ -539,6 +546,7 @@ namespace TrenchBroom {
             result[ELToken::BitwiseShiftRight]  = "'>>'";
             result[ELToken::DoubleOBrace]       = "'{{'";
             result[ELToken::DoubleCBrace]       = "'}}'";
+            result[ELToken::Null]               = "'null'";
             result[ELToken::Eof]                = "end of file";
             return result;
         }

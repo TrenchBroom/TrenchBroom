@@ -19,6 +19,7 @@
 
 #include "BrushFace.h"
 
+#include "Algorithms.h"
 #include "Exceptions.h"
 #include "VecMath.h"
 #include "Assets/Texture.h"
@@ -26,6 +27,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
+#include "Model/TexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
@@ -124,6 +126,10 @@ namespace TrenchBroom {
 
         BrushFaceSnapshot* BrushFace::takeSnapshot() {
             return new BrushFaceSnapshot(this, m_texCoordSystem);
+        }
+        
+        void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot) {
+            coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
         Brush* BrushFace::brush() const {

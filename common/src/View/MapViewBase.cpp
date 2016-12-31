@@ -955,7 +955,7 @@ namespace TrenchBroom {
 
                 Assets::EntityDefinitionList filteredDefinitions;
                 std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(filteredDefinitions),
-                             [](const Assets::EntityDefinition* definition) { return StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
+                             [](const Assets::EntityDefinition* definition) { return !StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
                 );
 
                 if (!filteredDefinitions.empty()) {

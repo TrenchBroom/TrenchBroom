@@ -45,9 +45,9 @@ namespace TrenchBroom {
             document->newDocument(m_mapFormat, BBox3(8192.0), Model::GamePtr(new Model::TestGame()));
         }
 
-        Model::Brush* MapDocumentTest::createBrush() {
+        Model::Brush* MapDocumentTest::createBrush(const String& textureName) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            return builder.createCube(32.0, "texture");
+            return builder.createCube(32.0, textureName);
         }
         
         static void checkPlanePointsIntegral(const Model::Brush *brush) {

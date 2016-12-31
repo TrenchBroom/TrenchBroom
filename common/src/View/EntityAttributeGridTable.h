@@ -29,6 +29,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+    }
+    
     namespace View {
         class EntityAttributeGridTable : public wxGridTableBase {
         private:
@@ -87,6 +91,8 @@ namespace TrenchBroom {
                 const StringList names(size_t rowIndex, size_t count) const;
                 
                 void updateRows(const Model::AttributableNodeList& attributables, bool showDefaultProperties);
+                void addAttribute(const Model::AttributeName& name, const Model::AttributeValue& value, const Assets::AttributeDefinition* definition, bool nameMutable, bool valueMutable, bool isDefault, size_t index);
+                
                 StringList insertRows(size_t rowIndex, size_t count, const Model::AttributableNodeList& attributables);
                 void deleteRows(size_t rowIndex, size_t count);
             private:

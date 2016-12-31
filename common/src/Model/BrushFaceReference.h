@@ -17,27 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrushFaceSnapshot.h"
+#ifndef BrushFaceReference_h
+#define BrushFaceReference_h
 
-#include "Model/Brush.h"
+#include "Model/ModelTypes.h"
+
+#include <list>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem) :
-        m_faceRef(face),
-        m_attribs(face->attribs().takeSnapshot()),
-        m_coordSystemSnapshot(coordSystem->takeSnapshot()) {}
-        
-        BrushFaceSnapshot::~BrushFaceSnapshot() {
-            delete m_coordSystemSnapshot;
-            m_coordSystemSnapshot = nullptr;
-        }
-
-        void BrushFaceSnapshot::restore() {
-            BrushFace* face = m_faceRef.resolve();
-            face->setAttribs(m_attribs);
-            if (m_coordSystemSnapshot != nullptr)
-                face->restoreTexCoordSystemSnapshot(m_coordSystemSnapshot);
-        }
+        class BrushFaceReference {
+        public:
+            typedef std::list<BrushFaceReference> List;
+        private:
+            Plane3 m_facePlane;
+            Model::Brush* m_brush;
+        public:
+            BrushFaceReference(Model::BrushFace* face);
+            
+            Model::BrushFace* resolve() const;
+        };
     }
 }
+
+#endif /* BrushFaceReference_h */

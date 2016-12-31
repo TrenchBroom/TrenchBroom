@@ -19,6 +19,7 @@
 
 #include "EntityAttributeGrid.h"
 
+#include "Model/EntityAttributes.h"
 #include "Model/Object.h"
 #include "View/EntityAttributeGridTable.h"
 #include "View/EntityAttributeSelectedCommand.h"
@@ -311,15 +312,20 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
+            const SetBool ignoreSelection(m_ignoreSelection);
             updateControls();
         }
 
         void EntityAttributeGrid::updateControls() {
-            // const SetBool ignoreSelection(m_ignoreSelection);
             wxGridUpdateLocker lockGrid(m_grid);
             m_table->update();
             
-            const int row = m_table->rowForName(m_lastSelectedName);
+            int row = m_table->rowForName(m_lastSelectedName);
+            if (row >= m_table->GetNumberRows())
+                row = m_table->GetNumberRows() - 1;
+            if (row == -1 && m_table->GetNumberRows() > 0)
+                row = 0;
+            
             if (row != -1) {
                 m_grid->SelectRow(row);
                 m_grid->GoToCell(row, m_lastSelectedCol);

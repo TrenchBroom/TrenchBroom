@@ -21,16 +21,17 @@
 #define TrenchBroom_BrushFaceSnapshot
 
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceReference.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceSnapshot {
         private:
-            BrushFace* m_face;
+            BrushFaceReference m_faceRef;
             BrushFaceAttributes m_attribs;
-            TexCoordSystemSnapshot* m_coordSystem;
+            TexCoordSystemSnapshot* m_coordSystemSnapshot;
         public:
-            BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem);
+            BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystemSnapshot);
             ~BrushFaceSnapshot();
             void restore();
         };

@@ -99,8 +99,8 @@ namespace TrenchBroom {
                 case Type_String:
                     return true;
                 case Type_Number: {
-                    if (doGetValue().empty())
-                        return false;
+                    if (StringUtils::isBlank(doGetValue()))
+                        return true;
                     const char* begin = doGetValue().c_str();
                     char* end;
                     const NumberType value = std::strtod(begin, &end);
@@ -126,8 +126,8 @@ namespace TrenchBroom {
                 case Type_String:
                     return new StringValueHolder(doGetValue());
                 case Type_Number: {
-                    if (doGetValue().empty())
-                        throw ConversionError(describe(), type(), toType);
+                    if (StringUtils::isBlank(doGetValue()))
+                        return new NumberValueHolder(0.0);
                     const char* begin = doGetValue().c_str();
                     char* end;
                     const NumberType value = std::strtod(begin, &end);
@@ -1342,32 +1342,47 @@ namespace TrenchBroom {
         }
         
         Value operator&(const Value& lhs, const Value& rhs) {
-            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
-                return Value(lhs.integerValue() & rhs.integerValue());
+            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
+                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+                return Value(lhsInt & rhsInt);
+            }
             throw EvaluationError("Cannot apply operator & to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator|(const Value& lhs, const Value& rhs) {
-            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
-                return Value(lhs.integerValue() | rhs.integerValue());
+            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
+                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+                return Value(lhsInt | rhsInt);
+            }
             throw EvaluationError("Cannot apply operator | to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator^(const Value& lhs, const Value& rhs) {
-            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
-                return Value(lhs.integerValue() ^ rhs.integerValue());
+            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
+                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+                return Value(lhsInt ^ rhsInt);
+            }
             throw EvaluationError("Cannot apply operator ^ to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator<<(const Value& lhs, const Value& rhs) {
-            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
-                return Value(lhs.integerValue() << rhs.integerValue());
+            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
+                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+                return Value(lhsInt << rhsInt);
+            }
             throw EvaluationError("Cannot apply operator << to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
         
         Value operator>>(const Value& lhs, const Value& rhs) {
-            if (lhs.type() == Type_Number && rhs.type() == Type_Number)
-                return Value(lhs.integerValue() >> rhs.integerValue());
+            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
+                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+                return Value(lhsInt >> rhsInt);
+            }
             throw EvaluationError("Cannot apply operator >> to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
     }

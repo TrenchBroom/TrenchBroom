@@ -321,8 +321,8 @@ namespace TrenchBroom {
                     const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
-                    const Vec3 point = m_camera.defaultPoint(pickRay);
-                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -Vec3(m_camera.direction()));
+                    const Vec3 point = grid.snap(m_camera.defaultPoint(pickRay));
+                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -Vec3(m_camera.direction().firstAxis()));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {

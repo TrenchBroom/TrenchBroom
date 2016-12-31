@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+#include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
@@ -46,10 +47,10 @@ namespace TrenchBroom {
             Action m_action;
             
             Model::NodeList m_nodes;
-            Model::BrushFaceList m_faces;
+            Model::BrushFaceReference::List m_faceRefs;
             
             Model::NodeList m_previouslySelectedNodes;
-            Model::BrushFaceList m_previouslySelectedFaces;
+            Model::BrushFaceReference::List m_previouslySelectedFaceRefs;
         public:
             static Ptr select(const Model::NodeList& nodes);
             static Ptr select(const Model::BrushFaceList& faces);

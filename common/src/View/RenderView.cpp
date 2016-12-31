@@ -26,6 +26,7 @@
 #include "Renderer/VertexSpec.h"
 #include "View/GLContextManager.h"
 #include "View/wxUtils.h"
+#include "TrenchBroomApp.h"
 
 #include <wx/dcclient.h>
 #include <wx/settings.h>
@@ -49,6 +50,7 @@ namespace TrenchBroom {
         
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
+            if (TrenchBroom::View::isReportingCrash()) return;
 
             if (m_glContext->SetCurrent(this)) {
                 if (!m_initialized)
