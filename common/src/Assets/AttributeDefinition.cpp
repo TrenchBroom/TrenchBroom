@@ -158,15 +158,15 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options, const size_t defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, defaultValue),
         m_options(options) {}
         
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription),
         m_options(options) {}
         
-        const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
+        const ChoiceAttributeOption::Array& ChoiceAttributeDefinition::options() const {
             return m_options;
         }
 
@@ -218,7 +218,7 @@ namespace TrenchBroom {
             return value;
         }
 
-        const FlagsAttributeOption::List& FlagsAttributeDefinition::options() const {
+        const FlagsAttributeOption::Array& FlagsAttributeDefinition::options() const {
             return m_options;
         }
         
