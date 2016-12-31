@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height) {
+        void setMipBufferSize(Assets::TextureBuffer::Array& buffers, const size_t width, const size_t height) {
             for (size_t i = 0; i < buffers.size(); ++i) {
                 const size_t div = 1 << i;
                 const size_t size = 3 * (width * height) / (div * div);
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             m_buffers.push_back(buffer);
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::Array& buffers, const GLenum format) :
         m_collection(NULL),
         m_name(name),
         m_width(width),
