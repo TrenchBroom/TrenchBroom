@@ -579,9 +579,9 @@ namespace TrenchBroom {
             return type() == Type_Undefined;
         }
 
-        const StringList Value::asStringList() const {
+        const StringArray Value::asStringList() const {
             const ArrayType& array = arrayValue();
-            StringList result;
+            StringArray result;
             result.reserve(array.size());
 
             std::transform(std::begin(array), std::end(array), std::back_inserter(result),
@@ -642,7 +642,7 @@ namespace TrenchBroom {
                         }
                         case Type_Array:
                         case Type_Range: {
-                            const IndexList indices = computeIndexArray(indexValue, length());
+                            const IndexArray indices = computeIndexArray(indexValue, length());
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
                                 if (index >= length())
@@ -667,7 +667,7 @@ namespace TrenchBroom {
                         }
                         case Type_Array:
                         case Type_Range: {
-                            const IndexList indices = computeIndexArray(indexValue, length());
+                            const IndexArray indices = computeIndexArray(indexValue, length());
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
                                 if (index >= length())
@@ -765,7 +765,7 @@ namespace TrenchBroom {
                         case Type_Array:
                         case Type_Range: {
                             const StringType& str = stringValue();
-                            const IndexList indices = computeIndexArray(indexValue, str.length());
+                            const IndexArray indices = computeIndexArray(indexValue, str.length());
                             StringStream result;
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
@@ -794,7 +794,7 @@ namespace TrenchBroom {
                         case Type_Array:
                         case Type_Range: {
                             const ArrayType& array = arrayValue();
-                            const IndexList indices = computeIndexArray(indexValue, array.size());
+                            const IndexArray indices = computeIndexArray(indexValue, array.size());
                             ArrayType result;
                             result.reserve(indices.size());
                             for (size_t i = 0; i < indices.size(); ++i) {
@@ -915,13 +915,13 @@ namespace TrenchBroom {
             throw IndexError(*this, key);
         }
         
-        Value::IndexList Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
-            IndexList result;
+        Value::IndexArray Value::computeIndexArray(const Value& indexValue, const size_t indexableSize) const {
+            IndexArray result;
             computeIndexArray(indexValue, indexableSize, result);
             return result;
         }
         
-        void Value::computeIndexArray(const Value& indexValue, const size_t indexableSize, IndexList& result) const {
+        void Value::computeIndexArray(const Value& indexValue, const size_t indexableSize, IndexArray& result) const {
             switch (indexValue.type()) {
                 case Type_Array: {
                     const ArrayType& indexArray = indexValue.arrayValue();
