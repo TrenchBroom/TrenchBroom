@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return m_hasSize;
         }
 
-        Assets::AttributeDefinitionList EntityDefinitionClassInfo::attributeList() const {
+        Assets::AttributeDefinitionArray EntityDefinitionClassInfo::attributeList() const {
             return MapUtils::valueList(m_attributes);
         }
         
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             m_hasModelDefinition = true;
         }
 
-        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames) {
+        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringArray& classnames) {
             for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
                 const String& classname = *classnameIt;
                 const auto baseClassIt = baseClasses.find(classname);
