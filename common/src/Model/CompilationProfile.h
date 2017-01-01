@@ -38,10 +38,10 @@ namespace TrenchBroom {
         private:
             String m_name;
             String m_workDirSpec;
-            CompilationTask::List m_tasks;
+            CompilationTask::Array m_tasks;
         public:
             CompilationProfile(const String& name, const String& workDirSpec);
-            CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks);
+            CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::Array& tasks);
             ~CompilationProfile();
 
             CompilationProfile* clone() const;
