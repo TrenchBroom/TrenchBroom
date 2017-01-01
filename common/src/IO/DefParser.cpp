@@ -145,8 +145,8 @@ namespace TrenchBroom {
             return names;
         }
 
-        Assets::EntityDefinitionList DefParser::doParseDefinitions(ParserStatus& status) {
-            Assets::EntityDefinitionList definitions;
+        Assets::EntityDefinitionArray DefParser::doParseDefinitions(ParserStatus& status) {
+            Assets::EntityDefinitionArray definitions;
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             
             expect(status, DefToken::ODefinition, token);
             
-            StringList baseClasses;
+            StringArray baseClasses;
             EntityDefinitionClassInfo classInfo;
             
             token = m_tokenizer.nextToken();
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             expect(status, DefToken::Newline, token = m_tokenizer.nextToken());
             
             Assets::AttributeDefinitionMap attributes;
-            StringList superClasses;
+            StringArray superClasses;
             parseAttributes(status, classInfo, superClasses);
             
             classInfo.setDescription(StringUtils::trim(parseDescription()));
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             return Assets::AttributeDefinitionPtr(definition);
         }
         
-        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
+        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringArray& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
                 token = m_tokenizer.nextToken();
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
+        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringArray& superClasses) {
             Token token;
             expect(status, DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
             const String attributeName = token.data();
             
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoiceAttributeOption::Array options;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
             token = nextTokenIgnoringNewlines();
             while (token.type() == DefToken::OParenthesis) {
