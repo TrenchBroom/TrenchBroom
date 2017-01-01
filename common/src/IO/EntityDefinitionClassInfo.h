@@ -61,7 +61,7 @@ namespace TrenchBroom {
             bool hasColor() const;
             const BBox3& size() const;
             bool hasSize() const;
-            Assets::AttributeDefinitionList attributeList() const;
+            Assets::AttributeDefinitionArray attributeList() const;
             const Assets::AttributeDefinitionMap& attributeMap() const;
             const Assets::ModelDefinition& modelDefinition() const;
             bool hasModelDefinition() const;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
         
-            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
+            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringArray& classnames);
         private:
             static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };
