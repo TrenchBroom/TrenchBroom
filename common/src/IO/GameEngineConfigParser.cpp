@@ -40,13 +40,13 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const Model::GameEngineProfile::List profiles = parseProfiles(root["profiles"]);
+            const Model::GameEngineProfile::Array profiles = parseProfiles(root["profiles"]);
             
             return Model::GameEngineConfig(profiles);
         }
 
-        Model::GameEngineProfile::List GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
-            Model::GameEngineProfile::List result;
+        Model::GameEngineProfile::Array GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
+            Model::GameEngineProfile::Array result;
             
             try {
                 for (size_t i = 0; i < value.length(); ++i) {
