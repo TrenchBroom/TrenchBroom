@@ -36,7 +36,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
+            Path::Array doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
         };
         
