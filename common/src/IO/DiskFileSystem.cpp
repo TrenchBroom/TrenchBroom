@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return Disk::fileExists(makeAbsolute(path));
         }
         
-        Path::List DiskFileSystem::doGetDirectoryContents(const Path& path) const {
+        Path::Array DiskFileSystem::doGetDirectoryContents(const Path& path) const {
             return Disk::getDirectoryContents(makeAbsolute(path));
         }
         
