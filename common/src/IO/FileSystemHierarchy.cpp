@@ -71,12 +71,12 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
-            Path::List result;
+        Path::Array FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
+            Path::Array result;
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
-                    const Path::List contents = fileSystem->getDirectoryContents(path);
+                    const Path::Array contents = fileSystem->getDirectoryContents(path);
                     VectorUtils::append(result, contents);
                 }
             }
