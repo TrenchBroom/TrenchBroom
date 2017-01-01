@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class GameEngineProfile {
         public:
-            typedef std::vector<GameEngineProfile*> List;
+            typedef std::vector<GameEngineProfile*> Array;
         private:
             String m_name;
             IO::Path m_path;
