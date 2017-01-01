@@ -38,7 +38,7 @@ namespace TrenchBroom {
         Assets::Texture* IdWalTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
             static const size_t MipLevels = 4;
             static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
+            static Assets::TextureBuffer::Array buffers(MipLevels);
             static size_t offset[MipLevels];
 
             CharArrayReader reader(begin, end);
