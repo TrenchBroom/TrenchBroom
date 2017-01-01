@@ -39,7 +39,7 @@ namespace TrenchBroom {
             
             Model::GameEngineConfig parse();
         private:
-            Model::GameEngineProfile::List parseProfiles(const EL::Value& value) const;
+            Model::GameEngineProfile::Array parseProfiles(const EL::Value& value) const;
             Model::GameEngineProfile* parseProfile(const EL::Value& value) const;
             
             deleteCopyAndAssignment(GameEngineConfigParser)
