@@ -34,8 +34,8 @@ namespace TrenchBroom {
         
         class FileSystemHierarchy : public virtual FileSystem {
         private:
-            typedef std::vector<FileSystem*> FileSystemList;
-            FileSystemList m_fileSystems;
+            typedef std::vector<FileSystem*> FileSystemArray;
+            FileSystemArray m_fileSystems;
         public:
             FileSystemHierarchy();
             virtual ~FileSystemHierarchy();
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool doFileExists(const Path& path) const;
             FileSystem* findFileSystemContaining(const Path& path) const;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
+            Path::Array doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
 
             deleteCopyAndAssignment(FileSystemHierarchy)
