@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
             const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
 
-            Assets::TextureBuffer::List buffers(4);
+            Assets::TextureBuffer::Array buffers(4);
             Assets::setMipBufferSize(buffers, imageWidth, imageHeight);
 
             // TODO: Alpha channel seems to be unsupported by the Texture class
