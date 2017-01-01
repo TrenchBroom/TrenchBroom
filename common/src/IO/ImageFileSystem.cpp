@@ -107,8 +107,8 @@ namespace TrenchBroom {
             return it->second->findFile(path.deleteFirstComponent());
         }
         
-        Path::List ImageFileSystem::Directory::contents() const {
-            Path::List contents;
+        Path::Array ImageFileSystem::Directory::contents() const {
+            Path::Array contents;
             
             for (const auto& entry : m_directories)
                 contents.push_back(Path(entry.first));
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             return m_root.fileExists(searchPath);
         }
         
-        Path::List ImageFileSystem::doGetDirectoryContents(const Path& path) const {
+        Path::Array ImageFileSystem::doGetDirectoryContents(const Path& path) const {
             const Path searchPath = path.makeLowerCase();
             const Directory& directory = m_root.findDirectory(path);
             return directory.contents();
