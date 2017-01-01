@@ -43,8 +43,8 @@ namespace TrenchBroom {
             Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& value) const;
             Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& value) const;
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& value) const;
-            Model::BrushContentType::List parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
+            Model::GameConfig::FlagConfigArray parseFlagConfig(const EL::Value& value) const;
+            Model::BrushContentType::Array parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const;
             
             deleteCopyAndAssignment(GameConfigParser)
         };
