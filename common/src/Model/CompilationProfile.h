@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationProfile {
         public:
-            typedef std::vector<CompilationProfile*> List;
+            typedef std::vector<CompilationProfile*> Array;
             
             Notifier0 profileWillBeRemoved;
             Notifier0 profileDidChange;
