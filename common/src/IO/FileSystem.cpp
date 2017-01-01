@@ -57,15 +57,15 @@ namespace TrenchBroom {
             }
         }
 
-        Path::List FileSystem::findItems(const Path& path) const {
+        Path::Array FileSystem::findItems(const Path& path) const {
             return findItems(path, FileTypeMatcher());
         }
 
-        Path::List FileSystem::findItemsRecursively(const Path& path) const {
+        Path::Array FileSystem::findItemsRecursively(const Path& path) const {
             return findItemsRecursively(path, FileTypeMatcher());
         }
 
-        Path::List FileSystem::getDirectoryContents(const Path& path) const {
+        Path::Array FileSystem::getDirectoryContents(const Path& path) const {
             try {
                 if (path.isAbsolute())
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");
