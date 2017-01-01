@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace IO {
         namespace Disk {
             bool doCheckCaseSensitive();
-            Path findCaseSensitivePath(const Path::List& list, const Path& path);
+            Path findCaseSensitivePath(const Path::Array& list, const Path& path);
             Path fixCase(const Path& path);
             
             bool doCheckCaseSensitive() {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 return caseSensitive;
             }
             
-            Path findCaseSensitivePath(const Path::List& list, const Path& path) {
+            Path findCaseSensitivePath(const Path::Array& list, const Path& path) {
                 for (const Path& entry : list) {
                     if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
                         return entry;
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                         const String nextPathStr = (result + remainder.firstComponent()).asString();
                         if (!::wxDirExists(nextPathStr) &&
                             !::wxFileExists(nextPathStr)) {
-                            const Path::List content = getDirectoryContents(result);
+                            const Path::Array content = getDirectoryContents(result);
                             const Path part = findCaseSensitivePath(content, remainder.firstComponent());
                             if (part.isEmpty())
                                 return path;
@@ -112,13 +112,13 @@ namespace TrenchBroom {
                 return StringUtils::replaceChars(name, forbidden, "_");
             }
 
-            Path::List getDirectoryContents(const Path& path) {
+            Path::Array getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 wxDir dir(fixedPath.asString());
                 if (!dir.IsOpened())
                     throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
                 
-                Path::List result;
+                Path::Array result;
                 wxString filename;
                 if (dir.GetFirst(&filename)) {
                     result.push_back(Path(filename.ToStdString()));
@@ -144,11 +144,11 @@ namespace TrenchBroom {
                 return Path(::wxGetCwd().ToStdString());
             }
             
-            Path::List findItems(const Path& path) {
+            Path::Array findItems(const Path& path) {
                 return findItems(path, FileTypeMatcher());
             }
             
-            Path::List findItemsRecursively(const Path& path) {
+            Path::Array findItemsRecursively(const Path& path) {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
             
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
             
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path) {
+            IO::Path resolvePath(const Path::Array& searchPaths, const Path& path) {
                 if (path.isAbsolute()) {
                     if (fileExists(path) || directoryExists(path))
                         return path;
