@@ -76,11 +76,11 @@ namespace TrenchBroom {
             unused(version);
             
             Assets::TextureCollection* textures = parseTextures();
-            const TextureInfoList textureInfos = parseTextureInfos();
+            const TextureInfoArray textureInfos = parseTextureInfos();
             const Vec3f::List vertices = parseVertices();
-            const EdgeInfoList edgeInfos = parseEdgeInfos();
-            const FaceInfoList faceInfos = parseFaceInfos();
-            const FaceEdgeIndexList faceEdges = parseFaceEdges();
+            const EdgeInfoArray edgeInfos = parseEdgeInfos();
+            const FaceInfoArray faceInfos = parseFaceInfos();
+            const FaceEdgeIndexArray faceEdges = parseFaceEdges();
             
             return parseModels(textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
@@ -122,13 +122,13 @@ namespace TrenchBroom {
             return new Assets::TextureCollection(m_name, textures);
         }
         
-        Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos() {
+        Bsp29Parser::TextureInfoArray Bsp29Parser::parseTextureInfos() {
             const char* cursor = m_begin + BspLayout::DirTexInfosAddress;
             const size_t texInfosAddr = readSize<int32_t>(cursor);
             const size_t texInfosLength = readSize<int32_t>(cursor);
             const size_t texInfoCount = texInfosLength/BspLayout::TexInfoSize;
             
-            TextureInfoList textureInfos(texInfoCount);
+            TextureInfoArray textureInfos(texInfoCount);
             cursor = m_begin + texInfosAddr;
             for (size_t i = 0; i < texInfoCount; ++i) {
                 textureInfos[i].sAxis = readVec3f(cursor);
@@ -154,13 +154,13 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos() {
+        Bsp29Parser::EdgeInfoArray Bsp29Parser::parseEdgeInfos() {
             const char* cursor = m_begin + BspLayout::DirEdgesAddress;
             const size_t edgesAddr = readSize<int32_t>(cursor);
             const size_t edgesLength = readSize<int32_t>(cursor);
             const size_t edgeCount = edgesLength / (2*sizeof(uint16_t));
             
-            EdgeInfoList edgeInfos(edgeCount);
+            EdgeInfoArray edgeInfos(edgeCount);
             cursor = m_begin + edgesAddr;
             for (size_t i = 0; i < edgeCount; ++i) {
                 edgeInfos[i].vertexIndex1 = readSize<uint16_t>(cursor);
@@ -169,14 +169,14 @@ namespace TrenchBroom {
             return edgeInfos;
         }
         
-        Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos() {
+        Bsp29Parser::FaceInfoArray Bsp29Parser::parseFaceInfos() {
             const char* cursor = m_begin + BspLayout::DirFacesAddress;
             const size_t facesAddr = readSize<int32_t>(cursor);
             const size_t facesLength = readSize<int32_t>(cursor);
             const size_t faceCount = facesLength / BspLayout::FaceSize;
             
             cursor = m_begin + facesAddr;
-            FaceInfoList faceInfos(faceCount);
+            FaceInfoArray faceInfos(faceCount);
             for (size_t i = 0; i < faceCount; ++i) {
                 cursor += BspLayout::FaceEdgeIndex;
                 faceInfos[i].edgeIndex = readSize<int32_t>(cursor);
@@ -187,20 +187,20 @@ namespace TrenchBroom {
             return faceInfos;
         }
         
-        Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges() {
+        Bsp29Parser::FaceEdgeIndexArray Bsp29Parser::parseFaceEdges() {
             const char* cursor = m_begin + BspLayout::DirFaceEdgesAddress;
             const size_t faceEdgesAddr = readSize<int32_t>(cursor);
             const size_t faceEdgesLength = readSize<int32_t>(cursor);
             const size_t faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
             
             cursor = m_begin + faceEdgesAddr;
-            FaceEdgeIndexList faceEdges(faceEdgesCount);
+            FaceEdgeIndexArray faceEdges(faceEdgesCount);
             for (size_t i = 0; i < faceEdgesCount; ++i)
                 faceEdges[i] = readInt<int32_t>(cursor);
             return faceEdges;
         }
         
-        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::List& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges) {
             
             Assets::Bsp29Model* model = new Assets::Bsp29Model(m_name, textureCollection);
             try {
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                     const size_t modelFaceCount = readSize<int32_t>(cursor);
                     size_t totalVertexCount = 0;
                     
-                    Assets::Bsp29Model::FaceList faces;
+                    Assets::Bsp29Model::FaceArray faces;
                     faces.reserve(modelFaceCount);
                     for (size_t j = 0; j < modelFaceCount; ++j) {
                         const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
