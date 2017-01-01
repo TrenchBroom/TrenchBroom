@@ -79,7 +79,7 @@ namespace TrenchBroom {
             FgdParser(const String& str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status);
+            Assets::EntityDefinitionArray doParseDefinitions(ParserStatus& status);
             
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::EntityDefinition* parseSolidClass(ParserStatus& status);
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             EntityDefinitionClassInfo parseClass(ParserStatus& status);
             void skipMainClass(ParserStatus& status);
             
-            StringList parseSuperClasses(ParserStatus& status);
+            StringArray parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
             String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
