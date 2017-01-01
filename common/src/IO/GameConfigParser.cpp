@@ -49,12 +49,12 @@ namespace TrenchBroom {
             const String& name = root["name"].stringValue();
             const Path icon(root["icon"].stringValue());
             
-            const StringList fileFormats = root["fileformats"].asStringList();
+            const StringArray fileFormats = root["fileformats"].asStringList();
             const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
             const GameConfig::TextureConfig textureConfig = parseTextureConfig(root["textures"]);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(root["entities"]);
             const GameConfig::FaceAttribsConfig faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
-            const Model::BrushContentType::List brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
+            const Model::BrushContentType::Array brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
             
             return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
         }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
+            const Path::Array defFilePaths = Path::asPaths(value["definitions"].asStringList());
             const StringSet modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
             
@@ -159,18 +159,18 @@ namespace TrenchBroom {
                             "]");
 
             const GameConfig::FlagConfigList surfaceFlags = parseFlagConfig(value["surfaceflags"]);
-            const GameConfig::FlagConfigList contentFlags = parseFlagConfig(value["contentflags"]);
+            const GameConfig::FlagConfigArray contentFlags = parseFlagConfig(value["contentflags"]);
             
             return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
         }
         
-        Model::GameConfig::FlagConfigList GameConfigParser::parseFlagConfig(const EL::Value& value) const {
+        Model::GameConfig::FlagConfigArray GameConfigParser::parseFlagConfig(const EL::Value& value) const {
             using Model::GameConfig;
 
             if (value.null())
                 return GameConfig::FlagConfigList(0);
             
-            GameConfig::FlagConfigList flags;
+            GameConfig::FlagConfigArray flags;
             for (size_t i = 0; i < value.length(); ++i) {
                 const EL::Value& entry = value[i];
                 
@@ -185,13 +185,13 @@ namespace TrenchBroom {
             return flags;
         }
 
-        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
+        Model::BrushContentType::Array GameConfigParser::parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
             using Model::GameConfig;
             
             if (value.null())
-                return Model::BrushContentType::List();
+                return Model::BrushContentType::Array();
             
-            Model::BrushContentType::List contentTypes;
+            Model::BrushContentType::Array contentTypes;
             for (size_t i = 0; i < value.length(); ++i) {
                 const EL::Value& entry = value[i];
                 
