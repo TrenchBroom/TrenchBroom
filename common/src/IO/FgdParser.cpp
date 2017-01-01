@@ -129,8 +129,8 @@ namespace TrenchBroom {
             return names;
         }
 
-        Assets::EntityDefinitionList FgdParser::doParseDefinitions(ParserStatus& status) {
-            Assets::EntityDefinitionList definitions;
+        Assets::EntityDefinitionArray FgdParser::doParseDefinitions(ParserStatus& status) {
+            Assets::EntityDefinitionArray definitions;
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             Token token;
             expect(status, FgdToken::Word | FgdToken::Equality, token = m_tokenizer.nextToken());
             
-            StringList superClasses;
+            StringArray superClasses;
             EntityDefinitionClassInfo classInfo(token.line(), token.column(), m_defaultEntityColor);
             
             while (token.type() == FgdToken::Word) {
@@ -249,8 +249,8 @@ namespace TrenchBroom {
             } while (token.type() != FgdToken::CBracket);
         }
 
-        StringList FgdParser::parseSuperClasses(ParserStatus& status) {
-            StringList superClasses;
+        StringArray FgdParser::parseSuperClasses(ParserStatus& status) {
+            StringArray superClasses;
             Token token;
             expect(status, FgdToken::OParenthesis, token = m_tokenizer.nextToken());
             expect(status, FgdToken::Word | FgdToken::CParenthesis, token = m_tokenizer.peekToken());
@@ -407,7 +407,7 @@ namespace TrenchBroom {
             expect(status, FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoiceAttributeOption::Array options;
             while (token.type() != FgdToken::CBracket) {
                 const String value = token.data();
                 expect(status, FgdToken::Colon, token = m_tokenizer.nextToken());
