@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 
                 const Directory& findDirectory(const Path& path) const;
                 const MappedFile::Ptr findFile(const Path& path) const;
-                Path::List contents() const;
+                Path::Array contents() const;
             private:
                 Directory& findOrCreateDirectory(const Path& path);
             };
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
+            Path::Array doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
         private:
             virtual void doReadDirectory() = 0;
