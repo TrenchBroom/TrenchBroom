@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class GameConfig {
         public:
             struct PackageFormatConfig {
-                typedef std::vector<PackageFormatConfig> List;
+                typedef std::vector<PackageFormatConfig> Array;
                 
                 String extension;
                 String format;
@@ -87,12 +87,12 @@ namespace TrenchBroom {
             };
             
             struct EntityConfig {
-                IO::Path::List defFilePaths;
+                IO::Path::Array defFilePaths;
                 StringSet modelFormats;
                 Color defaultColor;
                 
                 EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
-                EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path::Array& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig();
 
                 bool operator==(const EntityConfig& other) const;
@@ -108,17 +108,17 @@ namespace TrenchBroom {
                 bool operator==(const FlagConfig& other) const;
             };
             
-            typedef std::vector<FlagConfig> FlagConfigList;
+            typedef std::vector<FlagConfig> FlagConfigArray;
             
             struct FlagsConfig {
-                FlagConfigList flags;
+                FlagConfigArray flags;
                 
                 FlagsConfig();
-                FlagsConfig(const FlagConfigList& i_flags);
+                FlagsConfig(const FlagConfigArray& i_flags);
 
                 int flagValue(const String& flagName) const;
                 String flagName(size_t index) const;
-                StringList flagNames(int mask = ~0) const;
+                StringArray flagNames(int mask = ~0) const;
                 
                 bool operator==(const FlagsConfig& other) const;
             };
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 FlagsConfig contentFlags;
                 
                 FaceAttribsConfig();
-                FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags);
+                FaceAttribsConfig(const FlagConfigArray& i_surfaceFlags, const FlagConfigArray& i_contentFlags);
                 
                 bool operator==(const FaceAttribsConfig& other) const;
             };
@@ -136,28 +136,28 @@ namespace TrenchBroom {
             String m_name;
             IO::Path m_path;
             IO::Path m_icon;
-            StringList m_fileFormats;
+            StringArray m_fileFormats;
             FileSystemConfig m_fileSystemConfig;
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
             FaceAttribsConfig m_faceAttribsConfig;
-            BrushContentType::List m_brushContentTypes;
+            BrushContentType::Array m_brushContentTypes;
             CompilationConfig m_compilationConfig;
             GameEngineConfig m_gameEngineConfig;
             size_t m_maxPropertyLength;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
+            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringArray& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::Array& brushContentTypes);
             
             const String& name() const;
             const IO::Path& path() const;
             const IO::Path& icon() const;
-            const StringList& fileFormats() const;
+            const StringArray& fileFormats() const;
             const FileSystemConfig& fileSystemConfig() const;
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
-            const BrushContentType::List& brushContentTypes() const;
+            const BrushContentType::Array& brushContentTypes() const;
             
             CompilationConfig& compilationConfig();
             const CompilationConfig& compilationConfig() const;
