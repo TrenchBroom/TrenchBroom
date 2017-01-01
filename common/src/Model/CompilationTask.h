@@ -39,7 +39,7 @@ namespace TrenchBroom {
         
         class CompilationTask {
         public:
-            typedef std::vector<CompilationTask*> List;
+            typedef std::vector<CompilationTask*> Array;
             
             Notifier0 taskWillBeRemoved;
             Notifier0 taskDidChange;
