@@ -41,13 +41,13 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
             
-            const Model::CompilationProfile::List profiles = parseProfiles(root["profiles"]);
+            const Model::CompilationProfile::Array profiles = parseProfiles(root["profiles"]);
 
             return Model::CompilationConfig(profiles);
         }
 
-        Model::CompilationProfile::List CompilationConfigParser::parseProfiles(const EL::Value& value) const {
-            Model::CompilationProfile::List result;
+        Model::CompilationProfile::Array CompilationConfigParser::parseProfiles(const EL::Value& value) const {
+            Model::CompilationProfile::Array result;
             
             try {
                 for (size_t i = 0; i < value.length(); ++i) {
@@ -65,13 +65,13 @@ namespace TrenchBroom {
 
             const String& name = value["name"].stringValue();
             const String& workdir = value["workdir"].stringValue();
-            const Model::CompilationTask::List tasks = parseTasks(value["tasks"]);
+            const Model::CompilationTask::Array tasks = parseTasks(value["tasks"]);
             
             return new Model::CompilationProfile(name, workdir, tasks);
         }
 
-        Model::CompilationTask::List CompilationConfigParser::parseTasks(const EL::Value& value) const {
-            Model::CompilationTask::List result;
+        Model::CompilationTask::Array CompilationConfigParser::parseTasks(const EL::Value& value) const {
+            Model::CompilationTask::Array result;
             
             try {
                 for (size_t i = 0; i < value.length(); ++i) {
