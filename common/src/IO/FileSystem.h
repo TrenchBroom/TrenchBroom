@@ -47,26 +47,26 @@ namespace TrenchBroom {
             bool fileExists(const Path& path) const;
 
             template <class Matcher>
-            Path::List findItems(const Path& path, const Matcher& matcher) const {
-                Path::List result;
+            Path::Array findItems(const Path& path, const Matcher& matcher) const {
+                Path::Array result;
                 doFindItems(path, matcher, false, result);
                 return result;
             }
-            Path::List findItems(const Path& path) const;
+            Path::Array findItems(const Path& path) const;
             
             template <class Matcher>
-            Path::List findItemsRecursively(const Path& path, const Matcher& matcher) const {
-                Path::List result;
+            Path::Array findItemsRecursively(const Path& path, const Matcher& matcher) const {
+                Path::Array result;
                 doFindItems(path, matcher, true, result);
                 return result;
             }
-            Path::List findItemsRecursively(const Path& path) const;
+            Path::Array findItemsRecursively(const Path& path) const;
             
-            Path::List getDirectoryContents(const Path& path) const;
+            Path::Array getDirectoryContents(const Path& path) const;
             const MappedFile::Ptr openFile(const Path& path) const;
         private:
             template <class M>
-            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::Array& result) const {
                 for (const Path& itemPath : getDirectoryContents(searchPath)) {
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
             
-            virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
+            virtual Path::Array doGetDirectoryContents(const Path& path) const = 0;
 
             virtual const MappedFile::Ptr doOpenFile(const Path& path) const = 0;
         };
