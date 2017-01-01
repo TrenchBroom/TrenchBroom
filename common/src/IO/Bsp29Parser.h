@@ -46,23 +46,23 @@ namespace TrenchBroom {
                 float tOffset;
                 size_t textureIndex;
             };
-            typedef std::vector<TextureInfo> TextureInfoList;
+            typedef std::vector<TextureInfo> TextureInfoArray;
             
             struct EdgeInfo {
                 size_t vertexIndex1, vertexIndex2;
             };
-            typedef std::vector<EdgeInfo> EdgeInfoList;
+            typedef std::vector<EdgeInfo> EdgeInfoArray;
             
             struct FaceInfo {
                 size_t edgeIndex;
                 size_t edgeCount;
                 size_t textureInfoIndex;
             };
-            typedef std::vector<FaceInfo> FaceInfoList;
+            typedef std::vector<FaceInfo> FaceInfoArray;
             
-            typedef std::vector<int> FaceEdgeIndexList;
-            typedef std::vector<bool> VertexMarkList;
-            typedef std::vector<size_t> ModelVertexList;
+            typedef std::vector<int> FaceEdgeIndexArray;
+            typedef std::vector<bool> VertexMarkArray;
+            typedef std::vector<size_t> ModelVertexArray;
             
             String m_name;
             const char* m_begin;
@@ -73,12 +73,12 @@ namespace TrenchBroom {
         private:
             Assets::EntityModel* doParseModel();
             Assets::TextureCollection* parseTextures();
-            TextureInfoList parseTextureInfos();
+            TextureInfoArray parseTextureInfos();
             Vec3f::List parseVertices();
-            EdgeInfoList parseEdgeInfos();
-            FaceInfoList parseFaceInfos();
-            FaceEdgeIndexList parseFaceEdges();
-            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            EdgeInfoArray parseEdgeInfos();
+            FaceInfoArray parseFaceInfos();
+            FaceEdgeIndexArray parseFaceEdges();
+            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::List& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges);
             Vec2f textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const;
         };
     }
