@@ -87,7 +87,7 @@ namespace TrenchBroom {
             defFilePaths.push_back(i_defFilePath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path::Array& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor) :
         defFilePaths(i_defFilePaths),
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
@@ -113,7 +113,7 @@ namespace TrenchBroom {
         
         GameConfig::FlagsConfig::FlagsConfig() {}
 
-        GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
+        GameConfig::FlagsConfig::FlagsConfig(const FlagConfigArray& i_flags) :
         flags(i_flags) {}
 
         int GameConfig::FlagsConfig::flagValue(const String& flagName) const {
@@ -129,11 +129,11 @@ namespace TrenchBroom {
             return flags[index].name;
         }
         
-        StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
+        StringArray GameConfig::FlagsConfig::flagNames(const int mask) const {
             if (mask == 0)
                 return EmptyStringList;
             
-            StringList names;
+            StringArray names;
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (mask & (1 << i))
                     names.push_back(flags[i].name);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
 
         GameConfig::FaceAttribsConfig::FaceAttribsConfig() {}
 
-        GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :
+        GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigArray& i_surfaceFlags, const FlagConfigArray& i_contentFlags) :
         surfaceFlags(i_surfaceFlags),
         contentFlags(i_contentFlags) {}
 
@@ -162,12 +162,12 @@ namespace TrenchBroom {
         GameConfig::GameConfig(const String& name,
                                const IO::Path& path,
                                const IO::Path& icon,
-                               const StringList& fileFormats,
+                               const StringArray& fileFormats,
                                const FileSystemConfig& fileSystemConfig,
                                const TextureConfig& textureConfig,
                                const EntityConfig& entityConfig,
                                const FaceAttribsConfig& faceAttribsConfig,
-                               const BrushContentType::List& brushContentTypes) :
+                               const BrushContentType::Array& brushContentTypes) :
         m_name(name),
         m_path(path),
         m_icon(icon),
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             return m_icon;
         }
 
-        const StringList& GameConfig::fileFormats() const {
+        const StringArray& GameConfig::fileFormats() const {
             return m_fileFormats;
         }
 
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             return m_faceAttribsConfig;
         }
 
-        const BrushContentType::List& GameConfig::brushContentTypes() const {
+        const BrushContentType::Array& GameConfig::brushContentTypes() const {
             return m_brushContentTypes;
         }
 
