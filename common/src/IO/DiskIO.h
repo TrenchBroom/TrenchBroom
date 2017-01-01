@@ -38,12 +38,12 @@ namespace TrenchBroom {
             
             String replaceForbiddenChars(const String& name);
             
-            Path::List getDirectoryContents(const Path& path);
+            Path::Array getDirectoryContents(const Path& path);
             MappedFile::Ptr openFile(const Path& path);
             Path getCurrentWorkingDir();
             
             template <class M>
-            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) {
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::Array& result) {
                 for (const Path& itemPath : getDirectoryContents(searchPath)) {
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
@@ -54,22 +54,22 @@ namespace TrenchBroom {
             }
             
             template <typename M>
-            Path::List findItems(const Path& path, const M& matcher) {
-                Path::List result;
+            Path::Array findItems(const Path& path, const M& matcher) {
+                Path::Array result;
                 doFindItems(path, matcher, false, result);
                 return result;
             }
             
-            Path::List findItems(const Path& path);
+            Path::Array findItems(const Path& path);
             
             template <typename M>
-            Path::List findItemsRecursively(const Path& path, const M& matcher) {
-                Path::List result;
+            Path::Array findItemsRecursively(const Path& path, const M& matcher) {
+                Path::Array result;
                 doFindItems(path, matcher, true, result);
                 return result;
             }
             
-            Path::List findItemsRecursively(const Path& path);
+            Path::Array findItemsRecursively(const Path& path);
             
             void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                     moveFile(filePath, destDirPath, overwrite);
             }
             
-            Path resolvePath(const Path::List& searchPaths, const Path& path);
+            Path resolvePath(const Path::Array& searchPaths, const Path& path);
         }
     }
 }
