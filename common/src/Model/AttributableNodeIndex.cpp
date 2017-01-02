@@ -95,17 +95,17 @@ namespace TrenchBroom {
             m_valueIndex.remove(value, attributable);
         }
 
-        AttributableNodeList AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributeValue& value) const {
+        AttributableNodeArray AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributeValue& value) const {
             const AttributableNodeSet nameResult = nameQuery.execute(m_nameIndex);
             const AttributableNodeSet valueResult = m_valueIndex.queryExactMatches(value);
             
             if (nameResult.empty() || valueResult.empty())
                 return EmptyAttributableNodeList;
 
-            AttributableNodeList result;
+            AttributableNodeArray result;
             SetUtils::intersection(nameResult, valueResult, result);
             
-            AttributableNodeList::iterator it = std::begin(result);
+            AttributableNodeArray::iterator it = std::begin(result);
             while (it != std::end(result)) {
                 const AttributableNode* node = *it;
                 if (!nameQuery.execute(node, value))
