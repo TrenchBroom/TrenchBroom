@@ -34,12 +34,12 @@ namespace TrenchBroom {
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory* m_factory;
-            Model::NodeList m_nodes;
+            Model::NodeArray m_nodes;
         public:
             NodeReader(const String& str, Model::ModelFactory* factory);
             
-            static Model::NodeList read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds, ParserStatus& status);
-            const Model::NodeList& read(const BBox3& worldBounds, ParserStatus& status);
+            static Model::NodeArray read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds, ParserStatus& status);
+            const Model::NodeArray& read(const BBox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds);
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
