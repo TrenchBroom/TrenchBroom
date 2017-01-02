@@ -381,8 +381,8 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const;
+            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const;
             
             void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
@@ -433,8 +433,8 @@ namespace TrenchBroom {
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
             
-            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const;
             
             virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
