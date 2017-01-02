@@ -25,14 +25,14 @@ namespace TrenchBroom {
         contentType(i_contentType),
         transparent(i_transparent) {}
 
-        BrushContentTypeBuilder::BrushContentTypeBuilder(const BrushContentType::List& contentTypes) :
+        BrushContentTypeBuilder::BrushContentTypeBuilder(const BrushContentType::Array& contentTypes) :
         m_contentTypes(contentTypes) {}
         
         BrushContentTypeBuilder::Result BrushContentTypeBuilder::buildContentType(const Brush* brush) const {
             BrushContentType::FlagType flags = 0;
             bool transparent = false;
             
-            BrushContentType::List::const_iterator it, end;
+            BrushContentType::Array::const_iterator it, end;
             for (it = std::begin(m_contentTypes), end = std::end(m_contentTypes); it != end; ++it) {
                 const BrushContentType& contentType = *it;
                 if (contentType.evaluate(brush)) {
