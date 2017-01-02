@@ -64,7 +64,7 @@ namespace TrenchBroom {
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:
-            BrushFaceList m_faces;
+            BrushFaceArray m_faces;
             BrushGeometry* m_geometry;
             
             const BrushContentTypeBuilder* m_contentTypeBuilder;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
         public:
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushFaceArray& faces);
             ~Brush();
         private:
             void cleanup();
@@ -87,14 +87,14 @@ namespace TrenchBroom {
             BrushFace* findFace(const Polygon3::List& candidates) const;
             
             size_t faceCount() const;
-            const BrushFaceList& faces() const;
-            void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
+            const BrushFaceArray& faces() const;
+            void setFaces(const BBox3& worldBounds, const BrushFaceArray& faces);
             
             bool fullySpecified() const;
             
             void faceDidChange();
         private:
-            void addFaces(const BrushFaceList& faces);
+            void addFaces(const BrushFaceArray& faces);
             template <typename I>
             void addFaces(I cur, I end, size_t count) {
                 m_faces.reserve(m_faces.size() + count);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             
             template <typename I>
             void removeFaces(I cur, I end) {
-                BrushFaceList::iterator rem = std::end(m_faces);
+                BrushFaceArray::iterator rem = std::end(m_faces);
                 while (cur != end) {
                     rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
@@ -117,14 +117,14 @@ namespace TrenchBroom {
             }
             
             void removeFace(BrushFace* face);
-            BrushFaceList::iterator doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face);
+            BrushFaceArray::iterator doRemoveFace(BrushFaceArray::iterator begin, BrushFaceArray::iterator end, BrushFace* face);
             
-            void detachFaces(const BrushFaceList& faces);
+            void detachFaces(const BrushFaceArray& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const BrushList& brushes);
+            void cloneFaceAttributesFrom(const BrushArray& brushes);
             void cloneFaceAttributesFrom(const Brush* brush);
-            void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
+            void cloneInvertedFaceAttributesFrom(const BrushArray& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
         public: // clipping
             bool clip(const BBox3& worldBounds, BrushFace* face);
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             
             bool containsPoint(const Vec3& point) const;
             
-            BrushFaceList incidentFaces(const BrushVertex* vertex) const;
+            BrushFaceArray incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, const Vec3& delta) const;
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
         public:
             // CSG operations
-            BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            BrushArray subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
             void intersect(const BBox3& worldBounds, const Brush* brush);
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
@@ -219,12 +219,12 @@ namespace TrenchBroom {
 
             bool doSelectable() const;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
+            void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
+            void doFindNodesContaining(const Vec3& point, NodeArray& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
 
             struct BrushFaceHit {
