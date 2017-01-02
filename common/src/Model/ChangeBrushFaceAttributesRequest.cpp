@@ -231,7 +231,7 @@ namespace TrenchBroom {
             return "Change Face Attributes";
         }
 
-        void ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceList& faces) const {
+        void ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceArray& faces) const {
             for (BrushFace* face : faces) {
                 switch (m_textureOp) {
                     case TextureOp_Set:
