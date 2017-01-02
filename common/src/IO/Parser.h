@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();
                 
-                StringList names;
+                StringArray names;
                 for (const auto& entry : m_tokenNames) {
                     const TokenType type = entry.first;
                     const String& name = entry.second;
