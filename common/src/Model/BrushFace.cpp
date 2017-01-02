@@ -96,7 +96,7 @@ namespace TrenchBroom {
             return new BrushFace(point0, point1, point2, attribs, new ParallelTexCoordSystem(point0, point1, point2, attribs));
         }
         
-        void BrushFace::sortFaces(BrushFaceList& faces) {
+        void BrushFace::sortFaces(BrushFaceArray& faces) {
             std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(true)));
             std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(false)));
         }
