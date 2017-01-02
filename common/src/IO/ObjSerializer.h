@@ -64,7 +64,7 @@ namespace TrenchBroom {
             };
             
             typedef std::vector<IndexedVertex> IndexedVertexArray;
-            typedef std::list<IndexedVertexList> FaceList;
+            typedef std::list<IndexedVertexArray> FaceList;
 
             struct Object {
                 size_t entityNo;
