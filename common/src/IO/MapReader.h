@@ -67,18 +67,18 @@ namespace TrenchBroom {
             typedef std::map<Model::IdType, Model::Group*> GroupMap;
             
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
-            typedef std::vector<NodeParentPair> NodeParentList;
+            typedef std::vector<NodeParentPair> NodeParentArray;
             
             BBox3 m_worldBounds;
             Model::ModelFactory* m_factory;
             
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
-            Model::BrushFaceList m_faces;
+            Model::BrushFaceArray m_faces;
             
             LayerMap m_layers;
             GroupMap m_groups;
-            NodeParentList m_unresolvedNodes;
+            NodeParentArray m_unresolvedNodes;
         protected:
             MapReader(const char* begin, const char* end);
             MapReader(const String& str);
