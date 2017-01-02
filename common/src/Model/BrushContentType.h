@@ -34,7 +34,7 @@ namespace TrenchBroom {
         public:
             typedef int FlagType;
             typedef std::vector<BrushContentType> Array;
-            static const Array EmptyList;
+            static const Array EmptyArray;
         private:
             typedef std::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
             
