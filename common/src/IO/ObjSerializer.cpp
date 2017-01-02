@@ -81,7 +81,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ObjFileSerializer::writeFaces(const FaceList& faces) {
+        void ObjFileSerializer::writeFaces(const FaceArray& faces) {
             for (const IndexedVertexList& face : faces) {
                 std::fprintf(m_stream, "f");
                 for (const IndexedVertex& vertex : face) {
