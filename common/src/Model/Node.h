@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class Node {
         private:
             Node* m_parent;
-            NodeList m_children;
+            NodeArray m_children;
             size_t m_descendantCount;
             bool m_selected;
             
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             size_t m_lineNumber;
             size_t m_lineCount;
 
-            mutable IssueList m_issues;
+            mutable IssueArray m_issues;
             mutable bool m_issuesValid;
             IssueType m_hiddenIssues;
         protected:
@@ -63,8 +63,8 @@ namespace TrenchBroom {
         protected:
             void cloneAttributes(Node* node) const;
             
-            static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
-            static NodeList cloneRecursively(const BBox3& worldBounds, const NodeList& nodes);
+            static NodeArray clone(const BBox3& worldBounds, const NodeArray& nodes);
+            static NodeArray cloneRecursively(const BBox3& worldBounds, const NodeArray& nodes);
             
             template <typename I, typename O>
             static void clone(const BBox3& worldBounds, I cur, I end, O result) {
@@ -87,20 +87,20 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
-            bool isAncestorOf(const NodeList& nodes) const;
+            bool isAncestorOf(const NodeArray& nodes) const;
             bool isDescendantOf(const Node* node) const;
-            bool isDescendantOf(const NodeList& nodes) const;
-            NodeList findDescendants(const NodeList& nodes) const;
+            bool isDescendantOf(const NodeArray& nodes) const;
+            NodeArray findDescendants(const NodeArray& nodes) const;
             
             bool removeIfEmpty() const;
             
             bool hasChildren() const;
             size_t childCount() const;
-            const NodeList& children() const;
+            const NodeArray& children() const;
             size_t descendantCount() const;
             size_t familySize() const;
         public:
-            void addChildren(const NodeList& children);
+            void addChildren(const NodeArray& children);
             
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
@@ -234,21 +234,21 @@ namespace TrenchBroom {
             bool setLockState(LockState lockState);
         public: // picking
             void pick(const Ray3& ray, PickResult& result) const;
-            void findNodesContaining(const Vec3& point, NodeList& result);
+            void findNodesContaining(const Vec3& point, NodeArray& result);
             FloatType intersectWithRay(const Ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
         public: // issue management
-            const IssueList& issues(const IssueGeneratorList& issueGenerators);
+            const IssueArray& issues(const IssueGeneratorArray& issueGenerators);
             
             bool issueHidden(IssueType type) const;
             void setIssueHidden(IssueType type, bool hidden);
         public: // should only be called from this and from the world
             void invalidateIssues() const;
         private:
-            void validateIssues(const IssueGeneratorList& issueGenerators);
+            void validateIssues(const IssueGeneratorArray& issueGenerators);
             void clearIssues() const;
         public: // visitors
             template <class V>
@@ -425,10 +425,10 @@ namespace TrenchBroom {
             virtual bool doSelectable() const = 0;
             
             virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
-            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) = 0;
+            virtual void doFindNodesContaining(const Vec3& point, NodeArray& result) = 0;
             virtual FloatType doIntersectWithRay(const Ray3& ray) const = 0;
             
-            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
+            virtual void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) = 0;
             
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
