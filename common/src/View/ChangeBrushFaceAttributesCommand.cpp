@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             assert(!faces.empty());
             
             assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(faces.begin(), faces.end());
+            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
             
             document->performChangeBrushFaceAttributes(m_request);
             return true;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(*this));
+            return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(m_request));
         }
         
         bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -91,11 +91,13 @@ namespace TrenchBroom {
         
         void EntityDefinition::incUsageCount() {
             ++m_usageCount;
+            usageCountDidChangeNotifier();
         }
         
         void EntityDefinition::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
+            usageCountDidChangeNotifier();
         }
         
         struct FindSpawnflagsDefinition {
@@ -118,7 +120,7 @@ namespace TrenchBroom {
             }
         };
 
-        const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
+        const AttributeDefinitionArray& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
 
@@ -130,22 +132,23 @@ namespace TrenchBroom {
             return entityDefinition != NULL ? entityDefinition->attributeDefinition(attributeKey) : NULL;
         }
 
-        EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
-            EntityDefinitionList result;
-            EntityDefinitionList::const_iterator it, end;
-            for (it = definitions.begin(), end = definitions.end(); it != end; ++it) {
-                EntityDefinition* definition = *it;
+        EntityDefinitionArray EntityDefinition::filterAndSort(const EntityDefinitionArray& definitions, const EntityDefinition::Type type, const SortOrder order) {
+            EntityDefinitionArray result;
+            
+            for (EntityDefinition* definition : definitions) {
                 if (definition->type() == type)
                     result.push_back(definition);
             }
+            
             if (order == Usage)
-                std::sort(result.begin(), result.end(), CompareByUsage());
+                std::sort(std::begin(result), std::end(result), CompareByUsage());
             else
-                std::sort(result.begin(), result.end(), CompareByName(false));
+                std::sort(std::begin(result), std::end(result), CompareByName(false));
+            
             return result;
         }
 
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions) :
         m_index(0),
         m_name(name),
         m_color(color),
@@ -153,10 +156,10 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinitionList& modelDefinitions) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionArray& attributeDefinitions, const ModelDefinition& modelDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
-        m_modelDefinitions(modelDefinitions) {}
+        m_modelDefinition(modelDefinition) {}
         
         EntityDefinition::Type PointEntityDefinition::type() const {
             return Type_PointEntity;
@@ -167,26 +170,18 @@ namespace TrenchBroom {
         }
         
         ModelSpecification PointEntityDefinition::model(const Model::EntityAttributes& attributes) const {
-            ModelDefinitionList::const_reverse_iterator it, end;
-            for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
-                ModelDefinitionPtr modelDefinition = *it;
-                if (modelDefinition->matches(attributes))
-                    return modelDefinition->modelSpecification(attributes);
-            }
-            return ModelSpecification(IO::Path(""), 0, 0);
+            return m_modelDefinition.modelSpecification(attributes);
         }
 
         ModelSpecification PointEntityDefinition::defaultModel() const {
-            if (m_modelDefinitions.empty())
-                return ModelSpecification(IO::Path(""), 0, 0);
-            return m_modelDefinitions.front()->defaultModelSpecification();
+            return m_modelDefinition.defaultModelSpecification();
         }
 
-        const ModelDefinitionList& PointEntityDefinition::modelDefinitions() const {
-            return m_modelDefinitions;
+        const ModelDefinition& PointEntityDefinition::modelDefinition() const {
+            return m_modelDefinition;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionArray& attributeDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions) {}
         
         EntityDefinition::Type BrushEntityDefinition::type() const {

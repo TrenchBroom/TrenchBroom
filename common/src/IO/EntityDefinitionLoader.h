@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,9 +30,9 @@ namespace TrenchBroom {
         class EntityDefinitionLoader {
         public:
             virtual ~EntityDefinitionLoader();
-            Assets::EntityDefinitionList loadEntityDefinitions(ParserStatus& status, const IO::Path& path) const;
+            Assets::EntityDefinitionArray loadEntityDefinitions(ParserStatus& status, const IO::Path& path) const;
         private:
-            virtual Assets::EntityDefinitionList doLoadEntityDefinitions(ParserStatus& status, const IO::Path& path) const = 0;
+            virtual Assets::EntityDefinitionArray doLoadEntityDefinitions(ParserStatus& status, const IO::Path& path) const = 0;
         };
     }
 }

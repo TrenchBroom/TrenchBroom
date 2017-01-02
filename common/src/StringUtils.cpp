@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -106,29 +106,37 @@ namespace StringUtils {
     }
 
     bool containsCaseSensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>()) != haystack.end();
+        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), CharEqual<CaseSensitiveCharCompare>()) != std::end(haystack);
     }
     
     bool containsCaseInsensitive(const String& haystack, const String& needle) {
-        return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),  CharEqual<CaseInsensitiveCharCompare>()) != haystack.end();
+        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle),  CharEqual<CaseInsensitiveCharCompare>()) != std::end(haystack);
     }
     
-    void sortCaseSensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseSensitiveCharCompare>());
+    void sortCaseSensitive(StringArray& strs) {
+        std::sort(std::begin(strs), std::end(strs), StringLess<CaseSensitiveCharCompare>());
     }
     
-    void sortCaseInsensitive(StringList& strs) {
-        std::sort(strs.begin(), strs.end(), StringLess<CaseInsensitiveCharCompare>());
+    void sortCaseInsensitive(StringArray& strs) {
+        std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
     }
     
     bool caseSensitiveEqual(const String& str1, const String& str2) {
         return isEqual(str1, str2, CaseSensitiveCharCompare());
     }
     
+    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2) {
+        return isEqual(s1, e1, str2, CaseSensitiveCharCompare());
+    }
+    
     bool caseInsensitiveEqual(const String& str1, const String& str2) {
         return isEqual(str1, str2, CaseInsensitiveCharCompare());
     }
     
+    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2) {
+        return isEqual(s1, e1, str2, CaseInsensitiveCharCompare());
+    }
+
     bool caseSensitivePrefix(const String& str, const String& prefix) {
         return isPrefix(str, prefix, CaseSensitiveCharCompare());
     }
@@ -149,32 +157,35 @@ namespace StringUtils {
         return str.find_first_not_of(" \t\n\r") == String::npos;
     }
 
-    bool matchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end());
+    bool caseSensitiveMatchesPattern(const String& str, const String& pattern) {
+        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseSensitiveCharCompare>());
+    }
+    
+    bool caseInsensitiveMatchesPattern(const String& str, const String& pattern) {
+        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
     }
 
     long makeHash(const String& str) {
         long hash = 0;
-        String::const_iterator it, end;
-        for (it = str.begin(), end = str.end(); it != end; ++it)
-            hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
+        for (size_t i = 0; i < str.size(); ++i)
+            hash = static_cast<long>(str[i]) + (hash << 6) + (hash << 16) - hash;
         return hash;
     }
     
     String toLower(const String& str) {
         String result(str);
-        std::transform(result.begin(), result.end(), result.begin(), tolower);
+        std::transform(std::begin(result), std::end(result), std::begin(result), tolower);
         return result;
     }
     
     String replaceChars(const String& str, const String& needles, const String& replacements) {
-        if (needles.size() != replacements.size() || needles.empty() || str.empty())
+        if (replacements.empty() || needles.empty() || str.empty())
             return str;
         
         String result = str;
         for (size_t i = 0; i < needles.size(); ++i) {
             if (result[i] == needles[i])
-                result[i] = replacements[i];
+                result[i] = replacements[std::max(i, replacements.size())];
         }
         return result;
     }
@@ -249,9 +260,85 @@ namespace StringUtils {
         return std::atol(str.c_str());
     }
     
+    double stringToDouble(const String& str) {
+        return std::atof(str.c_str());
+    }
+
     size_t stringToSize(const String& str) {
         const long longValue = stringToLong(str);
         assert(longValue >= 0);
         return static_cast<size_t>(longValue);
     }
+    
+    StringArray splitAndUnescape(const String& str, const char d) {
+        StringStream escapedStr;
+        escapedStr << d << '\\';
+        const String escaped = escapedStr.str();
+        
+        StringArray result;
+        char l = 0;
+        char ll = 0;
+        size_t li = 0;
+        for (size_t i = 0; i < str.size(); ++i) {
+            const char c = str[i];
+            
+            if (c == d && (l != '\\' || ll == '\\')) {
+                result.push_back(unescape(str.substr(li, i-li), escaped));
+                li = i+1;
+            }
+            
+            ll = l;
+            l = c;
+        }
+        
+        if (!str.empty() && li <= str.size())
+            result.push_back(unescape(str.substr(li), escaped));
+        
+        return result;
+    }
+    
+    String escapeAndJoin(const StringArray& strs, const char d) {
+        StringStream escapedStr;
+        escapedStr << d << '\\';
+        const String escaped = escapedStr.str();
+        
+        StringStream buffer;
+
+        for (size_t i = 0; i < strs.size(); ++i) {
+            const String& str = strs[i];
+            buffer << escape(str, escaped);
+            if (i < strs.size() - 1)
+                buffer << d;
+        }
+        
+        return buffer.str();
+    }
+
+    StringArray makeList(const size_t count, const char* str1, ...) {
+        StringArray result;
+        result.reserve(count);
+        result.push_back(str1);
+        
+        va_list(strs);
+        va_start(strs, str1);
+        for (size_t i = 0; i < count - 1; ++i)
+            result.push_back(va_arg(strs, const char*));
+        va_end(strs);
+        
+        return result;
+    }
+    
+    StringSet makeSet(const size_t count, const char* str1, ...) {
+        StringSet result;
+        result.insert(str1);
+        
+        va_list(strs);
+        va_start(strs, str1);
+        for (size_t i = 0; i < count - 1; ++i)
+            result.insert(va_arg(strs, const char*));
+        va_end(strs);
+        
+        return result;
+    }
+
 }

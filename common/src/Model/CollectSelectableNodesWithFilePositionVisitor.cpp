@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,9 +25,10 @@ namespace TrenchBroom {
         m_positions(positions) {}
         
         bool MatchNodesWithFilePosition::operator()(const Model::Node* node) const {
-            for (size_t i = 0; i < m_positions.size(); ++i)
-                if (node->containsLine(m_positions[i]))
+            for (const size_t position : m_positions) {
+                if (node->containsLine(position))
                     return true;
+            }
             return false;
         }
 

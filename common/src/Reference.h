@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Reference {
         class Holder {
         public:
-            typedef std::tr1::shared_ptr<Holder> Ptr;
+            typedef std::shared_ptr<Holder> Ptr;
             virtual ~Holder() {}
         };
 
@@ -94,6 +94,12 @@ namespace TrenchBroom {
         
         T& get() { return static_cast<TypedHolder*>(m_holder.get())->get(); }
         const T& get() const { return static_cast<TypedHolder*>(m_holder.get())->get(); }
+        
+        T& operator*() { return get(); }
+        const T& operator*() const { return get(); }
+        
+        T* operator->() { return &get(); }
+        const T* operator->() const { return &get(); }
     };
     
     namespace Reference {

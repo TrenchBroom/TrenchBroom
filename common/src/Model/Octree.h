@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -71,8 +71,8 @@ namespace TrenchBroom {
                     }
                 }
                 
-                typename List::const_iterator it = std::find(m_objects.begin(), m_objects.end(), object);
-                return it != m_objects.end();
+                typename List::const_iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
+                return it != std::end(m_objects);
             }
             
             OctreeNode* addObject(const BBox<F,3>& bounds, T object) {
@@ -106,8 +106,8 @@ namespace TrenchBroom {
             }
             
             bool removeObject(T object) {
-                typename List::iterator it = std::find(m_objects.begin(), m_objects.end(), object);
-                if (it == m_objects.end())
+                typename List::iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
+                if (it == std::end(m_objects))
                     return false;
                 m_objects.erase(it);
                 return true;
@@ -129,7 +129,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 8; ++i)
                     if (m_children[i] != NULL)
                         m_children[i]->findObjects(ray, result);
-                result.insert(result.end(), m_objects.begin(), m_objects.end());
+                result.insert(std::end(result), std::begin(m_objects), std::end(m_objects));
             }
             
             void findObjects(const Vec<F,3>& point, List& result) const {
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 8; ++i)
                     if (m_children[i] != NULL)
                         m_children[i]->findObjects(point, result);
-                result.insert(result.end(), m_objects.begin(), m_objects.end());
+                result.insert(std::end(result), std::begin(m_objects), std::end(m_objects));
             }
         private:
             BBox<F,3> octant(const size_t index) const {
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             
             void removeObject(T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
-                if (it == m_objectMap.end())
+                if (it == std::end(m_objectMap))
                     throw OctreeException("Cannot find object in octree");
                 
                 OctreeNode<F,T>* node = it->second;
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             
             void updateObject(const BBox<F,3>& bounds, T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
-                if (it == m_objectMap.end())
+                if (it == std::end(m_objectMap))
                     throw OctreeException("Cannot find object in octree");
 
                 OctreeNode<F,T>* oldNode = it->second;

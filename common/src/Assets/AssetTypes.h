@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,34 +29,31 @@
 namespace TrenchBroom {
     namespace Assets {
         class Palette;
+        class PaletteLoader;
         
         class Texture;
-        typedef std::vector<Texture*> TextureList;
+        typedef std::vector<Texture*> TextureArray;
         
         class TextureCollection;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
-        
-        class TextureCollectionSpec;
+        typedef std::vector<TextureCollection*> TextureCollectionArray;
         
         class EntityDefinition;
         class PointEntityDefinition;
         class BrushEntityDefinition;
-        typedef std::vector<EntityDefinition*> EntityDefinitionList;
+        typedef std::vector<EntityDefinition*> EntityDefinitionArray;
         
         class EntityDefinitionFileSpec;
         
         class AttributeDefinition;
-        typedef std::tr1::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
-        typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
+        typedef std::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
+        typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionArray;
         typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
         
         class ModelDefinition;
-        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
-        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
-        static const ModelDefinitionList EmptyModelDefinitionList;
         
+        class EntityModelManager;
         class EntityModel;
-        typedef std::vector<EntityModel*> EntityModelList;
+        typedef std::vector<EntityModel*> EntityModelArray;
     }
 }
 

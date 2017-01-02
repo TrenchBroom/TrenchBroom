@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,6 +24,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "IO/ELParser.h"
+#include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
 namespace TrenchBroom {
@@ -38,29 +40,27 @@ namespace TrenchBroom {
         
         DefTokenizer::Token DefTokenizer::emitToken() {
             while (!eof()) {
-                size_t startLine = line();
-                size_t startColumn = column();
+                const size_t startLine = line();
+                const size_t startColumn = column();
                 const char* c = curPos();
                 switch (*c) {
                     case '/': {
-                        advance();
-                        if (curChar() == '*') {
+                        if (lookAhead() == '*') {
                             // eat all chars immediately after the '*' because it's often followed by QUAKE
                             do { advance(); } while (!eof() && !isWhitespace(curChar()));
                             return Token(DefToken::ODefinition, c, curPos(), offset(c), startLine, startColumn);
-                        } else if (curChar() == '/') {
+                        } else if (lookAhead() == '/') {
                             discardUntil("\n\r");
                             break;
                         }
                         // fall through and try to read as word
-                        retreat();
                     }
                     case '*': {
-                        advance();
-                        if (curChar() == '/')
+                        if (lookAhead() == '/') {
+                            advance();
                             return Token(DefToken::CDefinition, c, curPos(), offset(c), startLine, startColumn);
+                        }
                         // fall through and try to read as word
-                        retreat();
                     }
                     case '(':
                         advance();
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                         e = readDecimal(WordDelims);
                         if (e != NULL)
                             return Token(DefToken::Decimal, c, e, offset(c), startLine, startColumn);
-                        e = readString(WordDelims);
+                        e = readUntil(WordDelims);
                         if (e == NULL)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(DefToken::Word, c, e, offset(c), startLine, startColumn);
@@ -145,8 +145,8 @@ namespace TrenchBroom {
             return names;
         }
 
-        Assets::EntityDefinitionList DefParser::doParseDefinitions(ParserStatus& status) {
-            Assets::EntityDefinitionList definitions;
+        Assets::EntityDefinitionArray DefParser::doParseDefinitions(ParserStatus& status) {
+            Assets::EntityDefinitionArray definitions;
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             
             expect(status, DefToken::ODefinition, token);
             
-            StringList baseClasses;
+            StringArray baseClasses;
             EntityDefinitionClassInfo classInfo;
             
             token = m_tokenizer.nextToken();
@@ -201,11 +201,8 @@ namespace TrenchBroom {
             expect(status, DefToken::Newline, token = m_tokenizer.nextToken());
             
             Assets::AttributeDefinitionMap attributes;
-            Assets::ModelDefinitionList models;
-            StringList superClasses;
-            parserAttributes(status, attributes, models, superClasses);
-            classInfo.addAttributeDefinitions(attributes);
-            classInfo.addModelDefinitions(models);
+            StringArray superClasses;
+            parseAttributes(status, classInfo, superClasses);
             
             classInfo.setDescription(StringUtils::trim(parseDescription()));
             expect(status, DefToken::CDefinition, token = m_tokenizer.nextToken());
@@ -213,7 +210,7 @@ namespace TrenchBroom {
             if (classInfo.hasColor()) {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
-                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.models());
+                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
                 return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
             }
             
@@ -243,15 +240,15 @@ namespace TrenchBroom {
             return Assets::AttributeDefinitionPtr(definition);
         }
         
-        void DefParser::parserAttributes(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringArray& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
                 token = m_tokenizer.nextToken();
-                while (parseAttribute(status, attributes, modelDefinitions, superClasses));
+                while (parseAttribute(status, classInfo, superClasses));
             }
         }
         
-        bool DefParser::parseAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringArray& superClasses) {
             Token token;
             expect(status, DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
@@ -262,11 +259,11 @@ namespace TrenchBroom {
                 // ignore these attributes
                 parseDefaultAttribute(status);
             } else if (typeName == "base") {
-                parseBaseAttribute(status, superClasses);
+                superClasses.push_back(parseBaseAttribute(status));
             } else if (typeName == "choice") {
-                parseChoiceAttribute(status, attributes);
+                classInfo.addAttributeDefinition(parseChoiceAttribute(status));
             } else if (typeName == "model") {
-                parseModelDefinitions(status, modelDefinitions);
+                classInfo.setModelDefinition(parseModel(status));
             }
             
             expect(status, DefToken::Semicolon, token = nextTokenIgnoringNewlines());
@@ -284,22 +281,22 @@ namespace TrenchBroom {
             expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
         }
 
-        void DefParser::parseBaseAttribute(ParserStatus& status, StringList& superClasses) {
+        String DefParser::parseBaseAttribute(ParserStatus& status) {
             Token token;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
             expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
             const String basename = token.data();
             expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
             
-            superClasses.push_back(basename);
+            return basename;
         }
 
-        void DefParser::parseChoiceAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes) {
+        Assets::AttributeDefinitionPtr DefParser::parseChoiceAttribute(ParserStatus& status) {
             Token token;
             expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
             const String attributeName = token.data();
             
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoiceAttributeOption::Array options;
             expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
             token = nextTokenIgnoringNewlines();
             while (token.type() == DefToken::OParenthesis) {
@@ -316,112 +313,39 @@ namespace TrenchBroom {
             
             expect(status, DefToken::CParenthesis, token);
             
-            attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options));
+            return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options));
         }
 
-        void DefParser::parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
-            Assets::ModelDefinitionList result;
-            Token token;
-            expect(status, DefToken::OParenthesis, token = m_tokenizer.nextToken());
-            expect(status, DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            if (token.type() == DefToken::QuotedString || token.type() == DefToken::Word) {
-                m_tokenizer.pushToken(token);
-                do {
-                    expect(status, DefToken::QuotedString | DefToken::Word, token = m_tokenizer.peekToken());
-                    if (token.type() == DefToken::QuotedString)
-                        parseStaticModelDefinition(status, modelDefinitions);
-                    else
-                        parseDynamicModelDefinition(status, modelDefinitions);
-                    expect(status, DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                } while (token.type() == DefToken::Comma);
-            }
-        }
-
-        void DefParser::parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
-            Token token;
-            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-            const String pathStr = token.data();
-            const IO::Path path(!pathStr.empty() && pathStr[0] == ':' ? pathStr.substr(1) : pathStr);
+        Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {
+            expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
             
-            std::vector<size_t> indices;
+            const TokenizerState::Snapshot snapshot = m_tokenizer.snapshot();
+            const size_t line = m_tokenizer.line();
+            const size_t column = m_tokenizer.column();
             
-            expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            if (token.type() == DefToken::Integer) {
-                indices.push_back(token.toInteger<size_t>());
-                expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                if (token.type() == DefToken::Integer) {
-                    indices.push_back(token.toInteger<size_t>());
-                    expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+            try {
+                ELParser parser(m_tokenizer);
+                EL::Expression expression = parser.parse();
+                expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
+                
+                expression.optimize();
+                return Assets::ModelDefinition(expression);
+            } catch (const ParserException& e) {
+                try {
+                    m_tokenizer.restore(snapshot);
+                    
+                    LegacyModelDefinitionParser parser(m_tokenizer);
+                    EL::Expression expression = parser.parse(status);
+                    expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
+                    
+                    expression.optimize();
+                    status.warn(line, column, "Legacy model expressions are deprecated, replace with '" + expression.asString() + "'");
+                    return Assets::ModelDefinition(expression);
+                } catch (const ParserException&) {
+                    m_tokenizer.restore(snapshot);
+                    throw e;
                 }
             }
-            
-            size_t skinIndex = 0;
-            size_t frameIndex = 0;
-            if (!indices.empty()) {
-                skinIndex = indices[0];
-                if (indices.size() > 1)
-                    frameIndex = indices[1];
-            }
-            
-            if (token.type() == DefToken::Word) {
-                const String attributeKey = token.data();
-                expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                expect(status, DefToken::QuotedString | DefToken::Integer, token = m_tokenizer.nextToken());
-                if (token.type() == DefToken::QuotedString) {
-                    const String attributeValue = token.data();
-                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, attributeValue)));
-                } else {
-                    const int flagValue = token.toInteger<int>();
-                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, flagValue)));
-                }
-            } else {
-                m_tokenizer.pushToken(token);
-                modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex)));
-            }
-        }
-        
-        void DefParser::parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
-            Token token;
-            String pathKey, skinKey, frameKey;
-            
-            expect(status, DefToken::Word, token = m_tokenizer.nextToken());
-            if (!StringUtils::caseInsensitiveEqual("pathKey", token.data())) {
-                const String msg = "Expected 'pathKey', but found '" + token.data() + "'";
-                status.error(token.line(), token.column(), msg);
-                throw ParserException(token.line(), token.column(), msg);
-            }
-            
-            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-            pathKey = token.data();
-            
-            expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            while (token.type() == DefToken::Word) {
-                if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    skinKey = parseNamedValue(status, "skinKey");
-                } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                    m_tokenizer.pushToken(token);
-                    frameKey = parseNamedValue(status, "frameKey");
-                } else {
-                    const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
-                    status.error(token.line(), token.column(), msg);
-                    throw ParserException(token.line(), token.column(), msg);
-                }
-                expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-            }
-            m_tokenizer.pushToken(token);
-            
-            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
-        }
-
-        String DefParser::parseNamedValue(ParserStatus& status, const String& name) {
-            Token token;
-            expect(status, DefToken::Word, token = m_tokenizer.nextToken());
-            assert(StringUtils::caseInsensitiveEqual(name, token.data()));
-            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-            return token.data();
         }
 
         String DefParser::parseDescription() {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -133,10 +133,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
             
-            // Correct the offsets and the position of the rotation center.
+            // Correct the offsets.
             const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
-            m_helper.setOrigin(newCenterInFaceCoords);
 
             const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
             const Vec2f newOffset = (face->offset() + delta).corrected(4, 0.0f);
@@ -166,11 +165,7 @@ namespace TrenchBroom {
             float minDelta = std::numeric_limits<float>::max();
             
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Model::BrushFace::EdgeList edges = face->edges();
-            Model::BrushFace::EdgeList::const_iterator it, end;
-            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                const Model::BrushEdge* edge = *it;
-                
+            for (const Model::BrushEdge* edge : face->edges()) {
                 const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
                 const Vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
                 const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);

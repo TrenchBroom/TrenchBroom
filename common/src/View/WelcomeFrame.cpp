@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,13 +25,16 @@
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
+#include "View/wxUtils.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
+#include <wx/filedlg.h>
+#include <wx/button.h>
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
+        wxIMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
 
         WelcomeFrame::WelcomeFrame() :
         wxFrame(NULL, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
@@ -41,22 +44,24 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::createGui() {
+            setWindowIcon(this);
+
             wxPanel* container = new wxPanel(this);
-            container->SetBackgroundColour(*wxWHITE);
             
             wxPanel* appPanel = createAppPanel(container);
             m_recentDocumentListBox = new RecentDocumentListBox(container);
             m_recentDocumentListBox->SetToolTip("Double click on a file to open it");
+            m_recentDocumentListBox->SetMaxSize(wxSize(350, wxDefaultCoord));
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->Add(appPanel, 0, wxALIGN_CENTRE_VERTICAL);
-            innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            innerSizer->Add(m_recentDocumentListBox, 1, wxEXPAND);
-            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(m_recentDocumentListBox->itemWidth("This is a long example string that should be readable"), 10 * m_recentDocumentListBox->itemHeight()));
+            innerSizer->Add(appPanel, wxSizerFlags().CenterVertical());
+            innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            innerSizer->Add(m_recentDocumentListBox, wxSizerFlags().Expand().Proportion(1));
+            innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
             container->SetSizer(innerSizer);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(container, 1, wxEXPAND);
+            outerSizer->Add(container, wxSizerFlags().Expand().Proportion(1));
             
             SetSizerAndFit(outerSizer);
         }
@@ -66,31 +71,29 @@ namespace TrenchBroom {
 
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            try {
-                if (app.newDocument())
-                    Destroy();
-                else
-                    Show();
-            } catch (...) {
+            if (app.newDocument())
+                Destroy();
+            else
                 Show();
-            }
         }
         
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
+            const wxString pathStr = ::wxLoadFileSelector("",
+#ifdef __WXGTK20__
+                                                          "",
+#else
+                                                          "map",
+#endif
+                                                          "", NULL);
             if (!pathStr.empty()) {
                 Hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();
-                try {
-                    if (app.openDocument(pathStr.ToStdString()))
-                        Destroy();
-                    else
-                        Show();
-                } catch (...) {
+                if (app.openDocument(pathStr.ToStdString()))
+                    Destroy();
+                else
                     Show();
-                }
             }
         }
 
@@ -99,19 +102,14 @@ namespace TrenchBroom {
 
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            try {
-                if (app.openDocument(event.documentPath().asString()))
-                    Destroy();
-                else
-                    Show();
-            } catch (...) {
+            if (app.openDocument(event.documentPath().asString()))
+                Destroy();
+            else
                 Show();
-            }
         }
 
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
-            appPanel->SetBackgroundColour(*wxWHITE);
             AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "New map...");
@@ -125,9 +123,9 @@ namespace TrenchBroom {
             buttonSizer->Add(m_openOtherDocumentButton, 1, wxEXPAND);
 
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
+            outerSizer->Add(infoPanel, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 50));
             outerSizer->AddSpacer(20);
-            outerSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
+            outerSizer->Add(buttonSizer, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 50));
             outerSizer->AddSpacer(20);
             
             appPanel->SetSizer(outerSizer);

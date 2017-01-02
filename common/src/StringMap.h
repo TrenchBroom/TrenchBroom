@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,8 +41,8 @@ namespace TrenchBroom {
         }
         
         static void removeValue(ValueContainer& values, const V& value) {
-            typename ValueContainer::iterator it = std::find(values.begin(), values.end(), value);
-            if (it == values.end())
+            typename ValueContainer::iterator it = std::find(std::begin(values), std::end(values), value);
+            if (it == std::end(values))
                 throw Exception("Cannot remove value (does not belong to this node)");
             values.erase(it);
         }
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         
         static void removeValue(ValueContainer& values, const V& value) {
             typename ValueContainer::iterator it = values.find(value);
-            if (it == values.end())
+            if (it == std::end(values))
                 throw Exception("Cannot remove value from string map.");
             if (it->second == 1)
                 values.erase(it);
@@ -74,9 +74,8 @@ namespace TrenchBroom {
         }
         
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            typename ValueContainer::const_iterator it, end;
-            for (it = values.begin(), end = values.end(); it != end; ++it)
-                result.insert(it->first);
+            for (const auto& entry : values)
+                result.insert(entry.first);
         }
     };
 
@@ -163,7 +162,7 @@ namespace TrenchBroom {
                         const String remainder(key.substr(firstDiff));
                         const Node query(remainder);
                         typename NodeSet::iterator it = m_children.find(query);
-                        assert(it != m_children.end());
+                        assert(it != std::end(m_children));
                         const Node& child = *it;
                         if (child.remove(remainder, value))
                             m_children.erase(it);
@@ -191,7 +190,7 @@ namespace TrenchBroom {
                     const String remainder(key.substr(firstDiff));
                     const Node query(remainder);
                     typename NodeSet::iterator it = m_children.find(query);
-                    if (it != m_children.end()) {
+                    if (it != std::end(m_children)) {
                         const Node& child = *it;
                         child.queryExact(remainder, result);
                     }
@@ -212,7 +211,7 @@ namespace TrenchBroom {
                     const String remainder(prefix.substr(firstDiff));
                     const Node query(remainder);
                     typename NodeSet::iterator it = m_children.find(query);
-                    if (it != m_children.end()) {
+                    if (it != std::end(m_children)) {
                         const Node& child = *it;
                         child.queryPrefix(remainder, result);
                     }
@@ -221,11 +220,8 @@ namespace TrenchBroom {
             
             void collectValues(QueryResult& result) const {
                 getValues(result);
-                typename NodeSet::const_iterator it, end;
-                for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                    const Node& child = *it;
+                for (const Node& child : m_children)
                     child.collectValues(result);
-                }
             }
             
             void queryNumbered(const String& prefix, QueryResult& result) const {
@@ -240,32 +236,23 @@ namespace TrenchBroom {
                     const String remainder(m_key.substr(firstDiff));
                     if (StringUtils::isNumber(remainder)) {
                         getValues(result);
-                        typename NodeSet::const_iterator it, end;
-                        for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                            const Node& child = *it;
+                        for (const Node& child : m_children)
                             child.collectIfNumbered(result);
-                        }
                     }
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
                     const Node query(remainder);
-                    typename NodeSet::iterator it = m_children.find(query);
-                    if (it != m_children.end()) {
-                        const Node& child = *it;
+                    for (const Node& child : m_children)
                         child.queryNumbered(remainder, result);
-                    }
                 }
             }
             
             void collectIfNumbered(QueryResult& result) const {
                 if (StringUtils::isNumber(m_key)) {
                     getValues(result);
-                    typename NodeSet::const_iterator it, end;
-                    for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                        const Node& child = *it;
+                    for (const Node& child : m_children)
                         child.collectIfNumbered(result);
-                    }
                 }
             }
         private:
@@ -287,7 +274,7 @@ namespace TrenchBroom {
                 using std::swap;
 
                 assert(m_key.size() > 1);
-                assert(index < m_key.size());
+                ensure(index < m_key.size(), "index out of range");
                 
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
@@ -313,7 +300,7 @@ namespace TrenchBroom {
                 NodeSet oldChildren;
                 swap(oldChildren, m_children);
                 
-                const Node& child = *oldChildren.begin();
+                const Node& child = *std::begin(oldChildren);
                 swap(m_children, child.m_children);
                 swap(m_values, child.m_values);
                 
@@ -336,12 +323,12 @@ namespace TrenchBroom {
         }
         
         void insert(const String& key, const V& value) {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             m_root->insert(key, value);
         }
         
         void remove(const String& key, const V& value) {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             m_root->remove(key, value);
         }
         
@@ -351,21 +338,21 @@ namespace TrenchBroom {
         }
         
         QueryResult queryPrefixMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
         
         QueryResult queryNumberedMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
         
         QueryResult queryExactMatches(const String& prefix) const {
-            assert(m_root != NULL);
+            ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;

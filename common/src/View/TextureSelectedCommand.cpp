@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,7 @@ wxDEFINE_EVENT(TEXTURE_SELECTED_EVENT, TrenchBroom::View::TextureSelectedCommand
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
         TextureSelectedCommand::TextureSelectedCommand() :
         wxNotifyEvent(TEXTURE_SELECTED_EVENT, wxID_ANY),
         m_texture(NULL) {}

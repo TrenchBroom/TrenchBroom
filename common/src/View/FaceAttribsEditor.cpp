@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -42,6 +42,7 @@
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -378,6 +379,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::updateControls() {
+            wxWindowUpdateLocker lock(this);
+            
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
                 wxArrayString surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
@@ -556,9 +559,7 @@ namespace TrenchBroom {
 
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions);
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
-            Model::GameConfig::FlagConfigList::const_iterator it, end;
-            for (it = flags.begin(), end = flags.end(); it != end; ++it) {
-                const Model::GameConfig::FlagConfig& flag = *it;
+            for (const auto& flag : flags) {
                 names.push_back(flag.name);
                 descriptions.push_back(flag.description);
             }

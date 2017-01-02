@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,19 +25,25 @@ namespace TrenchBroom {
     Logger::~Logger() {}
     
     void Logger::debug(const char* format, ...) {
+#ifndef NDEBUG
         va_list(arguments);
         va_start(arguments, format);
         const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
         debug(message);
+#endif
     }
     
     void Logger::debug(const String& message) {
+#ifndef NDEBUG
         log(LogLevel_Debug, message);
+#endif
     }
     
     void Logger::debug(const wxString& message) {
+#ifndef NDEBUG
         log(LogLevel_Debug, message);
+#endif
     }
     
     void Logger::info(const char* format, ...) {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,12 +20,13 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "IO/FgdParser.h"
-#include "Model/ModelTypes.h"
+#include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinitionTestUtils.h"
+#include "IO/FgdParser.h"
 #include "IO/TestParserStatus.h"
-#include "TestUtils.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -544,37 +545,76 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
         
-        TEST(FgdParserTest, parseStaticModelProperties) {
-            const String file =
-            "@PointClass\n"
-            "    model(\n"
-            "        \":maps/b_shell0.bsp\",\n"
-            "        \":maps/b_shell1.bsp\" spawnflags = 1\n"
-            "    ) = item_shells : \"Shells\" []\n";
+        static const String ModelDefinitionTemplate =
+        "@PointClass\n"
+        "    model(${MODEL}) = item_shells : \"Shells\" []\n";
+        
+        using Assets::assertModelDefinition;
+        
+        TEST(FgdParserTest, parseLegacyStaticModelDefinition) {
+            static const String ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
             
-            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(file, defaultColor);
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate);
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 1 }");
+        }
+        
+        TEST(FgdParserTest, parseLegacyDynamicModelDefinition) {
+            static const String ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
             
-            TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp' }");
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+        }
+        
+        TEST(FgdParserTest, parseELStaticModelDefinition) {
+            static const String ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
             
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("item_shells"), definition->name());
-            ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Shells"), definition->description());
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate);
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 1 }");
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 2 }");
+        }
+        
+        TEST(FgdParserTest, parseELDynamicModelDefinition) {
+            static const String ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
             
-            ASSERT_TRUE(definition->attributeDefinitions().empty());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(2u, models.size());
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp' }");
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST(FgdParserTest, parseDynamicModelAttribute) {
+        TEST(FgdParserTest, parseLegacyModelWithParseError) {
             const String file =
-            "@PointClass\n"
-            "    model(pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\") = item_shells : \"Shells\" []\n";
+            "@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(\":progs/polyp.mdl\" 0 153, \":progs/polyp.mdl\" startonground = \"1\") = monster_polyp: \"Polyp\""
+            "["
+            "startonground(choices) : \"Starting pose\" : 0 ="
+            "["
+            "0 : \"Flying\""
+            "1 : \"On ground\""
+            "]"
+            "]";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
@@ -583,16 +623,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("item_shells"), definition->name());
-            ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Shells"), definition->description());
-            
-            ASSERT_TRUE(definition->attributeDefinitions().empty());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(1u, models.size());
+            VectorUtils::clearAndDelete(definitions);
         }
     }
 }

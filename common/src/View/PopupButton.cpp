@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -18,12 +18,12 @@
  */
 
 #include "PopupButton.h"
+#include "View/PopupWindow.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <wx/frame.h>
 #include <wx/tglbtn.h>
-#include <wx/popupwin.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             m_button = new wxToggleButton(this, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             
             wxFrame* frame = findFrame(this);
-            m_window = new wxPopupTransientWindow(frame);
+            m_window = new PopupWindow(frame);
 
 #if defined __APPLE__
             m_window->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x, m_button->GetSize().y + 1);
 #endif
-#ifdef __linux__
+#ifdef __WXGTK20__
             sizer->SetItemMinSize(m_button, m_button->GetSize().x + 3, m_button->GetSize().y);
 #endif
             SetSizerAndFit(sizer);
@@ -62,10 +62,9 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_button->GetValue()) {
-                wxPoint position = GetScreenRect().GetRightBottom();
-                position.x -= 2*m_window->GetSize().x;
-                position.y -= m_window->GetSize().y;
-                m_window->Position(position, m_window->GetSize());
+                wxPoint position = GetScreenRect().GetLeftTop();
+                wxSize size = GetScreenRect().GetSize();
+                m_window->Position(position, size);
                 m_window->Popup();
             } else {
                 m_window->Dismiss();

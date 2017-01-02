@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -49,7 +49,8 @@ namespace TrenchBroom {
         T m_newValue;
     public:
         SetLate(T& value, T newValue) :
-        m_value(value) {}
+        m_value(value),
+        m_newValue(newValue) {}
         
         ~SetLate() {
             m_value = m_newValue;
@@ -73,7 +74,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function),
         m_setTo(setTo) {
-            assert(m_receiver != NULL);
+            ensure(m_receiver != NULL, "receiver is null");
             (m_receiver->*m_function)(m_setTo);
         }
         

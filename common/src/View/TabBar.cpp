@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -19,6 +19,7 @@
 
 #include "TabBar.h"
 
+#include "Macros.h"
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
 
@@ -66,7 +67,7 @@ namespace TrenchBroom {
         m_tabBook(tabBook),
         m_barBook(new wxSimplebook(this)),
         m_controlSizer(new wxBoxSizer(wxHORIZONTAL)) {
-            assert(m_tabBook != NULL);
+            ensure(m_tabBook != NULL, "tabBook is null");
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBar::OnTabBookPageChanged, this);
 
             m_controlSizer->AddSpacer(LayoutConstants::TabBarBarLeftMargin);
@@ -83,7 +84,7 @@ namespace TrenchBroom {
         }
         
         void TabBar::addTab(TabBookPage* bookPage, const wxString& title) {
-            assert(bookPage != NULL);
+            ensure(bookPage != NULL, "bookPage is null");
             
             TabBarButton* button = new TabBarButton(this, title);
             button->Bind(wxEVT_BUTTON, &TabBar::OnButtonClicked, this);
@@ -105,7 +106,7 @@ namespace TrenchBroom {
 
             wxWindow* button = static_cast<wxWindow*>(event.GetEventObject());
             const size_t index = findButtonIndex(button);
-            assert(index < m_buttons.size());
+            ensure(index < m_buttons.size(), "index out of range");
             m_tabBook->switchToPage(index);
         }
 

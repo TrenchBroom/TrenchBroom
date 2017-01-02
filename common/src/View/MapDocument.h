@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -111,7 +111,8 @@ namespace TrenchBroom {
             
             Notifier0 editorContextDidChangeNotifier;
             Notifier0 mapViewConfigDidChangeNotifier;
-            Notifier0 currentLayerDidChangeNotifier;
+            Notifier1<const Model::Layer*> currentLayerDidChangeNotifier;
+            Notifier1<const String&> currentTextureNameDidChangeNotifier;
             
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
@@ -154,8 +155,6 @@ namespace TrenchBroom {
             Model::Node* currentParent() const;
             
             Model::EditorContext& editorContext() const;
-            bool textureLock();
-            void setTextureLock(bool textureLock);
             
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
@@ -173,6 +172,7 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
+            void exportDocumentAs(Model::ExportFormat format, const IO::Path& path);
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
@@ -185,8 +185,7 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            bool canLoadPointFile() const;
-            void loadPointFile();
+            void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             void unloadPointFile();
         public: // selection
@@ -203,6 +202,7 @@ namespace TrenchBroom {
             const BBox3& lastSelectionBounds() const;
             const BBox3& selectionBounds() const;
             const String& currentTextureName() const;
+            void setCurrentTextureName(const String& currentTextureName);
             
             void selectAllNodes();
             void selectSiblings();
@@ -231,14 +231,29 @@ namespace TrenchBroom {
 
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
             Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
+            
             void removeNodes(const Model::NodeList& nodes);
-
-            void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
-            void reparentNodes(const Model::ParentChildrenMap& nodes);
+        private:
+            Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
+            
+            struct CompareByAncestry;
+            Model::NodeList removeImplicitelyRemovedNodes(Model::NodeList nodes) const;
+            
+            void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
+        public:
+            bool reparentNodes(Model::Node* newParent, const Model::NodeList& children);
+            bool reparentNodes(const Model::ParentChildrenMap& nodesToAdd);
+        private:
+            bool checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const;
+        public:
             bool deleteObjects();
             bool duplicateObjects();
         public: // group management
-            void groupSelection(const String& name);
+            Model::Group* groupSelection(const String& name);
+        private:
+            class MatchGroupableNodes;
+            Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;
+        public:
             void ungroupSelection();
             void renameGroups(const String& name);
             
@@ -265,16 +280,22 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
+        public:
+            bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
             
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
+            bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
+            bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
-            bool setTexture(Assets::Texture* texture);
+            void setTexture(Assets::Texture* texture);
+        private:
+            bool hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const;
+        public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
@@ -283,8 +304,7 @@ namespace TrenchBroom {
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes);
             
-            using MapFacade::snapVertices;
-            bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);
+            bool snapVertices(size_t snapTo);
             bool findPlanePoints();
             
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
@@ -292,6 +312,10 @@ namespace TrenchBroom {
             bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            
+            bool removeVertices(const Model::VertexToBrushesMap& vertices);
+            bool removeEdges(const Model::VertexToEdgesMap& edges);
+            bool removeFaces(const Model::VertexToFacesMap& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // debug commands
@@ -311,7 +335,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(UndoableCommand::Ptr command);
+            bool submit(Command::Ptr command);
+            bool submitAndStore(UndoableCommand::Ptr command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -326,7 +351,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(UndoableCommand::Ptr command) = 0;
+            virtual bool doSubmit(Command::Ptr command) = 0;
+            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -342,11 +368,9 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             
-            const StringList externalTextureCollectionNames() const;
-            void addTextureCollection(const String& name);
-            void moveTextureCollectionUp(const String& name);
-            void moveTextureCollectionDown(const String& name);
-            void removeTextureCollections(const StringList& names);
+            IO::Path::List enabledTextureCollections() const;
+            IO::Path::List availableTextureCollections() const;
+            void setEnabledTextureCollections(const IO::Path::List& paths);
         private:
             void loadAssets();
             void unloadAssets();
@@ -356,15 +380,10 @@ namespace TrenchBroom {
             
             void loadEntityModels();
             void unloadEntityModels();
-            
+        protected:
             void loadTextures();
-            void loadBuiltinTextures();
-            void loadExternalTextures();
             void unloadTextures();
             void reloadTextures();
-        protected:
-            void addExternalTextureCollections(const StringList& names);
-            void updateExternalTextureCollectionProperty();
             
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
@@ -372,10 +391,7 @@ namespace TrenchBroom {
             void unsetEntityDefinitions(const Model::NodeList& nodes);
             void reloadEntityDefinitions();
             
-            void setEntityModels();
-            void setEntityModels(const Model::NodeList& nodes);
             void clearEntityModels();
-            void unsetEntityModels();
 
             void setTextures();
             void setTextures(const Model::NodeList& nodes);
@@ -389,6 +405,7 @@ namespace TrenchBroom {
         public:
             StringList mods() const;
             void setMods(const StringList& mods);
+            String defaultMod() const;
         private: // issue management
             void registerIssueGenerators();
         public:
@@ -396,7 +413,8 @@ namespace TrenchBroom {
         private:
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // document path
-            const String filename() const;
+            bool persistent() const;
+            String filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,10 +25,14 @@
 #include "StringUtils.h"
 #include "Notifier.h"
 
-#include <wx/wx.h>
+#include <wx/datetime.h>
 
 #include <map>
 #include <vector>
+
+class wxWindow;
+class wxFocusEvent;
+class wxMouseEvent;
 
 namespace TrenchBroom {
     namespace Model {

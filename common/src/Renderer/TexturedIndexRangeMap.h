@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             typedef Assets::Texture Texture;
         private:
             typedef std::map<const Texture*, IndexRangeMap> TextureToIndexRangeMap;
-            typedef std::tr1::shared_ptr<TextureToIndexRangeMap> TextureToIndexRangeMapPtr;
+            typedef std::shared_ptr<TextureToIndexRangeMap> TextureToIndexRangeMapPtr;
         public:
             class Size {
             private:

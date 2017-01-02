@@ -501,12 +501,14 @@
 
 @PointClass base(Appearflags) color(255 128 0) size(-16 -16 0, 16 16 16) 
     model(
-        ":models/deadbods/dude/tris.md2",
-        ":models/deadbods/dude/tris.md2" 0 1 spawnflags = 2,
-        ":models/deadbods/dude/tris.md2" 0 2 spawnflags = 4,
-        ":models/deadbods/dude/tris.md2" 0 3 spawnflags = 8,
-        ":models/deadbods/dude/tris.md2" 0 4 spawnflags = 16,
-        ":models/deadbods/dude/tris.md2" 0 5 spawnflags = 32
+        {{
+            spawnflags == 32 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 5 },
+            spawnflags == 16 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 4 },
+            spawnflags ==  8 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 3 },
+            spawnflags ==  4 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 2 },
+            spawnflags ==  2 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 1 },
+                                          ":models/deadbods/dude/tris.md2"
+        }}
     ) = misc_deadsoldier : "Dead guys! 6 of em!"
 [
 	spawnflags(Flags) =
@@ -629,11 +631,11 @@
 @PointClass base(Monsters) model(":models/monsters/medic/tris.md2") = monster_medic : "Medic" []
 @PointClass base(Monsters) size(-32 -32 -24, 32 32 32) model(":models/monsters/mutant/tris.md2") = monster_mutant : "Mutant" []
 @PointClass base(Monsters) model(":models/monsters/parasite/tris.md2") = monster_parasite : "Parasite" []
-@PointClass base(Monsters) model(":models/monsters/soldier/tris.md2" 0) = monster_soldier_light : "Light Soldier" []
-@PointClass base(Monsters) model(":models/monsters/soldier/tris.md2" 2) = monster_soldier : "Soldier" []
-@PointClass base(Monsters) model(":models/monsters/soldier/tris.md2" 4) = monster_soldier_ss : "SS Soldier" []
+@PointClass base(Monsters) model({ "path": ":models/monsters/soldier/tris.md2", "skin": 0 }) = monster_soldier_light : "Light Soldier" []
+@PointClass base(Monsters) model({ "path": ":models/monsters/soldier/tris.md2", "skin": 2 }) = monster_soldier : "Soldier" []
+@PointClass base(Monsters) model({ "path": ":models/monsters/soldier/tris.md2", "skin": 4 }) = monster_soldier_ss : "SS Soldier" []
 @PointClass base(Monsters) size(-32 -32 -16, 32 32 72) model(":models/monsters/tank/tris.md2") = monster_tank : "Tank" []
-@PointClass base(Monsters) size(-64 -64 0, 64 64 72) model(":models/monsters/tank/tris.md2" 2) = monster_supertank : "Super tank" []
+@PointClass base(Monsters) size(-64 -64 0, 64 64 72) model({ "path": ":models/monsters/tank/tris.md2", "skin": 2 }) = monster_supertank : "Super tank" []
 @PointClass base(Monsters) size(-32 -32 -16, 32 32 72) model(":models/monsters/boss1/tris.md2") = monster_tank_commander : "Tank commander" []
 
 // using a "wait" value of -1 on a path corner causes a func_train to go silent between

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,6 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "Model/IssueQuickFix.h"
+#include "Model/Entity.h"
+#include "Model/World.h"
 
 #include <cassert>
 
@@ -67,15 +69,16 @@ namespace TrenchBroom {
         m_description(description) {}
         
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
-            assert(quickFix != NULL);
+            ensure(quickFix != NULL, "quickFix is null");
             assert(!VectorUtils::contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
 
-        void IssueGenerator::doGenerate(World* world,   IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Layer* layer,   IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Group* group,   IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Brush* brush,   IssueList& issues) const {}
+        void IssueGenerator::doGenerate(World* world,           IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
+        void IssueGenerator::doGenerate(Layer* layer,           IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Group* group,           IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Entity* entity,         IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }
+        void IssueGenerator::doGenerate(Brush* brush,           IssueList& issues) const {}
+        void IssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {}
     }
 }

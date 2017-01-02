@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,156 +25,159 @@
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
-        m_parser(begin, end),
-        m_path(path) {}
+        ConfigParserBase(begin, end, path) {}
         
         GameConfigParser::GameConfigParser(const String& str, const Path& path) :
-        m_parser(str),
-        m_path(path) {}
+        ConfigParserBase(str, path) {}
         
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
+          
+            const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+            expectType(root, EL::Type_Map);
+            
+            expectStructure(root,
+                            "["
+                            "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
+                            "{'icon': 'String', 'faceattribs': 'Map', 'brushtypes': 'Array'}"
+                            "]");
 
-            const ConfigEntry::Ptr root = m_parser.parse();
-            if (root == NULL)
-                throw ParserException("Empty game config");
+            const EL::NumberType version = root["version"].numberValue();
+            unused(version);
+            assert(version == 1.0);
+
+            const String& name = root["name"].stringValue();
+            const Path icon(root["icon"].stringValue());
             
-            expectEntry(ConfigEntry::Type_Table, *root);
-            const ConfigTable& rootTable = *root;
-            
-            expectTableEntry("name", ConfigEntry::Type_Value, rootTable);
-            const String name = rootTable["name"];
-            
-            IO::Path icon("");
-            if (rootTable.contains("icon")) {
-                expectTableEntry("icon", ConfigEntry::Type_Value, rootTable);
-                icon = IO::Path(rootTable["icon"]);
-            }
-            
-            expectTableEntry("fileformats", ConfigEntry::Type_List, rootTable);
-            const StringList fileFormats = parseList(rootTable["fileformats"]);
-            
-            expectTableEntry("filesystem", ConfigEntry::Type_Table, rootTable);
-            const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(rootTable["filesystem"]);
-            
-            expectTableEntry("textures", ConfigEntry::Type_Table, rootTable);
-            const GameConfig::TextureConfig textureConfig = parseTextureConfig(rootTable["textures"]);
-            
-            expectTableEntry("entities", ConfigEntry::Type_Table, rootTable);
-            const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
-            
-            GameConfig::FaceAttribsConfig faceAttribsConfig;
-            if (rootTable.contains("faceattribs")) {
-                expectTableEntry("faceattribs", ConfigEntry::Type_Table, rootTable);
-                faceAttribsConfig = parseFaceAttribsConfig(rootTable["faceattribs"]);
-            }
-            
-            Model::BrushContentType::List brushContentTypes;
-            if (rootTable.contains("brushtypes")) {
-                expectTableEntry("brushtypes", ConfigEntry::Type_List, rootTable);
-                brushContentTypes = parseBrushContentTypes(rootTable["brushtypes"], faceAttribsConfig);
-            }
+            const StringArray fileFormats = root["fileformats"].asStringList();
+            const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
+            const GameConfig::TextureConfig textureConfig = parseTextureConfig(root["textures"]);
+            const GameConfig::EntityConfig entityConfig = parseEntityConfig(root["entities"]);
+            const GameConfig::FaceAttribsConfig faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
+            const Model::BrushContentType::Array brushContentTypes = parseBrushContentTypes(root["brushtypes"], faceAttribsConfig);
             
             return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
         }
 
-        Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
+        Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const EL::Value& value) const {
             using Model::GameConfig;
+
+            expectStructure(value,
+                            "["
+                            "{'searchpath': 'String', 'packageformat': 'Map'},"
+                            "{}"
+                            "]");
             
-            expectTableEntry("searchpath", ConfigEntry::Type_Value, table);
-            const String searchPath = table["searchpath"];
+
+            const String& searchPath = value["searchpath"].stringValue();
+            const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
             
-            expectTableEntry("packageformat", ConfigEntry::Type_Value, table);
-            const String packageFormat = table["packageformat"];
-            
-            return GameConfig::FileSystemConfig(Path(searchPath), packageFormat);
+            return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
         }
 
-        Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const ConfigTable& table) const {
+        Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
             using Model::GameConfig;
             
-            expectTableEntry("type", ConfigEntry::Type_Value, table);
-            const String type = table["type"];
+            expectStructure(value,
+                            "["
+                            "{'extension': 'String', 'format': 'String'},"
+                            "{}"
+                            "]");
 
-            String attribute("");
-            if (table.contains("attribute")) {
-                expectTableEntry("attribute", ConfigEntry::Type_Value, table);
-                attribute = table["attribute"];
-            }
+            const String& extension = value["extension"].stringValue();
+            const String& format = value["format"].stringValue();
             
-            IO::Path palette("");
-            if (table.contains("palette")) {
-                expectTableEntry("palette", ConfigEntry::Type_Value, table);
-                palette = IO::Path(table["palette"]);
-            }
-            
-            IO::Path builtinTexturesSearchPath("");
-            if (table.contains("builtin")) {
-                expectTableEntry("builtin", ConfigEntry::Type_Value, table);
-                builtinTexturesSearchPath = IO::Path(table["builtin"]);
-            }
-            
-            return GameConfig::TextureConfig(type, attribute, IO::Path(palette), builtinTexturesSearchPath);
+            return GameConfig::PackageFormatConfig(extension, format);
         }
 
-        Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const ConfigTable& table) const {
+        Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {
             using Model::GameConfig;
             
-            Path::List defFilePaths;
-            expectTableEntry("definitions", ConfigEntry::Type_Value | ConfigEntry::Type_List, table);
-            if (table["definitions"].type() == ConfigEntry::Type_Value) {
-                const String pathStr = table["definitions"];
-                defFilePaths.push_back(Path(pathStr));
+            expectStructure(value,
+                            "["
+                            "{'package': 'Map', 'format': 'Map'},"
+                            "{'attribute': 'String', 'palette': 'String'}"
+                            "]");
+
+            const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
+            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
+            const Path palette(value["palette"].stringValue());
+            const String& attribute = value["attribute"].stringValue();
+            
+            return GameConfig::TextureConfig(packageConfig, formatConfig, palette, attribute);
+        }
+
+        Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
+            using Model::GameConfig;
+
+            expectStructure(value,
+                            "["
+                            "{'type': 'String'},"
+                            "{'root': 'String', 'format': 'Map'}"
+                            "]");
+
+            const String& typeStr = value["type"].stringValue();
+            if (typeStr == "file") {
+                expectMapEntry(value, "format", EL::Type_Map);
+                const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
+                return GameConfig::TexturePackageConfig(formatConfig);
+            } else if (typeStr == "directory") {
+                expectMapEntry(value, "root", EL::Type_String);
+                const Path root(value["root"].stringValue());
+                return GameConfig::TexturePackageConfig(root);
             } else {
-                const StringList pathStrs = parseList(table["definitions"]);
-                for (size_t i = 0; i < pathStrs.size(); ++i)
-                    defFilePaths.push_back(Path(pathStrs[i]));
+                throw ParserException(value.line(), value.column(), "Unexpected texture package type '" + typeStr + "'");
             }
+        }
+
+        Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) const {
+            using Model::GameConfig;
             
-            expectTableEntry("modelformats", ConfigEntry::Type_List, table);
-            const StringSet modelFormats = parseSet(table["modelformats"]);
-            
-            expectTableEntry("defaultcolor", ConfigEntry::Type_Value, table);
-            const Color defaultColor = Color::parse(table["defaultcolor"]);
+            expectStructure(value,
+                            "["
+                            "{'definitions': 'Array', 'modelformats': 'Array', 'defaultcolor': 'String'},"
+                            "{}"
+                            "]");
+
+            const Path::Array defFilePaths = Path::asPaths(value["definitions"].asStringList());
+            const StringSet modelFormats = value["modelformats"].asStringSet();
+            const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
             
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }
 
-        Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const ConfigTable& table) const {
+        Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
             using Model::GameConfig;
             
-            GameConfig::FlagConfigList surfaceFlags;
-            if (table.contains("surfaceflags")) {
-                expectTableEntry("surfaceflags", ConfigEntry::Type_List, table);
-                surfaceFlags = parseFlagConfig(table["surfaceflags"]);
-            }
+            if (value.null())
+                return Model::GameConfig::FaceAttribsConfig();
             
-            GameConfig::FlagConfigList contentFlags;
-            if (table.contains("contentflags")) {
-                expectTableEntry("contentflags", ConfigEntry::Type_List, table);
-                contentFlags = parseFlagConfig(table["contentflags"]);
-            }
+            expectStructure(value,
+                            "["
+                            "{'surfaceflags': 'Array', 'contentflags': 'Array'},"
+                            "{}"
+                            "]");
+
+            const GameConfig::FlagConfigList surfaceFlags = parseFlagConfig(value["surfaceflags"]);
+            const GameConfig::FlagConfigArray contentFlags = parseFlagConfig(value["contentflags"]);
             
             return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
         }
         
-        Model::GameConfig::FlagConfigList GameConfigParser::parseFlagConfig(const ConfigList& list) const {
+        Model::GameConfig::FlagConfigArray GameConfigParser::parseFlagConfig(const EL::Value& value) const {
             using Model::GameConfig;
+
+            if (value.null())
+                return GameConfig::FlagConfigList(0);
             
-            GameConfig::FlagConfigList flags;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Table, entry);
-                const ConfigTable& table = static_cast<const ConfigTable&>(entry);
+            GameConfig::FlagConfigArray flags;
+            for (size_t i = 0; i < value.length(); ++i) {
+                const EL::Value& entry = value[i];
                 
-                expectTableEntry("name", ConfigEntry::Type_Value, table);
-                const String name = table["name"];
+                expectStructure(entry, "[ {'name': 'String'}, {'description': 'String'} ]");
                 
-                String description;
-                if (table.contains("description")) {
-                    expectTableEntry("description", ConfigEntry::Type_Value, table);
-                    description = table["description"];
-                }
+                const String& name = entry["name"].stringValue();
+                const String& description = entry["description"].stringValue();
                 
                 flags.push_back(GameConfig::FlagConfig(name, description));
             }
@@ -182,104 +185,50 @@ namespace TrenchBroom {
             return flags;
         }
 
-        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const ConfigList& list, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
-            Model::BrushContentType::List contentTypes;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Table, entry);
-                const ConfigTable& table = static_cast<const ConfigTable&>(entry);
+        Model::BrushContentType::Array GameConfigParser::parseBrushContentTypes(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
+            using Model::GameConfig;
+            
+            if (value.null())
+                return Model::BrushContentType::Array();
+            
+            Model::BrushContentType::Array contentTypes;
+            for (size_t i = 0; i < value.length(); ++i) {
+                const EL::Value& entry = value[i];
                 
-                expectTableEntry("name", ConfigEntry::Type_Value, table);
-                const String name = table["name"];
-                
-                bool transparent = false;
-                if (table.contains("attribs")) {
-                    expectTableEntry("attribs", ConfigEntry::Type_List, table);
-                    const StringSet attribs = parseSet(table["attribs"]);
-                    transparent = attribs.count("transparent") > 0;
-                }
-                
-                expectTableEntry("match", ConfigEntry::Type_Value, table);
-                const String match = table["match"];
+                expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' } ]");
+
+                const String& name = entry["name"].stringValue();
+                const bool transparent = entry["attribs"].asStringSet().count("transparent") > 0;
+                const String& match = entry["match"].stringValue();
 
                 const Model::BrushContentType::FlagType flag = 1 << i;
                 
                 if (match == "texture") {
-                    expectTableEntry("pattern", ConfigEntry::Type_Value, table);
-                    const String pattern = table["pattern"];
+                    expectMapEntry(entry, "pattern", EL::Type_String);
+                    const String& pattern = entry["pattern"].stringValue();
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "contentflag") {
-                    expectTableEntry("flags", ConfigEntry::Type_List, table);
-                    const StringSet flagSet = parseSet(table["flags"]);
-                    int value = 0;
+                    expectMapEntry(entry, "flags", EL::Type_Array);
+                    const StringSet flagSet = entry["flags"].asStringSet();
+                    int flagValue = 0;
 
-                    StringSet::const_iterator it, end;
-                    for (it = flagSet.begin(), end = flagSet.end(); it != end; ++it) {
-                        const String& flagName = *it;
-                        const int flagValue = faceAttribsConfig.contentFlags.flagValue(flagName);
-                        value |= flagValue;
+                    for (const String& currentName : flagSet) {
+                        const int currentValue = faceAttribsConfig.contentFlags.flagValue(currentName);
+                        flagValue |= currentValue;
                     }
                     
-                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(value);
+                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(flagValue);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "classname") {
-                    const String pattern = table["pattern"];
+                    const String& pattern = entry["pattern"].stringValue();
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::entityClassnameEvaluator(pattern);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else {
-                    throw ParserException("Unexpected brush content type '" + match + "'");
+                    throw ParserException(entry.line(), entry.column(), "Unexpected brush content type '" + match + "'");
                 }
             }
             return contentTypes;
-        }
-
-        StringSet GameConfigParser::parseSet(const ConfigList& list) const {
-            StringSet result;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Value, entry);
-                result.insert(static_cast<const String&>(entry));
-            }
-            return result;
-        }
-
-        StringList GameConfigParser::parseList(const ConfigList& list) const {
-            StringList result;
-            for (size_t i = 0; i < list.count(); ++i) {
-                const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::Type_Value, entry);
-                result.push_back(static_cast<const String&>(entry));
-            }
-            return result;
-        }
-        
-        void GameConfigParser::expectEntry(const int typeMask, const ConfigEntry& entry) const {
-            if ((typeMask & entry.type()) == 0)
-                throw ParserException("Expected " + typeNames(typeMask) + ", but got " + typeNames(entry.type()));
-        }
-
-        void GameConfigParser::expectTableEntry(const String& key, const int typeMask, const ConfigTable& parent) const {
-            if (!parent.contains(key))
-                throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask));
-            if ((parent[key].type() & typeMask) == 0)
-                throw ParserException("Expected table entry '" + key + "' with type " + typeNames(typeMask) + ", but got table entry with type '" + typeNames(parent[key].type()) + "'");
-        }
-        
-        String GameConfigParser::typeNames(const int typeMask) const {
-            StringList result;
-            if ((typeMask & ConfigEntry::Type_Value) != 0)
-                result.push_back("value");
-            if ((typeMask & ConfigEntry::Type_List) != 0)
-                result.push_back("list");
-            if ((typeMask & ConfigEntry::Type_Table) != 0)
-                result.push_back("table");
-            
-            if (result.empty())
-                return "none";
-            if (result.size() == 1)
-                return result.front();
-            return StringUtils::join(result, ", ", ", or ", " or ");
         }
     }
 }

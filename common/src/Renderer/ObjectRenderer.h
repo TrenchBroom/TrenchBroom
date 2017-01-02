@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -72,7 +72,8 @@ namespace TrenchBroom {
             
             void setOverrideEntityBoundsColor(bool overrideEntityBoundsColor);
             void setEntityBoundsColor(const Color& color);
-            
+
+            void setShowBrushEdges(bool showBrushEdges);
             void setBrushFaceColor(const Color& brushFaceColor);
             void setBrushEdgeColor(const Color& brushEdgeColor);
             

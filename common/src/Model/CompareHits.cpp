@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,8 +37,8 @@ namespace TrenchBroom {
         CombineCompareHits::CombineCompareHits(CompareHits* first, CompareHits* second) :
         m_first(first),
         m_second(second) {
-            assert(m_first != NULL);
-            assert(m_second != NULL);
+            ensure(m_first != NULL, "first is null");
+            ensure(m_second != NULL, "second is null");
         }
 
         CombineCompareHits::~CombineCompareHits() {

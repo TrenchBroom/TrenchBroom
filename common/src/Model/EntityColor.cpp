@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         
         Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
             DetectColorRangeVisitor visitor(name);
-            Node::accept(attributables.begin(), attributables.end(), visitor);
+            Node::accept(std::begin(attributables), std::end(attributables), visitor);
             return visitor.result();
         }
         

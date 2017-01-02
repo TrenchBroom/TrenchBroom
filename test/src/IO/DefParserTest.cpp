@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,11 +20,12 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "IO/DefParser.h"
 #include "Assets/AssetTypes.h"
-#include "Model/ModelTypes.h"
-#include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionTestUtils.h"
+#include "Model/ModelTypes.h"
+#include "IO/DefParser.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
 
@@ -209,63 +210,66 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
         
-        TEST(DefParserTest, parseStaticModelProperties) {
-            const String file =
-            "/*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG\n"
-            "{\n"
-            "model(\":maps/b_batt0.bsp\");\n"
-            "model(\":maps/b_batt1.bsp\" 0 0 spawnflags = 1);\n"
-            "}\n"
-            "6 ammo points (cells) for the\n"
-            "Thunderbolt (Lightning).\n"
-            "\n"
-            "Flags:\n"
-            "\"big\"\n"
-            " gives 12 instead of 6\n"
-            "*/\n";
+        static const String ModelDefinitionTemplate =
+        "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
+        "{\n"
+        "model(${MODEL});\n"
+        "}\n"
+        "*/\n";
+        
+        using Assets::assertModelDefinition;
+        
+        TEST(DefParserTest, parseLegacyStaticModelDefinition) {
+            static const String ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
             
-            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            DefParser parser(file, defaultColor);
-            
-            TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
-            
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("item_cells"), definition->name());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(2u, models.size());
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate);
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 1 }");
         }
         
-        TEST(DefParserTest, parseDynamicModelAttribute) {
-            const String file =
-            "/*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG\n"
-            "{\n"
-            "model(pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\");\n"
-            "}\n"
-            "6 ammo points (cells) for the\n"
-            "Thunderbolt (Lightning).\n"
-            "\n"
-            "Flags:\n"
-            "\"big\"\n"
-            " gives 12 instead of 6\n"
-            "*/\n";
+        TEST(DefParserTest, parseLegacyDynamicModelDefinition) {
+            static const String ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
             
-            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            DefParser parser(file, defaultColor);
-            
-            TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
-            
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("item_cells"), definition->name());
-            
-            const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
-            ASSERT_EQ(1u, models.size());
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp' }");
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
-    }
+        
+        TEST(DefParserTest, parseELStaticModelDefinition) {
+            static const String ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
+            
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate);
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 1 }");
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'spawnflags': 2 }");
+        }
+        
+        TEST(DefParserTest, parseELDynamicModelDefinition) {
+            static const String ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
+            
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp' }");
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+                                             ModelDefinition,
+                                             ModelDefinitionTemplate,
+                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+        }    }
 }

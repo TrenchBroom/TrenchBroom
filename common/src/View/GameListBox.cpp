@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameListBox::GameListBox(wxWindow* parent, const long style) :
-        ImageListBox(parent, wxSize(32, 32), "No Games Found", style) {
+        GameListBox::GameListBox(wxWindow* parent) :
+        ImageListBox(parent, "No Games Found") {
             reloadGameInfos();
             Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
@@ -74,11 +74,7 @@ namespace TrenchBroom {
             m_gameInfos.clear();
             
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
-            StringList::const_iterator it, end;
-            for (it = gameList.begin(), end = gameList.end(); it != end; ++it) {
-                const String& gameName = *it;
-                
+            for (const String& gameName : gameFactory.gameList()) {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
                 IO::Path iconPath = gameFactory.iconPath(gameName);
                 if (iconPath.isEmpty())
@@ -96,18 +92,19 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        const wxBitmap& GameListBox::image(const size_t n) const {
-            assert(n < m_gameInfos.size());
-            return m_gameInfos[n].image;
+        bool GameListBox::image(const size_t n, wxBitmap& result) const {
+            ensure(n < m_gameInfos.size(), "index out of range");
+            result = m_gameInfos[n].image;
+            return true;
         }
         
         wxString GameListBox::title(const size_t n) const {
-            assert(n < m_gameInfos.size());
+            ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].title;
         }
         
         wxString GameListBox::subtitle(const size_t n) const {
-            assert(n < m_gameInfos.size());
+            ensure(n < m_gameInfos.size(), "index out of range");
             return m_gameInfos[n].subtitle;
         }
 

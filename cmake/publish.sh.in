@@ -7,8 +7,14 @@ if [ $# -lt 1 ] || [ -z "$1" ] || ([ "$1" != "Alpha" ] && [ "$1" != "Beta" ] && 
     exit 1
 fi
 
-cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@" -DAPP_BUILD_CHANNEL=$1
-cmake --build . --config Release -- $2 $3 $4 $5 $6 $7
+if [ "$1" == "Stable" ] ; then
+    CONFIG="Release"
+else
+    CONFIG="RelWithDebInfo"
+fi
+
+cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@" -DAPP_BUILD_CHANNEL="$1" -DCMAKE_BUILD_TYPE=$CONFIG
+cmake --build . --config $CONFIG -- $2 $3 $4 $5 $6 $7
 if [ $? -ne 0 ]; then
     echo "Build failed, aborting."
     exit 1
@@ -20,7 +26,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cmake --build . --config Release --target package -- $2 $3 $4 $5 $6 $7
+cmake --build . --config $CONFIG --target package -- $2 $3 $4 $5 $6 $7
 if [ $? -ne 0 ]; then
     echo "Packaging failed, aborting."
     exit 1

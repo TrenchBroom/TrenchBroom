@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
-#include <wx/wx.h>
+#include <wx/app.h>
 
 class wxExtHelpController;
 
@@ -48,7 +48,9 @@ namespace TrenchBroom {
             ~TrenchBroomApp();
             
             void detectAndSetupUbuntu();
-            
+        protected:
+            wxAppTraits* CreateTraits();
+        public:
             FrameManager* frameManager();
             
             const IO::Path::List& recentDocuments() const;

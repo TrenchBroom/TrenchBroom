@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,9 +34,9 @@ class Allocator {
 private:
     class Chunk {
     private:
+        unsigned char m_blocks[BlocksPerChunk * sizeof(T)];
         unsigned char m_firstFreeBlock;
         unsigned char m_numFreeBlocks;
-        unsigned char m_blocks[BlocksPerChunk * sizeof(T)];
     public:
         Chunk() :
         m_firstFreeBlock(0),

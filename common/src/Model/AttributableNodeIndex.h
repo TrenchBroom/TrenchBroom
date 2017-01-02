@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             
-            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
+            AttributableNodeArray findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
         };
     }
 }

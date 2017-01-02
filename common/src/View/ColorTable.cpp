@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,6 +23,7 @@
 
 #include <wx/dcclient.h>
 #include <wx/panel.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 
 #include <algorithm>
@@ -77,16 +78,16 @@ namespace TrenchBroom {
             
             wxPaintDC dc(this);
             dc.SetPen(*wxTRANSPARENT_PEN);
-            dc.SetBrush(*wxWHITE_BRUSH);
+            dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
             dc.DrawRectangle(0, 0, virtualSize.x, virtualSize.y);
             
-            ColorList::const_iterator it = m_colors.begin();
+            auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
-                    if (it != m_colors.end()) {
+                    if (it != std::end(m_colors)) {
                         const wxColour& color = *it;
                         
-                        if (std::find(m_selectedColors.begin(), m_selectedColors.end(), color) != m_selectedColors.end()) {
+                        if (std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) != std::end(m_selectedColors)) {
                             dc.SetPen(*wxRED_PEN);
                             dc.SetBrush(*wxRED_BRUSH);
                             dc.DrawRectangle(x-1, y-1, m_cellSize+2, m_cellSize+2);

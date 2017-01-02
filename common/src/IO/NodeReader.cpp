@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,21 +28,26 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const String& str, Model::ModelFactory* factory, Logger* logger) :
-        MapReader(str, logger),
+        NodeReader::NodeReader(const String& str, Model::ModelFactory* factory) :
+        MapReader(str),
         m_factory(factory) {
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
-        const Model::NodeList& NodeReader::read(const BBox3& worldBounds) {
+        Model::NodeArray NodeReader::read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds, ParserStatus& status) {
+            NodeReader reader(str, factory);
+            return reader.read(worldBounds, status);
+        }
+
+        const Model::NodeArray& NodeReader::read(const BBox3& worldBounds, ParserStatus& status) {
             try {
-                readEntities(m_factory->format(), worldBounds);
+                readEntities(m_factory->format(), worldBounds, status);
             } catch (const ParserException&) {
                 VectorUtils::clearAndDelete(m_nodes);
 
                 try {
                     reset();
-                    readBrushes(m_factory->format(), worldBounds);
+                    readBrushes(m_factory->format(), worldBounds, status);
                 } catch (const ParserException&) {
                     VectorUtils::clearAndDelete(m_nodes);
                     throw;
@@ -56,41 +61,45 @@ namespace TrenchBroom {
             return m_factory;
         }
         
-        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::Entity* worldspawn = m_factory->createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
             
-            m_nodes.insert(m_nodes.begin(), worldspawn);
+            m_nodes.insert(std::begin(m_nodes), worldspawn);
             return worldspawn;
         }
         
-        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {
+        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
             assert(!m_nodes.empty());
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
         
-        void NodeReader::onLayer(Model::Layer* layer) {
+        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& status) {
             m_nodes.push_back(layer);
         }
         
-        void NodeReader::onNode(Model::Node* parent, Model::Node* node) {
+        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
             if (parent != NULL)
                 parent->addChild(node);
             else
                 m_nodes.push_back(node);
         }
         
-        void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) {
+        void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                logger()->warn("Could not resolve parent layer for object at line %u, adding to default layer", static_cast<unsigned int>(node->lineNumber()));
-            } else if (parentInfo.group()) {
-                logger()->warn("Could not resolve parent group for object at line %u, adding to default layer", static_cast<unsigned int>(node->lineNumber()));
+                StringStream msg;
+                msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
+                status.warn(node->lineNumber(), msg.str());
+            } else {
+                StringStream msg;
+                msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
+                status.warn(node->lineNumber(), msg.str());
             }
             m_nodes.push_back(node);
         }
         
-        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush) {
+        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
             if (parent != NULL)
                 parent->addChild(brush);
             else

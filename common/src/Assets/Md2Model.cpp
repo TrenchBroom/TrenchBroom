@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,13 +34,13 @@ namespace TrenchBroom {
         Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
-        m_bounds(m_vertices.begin(), m_vertices.end(), Renderer::GetVertexComponent1()) {}
+        m_bounds(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1()) {}
 
         BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
             BBox3f transformedBounds;
             
-            VertexList::const_iterator it = m_vertices.begin();
-            VertexList::const_iterator end = m_vertices.end();
+            VertexList::const_iterator it = std::begin(m_vertices);
+            VertexList::const_iterator end = std::end(m_vertices);
             
             transformedBounds.min = transformedBounds.max = transformation * it->v1;
             while (++it != end)
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameList& frames) :
+        Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameArray& frames) :
         m_name(name),
         m_skins(new TextureCollection(name, skins)),
         m_frames(frames) {}
@@ -74,8 +74,8 @@ namespace TrenchBroom {
         Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             const TextureList& textures = m_skins->textures();
             
-            assert(skinIndex < textures.size());
-            assert(frameIndex < m_frames.size());
+            ensure(skinIndex < textures.size(), "skin index out of range");
+            ensure(frameIndex < m_frames.size(), "frame index out of range");
 
             const Assets::Texture* skin = textures[skinIndex];
             const Frame* frame = m_frames[frameIndex];
@@ -90,16 +90,16 @@ namespace TrenchBroom {
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
-            assert(skinIndex < m_skins->textures().size());
-            assert(frameIndex < m_frames.size());
+            ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
+            ensure(frameIndex < m_frames.size(), "frame index out of range");
             
             const Frame* frame = m_frames[frameIndex];
             return frame->bounds();
         }
         
         BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            assert(skinIndex < m_skins->textures().size());
-            assert(frameIndex < m_frames.size());
+            ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
+            ensure(frameIndex < m_frames.size(), "frame index out of range");
             
             const Frame* frame = m_frames[frameIndex];
             return frame->transformedBounds(transformation);

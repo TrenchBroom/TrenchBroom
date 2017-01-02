@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,6 +35,8 @@ namespace TrenchBroom {
             wxString GetKind() const;
             void Save() const;
             bool Restore();
+        private:
+            wxRealPoint getSplitRatios(const SplitterWindow4* window) const;
         };
     }
 }

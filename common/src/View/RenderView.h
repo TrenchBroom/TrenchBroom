@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,11 +40,13 @@ namespace TrenchBroom {
         class RenderView : public wxGLCanvas {
         private:
             GLContext::Ptr m_glContext;
-            GLAttribs m_attribs;
+            wxGLAttributes m_attribs;
             bool m_initialized;
             Color m_focusColor;
         protected:
-            RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs);
+            RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
+        public:
+            virtual ~RenderView();
         public:
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,6 +35,8 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class ParserStatus;
+        
         class MapParser {
         protected:
             class ExtraAttribute {
@@ -70,18 +72,18 @@ namespace TrenchBroom {
             virtual ~MapParser();
         protected:
             void formatSet(Model::MapFormat::Type format);
-            void beginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void endEntity(size_t startLine, size_t lineCount);
-            void beginBrush(size_t line);
-            void endBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
+            void beginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void endEntity(size_t startLine, size_t lineCount, ParserStatus& status);
+            void beginBrush(size_t line, ParserStatus& status);
+            void endBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status);
         private: // subclassing interface for users of the parser
             virtual void onFormatSet(Model::MapFormat::Type format) = 0;
-            virtual void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
-            virtual void onEndEntity(size_t startLine, size_t lineCount) = 0;
-            virtual void onBeginBrush(size_t line) = 0;
-            virtual void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes) = 0;
-            virtual void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) = 0;
+            virtual void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
+            virtual void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
+            virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
+            virtual void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
+            virtual void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status) = 0;
         };
     }
 }

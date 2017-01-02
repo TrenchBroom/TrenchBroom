@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,8 +29,6 @@
 #include "Model/MapFormat.h"
 
 namespace TrenchBroom {
-    class Logger;
-    
     namespace IO {
         namespace QuakeMapToken {
             typedef unsigned int Type;
@@ -48,9 +46,11 @@ namespace TrenchBroom {
             static const Type Eol           = 1 << 11; // end of line
         }
         
+        class ParserStatus;
+
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
         private:
-            static const String NumberDelim;
+            static const String& NumberDelim();
             bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
@@ -64,37 +64,33 @@ namespace TrenchBroom {
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             typedef QuakeMapTokenizer::Token Token;
+            typedef std::set<Model::AttributeName> AttributeNames;
 
             QuakeMapTokenizer m_tokenizer;
-            Logger* m_logger;
             Model::MapFormat::Type m_format;
         public:
-            StandardMapParser(const char* begin, const char* end, Logger* logger = NULL);
-            StandardMapParser(const String& str, Logger* logger = NULL);
+            StandardMapParser(const char* begin, const char* end);
+            StandardMapParser(const String& str);
             
             virtual ~StandardMapParser();
         protected:
-            Logger* logger() const;
-
-
             Model::MapFormat::Type detectFormat();
             
-            void parseEntities(Model::MapFormat::Type format);
-            void parseBrushes(Model::MapFormat::Type format);
-            void parseBrushFaces(Model::MapFormat::Type format);
+            void parseEntities(Model::MapFormat::Type format, ParserStatus& status);
+            void parseBrushes(Model::MapFormat::Type format, ParserStatus& status);
+            void parseBrushFaces(Model::MapFormat::Type format, ParserStatus& status);
             
             void reset();
         private:
             void setFormat(Model::MapFormat::Type format);
             
-            void parseEntityOrBrush();
-            void parseEntity();
-            void parseEntityAttribute(Model::EntityAttribute::List& attributes);
-            void parseBrush();
-            void parseFace();
+            void parseEntity(ParserStatus& status);
+            void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
+            void parseBrush(ParserStatus& status);
+            void parseFace(ParserStatus& status);
 
             Vec3 parseVector();
-            void parseExtraAttributes(ExtraAttributes& extraAttributes);
+            void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const;
         };

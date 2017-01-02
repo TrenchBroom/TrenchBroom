@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -125,9 +125,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
-                Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
-                    const Model::Group* group = *it;
+                for (const Model::Group* group : m_groups) {
                     if (m_editorContext.visible(group)) {
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays)
@@ -176,9 +174,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
                 
                 BuildBoundsVertices boundsBuilder(vertices);
-                Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
-                    const Model::Group* group = *it;
+                for (const Model::Group* group : m_groups) {
                     if (m_editorContext.visible(group)) {
                         eachBBoxEdge(group->bounds(), boundsBuilder);
                     }
@@ -189,9 +185,7 @@ namespace TrenchBroom {
                 VertexSpecs::P3C4::Vertex::List vertices;
                 vertices.reserve(24 * m_groups.size());
                 
-                Model::GroupList::const_iterator it, end;
-                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
-                    const Model::Group* group = *it;
+                for (const Model::Group* group : m_groups) {
                     if (m_editorContext.visible(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
                         eachBBoxEdge(group->bounds(), boundsBuilder);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,90 +25,89 @@
 
 namespace TrenchBroom {
     namespace View {
-        const GLAttribs& buildAttribs() {
-            static bool initialized = false;
-            static GLAttribs attribs;
-            if (initialized)
-                return attribs;
-            
-            int testAttribs[] =
-            {
-                // 32 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 24 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 32 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 24 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 16 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 16 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 32 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                0,
-                // 24 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                0,
-                // 16 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                0,
-                0,
-            };
-            
-            size_t index = 0;
-            while (!initialized && testAttribs[index] != 0) {
-                size_t count = 0;
-                for (; testAttribs[index + count] != 0; ++count);
-                if (wxGLCanvas::IsDisplaySupported(&testAttribs[index])) {
-                    for (size_t i = 0; i < count; ++i)
-                        attribs.push_back(testAttribs[index + i]);
-                    attribs.push_back(0);
-                    initialized = true;
-                }
-                index += count + 1;
+        GLAttribs::Config::Config() :
+        depth(0),
+        multisample(false),
+        samples(0) {}
+        
+        GLAttribs::Config::Config(const int i_depth, const bool i_multisample, const int i_samples) :
+        depth(i_depth),
+        multisample(i_multisample),
+        samples(i_samples) {}
+        
+        wxGLAttributes GLAttribs::Config::attribs() const {
+            wxGLAttributes result;
+            result.PlatformDefaults();
+            result.RGBA();
+            result.DoubleBuffer();
+            result.Depth(depth);
+            if (multisample) {
+                result.SampleBuffers(1);
+                result.Samplers(samples);
             }
-            
-            assert(initialized);
-            assert(!attribs.empty());
-            return attribs;
+            result.EndList();
+            return result;
+        }
+        
+        GLAttribs::GLAttribs() :
+        m_initialized(false) {
+            initialize();
+        }
+
+        void GLAttribs::initialize() {
+            typedef std::vector<Config> List;
+            List configs;
+            configs.push_back(Config(32, true, 4));
+            configs.push_back(Config(24, true, 4));
+            configs.push_back(Config(32, true, 2));
+            configs.push_back(Config(24, true, 2));
+            configs.push_back(Config(32, false, 0));
+            configs.push_back(Config(24, false, 0));
+
+            for (const Config& config : configs) {
+                const wxGLAttributes attribs = config.attribs();
+                if (wxGLCanvas::IsDisplaySupported(attribs)) {
+                    m_config = config;
+                    m_initialized = true;
+                }
+            }
+        }
+
+        const GLAttribs& GLAttribs::instance() {
+            static const GLAttribs instance;
+            return instance;
+        }
+        
+        wxGLAttributes GLAttribs::getAttribs() const {
+            return m_config.attribs();
+        }
+        
+        int GLAttribs::getDepth() const {
+            return m_config.depth;
+        }
+
+        bool GLAttribs::getMultisample() const {
+            return m_config.multisample;
+        }
+        
+        int GLAttribs::getSamples() const {
+            return m_config.samples;
+        }
+        
+        wxGLAttributes GLAttribs::attribs() {
+            return instance().getAttribs();
+        }
+        
+        int GLAttribs::depth() {
+            return instance().getDepth();
+        }
+
+        bool GLAttribs::multisample() {
+            return instance().getMultisample();
+        }
+        
+        int GLAttribs::samples() {
+            return instance().getSamples();
         }
     }
 }

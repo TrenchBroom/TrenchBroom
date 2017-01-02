@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -19,6 +19,8 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -32,6 +34,9 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
@@ -40,8 +45,15 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
         Tool(true),
         m_document(document),
-        m_splitBrushes(false) {}
+        m_splitBrushes(false),
+        m_resizing(false) {
+            bindObservers();
+        }
         
+        ResizeBrushesTool::~ResizeBrushesTool() {
+            unbindObservers();
+        }
+
         bool ResizeBrushesTool::applies() const {
             MapDocumentSPtr document = lock(m_document);
             return document->selectedNodes().hasBrushes();
@@ -80,10 +92,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group)   {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush)   {
-                const Model::Brush::EdgeList edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it)
-                    visitEdge(*it);
+                for (const auto edge : brush->edges())
+                    visitEdge(edge);
             }
             
             void visitEdge(Model::BrushEdge* edge) {
@@ -124,7 +134,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             
             if (!visitor.hasResult())
                 return Model::Hit::NoHit;
@@ -159,7 +169,7 @@ namespace TrenchBroom {
         public:
             MatchFaceBoundary(const Model::BrushFace* reference) :
             m_reference(reference) {
-                assert(m_reference != NULL);
+                ensure(m_reference != NULL, "reference is null");
             }
             
             bool operator()(Model::BrushFace* face) const {
@@ -177,9 +187,8 @@ namespace TrenchBroom {
                 assert(!faces.empty());
                 VectorUtils::append(result, faces);
                 VectorUtils::append(result, collectDragFaces(faces[0]));
-                if (faces.size() > 1) {
+                if (faces.size() > 1)
                     VectorUtils::append(result, collectDragFaces(faces[1]));
-                }
             } else {
                 Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
@@ -194,7 +203,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
         }
 
@@ -209,6 +218,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Resize Brushes");
+            m_resizing = true;
             return true;
         }
         
@@ -240,7 +250,7 @@ namespace TrenchBroom {
                     m_splitBrushes = false;
                 }
             } else {
-                if (document->resizeBrushes(m_dragFaces, faceDelta)) {
+                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     m_totalDelta += faceDelta;
                     m_dragOrigin += faceDelta;
                 }
@@ -265,32 +275,30 @@ namespace TrenchBroom {
             else
                 document->commitTransaction();
             m_dragFaces.clear();
+            m_resizing = false;
         }
         
         void ResizeBrushesTool::cancelResize() {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
             m_dragFaces.clear();
+            m_resizing = false;
         }
 
         bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
-            const bool lockTextures = document->textureLock();
+            const bool lockTextures = pref(Preferences::TextureLock);
             
-            Model::BrushFaceList::const_iterator fIt, fEnd;
-            
-            // first ensure that the drag can be applied at all
-            for (fIt = m_dragFaces.begin(), fEnd = m_dragFaces.end(); fIt != fEnd; ++fIt) {
-                const Model::BrushFace* face = *fIt;
-                if (!Math::pos(face->boundary().normal.dot(delta)))
-                    return false;
-            }
+            // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
+            // "up" along its normal.
+            if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
+                            [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
+                return false;
             
             Model::ParentChildrenMap newNodes;
             Model::BrushFaceList newDragFaces;
-            for (fIt = m_dragFaces.begin(), m_dragFaces.end(); fIt != fEnd; ++fIt) {
-                Model::BrushFace* dragFace = *fIt;
+            for (Model::BrushFace* dragFace : m_dragFaces) {
                 Model::Brush* brush = dragFace->brush();
                 
                 Model::Brush* newBrush = brush->clone(worldBounds);
@@ -321,6 +329,34 @@ namespace TrenchBroom {
             if (!visitor.hasResult())
                 return NULL;
             return visitor.result();
+        }
+
+        Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
+            Polygon3::List result;
+            result.reserve(m_dragFaces.size());
+            std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
+            return result;
+        }
+
+        void ResizeBrushesTool::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->nodesWereAddedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+            document->nodesWillChangeNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+            document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+        }
+        
+        void ResizeBrushesTool::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->nodesWereAddedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+                document->nodesWillChangeNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+                document->nodesWillBeRemovedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+            }
+        }
+
+        void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
+            if (!m_resizing)
+                m_dragFaces.clear();
         }
     }
 }

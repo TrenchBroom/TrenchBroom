@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,18 +23,23 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
+#include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "IO/GameFileSystem.h"
-#include "IO/TextureLoader.h"
+#include "IO/FileSystemHierarchy.h"
+#include "IO/TextureReader.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     class Logger;
+    
+    namespace Assets {
+        class TextureManager;
+    }
     
     namespace IO {
         class MapWriter;
@@ -43,7 +48,12 @@ namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
         
-        class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader, public IO::TextureLoader {
+        class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
+        public:
+            typedef enum {
+                TP_File,
+                TP_Directory
+            } TexturePackageType;
         private:
             mutable BrushContentTypeBuilder* m_brushContentTypeBuilder;
         protected:
@@ -57,10 +67,15 @@ namespace TrenchBroom {
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            
+            CompilationConfig& compilationConfig();
+            
+            size_t maxPropertyLength() const;
         public: // loading and writing map files
             World* newMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* loadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
+            void exportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
             NodeList parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
             BrushFaceList parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
@@ -68,10 +83,12 @@ namespace TrenchBroom {
             void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
+            TexturePackageType texturePackageType() const;
+            void loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool isTextureCollection(const IO::Path& path) const;
-            IO::Path::List findBuiltinTextureCollections() const;
-            StringList extractExternalTextureCollections(const World* world) const;
-            void updateExternalTextureCollections(World* world, const StringList& collections) const;
+            IO::Path::List findTextureCollections() const;
+            IO::Path::List extractTextureCollections(const World* world) const;
+            void updateTextureCollections(World* world, const IO::Path::List& paths) const;
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
@@ -83,6 +100,7 @@ namespace TrenchBroom {
         public: // mods
             StringList availableMods() const;
             StringList extractEnabledMods(const World* world) const;
+            String defaultMod() const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
             const GameConfig::FlagsConfig& contentFlags() const;
@@ -92,19 +110,25 @@ namespace TrenchBroom {
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             
+            virtual CompilationConfig& doCompilationConfig() = 0;
+            virtual size_t doMaxPropertyLength() const = 0;
+            
             virtual World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const = 0;
             virtual World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
+            virtual void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const = 0;
             
             virtual NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
             virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
             virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
+            virtual TexturePackageType doTexturePackageType() const = 0;
+            virtual void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-            virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
-            virtual StringList doExtractExternalTextureCollections(const World* world) const = 0;
-            virtual void doUpdateExternalTextureCollections(World* world, const StringList& collections) const = 0;
+            virtual IO::Path::List doFindTextureCollections() const = 0;
+            virtual IO::Path::List doExtractTextureCollections(const World* world) const = 0;
+            virtual void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const = 0;
             
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
@@ -115,6 +139,7 @@ namespace TrenchBroom {
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const World* world) const = 0;
+            virtual String doDefaultMod() const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
             virtual const GameConfig::FlagsConfig& doContentFlags() const = 0;

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #include "ReparentNodesCommand.h"
 
 #include "CollectionUtils.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>
@@ -28,42 +29,24 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(Model::Node* newParent, const Model::NodeList& children) {
-            assert(newParent != NULL);
-            assert(!children.empty());
-            
-            Model::ParentChildrenMap map;
-            map[newParent] = children;
-            return Ptr(new ReparentNodesCommand(map));
+        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove) {
+            return Ptr(new ReparentNodesCommand(nodesToAdd, nodesToRemove));
         }
 
-        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const Model::ParentChildrenMap& nodes) {
-            assert(!nodes.empty());
-            return Ptr(new ReparentNodesCommand(nodes));
-        }
-
-        ReparentNodesCommand::ReparentNodesCommand(const Model::ParentChildrenMap& nodes) :
+        ReparentNodesCommand::ReparentNodesCommand(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove) :
         DocumentCommand(Type, "Reparent Objects"),
-        m_nodes(nodes) {}
-        
-        ReparentNodesCommand::~ReparentNodesCommand() {
-            MapUtils::clearAndDelete(m_removedNodes);
-        }
+        m_nodesToAdd(nodesToAdd),
+        m_nodesToRemove(nodesToRemove) {}
 
         bool ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes, MapDocumentCommandFacade::RemoveEmptyNodes);
-            m_nodes = result.movedNodes;
-            m_removedNodes = result.removedNodes;
+            document->performRemoveNodes(m_nodesToRemove);
+            document->performAddNodes(m_nodesToAdd);
             return true;
         }
         
         bool ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->addNodes(m_removedNodes);
-            
-            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes, MapDocumentCommandFacade::KeepEmptyNodes);
-            m_nodes = result.movedNodes;
-            m_removedNodes = result.removedNodes;
-            assert(m_removedNodes.empty());
+            document->performRemoveNodes(m_nodesToAdd);
+            document->performAddNodes(m_nodesToRemove);
             return true;
         }
         

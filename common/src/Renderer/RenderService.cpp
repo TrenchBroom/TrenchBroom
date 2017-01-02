@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -110,9 +110,8 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {
-            Vec3f::List::const_iterator it, end;
-            for (it = positions.begin(), end = positions.end(); it != end; ++it)
-                renderPointHandle(*it);
+            for (const Vec3f& position : positions)
+                renderPointHandle(position);
         }
         
         void RenderService::renderPointHandle(const Vec3f& position) {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,6 +24,65 @@
 #include "Vec.h"
 #include "Plane.h"
 #include "Ray.h"
+
+template <typename T, typename I, typename F>
+T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, F getPosition) {
+    const T distance = plane.intersectWithRay(ray);
+    if (Math::isnan(distance))
+        return distance;
+    
+    const Vec<T,3> point = ray.pointAtDistance(distance);
+    if (polygonContainsPoint(point, plane.normal, cur, end, getPosition))
+        return distance;
+    return Math::nan<T>();
+}
+
+template <typename T, typename I, typename F>
+bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, F getPosition) {
+    I temp = cur;
+    
+    assert(temp != end); const Vec<T,3> p1 = getPosition(*temp++);
+    assert(temp != end); const Vec<T,3> p2 = getPosition(*temp++);
+    assert(temp != end); const Vec<T,3> p3 = getPosition(*temp);
+    
+    Vec<T,3> normal;
+    assertResult(planeNormal(normal, p1, p2, p3));
+    
+    return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
+}
+
+template <typename T, typename I, typename F>
+bool polygonContainsPoint(const Vec<T,3>& point, const Vec<T,3>& normal, I cur, I end, F getPosition) {
+    return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
+}
+
+template <typename T, typename I, typename F>
+bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end, F getPosition) {
+    const Vec<T,3> o = swizzle(point, axis);
+    
+    const Vec<T,3> f = swizzle(getPosition(*cur++), axis) - o; // The first vertex.
+    Vec<T,3> p = f; // The previous vertex.
+    
+    int d = 0;
+    while (cur != end) {
+        const Vec<T,3> c = swizzle(getPosition(*cur++), axis) - o; // The current vertex.
+        const int s = handlePolygonEdgeIntersection(p, c);
+        if (s == -1)
+            return true;
+        d += s;
+        p = c;
+    }
+    
+    // Handle the edge from the last to the first vertex.
+    const int s = handlePolygonEdgeIntersection(p, f);
+    if (s == -1)
+        return true;
+    
+    d += s;
+    if (d % 2 == 0)
+        return false;
+    return true;
+}
 
 template <typename T>
 int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
@@ -66,39 +125,6 @@ int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
     }
     
     return 0;
-}
-
-template <typename T, typename I, typename F>
-T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, F getPosition) {
-    const T distance = plane.intersectWithRay(ray);
-    if (Math::isnan(distance))
-        return distance;
-    
-    const size_t axis = plane.normal.firstComponent();
-    const Vec<T,3> o = swizzle(ray.pointAtDistance(distance), axis);
-    
-    const Vec<T,3> f = swizzle(getPosition(*cur++), axis) - o; // The first vertex.
-    Vec<T,3> p = f; // The previous vertex.
-    
-    int d = 0;
-    while (cur != end) {
-        const Vec<T,3> c = swizzle(getPosition(*cur++), axis) - o; // The current vertex.
-        const int s = handlePolygonEdgeIntersection(p, c);
-        if (s == -1)
-            return distance;
-        d += s;
-        p = c;
-    }
-    
-    // Handle the edge from the last to the first vertex.
-    const int s = handlePolygonEdgeIntersection(p, f);
-    if (s == -1)
-        return distance;
-    
-    d += s;
-    if (d % 2 == 0)
-        return Math::nan<T>();
-    return distance;
 }
 
 /*
@@ -220,13 +246,13 @@ private:
     
     void sortPoints() {
         const Vec<T,3>& anchor = m_points[0];
-        std::sort(m_points.begin() + 1, m_points.end(), LessThanByAngle(anchor));
+        std::sort(std::begin(m_points) + 1, std::end(m_points), LessThanByAngle(anchor));
         
         // now remove the duplicates
-        typename Vec<T,3>::List::iterator i = m_points.begin() + 1;
-        while (i != m_points.end()) {
+        auto i = std::begin(m_points) + 1;
+        while (i != std::end(m_points)) {
             const Vec<T,3>& p1 = *(i++);
-            while (i != m_points.end()) {
+            while (i != std::end(m_points)) {
                 const Vec<T,3>& p2 = *i;
                 if (isLeft(anchor, p1, p2) == 0)
                     i = m_points.erase(i);

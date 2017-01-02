@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TextureCollection;
         
         typedef Buffer<unsigned char> TextureBuffer;
-        void setMipBufferSize(TextureBuffer::List& buffers, const size_t width, const size_t height);
+        void setMipBufferSize(TextureBuffer::Array& buffers, const size_t width, const size_t height);
         
         class Texture {
         private:
@@ -46,13 +46,15 @@ namespace TrenchBroom {
 
             size_t m_usageCount;
             bool m_overridden;
-            
+
+            GLenum m_format;
+
             mutable GLuint m_textureId;
-            mutable TextureBuffer::List m_buffers;
+            mutable TextureBuffer::Array m_buffers;
         public:
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer);
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers);
-            Texture(const String& name, const size_t width, const size_t height);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format = GL_RGB);
+            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::Array& buffers, GLenum format = GL_RGB);
+            Texture(const String& name, const size_t width, const size_t height, GLenum format = GL_RGB);
             ~Texture();
 
             const String& name() const;
@@ -70,7 +72,7 @@ namespace TrenchBroom {
             bool isPrepared() const;
             void prepare(GLuint textureId, int minFilter, int magFilter);
             void setMode(int minFilter, int magFilter);
-            
+
             void activate() const;
             void deactivate() const;
         private:

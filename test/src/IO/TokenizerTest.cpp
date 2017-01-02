@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                             e = readDecimal("{};= \n\r\t");
                             if (e != NULL)
                                 return Token(SimpleToken::Decimal, c, e, offset(c), startLine, startColumn);
-                            e = readString("{};= \n\r\t");
+                            e = readUntil("{};= \n\r\t");
                             assert(e != NULL);
                             return Token(SimpleToken::String, c, e, offset(c), startLine, startColumn);
                         }
@@ -111,11 +111,6 @@ namespace TrenchBroom {
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
-            ASSERT_EQ(1u, token.line());
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(1u, token.line());
-            tokenizer.pushToken(token);
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
             ASSERT_EQ(1u, token.line());
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
         
         bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot != NULL);
+            ensure(m_snapshot != NULL, "snapshot is null");
             document->restoreSnapshot(m_snapshot);
             deleteSnapshot();
             return true;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         
         void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
             assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(nodes.begin(), nodes.end());
+            m_snapshot = new Model::Snapshot(std::begin(nodes), std::end(nodes));
         }
         
         void TransformObjectsCommand::deleteSnapshot() {

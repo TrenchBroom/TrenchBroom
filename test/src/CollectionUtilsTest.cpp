@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -70,7 +70,7 @@ TEST(CollectionUtilsTest, vecShiftLeftBy2) {
     
     Vec actual = vec;
     VectorUtils::shiftLeft(actual, 2);
-    ASSERT_TRUE(std::equal(leftBy2.begin(), leftBy2.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(leftBy2), std::end(leftBy2), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftBySize) {
@@ -87,7 +87,7 @@ TEST(CollectionUtilsTest, vecShiftLeftBySize) {
     
     Vec actual = vec;
     VectorUtils::shiftLeft(actual, vec.size());
-    ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(vec), std::end(vec), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecShiftLeftByMoreThanSize) {
@@ -113,7 +113,7 @@ TEST(CollectionUtilsTest, vecShiftLeftByMoreThanSize) {
 
     Vec actual = vec;
     VectorUtils::shiftLeft(actual, 10);
-    ASSERT_TRUE(std::equal(leftBy10.begin(), leftBy10.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(leftBy10), std::end(leftBy10), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecShiftRightEmpty) {
@@ -146,7 +146,7 @@ TEST(CollectionUtilsTest, vecShiftRightBy2) {
     
     Vec actual = vec;
     VectorUtils::shiftRight(actual, 2);
-    ASSERT_TRUE(std::equal(rightBy2.begin(), rightBy2.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(rightBy2), std::end(rightBy2), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecShiftRightBySize) {
@@ -163,7 +163,7 @@ TEST(CollectionUtilsTest, vecShiftRightBySize) {
     
     Vec actual = vec;
     VectorUtils::shiftRight(actual, vec.size());
-    ASSERT_TRUE(std::equal(vec.begin(), vec.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(vec), std::end(vec), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecShiftRightByMoreThanSize) {
@@ -189,7 +189,7 @@ TEST(CollectionUtilsTest, vecShiftRightByMoreThanSize) {
     
     Vec actual = vec;
     VectorUtils::shiftRight(actual, 10);
-    ASSERT_TRUE(std::equal(rightBy10.begin(), rightBy10.end(), actual.begin()));
+    ASSERT_TRUE(std::equal(std::begin(rightBy10), std::end(rightBy10), std::begin(actual)));
 }
 
 TEST(CollectionUtilsTest, vecEraseAndDelete1InRange) {
@@ -201,7 +201,7 @@ TEST(CollectionUtilsTest, vecEraseAndDelete1InRange) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
+    VectorUtils::eraseAndDelete(vec, std::begin(vec) + 1, std::end(vec) - 1);
     ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
@@ -218,7 +218,7 @@ TEST(CollectionUtilsTest, vecEraseAndDelete2InRange) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::eraseAndDelete(vec, vec.begin() + 1, vec.end() - 1);
+    VectorUtils::eraseAndDelete(vec, std::begin(vec) + 1, std::end(vec) - 1);
     ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_TRUE(deleted[1]);
@@ -236,7 +236,7 @@ TEST(CollectionUtilsTest, vecEraseAndDeleteAllFrom) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::eraseAndDelete(vec, vec.begin() + 2);
+    VectorUtils::eraseAndDelete(vec, std::begin(vec) + 2);
     ASSERT_EQ(2u, vec.size());
     ASSERT_FALSE(deleted[0]);
     ASSERT_FALSE(deleted[1]);
@@ -386,7 +386,7 @@ TEST(CollectionUtilsTest, vecSetInsertRange) {
     range.push_back(i1);
     
     std::vector<int> set;
-    VectorUtils::setInsert(set, range.begin(), range.end());
+    VectorUtils::setInsert(set, std::begin(range), std::end(range));
     ASSERT_EQ(2u, set.size());
     ASSERT_EQ(i1, set[0]);
     ASSERT_EQ(i2, set[1]);
@@ -568,7 +568,7 @@ TEST(CollectionUtilsTest, mapFindOrInsert) {
     TestMap testMap;
     TestMap::iterator it = MapUtils::findOrInsert(testMap, std::string("Key"));
     ASSERT_EQ(1u, testMap.size());
-    ASSERT_EQ(testMap.begin(), it);
+    ASSERT_EQ(std::begin(testMap), it);
     ASSERT_EQ(std::string("Key"), it->first);
     ASSERT_EQ(std::string(""), it->second);
     ASSERT_EQ(it, MapUtils::findOrInsert(testMap, std::string("Key")));
@@ -576,7 +576,7 @@ TEST(CollectionUtilsTest, mapFindOrInsert) {
     
     it = MapUtils::findOrInsert(testMap, std::string("Key2"));
     ASSERT_EQ(2u, testMap.size());
-    ASSERT_NE(testMap.end(), it);
+    ASSERT_NE(std::end(testMap), it);
     ASSERT_EQ(std::string("Key2"), it->first);
     ASSERT_EQ(std::string(""), it->second);
 }

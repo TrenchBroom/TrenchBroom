@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -70,7 +70,7 @@ namespace TrenchBroom {
  
         void FontTexture::activate() {
             if (m_textureId == 0) {
-                assert(m_buffer != NULL);
+                ensure(m_buffer != NULL, "buffer is null");
                 glAssert(glGenTextures(1, &m_textureId));
                 glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
                 glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

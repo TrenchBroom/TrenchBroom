@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_TextureManager
 #define TrenchBroom_TextureManager
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
@@ -35,75 +36,49 @@ namespace TrenchBroom {
     }
     
     namespace Assets {
-        class TextureCollectionSpec;
-        
         class TextureManager {
-        public:
-            typedef enum {
-                SortOrder_Name,
-                SortOrder_Usage
-            } SortOrder;
-            
-            typedef std::pair<TextureCollection*, TextureList> Group;
-            typedef std::vector<Group> GroupList;
         private:
-            typedef std::map<String, TextureCollection*> TextureCollectionMap;
-            typedef std::pair<String, TextureCollection*> TextureCollectionMapEntry;
+            typedef std::map<IO::Path, TextureCollection*> TextureCollectionMap;
+            typedef std::pair<IO::Path, TextureCollection*> TextureCollectionMapEntry;
             typedef std::map<String, Texture*> TextureMap;
             
             Logger* m_logger;
-            const IO::TextureLoader* m_loader;
             
-            TextureCollectionList m_builtinCollections;
-            TextureCollectionMap m_builtinCollectionsByName;
+            TextureCollectionList m_collections;
             
-            TextureCollectionList m_externalCollections;
-            TextureCollectionMap m_externalCollectionsByName;
-            
-            TextureCollectionMap m_toPrepare;
-            TextureCollectionMap m_toRemove;
-            
-            TextureCollectionList m_allCollections;
-            TextureList m_sortedTextures[2];
-            GroupList m_sortedGroups[2];
+            TextureCollectionList m_toPrepare;
+            TextureCollectionList m_toRemove;
             
             TextureMap m_texturesByName;
+            TextureList m_textures;
             
             int m_minFilter;
             int m_magFilter;
             bool m_resetTextureMode;
         public:
+            Notifier0 usageCountDidChange;
+        public:
             TextureManager(Logger* logger, int minFilter, int magFilter);
             ~TextureManager();
 
-            void setBuiltinTextureCollections(const IO::Path::List& paths);
-            
-            void addExternalTextureCollection(const TextureCollectionSpec& spec);
-            void removeExternalTextureCollection(const String& name);
-            void moveExternalTextureCollectionUp(const String& name);
-            void moveExternalTextureCollectionDown(const String& name);
+            void setTextureCollections(const IO::Path::Array& paths, IO::TextureLoader& loader);
+        private:
+            TextureCollectionMap collectionMap() const;
+            void addTextureCollection(Assets::TextureCollection* collection);
+        public:
             void clear();
             
             void setTextureMode(int minFilter, int magFilter);
-            void setLoader(const IO::TextureLoader* loader);
             void commitChanges();
             
             Texture* texture(const String& name) const;
-            const TextureList& textures(const SortOrder sortOrder) const;
-            const GroupList& groups(const SortOrder sortOrder) const;
+            const TextureList& textures() const;
             const TextureCollectionList& collections() const;
-            const StringList externalCollectionNames() const;
+            const StringArray collectionNames() const;
         private:
-            void addTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
-            void removeTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
-
-            TextureCollection* loadTextureCollection(const TextureCollectionSpec& spec) const;
-            
             void resetTextureMode();
             void prepare();
 
-            void clearBuiltinTextureCollections();
-            void clearExternalTextureCollections();
             void updateTextures();
             TextureList textureList() const;
         };

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,6 +32,7 @@
 #include <wx/settings.h>
 #include <wx/scrolwin.h>
 #include <wx/sizer.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 
@@ -50,25 +51,11 @@ namespace TrenchBroom {
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
             
-            void doVisit(Model::World* world)   { m_document->setAttribute(m_name, attributeValue(world)); }
+            void doVisit(Model::World* world)   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Layer* layer)   {}
             void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { m_document->setAttribute(m_name, attributeValue(entity)); }
+            void doVisit(Model::Entity* entity) { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::Brush* brush)   {}
-
-            Model::AttributeValue attributeValue(Model::AttributableNode* attributable) const {
-                int intValue = attributable->hasAttribute(m_name) ? std::atoi(attributable->attribute(m_name).c_str()) : 0;
-                const int flagValue = (1 << m_flagIndex);
-                
-                if (m_setFlag)
-                    intValue |= flagValue;
-                else
-                    intValue &= ~flagValue;
-                
-                StringStream str;
-                str << intValue;
-                return str.str();
-            }
         };
         
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document) :
@@ -91,7 +78,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(document(), "Set Spawnflags");
             UpdateSpawnflag visitor(document(), name(), index, set);
-            Model::Node::accept(toUpdate.begin(), toUpdate.end(), visitor);
+            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
         
         wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {
@@ -111,7 +98,7 @@ namespace TrenchBroom {
         }
         
         void SmartSpawnflagsEditor::doDestroyVisual() {
-            assert(m_scrolledWindow != NULL);
+            ensure(m_scrolledWindow != NULL, "scrolledWindow is null");
             m_lastScrollPos = m_scrolledWindow->GetViewStart();
             m_scrolledWindow->Destroy();
             m_scrolledWindow = NULL;
@@ -123,6 +110,8 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
+            wxWindowUpdateLocker locker(m_scrolledWindow);
+
             wxArrayString labels;
             wxArrayString tooltips;
             getFlags(attributables, labels, tooltips);
@@ -177,8 +166,8 @@ namespace TrenchBroom {
                 return;
             }
             
-            Model::AttributableNodeList::const_iterator it = attributables.begin();
-            Model::AttributableNodeList::const_iterator end = attributables.end();
+            Model::AttributableNodeList::const_iterator it = std::begin(attributables);
+            Model::AttributableNodeList::const_iterator end = std::end(attributables);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
             

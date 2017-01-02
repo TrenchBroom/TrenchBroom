@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,6 +61,11 @@ namespace TrenchBroom {
         }
         
         int compare(const Polygon<T,S>& other) const {
+            if (m_vertices.size() < other.m_vertices.size())
+                return -1;
+            if (m_vertices.size() > other.m_vertices.size())
+                return 1;
+
             const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
             for (size_t i = 0; i < count; ++i) {
                 const int cmp = m_vertices[i].compare(other.m_vertices[i]);
@@ -69,16 +74,15 @@ namespace TrenchBroom {
                 if (cmp > 0)
                     return 1;
             }
-            
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
             return 0;
         }
         
         bool contains(const Vec<T,S>& vertex) const {
-            return std::find(m_vertices.begin(), m_vertices.end(), vertex) != m_vertices.end();
+            return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
+        }
+        
+        size_t vertexCount() const {
+            return m_vertices.size();
         }
         
         const typename Vec<T,S>::List& vertices() const {
@@ -96,7 +100,7 @@ namespace TrenchBroom {
         static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
             typename Vec<T,S>::List result;
             for (size_t i = 0; i < polygons.size(); ++i)
-                result.insert(result.end(), polygons[i].m_vertices.begin(), polygons[i].m_vertices.end());
+                result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
         }
         
@@ -106,8 +110,8 @@ namespace TrenchBroom {
                 return;
             
             typedef typename Vec<T,S>::List::iterator Iter;
-            Iter it = vertices.begin();
-            Iter end = vertices.end();
+            Iter it = std::begin(vertices);
+            Iter end = std::end(vertices);
             Iter smallest = it++;
             
             while (it != end) {
@@ -116,9 +120,14 @@ namespace TrenchBroom {
                 ++it;
             }
 
-            std::rotate(vertices.begin(), smallest, vertices.end());
+            std::rotate(std::begin(vertices), smallest, std::end(vertices));
         }
     };
+    
+    typedef Polygon<float,2> Polygon2f;
+    typedef Polygon<double,2> Polygon2d;
+    typedef Polygon<float,3> Polygon3f;
+    typedef Polygon<double,3> Polygon3d;
 }
 
 #endif

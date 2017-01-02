@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -54,8 +54,8 @@ namespace TrenchBroom {
         }
         
         void PickResult::addHit(const Hit& hit) {
-            assert(m_compare != NULL);
-            Hit::List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit, CompareWrapper(m_compare.get()));
+            ensure(m_compare.get() != NULL, "compare is null");
+            Hit::List::iterator pos = std::upper_bound(std::begin(m_hits), std::end(m_hits), hit, CompareWrapper(m_compare.get()));
             m_hits.insert(pos, hit);
         }
         

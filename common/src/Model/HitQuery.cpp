@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -26,22 +26,42 @@
 namespace TrenchBroom {
     namespace Model {
         HitQuery::HitQuery(const Hit::List& hits, const EditorContext& editorContext) :
-        m_hits(hits),
+        m_hits(&hits),
         m_editorContext(&editorContext),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
         
         HitQuery::HitQuery(const Hit::List& hits) :
-        m_hits(hits),
+        m_hits(&hits),
         m_editorContext(NULL),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
         
+        HitQuery::HitQuery(const HitQuery& other) :
+        m_hits(other.m_hits),
+        m_editorContext(other.m_editorContext),
+        m_include(other.m_include->clone()),
+        m_exclude(other.m_exclude->clone()) {}
+
         HitQuery::~HitQuery() {
             delete m_include;
             delete m_exclude;
         }
         
+        HitQuery& HitQuery::operator=(HitQuery other) {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+        
+        void swap(HitQuery& lhs, HitQuery& rhs) {
+            using std::swap;
+            swap(lhs.m_hits, rhs.m_hits);
+            swap(lhs.m_editorContext, rhs.m_editorContext);
+            swap(lhs.m_include, rhs.m_include);
+            swap(lhs.m_exclude, rhs.m_exclude);
+        }
+
         HitQuery& HitQuery::pickable() {
             if (m_editorContext != NULL)
                 m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
@@ -70,10 +90,10 @@ namespace TrenchBroom {
         }
         
         const Hit& HitQuery::first() const {
-            if (!m_hits.empty()) {
-                Hit::List::const_iterator it = m_hits.begin();
-                Hit::List::const_iterator end = m_hits.end();
-                Hit::List::const_iterator bestMatch = m_hits.end();
+            if (!m_hits->empty()) {
+                Hit::List::const_iterator it = m_hits->begin();
+                const Hit::List::const_iterator end = m_hits->end();
+                Hit::List::const_iterator bestMatch = end;
                 FloatType bestMatchError = std::numeric_limits<FloatType>::max();
                 FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
                 
@@ -100,7 +120,7 @@ namespace TrenchBroom {
                     } while (it != end && Math::eq(it->distance(), distance));
                 }
                 
-                if (bestMatch != m_hits.end() && bestMatchError <= bestOccluderError)
+                if (bestMatch != end && bestMatchError <= bestOccluderError)
                     return *bestMatch;
             }
             return Hit::NoHit;
@@ -108,9 +128,7 @@ namespace TrenchBroom {
         
         Hit::List HitQuery::all() const {
             Hit::List result;
-            Hit::List::const_iterator it, end;
-            for (it = m_hits.begin(), end = m_hits.end(); it != end; ++it) {
-                const Hit& hit = *it;
+            for (const Hit& hit : *m_hits) {
                 if (m_include->matches(hit))
                     result.push_back(hit);
             }

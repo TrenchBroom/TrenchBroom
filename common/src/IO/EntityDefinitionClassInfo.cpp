@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,8 @@ namespace TrenchBroom {
         m_hasDescription(false),
         m_hasColor(false),
         m_size(BBox3(-8.0, 8.0)),
-        m_hasSize(false) {}
+        m_hasSize(false),
+        m_hasModelDefinition(false) {}
         
         EntityDefinitionClassInfo::EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor) :
         m_line(line),
@@ -39,7 +40,8 @@ namespace TrenchBroom {
         m_color(defaultColor),
         m_hasColor(false),
         m_size(BBox3(-8.0, 8.0)),
-        m_hasSize(false) {}
+        m_hasSize(false),
+        m_hasModelDefinition(false) {}
         
         
         size_t EntityDefinitionClassInfo::line() const {
@@ -78,20 +80,20 @@ namespace TrenchBroom {
             return m_hasSize;
         }
 
-        Assets::AttributeDefinitionList EntityDefinitionClassInfo::attributeList() const {
-            Assets::AttributeDefinitionList list;
-            Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
-            for (attributeIt = m_attributes.begin(), attributeEnd = m_attributes.end(); attributeIt != attributeEnd; ++attributeIt)
-                list.push_back(attributeIt->second);
-            return list;
+        Assets::AttributeDefinitionArray EntityDefinitionClassInfo::attributeList() const {
+            return MapUtils::valueList(m_attributes);
         }
         
         const Assets::AttributeDefinitionMap& EntityDefinitionClassInfo::attributeMap() const {
             return m_attributes;
         }
         
-        const Assets::ModelDefinitionList& EntityDefinitionClassInfo::models() const {
-            return m_models;
+        const Assets::ModelDefinition& EntityDefinitionClassInfo::modelDefinition() const {
+            return m_modelDefinition;
+        }
+
+        bool EntityDefinitionClassInfo::hasModelDefinition() const {
+            return m_hasModelDefinition;
         }
 
         void EntityDefinitionClassInfo::setName(const String& name) {
@@ -117,30 +119,20 @@ namespace TrenchBroom {
             m_attributes[attributeDefinition->name()] = attributeDefinition;
         }
         
-        void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionList& attributeDefinitions) {
-            Assets::AttributeDefinitionList::const_iterator it, end;
-            for (it = attributeDefinitions.begin(), end = attributeDefinitions.end(); it != end; ++it)
-                addAttributeDefinition(*it);
-        }
-
         void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions) {
-            m_attributes.insert(attributeDefinitions.begin(), attributeDefinitions.end());
+            m_attributes.insert(std::begin(attributeDefinitions), std::end(attributeDefinitions));
+        }
+        
+        void EntityDefinitionClassInfo::setModelDefinition(const Assets::ModelDefinition& modelDefinition) {
+            m_modelDefinition = modelDefinition;
+            m_hasModelDefinition = true;
         }
 
-        void EntityDefinitionClassInfo::addModelDefinition(Assets::ModelDefinitionPtr modelDefinition) {
-            m_models.push_back(modelDefinition);
-        }
-
-        void EntityDefinitionClassInfo::addModelDefinitions(const Assets::ModelDefinitionList& modelDefinitions) {
-            m_models.insert(m_models.end(), modelDefinitions.begin(), modelDefinitions.end());
-        }
-
-        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames) {
-            StringList::const_reverse_iterator classnameIt, classnameEnd;
-            for (classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
+        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringArray& classnames) {
+            for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
                 const String& classname = *classnameIt;
-                EntityDefinitionClassInfoMap::const_iterator baseClassIt = baseClasses.find(classname);
-                if (baseClassIt != baseClasses.end()) {
+                const auto baseClassIt = baseClasses.find(classname);
+                if (baseClassIt != std::end(baseClasses)) {
                     const EntityDefinitionClassInfo& baseClass = baseClassIt->second;
                     if (!hasDescription() && baseClass.hasDescription())
                         setDescription(baseClass.description());
@@ -150,12 +142,11 @@ namespace TrenchBroom {
                         setSize(baseClass.size());
                     
                     const Assets::AttributeDefinitionMap& baseProperties = baseClass.attributeMap();
-                    Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
-                    for (attributeIt = baseProperties.begin(), attributeEnd = baseProperties.end(); attributeIt != attributeEnd; ++attributeIt) {
-                        const Assets::AttributeDefinitionPtr baseAttribute = attributeIt->second;
+                    for (const auto& entry : baseProperties) {
+                        const Assets::AttributeDefinitionPtr baseAttribute = entry.second;
                         
                         Assets::AttributeDefinitionMap::iterator classAttributeIt = m_attributes.find(baseAttribute->name());
-                        if (classAttributeIt != m_attributes.end()) {
+                        if (classAttributeIt != std::end(m_attributes)) {
                             // the class already has a definition for this attribute, attempt merging them
                             mergeProperties(classAttributeIt->second.get(), baseAttribute.get());
                         } else {
@@ -164,12 +155,7 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    const Assets::ModelDefinitionList& baseModels = baseClass.models();
-                    Assets::ModelDefinitionList::const_iterator modelIt, modelEnd;
-                    for (modelIt = baseModels.begin(), modelEnd = baseModels.end(); modelIt != modelEnd; ++modelIt) {
-                        const Assets::ModelDefinitionPtr model = *modelIt;
-                        addModelDefinition(model);
-                    }
+                    m_modelDefinition.append(baseClass.modelDefinition());
                 }
             }
         }

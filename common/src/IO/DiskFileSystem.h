@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -26,48 +26,38 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace Disk {
-            bool isCaseSensitive();
-            
-            Path fixPath(const Path& path);
-            
-            bool directoryExists(const Path& path);
-            bool fileExists(const Path& path);
-            
-            Path::List getDirectoryContents(const Path& path);
-            MappedFile::Ptr openFile(const Path& path);
-            Path getCurrentWorkingDir();
-            
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path);
-        }
-        
-        class DiskFileSystem : public FileSystem {
+        class DiskFileSystem : public virtual FileSystem {
         protected:
             Path m_root;
         public:
-            DiskFileSystem(const Path& root, const bool ensureExists = true);
-            
-            const Path& getPath() const;
-            const Path makeAbsolute(const Path& relPath) const;
-        protected:
-            Path fixPath(const Path& path) const;
-            Path fixCase(const Path& path) const;
+            DiskFileSystem(const Path& root, bool ensureExists = true);
         private:
+            Path doMakeAbsolute(const Path& relPath) const;
             bool doDirectoryExists(const Path& path) const;
             bool doFileExists(const Path& path) const;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
+            Path::Array doGetDirectoryContents(const Path& path) const;
             const MappedFile::Ptr doOpenFile(const Path& path) const;
         };
         
+#ifdef _MSC_VER
+// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
         class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
         public:
-            WritableDiskFileSystem(const Path& root, const bool create);
+            WritableDiskFileSystem(const Path& root, bool create);
         private:
+            void doCreateFile(const Path& path, const String& contents);
             void doCreateDirectory(const Path& path);
             void doDeleteFile(const Path& path);
-            void doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite);
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
     }
 }
 

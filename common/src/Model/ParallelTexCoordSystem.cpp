@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,12 +40,12 @@ namespace TrenchBroom {
             applyRotation(normal, attribs.rotation());
         }
 
-        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const BrushFaceAttributes& attribs) :
+        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
         
         TexCoordSystem* ParallelTexCoordSystem::doClone() const {
-            return new ParallelTexCoordSystem(*this);
+            return new ParallelTexCoordSystem(m_xAxis, m_yAxis);
         }
         
         TexCoordSystemSnapshot* ParallelTexCoordSystem::doTakeSnapshot() {
@@ -104,18 +104,14 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
 
-            // compute the new texture axes
-            const Vec3 offset = transformation * Vec3::Null;
-            m_xAxis           = transformation * m_xAxis - offset;
-            m_yAxis           = transformation * m_yAxis - offset;
-            assert(!m_xAxis.nan());
-            assert(!m_yAxis.nan());
-
-            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+            if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
                 return;
             
+            // when texture lock is off, don't compensate for the translation part of the transformation
+            const Mat4x4 effectiveTransformation = lockTexture ? transformation : stripTranslation(transformation);
+            
             // determine the rotation by which the texture coordinate system will be rotated about its normal
-            const float angleDelta = computeTextureAngle(oldBoundary, transformation);
+            const float angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
             const float newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
             assert(!Math::isnan(newAngle));
             attribs.setRotation(newAngle);
@@ -124,8 +120,15 @@ namespace TrenchBroom {
             const Vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             assert(!oldInvariantTechCoords.nan());
             
+            // compute the new texture axes
+            const Vec3 offset = effectiveTransformation * Vec3::Null;
+            m_xAxis           = effectiveTransformation * m_xAxis - offset;
+            m_yAxis           = effectiveTransformation * m_yAxis - offset;
+            assert(!m_xAxis.nan());
+            assert(!m_yAxis.nan());
+            
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec3 newInvariant = transformation * oldInvariant;
+            const Vec3 newInvariant = effectiveTransformation * oldInvariant;
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
             
             // since the center should be invariant, the offsets are determined by the difference of the current and

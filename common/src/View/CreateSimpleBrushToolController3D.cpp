@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_document(document) {
-            assert(tool != NULL);
+            ensure(tool != NULL, "tool is null");
         }
 
         Tool* CreateSimpleBrushToolController3D::doGetTool() {
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             else
                 m_initialPoint = inputState.defaultPointUnderMouse();
             
-            updateBounds(m_initialPoint);
+            updateBounds(m_initialPoint, Vec3(inputState.camera().position()));
             refreshViews();
                 
             
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
         
         RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-            updateBounds(curPoint);
+            updateBounds(curPoint, Vec3(inputState.camera().position()));
             refreshViews();
             return DR_Continue;
         }
@@ -107,8 +107,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CreateSimpleBrushToolController3D::updateBounds(const Vec3& point) {
+        void CreateSimpleBrushToolController3D::updateBounds(const Vec3& point, const Vec3 cameraPosition) {
             BBox3 bounds;
+            
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
             
@@ -121,11 +122,17 @@ namespace TrenchBroom {
             
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
+            
+            for (size_t i = 0; i < 3; i++) {
+                if (Math::lte(bounds.max[i], bounds.min[i])) {
+                    if (bounds.min[i] < cameraPosition[i])
+                        bounds.max[i] = bounds.min[i] + grid.actualSize();
+                    else
+                        bounds.min[i] = bounds.max[i] - grid.actualSize();
+                }
+            }
 
-            for (size_t i = 0; i < 3; i++)
-                if (bounds.max[i] <= bounds.min[i])
-                    bounds.max[i] = bounds.min[i] + grid.actualSize();
-
+            bounds.intersectWith(document->worldBounds());
             m_tool->update(bounds);
         }
     }

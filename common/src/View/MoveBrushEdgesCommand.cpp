@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -48,10 +48,9 @@ namespace TrenchBroom {
         
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const BBox3& worldBounds = document->worldBounds();
-            Model::BrushEdgesMap::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Edge3::List& edges = it->second;
+            for (const auto& entry : m_edges) {
+                Model::Brush* brush = entry.first;
+                const Edge3::List& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;
             }

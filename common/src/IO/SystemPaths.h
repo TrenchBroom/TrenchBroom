@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,7 @@ namespace TrenchBroom {
             Path appDirectory();
             Path logDirectory();
             Path resourceDirectory();
-            Path findFontFile(const String& fontName);
+            Path userDataDirectory();
         }
     }
 }

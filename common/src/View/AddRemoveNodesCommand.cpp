@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         const Command::CommandType AddRemoveNodesCommand::Type = Command::freeType();
         
         AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::add(Model::Node* parent, const Model::NodeList& children) {
-            assert(parent != NULL);
+            ensure(parent != NULL, "parent is null");
             Model::ParentChildrenMap nodes;
             nodes[parent] = children;
             
@@ -39,31 +39,31 @@ namespace TrenchBroom {
         }
         
         AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::add(const Model::ParentChildrenMap& nodes) {
-            return Ptr(new AddRemoveNodesCommand(nodes));
+            return Ptr(new AddRemoveNodesCommand(Action_Add, nodes));
         }
         
-        AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::remove(const Model::NodeList& nodes) {
-            return Ptr(new AddRemoveNodesCommand(nodes));
+        AddRemoveNodesCommand::Ptr AddRemoveNodesCommand::remove(const Model::ParentChildrenMap& nodes) {
+            return Ptr(new AddRemoveNodesCommand(Action_Remove, nodes));
         }
         
         AddRemoveNodesCommand::~AddRemoveNodesCommand() {
             MapUtils::clearAndDelete(m_nodesToAdd);
         }
 
-        AddRemoveNodesCommand::AddRemoveNodesCommand(const Model::ParentChildrenMap& nodesToAdd) :
-        DocumentCommand(Type, makeName(Action_Add)),
-        m_action(Action_Add),
-        m_nodesToAdd(nodesToAdd) {}
-        
-        AddRemoveNodesCommand::AddRemoveNodesCommand(const Model::NodeList& nodesToRemove) :
-        DocumentCommand(Type, makeName(Action_Remove)),
-        m_action(Action_Remove),
-        m_nodesToRemove(nodesToRemove) {}
-        
-        const Model::NodeList& AddRemoveNodesCommand::addedNodes() const {
-            return m_nodesToRemove;
+        AddRemoveNodesCommand::AddRemoveNodesCommand(const Action action, const Model::ParentChildrenMap& nodes) :
+        DocumentCommand(Type, makeName(action)),
+        m_action(action) {
+            switch (m_action) {
+                case Action_Add:
+                    m_nodesToAdd = nodes;
+                    break;
+                case Action_Remove:
+                    m_nodesToRemove = nodes;
+                    break;
+                switchDefault()
+            }
         }
-
+        
         String AddRemoveNodesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Add:
@@ -77,28 +77,32 @@ namespace TrenchBroom {
         bool AddRemoveNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action_Add:
-                    m_nodesToRemove = document->performAddNodes(m_nodesToAdd);
-                    m_nodesToAdd.clear();
+                    document->performAddNodes(m_nodesToAdd);
                     break;
                 case Action_Remove:
-                    m_nodesToAdd = document->performRemoveNodes(m_nodesToRemove);
-                    m_nodesToRemove.clear();
+                    document->performRemoveNodes(m_nodesToRemove);
                     break;
             }
+
+            using std::swap;
+            std::swap(m_nodesToAdd, m_nodesToRemove);
+            
             return true;
         }
         
         bool AddRemoveNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action_Add:
-                    m_nodesToAdd = document->performRemoveNodes(m_nodesToRemove);
-                    m_nodesToRemove.clear();
+                    document->performRemoveNodes(m_nodesToRemove);
                     break;
                 case Action_Remove:
-                    m_nodesToRemove = document->performAddNodes(m_nodesToAdd);
-                    m_nodesToAdd.clear();
+                    document->performAddNodes(m_nodesToAdd);
                     break;
             }
+
+            using std::swap;
+            std::swap(m_nodesToAdd, m_nodesToRemove);
+            
             return true;
         }
 

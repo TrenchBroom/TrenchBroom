@@ -13,21 +13,25 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- High performance renderer with support for huge maps
 	- Unlimited Undo and Redo
 	- Macro-like command repetition
+	- Issue browser with automatic quick fixes
+	- Run external compilers and launch game engines
 	- Point file support
 	- Automatic backups
 	- Free and cross platform
-	- Issue browser with automatic quick fixes
 * **Brush Editing**
-	- Robust vertex editing with edge and face splitting
+	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
 	- Clipping tool with two and three points
-	- CSG operations: merge, subtract, intersect, partition
+	- CSG operations: merge, subtract, intersect
 	- UV view for easy texture manipulations
 	- Precise texture lock for all brush editing operations
+	- Multiple texture collections
 * **Entity Editing**
 	- Entity browser with drag and drop support
+	- Support for FGD and DEF files for entity definitions
+	- Mod support
 	- Entity link visualization
 	- Displays 3D models in the editor
-	- Smart Entity Property Editors
+	- Smart entity property editors
 
 ## About This Document
 
@@ -217,7 +221,7 @@ In the 3D viewport, selected objects are rendered with red edges and slightly ti
 
 ## Selecting Objects
 
-To select a single object, simply left click it in a viewport. Left clicking anywhere in a viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(308) while left clicking the objects to be selected. If you click an already selected object while holding #key(308), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(308) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects).
+To select a single object, simply left click it in a viewport. Left clicking anywhere in a viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(308) while left clicking the objects to be selected. If you click an already selected object while holding #key(308), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(308) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects). Note that this even applies to occluded objects, so when you start your paint selection, you must ensure that no object under the mouse is selected.
 
 In the 3D viewport, you can only select the frontmost object with the mouse. To select an object that is obstructed by another object, you can use the mouse wheel. First, select the frontmost object, that is, the object that occludes the object that you really wish to select. Then, hold #key(308) and scroll up to push the selection away from the camera or scroll down to pull the selection towards the camera. Note that the selection depends on what object is under the mouse, so you need to make sure that the mouse cursor hovers over the object that you wish to select.
 
@@ -271,9 +275,26 @@ The path of an external entity definition file is stored in a worldspawn propert
 
 ### Managing Textures {#texture_management}
 
-![Texture collection editor](TextureCollectionEditor.png) [Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. Alternatively, you can load a texture collection by dragging and dropping it onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
+[Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. There are two types of texture collections: file archives such as WAD files and directories containing loose textures such as WAL files. Depending on whether the game you are editing comes with internal textures or not, the texture collection editor looks and works differently.
+
+#### Texture Archive Management
+
+![Texture collection editor](TextureCollectionArchiveEditor.png) Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. Alternatively, you can load a texture collection archive by dragging and dropping it onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
 
 It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
+
+#### Texture Directory Management
+
+![Texture collection editor](TextureCollectionDirectoryEditor.png) If the game you are currently editing comes with builtin textures, then these textures are usually stored in the game's assets at a particular path. For example in the case of Quake 2, the textures are stored in the PAK files in subdirectories under the path `textures`. TrenchBroom will find these texture collections and allow you to load them selectively in the texture collection editor. On the left side, TrenchBroom presents you with a list of all the texture collections it has found for the game, and on the right side, it shows a list of all texture collections that have been loaded. You can load a texture collection by selecting it on the left and clicking the "+" button below the list on the right. To remove a texture collection, select it on the right and click the "-" button.
+
+If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the baseq2 directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there.
+
+The following table lists the texture directories for all supported games.
+
+Game      Texture Directory Default
+----      ----------------- -------
+Quake 2   `<MOD>/textures`  `baseq2/textures`
+Daikatana `<MOD>/textures`  `data/textures`
 
 ## Interacting With the Editor
 
@@ -477,7 +498,7 @@ In the 2D viewport, the rotation handle will just appear as a circle with two ci
 
 ![Rotate tool controls](RotateToolControls.png)
 
-Like the move tool, the rotate tool places some controls above the viewport. On the very left, there is a text field that displays the coordinates of the center of rotation. This text field automatically updates if you move the rotate handle around in the 2D or 3D viewports. If you want to set the center of rotation manually, you can enter three coordinates here and hit #key(13). Alternatively, you can click the button labeled "Reset" to set the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
+Like the move tool, the rotate tool places some controls above the viewport. On the very left, there is a combo box that displays the coordinates of the center of rotation. This combo box automatically updates if you move the rotate handle around in the 2D or 3D viewports. If you want to set the center of rotation manually, you can enter three coordinates here and hit #key(13). Alternatively, you can click the button labeled "Reset" to set the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. Finally, you can use the combo box to return the center of rotation to a previously used value. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
 
 ![Rotating objects about the Z axis in the 3D viewport](RotateTool.gif)
 
@@ -556,7 +577,7 @@ In all three images, there is a clip plane defined by two points. This clip plan
 
 To place clip points, you simply left click into a viewport when the clip tool is active. Alternatively, you can add two clip points at once by dragging with the left mouse. In that case, the first clip point is placed at the start point of the drag, and the second clip point is placed at the end point of the drag. In the 3D viewport, you can only place clip points on already existing brushes, whereas in the 2D viewports, you can place them anywhere. Clip points are snapped to the grid, however, in the 3D viewport, there is a caveat which we will explain below. When the clip tool is active, it gives you some feedback in the form of an orange sphere that appears close to your mouse pointer. This sphere indicates where a clip point would be placed after being snapped to the grid. This feedback sphere is only shown if a clip point can actually be placed at or close to the point under the mouse.
 
-Once two clip points have been placed, TrenchBroom will attempt to guess a clip plane even though it is underspecified: You cannot define a plane with only two points. If you are happy with the clip plane that TrenchBroom has determined, then you can apply the clipping operation by hitting #action('Controls/Map view/Perform clip'). Otherwise, you can place the third point to fully define the clip plane, or you can change the clip points you have already placed. To change a clip point, you can just left click and drag it with the mouse. To remove the most recently place clip point, you can hit #action('Controls/Map view/').
+Once two clip points have been placed, TrenchBroom will attempt to guess a clip plane even though it is underspecified: You cannot define a plane with only two points. If you are happy with the clip plane that TrenchBroom has determined, then you can apply the clipping operation by hitting #action('Controls/Map view/Perform clip'). Otherwise, you can place the third point to fully define the clip plane, or you can change the clip points you have already placed. To change a clip point, you can just left click and drag it with the mouse. To remove the most recently place clip point, you can choose #menu('Menu/Edit/Delete').
 
 #### Clip Point Snapping
 
@@ -580,7 +601,7 @@ Selecting handles is treated in the same way as selecting objects. To select a h
 
 ![Selected handles turn red](VertexToolSelections.png)
 
-When you have selected some handles, you can move them around by dragging them with the left mouse button. Moving handles (and their respective vertices, edges, or faces) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(307) to move them vertically. In a 2D viewport, you can move the handles on the view plane of that viewport. If you begin your drag on an unselected handle, that handle is automatically selected, so if you just want to move a single handle around, you do not need to select it first. Once you press the left mouse button on a handle to begin a drag, yellow guide lines show up that help you to position the handle in relation to other objects. When moving handles around, the move distances are snapped to the current grid size component wise, just like when you move objects.
+When you have selected some handles, you can move them around by dragging them with the left mouse button. Moving handles (and their respective vertices, edges, or faces) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(307) to move them vertically. In a 2D viewport, you can move the handles on the view plane of that viewport. If you begin your drag on an unselected handle, that handle is automatically selected, so if you just want to move a single handle around, you do not need to select it first. Once you press the left mouse button on a handle to begin a drag, yellow guide lines show up that help you to position the handle in relation to other objects. When moving handles around, the move distances are snapped to the current grid size component wise, just like when you move objects. If you prefer to have the handle positions snapped to the grid, you can hold #key(306) when you begin the drag.
 
 If you wish to quickly snap a vertex onto another vertex, you can use the following two shorthands. Either select the vertex to be snapped and then left click on the vertex that you wish to snap the selected vertex onto while holding #key(307)#key(306). Alternatively, you can achieve the same effect by dragging the selected vertex onto the target vertex with the left mouse button while holding the same keys. Note that if the two vertices belong to the same brush, and the vertices are connected with an edge, then the vertices will be fused together (see below).
 
@@ -590,11 +611,17 @@ Manipulating edges and faces with the vertex tool is just a shorthand to selecti
 
 The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once. 
 
-![Splitting](VertexToolSplitting.gif) Besides moving and fusing vertices, you can also add new vertices to a brush with the vertex tool. By double clicking on an edge or face handle, you can split the edge or face that the handle represented. After the double click, all other handles are hidden, and you have to move the single remaining handle away from the brush to actually create the new vertex. As a shortcut, you can also start your mouse drag with the second press of the left mouse button when you double click on the edge or face handle that you wish to use for splitting.
+<br clear="all" />
 
-Vertex editing is not limited to working with single brushes. Selecting more than one brush and activating the vertex tool will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection. Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together, making editing terrain much quicker and easier. In the following animation, the vertices under the cursor were moved with a single drag operation because they share the same position. This behaviour also applies to edge and face editing if the handles of those components share the same position in space.
+![Splitting](VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. By double clicking on an edge or face handle, you can split the edge or face that the handle represented. After the double click, all other handles are hidden, and you have to move the single remaining handle away from the brush to actually create the new vertex. As a shortcut, you can also start your mouse drag with the second press of the left mouse button when you double click on the edge or face handle that you wish to use for splitting.
 
-![Vertex clumping](VertexToolVertexClumping.gif)
+Additionally, you can delete the selected vertices, edges, and faces from brushes by choosing #menu('Menu/Edit/Delete'). Note that this will only succeed if none of the currently selected brushes becomes invalid by the deletions, that is, you can only delete vertices, edges, or faces if all of the selected brushes remain threedimensional after the deletions. If that is not the case, TrenchBroom will refuse the entire operation.
+
+<br clear="all" />
+
+![Vertex clumping](VertexToolVertexClumping.gif) Vertex editing is not limited to working with single brushes. Selecting more than one brush and activating the vertex tool will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection. Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together, making editing terrain much quicker and easier. In the following animation, the vertices under the cursor were moved with a single drag operation because they share the same position. This behaviour also applies to edge and face editing if the handles of those components share the same position in space.
+
+<br clear="all" />
 
 The vertex tool also provides some keyboard shortcuts to move vertices. These are listed in the following table.
 
@@ -877,9 +904,15 @@ The preferences dialog allows you to set the game configurations, to change the 
 
 ## Game Configuration {#game_configuration}
 
-![Layer Configuration Dialog (Linux XFCE)](GamePreferences.png)
+![Game Configuration Dialog (Linux XFCE)](GamePreferences.png)
 
-The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "Choose..." button and selecting the folder in which the game is stored on your hard drive.
+The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(13) to apply the change.
+
+Additionally, you can configure the game engines for the selected game by clicking on the 'Configure engines...' button.
+
+![Game Engine Configuration Dialog (Mac OS X)](GameEngineDialog.png)
+
+In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(13) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
@@ -952,6 +985,640 @@ Every entry in the issue list provides you with to pieces of information: the li
 
 In addition to making you aware of issues, TrenchBroom can also fix them for you. To fix an issue, right click it and choose the appropriate fix from the "Fix" context menu. If you wish to ignore a particular issue, you can also tell TrenchBroom to hide it by choosing "Hide" in the context menu. If you wish to see all hidden issues, you can check the respective checkbox above the issue list. To make a hidden issue visible again, first show all hidden issues, then right click the issue and choose "Show" from the context menu.
 
+## Compiling Maps {#compiling_maps}
+
+TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu('Menu/Run/Compile...').
+
+![Compilation Dialog (Windows 7)](CompilationDialog.png)
+
+This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
+
+Name
+:	The name of this compilation profile. Need not be unique and can even be empty.
+
+Working directory
+:   A working directory for the compilation profile. This is optional, but very useful because it can be referred to as a variable when specifying the parameters of each task (see below). Variables are allowed (see below).
+
+Tasks
+:   A list of tasks which are executed sequentially when the compilation profile is run.
+
+There are three types of tasks, each with different parameters:
+
+Export Map
+:	Exports the map to a file. This file should be different from the actual file where the map is stored.
+
+    Parameter 	Description
+    ---------   -----------
+    Target 		The path of the exported file. Variables are allowed.
+
+Run Tool
+:	Runs an external tool and captures its output.
+
+    Parameter 	Description
+    ---------   -----------
+    Tool 		The absolute path to the executable of the tool that should be run. The working directory is set to the profile's working directory if configured. Variables are allowed.
+    Parameters 	The parameters that should be passed to the tool when it is executed. Variables are allowed.
+
+Copy Files
+:	Copies one or more files.
+
+    Parameter 	Description
+    ---------   -----------
+    Source 		The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
+    Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
+
+
+You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list if you press #key(396)+#key(32).
+
+Variable 		Scope 			Description
+-------- 	    ----- 			-----------
+`WORK_DIR_PATH`	Tool 			The full path to the working directory.
+`MAP_DIR_PATH` 	Tool, Workdir 	The full path to the directory where the currently edited map is stored.
+`MAP_BASE_NAME`	Tool, Workdir 	The base name (without extension) of the currently edited map.
+`MAP_FULL_NAME`	Tool, Workdir 	The full name (with extension) of the currently edited map.
+`GAME_DIR_PATH`	Tool, Workdir 	The full path to the current game as specified in the game preferences.
+`MODS` 			Tool, Workdir 	An array containing all enabled mods for the current map.
+`APP_DIR_PATH` 	Tool, Workdir 	The full path to the directory containing the TrenchBroom application binary.
+`CPU_COUNT` 	Tool 			The number of CPUs in the current machine.
+
+It is recommended to use the following general process for compiling maps and to adapt it to your specified needs:
+
+1. Set the working directory to `${MAP_DIR_PATH}`.
+2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map`.
+3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map`` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
+4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MOD[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
+
+The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${WORK_DIR_PATH}/${MAP_BASE_NAME}.*` to copy related files.
+
+To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button once the compilation profile is running. If you click on this button again, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
+
+If you want to test your compilation profile without actually running it, you can hold the #key(307) when clicking on the 'Run' button. A test run will only print what each task will do without actually executing it.
+
+Once the compilation is done, you can launch a game engine and check out your map in the game. The following section explains how you can configure game engines and launch them from within the editor.
+
+## Launching Game Engines {#launching_game_engines}
+
+Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration]({#game_configuration).
+
+There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu('Menu/Run/Run...'). This brings up the launch dialog shown in the following screenshot.
+
+![Launch Dialog (Mac OS X)](LaunchGameEngineDialog.png)
+
+In this dialog, you can select the game engine of choice, edit its parameters, and launch the engine. To select an engine, click on it in the list on the right hand side of the dialog. If you wish to edit the list of engines, you can bring up the game engine profile dialog by clicking on the 'Configure engines...' button. You can then edit its parameters in the text box at the bottom of the left hand side of the dialog. Note that you can use the following variables in this text box:
+
+Variable 		Description
+-------- 	    -----------
+`MAP_BASE_NAME`	The base name (without extension) of the currently edited map.
+`GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
+`MODS` 			An array containing all enabled mods for the current map.
+
+Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
+
+## Expression Language {#expression_language}
+
+TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog and the Launch Engine dialog. In the following, we will introduce the syntax and the semantics of the expression language.
+
+### Evaluation
+
+Every expression can be evaluated to a value. For example, the string `"This is a string."` is a valid expression that will be evaluated to a value of type `String` containing the string `This is a string.`. The expression language defines the following types.
+
+Type 		Description
+---- 	    -----------
+Boolean 	A value of this type can either be true or false.
+String 		A string of characters.
+Number 		A floating point number.
+Array 		An array is a list of values.
+Map 		A map is a list of key-value pairs. Synonyms: dictionary, table.
+Range 		The range type is only used internally.
+Null 		The type of `null` values.
+Undefined	The type of undefined values.
+
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are missing because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+
+-----------------------------------------------------------------------------------------------------------------------------
+            `Boolean`                     `String`               `Number`                      `Array`     `Map`
+----        ----------------------------- ---------------------- ----------------------------- ----------- ---------
+`Boolean`   _trivial_                     `"true"` or `"false"`  `1.0` or `0.0`                error       error
+
+`String`    `false` if value is `"false"` _trivial_              number representation if      error       error
+            or `""`, `true` otherwise                            possible, error otherwise
+
+`Number`    `false` if value is `0.0`,    string representation, _trivial_                     error       error
+            `true` otherwise              e.g. "1.0"
+
+`Array`     error                         error                  error                         _trivial_   error
+
+`Map`       error                         error                  error                         error       _trivial_
+
+`Range`     error                         error                  error                         error       error
+
+`Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
+
+`Undefined` error                         error                  error                         error       error
+-----------------------------------------------------------------------------------------------------------------------------
+
+A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
+
+### Expressions and Terms
+
+Every expression is made of one single term. A term is something that can be evaluated, such as an addition (`7.0 + 3.0`) or a variable (which is then evaluated to its value).
+
+	Expression     = GroupedTerm | Term
+	GroupedTerm    = "(" Term ")"
+	Term           = SimpleTerm | Switch | CompoundTerm
+
+	SimpleTerm     = Variable | Literal | Subscript | UnaryTerm | GroupedTerm
+	CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
+
+	UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
+	AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
+	LogicalTerm    = LogicalAnd | LogicalOr
+	BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
+	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
+
+### Variables and Literals
+
+A variable name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
+
+	Variable       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+
+`MODS`, `_var1`, `_123` are all valid variable names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
+
+A literal is either a string, a number, a boolean, an array, or a map literal. 
+
+	Literal        = String | Number | Boolean | Array | Map
+
+	Boolean        = "true" | "false"
+	String         = """ { Char } """ | "'" { Char } "'"
+	Number         = Numeric { Numeric } [ "." Numeric { Numeric } ]
+
+Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
+
+Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
+
+Array literals can be specified by giving a comma-separated list of expressions or ranges enclosed in brackets.
+
+	Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+	ExpOrRange     = Expression | Range
+	Range 		   = Expression ".." Expression
+
+An array literal is a possibly empty comma-separated list of expressions or ranges. A range is a special type that represents a range of integer values. Ranges are specified by two expressions separated by two dots. A range denotes a list of number values, so both expressions must evaluate to a value that is convertible to type `Number`. The first expression denotes the starting value of the range, and the second expression denotes the ending value of the range, both of which are inclusive. The range `1.0..3.0` therefore denotes the list `1.0`, `2.0`, `3.0`. Note that the starting value may also be greater than the ending value, e.g. `3.0..1.0`, which denotes the same list as `1.0..3.0`, but in the opposite order.
+
+The following table gives some examples of valid array literal expressions.
+
+Expression Value
+---------- -----
+[]         An empty array.
+[1,2,3]    An array containing the values `1.0`, `2.0`, and `3.0`.
+[1..3]     An array containing the values `1.0`, `2.0`, and `3.0`.
+[1,2,4..6] An array containing the values `1.0`, `2.0`, `4.0`, `5.0`, and `6.0`.
+[1+1,3.0]  An array containing the values `2.0` and `3.0`.
+[-5,-1]    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
+
+A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings, and so must be quoted. The value is separated from the key by a colon character.
+
+	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
+	KeyValuePair   = String ":" Expression
+
+An example of a valid map expression looks as follows:
+
+    {
+    	"some_key"   : "a string",
+    	"other_key"  : 1+2,
+    	"another_key": [1..3]
+    }
+
+This expression evaluates to a map containing the value `"a string"` under the key `some_key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
+
+### Subscript
+
+Certain values such as strings, arrays, or maps can be subscripted to access some of their elements.
+
+	Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
+	ExpOrAnyRange  = ExpOrRange | AutoRange
+	AutoRange      = ".." Expression | Expression ".."
+
+A subscript expression comprises of two parts: The expression that is being indexed and the indexing expression. The former can be any expression that evaluates to a value of type `String`, `Array` or `Map`, while the latter is a list of expressions or ranges. Depending of the type of the expression being subscripted, only certain values are allows as indices. The following sections explain which types of indexing values are permissible for the three subscriptable types.
+
+#### Subscripting Strings
+
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`Number` Returns a string containing the character at the specified index or the empty string if the index is out of bounds. Negative indices are allowed.
+`Array`  Returns a string containing the characters at the specified indizes. Assumes that all elements of the array are convertible to `Number`. Indizes that are out of bounds are ignored, but negative indices are allowed.
+
+If an index value is of type `Number`, it is rounded towards the closest integer towards `0`, that is, the value `1.7` is rounded down to `1`, while the value `-2.3` is rounded up to `-2`. String subscripts are very powerful because they allow multiple subscript index values and even negative indices. Here are some examples for using string subscripts.
+
+    "This is a test."[0]  // "T"
+    "This is a test."[1]  // "h"
+
+Multiple indices, or array indices, can be used to extract substrings. Range expressions are a shorter way of extracting substrings.
+
+    "This is a test."[0, 1, 2, 3] // "This"
+    "This is a test."[0..3]       // "This"
+    "This is a test."[5..6]       // "is"
+
+You can even use multiple range expressions in a subscript, and you can combine range expressions and single indices, too.
+
+    "This is a test."[0..3, 5..6]    // "Thisis"
+    "This is a test."[0..3, 5..6, 8] // "Thisisa"
+
+Negative indices can be used to extract a string suffix. Note that the index value `-1` accesses the last character of the array, the value `-2` accesses the last but one character, and so on. Assuming that the string that is being subscripted has a length of `7`, then the value `-7` accesses the string's first character.
+
+    "This is a test."[-1]     // "."
+    "This is a test."[-5..-2] // "test"
+
+You can even reverse strings using subscripts and ranges.
+
+    "This is a test."[14..0] // .tset a si sihT
+
+Auto ranges are special constructs that are only permissible in subscript expressions. An auto range is a range where the start or end is unspecified. The unspecified side of an auto range is automatically replaced by the length of the string minus one.
+
+    "This is a test."[..0] // .tset a si sihT
+    "This is a test."[5..] // "is a test."
+
+#### Subscripting Arrays
+
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`Number` Returns the value at the specified index. An error is thrown if an the index is out of bounds. Negative indices are allowed. The same rounding rules as for string subscripts are applied.
+`Array`  Returns an array containing the values at the specified indizes. Assumes that all elements of the indexing array are convertible to `Number`. If the indexing array contains an index that is out of bounds, an error is thrown. Negative indices are allowed.
+
+Just like string subscripts, array subscripts are very powerful because they allow multiple subscript index values and even negative indices. For the following examples, assume that the variable `arr` is the following array:
+
+    [ 7, 8, 9, "test", [ 10, 11, 12 ] ]
+
+Simple subscripting with integer indices behaves as expected:
+
+	arr[0] // 7
+    arr[3] // "test"
+    arr[4] // [10, 11, 12]
+
+Multiple indices, or array indices, can be used to extract sub arrays. Range expressions are a shorter way of extracting sub arrays.
+
+    arr[0, 1, 2, 3] // [ 7, 9, 9, "test" ]
+    arr[0..3]       // [ 7, 9, 9, "test" ]
+    arr[3..4]       // [ "test", [ 10, 11, 12 ] ]
+
+You can even use multiple range expressions in a subscript, and you can combine range expressions and single indices, too.
+
+    arr[0..1, 3..4] // [ 7, 8, "test", [ 10, 11, 12 ] ]
+    arr[0..3, 4]    // [ 7, 8, 9, "test", [ 10, 11, 12 ] ]
+
+Negative indices can be used to extract an array suffix. Note that the index value `-1` accesses the last element of the array, the value `-2` accesses the last but one element, and so on. Assuming that the array that is being subscripted has a length of `7`, then the value `-7` accesses the arrays's first element.
+
+    arr[-2]     // "test"
+    arr[-2..-1] // [ "test", [ 10, 11, 12 ] ]
+
+You can even reverse arrays using subscripts and ranges.
+
+    arr[4..0] // [ [ 10, 11, 12 ], "test", 9, 8, 7 ]
+
+Auto ranges are special constructs that are only permissible in subscript expressions. An auto range is a range where the start or end is unspecified. The unspecified side of an auto range is automatically replaced by the length of the array minus one.
+
+    arr[..0] // [ [ 10, 11, 12 ], "test", 9, 8, 7 ]
+    arr[3..] // [ "test", [ 10, 11, 12 ] ]
+
+Since arrays can contain other subscriptable values such as strings, arrays, and maps, you can use multiple subscript expressions to access nested elements.
+
+    arr[3][2..3] // "st"
+    arr[4][1]    // 11
+
+#### Subscripting Maps
+
+The following table explains the permissible indexing types and their effects.
+
+Index    Effect
+-----    ------
+`String` Returns the value under the given key or the special value `undefined` if the map being indexed does not contain the given key.
+`Array`  Returns a map containing the key-value pairs with the given keys. Assumes that all elements of the indexing array are of type `String`. Keys that are not contained in the map being indexed are ignored.
+
+For the following example, assume that the value of variable `map` is the following map:
+
+    {
+    	"some number": 1.0,
+    	"some string": "test",
+    	"some array" : [ 1, 2, 3, 4 ],
+    	"some map"   : { "key1": 5, "key2": "asdf" }
+    }
+
+We begin with simple indexing using strings:
+
+    map["some number"] // 1.0
+    map["some array"]  // [ 1, 2, 3, 4 ]
+    map["missing key"] // undefined
+
+Multiple indices, or array indices, can be used to extract sub maps. Range expressions are not available for map subscripts because the generate lists of numbers and maps require the indexing values to be of type `String`. Indexing values that are not present in the map are ignored.
+
+    map["some number", "some string"] // { "some number": 1.0, "some string": "test" }
+    map["some number", "missing"]     // { "some number": 1.0 }
+
+Like arrays, maps can contain other subscriptable values such as strings, arrays, and maps. You can use multiple subscript expressions to access nested elements.
+
+    map["some array"][1]          // 2
+    map["some map"]["key2"]       // "asdf"
+    map["some map"]["key2"][1..3] // "ey2"
+
+### Unary Operator Terms
+
+A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
+
+	Plus            = "+" SimpleTerm
+	Minus           = "-" SimpleTerm
+	LogicalNegation = "!" SimpleTerm
+	BinaryNegation  = "~" SimpleTerm
+
+The following table explains the effects of applying the unary operators to values depending on the type of the values.
+
+-------------------------------------------------------------------------------------------------------
+Operator 			`Boolean`         `String` `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+--------            ----              ----     ----         ----    ----    ----    ----    ----
+`Plus`   			convert to number error    no effect    error   error   error   error   error
+
+`Minus`  			convert to number error    negate value error   error   error   error   error
+         			and negate value
+
+`LogicalNegation` 	invert value      error    error        error   error   error   error   error
+
+`BinaryNegation` 	error 			  error    invert bits  error   error   error   error   error
+-------------------------------------------------------------------------------------------------------
+
+Some examples of using unary operators follow.
+
+    +1.0   //  1.0
+    -1.0   // -1.0
+    +true  //  1.0
+    -true  // -1.0
+    !true  // false
+    !false // true
+    ~1     // -2
+    ~-2    // 1
+
+### Binary Operator Terms
+
+A binary operator is an operator that takes two operands. Binary operators are specified in infix notation, that is, the first operator is specified first, then the operator symbol, and finally the second operator. Note that in the following EBNF notation for binary operators, the second operator is always an expression.
+
+#### Algebraic Terms
+
+Algebraic terms are terms that use the binary operators `+`, `-`, `*`, `/`, or `%`.
+
+	Addition       = SimpleTerm "+" Expression
+	Subtraction    = SimpleTerm "-" Expression
+	Multiplication = SimpleTerm "*" Expression
+	Division       = SimpleTerm "/" Expression
+	Modulus        = SimpleTerm "%" Expression
+
+All of these operators can be applied to operands of type `Boolean` or `Number`. If an operand is of type `Boolean`, it is converted to type `Number` before the operation is applied.
+
+In addition, the `+` operator can be applied if both operands are of type `String`, if both are of type `Array`, or if both are of type `Map`.
+
+    "This is" + " " + "test." // "This is a test."
+    [ 1, 2, 3 ] + [ 3, 4, 5 ] // [ 1, 2, 3, 3, 4, 5 ]
+
+In the previous two examples, the operands are simply concatenated. If both operands are of type `Map` however, the two maps are merged, that is, duplicate keys are overwritten by the values in the second operand:
+
+    { 'k1': 1, 'k2': 2, 'k3': 3 } + { 'k3': 4, 'k4': 5 } // { 'k1': 1, 'k2': 2, 'k3': 4, 'k4': 5 }
+
+Note that the value under key `'k3'` is `4` and not `3`!
+
+#### Logical Terms
+
+Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
+
+	LogicalAnd    = SimpleTerm "&&" Expression
+	LogicalOr     = SimpleTerm "||" Expression
+
+The following table shows the effects of applying the logical operators.
+
+  Left    Right   &&      ||
+-------- ------- ----    ----
+`true`   `true`  `true`  `true`
+`true`   `false` `false` `true`
+`false`  `true`  `false` `true`
+`false`  `false` `false` `false`
+
+#### Binary Terms
+
+Binary terms manipulate the bit representation of operatands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If one of the operands is not of type `Number`, an error is thrown.
+
+    BinaryAnd        = SimpleTerm "&" SimpleTerm
+    BinaryXor        = SimpleTerm "|" SimpleTerm
+    BinaryOr         = SimpleTerm "^" SimpleTerm
+    BinaryShiftLeft  = SimpleTerm "<<" SimpleTerm
+    BinaryShiftRight = SimpleTerm ">>" SimpleTerm
+
+Here are some examples of the operators in use:
+
+    1 & 0  // 0
+    1 | 0  // 1
+    3 & 1  // 1
+    2 | 1  // 3
+    1 ^ 1  // 0
+    1 ^ 0  // 1
+    3 ^ 1  // 2
+    1 << 1 // 2
+    2 >> 1 // 1
+
+#### Comparison Terms
+
+Comparison operators always return a boolean value depending on the result of the comparison.
+
+	Less           = SimpleTerm "<"  Expression
+	LessOrEqual    = SimpleTerm "<=" Expression
+	Equal          = SimpleTerm "==" Expression
+	InEqual        = SimpleTerm "!=" Expression
+	GreaterOrEqual = SimpleTerm ">=" Expression
+	Greater        = SimpleTerm ">"  Expression
+
+ Left        Right      Effect
+------      -------     ------
+`Boolean`   `Boolean`   `true` is greater than `false`
+`Boolean`   `Number`    Convert right to `Boolean` and compare.
+`Boolean`   `String`    Convert right to `Boolean` and compare.
+`Boolean`   `Array`     error
+`Boolean`   `Map`       error
+`Boolean`   `Range`     error
+`Boolean`   `Null`      Left is greater than right.
+`Boolean`   `Undefined` Left is greater than right.
+`Number`    `Boolean`   Convert left to `Boolean` and compare.
+`Number`    `Number`    Compare as numbers.
+`Number`    `String`    Convert right to `Number` and compare.
+`Number`    `Array`     error
+`Number`    `Map`       error
+`Number`    `Range`     error
+`Number`    `Null`      Left is greater than right.
+`Number`    `Undefined` Left is greater than right.
+`String`    `Boolean`   Convert left to `Boolean` and compare.
+`String`    `Number`    Convert left to `Number` and compare.
+`String`    `String`    Compare lexicographically (case sensitive).
+`String`    `Array`     error
+`String`    `Map`       error
+`String`    `Range`     error
+`String`    `Null`      Left is greater than right.
+`String`    `Undefined` Left is greater than right.
+`Array`     `Boolean`   error
+`Array`     `Number`    error
+`Array`     `String`    error
+`Array`     `Array`     Compare lexicographically.
+`Array`     `Map`       error
+`Array`     `Range`     error
+`Array`     `Null`      Left is greater than right.
+`Array`     `Undefined` Left is greater than right.
+`Map`       `Boolean`   error
+`Map`       `Number`    error
+`Map`       `String`    error
+`Map`       `Array`     error
+`Map`       `Map`       Compare key-value pairs lexicographically (key first, then value).
+`Map`       `Range`     error
+`Map`       `Null`      Left is greater than right.
+`Map`       `Undefined` Left is greater than right.
+`Range`     Any type    error
+`Null`      `Null`      Both are equal.
+`Null`      `Undefined` Both are equal
+`Null`      Any type    Right is greater than left.
+`Undefined` `Null`      Both are equal.
+`Undefined` `Undefined` Both are equal
+`Undefined` Any type    Right is greater than left.
+
+The following examples show the comparison operators in action with different operand types. Assume that all expressions evaluate to `true` unless otherwise stated in comments.
+
+    true > false
+    true == true
+    false == false
+
+    true == "true"
+    true == "True"
+    true == "asdf"
+    true != ""
+    true != "false"
+    true == "False"
+    true == 1
+    true == 2
+    true != 0
+
+    1 == "1"
+    1 == "1.0"
+    1 < "2"
+    1 == "asdf" // throws an error because "asdf" cannot be converted to Number
+
+    "asdf" == "asdf"
+    "asdf" < "bsdf"
+
+    null == null
+    null == undefined
+    null < -1
+    null < "asdf"
+
+    [ 1, 2, 3 ] == [ 1, 2, 3 ]
+    [ 1, 2, 3 ] <  [ 2, 2, 3 ]
+    [ 1, 2 ]    <  [ 1, 2, 3 ]
+
+#### Case Term
+
+The case operator allows for conditional evaluation of expressions. This is usally most useful in combination with the switch operator, which is explained in the next subsection.
+
+     Case = SimpleTerm "->" Expression
+
+In a case expression, the part before the `->` operator is called the *premise* and the part after it is called the *conclusion*. The case operator is evaluated as follows:
+
+- If the premise evaluates to a value `r` that is convertible to `boolean`:
+    - If `r` converts to `true`: 
+        - The result of the case expression is the result of evaluating the conclusion.
+    - Otherwise, the result of the case expression is `undefined`.
+- Otherwise, an error is thrown.
+
+The following examples demonstrate the semantics of the case operator:
+
+    true   -> false  // false
+    false  -> true   // undefined
+    1      -> "test" // "test", because 1 converts to true
+    0      -> "test" // undefined, because 0 converts to false
+    "true" -> ""     // "", because "true" converts to true
+    ""     -> ""     // undefined, because "" converts to false
+
+#### Switch Term
+
+The switch operator comprises of zero or more sub expressions and its evaluation returns the result of the first expression that does not evaluate to `undefined`. In combination with the case operator, it implements a piecewise defined function.
+
+    Switch = "{{" [ Expression { "," Expression } ] "}}"
+
+The following example demonstrates a very simple `if / then / else` use of the switch term.
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1'
+    }}
+
+This expression evaluates to the string `'x equals 0'` if the value of the variable `x` equals `0` and it evaluates to the string `'x equals 1'` if the value of the variable `x` equals `1`. In all other cases, the switch expression evaluates to `undefined`.
+
+But what if we wanted to have a default result for all those other cases? That's easy with the switch expression.
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1',
+    	true   -> 'otherwise'   // the default case
+    }}
+
+However, due to how the sub expressions of the switch expression are evaluated, we can abbreviate the default case:
+
+    {{
+    	x == 0 -> 'x equals 0',
+    	x == 1 -> 'x equals 1',
+    	          'otherwise'   // the default case
+    }}
+
+Remember that the switch expression will return the value of the first expression that does not evaluate to `undefined`. Since the first two sub expressions do evaluate to `undefined`, and the string `'otherwise'` is not `undefined`, the switch expression will return `'otherwise'` as its result. 
+
+#### Binary Operator Precedence
+
+Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators. In the table, higher numbers indicate higher precedence.
+
+Operator Name 					Precedence
+----     ----                   ----
+`*`      Multiplication			11
+`/`      Division				11
+`%`      Modulus				11
+`+`      Addition 				10
+`-`      Subtraction 			10
+`<<` 	 Bitwise shift left     9
+`>>` 	 Bitwise shift right    9
+`<`      Less 					8
+`<=`     Less or equal 			8
+`>`      Greater 				8
+`>=`     Greater or equal 		8
+`==`     Equal 					7
+`!=`     Inequal 				7
+`&` 	 Bitwise and   			6
+`^` 	 Bitwise xor   			5
+`|` 	 Bitwise or             4
+`&&`     Logical and 			3
+`||`     Logical or 			2
+`[]`     Range 					1
+`->`     Case 					0
+
+Some examples:
+
+    2 * 3 + 4       // 10 because * has a higher precedence than +
+    7 < 10 && 8 < 3 // comparisons are evaluated before the logical and operator
+
+If the builtin precedence does not reflect your intention, you can use parentheses to force an operator to be evaluated first.
+
+    2 * (3 + 4) // 14
+
+### Terminals
+
+In EBNF, terminal rules are those which only contain terminal symbols on the right hand side. A symbol is terminal if it is enclosed in double quotes. Note that for the `Char` rule, we have chosen to not enumate all actual ASCII characters and have used a placeholder string instead.
+
+	Alpha          = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
+	Numeric        = "0" | "1" | ... "9"
+	Char           = Any ASCII character
+
+This concludes the manual for TrenchBroom's expression language.
+
 ## Solving Problems
 
 This section contains some information about what you can do if you run into problems when using TrenchBroom.
@@ -964,7 +1631,7 @@ You can use these backups to go back to previous versions of you map if problems
 
 ## Display Models for Entities
 
-TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration]({#game_configuration). For most of the included FGD and DEF files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included FGD and DEF files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
 
 ### General Model Syntax
 
@@ -972,68 +1639,104 @@ The syntax for adding display models is identical in both FGD and DEF files, onl
 
     model(...)
 
-Thereby, the ellipsis contains the actual information about the model to display. TrenchBroom allows you to set up both static and dynamic models. A static model is one where the actual model that is being displayed is known beforehand, even though the skin and frame that TrenchBroom will show might. A dynamic model is one where the model, skin, and frame depend on the values of entity properties and are completely arbitrary. Static models are much more common that dynamic models, so we introduce those first.
+Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
-#### Static Models
+    {
+    	"path" : MODEL,
+    	"skin" : SKIN,
+    	"frame": FRAME
+    }
 
-A static model definition looks as follows:
-
-    model(DEFINITION {, DEFINITION})
-
-This means that a model definition actually contains a comma-separated, non-empty list of definitions. Thereby each definition has the following syntax:
-
-    DEFINITION = "MODEL" SKIN FRAME CONDITION
-
-The placeholders `MODEL`, `SKIN`, `FRAME` and `CONDITION` have the following meaning
+The placeholders `MODEL`, `SKIN`, and `FRAME` have the following meaning
 
 Placeholder 		Description
 -----------     	-----------
 `MODEL` 			The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
-`SKIN` 				The 0-based index of the skin to display. Optional if no frame is specified, defaults to 0.
-`FRAME` 			The 0-based index of the frame to display. Optional if no condition is specified, defaults to 0. Requires specifing the skin index, too.
-`CONDITION`			A condition under which this model specification is used by the editor. Optional, defaults to true. Requires specifing the frame index, too.
+`SKIN` 				The 0-based index of the skin to display. Optional, defaults to 0.
+`FRAME` 			The 0-based index of the frame to display. Optional, defaults to 0.
 
-So a valid static model definition might look like this:
+If the expression evaluates to a value of type string, then that is interpreted as a map containing only a `path` key with the string as its value. In other words, if the expression evaluates to a string, then that value is interpreted as the path to a model. Think of such expressions as shorthands that allow you to define a simple model like so:
 
-    model("progs/armor.mdl" 2)
+    model("path/to/model")
 
-This would show the model located at "progs/armor" using the third skin in the model file.
+instead of having to write
 
-Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimick this behavior by providing more than one model definition. Which one of these definitions is used when the entity is displayed in the editor depends on an additional condition. The actual model definition can depend on literal property values or on flag values.
+    model({ "path": "path/to/model" })
 
--------------------------------------------------------------------------------------------------------------------------
-Conditional Syntax 	     		    Description
-Type
------------ ------ 				    --------------------------------------------------------------
-Literal     `KEYNAME` = "`VALUE`"   Evaluates to true if the entity property `KEYNAME` has the value `VALUE`
-value 	 	 
+#### Basic Examples
 
-Flag value  `KEYNAME` = `FLAGINDEX` Evaluates to true if the entity property `KEYNAME` is a flag (an integer) and the flag at the specified 0-based index is set.
--------------------------------------------------------------------------------------------------------------------------
+So a valid model definitions might look like this:
 
-Let's look at an example where we combine several model definitions using a literal value.
+	// use the model found at the given path with skin 0 and frame 0
+	model("progs/armor")
 
-    model(":progs/voreling.mdl", ":progs/voreling.mdl" 0 13 dangle = "1")
+	// use the model found at the given path with skin 1 and frame 0
+    model({ 
+    	"path": "progs/armor", 
+    	"skin": 1 
+    })
 
-The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. There are two model declarations, the first has no skin or frame setting, so Trenchbroom will use skin 0 and frame 0, and it has no conditionals, so that means this is going to be the default visual model used to display this monster in the editor.
+	// use the model found at the given path with skin 1 and frame 3
+    model({ 
+    	"path" : "progs/armor", 
+    	"skin" : 1,
+    	"frame": 3
+    })
 
-The second model declaration has a skin setting of 0 and a frame setting of 13. If you look in the model file, you will see this is the frame where the Voreling is hanging upside down. Finally, we can see that the conditional `dangle = "1"` tells TrenchBroom to only use this declaration if the dangle key is set to 1.
+Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimick this behavior by using conditional expressions using the switch and case operators and by referring to the entity properties as variables in the expressions. Let's look at an example where we combine several model definitions using a literal value.
+
+    model({{
+		dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
+                         { "path": "progs/voreling.mdl" }
+    }})
+
+The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
+
+	dangle == "1"                                             // If the value of the entity property 'dangle' equals "1"
+	->            											  // then
+	{ "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
+	,                                                         // Otherwise,
+    { "path": "progs/voreling.mdl" }                          // use this as the model.
+
+If you have problems understanding this syntax, you should read the section on TrenchBroom's [expression language](#expression_language).
 
 The following example shows a combination of model definitions using flag values.
 
-	model("maps/b_bh25.bsp", "maps/b_bh10.bsp" 0 0 spawnflags = 1, "maps/b_bh100.bsp" 0 0 spawnflags = 2)
+    model({{
+        spawnflags == 2 -> "maps/b_bh100.bsp",
+        spawnflags == 1 -> "maps/b_bh10.bsp",
+                           "maps/b_bh25.bsp"
+    }})
 
-This is an example of more complex usage of the new model syntax for DEF files. As you can see, there are three models attached to the Health kit, `maps/b_bh25.bsp, maps/b_bh10.bsp` and `maps/b_bh100.bsp`. This is because the Health kit uses three different models depending on what spawnflags are checked. If `ROTTEN` is checked, it uses `maps/b_bh10.bsp`, which is the dim (rotten) health kit and if `MEGAHEALTH` is checked, then it uses maps/b_bh100.bsp which is the megahealth powerup. If neither are checked, it uses the standard health kit.
+As you can see, there are three models attached to the Health kit, `maps/b_bh25.bsp, maps/b_bh10.bsp` and `maps/b_bh100.bsp`. This is because the Health kit uses three different models depending on what spawnflags are checked. If `ROTTEN` is checked, it uses `maps/b_bh10.bsp`, which is the dim (rotten) health kit and if `MEGAHEALTH` is checked, then it uses maps/b_bh100.bsp which is the megahealth powerup. If neither are checked, it uses the standard health kit.
 
-This is done by adding `spawnflags = 1` to the second model declaration which is the rotten kit model and `spawnflags = 2` to the megahealth model declaration.
+Accordingly, the nested case expressions inspect the value of the `spawnflags` property to determine the correct model. Since there is no need to specify a skin or a frame for these models, the expressions only return strings as a shorthand.
 
-In the previous example, note that if both `ROTTEN` and `MEGAHEALTH` were checked, it would display the megahealth model. In the case where multiple conditionals evaluate to true, Trenchbroom will use the last one that evaluates to true as the model to display. For this reason, do not put a model declaration with no condition as the last one in the definition because that will override everything else!
+In the previous example, note that if both `ROTTEN` and `MEGAHEALTH` were checked, it would display the megahealth model. Remember that the switch operator returns the value of the first expression that does not evaluate to undefined. For this reason, you must put model definitions with no condition as the last one in the switch because that will override everything else!
 
-#### Dynamic Models
+#### Advanced Examples
 
-Conditionals allow you to customize which model, skin and frame TrenchBroom shows depending on the values of an entity's properties with great flexibility, but the actual paths, skin indices and frame indices are hardcoded in the entity definition file. However, sometimes even this flexibility is not enough, in particular with entities that allow you to place arbitrary models into the map. In such cases, the entity definition file cannot contain the actual model paths and so on. Rather, the model path, skin index and frame index are specified by the mapper using entity properties. To allow TrenchBroom to display models for such entities, you can define an entity defintion that contains a dynamic model definition that looks as follows.
+The basic expressions you have seen so far allow you to customize which model, skin and frame TrenchBroom shows depending on the values of an entity's properties with great flexibility, but the actual paths, skin indices and frame indices are hardcoded in the entity definition file. However, sometimes even this flexibility is not enough, in particular with entities that allow you to place arbitrary models into the map. In such cases, the entity definition file cannot contain the actual model paths and so on. Rather, the model path, skin index and frame index are specified by the mapper using entity properties. Since TrenchBroom provides the values of the entity properties to the model expressions as variables, you can easily cover such cases as well.
 
-    model(pathKey = "PATHKEY" skinKey = "SKINKEY" frameKey = "FRAMEKEY")
+Remember the structure of the model definition maps:
+
+    {
+    	"path" : MODEL,
+    	"skin" : SKIN,
+    	"frame": FRAME
+    }
+
+So far, we have used hardcoded literals for the values of the map entries like so:
+
+    model({ "path" : "progs/armor", "skin" : 1, "frame": 3 })
+
+However, nothing prevents us from using variables instead of hardcoded literals, thereby referring to the entities properties. 
+
+    model({ 
+    	"path" : PATHKEY, 
+    	"skin" : SKINKEY, 
+    	"frame": FRAMEKEY 
+    })
 
 The placeholders `PATHKEY`, `SKINKEY` and `FRAMEKEY` have the following meaning
 
@@ -1045,7 +1748,11 @@ Placeholder 		Description
 
 A valid dynamic model definition might look like this:
 
-    model(pathKey = "mdl" skinKey = "skin" frameKey = "frame")
+    model({ 
+    	"path" : mdl,
+    	"skin" : skin,
+    	"frame": frame
+    })
 
 Then, if you create an entity with the appropriate classname and specifies three properties as follows
 
@@ -1064,7 +1771,7 @@ In both files, the model definitions are just specified alongside with other ent
 
 	/*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
 	{
-	    model(":maps/b_bh25.bsp", ":maps/b_bh10.bsp" 0 0 spawnflags = 1, ":maps/b_bh100.bsp" 0 0 spawnflags = 2);
+	    model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
 	}
 	Health box. Normally gives 25 points.
 
@@ -1079,7 +1786,7 @@ In both files, the model definitions are just specified alongside with other ent
 An example from an FGD file might look as follows.
 
 	@PointClass base(Monster) size(-32 -32 -24, 32 32 64) 
-	    model("progs/gaunt.mdl" 0 24, ":progs/gaunt.mdl" perch = "1")
+	    model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
 	    = monster_gaunt : "Gaunt"
 	[
 	    perch(choices) : "Starting pose" : 0 =
@@ -1089,7 +1796,7 @@ An example from an FGD file might look as follows.
 	    ]
 	]
 
-To improve compatibility to other editors, the model definition can also be named *studio* in FGD files.
+To improve compatibility to other editors, the model definition can also be named *studio* or *studioprop* in FGD files.
 
 # Getting Involved
 
@@ -1099,11 +1806,18 @@ If you have an idea for a nice feature that you're missing in TrenchBroom, then 
 
 ## Reporting Bugs {#reporting_bugs}
 
-You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the version information (see below) and try to describe the steps to reproduce.
+You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to include the the following information:
+
+- *TrenchBroom version*: e.g., "*"Version 2.0.0 f335082 D" see below
+- *Operation system and version*: e.g. "Windows 7 64bit"
+- *Crash report and the map file*: When TrenchBroom crashes, it saves a crash report and the map file automatically. These files are placed in the folder containing the current map file, or in your documents folder if the current map hasn't been saved yet. For example, if the map file you are editing has the name "rtz_q1.map", the crash report will be named "rtz_q1-crash.txt", and the saved map file will be named "rtz_q1-crash.map". Existing files are not overwritten - TrenchBroom creates new file names by attaching a number at the end. Please choose the files with the highest numbers when reporting a bug.
+- *Exact steps to reproduce*: It is really helpful if you can provide exact info on how to reproduce the problem. Sometimes this can be difficult to describe, so you can attach screenshots or make screencasts if necessary. If you cannot reproduce the problem, please submit a bug report either way. The cause of the problem can often be deduced anyway.
 
 ### The Version Information
 
 Open the "About TrenchBroom" dialog from the menu. The light gray text on the left gives you some information about which version of TrenchBroom you are currently running, for example "Version 2.0.0 f335082 D". The first three numbers represent the version (2.0.0), the following seven letter string is the build id (f335082), and the final letter indicates the build type ("D" for Debug and "R" for release). You can also find this information in the Welcome window that the editor shows at startup.
+
+*If you click on the version information strings, they will be copied to the clipboard, which is useful for bug reports.*
 
 ## Contact
 

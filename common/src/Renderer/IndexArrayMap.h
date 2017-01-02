@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             typedef std::map<PrimType, IndexArrayRange> PrimTypeToRangeMap;
         private:
-            typedef std::tr1::shared_ptr<PrimTypeToRangeMap> PrimTypeToRangeMapPtr;
+            typedef std::shared_ptr<PrimTypeToRangeMap> PrimTypeToRangeMapPtr;
         public:
             class Size {
             private:

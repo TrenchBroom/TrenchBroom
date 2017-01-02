@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
+#include "Polyhedron_Matcher.h"
 #include "Model/BrushContentType.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
@@ -56,12 +57,14 @@ namespace TrenchBroom {
             class CanMoveBoundaryCallback;
             class CanMoveBoundary;
             class MoveVerticesCallback;
+            typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
+            class FaceMatchingCallback;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:
-            BrushFaceList m_faces;
+            BrushFaceArray m_faces;
             BrushGeometry* m_geometry;
             
             const BrushContentTypeBuilder* m_contentTypeBuilder;
@@ -69,7 +72,7 @@ namespace TrenchBroom {
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
         public:
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushFaceArray& faces);
             ~Brush();
         private:
             void cleanup();
@@ -78,16 +81,20 @@ namespace TrenchBroom {
             
             AttributableNode* entity() const;
         public: // face management:
-            const BrushFaceList& faces() const;
-            void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
-
-            BrushFace* findFaceByNormal(const Vec3& normal) const;
+            BrushFace* findFace(const Vec3& normal) const;
+            BrushFace* findFace(const Plane3& boundary) const;
+            BrushFace* findFace(const Polygon3& vertices) const;
+            BrushFace* findFace(const Polygon3::List& candidates) const;
+            
+            size_t faceCount() const;
+            const BrushFaceArray& faces() const;
+            void setFaces(const BBox3& worldBounds, const BrushFaceArray& faces);
             
             bool fullySpecified() const;
             
             void faceDidChange();
         private:
-            void addFaces(const BrushFaceList& faces);
+            void addFaces(const BrushFaceArray& faces);
             template <typename I>
             void addFaces(I cur, I end, size_t count) {
                 m_faces.reserve(m_faces.size() + count);
@@ -100,26 +107,25 @@ namespace TrenchBroom {
             
             template <typename I>
             void removeFaces(I cur, I end) {
-                BrushFaceList::iterator rem = m_faces.end();
+                BrushFaceArray::iterator rem = std::end(m_faces);
                 while (cur != end) {
-                    rem = doRemoveFace(m_faces.begin(), rem, *cur);
+                    rem = doRemoveFace(std::begin(m_faces), rem, *cur);
                     ++cur;
                 }
                 
-                m_faces.erase(rem, m_faces.end());
+                m_faces.erase(rem, std::end(m_faces));
             }
             
             void removeFace(BrushFace* face);
-            BrushFaceList::iterator doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face);
+            BrushFaceArray::iterator doRemoveFace(BrushFaceArray::iterator begin, BrushFaceArray::iterator end, BrushFace* face);
             
-            void detachFaces(const BrushFaceList& faces);
+            void detachFaces(const BrushFaceArray& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const BrushList& brushes);
+            void cloneFaceAttributesFrom(const BrushArray& brushes);
             void cloneFaceAttributesFrom(const Brush* brush);
-            void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
+            void cloneInvertedFaceAttributesFrom(const BrushArray& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
-            BrushFace* findFaceWithBoundary(const Plane3& boundary) const;
         public: // clipping
             bool clip(const BBox3& worldBounds, BrushFace* face);
         public: // move face along normal
@@ -130,19 +136,36 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             VertexList vertices() const;
             
+            bool hasVertex(const Vec3& position) const;
+            bool hasVertices(const Vec3::List positions) const;
+            bool hasEdge(const Edge3& edge) const;
+            bool hasEdges(const Edge3::List& edges) const;
+            bool hasFace(const Polygon3& face) const;
+            bool hasFaces(const Polygon3::List& faces) const;
+            
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5) const;
+            
             size_t edgeCount() const;
             EdgeList edges() const;
             
             bool containsPoint(const Vec3& point) const;
             
-            BrushFaceList incidentFaces(const BrushVertex* vertex) const;
+            BrushFaceArray incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
-            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, const Vec3& delta) const;
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+
+            bool canAddVertex(const BBox3& worldBounds, const Vec3& position) const;
+            BrushVertex* addVertex(const BBox3& worldBounds, const Vec3& position);
             
-            bool canSnapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
-            Vec3::List snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, size_t snapTo);
+            bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
+            void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
+            
+            bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
+            void snapVertices(const BBox3& worldBounds, size_t snapTo);
 
             // edge operations
             bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
@@ -155,9 +178,12 @@ namespace TrenchBroom {
             Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
-            
+        private:
+            bool doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
+            void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
+        public:
             // CSG operations
-            BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            BrushArray subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
             void intersect(const BBox3& worldBounds, const Brush* brush);
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
@@ -193,12 +219,12 @@ namespace TrenchBroom {
 
             bool doSelectable() const;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
+            void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
+            void doFindNodesContaining(const Vec3& point, NodeArray& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
 
             struct BrushFaceHit {

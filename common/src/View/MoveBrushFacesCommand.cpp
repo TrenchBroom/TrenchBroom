@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -49,10 +49,9 @@ namespace TrenchBroom {
         
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const BBox3& worldBounds = document->worldBounds();
-            Model::BrushFacesMap::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Polygon3::List& faces = it->second;
+            for (const auto& entry : m_faces) {
+                Model::Brush* brush = entry.first;
+                const Polygon3::List& faces = entry.second;
                 if (!brush->canMoveFaces(worldBounds, faces, m_delta))
                     return false;
             }

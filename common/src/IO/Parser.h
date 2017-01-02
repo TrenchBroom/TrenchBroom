@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,42 +40,43 @@ namespace TrenchBroom {
             virtual ~Parser() {}
         protected:
             bool check(const TokenType typeMask, const Token& token) const {
-                return (token.type() & typeMask) != 0;
+                return token.hasType(typeMask);
             }
             
-            void expect(const TokenType typeMask, const Token& token) const {
+            const Token& expect(const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
-                    throw ParserException(token.line(), token.column()) << expectString(tokenName(typeMask), token);
+                    throw ParserException(token.line(), token.column(), expectString(tokenName(typeMask), token));
+                return token;
             }
             
-            void expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
+            const Token& expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
                 if (!check(typeMask, token))
                     expect(status, tokenName(typeMask), token);
+                return token;
             }
             
             void expect(ParserStatus& status, const String& typeName, const Token& token) const {
                 const String msg = expectString(typeName, token);
-                status.error(token.line(), token.column(), msg);
+                // status.error(token.line(), token.column(), msg);
                 throw ParserException(token.line(), token.column(), msg);
             }
         private:
             String expectString(const String& expected, const Token& token) const {
-                const String data(token.begin(), token.end());
                 StringStream msg;
-                msg << " Expected " << expected << ", but got '" << data << "'";
+                msg << "Expected " << expected << ", but got " << tokenName(token.type());
+                if (!token.data().empty())
+                    msg << " (raw data: '" << token.data() << "')";
                 return msg.str();
             }
         protected:
-
             String tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();
                 
-                StringList names;
-                typename TokenNameMap::const_iterator it, end;
-                for (it = m_tokenNames.begin(), end = m_tokenNames.end(); it != end; ++it) {
-                    const TokenType type = it->first;
-                    const String& name = it->second;
+                StringArray names;
+                for (const auto& entry : m_tokenNames) {
+                    const TokenType type = entry.first;
+                    const String& name = entry.second;
                     if ((typeMask & type) != 0)
                         names.push_back(name);
                 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,11 +61,8 @@ namespace TrenchBroom {
         void ActionManager::getShortcutEntries(ShortcutEntryList& entries) {
             m_menuBar->getShortcutEntries(entries);
             
-            ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
-                ViewShortcut& shortcut = *it;
+            for (ViewShortcut& shortcut : m_viewShortcuts)
                 entries.push_back(&shortcut);
-            }
         }
 
         String ActionManager::getJSTable() {
@@ -89,11 +86,9 @@ namespace TrenchBroom {
             
             ShortcutEntryList entries;
             m_menuBar->getShortcutEntries(entries);
-            ShortcutEntryList::const_iterator it, end;
-            for (it = entries.begin(), end = entries.end(); it != end; ++it) {
-                const KeyboardShortcutEntry& entry = **it;
-                str << "menu[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;;
-            }
+            
+            for (const KeyboardShortcutEntry* entry : entries)
+                str << "menu[\"" << entry->preferencePath().asString() << "\"] = " << entry->asJsonString() << ";" << std::endl;;
         }
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);
@@ -104,11 +99,8 @@ namespace TrenchBroom {
         void ActionManager::getActionJSTable(StringStream& str) {
             str << "var actions = {};" << std::endl;
             
-            ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
-                ViewShortcut& entry = *it;
+            for (ViewShortcut& entry : m_viewShortcuts)
                 str << "actions[\"" << entry.preferencePath().asString() << "\"] = " << entry.asJsonString() << ";" << std::endl;
-            }
             
             printActionPreference(str, Preferences::CameraFlyForward);
             printActionPreference(str, Preferences::CameraFlyBackward);
@@ -127,14 +119,16 @@ namespace TrenchBroom {
         wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
             AcceleratorEntryList tableEntries;
             addViewActions(context, view, tableEntries);
+#ifdef __WXGTK20__
+            // This causes some shortcuts such as "2" to not work on Windows.
+            // But it's necessary to enable one key menu shortcuts to work on GTK.
             addMenuActions(context, view, tableEntries);
+#endif
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
         void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            ViewShortcut::List::const_iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
-                const ViewShortcut& shortcut = *it;
+            for (const ViewShortcut& shortcut : m_viewShortcuts) {
                 if (shortcut.appliesToContext(context))
                     accelerators.push_back(shortcut.acceleratorEntry(view));
             }
@@ -143,9 +137,8 @@ namespace TrenchBroom {
         void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
             ShortcutEntryList menuShortcuts;
             m_menuBar->getShortcutEntries(menuShortcuts);
-            ShortcutEntryList::const_iterator it, end;
-            for (it = menuShortcuts.begin(), end = menuShortcuts.end(); it != end; ++it) {
-                const KeyboardShortcutEntry* entry = *it;
+            
+            for (const KeyboardShortcutEntry* entry : menuShortcuts) {
                 if (entry->appliesToContext(context))
                     accelerators.push_back(entry->acceleratorEntry(view));
             }
@@ -154,11 +147,8 @@ namespace TrenchBroom {
         void ActionManager::resetShortcutsToDefaults() {
             m_menuBar->resetShortcuts();
 
-            ViewShortcut::List::iterator it, end;
-            for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
-                ViewShortcut& shortcut = *it;
+            for (ViewShortcut& shortcut : m_viewShortcuts)
                 shortcut.resetShortcut();
-            }
         }
 
         ActionManager::ActionManager() :
@@ -170,7 +160,7 @@ namespace TrenchBroom {
         void ActionManager::createMenuBar() {
             assert(m_menuBar == NULL);
             m_menuBar = new MenuBar();
-            
+
             Menu* fileMenu = m_menuBar->addMenu("File");
             fileMenu->addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
             fileMenu->addSeparator();
@@ -179,8 +169,12 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
             fileMenu->addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+            
+            Menu* exportMenu = fileMenu->addMenu("Export");
+            exportMenu->addModifiableActionItem(CommandIds::Menu::FileExportObj, "Wavefront OBJ...");
+            
             fileMenu->addSeparator();
-            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
@@ -234,7 +228,6 @@ namespace TrenchBroom {
             editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
-
             
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
@@ -275,12 +268,18 @@ namespace TrenchBroom {
             viewMenu->addSeparator();
             viewMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleMaximizeCurrentView, "Maximize Current View", KeyboardShortcut(WXK_SPACE, WXK_CONTROL));
             
+            Menu* runMenu = m_menuBar->addMenu("Run");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunCompile, "Compile...");
+            runMenu->addModifiableActionItem(CommandIds::Menu::RunLaunch, "Launch...");
 
 #ifndef NDEBUG
             Menu* debugMenu = m_menuBar->addMenu("Debug");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugPrintVertices, "Print Vertices");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateBrush, "Create Brush...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCreateCube, "Create Cube...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrash, "Crash...");
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");
@@ -309,13 +308,6 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::ToggleClipSide, "Toggle clip side", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::PerformClip, "Perform clip", true));
-#ifdef __APPLE__
-            createViewShortcut(KeyboardShortcut(WXK_BACK, WXK_CONTROL), ActionContext_ClipTool,
-                               Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
-#else
-            createViewShortcut(KeyboardShortcut(WXK_DELETE, WXK_CONTROL), ActionContext_ClipTool,
-                               Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
-#endif
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true),

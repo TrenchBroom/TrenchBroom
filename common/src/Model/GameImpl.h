@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -36,26 +36,32 @@ namespace TrenchBroom {
     namespace Model {
         class GameImpl : public Game {
         private:
-            typedef std::tr1::shared_ptr<IO::MapWriter> MapWriterPtr;
+            typedef std::shared_ptr<IO::MapWriter> MapWriterPtr;
             
-            GameConfig m_config;
+            GameConfig& m_config;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
             
-            IO::GameFileSystem m_fs;
-            Assets::Palette* m_palette;
+            IO::FileSystemHierarchy m_gameFS;
         public:
-            GameImpl(const GameConfig& config, const IO::Path& gamePath);
-            ~GameImpl();
+            GameImpl(GameConfig& config, const IO::Path& gamePath);
+        private:
+            void initializeFileSystem();
+            void addPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const;
             IO::Path doGamePath() const;
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
+            CompilationConfig& doCompilationConfig();
+
+            size_t doMaxPropertyLength() const;
+
             World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
+            void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
 
             NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
             BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
@@ -63,11 +69,14 @@ namespace TrenchBroom {
             void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
             
+            TexturePackageType doTexturePackageType() const;
+            void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
+            
             bool doIsTextureCollection(const IO::Path& path) const;
-            IO::Path::List doFindBuiltinTextureCollections() const;
-            StringList doExtractExternalTextureCollections(const World* world) const;
-            void doUpdateExternalTextureCollections(World* world, const StringList& collections) const;
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            IO::Path::List doFindTextureCollections() const;
+            IO::Path::List doExtractTextureCollections(const World* world) const;
+            void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
@@ -77,22 +86,22 @@ namespace TrenchBroom {
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const;
 
-            // MapWriterPtr mapWriter(MapFormat::Type format) const;
-            
-            Assets::TextureCollection* loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            Assets::TextureCollection* loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const;
-            
             Assets::EntityModel* loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const;
             Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const;
+            Assets::Palette loadTexturePalette() const;
             
             const BrushContentType::List& doBrushContentTypes() const;
 
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const World* world) const;
-            
+            String doDefaultMod() const;
+
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
+        private:
+            void writeLongAttribute(AttributableNode* node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
+            String readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const;
         };
     }
 }

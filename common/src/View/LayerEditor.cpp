@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,7 +27,8 @@
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
-#include "View/LayerListView.h"
+#include "View/BorderLine.h"
+#include "View/LayerListBox.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -35,6 +36,7 @@
 #include <wx/bmpbuttn.h>
 #include <wx/menu.h>
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
 
@@ -117,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->hidden())
                 document->hide(Model::NodeList(1, layer));
@@ -154,7 +156,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->locked())
                 document->lock(Model::NodeList(1, layer));
@@ -171,11 +173,11 @@ namespace TrenchBroom {
             CollectMoveableNodes(Model::World* world) : m_world(world) {}
             
             const Model::NodeList selectNodes() const {
-                return Model::NodeList(m_selectNodes.begin(), m_selectNodes.end());
+                return Model::NodeList(std::begin(m_selectNodes), std::end(m_selectNodes));
             }
             
             const Model::NodeList moveNodes() const {
-                return Model::NodeList(m_moveNodes.begin(), m_moveNodes.end());
+                return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
             void doVisit(Model::World* world)   {}
@@ -209,7 +211,7 @@ namespace TrenchBroom {
                     } else {
                         if (m_moveNodes.insert(entity).second) {
                             const Model::NodeList& siblings = entity->children();
-                            m_selectNodes.insert(siblings.begin(), siblings.end());
+                            m_selectNodes.insert(std::begin(siblings), std::end(siblings));
                         }
                     }
                 }
@@ -220,7 +222,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
 
             MapDocumentSPtr document = lock(m_document);
             Transaction transaction(document, "Move Nodes to " + layer->name());
@@ -243,9 +245,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Group* nodeGroup = Model::findGroup(node);
                 if (nodeGroup != NULL) {
                     event.Enable(false);
@@ -253,8 +253,7 @@ namespace TrenchBroom {
                 }
             }
 
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Layer* nodeLayer = Model::findLayer(node);
                 if (nodeLayer != layer) {
                     event.Enable(true);
@@ -269,7 +268,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             
             MapDocumentSPtr document = lock(m_document);
             
@@ -321,24 +320,17 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
+            ensure(layer != NULL, "layer is null");
             
-            Model::Layer* newCurrentLayer = findVisibleAndUnlockedLayer(layer);
-            assert(newCurrentLayer != NULL);
-
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();
             
-            Model::CollectSelectableNodesVisitor collectSelectableNodes(document->editorContext());
-            layer->recurse(collectSelectableNodes);
-            
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
-            document->select(collectSelectableNodes.nodes());
             if (layer->hasChildren())
                 document->reparentNodes(defaultLayer, layer->children());
             if (document->currentLayer() == layer)
-                document->setCurrentLayer(newCurrentLayer);
+                document->setCurrentLayer(defaultLayer);
             document->removeNode(layer);
         }
         
@@ -365,7 +357,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             const Model::LayerList& layers = document->world()->allLayers();
-            document->resetVisibility(Model::NodeList(layers.begin(), layers.end()));
+            document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
         }
 
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
@@ -374,9 +366,7 @@ namespace TrenchBroom {
                 return document->world()->defaultLayer();
             
             const Model::LayerList& layers = document->world()->customLayers();
-            Model::LayerList::const_iterator it, end;
-            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
-                Model::Layer* layer = *it;
+            for (Model::Layer* layer : layers) {
                 if (layer != except && !layer->locked() && !layer->hidden())
                     return layer;
             }
@@ -388,7 +378,7 @@ namespace TrenchBroom {
             const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
             
             CollectMoveableNodes visitor(document->world());
-            Model::Node::accept(selectedNodes.begin(), selectedNodes.end(), visitor);
+            Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
             
             const Model::NodeList moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
@@ -401,9 +391,9 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::createGui() {
-            SetBackgroundColour(*wxWHITE);
-
-            m_layerList = new LayerListView(this, m_document);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            
+            m_layerList = new LayerListBox(this, m_document);
             m_layerList->Bind(LAYER_SET_CURRENT_EVENT, &LayerEditor::OnSetCurrentLayer, this);
             m_layerList->Bind(LAYER_RIGHT_CLICK_EVENT, &LayerEditor::OnLayerRightClick, this);
             m_layerList->Bind(LAYER_TOGGLE_VISIBLE_EVENT, &LayerEditor::OnToggleLayerVisibleFromList, this);
@@ -426,6 +416,7 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_layerList, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,17 +29,14 @@ namespace TrenchBroom {
         class ReparentNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ReparentNodesCommand> Ptr;
+            typedef std::shared_ptr<ReparentNodesCommand> Ptr;
         private:
-            Model::ParentChildrenMap m_nodes;
-            Model::ParentChildrenMap m_removedNodes;
+            Model::ParentChildrenMap m_nodesToAdd;
+            Model::ParentChildrenMap m_nodesToRemove;
         public:
-            static Ptr reparent(Model::Node* newParent, const Model::NodeList& children);
-            static Ptr reparent(const Model::ParentChildrenMap& nodes);
+            static Ptr reparent(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
         private:
-            ReparentNodesCommand(const Model::ParentChildrenMap& nodes);
-        public:
-            ~ReparentNodesCommand();
+            ReparentNodesCommand(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

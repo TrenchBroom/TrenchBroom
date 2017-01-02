@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         class PickResult {
         public:
-            typedef std::tr1::shared_ptr<CompareHits> ComparePtr;
+            typedef std::shared_ptr<CompareHits> ComparePtr;
         private:
             const EditorContext* m_editorContext;
             Hit::List m_hits;

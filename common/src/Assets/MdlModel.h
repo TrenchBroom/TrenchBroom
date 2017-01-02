@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,15 +33,15 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        typedef std::vector<float> MdlTimeList;
+        typedef std::vector<float> MdlTimeArray;
         
         class MdlSkin {
         private:
             TextureCollection m_textures;
-            MdlTimeList m_times;
+            MdlTimeArray m_times;
         public:
             MdlSkin(Texture* texture);
-            MdlSkin(const TextureList& textures, const MdlTimeList& times);
+            MdlSkin(const TextureList& textures, const MdlTimeArray& times);
             
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
@@ -74,10 +74,10 @@ namespace TrenchBroom {
         
         class MdlFrameGroup : public MdlBaseFrame {
         private:
-            typedef std::vector<MdlFrame*> SingleFrameList;
+            typedef std::vector<MdlFrame*> SingleFrameArray;
             
-            MdlTimeList m_times;
-            SingleFrameList m_frames;
+            MdlTimeArray m_times;
+            SingleFrameArray m_frames;
         public:
             ~MdlFrameGroup();
             const MdlFrame* firstFrame() const;
@@ -86,12 +86,12 @@ namespace TrenchBroom {
         
         class MdlModel : public EntityModel {
         private:
-            typedef std::vector<MdlSkin*> MdlSkinList;
-            typedef std::vector<MdlBaseFrame*> MdlFrameList;
+            typedef std::vector<MdlSkin*> MdlSkinArray;
+            typedef std::vector<MdlBaseFrame*> MdlFrameArray;
             
             String m_name;
-            MdlSkinList m_skins;
-            MdlFrameList m_frames;
+            MdlSkinArray m_skins;
+            MdlFrameArray m_frames;
         public:
             MdlModel(const String& name);
             ~MdlModel();

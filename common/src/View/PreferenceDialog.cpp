@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
+        wxIMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
 
         PreferenceDialog::PreferenceDialog() :
         m_toolBar(NULL),
@@ -100,28 +100,6 @@ namespace TrenchBroom {
             EndModal(wxID_CANCEL);
         }
 
-        void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (!currentPane()->validate() && event.CanVeto()) {
-                event.Veto();
-                return;
-            }
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly()) {
-                switch (event.GetId()) {
-                    case wxID_OK:
-                        prefs.saveChanges();
-                        break;
-                    default:
-                        prefs.discardChanges();
-                        break;
-                        
-                }
-            }
-        }
-
         void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -132,7 +110,11 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.discardChanges(); // does nothing if the preferences save changes instantly
-            Close();
+            EndModal(wxID_OK);
+        }
+
+        void PreferenceDialog::OnUpdateFileClose(wxUpdateUIEvent& event) {
+            event.Enable(true);
         }
 
         void PreferenceDialog::OnResetClicked(wxCommandEvent& event) {
@@ -148,7 +130,15 @@ namespace TrenchBroom {
             event.Enable(currentPane()->canResetToDefaults());
         }
 
+        void PreferenceDialog::OnClose(wxCloseEvent& event) {
+            if (GetParent() != NULL)
+                GetParent()->Raise();
+            event.Skip();
+        }
+
         void PreferenceDialog::createGui() {
+            setWindowIcon(this);
+
             const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
             const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");
@@ -175,22 +165,31 @@ namespace TrenchBroom {
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
             wxWindow* line = new BorderLine(this, BorderLine::Direction_Horizontal);
-            sizer->Add(line, 0, wxEXPAND);
+            sizer->Add(line, wxSizerFlags().Expand());
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
 
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 #if !defined __APPLE__
-			bottomSizer->Add(resetButton, 0, wxALIGN_CENTER_VERTICAL);
-			bottomSizer->AddStretchSpacer();
-            bottomSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
+			buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
+			buttonSizer->AddStretchSpacer();
+            buttonSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
 #else
-			bottomSizer->Add(resetButton, 0, wxALL, LayoutConstants::DialogOuterMargin);
-			bottomSizer->AddStretchSpacer();
+            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
+            closeButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnFileClose, this);
+            closeButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateFileClose, this);
+            
+            wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
+            stdButtonSizer->SetCancelButton(closeButton);
+            stdButtonSizer->Realize();
+            
+            buttonSizer->Add(resetButton, wxSizerFlags().CenterVertical());
+			buttonSizer->AddStretchSpacer();
+            buttonSizer->Add(stdButtonSizer, wxSizerFlags().CenterVertical());
 #endif
 
-            sizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
+            sizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             
             SetSizer(sizer);
         }
@@ -201,14 +200,10 @@ namespace TrenchBroom {
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
             Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
+            Bind(wxEVT_CLOSE_WINDOW, &PreferenceDialog::OnClose, this);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
-            if (currentPaneId() == pane && currentPane() != NULL) {
-                toggleTools(currentPaneId());
-                return;
-            }
-            
             if (currentPane() != NULL && !currentPane()->validate()) {
                 toggleTools(currentPaneId());
                 return;
@@ -220,9 +215,15 @@ namespace TrenchBroom {
             
             GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
             Fit();
-#if defined __APPLE__
+
+#ifdef __APPLE__
             updateAcceleratorTable(pane);
 #endif
+            
+            if (pane == PrefPane_Keyboard)
+				SetEscapeId(wxID_NONE);
+			else
+				SetEscapeId(wxID_CANCEL);
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
@@ -242,9 +243,10 @@ namespace TrenchBroom {
             // allow the dialog to be closed using CMD+W
             // but only if the keyboard preference pane is not active
             if (pane != PrefPane_Keyboard) {
-                wxAcceleratorEntry acceleratorEntries[1];
+                wxAcceleratorEntry acceleratorEntries[2];
                 acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-                wxAcceleratorTable accceleratorTable(1, acceleratorEntries);
+                acceleratorEntries[1].Set(wxACCEL_NORMAL, WXK_CANCEL, wxID_CANCEL);
+                wxAcceleratorTable accceleratorTable(2, acceleratorEntries);
                 SetAcceleratorTable(accceleratorTable);
             } else {
                 wxAcceleratorTable accceleratorTable(0, NULL);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,7 +22,7 @@
 namespace TrenchBroom {
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder) {
         UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
-        if (it == m_unsavedPreferences.end())
+        if (it == std::end(m_unsavedPreferences))
             m_unsavedPreferences[preference] = valueHolder;
         else
             delete valueHolder;
@@ -39,10 +39,9 @@ namespace TrenchBroom {
 
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
-        UnsavedPreferences::iterator it, end;
-        for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
-            PreferenceBase* pref = it->first;
-            ValueHolderBase* value = it->second;
+        for (const auto& entry : m_unsavedPreferences) {
+            PreferenceBase* pref = entry.first;
+            ValueHolderBase* value = entry.second;
             
             pref->save(wxConfig::Get());
             preferenceDidChangeNotifier(pref->path());
@@ -57,10 +56,9 @@ namespace TrenchBroom {
     
     PreferenceBase::Set PreferenceManager::discardChanges() {
         PreferenceBase::Set changedPreferences;
-        UnsavedPreferences::iterator it, end;
-        for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
-            PreferenceBase* pref = it->first;
-            ValueHolderBase* value = it->second;
+        for (const auto& entry : m_unsavedPreferences) {
+            PreferenceBase* pref = entry.first;
+            ValueHolderBase* value = entry.second;
 
             pref->setValue(value);
             changedPreferences.insert(pref);

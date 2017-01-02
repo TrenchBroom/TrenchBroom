@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,9 +52,9 @@ namespace TrenchBroom {
             Vec2i m_subDivisions;
             
             /**
-             The position of the scaling origin / rotation center handle in texture coordinates (without offset and scaling applied).
+             The position of the scaling origin / rotation center handle in world coords.
              */
-            Vec2f m_origin;
+            Vec3 m_origin;
         public:
             UVViewHelper(Renderer::OrthographicCamera& camera);
             
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const Vec3 origin() const;
             const Vec2f originInFaceCoords() const;
             const Vec2f originInTexCoords() const;
-            void setOrigin(const Vec2f& originInFaceCoords);
+            void setOriginInFaceCoords(const Vec2f& originInFaceCoords);
 
             const Renderer::Camera& camera() const;
             float cameraZoom() const;

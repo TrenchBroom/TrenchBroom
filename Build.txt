@@ -9,27 +9,27 @@
     http://www.wxwidgets.org
 
     - For 32bit builds, you need the following files:
-      If you are using a different version of Visual Studio, you will have to download other binaries, e.g., wxMSW-<version>-vc120_Dev.7z etc. and you will also have to use different directory names instead of vc100_dll below.
+      If you are using a different version of Visual Studio, you will have to download other binaries, e.g., wxMSW-<version>-vc120_Dev.7z etc. and you will also have to use different directory names instead of vc140_dll below.
       - wxWidgets-<version>_headers.7z
-      - wxMSW-<version>_vc100_Dev.7z
-      - wxMSW-<version>_vc100_ReleaseDLL.7z
-      - wxMSW-<version>_vc100_ReleasePDB.7z
+      - wxMSW-<version>_vc140_Dev.7z
+      - wxMSW-<version>_vc140_ReleaseDLL.7z
+      - wxMSW-<version>_vc140_ReleasePDB.7z
       
     - Unpack all files into c:\wxWidgets-<version> so that "include" and "lib" directories are at the same level after unpacking.
     - The directory layout should look like this:
-      wxWidgets-3.0.0
+      wxWidgets-3.1.0
         \include
           \msvc
             \wx
           \wx
             <wxwidgets header files>
         \lib
-          \vc100_dll
+          \vc140_dll
             <wxwidgets libraries>
 
     - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc100_dll to your path. The relevant parts of my PATH variable look something like this:
-    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc100_dll;
+    - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc140_dll to your path. The relevant parts of my PATH variable look something like this:
+    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.0\lib\vc140_dll;
   - Download and install CMake for Windows (www.cmake.org)
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
@@ -65,28 +65,32 @@ Compiling wxWidgets 3 requires the following dependencies. You should install th
   freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
 - If you have a debian-based distribution, install them with this command:
-  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc wx3.0-headers libwxbase3.0-dev libwxgtk-media3.0-dev
+  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc
 Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
 http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 wxWidgets
-- You have two options here: Either install wxWidgets 3 using your package manager of choice, or download and build it yourself. For the latter, you may follow these instructions:
+- Currently you must download, patch, and build wxWidgets yourself.
   - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
+  - Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
   - Create two directories: build-release and build-debug (don't rename those!)
   - Change into wxwidgets/build-release
   - Run 
-    ../configure --disable-shared --with-opengl --with-gtk=2
-  - Run make
-  - Run sudo make install
+    ../configure --disable-shared --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+  - Run 
+    make
+    make install
   - Change into wxwidgets/build-debug
   - Run 
-    ../configure --enable-debug --with-opengl --with-gtk=2
-  - Run make
-  - Run sudo make install
-
+    ../configure --enable-debug --with-opengl --with-gtk=2 --prefix=$(pwd)/install
+  - Run 
+    make
+    make install
+  
 CMake
 - Install CMake using your package manager: sudo apt-get install cmake
 
@@ -94,15 +98,16 @@ Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
-  cmake .. -DCMAKE_BUILD_TYPE=Release
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
   cmake --build . --target TrenchBroom
-  You can replace "Release" with "Debug" if you want to create a debug build.
+- You can replace "Release" with "Debug" if you want to create a debug build. Also change the value of the wxWidgets_PREFIX variable to point to your wxWidgets build-debug directory in that case.
 
 Packaging
 - If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: devscripts, debhelper, rpm
   sudo apt-get install devscripts debhelper rpm
 
 Notes
+- You can install your preferred wxWidgets configuration using make install. If you wish to do this, then you can omit specifying the wxWidgets_PREFIX variable when generating the build configs with Cmake.
 - On some systems, such as Xubuntu, you may have to pass the following extra paramter to cmake when creating the build scripts: -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
   So the first cmake command should be
   cmake .. -DCMAKE_BUILD_TYPE=Release -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
@@ -119,26 +124,35 @@ Build environment
 - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
-- Apply the patches in TrenchBroom/patches/wxWidgets
+- Apply the patches in TrenchBroom/patches/wxWidgets as follows:
+  patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 
-  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6
-- Run make, then sudo make install
+  ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=11 --prefix=$(pwd)/install
+- Run
+  make
+  make install
 - Change into wxwidgets/build-debug
 - Run 
-  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6
-- Run make, then sudo make install
+  ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=11 --prefix=$(pwd)/install
+- Run
+  make
+  make install
 
 4. Build
 - For a release build:
   mkdir build-ninja
   cd build-ninja
-  cmake .. -GNinja
+  cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
   ninja
 
 - To generate an Xcode project for developing with:
   mkdir build-xcode
   cd build-xcode
-  cmake .. -GXcode
+  cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-debug/install
   open TrenchBroom.xcodeproj
+
+Notes
+- You can install your preferred wxWidgets configuration using make install. If you wish to do this, then you can omit specifying the wxWidgets_PREFIX variable when generating the build configs with Cmake.

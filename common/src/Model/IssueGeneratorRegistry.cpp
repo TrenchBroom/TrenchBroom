@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,9 +36,7 @@ namespace TrenchBroom {
 
         IssueQuickFixList IssueGeneratorRegistry::quickFixes(const IssueType issueTypes) const {
             IssueQuickFixList result;
-            IssueGeneratorList::const_iterator it, end;
-            for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
-                const IssueGenerator* generator = *it;
+            for (const IssueGenerator* generator : m_generators) {
                 if ((generator->type() & issueTypes) != 0)
                     VectorUtils::append(result, generator->quickFixes());
             }
@@ -46,7 +44,7 @@ namespace TrenchBroom {
         }
 
         void IssueGeneratorRegistry::registerGenerator(IssueGenerator* generator) {
-            assert(generator != NULL);
+            ensure(generator != NULL, "generator is null");
             assert(!VectorUtils::contains(m_generators, generator));
             m_generators.push_back(generator);
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {
-            assert(other != NULL);
+            ensure(other != NULL, "other is null");
             if (type() != other->type())
                 return false;
             if (name() != other->name())
@@ -158,15 +158,15 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options, const size_t defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, defaultValue),
         m_options(options) {}
         
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::Array& options) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription),
         m_options(options) {}
         
-        const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
+        const ChoiceAttributeOption::Array& ChoiceAttributeDefinition::options() const {
             return m_options;
         }
 
@@ -211,16 +211,14 @@ namespace TrenchBroom {
         
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
-            FlagsAttributeOption::List::const_iterator it, end;
-            for (it = m_options.begin(), end = m_options.end(); it != end; ++it) {
-                const FlagsAttributeOption& option = *it;
+            for (const FlagsAttributeOption& option : m_options) {
                 if (option.isDefault())
                     value |= option.value();
             }
             return value;
         }
 
-        const FlagsAttributeOption::List& FlagsAttributeDefinition::options() const {
+        const FlagsAttributeOption::Array& FlagsAttributeDefinition::options() const {
             return m_options;
         }
         

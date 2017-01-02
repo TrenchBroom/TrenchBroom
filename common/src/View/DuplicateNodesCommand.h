@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,15 +29,19 @@ namespace TrenchBroom {
         class DuplicateNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<DuplicateNodesCommand> Ptr;
+            typedef std::shared_ptr<DuplicateNodesCommand> Ptr;
         private:
             Model::NodeList m_previouslySelectedNodes;
-            Model::NodeList m_addedNodes;
+            Model::NodeList m_nodesToSelect;
+            Model::ParentChildrenMap m_addedNodes;
+            bool m_firstExecution;
         public:
             static Ptr duplicate();
         private:
             DuplicateNodesCommand();
-
+        public:
+            ~DuplicateNodesCommand();
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             

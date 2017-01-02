@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
 
         ResizeBrushesToolController::~ResizeBrushesToolController() {}
@@ -104,14 +104,8 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             
-            const Model::BrushFaceList& dragFaces = m_tool->dragFaces();
-            Model::BrushFaceList::const_iterator faceIt, faceEnd;
-            Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
-            for (faceIt = dragFaces.begin(), faceEnd = dragFaces.end(); faceIt != faceEnd; ++faceIt) {
-                const Model::BrushFace* face = *faceIt;
-                const Model::BrushFace::EdgeList edges = face->edges();
-                for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                    const Model::BrushEdge* edge = *edgeIt;
+            for (const Model::BrushFace* face : m_tool->dragFaces()) {
+                for (const Model::BrushEdge* edge : face->edges()) {
                     vertices.push_back(Vertex(edge->firstVertex()->position()));
                     vertices.push_back(Vertex(edge->secondVertex()->position()));
                 }

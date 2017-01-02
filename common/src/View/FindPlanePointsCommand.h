@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class FindPlanePointsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<FindPlanePointsCommand> Ptr;
+            typedef std::shared_ptr<FindPlanePointsCommand> Ptr;
         private:
             Model::Snapshot* m_snapshot;
         public:

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -25,6 +25,9 @@
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
+#include <wx/window.h>
+#include <wx/event.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -40,7 +43,7 @@ namespace TrenchBroom {
         m_enabled(true) {}
 
         void ToolBox::addWindow(wxWindow* window) {
-            assert(window != NULL);
+            ensure(window != NULL, "window is null");
 
             window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
             window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
@@ -98,7 +101,7 @@ namespace TrenchBroom {
         }
 
         void ToolBox::addTool(Tool* tool) {
-            assert(tool != NULL);
+            ensure(tool != NULL, "tool is null");
             tool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
         }
 
@@ -273,8 +276,8 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateWhen(Tool* master, Tool* slave) {
-            assert(master != NULL);
-            assert(slave != NULL);
+            ensure(master != NULL, "master is null");
+            ensure(slave != NULL, "slave is null");
             assert(master != slave);
             m_deactivateWhen[master].push_back(slave);
         }
@@ -340,13 +343,10 @@ namespace TrenchBroom {
             if (!tool->activate())
                 return false;
 
-            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
-            if (mapIt != m_deactivateWhen.end()) {
-                const ToolList& slaves = mapIt->second;
-                ToolList::const_iterator listIt, listEnd;
-                for (listIt = slaves.begin(), listEnd = slaves.end(); listIt != listEnd; ++listIt) {
-                    Tool* slave = *listIt;
-
+            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            if (it != std::end(m_deactivateWhen)) {
+                const ToolList& slaves = it->second;
+                for (Tool* slave : slaves) {
                     slave->deactivate();
                     toolDeactivatedNotifier(slave);
                 }
@@ -357,13 +357,13 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateTool(Tool* tool) {
-            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
-            if (mapIt != m_deactivateWhen.end()) {
-                const ToolList& slaves = mapIt->second;
-                ToolList::const_iterator listIt, listEnd;
-                for (listIt = slaves.begin(), listEnd = slaves.end(); listIt != listEnd; ++listIt) {
-                    Tool* slave = *listIt;
-
+            if (dragging())
+                cancelMouseDrag();
+                
+            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            if (it != std::end(m_deactivateWhen)) {
+                const ToolList& slaves = it->second;
+                for (Tool* slave : slaves) {
                     slave->activate();
                     toolActivatedNotifier(slave);
                 }

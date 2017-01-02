@@ -23,7 +23,7 @@
 - Make typedefs for templates, vectors and smart pointers, e.g.
 typedef Vec<double,3> Vec3d;
 typedef std::vector<MyClass> MyClassList;
-typedef std::tr1::shared_ptr<MyClass> MyClassPtr;
+typedef std::shared_ptr<MyClass> MyClassPtr;
 
 # Features
 - The entire source code and test cases must compile without warnings.

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,10 +33,8 @@ namespace TrenchBroom {
         void BoundsContainsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.contains(entity->bounds())); }
         
         void BoundsContainsNodeVisitor::doVisit(const Brush* brush)   {
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                if (!m_bounds.contains((*it)->position())) {
+            for (const BrushVertex* vertex : brush->vertices()) {
+                if (!m_bounds.contains(vertex->position())) {
                     setResult(false);
                     return;
                 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         m_begin(begin),
         m_end(end),
         m_palette(palette) {
-            assert(begin < end);
+            assert(m_begin < m_end);
             unused(m_end);
         }
 
@@ -231,8 +231,8 @@ namespace TrenchBroom {
             const size_t frameCount = readSize<int32_t>(cursor);
             
             parseSkins(cursor, *model, skinCount, skinWidth, skinHeight);
-            const MdlSkinVertexList skinVertices = parseSkinVertices(cursor, skinVertexCount);
-            const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
+            const MdlSkinVertexArray skinVertices = parseSkinVertices(cursor, skinVertexCount);
+            const MdlSkinTriangleArray skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
             parseFrames(cursor, *model, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
             assert(cursor <= m_end);
@@ -261,8 +261,8 @@ namespace TrenchBroom {
                     const size_t pictureCount = readSize<int32_t>(cursor);
                     const char* base = cursor;
                     
-                    Assets::TextureList textures(pictureCount);
-                    Assets::MdlTimeList times(pictureCount);
+                    Assets::TextureArray textures(pictureCount);
+                    Assets::MdlTimeArray times(pictureCount);
                     
                     for (size_t j = 0; j < pictureCount; ++j) {
                         cursor = base + j * sizeof(float);
@@ -284,8 +284,8 @@ namespace TrenchBroom {
             }
         }
 
-        MdlParser::MdlSkinVertexList MdlParser::parseSkinVertices(const char*& cursor, const size_t count) {
-            MdlSkinVertexList vertices(count);
+        MdlParser::MdlSkinVertexArray MdlParser::parseSkinVertices(const char*& cursor, const size_t count) {
+            MdlSkinVertexArray vertices(count);
             for (size_t i = 0; i < count; ++i) {
                 vertices[i].onseam = readBool<int32_t>(cursor);
                 vertices[i].s = readInt<int32_t>(cursor);
@@ -294,8 +294,8 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        MdlParser::MdlSkinTriangleList MdlParser::parseSkinTriangles(const char*& cursor, const size_t count) {
-            MdlSkinTriangleList triangles(count);
+        MdlParser::MdlSkinTriangleArray MdlParser::parseSkinTriangles(const char*& cursor, const size_t count) {
+            MdlSkinTriangleArray triangles(count);
             for (size_t i = 0; i < count; ++i) {
                 triangles[i].front = readBool<int32_t>(cursor);
                 for (size_t j = 0; j < 3; ++j)
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             return triangles;
         }
 
-        void MdlParser::parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        void MdlParser::parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleArray& skinTriangles, const MdlSkinVertexArray& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
             for (size_t i = 0; i < count; ++i) {
                 const int type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame

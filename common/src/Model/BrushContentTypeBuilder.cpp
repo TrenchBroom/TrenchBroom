@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             bool transparent = false;
             
             BrushContentType::List::const_iterator it, end;
-            for (it = m_contentTypes.begin(), end = m_contentTypes.end(); it != end; ++it) {
+            for (it = std::begin(m_contentTypes), end = std::end(m_contentTypes); it != end; ++it) {
                 const BrushContentType& contentType = *it;
                 if (contentType.evaluate(brush)) {
                     flags |= contentType.flagValue();

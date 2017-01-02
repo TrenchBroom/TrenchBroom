@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,13 +24,13 @@
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SplitterWindow2.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
 #include "View/TitledPanel.h"
+#include "View/ViewConstants.h"
 
 #include <wx/notebook.h>
 #include <wx/persist.h>
@@ -52,8 +52,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            if (!document->setTexture(event.texture()))
-                event.Veto();
+            document->setTexture(event.texture());
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
@@ -92,10 +91,10 @@ namespace TrenchBroom {
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            m_textureCollectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
+            wxWindow* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_textureCollectionEditor, 1, wxEXPAND);
+            sizer->Add(collectionEditor, 1, wxEXPAND);
             panel->getPanel()->SetSizer(sizer);
             
             return panel;

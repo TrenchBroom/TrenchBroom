@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         
         class GLContext : public wxGLContext {
         public:
-            typedef std::tr1::shared_ptr<GLContext> Ptr;
+            typedef std::shared_ptr<GLContext> Ptr;
         private:
             GLContextManager* m_contextManager;
         public:

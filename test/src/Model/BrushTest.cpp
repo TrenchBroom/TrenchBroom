@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,7 @@
 #include "TestUtils.h"
 
 #include "IO/NodeReader.h"
+#include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushContentTypeBuilder.h"
@@ -365,8 +366,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+            
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
         
@@ -387,8 +391,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
         
@@ -407,8 +414,11 @@ namespace TrenchBroom {
 
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_TRUE(nodes.empty());
         }
         
@@ -582,8 +592,8 @@ namespace TrenchBroom {
         
         static void assertHasFace(const Brush& brush, const BrushFace& face) {
             const BrushFaceList& faces = brush.faces();
-            const BrushFaceList::const_iterator it = std::find_if(faces.begin(), faces.end(), MatchFace(face));
-            ASSERT_TRUE(it != faces.end());
+            const BrushFaceList::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
+            ASSERT_TRUE(it != std::end(faces));
         }
         
         TEST(BrushTest, clone) {
@@ -726,16 +736,66 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
-            const Vec3 vertex(32.0, 32.0, 32.0);
-            Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, vertex), Vec3(-16.0, -16.0, 0.0));
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), newVertexPositions[0]);
+            const Vec3 p1(-32.0, -32.0, -32.0);
+            const Vec3 p2(-32.0, -32.0, +32.0);
+            const Vec3 p3(-32.0, +32.0, -32.0);
+            const Vec3 p4(-32.0, +32.0, +32.0);
+            const Vec3 p5(+32.0, -32.0, -32.0);
+            const Vec3 p6(+32.0, -32.0, +32.0);
+            const Vec3 p7(+32.0, +32.0, -32.0);
+            const Vec3 p8(+32.0, +32.0, +32.0);
+            const Vec3 p9(+16.0, +16.0, +32.0);
             
-            newVertexPositions = brush->moveVertices(worldBounds, newVertexPositions, Vec3(16.0, 16.0, 0.0));
+            Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(vertex, newVertexPositions[0]);
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p6);
+            assertTexture("right",  brush, p6, p7, p9);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p7);
+            assertTexture("back",   brush, p4, p9, p7);
+            assertTexture("top",    brush, p2, p6, p9, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+            
+            newVertexPositions = brush->moveVertices(worldBounds, newVertexPositions, p8 - p9);
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p8, newVertexPositions[0]);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, moveTetrahedronVertexToOpposideSide) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            const Vec3 top(0.0, 0.0, +16.0);
+            
+            Vec3::List points;
+            points.push_back(Vec3(-16.0, -16.0,   0.0));
+            points.push_back(Vec3(+16.0, -16.0,   0.0));
+            points.push_back(Vec3(  0.0, +16.0,   0.0));
+            points.push_back(top);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(points, "some_texture");
+            
+            Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, top), Vec3(0.0, 0.0, -32.0));
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(Vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
+            
+            brush->rebuildGeometry(worldBounds);
+            ASSERT_TRUE(brush->fullySpecified());
             
             delete brush;
         }
@@ -745,17 +805,51 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
-            const Edge3 edge(Vec3(-32.0, -32.0, -32.0), Vec3(32.0, -32.0, -32.0));
-            Edge3::List newEdgePositions = brush->moveEdges(worldBounds, Edge3::List(1, edge), Vec3(-16.0, -16.0, 0.0));
+            const Vec3 p1  (-32.0, -32.0, -32.0);
+            const Vec3 p2  (-32.0, -32.0, +32.0);
+            const Vec3 p3  (-32.0, +32.0, -32.0);
+            const Vec3 p4  (-32.0, +32.0, +32.0);
+            const Vec3 p5  (+32.0, -32.0, -32.0);
+            const Vec3 p6  (+32.0, -32.0, +32.0);
+            const Vec3 p7  (+32.0, +32.0, -32.0);
+            const Vec3 p8  (+32.0, +32.0, +32.0);
+            const Vec3 p1_2(-32.0, -32.0, -16.0);
+            const Vec3 p2_2(-32.0, -32.0, +48.0);
+
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
+            const Edge3 edge(p1, p2);
+            Edge3::List newEdgePositions = brush->moveEdges(worldBounds, Edge3::List(1, edge), p1_2 - p1);
             ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(Edge3(Vec3(-48.0, -48.0, -32.0), Vec3(16.0, -48.0, -32.0)), newEdgePositions[0]);
+            ASSERT_EQ(Edge3(p1_2, p2_2), newEdgePositions[0]);
             
-            newEdgePositions = brush->moveEdges(worldBounds, newEdgePositions, Vec3(16.0, 16.0, 0.0));
+            assertTexture("left",   brush, p1_2, p2_2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1_2, p5, p6, p2_2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2_2, p6, p8);
+            assertTexture("top",    brush, p2_2, p8, p4);
+            assertTexture("bottom", brush, p1_2, p3, p5);
+            assertTexture("bottom", brush, p3, p7, p5);
+            
+            newEdgePositions = brush->moveEdges(worldBounds, newEdgePositions, p1 - p1_2);
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(edge, newEdgePositions[0]);
             
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
             delete brush;
         }
         
@@ -764,14 +858,42 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
-            const Edge3 edge(Vec3(-32.0, -32.0, -32.0), Vec3(32.0, -32.0, -32.0));
+            const Vec3 p1(-32.0, -32.0, -32.0);
+            const Vec3 p2(-32.0, -32.0, +32.0);
+            const Vec3 p3(-32.0, +32.0, -32.0);
+            const Vec3 p4(-32.0, +32.0, +32.0);
+            const Vec3 p5(+32.0, -32.0, -32.0);
+            const Vec3 p6(+32.0, -32.0, +32.0);
+            const Vec3 p7(+32.0, +32.0, -32.0);
+            const Vec3 p8(+32.0, +32.0, +32.0);
+            const Vec3 p9(-48.0, -48.0,   0.0);
+
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+            
+            const Edge3 edge(p1, p2);
             const Vec3 newVertexPosition = brush->splitEdge(worldBounds, edge, Vec3(-16.0, -16.0, 0.0));
             
-            ASSERT_VEC_EQ(Vec3(-16.0, -48.0, -32.0), newVertexPosition);
+            ASSERT_VEC_EQ(p9, newVertexPosition);
             ASSERT_EQ(9u, brush->vertexCount());
-            ASSERT_EQ(15u, brush->edgeCount());
+            ASSERT_EQ(17u, brush->edgeCount());
+            
+            assertTexture("left",   brush, p1, p9, p3);
+            assertTexture("left",   brush, p3, p9, p4);
+            assertTexture("left",   brush, p2, p4, p9);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p9);
+            assertTexture("front",  brush, p5, p6, p9);
+            assertTexture("front",  brush, p2, p9, p6);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
             
             delete brush;
         }
@@ -826,27 +948,108 @@ namespace TrenchBroom {
             delete brush;
         }
         
+        TEST(BrushTest, moveFaceFailure) {
+            // https://github.com/kduske/TrenchBroom/issues/1499
+            
+            const Vec3 p1 (-4408.0, 16.0, 288.0);
+            const Vec3 p2 (-4384.0, 40.0, 288.0);
+            const Vec3 p3 (-4384.0, 64.0, 288.0);
+            const Vec3 p4 (-4416.0, 64.0, 288.0);
+            const Vec3 p5 (-4424.0, 48.0, 288.0); // left back  top
+            const Vec3 p6 (-4424.0, 16.0, 288.0); // left front top
+            const Vec3 p7 (-4416.0, 64.0, 224.0);
+            const Vec3 p8 (-4384.0, 64.0, 224.0);
+            const Vec3 p9 (-4384.0, 40.0, 224.0);
+            const Vec3 p10(-4408.0, 16.0, 224.0);
+            const Vec3 p11(-4424.0, 16.0, 224.0);
+            const Vec3 p12(-4424.0, 48.0, 224.0);
+
+            Vec3::List points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+            points.push_back(p4);
+            points.push_back(p5);
+            points.push_back(p6);
+            points.push_back(p7);
+            points.push_back(p8);
+            points.push_back(p9);
+            points.push_back(p10);
+            points.push_back(p11);
+            points.push_back(p12);
+            
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(points, "asdf");
+            
+            Vec3::List topFacePos;
+            topFacePos.push_back(p1);
+            topFacePos.push_back(p2);
+            topFacePos.push_back(p3);
+            topFacePos.push_back(p4);
+            topFacePos.push_back(p5);
+            topFacePos.push_back(p6);
+            
+            const Polygon3 topFace(topFacePos);
+            
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(+16.0,   0.0,   0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(-16.0,   0.0,   0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(  0.0, +16.0,   0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(  0.0, -16.0,   0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(  0.0,   0.0, +16.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(  0.0,   0.0, -16.0)));
+        }
+
         TEST(BrushTest, splitFace) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
             
+            const Vec3 p1(-32.0, -32.0, -32.0);
+            const Vec3 p2(-32.0, -32.0, +32.0);
+            const Vec3 p3(-32.0, +32.0, -32.0);
+            const Vec3 p4(-32.0, +32.0, +32.0);
+            const Vec3 p5(+32.0, -32.0, -32.0);
+            const Vec3 p6(+32.0, -32.0, +32.0);
+            const Vec3 p7(+32.0, +32.0, -32.0);
+            const Vec3 p8(+32.0, +32.0, +32.0);
+            const Vec3 p9(  0.0,   0.0, +48.0);
+            
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p8, p4);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
             Vec3::List vertexPositions(4);
-            vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
-            vertexPositions[1] = Vec3(+32.0, -32.0, +32.0);
-            vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
-            vertexPositions[3] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[0] = p2;
+            vertexPositions[1] = p6;
+            vertexPositions[2] = p8;
+            vertexPositions[3] = p4;
             
             const Polygon3 face(vertexPositions);
             
-            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(-16.0, +8.0, +4.0));
+            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(0.0, 0.0, +16.0));
             
-            ASSERT_VEC_EQ(Vec3(-16.0, +8.0, 36.0), newVertexPosition);
+            ASSERT_VEC_EQ(p9, newVertexPosition);
             ASSERT_EQ(9u, brush->vertexCount());
             ASSERT_EQ(16u, brush->edgeCount());
             
+            assertTexture("left",   brush, p1, p2, p4, p3);
+            assertTexture("right",  brush, p5, p7, p8, p6);
+            assertTexture("front",  brush, p1, p5, p6, p2);
+            assertTexture("back",   brush, p3, p4, p8, p7);
+            assertTexture("top",    brush, p2, p6, p9);
+            assertTexture("top",    brush, p6, p8, p9);
+            assertTexture("top",    brush, p8, p4, p9);
+            assertTexture("top",    brush, p4, p2, p9);
+            assertTexture("bottom", brush, p1, p3, p7, p5);
+
             delete brush;
         }
         
@@ -866,8 +1069,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+
+            const NodeList nodes = reader.read(worldBounds, status);
             assert(nodes.size() == 1);
             
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -876,6 +1082,896 @@ namespace TrenchBroom {
             const Vec3::List newPositions = brush->moveVertices(worldBounds, Vec3::List(1, p), d);
             ASSERT_EQ(1u, newPositions.size());
             ASSERT_VEC_EQ(p + d, newPositions.front());
+        }
+        
+        TEST(BrushTest, moveVertexInwardWithoutMerges) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            const Vec3d p9(+56.0, +56.0, +56.0);
+
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(15u, brush->edgeCount());
+            ASSERT_EQ(9u, brush->faceCount());
+
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p4));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p6));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p9, p6, p7));
+            ASSERT_TRUE(brush->hasFace(p9, p4, p6));
+            ASSERT_TRUE(brush->hasFace(p9, p7, p4));
+        }
+        
+        TEST(BrushTest, moveVertexOutwardWithoutMerges) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            const Vec3d p9(+72.0, +72.0, +72.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(15u, brush->edgeCount());
+            ASSERT_EQ(9u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p9));
+            ASSERT_TRUE(brush->hasFace(p2, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p9));
+            ASSERT_TRUE(brush->hasFace(p3, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p9, p6));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9));
+        }
+        
+        TEST(BrushTest, moveVertexWithOneOuterNeighbourMerge) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+56.0, +56.0, +56.0);
+            const Vec3d p9(+56.0, +56.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(14u, brush->edgeCount());
+            ASSERT_EQ(8u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p6));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p9, p6, p7));
+            ASSERT_TRUE(brush->hasFace(p9, p7, p4));
+        }
+        
+        TEST(BrushTest, moveVertexWithTwoOuterNeighbourMerges) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+56.0, +56.0, +56.0);
+            const Vec3d p9(+64.0, +64.0, +56.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(13u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9, p6));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p4));
+            ASSERT_TRUE(brush->hasFace(p9, p4, p6));
+        }
+        
+        TEST(BrushTest, moveVertexWithAllOuterNeighbourMerges) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+56.0, +56.0, +56.0);
+            const Vec3d p9(+64.0, +64.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(6u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9, p6));
+        }
+        
+        TEST(BrushTest, moveVertexWithAllInnerNeighbourMerge) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            const Vec3d p9(  0.0,   0.0,   0.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(0u, result.size());
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p6));
+            ASSERT_TRUE(brush->hasFace(p4, p6, p7));
+        }
+        
+        TEST(BrushTest, moveVertexUpThroughPlane) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +56.0);
+            const Vec3d p9(+64.0, +64.0, +72.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(13u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9, p6));
+            ASSERT_TRUE(brush->hasFace(p2, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p9));
+        }
+        
+        TEST(BrushTest, moveVertexOntoEdge) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0,   0.0);
+            const Vec3d p9(  0.0,   0.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(0u, result.size());
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p6));
+            ASSERT_TRUE(brush->hasFace(p4, p6, p7));
+        }
+        
+        TEST(BrushTest, moveVertexOntoIncidentVertex) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p7 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p7, result[0]);
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p6));
+            ASSERT_TRUE(brush->hasFace(p4, p6, p7));
+        }
+        
+        TEST(BrushTest, moveVertexOntoIncidentVertexInOppositeDirection) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p7), p8 - p7);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p8, result[0]);
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p8));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p8)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p8)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p8)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p8, p4));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p5));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p8));
+            ASSERT_TRUE(brush->hasFace(p5, p8, p6));
+            ASSERT_TRUE(brush->hasFace(p3, p8, p5));
+        }
+        
+        TEST(BrushTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            const Vec3d p9(+80.0, +64.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p6), p9 - p6);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p1, p5, p2));
+            ASSERT_TRUE(brush->hasFace(p2, p5, p9));
+            ASSERT_TRUE(brush->hasFace(p2, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9));
+        }
+
+        TEST(BrushTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
+            const Vec3d p1(-64.0, -64.0, -64.0);
+            const Vec3d p2(-64.0, -64.0, +64.0);
+            const Vec3d p3(-64.0, +64.0, -64.0);
+            const Vec3d p4(-64.0, +64.0, +64.0);
+            const Vec3d p5(+64.0, -64.0, -64.0);
+            const Vec3d p6(+64.0, -64.0, +64.0);
+            const Vec3d p7(+64.0, +64.0, -64.0);
+            const Vec3d p8(+64.0, +64.0, +64.0);
+            const Vec3d p9(+80.0, -64.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p8), p9 - p8);
+            ASSERT_EQ(1u, result.size());
+            ASSERT_VEC_EQ(p9, result[0]);
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(7u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p9));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p1, p5, p9, p2));
+            ASSERT_TRUE(brush->hasFace(p2, p9, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p7));
+            ASSERT_TRUE(brush->hasFace(p4, p9, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p9));
+        }
+        
+        TEST(BrushTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
+            const Vec3d  p1(-64.0, -64.0, -64.0);
+            const Vec3d  p2(-64.0, -64.0, +64.0);
+            const Vec3d  p3(-64.0, +64.0, -64.0);
+            const Vec3d  p4(-64.0, +64.0, +64.0);
+            const Vec3d  p5(+64.0, -64.0, -64.0);
+            const Vec3d  p6(+64.0, -64.0, +64.0);
+            const Vec3d  p7(+64.0, +64.0, -64.0);
+            const Vec3d  p8(+64.0, +64.0, +64.0);
+            const Vec3d  p9(+80.0,   0.0, +64.0);
+            const Vec3d p10(+64.0,   0.0, +64.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            oldPositions.push_back(p5);
+            oldPositions.push_back(p6);
+            oldPositions.push_back(p7);
+            oldPositions.push_back(p8);
+            oldPositions.push_back(p9);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+            
+            const Vec3d::List result = brush->moveVertices(worldBounds, Vec3d::List(1, p9), p10 - p9);
+            ASSERT_EQ(0u, result.size());
+            
+            ASSERT_EQ(8u, brush->vertexCount());
+            ASSERT_EQ(12u, brush->edgeCount());
+            ASSERT_EQ(6u, brush->faceCount());
+            
+            ASSERT_TRUE(brush->hasVertex(p1));
+            ASSERT_TRUE(brush->hasVertex(p2));
+            ASSERT_TRUE(brush->hasVertex(p3));
+            ASSERT_TRUE(brush->hasVertex(p4));
+            ASSERT_TRUE(brush->hasVertex(p5));
+            ASSERT_TRUE(brush->hasVertex(p6));
+            ASSERT_TRUE(brush->hasVertex(p7));
+            ASSERT_TRUE(brush->hasVertex(p8));
+            
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p8)));
+            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p8)));
+            
+            ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
+            ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
+            ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
+            ASSERT_TRUE(brush->hasFace(p2, p6, p8, p4));
+            ASSERT_TRUE(brush->hasFace(p3, p4, p8, p7));
+            ASSERT_TRUE(brush->hasFace(p5, p7, p8, p6));
+        }
+        
+        TEST(BrushTest, moveVertexFailing1) {
+            const Vec3d p1(-64.0, -64.0,   0.0);
+            const Vec3d p2(+64.0, -64.0,   0.0);
+            const Vec3d p3(  0.0, +64.0,   0.0);
+            const Vec3d p4(  0.0,   0.0, +32.0);
+            
+            Vec3d::List oldPositions;
+            oldPositions.push_back(p1);
+            oldPositions.push_back(p2);
+            oldPositions.push_back(p3);
+            oldPositions.push_back(p4);
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createBrush(oldPositions, "texture");
+
+            for (size_t i = 0; i < oldPositions.size(); ++i) {
+                for (size_t j = 0; j < oldPositions.size(); ++j) {
+                    if (i != j) {
+                        ASSERT_FALSE(brush->canMoveVertices(worldBounds, Vec3d::List(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
+                    }
+                }
+            }
         }
         
         TEST(BrushTest, subtractCuboidFromCuboid) {
@@ -900,42 +1996,137 @@ namespace TrenchBroom {
             Brush* left = NULL;
             Brush* top = NULL;
             Brush* right = NULL;
-            BrushList::const_iterator it, end;
-            for (it = result.begin(), end = result.end(); it != end; ++it) {
-                Brush* brush = *it;
-                if (brush->findFaceByNormal(Vec3::PosZ) != NULL)
+            
+            for (Brush* brush : result) {
+                if (brush->findFace(Vec3::PosZ) != NULL)
                     top = brush;
-                else if (brush->findFaceByNormal(leftTopNormal) != NULL)
+                else if (brush->findFace(leftTopNormal) != NULL)
                     left = brush;
-                else if (brush->findFaceByNormal(rightTopNormal) != NULL)
+                else if (brush->findFace(rightTopNormal) != NULL)
                     right = brush;
             }
             
             ASSERT_TRUE(left != NULL && top != NULL && right != NULL);
             
-            // left brush
-            ASSERT_EQ(subtrahendTexture, left->findFaceByNormal(Vec3::PosX)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegX)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(defaultTexture,    left->findFaceByNormal(leftTopNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    left->findFaceByNormal(Vec3::NegZ)->textureName());
+            // left brush faces
+            ASSERT_TRUE(left->findFace(Vec3::PosX) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegX) != NULL); // failure here
+            ASSERT_TRUE(left->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(left->findFace(leftTopNormal) != NULL);
+            ASSERT_TRUE(left->findFace(Vec3::NegZ) != NULL);
             
-            // top brush
-            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topLeftNormal)->textureName());
-            ASSERT_EQ(defaultTexture,    top->findFaceByNormal(topRightNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(minuendTexture,    top->findFaceByNormal(Vec3::PosZ)->textureName());
-            ASSERT_EQ(subtrahendTexture, top->findFaceByNormal(Vec3::NegZ)->textureName());
+            // left brush textures
+            ASSERT_EQ(subtrahendTexture, left->findFace(Vec3::PosX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    left->findFace(leftTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    left->findFace(Vec3::NegZ)->textureName());
             
-            // right brush
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosX)->textureName());
-            ASSERT_EQ(subtrahendTexture, right->findFaceByNormal(Vec3::NegX)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::PosY)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegY)->textureName());
-            ASSERT_EQ(defaultTexture,    right->findFaceByNormal(rightTopNormal)->textureName());
-            ASSERT_EQ(minuendTexture,    right->findFaceByNormal(Vec3::NegZ)->textureName());
+            // top brush faces
+            ASSERT_TRUE(top->findFace(topLeftNormal) != NULL);
+            ASSERT_TRUE(top->findFace(topRightNormal) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::PosZ) != NULL);
+            ASSERT_TRUE(top->findFace(Vec3::NegZ) != NULL);
+            
+            // top brush textures
+            ASSERT_EQ(defaultTexture,    top->findFace(topLeftNormal)->textureName());
+            ASSERT_EQ(defaultTexture,    top->findFace(topRightNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(minuendTexture,    top->findFace(Vec3::PosZ)->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(Vec3::NegZ)->textureName());
+            
+            // right brush faces
+            ASSERT_TRUE(right->findFace(Vec3::PosX) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegX) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::PosY) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegY) != NULL);
+            ASSERT_TRUE(right->findFace(rightTopNormal) != NULL);
+            ASSERT_TRUE(right->findFace(Vec3::NegZ) != NULL);
+            
+            // right brush textures
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosX)->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(Vec3::NegX)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::PosY)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::NegY)->textureName());
+            ASSERT_EQ(defaultTexture,    right->findFace(rightTopNormal)->textureName());
+            ASSERT_EQ(minuendTexture,    right->findFace(Vec3::NegZ)->textureName());
+        }
+        
+        TEST(BrushTest, subtractTruncatedCones) {
+            // https://github.com/kduske/TrenchBroom/issues/1469
+            
+            const String minuendStr("{\n"
+                                    "( 29.393876913416079 -16.970562748463635 32 ) ( 16.970562748495468 29.393876913411077 32 ) ( 11.313708499003496 19.595917942278447 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.257094 ] -0 1 1\n"
+                                    "( 32.784609690844263 -8.784609690813113 32 ) ( 8.7846096908451727 32.784609690839488 32 ) ( 5.856406460569815 21.856406460564131 -16 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.0887003 ] -0 1 1\n"
+                                    "( 33.94112549697229 -0 32 ) ( -0 33.941125496967288 32 ) ( -0 22.627416997982664 -16 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.46579 ] -0 1 1\n"
+                                    "( 32.784609690844718 8.7846096908399431 32 ) ( -8.7846096908083382 32.784609690839488 32 ) ( -5.8564064605325257 21.856406460564131 -16 ) __TB_empty [ -0.866025 0.5 0 -0.0124664 ] [ -0.0821995 -0.142374 -0.986394 -0.870919 ] -0 1 1\n"
+                                    "( 29.393876913416534 16.970562748490465 32 ) ( -16.970562748458633 29.393876913411304 32 ) ( -11.313708498966207 19.595917942278675 -16 ) __TB_empty [ -0.965926 0.258819 0 -0.373029 ] [ -0.0425496 -0.158797 -0.986394 -0.805874 ] -0 1 1\n"
+                                    "( -11.313708498966662 -19.595917942252527 -16 ) ( -16.970562748458633 -29.393876913384929 32 ) ( 29.393876913416079 -16.970562748463635 32 ) __TB_empty [ -0.0425496 0.158797 -0.986394 -0.30125 ] [ -0.965926 -0.258819 0 -0.00242329 ] -0 1 1\n"
+                                    "( -5.8564064605325257 -21.85640646053821 -16 ) ( -8.7846096908078835 -32.784609690813113 32 ) ( 32.784609690844263 -8.784609690813113 32 ) __TB_empty [ -0.0821995 0.142374 -0.986394 -0.474954 ] [ -0.866025 -0.5 0 -0.0709991 ] -0 1 1\n"
+                                    "( -0 -22.627416997956516 -16 ) ( -0 -33.941125496940913 32 ) ( 33.94112549697229 -0 32 ) __TB_empty [ -0.116248 0.116248 -0.986394 -0.298004 ] [ -0.707107 -0.707107 0 -0.689445 ] -0 1 1\n"
+                                    "( 5.856406460569815 -21.856406460537755 -16 ) ( 8.7846096908451727 -32.784609690813113 32 ) ( 32.784609690844718 8.7846096908399431 32 ) __TB_empty [ -0.142374 0.0821995 -0.986394 -0.219636 ] [ -0.5 -0.866025 0 -0.872314 ] -0 1 1\n"
+                                    "( 11.313708499003496 -19.595917942252072 -16 ) ( 16.970562748495922 -29.393876913384702 32 ) ( 29.393876913416534 16.970562748490465 32 ) __TB_empty [ -0.158797 0.0425496 -0.986394 -0.818881 ] [ -0.258819 -0.965926 0 -0.590811 ] -0 1 1\n"
+                                    "( 16 -16 -16 ) ( 24 -24 32 ) ( 24 24 32 ) __TB_empty [ -0.164399 0 -0.986394 -0.283475 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                    "( 16.970562748495468 29.393876913411077 32 ) ( -29.3938769133797 16.970562748490465 32 ) ( -19.595917942246615 11.313708498997812 -16 ) __TB_empty [ -0.0425496 0.158797 0.986394 0.0475388 ] [ -0.965926 -0.258819 0 -0.238751 ] -0 1 1\n"
+                                    "( 8.7846096908451727 32.784609690839488 32 ) ( -32.784609690807883 8.7846096908399431 32 ) ( -21.856406460532071 5.8564064605641306 -16 ) __TB_empty [ -0.0821995 0.142374 0.986394 -0.902102 ] [ -0.866025 -0.5 0 -0.660111 ] -0 1 1\n"
+                                    "( -0 33.941125496967288 32 ) ( -33.941125496935911 -0 32 ) ( -22.627416997950604 -0 -16 ) __TB_empty [ -0.116248 0.116248 0.986394 -0.50108 ] [ -0.707107 -0.707107 0 -0.631095 ] -0 1 1\n"
+                                    "( -8.7846096908083382 32.784609690839488 32 ) ( -32.784609690807883 -8.7846096908135678 32 ) ( -21.856406460532071 -5.8564064605377553 -16 ) __TB_empty [ -0.142374 0.0821995 0.986394 -0.198669 ] [ -0.5 -0.866025 0 -0.166748 ] -0 1 1\n"
+                                    "( -16.970562748458633 29.393876913411304 32 ) ( -29.393876913379245 -16.970562748463863 32 ) ( -19.595917942246615 -11.313708498971437 -16 ) __TB_empty [ -0.158797 0.0425496 0.986394 -0.573831 ] [ -0.258819 -0.965926 0 -0.238028 ] -0 1 1\n"
+                                    "( -29.3938769133797 16.970562748490465 32 ) ( -16.970562748458633 -29.393876913384929 32 ) ( -11.313708498966662 -19.595917942252527 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.271353 ] [ -0.158797 -0.0425496 0.986394 -0.908333 ] -0 1 1\n"
+                                    "( -32.784609690807883 8.7846096908399431 32 ) ( -8.7846096908078835 -32.784609690813113 32 ) ( -5.8564064605325257 -21.85640646053821 -16 ) __TB_empty [ -0.5 0.866025 0 -0.18634 ] [ -0.142374 -0.0821995 0.986394 -0.51593 ] -0 1 1\n"
+                                    "( -33.941125496935911 -0 32 ) ( -0 -33.941125496940913 32 ) ( -0 -22.627416997956516 -16 ) __TB_empty [ -0.707107 0.707107 0 -0.234839 ] [ -0.116248 -0.116248 0.986394 -0.668957 ] -0 1 1\n"
+                                    "( -32.784609690807883 -8.7846096908135678 32 ) ( 8.7846096908451727 -32.784609690813113 32 ) ( 5.856406460569815 -21.856406460537755 -16 ) __TB_empty [ -0.866025 0.5 0 -0.717973 ] [ -0.0821995 -0.142374 0.986394 -0.849948 ] -0 1 1\n"
+                                    "( -29.393876913379245 -16.970562748463863 32 ) ( 16.970562748495922 -29.393876913384702 32 ) ( 11.313708499003496 -19.595917942252072 -16 ) __TB_empty [ -0.965926 0.258819 0 -0.72569 ] [ -0.0425496 -0.158797 0.986394 -0.560825 ] -0 1 1\n"
+                                    "( -24 24 32 ) ( -24 -24 32 ) ( -16 -16 -16 ) __TB_empty [ -0.164399 0 0.986394 -0.81431 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                    "( 24 24 32 ) ( -24 24 32 ) ( -16 16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 -0.986394 -0.827715 ] -0 1 1\n"
+                                    "( -24 -24 32 ) ( 24 -24 32 ) ( 16 -16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 0.986394 0.641451 ] -0 1 1\n"
+                                    "( 24 24 32 ) ( 24 -24 32 ) ( -24 -24 32 ) __TB_empty [ 1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                    "( -16 -16 -16 ) ( 16 16 -16 ) ( -16 16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                    "}\n");
+            
+            const String subtrahendStr("{\n"
+                                       "( 29.393876913416079 -16.970562748463635 48 ) ( 16.970562748495468 29.393876913411077 48 ) ( 11.313708499003496 19.595917942278447 -0 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.474791 ] -0 1 1\n"
+                                       "( 32.784609690844263 -8.784609690813113 48 ) ( 8.7846096908451727 32.784609690839488 48 ) ( 5.856406460569815 21.856406460564131 -0 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.306396 ] -0 1 1\n"
+                                       "( 33.94112549697229 -0 48 ) ( -0 33.941125496967288 48 ) ( -0 22.627416997982664 -0 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.683485 ] -0 1 1\n"
+                                       "( 32.784609690844718 8.7846096908399431 48 ) ( -8.7846096908083382 32.784609690839488 48 ) ( -5.8564064605325257 21.856406460564131 -0 ) __TB_empty [ -0.866025 0.5 0 -0.0124664 ] [ -0.0821995 -0.142374 -0.986394 -0.0886002 ] -0 1 1\n"
+                                       "( 29.393876913416534 16.970562748490465 48 ) ( -16.970562748458633 29.393876913411304 48 ) ( -11.313708498966207 19.595917942278675 -0 ) __TB_empty [ -0.965926 0.258819 0 -0.373029 ] [ -0.0425496 -0.158797 -0.986394 -0.0235691 ] -0 1 1\n"
+                                       "( -11.313708498966662 -19.595917942252527 -0 ) ( -16.970562748458633 -29.393876913384929 48 ) ( 29.393876913416079 -16.970562748463635 48 ) __TB_empty [ -0.0425496 0.158797 -0.986394 -0.5189 ] [ -0.965926 -0.258819 0 -0.00242329 ] -0 1 1\n"
+                                       "( -5.8564064605325257 -21.85640646053821 -0 ) ( -8.7846096908078835 -32.784609690813113 48 ) ( 32.784609690844263 -8.784609690813113 48 ) __TB_empty [ -0.0821995 0.142374 -0.986394 -0.692604 ] [ -0.866025 -0.5 0 -0.0709991 ] -0 1 1\n"
+                                       "( -0 -22.627416997956516 -0 ) ( -0 -33.941125496940913 48 ) ( 33.94112549697229 -0 48 ) __TB_empty [ -0.116248 0.116248 -0.986394 -0.515699 ] [ -0.707107 -0.707107 0 -0.689445 ] -0 1 1\n"
+                                       "( 5.856406460569815 -21.856406460537755 -0 ) ( 8.7846096908451727 -32.784609690813113 48 ) ( 32.784609690844718 8.7846096908399431 48 ) __TB_empty [ -0.142374 0.0821995 -0.986394 -0.437332 ] [ -0.5 -0.866025 0 -0.872314 ] -0 1 1\n"
+                                       "( 11.313708499003496 -19.595917942252072 -0 ) ( 16.970562748495922 -29.393876913384702 48 ) ( 29.393876913416534 16.970562748490465 48 ) __TB_empty [ -0.158797 0.0425496 -0.986394 -0.0365772 ] [ -0.258819 -0.965926 0 -0.590811 ] -0 1 1\n"
+                                       "( 16 -16 -0 ) ( 24 -24 48 ) ( 24 24 48 ) __TB_empty [ -0.164399 0 -0.986394 -0.501169 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                       "( 16.970562748495468 29.393876913411077 48 ) ( -29.3938769133797 16.970562748490465 48 ) ( -19.595917942246615 11.313708498997812 -0 ) __TB_empty [ -0.0425496 0.158797 0.986394 0.265238 ] [ -0.965926 -0.258819 0 -0.238751 ] -0 1 1\n"
+                                       "( 8.7846096908451727 32.784609690839488 48 ) ( -32.784609690807883 8.7846096908399431 48 ) ( -21.856406460532071 5.8564064605641306 -0 ) __TB_empty [ -0.0821995 0.142374 0.986394 -0.684406 ] [ -0.866025 -0.5 0 -0.660111 ] -0 1 1\n"
+                                       "( -0 33.941125496967288 48 ) ( -33.941125496935911 -0 48 ) ( -22.627416997950604 -0 -0 ) __TB_empty [ -0.116248 0.116248 0.986394 -0.283369 ] [ -0.707107 -0.707107 0 -0.631095 ] -0 1 1\n"
+                                       "( -8.7846096908083382 32.784609690839488 48 ) ( -32.784609690807883 -8.7846096908135678 48 ) ( -21.856406460532071 -5.8564064605377553 -0 ) __TB_empty [ -0.142374 0.0821995 0.986394 -0.980953 ] [ -0.5 -0.866025 0 -0.166748 ] -0 1 1\n"
+                                       "( -16.970562748458633 29.393876913411304 48 ) ( -29.393876913379245 -16.970562748463863 48 ) ( -19.595917942246615 -11.313708498971437 -0 ) __TB_empty [ -0.158797 0.0425496 0.986394 -0.35615 ] [ -0.258819 -0.965926 0 -0.238028 ] -0 1 1\n"
+                                       "( -29.3938769133797 16.970562748490465 48 ) ( -16.970562748458633 -29.393876913384929 48 ) ( -11.313708498966662 -19.595917942252527 -0 ) __TB_empty [ -0.258819 0.965926 0 -0.271353 ] [ -0.158797 -0.0425496 0.986394 -0.690683 ] -0 1 1\n"
+                                       "( -32.784609690807883 8.7846096908399431 48 ) ( -8.7846096908078835 -32.784609690813113 48 ) ( -5.8564064605325257 -21.85640646053821 -0 ) __TB_empty [ -0.5 0.866025 0 -0.18634 ] [ -0.142374 -0.0821995 0.986394 -0.298214 ] -0 1 1\n"
+                                       "( -33.941125496935911 -0 48 ) ( -0 -33.941125496940913 48 ) ( -0 -22.627416997956516 -0 ) __TB_empty [ -0.707107 0.707107 0 -0.234839 ] [ -0.116248 -0.116248 0.986394 -0.451246 ] -0 1 1\n"
+                                       "( -32.784609690807883 -8.7846096908135678 48 ) ( 8.7846096908451727 -32.784609690813113 48 ) ( 5.856406460569815 -21.856406460537755 -0 ) __TB_empty [ -0.866025 0.5 0 -0.717973 ] [ -0.0821995 -0.142374 0.986394 -0.632298 ] -0 1 1\n"
+                                       "( -29.393876913379245 -16.970562748463863 48 ) ( 16.970562748495922 -29.393876913384702 48 ) ( 11.313708499003496 -19.595917942252072 -0 ) __TB_empty [ -0.965926 0.258819 0 -0.72569 ] [ -0.0425496 -0.158797 0.986394 -0.343115 ] -0 1 1\n"
+                                       "( -24 24 48 ) ( -24 -24 48 ) ( -16 -16 -0 ) __TB_empty [ -0.164399 0 0.986394 -0.596628 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                       "( 24 24 48 ) ( -24 24 48 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 -0.986394 -0.0454121 ] -0 1 1\n"
+                                       "( -24 -24 48 ) ( 24 -24 48 ) ( 16 -16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 0.986394 0.859102 ] -0 1 1\n"
+                                       "( 24 24 48 ) ( 24 -24 48 ) ( -24 -24 48 ) __TB_empty [ 1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                       "( -16 -16 -0 ) ( 16 16 -0 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                                       "}\n");
+            
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Valve, NULL, worldBounds);
+            
+            IO::TestParserStatus status;
+            Brush* minuend    = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
+            Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
+            
+            const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            ASSERT_FALSE(result.empty());
         }
         
         TEST(BrushTest, testAlmostDegenerateBrush) {
@@ -950,46 +2141,62 @@ namespace TrenchBroom {
             
             // This brush is almost degenerate. It should be rejected by the map loader.
             
-            const BBox3 worldBounds(4096.0);
+            const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+            
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0, nodes.size());
         }
         
-        static Vec3::List vertexPositions(Brush *brush) {
-            Vec3::List initialPositions;
-            const Brush::VertexList vertices = brush->vertices();
-            Brush::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                initialPositions.push_back((*it)->position());
-            }
-            return initialPositions;
-        }
-        
-        static void assertSnapToInteger(const String &data) {
-            const BBox3 worldBounds(4096.0);
+        static void assertCannotSnapTo(const String& data, size_t gridSize) {
+            const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
+
+            const NodeList nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1, nodes.size());
             
             Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
+            ASSERT_FALSE(brush->canSnapVertices(worldBounds, gridSize));
+        }
+        
+        static void assertCannotSnap(const String& data) {
+            assertCannotSnapTo(data, 1);
+        }
+        
+        static void assertSnapTo(const String& data, size_t gridSize) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
 
-            ASSERT_TRUE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+
+            const NodeList nodes = reader.read(worldBounds, status);
+            ASSERT_EQ(1, nodes.size());
             
-            Vec3::List newPositions = brush->snapVertices(worldBounds, initialPositions, 1);
+            Brush* brush = static_cast<Brush*>(nodes.front());
+            ASSERT_TRUE(brush->canSnapVertices(worldBounds, gridSize));
+            
+            brush->snapVertices(worldBounds, gridSize);
+            ASSERT_TRUE(brush->fullySpecified());
             
             // Ensure they were actually snapped
             {
-                const Brush::VertexList vertices = brush->vertices();
-                Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                    Vec3 pos = (*it)->position();
-                    ASSERT_TRUE(pos.isInteger());
+                size_t i = 0;
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
+                    const Vec3& pos = vertex->position();
+                    ASSERT_TRUE(pos.isInteger()) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
                 }
             }
+        }
+        
+        static void assertSnapToInteger(const String& data) {
+            assertSnapTo(data, 1);
         }
         
         TEST(BrushTest, snapIssue1198) {
@@ -1091,19 +2298,7 @@ namespace TrenchBroom {
                               "( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) column01_3 636 1354 0 1 1 //TX1\n"
                               "( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 1570.50000 1354 ) column01_3 -1442 1354 0 1 1 //TX1\n"
                               "}\n");
-
-            // This case is expected to fail to snap
-            
-            const BBox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
-            IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
-            ASSERT_EQ(1, nodes.size());
-            
-            Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
-            
-            ASSERT_FALSE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            assertCannotSnap(data);
         }
         
         TEST(BrushTest, snapIssue1232) {
@@ -1129,18 +2324,259 @@ namespace TrenchBroom {
                               "  ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 379.90191 2072 ) wbord05 497 2072 0 -1.03033 1 //TX1\n"
                               " }\n");
 
-            // This case is expected to fail to snap
+            assertSnapToInteger(data);
+        }
+        
+        TEST(BrushTest, snapIssue1395_24202) {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const String data("{\n"
+                              "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 0.943603 1.06043\n"
+                              "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
+                              "( -135.7427978515625 -370.1265869140625 739.753173828125 ) ( -15.768181800842285 -257.6954345703125 985.42547607421875 ) ( -449.98324584960937 -364.254638671875 589.064697265625 ) rock3_8 -26.8653 -10.137 25.6205 1.15394 -1\n"
+                              "( -399.50726318359375 -406.7877197265625 677.47894287109375 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( -451.79229736328125 -370.0692138671875 592.6083984375 ) rock3_8 26.1202 -7.68527 81.5004 0.875611 -1\n"
+                              "( -280.1622314453125 -291.92608642578125 924.623779296875 ) ( -18.227519989013672 -261.07952880859375 990.43829345703125 ) ( -227.88420104980469 -328.64483642578125 1009.49853515625 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "( -195.9036865234375 -282.3568115234375 876.8590087890625 ) ( -143.6192626953125 -319.08740234375 961.7213134765625 ) ( -368.19818115234375 -358.08740234375 546.27716064453125 ) rock3_8 -25.9692 -19.1265 113.395 0.943603 1.06043\n"
+                              "( -276.88287353515625 -332.21014404296875 930.47674560546875 ) ( -449.17929077148437 -407.92318725585937 599.90850830078125 ) ( -14.952971458435059 -301.37832641601562 996.28533935546875 ) rock3_8 -20.4888 -8.56413 -87.0938 1.30373 1.02112\n"
+                              "( 37.161830902099609 -335.35406494140625 1080.605712890625 ) ( -135.12174987792969 -411.084716796875 750.062744140625 ) ( -224.79318237304687 -366.23345947265625 1014.8262329101562 ) rock3_8 8.91101 4.43578 -87.0938 1.30373 1.02112\n"
+                              "( -290.354736328125 -397.304931640625 703.53790283203125 ) ( -470.618896484375 -265.4686279296875 632.53790283203125 ) ( -400.5767822265625 -391.6395263671875 703.53790283203125 ) rock3_8 8.25781 -11.1122 -165 0.865994 1\n"
+                              "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "}\n");
+
+            assertSnapToInteger(data);
+        }
+        
+        TEST(BrushTest, snapIssue1395_18995) {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const String data("{\n"
+                              "( 335 891 680 ) ( 314 881 665 ) ( 451 826 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 450 813 671 ) ( 451 826 680 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 451 826 680 ) ( 314 881 665 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 807 665 ) ( 446 754 665 ) ( 450 813 671 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 754 680 ) ( 451 826 680 ) ( 446 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 313 880 680 ) ( 310 879 677 ) ( 335 891 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 304 876 670 ) ( 312 880 665 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 314 881 665 ) ( 335 891 680 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 330 754 667 ) ( 328 754 665 ) ( 342 757 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 328 754 665 ) ( 310 879 677 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 304 876 670 ) ( 310 879 677 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 312 823 665 ) ( 304 876 670 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 310.50375366210937 879.1187744140625 676.45660400390625 ) ( 313.50375366210937 880.1187744140625 679.45660400390625 ) ( 342.50375366210937 757.1187744140625 679.45660400390625 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 308.35256958007812 876 676.95867919921875 ) ( 316.35256958007813 823 671.95867919921875 ) ( 316.35256958007813 880 671.95867919921875 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 446 754 680 ) ( 330 754 667 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 665 ) ( 328 754 665 ) ( 446 754 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 680 ) ( 342 757 680 ) ( 451 826 680 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "( 446 754 665 ) ( 446 807 665 ) ( 328 754 665 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "}\n"
+                              "\n");
+            
+            assertSnapToInteger(data);
+        }
+        
+        TEST(BrushTest, invalidBrush1332) {
+            // https://github.com/kduske/TrenchBroom/issues/1332
+            const String data("{\n"
+                              "( 91.428573608  0  4.57144165 ) ( 96 16  0 ) ( 82.285690308  0  0          ) rock5_2 0 0 0 1 1\n"
+                              "( 95.238098145  0 16          ) ( 96  2 16 ) ( 91.428573608  0  4.57144165 ) rock5_2 0 0 0 1 1\n"
+                              "( 96           16 16          ) ( 96 16  0 ) ( 96            2 16          ) rock5_2 0 0 0 1 1\n"
+                              "(  0           16 16          ) (  0  0  0 ) ( 96           16  0          ) rock5_2 0 0 90 1 1\n"
+                              "(  0            0 16          ) (  0  0  0 ) (  0           16 16          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // The next face causes an assertion failure. It's the back face, the normal is +Y.
+                              "( 96           16 16          ) (  0 16 16 ) ( 96           16  0          ) rock5_2 0 0 90 1 1\n"
+                              
+                              // Normal -Y (roughly)
+                              "(  0            0  0          ) (  0  0 16 ) ( 82.285690308  0  0          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // Normal +Z (roughly)
+                              "(  0            0 16          ) (  0 16 16 ) ( 95.238098145  0 16          ) rock5_2 0 0 0 1 1\n"
+                              
+                              // Normal -Z (roughly)
+                              "( 82.285690308  0  0          ) ( 96 16  0 ) (  0            0  0          ) rock5_2 0 0 0 1 1\n"
+                              "}");
+
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+
+            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            VectorUtils::clearAndDelete(nodes);
+        }
+        
+        
+        TEST(BrushTest, invalidBrush1395) {
+            // Brush causes assertion to fail after having had its vertices snapped
+            const String data("{\n"
+                              "( -72 497 878 ) ( -77 465 878 ) ( -77 396 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( -72 497 878 ) ( -59 536 878 ) ( -65 536 905 ) rock4_2 -30 33 0 1 1\n"
+                              "( -50 269 878 ) ( -59 279 878 ) ( -40 269 898 ) rock4_2 -1 33 0 1 1\n"
+                              "( -67 328 878 ) ( -35 269 904 ) ( -59 279 878 ) rock4_2 -1 33 0 1 1\n"
+                              "( -59 279 878 ) ( -35 269 904 ) ( -40 269 898 ) rock4_2 -1 33 0 1 1\n"
+                              "( -40 269 898 ) ( -35 269 904 ) ( 28 269 911 ) rock4_2 -30 33 0 1 1\n"
+                              "( 171 269 878 ) ( 169 269 884 ) ( 212 340 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( 212 340 878 ) ( 169 269 884 ) ( 192 315 893 ) rock4_2 -30 1 0 1 1\n"
+                              "( 192 315 893 ) ( 169 269 884 ) ( 106 269 911 ) rock4_2 -30 1 0 1 1\n"
+                              "( 28 269 911 ) ( -53 431 911 ) ( -67 524 911 ) rock4_2 -30 1 0 1 1\n"
+                              "( -67 524 911 ) ( -53 431 911 ) ( -69 515 908 ) rock4_2 -30 1 0 1 1\n"
+                              "( -69 515 908 ) ( -53 431 911 ) ( -35 269 904 ) rock4_2 -30 1 0 1 1\n"
+                              "( -35 269 904 ) ( -53 431 911 ) ( 28 269 911 ) rock4_2 -30 33 0 1 1\n"
+                              "( -65 536 911 ) ( -67 524 911 ) ( -69 515 908 ) rock4_2 -30 1 0 1 1\n"
+                              "( 205 536 911 ) ( -65 536 911 ) ( -65 536 905 ) rock4_2 -30 33 0 1 1\n"
+                              "( -65 536 905 ) ( -65 536 911 ) ( -69 515 908 ) rock4_2 -30 33 0 1 1\n"
+                              "( 231 504 911 ) ( 205 536 911 ) ( 246 507 884 ) rock4_2 -30 1 0 1 1\n"
+                              "( 246 507 884 ) ( 205 536 911 ) ( 226 536 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( 136 301 911 ) ( 231 504 911 ) ( 209 344 892 ) rock4_2 -30 1 0 1 1\n"
+                              "( 209 344 892 ) ( 231 504 911 ) ( 237 499 908 ) rock4_2 -30 1 0 1 1\n"
+                              "( 212 340 878 ) ( 192 315 893 ) ( 209 344 892 ) rock4_2 -30 1 0 1 1\n"
+                              "( 209 344 892 ) ( 192 315 893 ) ( 136 301 911 ) rock4_2 -30 1 0 1 1\n"
+                              "( 136 301 911 ) ( 192 315 893 ) ( 106 269 911 ) rock4_2 -30 1 0 1 1\n"
+                              "( 212 340 878 ) ( 209 344 892 ) ( 246 498 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( 246 498 878 ) ( 209 344 892 ) ( 237 499 908 ) rock4_2 -1 33 0 1 1\n"
+                              "( 246 511 878 ) ( 246 507 884 ) ( 226 536 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( 237 499 908 ) ( 246 507 884 ) ( 246 498 878 ) rock4_2 -1 33 0 1 1\n"
+                              "( 246 498 878 ) ( 246 507 884 ) ( 246 511 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( -65 536 905 ) ( -69 515 908 ) ( -72 497 878 ) rock4_2 -30 33 0 1 1\n"
+                              "( -67 328 878 ) ( -69 515 908 ) ( -35 269 904 ) rock4_2 -1 33 0 1 1\n"
+                              "( -69 515 908 ) ( -77 465 890 ) ( -72 497 878 ) rock4_2 -30 33 0 1 1\n"
+                              "( -72 497 878 ) ( -77 465 890 ) ( -77 465 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( -77 465 878 ) ( -77 465 890 ) ( -77 396 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( -77 396 878 ) ( -77 465 890 ) ( -67 328 878 ) rock4_2 -30 1 0 1 1\n"
+                              "( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1\n"
+                              "}\n");
             
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, NULL, worldBounds);
+
+            IO::TestParserStatus status;
             IO::NodeReader reader(data, &world);
-            const NodeList nodes = reader.read(worldBounds);
-            ASSERT_EQ(1, nodes.size());
             
-            Brush* brush = static_cast<Brush*>(nodes.front());
-            Vec3::List initialPositions = vertexPositions(brush);
+            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            VectorUtils::clearAndDelete(nodes);
+        }
+
+        TEST(BrushTest, snapToGrid64) {
+            // https://github.com/kduske/TrenchBroom/issues/1415
+            const String data("{\n"
+                              "    ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 272 32 ) ( 304 832 48 ) ( 304 272 48 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 416 448 224 ) ( 304 448 272 ) techrock 128 0 0 1 1\n"
+                              "    ( 400 224 224 ) ( 304 224 224 ) ( 400 224 272 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 352 272 272 ) ( 400 832 272 ) ( 400 272 272 ) techrock 128 -64 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 304 224 224 ) ( 416 448 224 ) techrock 128 -64 0 1 1\n"
+                              "}\n");
             
-            ASSERT_FALSE(brush->canSnapVertices(worldBounds, initialPositions, 1));
+            // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
+            // If it was able to snap, that would be OK too.
+            assertCannotSnapTo(data, 64);
+        }
+        
+        TEST(BrushTest, removeSingleVertex) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, +32.0)));
+            
+            ASSERT_EQ(7u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, -32.0)));
+            
+            ASSERT_EQ(6u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+            
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, +32.0)));
+            
+            ASSERT_EQ(5u, brush->vertexCount());
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+            
+
+            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, -32.0)));
+            
+            ASSERT_EQ(4u, brush->vertexCount());
+            ASSERT_FALSE(brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(Vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
+
+            
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, -32.0))));
+            
+            delete brush;
+        }
+
+        
+        TEST(BrushTest, removeMultipleVertices) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            BrushBuilder builder(&world, worldBounds);
+
+            Vec3::List vertices;
+            vertices.push_back(Vec3(-32.0, -32.0, -32.0));
+            vertices.push_back(Vec3(-32.0, -32.0, +32.0));
+            vertices.push_back(Vec3(-32.0, +32.0, -32.0));
+            vertices.push_back(Vec3(-32.0, +32.0, +32.0));
+            vertices.push_back(Vec3(+32.0, -32.0, -32.0));
+            vertices.push_back(Vec3(+32.0, -32.0, +32.0));
+            vertices.push_back(Vec3(+32.0, +32.0, -32.0));
+            vertices.push_back(Vec3(+32.0, +32.0, +32.0));
+            
+            for (size_t i = 0; i < 6; ++i) {
+                for (size_t j = i + 1; j < 7; ++j) {
+                    for (size_t k = j + 1; k < 8; ++k) {
+                        Vec3::List toRemove;
+                        toRemove.push_back(vertices[i]);
+                        toRemove.push_back(vertices[j]);
+                        toRemove.push_back(vertices[k]);
+                        
+                        Brush* brush = builder.createBrush(vertices, "asdf");
+                        ASSERT_TRUE(brush->canRemoveVertices(worldBounds, toRemove));
+                        brush->removeVertices(worldBounds, toRemove);
+                        
+                        for (size_t l = 0; l < 8; ++l) {
+                            if (l != i && l != j && l != k)
+                                ASSERT_TRUE(brush->hasVertex(vertices[l]));
+                        }
+                        
+                        delete brush;
+                    }
+                }
+            }
         }
     }
 }

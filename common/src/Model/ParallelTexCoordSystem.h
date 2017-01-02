@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             friend class ParallelTexCoordSystemSnapshot;
         public:
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
-            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const BrushFaceAttributes& attribs);
+            ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis);
         private:
             TexCoordSystem* doClone() const;
             TexCoordSystemSnapshot* doTakeSnapshot();
@@ -77,6 +77,9 @@ namespace TrenchBroom {
 
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
             void computeInitialAxes(const Vec3& normal, Vec3& xAxis, Vec3& yAxis) const;
+        private:
+            ParallelTexCoordSystem(const ParallelTexCoordSystem& other);
+            ParallelTexCoordSystem& operator=(const ParallelTexCoordSystem& other);
         };
     }
 }

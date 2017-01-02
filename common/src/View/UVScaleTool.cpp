@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,6 +33,8 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 #include "View/UVOriginTool.h"
+
+#include <numeric>
 
 namespace TrenchBroom {
     namespace View {
@@ -158,19 +160,18 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toTex = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             
-            Vec2f distance = Vec2f::Max;
-            
             const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                const Vec2f vertex(toTex * (*it)->position());
-                distance = absMin(distance, position - vertex);
-            }
+            Vec2f distance = std::accumulate(std::begin(vertices), std::end(vertices), Vec2f::Max,
+                                             [&toTex, &position](const Vec2f& current, const Model::BrushVertex* vertex) {
+                                                 const Vec2f vertex2(toTex * vertex->position());
+                                                 return absMin(current, position - vertex2);
+                                             });
             
             for (size_t i = 0; i < 2; ++i) {
                 if (Math::abs(distance[i]) > 4.0f / m_helper.cameraZoom())
                     distance[i] = 0.0f;
             }
+            
             return position - distance;
         }
         

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Layer* layer) :
         m_world(world),
         m_layer(layer != NULL ? layer : m_world->defaultLayer()) {
-            assert(m_world != NULL);
+            ensure(m_world != NULL, "world is null");
             assert(m_layer->isDescendantOf(m_world));
         }
 
@@ -92,11 +92,9 @@ namespace TrenchBroom {
         }
         
         void MergeNodesIntoWorldVisitor::detachNodes() const {
-            NodeList::const_iterator it, end;
-            for (it = m_nodesToDetach.begin(), end = m_nodesToDetach.end(); it != end; ++it) {
-                Node* node = *it;
+            for (Node* node : m_nodesToDetach) {
                 Node* parent = node->parent();
-                assert(parent != NULL);
+                ensure(parent != NULL, "parent is null");
                 parent->removeChild(node);
             }
             m_nodesToDetach.clear();

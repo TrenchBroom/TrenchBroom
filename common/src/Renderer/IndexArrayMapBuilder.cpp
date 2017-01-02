@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -122,9 +122,9 @@ namespace TrenchBroom {
         
         void IndexArrayMapBuilder::add(const PrimType primType, const IndexList& indices) {
             const size_t offset = m_ranges.add(primType, indices.size());
-            IndexList::iterator dest = m_indices.begin();
-            std::advance(dest, offset);
-            std::copy(indices.begin(), indices.end(), dest);
+            IndexList::iterator dest = std::begin(m_indices);
+            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
+            std::copy(std::begin(indices), std::end(indices), dest);
         }
     }
 }

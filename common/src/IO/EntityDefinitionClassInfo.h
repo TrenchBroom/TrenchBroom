@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,6 +25,7 @@
 #include "StringUtils.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/ModelDefinition.h"
 
 #include <map>
 
@@ -45,7 +46,8 @@ namespace TrenchBroom {
             BBox3 m_size;
             bool m_hasSize;
             Assets::AttributeDefinitionMap m_attributes;
-            Assets::ModelDefinitionList m_models;
+            Assets::ModelDefinition m_modelDefinition;
+            bool m_hasModelDefinition;
         public:
             EntityDefinitionClassInfo();
             EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor);
@@ -59,21 +61,20 @@ namespace TrenchBroom {
             bool hasColor() const;
             const BBox3& size() const;
             bool hasSize() const;
-            Assets::AttributeDefinitionList attributeList() const;
+            Assets::AttributeDefinitionArray attributeList() const;
             const Assets::AttributeDefinitionMap& attributeMap() const;
-            const Assets::ModelDefinitionList& models() const;
+            const Assets::ModelDefinition& modelDefinition() const;
+            bool hasModelDefinition() const;
 
             void setName(const String& name);
             void setDescription(const String& description);
             void setColor(const Color& color);
             void setSize(const BBox3& size);
             void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
-            void addAttributeDefinitions(const Assets::AttributeDefinitionList& attributeDefinitions);
             void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
-            void addModelDefinition(Assets::ModelDefinitionPtr modelDefinition);
-            void addModelDefinitions(const Assets::ModelDefinitionList& modelDefinitions);
+            void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
         
-            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
+            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringArray& classnames);
         private:
             static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,11 +22,11 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 
 #include <algorithm>
 
-#include <wx/wx.h>
 #include <wx/dir.h>
 #include <wx/file.h>
 #include <wx/filefn.h>
@@ -138,11 +138,11 @@ namespace TrenchBroom {
             
             const Path::List contents = Disk::getDirectoryContents(env.dir());
             ASSERT_EQ(5u, contents.size());
-            ASSERT_TRUE(std::find(contents.begin(), contents.end(), Path("dir1")) != contents.end());
-            ASSERT_TRUE(std::find(contents.begin(), contents.end(), Path("dir2")) != contents.end());
-            ASSERT_TRUE(std::find(contents.begin(), contents.end(), Path("anotherDir")) != contents.end());
-            ASSERT_TRUE(std::find(contents.begin(), contents.end(), Path("test.txt")) != contents.end());
-            ASSERT_TRUE(std::find(contents.begin(), contents.end(), Path("test2.map")) != contents.end());
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir1")) != std::end(contents));
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir2")) != std::end(contents));
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("anotherDir")) != std::end(contents));
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test.txt")) != std::end(contents));
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test2.map")) != std::end(contents));
         }
         
         TEST(DiskTest, openFile) {
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
             
             const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(DiskFileSystemTest, directoryExists) {
@@ -244,20 +244,20 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItems(Path("."));
             ASSERT_EQ(5u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir1")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir2")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test.txt")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test2.map")) != std::end(items));
             
-            items = fs.findItems(Path(""), FileSystem::ExtensionMatcher("TXT"));
+            items = fs.findItems(Path(""), FileExtensionMatcher("TXT"));
             ASSERT_EQ(1u, items.size());
             ASSERT_EQ(Path("test.txt"), items.front());
 
             items = fs.findItems(Path("anotherDir"));
             ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
         }
         
         TEST(DiskFileSystemTest, findItemsRecursively) {
@@ -273,26 +273,26 @@ namespace TrenchBroom {
             
             Path::List items = fs.findItemsRecursively(Path("."));
             ASSERT_EQ(8u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir1")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./dir2")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/test3.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./anotherDir/subDirTest/test2.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test.txt")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("./test2.map")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/test3.map")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/subDirTest")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/subDirTest/test2.map")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test.txt")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test2.map")) != std::end(items));
             
-            items = fs.findItemsRecursively(Path(""), FileSystem::ExtensionMatcher("MAP"));
+            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP"));
             ASSERT_EQ(3u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("test2.map")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest/test2.map")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("test2.map")) != std::end(items));
 
             items = fs.findItemsRecursively(Path("anotherDir"));
             ASSERT_EQ(3u, items.size());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/test3.map")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest")) != items.end());
-            ASSERT_TRUE(std::find(items.begin(), items.end(), Path("anotherDir/subDirTest/test2.map")) != items.end());
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest")) != std::end(items));
+            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest/test2.map")) != std::end(items));
         }
         
         // getDirectoryContents gets tested thoroughly by the tests for the find* methods
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
             
             const WritableDiskFileSystem fs(env.dir() + Path("anotherDir/.."), false);
-            ASSERT_EQ(env.dir(), fs.getPath());
+            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
         
         TEST(WritableDiskFileSystemTest, createDirectory) {
@@ -417,6 +417,46 @@ namespace TrenchBroom {
             fs.moveFile(Path("test2.map"),
                         Path("dir1/test2.map"), true);
             ASSERT_FALSE(fs.fileExists(Path("test2.map")));
+            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+        }
+        
+        TEST(WritableDiskFileSystemTest, copyFile) {
+            TestEnvironment env;
+            WritableDiskFileSystem fs(env.dir(), false);
+            
+#if defined _WIN32
+            ASSERT_THROW(fs.copyFile(Path("c:\\hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("C:\\dest.txt"), false), FileSystemException);
+#else
+            ASSERT_THROW(fs.copyFile(Path("/hopefully_nothing_here.txt"),
+                                     Path("dest.txt"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("/dest.txt"), false), FileSystemException);
+#endif
+            
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("test2.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/test3.map"), false), FileSystemException);
+            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+                                     Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
+            
+            fs.copyFile(Path("test.txt"),
+                        Path("test2.txt"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            
+            fs.copyFile(Path("test2.txt"),
+                        Path("test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            // we're trusting that the file is actually overwritten (should really test the contents here...)
+            
+            fs.copyFile(Path("test2.map"),
+                        Path("dir1/test2.map"), true);
+            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
             ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
         }
     }

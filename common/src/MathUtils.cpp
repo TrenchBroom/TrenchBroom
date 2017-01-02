@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -26,5 +26,13 @@ namespace Math {
     
     size_t pred(const size_t index, const size_t count, const size_t offset) {
         return ((index + count) - (offset % count)) % count;
+    }
+
+    double nextgreater(double value) {
+#ifdef _MSC_VER
+        return _nextafter(value, std::numeric_limits<double>::infinity());
+#else
+        return ::nextafter(value, std::numeric_limits<double>::infinity());
+#endif
     }
 }

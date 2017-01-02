@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,7 +29,7 @@ namespace TrenchBroom {
         
         class UndoableCommand : public Command {
         public:
-            typedef std::tr1::shared_ptr<UndoableCommand> Ptr;
+            typedef std::shared_ptr<UndoableCommand> Ptr;
         public:
             UndoableCommand(CommandType type, const String& name);
             virtual ~UndoableCommand();
@@ -51,6 +51,9 @@ namespace TrenchBroom {
             virtual bool doCollateWith(UndoableCommand::Ptr command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
+        private:
+            UndoableCommand(const UndoableCommand& other);
+            UndoableCommand& operator=(const UndoableCommand& other);
         };
     }
 }

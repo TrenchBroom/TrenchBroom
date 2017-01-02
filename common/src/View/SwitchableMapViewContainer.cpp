@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -93,6 +93,7 @@ namespace TrenchBroom {
                     break;
             }
             
+            SetSizer(NULL); // delete the old sizer first
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapViewBar, 0, wxEXPAND);
             sizer->Add(m_mapView, 1, wxEXPAND);
@@ -134,6 +135,10 @@ namespace TrenchBroom {
             m_toolBox->toggleClipTool();
         }
         
+        ClipTool* SwitchableMapViewContainer::clipTool() {
+            return m_toolBox->clipTool();
+        }
+
         bool SwitchableMapViewContainer::rotateObjectsToolActive() const {
             return m_toolBox->rotateObjectsToolActive();
         }
@@ -156,6 +161,10 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::toggleVertexTool() {
             m_toolBox->toggleVertexTool();
+        }
+
+        VertexTool* SwitchableMapViewContainer::vertexTool() {
+            return m_toolBox->vertexTool();
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {

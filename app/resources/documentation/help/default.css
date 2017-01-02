@@ -77,6 +77,22 @@ div.figure p {
 	padding-top: 8px;
 }
 
+div#CONTENT dl {
+}
+
+div#CONTENT dl dt {
+	font-weight: bold;
+}
+
+div#CONTENT dd {
+	margin-bottom: 10px;
+}
+
+div#CONTENT dd > p {
+	margin-top: 0px;
+	padding-top: 0px;
+}
+
 div#CONTENT table {
 	border-collapse: collapse;
 }

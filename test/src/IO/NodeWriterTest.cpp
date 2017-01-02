@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,11 +40,12 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("{\n"
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
                          "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
-
+        
         TEST(NodeWriterTest, writeWorldspawn) {
             const BBox3 worldBounds(8192.0);
             
@@ -57,7 +58,8 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("{\n"
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
                          "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\"\n"
                          "}\n", result.c_str());
@@ -78,8 +80,10 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("{\n"
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
                          "\"classname\" \"worldspawn\"\n"
+                         "// brush 0\n"
                          "{\n"
                          "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
                          "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
@@ -108,25 +112,28 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
-                                                    "{\n"
-                                                    "\"classname\" \"worldspawn\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_layer\"\n"
-                                                    "\"_tb_name\" \"Custom Layer\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    ));
+            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
+                                                                 "// entity 0\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"worldspawn\"\n"
+                                                                 "}\n"
+                                                                 "// entity 1\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_layer\"\n"
+                                                                 "\"_tb_name\" \"Custom Layer\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 ));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
@@ -146,25 +153,28 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
-                                                    "{\n"
-                                                    "\"classname\" \"worldspawn\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_group\"\n"
-                                                    "\"_tb_name\" \"Group\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    ));
+            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
+                                                                 "// entity 0\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"worldspawn\"\n"
+                                                                 "}\n"
+                                                                 "// entity 1\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_group\"\n"
+                                                                 "\"_tb_name\" \"Group\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 ));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
@@ -187,32 +197,36 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
-                                                    "{\n"
-                                                    "\"classname\" \"worldspawn\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_layer\"\n"
-                                                    "\"_tb_name\" \"Custom Layer\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_group\"\n"
-                                                    "\"_tb_name\" \"Group\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "\"_tb_layer\" \"*\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    ));
+            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
+                                                                 "// entity 0\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"worldspawn\"\n"
+                                                                 "}\n"
+                                                                 "// entity 1\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_layer\"\n"
+                                                                 "\"_tb_name\" \"Custom Layer\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "}\n"
+                                                                 "// entity 2\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_group\"\n"
+                                                                 "\"_tb_name\" \"Group\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "\"_tb_layer\" \"*\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 ));
         }
         
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
@@ -238,47 +252,52 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
-                                                    "{\n"
-                                                    "\"classname\" \"worldspawn\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_layer\"\n"
-                                                    "\"_tb_name\" \"Custom Layer\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_group\"\n"
-                                                    "\"_tb_name\" \"Outer Group\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "\"_tb_layer\" \"*\"\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_group\"\n"
-                                                    "\"_tb_name\" \"Inner Group\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "\"_tb_group\" \"*\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    ));
+            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
+                                                                 "// entity 0\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"worldspawn\"\n"
+                                                                 "}\n"
+                                                                 "// entity 1\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_layer\"\n"
+                                                                 "\"_tb_name\" \"Custom Layer\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "}\n"
+                                                                 "// entity 2\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_group\"\n"
+                                                                 "\"_tb_name\" \"Outer Group\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "\"_tb_layer\" \"*\"\n"
+                                                                 "}\n"
+                                                                 "// entity 3\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_group\"\n"
+                                                                 "\"_tb_name\" \"Inner Group\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "\"_tb_group\" \"*\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 ));
         }
         
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
             const BBox3 worldBounds(8192.0);
-
+            
             Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
-
+            
             Model::BrushBuilder builder(&map, worldBounds);
             
             Model::Brush* worldBrush = builder.createCube(64.0, "some");
@@ -290,7 +309,7 @@ namespace TrenchBroom {
             outer->addChild(inner);
             map.defaultLayer()->addChild(worldBrush);
             map.defaultLayer()->addChild(outer);
-
+            
             Model::NodeList nodes;
             nodes.push_back(inner);
             nodes.push_back(worldBrush);
@@ -299,35 +318,39 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeNodes(nodes);
             
-            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
-                                                    "{\n"
-                                                    "\"classname\" \"worldspawn\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    "{\n"
-                                                    "\"classname\" \"func_group\"\n"
-                                                    "\"_tb_type\" \"_tb_group\"\n"
-                                                    "\"_tb_name\" \"Inner Group\"\n"
-                                                    "\"_tb_id\" \"*\"\n"
-                                                    "{\n"
-                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                                                    "}\n"
-                                                    "}\n"
-                                                    ));
+            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(str.str(),
+                                                                 "// entity 0\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"worldspawn\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 "// entity 1\n"
+                                                                 "{\n"
+                                                                 "\"classname\" \"func_group\"\n"
+                                                                 "\"_tb_type\" \"_tb_group\"\n"
+                                                                 "\"_tb_name\" \"Inner Group\"\n"
+                                                                 "\"_tb_id\" \"*\"\n"
+                                                                 "// brush 0\n"
+                                                                 "{\n"
+                                                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                                 "}\n"
+                                                                 "}\n"
+                                                                 ));
         }
-
+        
         TEST(NodeWriterTest, writeFaces) {
             const BBox3 worldBounds(8192.0);
             
@@ -347,7 +370,7 @@ namespace TrenchBroom {
                          "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
                          "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n",
                          result.c_str());
-
+            
             delete brush;
         }
     }

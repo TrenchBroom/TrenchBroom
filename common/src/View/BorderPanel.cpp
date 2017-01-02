@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,11 +21,11 @@
 
 #include "View/ViewConstants.h"
 
-#include <wx/dcclient.h>
+#include <wx/dcbuffer.h>
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
+        wxIMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
 
         BorderPanel::BorderPanel() :
         wxPanel(),
@@ -45,13 +45,18 @@ namespace TrenchBroom {
             wxPanel::Create(parent);
             m_borders = borders;
             m_thickness = thickness;
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
         }
 
         void BorderPanel::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 
-            wxPaintDC dc(this);
+            wxAutoBufferedPaintDC dc(this);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetClientRect());
+
             dc.SetPen(wxPen(Colors::borderColor()));
             
             wxRect rect = GetClientRect();
@@ -64,19 +69,6 @@ namespace TrenchBroom {
             if ((m_borders & wxBOTTOM) != 0)
                 dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
             event.Skip();
-        }
-
-        wxSize BorderPanel::DoGetBestSize() const {
-            wxSize size = wxPanel::DoGetBestSize();
-            if ((m_borders & wxLEFT) != 0)
-                size.x += m_thickness;
-            if ((m_borders & wxTOP) != 0)
-                size.y += m_thickness;
-            if ((m_borders & wxRIGHT) != 0)
-                size.x += m_thickness;
-            if ((m_borders & wxBOTTOM) != 0)
-                size.y += m_thickness;
-            return size;
         }
     }
 }

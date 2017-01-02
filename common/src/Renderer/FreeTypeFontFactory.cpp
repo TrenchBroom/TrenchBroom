@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,6 +25,8 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontTexture.h"
 #include "Renderer/TextureFont.h"
+
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {

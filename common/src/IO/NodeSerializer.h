@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,6 +35,7 @@ namespace TrenchBroom {
             class BrushSerializer;
         protected:
             static const int FloatPrecision = 17;
+            typedef unsigned int ObjectNo;
         private:
             template <typename T>
             class IdManager {
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             public:
                 const String& getId(const T& t) const {
                     typename IdMap::iterator it = m_ids.find(t);
-                    if (it == m_ids.end())
+                    if (it == std::end(m_ids))
                         it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
                     return it->second;
                 }
@@ -66,17 +67,27 @@ namespace TrenchBroom {
             
             LayerIds m_layerIds;
             GroupIds m_groupIds;
-        public:
-            typedef std::auto_ptr<NodeSerializer> Ptr;
             
+            ObjectNo m_entityNo;
+            ObjectNo m_brushNo;
+        public:
+            typedef std::unique_ptr<NodeSerializer> Ptr;
+            
+            NodeSerializer();
             virtual ~NodeSerializer();
-
+        protected:
+            ObjectNo entityNo() const;
+            ObjectNo brushNo() const;
+        public:
+            void beginFile();
+            void endFile();
+        public:
             void defaultLayer(Model::World* world);
             void customLayer(Model::Layer* layer);
             void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
             
             void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent);
-            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
+            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushArray& entityBrushes);
         private:
             void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
             void beginEntity(const Model::Node* node);
@@ -85,7 +96,7 @@ namespace TrenchBroom {
             void entityAttributes(const Model::EntityAttribute::List& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
 
-            void brushes(const Model::BrushList& brushes);
+            void brushes(const Model::BrushArray& brushes);
             void brush(Model::Brush* brush);
             
             void beginBrush(const Model::Brush* brush);
@@ -102,6 +113,9 @@ namespace TrenchBroom {
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
         private:
+            virtual void doBeginFile() = 0;
+            virtual void doEndFile() = 0;
+            
             virtual void doBeginEntity(const Model::Node* node) = 0;
             virtual void doEndEntity(Model::Node* node) = 0;
             virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;

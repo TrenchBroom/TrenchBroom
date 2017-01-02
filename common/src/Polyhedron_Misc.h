@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -56,21 +56,44 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Callback::~Callback() {}
 
 template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeDeleted(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWasAdded(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
+
+template <typename T, typename FP, typename VP>
 Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     const HalfEdgeList& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
-    const HalfEdge* e1 = boundary.front();
-    const HalfEdge* e2 = e1->next();
-    const HalfEdge* e3 = e2->next();
-    
-    const V& p1 = e1->origin()->position();
-    const V& p2 = e2->origin()->position();
-    const V& p3 = e3->origin()->position();
-
     Plane<T,3> plane;
-    assertResult(setPlanePoints(plane, p2, p1, p3));
-    return plane;
+
+    const HalfEdge* firstEdge = boundary.front();
+    const HalfEdge* curEdge = firstEdge;
+    do {
+        const HalfEdge* e1 = curEdge;
+        const HalfEdge* e2 = e1->next();
+        const HalfEdge* e3 = e2->next();
+        
+        const V& p1 = e1->origin()->position();
+        const V& p2 = e2->origin()->position();
+        const V& p3 = e3->origin()->position();
+        
+        if (setPlanePoints(plane, p2, p1, p3))
+            return plane;
+
+        curEdge = curEdge->next();
+    } while (curEdge != firstEdge);
+    
+    // TODO: We should really through an exception here.
+    assert(false);
+    return plane; // Ooops!
 }
 
 template <typename T, typename FP, typename VP>
@@ -81,6 +104,9 @@ void Polyhedron<T,FP,VP>::Callback::faceWillBeDeleted(Face* face) {}
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* face) {}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Callback::faceWasFlipped(Face* face) {}
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* original, Face* clone) {}
@@ -118,23 +144,23 @@ Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions) {
     Callback c;
-    addPoints(positions.begin(), positions.end(), c);
+    addPoints(std::begin(positions), std::end(positions), c);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions, Callback& callback) {
-    addPoints(positions.begin(), positions.end(), callback);
+    addPoints(std::begin(positions), std::end(positions), callback);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions) {
     Callback c;
-    addPoints(positions.begin(), positions.end(), c);
+    addPoints(std::begin(positions), std::end(positions), c);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
-    addPoints(positions.begin(), positions.end(), callback);
+    addPoints(std::begin(positions), std::end(positions), callback);
 }
 
 template <typename T, typename FP, typename VP>
@@ -284,78 +310,106 @@ private:
     FaceList m_faces;
     Polyhedron& m_destination;
 public:
-    Copy(const FaceList& originalFaces, const EdgeList& originalEdges, Polyhedron& destination) :
+    Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination) :
     m_destination(destination) {
+        copyVertices(originalVertices);
         copyFaces(originalFaces);
         copyEdges(originalEdges);
         swapContents();
     }
 private:
+    void copyVertices(const VertexList& originalVertices) {
+        const Vertex* firstVertex = originalVertices.front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            Vertex* copy = new Vertex(currentVertex->position());
+            assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy));
+            m_vertices.append(copy, 1);
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+    }
+    
     void copyFaces(const FaceList& originalFaces) {
-        typename FaceList::const_iterator fIt, fEnd;
-        for (fIt = originalFaces.begin(), fEnd = originalFaces.end(); fIt != fEnd; ++fIt) {
-            const Face* originalFace = *fIt;
-            copyFace(originalFace);
-        }
+        const Face* firstFace = originalFaces.front();
+        const Face* currentFace = firstFace;
+        do {
+            copyFace(currentFace);
+            currentFace = currentFace->next();
+        } while (currentFace != firstFace);
     }
     
     void copyFace(const Face* originalFace) {
         HalfEdgeList myBoundary;
 
-        typename HalfEdgeList::const_iterator hIt, hEnd;
-        for (hIt = originalFace->m_boundary.begin(), hEnd = originalFace->m_boundary.end(); hIt != hEnd; ++hIt) {
-            const HalfEdge* originalHalfEdge = *hIt;
-            myBoundary.append(copyHalfEdge(originalHalfEdge), 1);
-        }
+        const HalfEdge* firstHalfEdge = originalFace->m_boundary.front();
+        const HalfEdge* currentHalfEdge = firstHalfEdge;
+        do {
+            myBoundary.append(copyHalfEdge(currentHalfEdge), 1);
+            currentHalfEdge = currentHalfEdge->next();
+        } while (currentHalfEdge != firstHalfEdge);
         
         Face* copy = new Face(myBoundary);
         m_faces.append(copy, 1);
     }
     
+    HalfEdgeList copyBoundary(const HalfEdgeList& original) {
+        HalfEdgeList result;
+
+        const HalfEdge* firstHalfEdge = original.front();
+        const HalfEdge* currentHalfEdge = firstHalfEdge;
+        do {
+            result.append(copyHalfEdge(currentHalfEdge), 1);
+            currentHalfEdge = currentHalfEdge->next();
+        } while (currentHalfEdge != firstHalfEdge);
+        
+        return result;
+    }
+    
     HalfEdge* copyHalfEdge(const HalfEdge* original) {
         const Vertex* originalOrigin = original->origin();
         
-        Vertex* myOrigin = findOrCopyVertex(originalOrigin);
+        Vertex* myOrigin = findVertex(originalOrigin);
         HalfEdge* copy = new HalfEdge(myOrigin);
         m_halfEdgeMap.insert(std::make_pair(original, copy));
         return copy;
     }
 
-    Vertex* findOrCopyVertex(const Vertex* original) {
-        typedef std::pair<bool, typename VertexMap::iterator> InsertPos;
-        
-        InsertPos insertPos = MapUtils::findInsertPos(m_vertexMap, original);
-        if (!insertPos.first) {
-            Vertex* copy = new Vertex(original->position());
-            m_vertices.append(copy, 1);
-            m_vertexMap.insert(insertPos.second, std::make_pair(original, copy));
-            return copy;
-        }
-        return insertPos.second->second;
+    Vertex* findVertex(const Vertex* original) {
+        typename VertexMap::iterator it = m_vertexMap.find(original);
+        assert(it != std::end(m_vertexMap));
+        return it->second;
     }
     
     void copyEdges(const EdgeList& originalEdges) {
-        typename EdgeList::const_iterator eIt, eEnd;
-        for (eIt = originalEdges.begin(), eEnd = originalEdges.end(); eIt != eEnd; ++eIt) {
-            const Edge* originalEdge = *eIt;
-            Edge* copy = copyEdge(originalEdge);
-            m_edges.append(copy, 1);
-        }
+        const Edge* firstEdge = originalEdges.front();
+        const Edge* currentEdge = firstEdge;
+        do {
+            m_edges.append(copyEdge(currentEdge), 1);
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
     }
     
-    Edge* copyEdge(const Edge* original) const {
-        HalfEdge* myFirst = findHalfEdge(original->firstEdge());
+    Edge* copyEdge(const Edge* original) {
+        HalfEdge* myFirst = findOrCopyHalfEdge(original->firstEdge());
         if (!original->fullySpecified())
             return new Edge(myFirst);
 
-        HalfEdge* mySecond = findHalfEdge(original->secondEdge());
+        HalfEdge* mySecond = findOrCopyHalfEdge(original->secondEdge());
         return new Edge(myFirst, mySecond);
     }
     
-    HalfEdge* findHalfEdge(const HalfEdge* original) const {
-        HalfEdge* result = MapUtils::find(m_halfEdgeMap, original, static_cast<HalfEdge*>(NULL));
-        assert(result != NULL);
-        return result;
+    HalfEdge* findOrCopyHalfEdge(const HalfEdge* original) {
+        typedef std::pair<bool, typename HalfEdgeMap::iterator> InsertPos;
+        
+        InsertPos insertPos = MapUtils::findInsertPos(m_halfEdgeMap, original);
+        if (!insertPos.first) {
+            const Vertex* originalOrigin = original->origin();
+            Vertex* myOrigin = findVertex(originalOrigin);
+            HalfEdge* copy = new HalfEdge(myOrigin);
+            m_halfEdgeMap.insert(insertPos.second, std::make_pair(original, copy));
+            return copy;
+        }
+        return insertPos.second->second;
     }
 
     void swapContents() {
@@ -369,7 +423,7 @@ private:
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
-    Copy copy(other.faces(), other.edges(), *this);
+    Copy copy(other.faces(), other.edges(), other.vertices(), *this);
 }
 
 template <typename T, typename FP, typename VP>
@@ -402,12 +456,19 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
-    typename V::List::const_iterator it, end;
-    for (it = positions.begin(), end = positions.end(); it != end; ++it) {
-        if (!hasVertex(*it, epsilon))
+    for (const V& position : positions) {
+        if (!hasVertex(position, epsilon))
             return false;
     }
     return true;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() const {
+    typename V::List result;
+    result.reserve(vertexCount());
+    getVertexPositions(std::back_inserter(result));
+    return result;
 }
 
 template <typename T, typename FP, typename VP>
@@ -636,13 +697,19 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
      */
     if (!checkFaceBoundaries())
         return false;
-    if (polyhedron() && !checkClosed())
+    if (!checkFaceNeighbours())
         return false;
-    if (polyhedron() && !checkNoDegenerateFaces())
+    if (!checkOverlappingFaces())
         return false;
-    if (polyhedron() && !checkVertexLeavingEdges())
+    if (!checkVertexLeavingEdges())
         return false;
-    if (polyhedron() && !checkEdges())
+    if (!checkEulerCharacteristic())
+        return false;
+    if (!checkClosed())
+        return false;
+    if (!checkNoDegenerateFaces())
+        return false;
+    if (!checkEdges())
         return false;
     /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
@@ -652,9 +719,41 @@ bool Polyhedron<T,FP,VP>::checkInvariant() const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkEulerCharacteristic() const {
+    if (!polyhedron())
+        return true;
+    
+    // See https://en.m.wikipedia.org/wiki/Euler_characteristic
+    return vertexCount() + faceCount() - edgeCount() == 2;
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkOverlappingFaces() const {
+    if (!polyhedron())
+        return true;
+    
+    Face* firstFace = m_faces.front();
+    Face* curFace1 = firstFace;
+    do {
+        Face* curFace2 = curFace1->next();
+        while (curFace2 != firstFace) {
+            const size_t sharedVertexCount = curFace1->countSharedVertices(curFace2);
+            if (sharedVertexCount == curFace1->vertexCount() ||
+                sharedVertexCount == curFace2->vertexCount()) {
+                return false;
+            }
+            curFace2 = curFace2->next();
+        }
+        curFace1 = curFace1->next();
+    } while (curFace1->next() != firstFace);
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
     if (m_faces.empty())
         return true;
+    
     Face* first = m_faces.front();
     Face* current = first;
     do {
@@ -666,78 +765,130 @@ bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkFaceNeighbours() const {
+    if (!polyhedron())
+        return true;
+    
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
+    do {
+        const HalfEdgeList& boundary = currentFace->boundary();
+        HalfEdge* firstEdge = boundary.front();
+        HalfEdge* currentEdge = firstEdge;
+        do {
+            HalfEdge* twin = currentEdge->twin();
+            unused(twin);
+            ensure(twin != NULL, "twin is null");
+            ensure(twin->face() != NULL, "twin face is null");
+            assert(hasFace(twin->face()));
+            
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+        
+        if (!currentFace->checkBoundary())
+            return false;
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkConvex() const {
-    typename FaceList::const_iterator fIt, fEnd;
-    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-        const Face* face = *fIt;
-        typename VertexList::const_iterator vIt, vEnd;
-        for (vIt = m_vertices.begin(), vEnd = m_vertices.end(); vIt != vEnd; ++vIt) {
-            const Vertex* vertex = *vIt;
-            if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
+    if (!polyhedron())
+        return true;
+    
+    const Face* firstFace = m_faces.front();
+    const Face* currentFace = firstFace;
+    do {
+        const Vertex* firstVertex = m_vertices.front();
+        const Vertex* currentVertex = firstVertex;
+        do {
+            if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
                 return false;
-        }
-    }
+            currentVertex = currentVertex->next();
+        } while (currentVertex != firstVertex);
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    
     return true;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkClosed() const {
-    typename EdgeList::const_iterator eIt, eEnd;
-    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
-        const Edge* edge = *eIt;
-        if (!edge->fullySpecified())
+    if (!polyhedron())
+        return true;
+    
+    const Edge* firstEdge = m_edges.front();
+    const Edge* currentEdge = firstEdge;
+    do {
+        if (!currentEdge->fullySpecified())
             return false;
         
-        const Face* firstFace = edge->firstFace();
-        const Face* secondFace = edge->secondFace();
+        const Face* firstFace = currentEdge->firstFace();
+        const Face* secondFace = currentEdge->secondFace();
         
         if (!m_faces.contains(firstFace))
             return false;
         if (!m_faces.contains(secondFace))
             return false;
-    }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+
     return true;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkNoCoplanarFaces() const {
-    typename EdgeList::const_iterator eIt, eEnd;
-    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
-        const Edge* edge = *eIt;
-        const Face* firstFace = edge->firstFace();
-        const Face* secondFace = edge->secondFace();
+    if (!polyhedron())
+        return true;
+    
+    const Edge* firstEdge = m_edges.front();
+    const Edge* currentEdge = firstEdge;
+    do {
+        const Face* firstFace = currentEdge->firstFace();
+        const Face* secondFace = currentEdge->secondFace();
         
         if (firstFace == secondFace)
             return false;
         if (firstFace->coplanar(secondFace))
             return false;
-    }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+
     return true;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
-    typename FaceList::const_iterator fIt, fEnd;
-    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-        const Face* face = *fIt;
-        if (face->vertexCount() < 3)
+    if (!polyhedron())
+        return true;
+    
+    const Face* firstFace = m_faces.front();
+    const Face* currentFace = firstFace;
+    do {
+        if (currentFace->vertexCount() < 3)
             return false;
         
-        const HalfEdgeList& boundary = face->boundary();
-        typename HalfEdgeList::const_iterator hIt, hEnd;
-        for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
-            const HalfEdge* halfEdge = *hIt;
-            const Edge* edge = halfEdge->edge();
-            
+        const HalfEdge* firstHalfEdge = currentFace->boundary().front();
+        const HalfEdge* currentHalfEdge = firstHalfEdge;
+        do {
+            const Edge* edge = currentHalfEdge->edge();
             if (edge == NULL || !edge->fullySpecified())
                 return false;
-        }
-    }
+            currentHalfEdge = currentHalfEdge->next();
+        } while (currentHalfEdge != firstHalfEdge);
+        
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+
     return true;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
+    if (empty() || point())
+        return true;
+    
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
@@ -746,13 +897,15 @@ bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
             return false;
         if (leaving->origin() != currentVertex)
             return false;
-        const Edge* edge = leaving->edge();
-        if (edge == NULL)
-            return false;
-        if (!edge->fullySpecified())
-            return false;
-        if (!hasEdge(edge))
-            return false;
+        if (!point()) {
+            const Edge* edge = leaving->edge();
+            if (edge == NULL)
+                return false;
+            if (!hasEdge(edge))
+                return false;
+            if (polyhedron() && !edge->fullySpecified())
+                return false;
+        }
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
     return true;
@@ -760,7 +913,7 @@ bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkEdges() const {
-    if (m_edges.empty())
+    if (!polyhedron())
         return true;
     
     Edge* firstEdge = m_edges.front();
@@ -804,6 +957,27 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
+    ensure(v != NULL, "v is null");
+    const HalfEdge* firstEdge = v->leaving();
+    ensure(firstEdge != NULL, "firstEdge is null");
+    const HalfEdge* curEdge = firstEdge;
+    
+    do {
+        const HalfEdge* nextEdge = curEdge->nextIncident();
+        do {
+            if (curEdge->destination() == nextEdge->destination())
+                return false;
+            nextEdge = nextEdge->nextIncident();
+        } while (nextEdge != firstEdge);
+        
+        curEdge = curEdge->nextIncident();
+    } while (curEdge->nextIncident() != firstEdge);
+    
+    return true;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T epsilon) {
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
@@ -811,6 +985,8 @@ void Polyhedron<T,FP,VP>::correctVertexPositions(const size_t decimals, const T 
         currentVertex->correctPosition(decimals, epsilon);
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
+    
+    updateBounds();
 }
 
 template <typename T, typename FP, typename VP>
@@ -850,7 +1026,9 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     }
     
     assert(!polyhedron() || checkEdgeLengths(minLength));
-    
+
+    updateBounds();
+
     return polyhedron();
 }
 
@@ -897,6 +1075,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
             removeDegenerateFace(secondFace, callback);
     }
     
+    callback.vertexWillBeDeleted(secondVertex);
     m_vertices.remove(secondVertex);
     delete secondVertex;
     
@@ -943,7 +1122,7 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     edge2->makeFirstEdge(halfEdge2);
     
     HalfEdge* halfEdge3 = edge2->secondEdge();
-    halfEdge3->setEdge(NULL);
+    halfEdge3->unsetEdge();
     edge1->unsetSecondEdge();
     edge1->setSecondEdge(halfEdge3);
     
@@ -951,6 +1130,68 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     delete edge2;
     
     callback.faceWillBeDeleted(face);
+    m_faces.remove(face);
+    delete face;
+}
+
+// Merges the face incident to the given edge (called border) with its neighbour, i.e.
+// the face incident to the given face's twin. The face incident to the border is deleted
+// while the neighbour consumes the boundary of the incident face.
+// Also handles the case where the border is longer than just one edge.
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callback) {
+    Face* face = borderFirst->face();
+    Face* neighbour = borderFirst->twin()->face();
+    
+    while (borderFirst->previous()->face() == face &&
+           borderFirst->previous()->twin()->face() == neighbour) {
+        borderFirst = borderFirst->previous();
+    }
+    
+    HalfEdge* twinLast = borderFirst->twin();
+    HalfEdge* borderLast = borderFirst;
+    
+    while (borderLast->next()->face() == face &&
+           borderLast->next()->twin()->face() == neighbour) {
+        borderLast = borderLast->next();
+    }
+    
+    HalfEdge* twinFirst = borderLast->twin();
+    
+    borderFirst->origin()->setLeaving(twinLast->next());
+    twinFirst->origin()->setLeaving(borderLast->next());
+    
+    HalfEdge* remainingFirst = borderLast->next();
+    HalfEdge* remainingLast = borderFirst->previous();
+    
+    face->removeFromBoundary(borderFirst, borderLast);
+    face->removeFromBoundary(remainingFirst, remainingLast);
+    
+    neighbour->replaceBoundary(twinFirst, twinLast, remainingFirst);
+    
+    HalfEdge* cur = borderFirst;
+    do {
+        Edge* edge = cur->edge();
+        HalfEdge* next = cur->next();
+        HalfEdge* twin = cur->twin();
+        Vertex* origin = cur->origin();
+        
+        m_edges.remove(edge);
+        delete edge;
+        
+        delete cur;
+        delete twin;
+        
+        if (cur != borderFirst) {
+            callback.vertexWillBeDeleted(origin);
+            m_vertices.remove(origin);
+            delete origin;
+        }
+        
+        cur = next;
+    } while (cur != borderFirst);
+    
+    callback.facesWillBeMerged(neighbour, face);
     m_faces.remove(face);
     delete face;
 }

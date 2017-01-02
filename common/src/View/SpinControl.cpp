@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,7 +29,7 @@ wxDEFINE_EVENT(SPIN_CONTROL_EVENT, TrenchBroom::View::SpinControlEvent);
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(SpinControlEvent, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(SpinControlEvent, wxNotifyEvent)
         SpinControlEvent::SpinControlEvent() :
         wxNotifyEvent(wxEVT_NULL, wxID_ANY),
         m_spin(true),

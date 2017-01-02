@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
         
         void CreateBrushToolBase::renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            assert(m_brush != NULL);
+            ensure(m_brush != NULL, "brush is null");
             
             m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));

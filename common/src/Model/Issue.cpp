@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,7 +20,8 @@
 #include "Model/Issue.h"
 
 #include "CollectionUtils.h"
-#include "Model/Entity.h"
+#include "Model/CollectSelectableNodesVisitor.h"
+#include "Model/EditorContext.h"
 #include "Model/Node.h"
 
 #include <cassert>
@@ -48,9 +49,27 @@ namespace TrenchBroom {
         Node* Issue::node() const {
             return m_node;
         }
-
-        void Issue::addSelectableNodes(Model::NodeList& nodes) const {
-            doAddSelectableNodes(nodes);
+        
+        class Issue::MatchSelectableIssueNodes {
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true; }
+            bool operator()(const Model::Entity* entity) const { return !entity->hasChildren(); }
+            bool operator()(const Model::Brush* brush) const   { return true; }
+        };
+        
+        bool Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
+            if (m_node->parent() == NULL)
+                return false;
+            
+            typedef CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableIssueNodesVisitor;
+            
+            CollectSelectableIssueNodesVisitor collect;
+            m_node->acceptAndRecurse(collect);
+            VectorUtils::append(nodes, collect.nodes());
+            
+            return true;
         }
 
         bool Issue::hidden() const {
@@ -64,7 +83,7 @@ namespace TrenchBroom {
         Issue::Issue(Node* node) :
         m_seqId(nextSeqId()),
         m_node(node) {
-            assert(m_node != NULL);
+            ensure(m_node != NULL, "node is null");
         }
 
         size_t Issue::nextSeqId() {
@@ -77,24 +96,6 @@ namespace TrenchBroom {
             const IssueType result = type;
             type = (type << 1);
             return result;
-        }
-
-        void Issue::doAddSelectableNodes(Model::NodeList& nodes) const {
-            nodes.push_back(m_node);
-        }
-
-        EntityIssue::EntityIssue(Node* node) :
-        Issue(node) {}
-
-        Entity* EntityIssue::entity() const {
-            return static_cast<Entity*>(m_node);
-        }
-
-        void EntityIssue::doAddSelectableNodes(Model::NodeList& nodes) const {
-            if (m_node->hasChildren())
-                VectorUtils::append(nodes, node()->children());
-            else
-                nodes.push_back(m_node);
         }
     }
 }

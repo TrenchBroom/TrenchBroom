@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class RotateTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<RotateTexturesCommand> Ptr;
+            typedef std::shared_ptr<RotateTexturesCommand> Ptr;
         private:
             float m_angle;
         public:
@@ -45,6 +45,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            RotateTexturesCommand(const RotateTexturesCommand& other);
+            RotateTexturesCommand& operator=(const RotateTexturesCommand& other);
         };
     }
 }

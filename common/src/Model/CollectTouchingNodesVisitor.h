@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,22 +21,40 @@
 #define TrenchBroom_CollectTouchingNodesVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
+#include "Model/MatchSelectableNodes.h"
 #include "Model/ModelTypes.h"
 #include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
+        
+        template <typename I>
         class MatchTouchingNodes {
         private:
-            const Object* m_object;
+            const I m_begin;
+            const I m_end;
         public:
-            MatchTouchingNodes(const Object* object);
-            bool operator()(const Node* node) const;
+            MatchTouchingNodes(I begin, I end) :
+            m_begin(begin),
+            m_end(end) {}
+            
+            bool operator()(const Node* node) const {
+                I cur = m_begin;
+                while (cur != m_end) {
+                    if (*cur != node && (*cur)->intersects(node))
+                        return true;
+                    ++cur;
+                }
+                return false;
+            }
         };
         
-        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<NodePredicates::And<NodePredicates::Not<NodePredicates::EqualsObject>, MatchTouchingNodes>, UniqueNodeCollectionStrategy> {
+        template <typename I>
+        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy> {
         public:
-            CollectTouchingNodesVisitor(const Object* object);
+                CollectTouchingNodesVisitor(I begin, I end, const Model::EditorContext& editorContext) :
+                CollectMatchingNodesVisitor<NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >, UniqueNodeCollectionStrategy>(NodePredicates::And<MatchSelectableNodes, MatchTouchingNodes<I> >(MatchSelectableNodes(editorContext), MatchTouchingNodes<I>(begin, end))) {}
         };
     }
 }

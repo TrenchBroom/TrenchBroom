@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -153,11 +153,8 @@ namespace TrenchBroom {
             RectVertex::List rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
             
-            EntryList::const_iterator it, end;
-            for (it = collection.entries.begin(), end = collection.entries.end(); it != end; ++it) {
-                const Entry& entry = *it;
+            for (const Entry& entry : collection.entries)
                 addEntry(entry, onTop, textVertices, rectVertices);
-            }
             
             collection.textArray = VertexArray::swap(textVertices);
             collection.rectArray = VertexArray::swap(rectVertices);

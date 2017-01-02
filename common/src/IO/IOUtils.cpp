@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,50 +23,54 @@
 
 namespace TrenchBroom {
     namespace IO {
-        OpenFile::OpenFile(const Path& path, const bool write) {
-            m_file = fopen(path.asString().c_str(), write ? "w" : "r");
-            if (m_file == NULL)
+        OpenFile::OpenFile(const Path& path, const bool write) :
+        file(NULL) {
+            file = fopen(path.asString().c_str(), write ? "w" : "r");
+            if (file == NULL)
                 throw FileSystemException("Cannot open file: " + path.asString());
         }
         
         OpenFile::~OpenFile() {
-            if (m_file != NULL)
-                fclose(m_file);
-        }
-        
-        FILE* OpenFile::file() const {
-            return m_file;
+            if (file != NULL)
+                fclose(file);
         }
 
-        String readGameComment(FILE* stream) {
+        OpenStream::OpenStream(const Path& path, const bool write) :
+        stream(path.asString().c_str(), std::ios::in | (write ? std::ios::out : std::ios::in)) {
+            if (!stream.is_open())
+                throw FileSystemException("Cannot open file: " + path.asString());
+        }
+        
+        OpenStream::~OpenStream() {
+            if (stream.is_open())
+                stream.close();
+        }
+
+        String readGameComment(std::istream& stream) {
             return readInfoComment(stream, "Game");
         }
 
-        String readFormatComment(FILE* stream) {
+        String readFormatComment(std::istream& stream) {
             return readInfoComment(stream, "Format");
         }
 
-        String readInfoComment(FILE* stream, const String& name) {
+        String readInfoComment(std::istream& stream, const String& name) {
             static const size_t MaxChars = 64;
             const String expectedHeader = "// " + name + ": ";
             char buf[MaxChars];
             
-            const size_t numRead = std::fread(buf, 1, MaxChars, stream);
-            if (numRead < expectedHeader.size())
+            stream.getline(buf, MaxChars);
+            if (stream.fail())
                 return "";
             
-            const String header(buf, buf + expectedHeader.size());
-            if (header != expectedHeader)
+            String line(buf);
+            if (line.size() < expectedHeader.size())
                 return "";
             
-            size_t i = expectedHeader.size();
-            while (i < MaxChars && buf[i] != '\n' && buf[i] != '\r') ++i;
+            if (line.substr(0, expectedHeader.size()) != expectedHeader)
+                return "";
             
-            size_t j = i;
-            while (j < MaxChars && (buf[j] == '\n' || buf[j] == '\r' || buf[j] == ' ' || buf[j] == '\t')) ++j;
-            std::fseek(stream, static_cast<long>(j), SEEK_SET);
-            
-            return StringUtils::trim(String(buf + expectedHeader.size(), buf + i));
+            return line.substr(expectedHeader.size());
         }
 
         void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat) {

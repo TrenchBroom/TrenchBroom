@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,16 +37,33 @@ namespace TrenchBroom {
         
         class BrushRenderer {
         public:
+            class FaceAcceptor {
+            public:
+                virtual ~FaceAcceptor();
+                virtual void accept(const Model::BrushFace* face) = 0;
+            };
+            
+            class EdgeAcceptor {
+            public:
+                virtual ~EdgeAcceptor();
+                virtual void accept(const Model::BrushEdge* edge) = 0;
+            };
+            
             class Filter {
             public:
+                Filter();
+                Filter(const Filter& other);
                 virtual ~Filter();
                 
-                bool show(const Model::BrushFace* face) const;
-                bool show(const Model::BrushEdge* edge) const;
+                Filter& operator=(const Filter& other);
+                
+                void  provideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void  provideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
+                
                 bool transparent(const Model::Brush* brush) const;
             private:
-                virtual bool doShow(const Model::BrushFace* face) const = 0;
-                virtual bool doShow(const Model::BrushEdge* edge) const = 0;
+                virtual void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const = 0;
+                virtual void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const = 0;
                 virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
             };
             
@@ -57,6 +74,7 @@ namespace TrenchBroom {
                 virtual ~DefaultFilter();
             protected:
                 DefaultFilter(const Model::EditorContext& context);
+                DefaultFilter(const DefaultFilter& other);
                 
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;
@@ -69,6 +87,8 @@ namespace TrenchBroom {
                 bool selected(const Model::BrushFace* face) const;
                 bool selected(const Model::BrushEdge* edge) const;
                 bool hasSelectedFaces(const Model::Brush* brush) const;
+            private:
+                DefaultFilter& operator=(const DefaultFilter& other);
             };
             
             class NoFilter : public Filter {
@@ -77,9 +97,12 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                bool doShow(const Model::BrushFace* face) const;
-                bool doShow(const Model::BrushEdge* edge) const;
+                void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
+                void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
+            private:
+                NoFilter(const NoFilter& other);
+                NoFilter& operator=(const NoFilter& other);
             };
         private:
             class FilterWrapper;
@@ -112,7 +135,7 @@ namespace TrenchBroom {
             BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
             m_valid(true),
-            m_showEdges(true),
+            m_showEdges(false),
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
@@ -148,6 +171,9 @@ namespace TrenchBroom {
             void validate();
             void validateVertices();
             void validateIndices();
+        private:
+            BrushRenderer(const BrushRenderer& other);
+            BrushRenderer& operator=(const BrushRenderer& other);
         };
     }
 }

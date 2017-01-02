@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class TransformObjectsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
+            typedef std::shared_ptr<TransformObjectsCommand> Ptr;
         private:
             typedef enum {
                 Action_Translate,

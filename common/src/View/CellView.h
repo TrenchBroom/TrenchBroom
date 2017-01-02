@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -29,9 +29,10 @@
 #include "View/GLAttribs.h"
 #include "View/RenderView.h"
 
-#include <wx/wx.h>
 #include <wx/dnd.h>
 #include <wx/event.h>
+#include <wx/scrolbar.h>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,8 +46,11 @@ namespace TrenchBroom {
             Layout m_layout;
             typename Layout::Group::Row::Cell* m_selectedCell;
             bool m_layoutInitialized;
+            
+            bool m_valid;
 
             wxScrollBar* m_scrollBar;
+            wxPoint m_lastMousePos;
 
             void updateScrollBar() {
                 if (m_scrollBar != NULL) {
@@ -68,15 +72,26 @@ namespace TrenchBroom {
                 m_layout.clear();
                 doReloadLayout(m_layout);
                 updateScrollBar();
+
+                m_valid = true;
+            }
+            
+            void validate() {
+                if (!m_valid)
+                    reloadLayout();
             }
         public:
-            CellView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs, wxScrollBar* scrollBar = NULL) :
+            CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = NULL) :
             RenderView(parent, contextManager, attribs),
             m_layoutInitialized(false),
+            m_valid(false),
             m_scrollBar(scrollBar) {
                 Bind(wxEVT_SIZE, &CellView::OnSize, this);
                 Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
+                Bind(wxEVT_RIGHT_DOWN, &CellView::OnMouseRightDown, this);
+                Bind(wxEVT_RIGHT_UP, &CellView::OnMouseRightUp, this);
                 Bind(wxEVT_MOTION, &CellView::OnMouseMove, this);
+                Bind(wxEVT_MOUSE_CAPTURE_LOST, &CellView::OnMouseCaptureLost, this);
 
                 if (m_scrollBar != NULL) {
                     m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellView::OnScrollBarLineUp, this);
@@ -92,14 +107,14 @@ namespace TrenchBroom {
                 }
             }
 
-            void reload() {
-                reloadLayout();
-                Refresh();
+            void invalidate() {
+                m_valid = false;
             }
-
+            
             void clear() {
                 m_layout.clear();
                 doClear();
+                m_valid = true;
             }
 
             void OnSize(wxSizeEvent& event) {
@@ -157,38 +172,78 @@ namespace TrenchBroom {
             };
             
             void OnMouseMove(wxMouseEvent& event) {
-                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                float x = static_cast<float>(event.GetX());
-                float y = static_cast<float>(event.GetY() + top);
-                const typename Layout::Group::Row::Cell* cell = NULL;
-                if (event.LeftIsDown() && dndEnabled()) {
+                if (event.LeftIsDown()) {
+                    startDrag(event);
+                } else if (event.RightIsDown() && event.AltDown()) {
+                    scroll(event);
+                } else {
+                    updateTooltip(event);
+                }
+                m_lastMousePos = event.GetPosition();
+            }
+
+            void startDrag(const wxMouseEvent& event) {
+                if (dndEnabled()) {
+                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                    float x = static_cast<float>(event.GetX());
+                    float y = static_cast<float>(event.GetY() + top);
+                    const typename Layout::Group::Row::Cell* cell = NULL;
                     if (m_layout.cellAt(x, y, &cell)) {
                         /*
-                        wxImage* feedbackImage = dndImage(*cell);
-                        int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
-                        int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
+                         wxImage* feedbackImage = dndImage(*cell);
+                         int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
+                         int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                          */
-
+                        
                         const DndHelper dndHelper(*this);
                         wxTextDataObject dropData(dndData(*cell));
                         DropSource dropSource(dropData, this);
                         dropSource.DoDragDrop();
                     }
-                } else {
-                    if (m_layout.cellAt(x, y, &cell))
-                        SetToolTip(tooltip(*cell));
-                    else
-                        SetToolTip("");
                 }
-                event.Skip();
             }
-
+            
+            void scroll(const wxMouseEvent& event) {
+                if (m_scrollBar != NULL) {
+                    const wxPoint mousePosition = event.GetPosition();
+                    const wxCoord delta = mousePosition.y - m_lastMousePos.y;
+                    const wxCoord newThumbPosition = m_scrollBar->GetThumbPosition() - delta;
+                    m_scrollBar->SetThumbPosition(newThumbPosition);
+                    Refresh();
+                }
+            }
+            
+            void updateTooltip(const wxMouseEvent& event) {
+                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                float x = static_cast<float>(event.GetX());
+                float y = static_cast<float>(event.GetY() + top);
+                const typename Layout::Group::Row::Cell* cell = NULL;
+                if (m_layout.cellAt(x, y, &cell))
+                    SetToolTip(tooltip(*cell));
+                else
+                    SetToolTip("");
+            }
+            
+            void OnMouseRightDown(wxMouseEvent& event) {
+                if (event.AltDown()) {
+                    m_lastMousePos = event.GetPosition();
+                    CaptureMouse();
+                }
+            }
+            
+            void OnMouseRightUp(wxMouseEvent& event) {
+                if (HasCapture())
+                    ReleaseMouse();
+            }
+            
+            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            }
+            
             void OnMouseLeftUp(wxMouseEvent& event) {
                 int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
                 doLeftClick(m_layout, x, y);
-                event.Skip();
             }
 
             void OnMouseWheel(wxMouseEvent& event) {
@@ -200,10 +255,11 @@ namespace TrenchBroom {
                     m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
                     Refresh();
                 }
-                event.Skip();
             }
         private:
             void doRender() {
+                if (!m_valid)
+                    validate();
                 if (!m_layoutInitialized)
                     initLayout();
 

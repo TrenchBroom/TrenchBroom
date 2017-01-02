@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,18 +30,18 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionGroup {
         public:
-            typedef std::vector<EntityDefinitionGroup> List;
+            typedef std::vector<EntityDefinitionGroup> Array;
         private:
             String m_name;
-            EntityDefinitionList m_definitions;
+            EntityDefinitionArray m_definitions;
         public:
-            EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions);
+            EntityDefinitionGroup(const String& name, const EntityDefinitionArray& definitions);
             
             size_t index() const;
             const String& name() const;
             const String displayName() const;
-            const EntityDefinitionList& definitions() const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            const EntityDefinitionArray& definitions() const;
+            EntityDefinitionArray definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -93,6 +93,8 @@ namespace TrenchBroom {
             swap(m_start, m_end);
         }
     };
+    
+    typedef Edge<double, 3> Edge3d;
 }
 
 #endif

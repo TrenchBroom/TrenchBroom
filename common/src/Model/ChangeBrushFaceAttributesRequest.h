@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -53,6 +53,12 @@ namespace TrenchBroom {
                 FlagOp_Set,
                 FlagOp_Unset
             } FlagOp;
+            
+            typedef enum {
+                TextureOp_None,
+                TextureOp_Set,
+                TextureOp_Unset
+            } TextureOp;
         private:
             Assets::Texture* m_texture;
             float m_xOffset;
@@ -64,7 +70,7 @@ namespace TrenchBroom {
             int m_contentFlags;
             float m_surfaceValue;
             
-            bool m_setTexture;
+            TextureOp m_textureOp;
             AxisOp m_axisOp;
             ValueOp m_xOffsetOp;
             ValueOp m_yOffsetOp;
@@ -82,7 +88,10 @@ namespace TrenchBroom {
             const String name() const;
             void evaluate(const BrushFaceList& faces) const;
             
+            void resetAll();
+            
             void setTexture(Assets::Texture* texture);
+            void unsetTexture();
             
             void resetTextureAxes();
             void resetTextureAxesToParaxial();

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,9 +30,9 @@ namespace TrenchBroom {
         class EntityDefinitionParser {
         public:
             virtual ~EntityDefinitionParser();
-            Assets::EntityDefinitionList parseDefinitions(ParserStatus& status);
+            Assets::EntityDefinitionArray parseDefinitions(ParserStatus& status);
         private:
-            virtual Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) = 0;
+            virtual Assets::EntityDefinitionArray doParseDefinitions(ParserStatus& status) = 0;
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         CreateEntityToolController::CreateEntityToolController(CreateEntityTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
         
         CreateEntityToolController::~CreateEntityToolController() {}

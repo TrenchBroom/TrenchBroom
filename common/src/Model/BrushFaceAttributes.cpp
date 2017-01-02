@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -19,6 +19,7 @@
 
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -149,6 +150,13 @@ namespace TrenchBroom {
             }
         }
         
+        void BrushFaceAttributes::unsetTexture() {
+            if (m_texture != NULL)
+                m_texture->decUsageCount();
+            m_texture = NULL;
+            m_textureName = BrushFace::NoTextureName;
+        }
+
         void BrushFaceAttributes::setOffset(const Vec2f& offset) {
             m_offset = offset;
         }

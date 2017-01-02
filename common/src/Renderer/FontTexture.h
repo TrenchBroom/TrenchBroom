@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         
         class FontTexture {
         public:
-            typedef std::auto_ptr<FontTexture> Ptr;
+            typedef std::unique_ptr<FontTexture> Ptr;
         private:
             size_t m_size;
             char* m_buffer;

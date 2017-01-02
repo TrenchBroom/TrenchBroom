@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,8 +41,9 @@ namespace TrenchBroom {
         
         template <class PickingPolicyType, class MousePolicyType>
         class MoveToolController : public ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
-        private:
+        protected:
             typedef ToolControllerBase<PickingPolicyType, KeyPolicy, MousePolicyType, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> Super;
+        private:
             typedef enum {
                 MT_Default,
                 MT_Vertical,
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             MoveToolController(const Grid& grid) : m_grid(grid) {}
             virtual ~MoveToolController() {}
         protected:
-            void doModifierKeyChange(const InputState& inputState) {
+            virtual void doModifierKeyChange(const InputState& inputState) {
                 if (Super::thisToolDragging()) {
                     const Vec3& initialPoint = RestrictedDragPolicy::initialPoint();
                     const Vec3& curPoint = RestrictedDragPolicy::curPoint();

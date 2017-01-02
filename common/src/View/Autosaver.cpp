@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 assert(backups.size() < m_maxBackups);
                 const size_t backupNo = backups.size() + 1;
                 
-                const IO::Path backupFilePath = fs.getPath() + makeBackupName(mapBasename, backupNo);
+                const IO::Path backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
                 m_lastSaveTime = time(NULL);
                 m_lastModificationCount = document->modificationCount();
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         
         IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
             IO::Path::List backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
-            std::sort(backups.begin(), backups.end(), compareBackupsByNo);
+            std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
             return backups;
         }
         
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                     fs.deleteFile(filename);
                     if (m_logger != NULL)
                         m_logger->debug("Deleted autosave backup %s", filename.asString().c_str());
-                    backups.erase(backups.begin());
+                    backups.erase(std::begin(backups));
                 } catch (FileSystemException e) {
                     if (m_logger != NULL)
                         m_logger->error("Cannot delete autosave backup %s", filename.asString().c_str());

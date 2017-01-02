@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,7 +28,7 @@
 
 class wxButton;
 class wxChoice;
-class wxTextCtrl;
+class wxComboBox;
 
 namespace TrenchBroom {
     namespace View {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             RotateObjectsTool* m_tool;
 
-            wxTextCtrl* m_centerTxt;
+            wxComboBox* m_recentlyUsedCentersList;
             wxButton* m_resetCenterButton;
             
             SpinControl* m_angle;
@@ -50,7 +50,8 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(Math::Axis::Type axis);
-            void setCenter(const Vec3& center);
+            void setRecentlyUsedCenters(const Vec3::List& centers);
+            void setCurrentCenter(const Vec3& center);
         private:
             void createGui();
             

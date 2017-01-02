@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,23 +27,23 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Model::BrushFaceList& faces, const Vec3& delta) {
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Polygon3::List& faces, const Vec3& delta) {
             return Ptr(new ResizeBrushesCommand(faces, delta));
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(const Model::BrushFaceList& faces, const Vec3& delta) :
+        ResizeBrushesCommand::ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta) :
         DocumentCommand(Type, "Resize Brushes"),
         m_faces(faces),
-        m_delta(delta) {
-            assert(!m_faces.empty());
-        }
+        m_delta(delta) {}
         
         bool ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performResizeBrushes(m_faces, m_delta);
+            m_faces = document->performResizeBrushes(m_faces, m_delta);
+            return !m_faces.empty();
         }
         
         bool ResizeBrushesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            return document->performResizeBrushes(m_faces, -m_delta);
+            m_faces = document->performResizeBrushes(m_faces, -m_delta);
+            return !m_faces.empty();
         }
         
         bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
@@ -51,12 +51,7 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
-            if (m_faces != other->m_faces)
-                return false;
-            
-            m_delta += other->m_delta;
-            return true;
+            return false;
         }
     }
 }

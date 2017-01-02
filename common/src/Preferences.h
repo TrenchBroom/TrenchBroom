@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -105,6 +105,8 @@ namespace TrenchBroom {
         
         extern Preference<int> TextureMinFilter;
         extern Preference<int> TextureMagFilter;
+        
+        extern Preference<bool> TextureLock;
         
         Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;

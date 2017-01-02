@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<MoveTexturesCommand> Ptr;
+            typedef std::shared_ptr<MoveTexturesCommand> Ptr;
         private:
             Vec3f m_cameraUp;
             Vec3f m_cameraRight;
@@ -49,6 +49,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            MoveTexturesCommand(const MoveTexturesCommand& other);
+            MoveTexturesCommand& operator=(const MoveTexturesCommand& other);
         };
     }
 }

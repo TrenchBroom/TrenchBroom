@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,14 @@
 #include "View/InputState.h"
 #include "View/PickRequest.h"
 
-#include <wx/wx.h>
+#include <wx/gdicmn.h>
+#include <wx/longlong.h>
+
+class wxWindow;
+class wxKeyEvent;
+class wxFocusEvent;
+class wxMouseEvent;
+class wxMouseCaptureLostEvent;
 
 namespace TrenchBroom {
     namespace Model {

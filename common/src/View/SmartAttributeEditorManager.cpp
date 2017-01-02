@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -90,12 +90,10 @@ namespace TrenchBroom {
         }
         
         SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
-            EditorList::const_iterator it, end;
-            for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it) {
-                const MatcherEditorPair& pair = *it;
-                const MatcherPtr matcher = pair.first;
+            for (const auto& entry : m_editors) {
+                const MatcherPtr matcher = entry.first;
                 if (matcher->matches(name, attributables))
-                    return pair.second;
+                    return entry.second;
             }
             
             // should never happen
@@ -123,7 +121,7 @@ namespace TrenchBroom {
         }
         
         void SmartAttributeEditorManager::deactivateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 m_activeEditor->deactivate();
                 m_activeEditor = EditorPtr();
                 m_name = "";
@@ -131,7 +129,7 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::updateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 MapDocumentSPtr document = lock(m_document);
                 m_activeEditor->update(document->allSelectedAttributableNodes());
             }

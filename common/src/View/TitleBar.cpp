@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -19,6 +19,7 @@
 
 #include "TitleBar.h"
 
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -26,10 +27,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin) :
-        wxPanel(parent),
+        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin, const bool boldTitle) :
+        wxWindow(parent, wxID_ANY),
         m_titleText(new wxStaticText(this, wxID_ANY, title)) {
-            m_titleText->SetFont(m_titleText->GetFont().Bold());
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
+            
+            if (boldTitle)
+                m_titleText->SetFont(m_titleText->GetFont().Bold());
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->AddSpacer(hMargin);
@@ -38,6 +42,10 @@ namespace TrenchBroom {
             sizer->AddSpacer(hMargin);
 
             SetSizer(sizer);
+        }
+
+        bool TitleBar::AcceptsFocus() const {
+            return false;
         }
     }
 }

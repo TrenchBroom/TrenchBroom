@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,7 +28,6 @@
 #include <vector>
 
 class wxCheckBox;
-class wxChoice;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -42,6 +41,7 @@ namespace TrenchBroom {
     
     namespace View {
         class PopupButton;
+        class RadioGroup;
         
         class EntityDefinitionCheckBoxList : public wxPanel {
         private:
@@ -82,11 +82,12 @@ namespace TrenchBroom {
             wxCheckBox* m_showBrushesCheckBox;
             CheckBoxList m_brushContentTypeCheckBoxes;
             
-            wxChoice* m_faceRenderModeChoice;
+            RadioGroup* m_renderModeRadioGroup;
             wxCheckBox* m_shadeFacesCheckBox;
             wxCheckBox* m_showFogCheckBox;
             wxCheckBox* m_showEdgesCheckBox;
-            wxChoice* m_entityLinkModeChoice;
+            
+            RadioGroup* m_entityLinkRadioGroup;
         public:
             ViewEditor(wxWindow* parent, MapDocumentWPtr document);
             ~ViewEditor();
@@ -113,14 +114,14 @@ namespace TrenchBroom {
             
             void createGui();
             
-            wxWindow* createEntityDefinitionsPanel();
-            wxWindow* createEntitiesPanel();
-            wxWindow* createBrushesPanel();
+            wxWindow* createEntityDefinitionsPanel(wxWindow* parent);
+            wxWindow* createEntitiesPanel(wxWindow* parent);
+            wxWindow* createBrushesPanel(wxWindow* parent);
             void createBrushContentTypeFilter(wxWindow* parent);
             void createEmptyBrushContentTypeFilter(wxWindow* parent);
             void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes);
             
-            wxWindow* createRendererPanel();
+            wxWindow* createRendererPanel(wxWindow* parent);
             
             void refreshGui();
             void refreshEntityDefinitionsPanel();

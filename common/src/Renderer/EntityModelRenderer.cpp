@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -47,15 +47,30 @@ namespace TrenchBroom {
         }
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const Assets::ModelSpecification modelSpec = entity->modelSpecification();
-            Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
-            if (model != NULL) {
-                TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
-                if (renderer != NULL)
-                    m_entities.insert(std::make_pair(entity, renderer));
-            }
+            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
+            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            if (renderer != NULL)
+                m_entities.insert(std::make_pair(entity, renderer));
         }
         
+        void EntityModelRenderer::updateEntity(Model::Entity* entity) {
+            const Assets::ModelSpecification& modelSpec = entity->modelSpecification();
+            TexturedIndexRangeRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+            EntityMap::iterator it = m_entities.find(entity);
+            
+            if (renderer == NULL && it == std::end(m_entities))
+                return;
+            
+            if (it == std::end(m_entities)) {
+                m_entities.insert(std::make_pair(entity, renderer));
+            } else {
+                if (renderer == NULL)
+                    m_entities.erase(it);
+                else if (it->second != renderer)
+                    it->second = renderer;
+            }
+        }
+
         void EntityModelRenderer::clear() {
             m_entities.clear();
         }
@@ -105,13 +120,12 @@ namespace TrenchBroom {
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
             
-            EntityMap::iterator it, end;
-            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
-                Model::Entity* entity = it->first;
+            for (const auto& entry : m_entities) {
+                Model::Entity* entity = entry.first;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                TexturedIndexRangeRenderer* renderer = it->second;
+                TexturedIndexRangeRenderer* renderer = entry.second;
                 
                 const Mat4x4f translation(translationMatrix(entity->origin()));
                 const Mat4x4f rotation(entity->rotation());

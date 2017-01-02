@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,7 +25,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexRangeMap::Size::Size() :
-        m_current(m_sizes.end()) {}
+        m_current(std::end(m_sizes)) {}
         
         void TexturedIndexRangeMap::Size::inc(const Texture* texture, const PrimType primType, const size_t count) {
             IndexRangeMap::Size& sizeForKey = findCurrent(texture);
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
         
         bool TexturedIndexRangeMap::Size::isCurrent(const Texture* texture) const {
-            if (m_current == m_sizes.end())
+            if (m_current == std::end(m_sizes))
                 return false;
             
             typedef TextureToSize::key_compare Cmp;
@@ -52,10 +52,9 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::Size::initialize(TextureToIndexRangeMap& data) const {
-            TextureToSize::const_iterator texIt, texEnd;
-            for (texIt = m_sizes.begin(), texEnd = m_sizes.end(); texIt != texEnd; ++texIt) {
-                const Texture* texture = texIt->first;
-                const IndexRangeMap::Size& size = texIt->second;
+            for (const auto& entry : m_sizes) {
+                const Texture* texture = entry.first;
+                const IndexRangeMap::Size& size = entry.second;
                 data.insert(std::make_pair(texture, IndexRangeMap(size)));
             }
         }
@@ -93,10 +92,9 @@ namespace TrenchBroom {
         }
         
         void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func) {
-            TextureToIndexRangeMap::const_iterator texIt, texEnd;
-            for (texIt = m_data->begin(), texEnd = m_data->end(); texIt != texEnd; ++texIt) {
-                const Texture* texture = texIt->first;
-                const IndexRangeMap& indexArray = texIt->second;
+            for (const auto& entry : *m_data) {
+                const Texture* texture = entry.first;
+                const IndexRangeMap& indexArray = entry.second;
 
                 func.before(texture);
                 indexArray.render(vertexArray);

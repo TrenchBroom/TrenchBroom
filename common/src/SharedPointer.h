@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,31 +21,26 @@
 #define TrenchBroom_SharedPointer_h
 
 #include <cassert>
-
-#if defined _MSC_VER
 #include <memory>
-#else
-#include <tr1/memory>
-#endif
 
 template <typename T>
-std::tr1::shared_ptr<T> lock(std::tr1::shared_ptr<T> ptr) {
+std::shared_ptr<T> lock(std::shared_ptr<T> ptr) {
     return ptr;
 }
 
 template <typename T>
-bool expired(std::tr1::shared_ptr<T> ptr) {
+bool expired(std::shared_ptr<T> ptr) {
     return false;
 }
 
 template <typename T>
-std::tr1::shared_ptr<T> lock(std::tr1::weak_ptr<T> ptr) {
+std::shared_ptr<T> lock(std::weak_ptr<T> ptr) {
     assert(!ptr.expired());
     return ptr.lock();
 }
 
 template <typename T>
-bool expired(std::tr1::weak_ptr<T> ptr) {
+bool expired(std::weak_ptr<T> ptr) {
     return ptr.expired();
 }
 

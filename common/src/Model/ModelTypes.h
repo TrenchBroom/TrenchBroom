@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,11 +36,11 @@ namespace TrenchBroom {
 
         class Node;
         typedef std::set<Node*> NodeSet;
-        typedef std::vector<Node*> NodeList;
-        static const NodeList EmptyNodeList(0);
+        typedef std::vector<Node*> NodeArray;
+        static const NodeArray EmptyNodeList(0);
         
         typedef std::map<Node*, Node*> NodeMap;
-        typedef std::map<Node*, NodeList> ParentChildrenMap;
+        typedef std::map<Node*, NodeArray> ParentChildrenMap;
         
         typedef enum {
             Visibility_Inherited = 1,
@@ -65,27 +65,27 @@ namespace TrenchBroom {
         class AttributableNode;
         typedef std::set<AttributableNode*> AttributableNodeSet;
         static const AttributableNodeSet EmptyAttributableNodeSet;
-        typedef std::vector<AttributableNode*> AttributableNodeList;
-        static const AttributableNodeList EmptyAttributableNodeList(0);
+        typedef std::vector<AttributableNode*> AttributableNodeArray;
+        static const AttributableNodeArray EmptyAttributableNodeList(0);
         
         class Layer;
-        typedef std::vector<Layer*> LayerList;
-        static const LayerList EmptyLayerList(0);
+        typedef std::vector<Layer*> LayerArray;
+        static const LayerArray EmptyLayerList(0);
         
         class Group;
-        typedef std::vector<Group*> GroupList;
-        static const GroupList EmptyGroupList(0);
+        typedef std::vector<Group*> GroupArray;
+        static const GroupArray EmptyGroupList(0);
         typedef std::set<Group*> GroupSet;
         typedef std::map<Group*, String> GroupNameMap;
         
         class Entity;
-        typedef std::vector<Entity*> EntityList;
-        static const EntityList EmptyEntityList(0);
+        typedef std::vector<Entity*> EntityArray;
+        static const EntityArray EmptyEntityList(0);
         typedef std::set<Entity*> EntitySet;
         
         class Brush;
-        typedef std::vector<Brush*> BrushList;
-        static const BrushList EmptyBrushList(0);
+        typedef std::vector<Brush*> BrushArray;
+        static const BrushArray EmptyBrushList(0);
         typedef std::set<Brush*> BrushSet;
         static const BrushSet EmptyBrushSet;
         
@@ -94,14 +94,14 @@ namespace TrenchBroom {
         class BrushFace;
         typedef std::set<BrushFace*> BrushFaceSet;
         static const BrushFaceSet EmptyBrushFaceSet;
-        typedef std::vector<BrushFace*> BrushFaceList;
-        static const BrushFaceList EmptyBrushFaceList(0);
+        typedef std::vector<BrushFace*> BrushFaceArray;
+        static const BrushFaceArray EmptyBrushFaceList(0);
         
         typedef String AttributeName;
-        typedef std::vector<AttributeName> AttributeNameList;
+        typedef std::vector<AttributeName> AttributeNameArray;
         typedef std::set<AttributeName> AttributeNameSet;
         typedef String AttributeValue;
-        typedef std::vector<AttributeValue> AttributeValueList;
+        typedef std::vector<AttributeValue> AttributeValueArray;
         
         typedef std::set<BrushEdge*> BrushEdgeSet;
         static const BrushEdgeSet EmptyBrushEdgeSet;
@@ -114,25 +114,29 @@ namespace TrenchBroom {
         typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;
 
         class BrushFaceSnapshot;
-        typedef std::vector<BrushFaceSnapshot*> BrushFaceSnapshotList;
+        typedef std::vector<BrushFaceSnapshot*> BrushFaceSnapshotArray;
         
         class NodeSnapshot;
-        typedef std::vector<NodeSnapshot*> NodeSnapshotList;
+        typedef std::vector<NodeSnapshot*> NodeSnapshotArray;
         
         typedef int IssueType;
 
         class Issue;
-        typedef std::vector<Issue*> IssueList;
-        static const IssueList EmptyIssueList(0);
+        typedef std::vector<Issue*> Issuearray;
+        static const IssueArray EmptyIssueList(0);
 
         class IssueQuickFix;
-        typedef std::vector<IssueQuickFix*> IssueQuickFixList;
+        typedef std::vector<IssueQuickFix*> IssueQuickFixArray;
         
         class IssueGenerator;
-        typedef std::vector<IssueGenerator*> IssueGeneratorList;
+        typedef std::vector<IssueGenerator*> IssueGeneratorArray;
         
         class Game;
-        typedef std::tr1::shared_ptr<Game> GamePtr;
+        typedef std::shared_ptr<Game> GamePtr;
+        
+        typedef enum {
+            EF_WavefrontObj
+        } ExportFormat;
     }
 }
 

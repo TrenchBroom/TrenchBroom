@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         
         class Vbo {
         public:
-            typedef std::tr1::shared_ptr<Vbo> Ptr;
+            typedef std::shared_ptr<Vbo> Ptr;
         private:
             typedef enum {
                 State_Inactive = 0,
@@ -89,39 +89,6 @@ namespace TrenchBroom {
             void free();
             void freeBlock(VboBlock* block);
 
-            /*
-            template <typename T>
-            size_t writeElement(const size_t address, const T& element) {
-                assert(isMapped());
-                const size_t size = sizeof(T);
-                assert(address + size <= m_totalCapacity);
-                reinterpret_cast<T>(m_buffer + address) = element;
-                return size;
-            }
-            
-            template <typename T>
-            size_t writeElements(const size_t address, const std::vector<T>& elements) {
-                assert(isMapped());
-                const size_t size = elements.size() * sizeof(T);
-                assert(address + size <= m_totalCapacity);
-                
-                typename std::vector<T>::const_iterator it, end;
-                for (it = elements.begin(), end = elements.end(); it != end; ++it)
-                    reinterpret_cast<T>(m_buffer + address) = *it;
-                return size;
-            }
-            
-            template <typename T>
-            size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
-                assert(isMapped());
-                const size_t size = buffer.size() * sizeof(T);
-                assert(address + size <= m_totalCapacity);
-                
-                const T* ptr = &(buffer[0]);
-                memcpy(m_buffer + address, ptr, size);
-                return size;
-            }
-             */
             void increaseCapacityToAccomodate(const size_t capacity);
             void increaseCapacity(size_t delta);
             VboBlockList::iterator findFreeBlock(size_t minCapacity);

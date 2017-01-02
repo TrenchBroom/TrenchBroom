@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -36,6 +36,7 @@
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
+#include <wx/layout.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -174,13 +175,10 @@ namespace TrenchBroom {
             
             SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-
-            SetBackgroundColour(*wxWHITE);
         }
         
         wxWindow* ViewPreferencePane::createViewPreferences() {
             wxPanel* viewBox = new wxPanel(this);
-            viewBox->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* viewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map Views");
             viewPrefsHeader->SetFont(viewPrefsHeader->GetFont().Bold());

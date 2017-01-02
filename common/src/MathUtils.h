@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2014 Kristian Duske
+Copyright (C) 2010-2016 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -106,6 +106,12 @@ namespace Math {
 #else
         return std::isnan(f);
 #endif
+    }
+    
+    template <typename T>
+    bool isinf(const T f) {
+        return (f ==  std::numeric_limits<T>::infinity() ||
+                f == -std::numeric_limits<T>::infinity());
     }
     
     template <typename T>
@@ -403,6 +409,8 @@ namespace Math {
         static const Type PSBelow = 1;
         static const Type PSInside = 2;
     }
+    
+    double nextgreater(double value);
 }
 
 #endif

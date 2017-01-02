@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,9 +29,9 @@ namespace TrenchBroom {
         PointFile::PointFile() :
         m_current(0) {}
 
-        PointFile::PointFile(const IO::Path& mapFilePath) :
+        PointFile::PointFile(const IO::Path& path) :
         m_current(0) {
-            load(pointFilePath(mapFilePath));
+            load(path);
         }
         
         bool PointFile::empty() const {
@@ -70,10 +70,6 @@ namespace TrenchBroom {
         void PointFile::retreat() {
             assert(hasPreviousPoint());
             --m_current;
-        }
-
-        IO::Path PointFile::pointFilePath(const IO::Path& mapFilePath) {
-            return mapFilePath.deleteExtension().addExtension("pts");
         }
         
         void PointFile::load(const IO::Path& pointFilePath) {

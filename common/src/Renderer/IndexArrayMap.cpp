@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -51,10 +51,9 @@ namespace TrenchBroom {
 
         void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
             size_t offset = baseOffset;
-            PrimTypeToSize::const_iterator primIt, primEnd;
-            for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
-                const PrimType primType = primIt->first;
-                const size_t size = primIt->second;
+            for (const auto& entry : m_sizes) {
+                const PrimType primType = entry.first;
+                const size_t size = entry.second;
                 data.insert(std::make_pair(primType, IndexArrayRange(offset, size)));
                 offset += size;
             }
@@ -78,10 +77,9 @@ namespace TrenchBroom {
         }
 
         void IndexArrayMap::render(IndexArray& indexArray) const {
-            PrimTypeToRangeMap::const_iterator primIt, primEnd;
-            for (primIt = m_ranges->begin(), primEnd = m_ranges->end(); primIt != primEnd; ++primIt) {
-                const PrimType primType = primIt->first;
-                const IndexArrayRange& range = primIt->second;
+            for (const auto& entry : *m_ranges) {
+                const PrimType primType = entry.first;
+                const IndexArrayRange& range = entry.second;
                 indexArray.render(primType, range.offset, range.count);
             }
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         class NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueQuickFix : public IssueQuickFix {
         public:
             NonIntegerPlanePointsIssueQuickFix() :
-            IssueQuickFix("Convert plane points to integer") {}
+            IssueQuickFix(NonIntegerPlanePointsIssue::Type, "Convert plane points to integer") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->findPlanePoints();
@@ -66,10 +66,7 @@ namespace TrenchBroom {
         }
 
         void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                const BrushFace* face = *it;
+            for (const BrushFace* face : brush->faces()) {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {
                     const Vec3& point = points[i];

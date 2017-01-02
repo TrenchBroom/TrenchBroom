@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,6 +21,8 @@
 
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "IO/CharArrayReader.h"
+#include "IO/FileSystem.h"
 
 #include <algorithm>
 #include <cstring>
@@ -28,60 +30,54 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Palette::Palette(const IO::Path& path) {
-            if (StringUtils::caseInsensitiveEqual(path.extension(), "lmp"))
-                loadLmpPalette(path);
-            else if (StringUtils::caseInsensitiveEqual(path.extension(), "pcx"))
-                loadPcxPalette(path);
-            else
-                throw FileSystemException("Unknown palette format " + path.asString());
-        }
-
-        Palette::Palette(const Palette& other) :
-        m_data(NULL),
-        m_size(other.m_size) {
-            m_data = new unsigned char[m_size];
-            memcpy(m_data, other.m_data, m_size);
-        }
-
-        void Palette::operator=(Palette other) {
-            using std::swap;
-            swap(m_data, other.m_data);
-            swap(m_size, other.m_size);
-        }
-
-        Palette::~Palette() {
-            delete[] m_data;
-        }
-
-        void Palette::loadLmpPalette(const IO::Path& path) {
-            std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
-            if (!stream.is_open())
-                throw FileSystemException("Cannot load palette " + path.asString());
-            
-            stream.seekg(0, std::ios::end);
-            m_size = static_cast<size_t>(stream.tellg());
-            stream.seekg(0, std::ios::beg);
-            m_data = new unsigned char[m_size];
-            
-            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
+        Palette::Data::Data(const size_t size, unsigned char* data) :
+        m_size(size),
+        m_data(data) {
+            assert(m_size > 0);
+            ensure(m_data != NULL, "data is null");
         }
         
-        void Palette::loadPcxPalette(const IO::Path& path) {
-            std::ifstream stream(path.asString().c_str(), std::ios::binary | std::ios::in);
-            if (!stream.is_open())
-                throw FileSystemException("Cannot load palette " + path.asString());
+        Palette::Data::~Data() {
+            delete [] m_data;
+        }
+
+        Palette::Palette(const size_t size, unsigned char* data) :
+        m_data(new Data(size, data)) {}
+
+        Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
+            try {
+                IO::MappedFile::Ptr file = fs.openFile(path);
+                const String extension = StringUtils::toLower(path.extension());
+                if (extension == "lmp")
+                    return loadLmp(file);
+                else if (extension == "pcx")
+                    return loadPcx(file);
+                else
+                    throw new AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
+            } catch (const FileSystemException& e) {
+                throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
+            }
+        }
+        
+        Palette Palette::loadLmp(IO::MappedFile::Ptr file) {
+            const size_t size = file->size();
+            unsigned char* data = new unsigned char[size];
             
-            m_size = 768;
-            stream.seekg(-(static_cast<std::iostream::off_type>(m_size+1)), std::ios::end);
+            IO::CharArrayReader reader(file->begin(), file->end());
+            reader.read(data, size);
             
-            char magic;
-            stream.get(magic);
-            if (magic != 0x0C)
-               throw FileSystemException("Cannot load palette " + path.asString());
+            return Palette(size, data);
+        }
+        
+        Palette Palette::loadPcx(IO::MappedFile::Ptr file) {
+            const size_t size = 768;
+            unsigned char* data = new unsigned char[size];
             
-            m_data = new unsigned char[m_size];
-            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
+            IO::CharArrayReader reader(file->begin(), file->end());
+            reader.seekFromEnd(size);
+            reader.read(data, size);
+            
+            return Palette(size, data);
         }
     }
 }

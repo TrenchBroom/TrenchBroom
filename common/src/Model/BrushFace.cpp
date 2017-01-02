@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         m_cachedVertices(0),
         m_verticesValid(false),
         m_attribs(attribs) {
-            assert(m_texCoordSystem != NULL);
+            ensure(m_texCoordSystem != NULL, "texCoordSystem is null");
             setPoints(point0, point1, point2);
         }
 
@@ -97,8 +97,8 @@ namespace TrenchBroom {
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
-            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
-            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(true)));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(false)));
         }
 
         BrushFace::~BrushFace() {
@@ -151,13 +151,13 @@ namespace TrenchBroom {
         }
 
         Vec3 BrushFace::center() const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
-            return Vec3::center(boundary.begin(), boundary.end(), BrushGeometry::GetVertexPosition());
+            return Vec3::center(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
         Vec3 BrushFace::boundsCenter() const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
 
             const Mat4x4 toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
@@ -284,7 +284,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
-            assert(textureManager != NULL);
+            ensure(textureManager != NULL, "textureManager is null");
             Assets::Texture* texture = textureManager->texture(textureName());
             setTexture(texture);
             invalidateVertexCache();
@@ -294,6 +294,15 @@ namespace TrenchBroom {
             if (texture == m_attribs.texture())
                 return;
             m_attribs.setTexture(texture);
+            if (m_brush != NULL)
+                m_brush->faceDidChange();
+            invalidateVertexCache();
+        }
+
+        void BrushFace::unsetTexture() {
+            if (m_attribs.texture() == NULL)
+                return;
+            m_attribs.unsetTexture();
             if (m_brush != NULL)
                 m_brush->faceDidChange();
             invalidateVertexCache();
@@ -423,38 +432,13 @@ namespace TrenchBroom {
         }
 
         void BrushFace::updatePointsFromVertices() {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
 
-            // Find a triple of consecutive vertices s.t. the (normalized) vectors from the mid vertex to the other two
-            // have the smallest dot value of all such triples. This is to have better precision when computing the
-            // boundary plane normal from these vectors.
-            FloatType bestDot = 1.0;
-            const BrushHalfEdge* best = NULL;
-            
             const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-            
-            do {
-                m_points[2] = current->next()->origin()->position();
-                m_points[0] = current->origin()->position();
-                m_points[1] = current->previous()->origin()->position();
-
-                const Vec3 v1 = (m_points[2] - m_points[0]).normalized();
-                const Vec3 v2 = (m_points[1] - m_points[0]).normalized();
-                const FloatType dot = std::abs(v1.dot(v2));
-                if (dot < bestDot) {
-                    bestDot = dot;
-                    best = current;
-                }
-
-                current = current->next();
-            } while (current != first && bestDot > 0.0);
-
-            assert(best != NULL);
             const Vec3 oldNormal = m_boundary.normal;
-            setPoints(best->origin()->position(),
-                      best->previous()->origin()->position(),
-                      best->next()->origin()->position());
+            setPoints(first->next()->origin()->position(),
+                      first->origin()->position(),
+                      first->previous()->origin()->position());
 
             m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
         }
@@ -495,18 +479,41 @@ namespace TrenchBroom {
         }
 
         size_t BrushFace::vertexCount() const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
             return m_geometry->boundary().size();
         }
 
         BrushFace::EdgeList BrushFace::edges() const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
             return EdgeList(m_geometry->boundary());
         }
 
         BrushFace::VertexList BrushFace::vertices() const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
             return VertexList(m_geometry->boundary());
+        }
+
+        bool BrushFace::hasVertices(const Polygon3& vertices) const {
+            ensure(m_geometry != NULL, "geometry is null");
+
+            if (vertices.vertexCount() != vertexCount())
+                return false;
+            
+            const BrushGeometry::HalfEdge* currentEdge = m_geometry->findHalfEdge(vertices.vertices().front());
+            if (currentEdge == NULL)
+                return false;
+            
+            for (size_t i = 1; i < vertexCount(); ++i) {
+                currentEdge = currentEdge->next();
+                if (!currentEdge->origin()->position().equals(vertices.vertices()[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        Polygon3 BrushFace::polygon() const {
+            ensure(m_geometry != NULL, "geometry is null");
+            return Polygon3(m_geometry->vertexPositions());
         }
 
         BrushFaceGeometry* BrushFace::geometry() const {
@@ -592,7 +599,7 @@ namespace TrenchBroom {
         }
 
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
-            assert(m_geometry != NULL);
+            ensure(m_geometry != NULL, "geometry is null");
 
             const FloatType dot = m_boundary.normal.dot(ray.direction);
             if (!Math::neg(dot))

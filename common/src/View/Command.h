@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class Command {
         public:
             typedef size_t CommandType;
-            typedef std::tr1::shared_ptr<Command> Ptr;
+            typedef std::shared_ptr<Command> Ptr;
             
             typedef enum {
                 CommandState_Default,
@@ -58,6 +58,8 @@ namespace TrenchBroom {
             virtual bool performDo(MapDocumentCommandFacade* document);
         private:
             virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
+
+            deleteCopyAndAssignment(Command)
         };
     }
 }

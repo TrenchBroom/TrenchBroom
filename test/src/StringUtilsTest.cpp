@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -119,6 +119,53 @@ namespace StringUtils {
         ASSERT_EQ(String("asdf/yo"), join(components, "/"));
     }
     
+    TEST(StringUtilsTest, escapeAndJoin) {
+        ASSERT_EQ(String(""), StringUtils::escapeAndJoin(EmptyStringList, ';'));
+        ASSERT_EQ(String("test"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test"), ';'));
+        ASSERT_EQ(String("test\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test\\"), ';'));
+        ASSERT_EQ(String("test1;test2"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1", "test2"), ';'));
+        ASSERT_EQ(String("test1\\;;test2\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1;", "test2\\"), ';'));
+    }
+
+    TEST(StringUtilsTest, splitAndUnscape) {
+        StringList result;
+        
+        result = StringUtils::splitAndUnescape("", ';');
+        ASSERT_TRUE(result.empty());
+
+        result = StringUtils::splitAndUnescape("test", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test"), result[0]);
+
+        result = StringUtils::splitAndUnescape("test\\\\", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test\\"), result[0]);
+
+        result = StringUtils::splitAndUnescape("test\\;", ';');
+        ASSERT_EQ(1u, result.size());
+        ASSERT_EQ(String("test;"), result[0]);
+
+        result = StringUtils::splitAndUnescape(";test", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String(""), result[0]);
+        ASSERT_EQ(String("test"), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test;", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test"), result[0]);
+        ASSERT_EQ(String(""), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test1;test2", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test1"), result[0]);
+        ASSERT_EQ(String("test2"), result[1]);
+        
+        result = StringUtils::splitAndUnescape("test1\\;;\\;test2", ';');
+        ASSERT_EQ(2u, result.size());
+        ASSERT_EQ(String("test1;"), result[0]);
+        ASSERT_EQ(String(";test2"), result[1]);
+    }
+    
     TEST(StringUtilsTest, sortCaseSensitive) {
         StringList strs;
         strs.push_back("bam");
@@ -184,21 +231,34 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, matchesPattern) {
-        ASSERT_TRUE(matchesPattern("", ""));
-        ASSERT_TRUE(matchesPattern("", "*"));
-        ASSERT_FALSE(matchesPattern("", "?"));
-        ASSERT_TRUE(matchesPattern("asdf", "asdf"));
-        ASSERT_TRUE(matchesPattern("asdf", "*"));
-        ASSERT_TRUE(matchesPattern("asdf", "a??f"));
-        ASSERT_FALSE(matchesPattern("asdf", "a?f"));
-        ASSERT_TRUE(matchesPattern("asdf", "*f"));
-        ASSERT_TRUE(matchesPattern("asdf", "a*f"));
-        ASSERT_TRUE(matchesPattern("asdf", "?s?f"));
-        ASSERT_TRUE(matchesPattern("asdfjkl", "a*f*l"));
-        ASSERT_TRUE(matchesPattern("asdfjkl", "*a*f*l*"));
-        ASSERT_TRUE(matchesPattern("asd*fjkl", "*a*f*l*"));
-        ASSERT_TRUE(matchesPattern("asd*fjkl", "asd\\*fjkl"));
-        ASSERT_TRUE(matchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("", ""));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("", "*"));
+        ASSERT_FALSE(caseSensitiveMatchesPattern("", "?"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "asdf"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "a??f"));
+        ASSERT_FALSE(caseSensitiveMatchesPattern("asdf", "a?f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "*f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "a*f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdf", "?s?f"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdfjkl", "a*f*l"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asdfjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*fjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*fjkl", "asd\\*fjkl"));
+        ASSERT_TRUE(caseSensitiveMatchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "asdf"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsdF", "*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "a??f"));
+        ASSERT_FALSE(caseInsensitiveMatchesPattern("AsDF", "a?f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("asdF", "*f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("aSDF", "a*f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASDF", "?s?f"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsDfjkl", "a*f*l"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("AsDfjkl", "*a*f*l*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "*a*f*l*"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "asd\\*fjkl"));
+        ASSERT_TRUE(caseInsensitiveMatchesPattern("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
     }
     
     TEST(StringUtilsTest, escape) {

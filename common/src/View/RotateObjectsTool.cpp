@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,14 +31,10 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(NULL),
         m_handle(),
-        m_angle(Math::radians(15.0)),
-        m_firstActivation(true) {}
+        m_angle(Math::radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
-            if (m_firstActivation) {
-                resetRotationCenter();
-                m_firstActivation = false;
-            }
+            resetRotationCenter();
             return true;
         }
 
@@ -69,7 +65,7 @@ namespace TrenchBroom {
         
         void RotateObjectsTool::setRotationCenter(const Vec3& position) {
             m_handle.setPosition(position);
-            m_toolPage->setCenter(position);
+            m_toolPage->setCurrentCenter(position);
             refreshViews();
         }
         
@@ -92,6 +88,7 @@ namespace TrenchBroom {
         void RotateObjectsTool::commitRotation() {
             MapDocumentSPtr document = lock(m_document);
             document->commitTransaction();
+            updateRecentlyUsedCenters(rotationCenter());
         }
         
         void RotateObjectsTool::cancelRotation() {
@@ -139,6 +136,12 @@ namespace TrenchBroom {
         }
         void RotateObjectsTool::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
             m_handle.renderHighlight3D(renderContext, renderBatch, area);
+        }
+
+        void RotateObjectsTool::updateRecentlyUsedCenters(const Vec3& center) {
+            VectorUtils::erase(m_recentlyUsedCenters, center);
+            m_recentlyUsedCenters.push_back(center);
+            m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
         }
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {

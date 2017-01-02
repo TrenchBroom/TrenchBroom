@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -26,18 +26,18 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
-        MapReader(begin, end, logger),
+        WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
+        MapReader(begin, end),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(NULL) {}
         
-        WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
-        MapReader(str, logger),
+        WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
+        MapReader(str),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(NULL) {}
         
-        Model::World* WorldReader::read(Model::MapFormat::Type format, const BBox3& worldBounds) {
-            readEntities(format, worldBounds);
+        Model::World* WorldReader::read(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+            readEntities(format, worldBounds, status);
             return m_world;
         }
 
@@ -47,38 +47,41 @@ namespace TrenchBroom {
             return m_world;
         }
         
-        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world, extraAttributes);
             return m_world->defaultLayer();
         }
 
-        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {
+        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
             m_world->setFilePosition(lineNumber, lineCount);
         }
 
-        void WorldReader::onLayer(Model::Layer* layer) {
+        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& status) {
             m_world->addChild(layer);
         }
         
-        void WorldReader::onNode(Model::Node* parent, Model::Node* node) {
+        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
             if (parent != NULL)
                 parent->addChild(node);
             else
                 m_world->defaultLayer()->addChild(node);
         }
         
-        void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) {
-            if (logger() != NULL) {
-                if (parentInfo.layer())
-                    logger()->warn("Entity at line %u references missing layer '%u', adding to default layer", node->lineNumber(), parentInfo.id());
-                else
-                    logger()->warn("Entity at line %u references missing group '%u', adding to default layer", node->lineNumber(), parentInfo.id());
+        void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
+            if (parentInfo.layer()) {
+                StringStream msg;
+                msg << "Entity references missing layer '" << parentInfo.id() << "', adding to default layer";
+                status.warn(node->lineNumber(), msg.str());
+            } else {
+                StringStream msg;
+                msg << "Entity references missing group '" << parentInfo.id() << "', adding to default layer";
+                status.warn(node->lineNumber(), msg.str());
             }
             m_world->defaultLayer()->addChild(node);
         }
         
-        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush) {
+        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
             if (parent != NULL)
                 parent->addChild(brush);
             else

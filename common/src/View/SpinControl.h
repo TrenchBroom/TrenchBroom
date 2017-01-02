@@ -1,5 +1,5 @@
 #/*
-Copyright (C) 2010-2014 Kristian Duske
+Copyright (C) 2010-2016 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             double GetValue() const;
             virtual wxEvent* Clone() const;
         private:
-            DECLARE_DYNAMIC_CLASS(SpinControlEvent)
+            wxDECLARE_DYNAMIC_CLASS(SpinControlEvent);
         };
         
         class SpinControl : public wxPanel {

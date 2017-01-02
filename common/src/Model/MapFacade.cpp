@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,22 +30,5 @@ namespace TrenchBroom {
         MapFacade::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
         success(i_success),
         hasRemainingVertices(i_hasRemainingVertices) {}
-
-        bool MapFacade::snapVertices(const size_t snapTo) {
-            return snapVertices(VertexToBrushesMap(), snapTo);
-        }
-
-        PushSelection::PushSelection(MapFacade* facade) :
-        m_facade(facade),
-        m_nodes(m_facade->selectedNodes().nodes()),
-        m_faces(m_facade->selectedBrushFaces()) {}
-        
-        PushSelection::~PushSelection() {
-            m_facade->deselectAll();
-            if (!m_nodes.empty())
-                m_facade->select(m_nodes);
-            else if (!m_faces.empty())
-                m_facade->select(m_faces);
-        }
     }
 }

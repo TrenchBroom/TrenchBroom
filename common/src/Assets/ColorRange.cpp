@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,13 +21,13 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        ColorRange::Type detectColorRange(const StringList& components);
+        ColorRange::Type detectColorRange(const StringArray& components);
         
         ColorRange::Type detectColorRange(const String& str) {
             return detectColorRange(StringUtils::splitAndTrim(str, " "));
         }
         
-        ColorRange::Type detectColorRange(const StringList& components) {
+        ColorRange::Type detectColorRange(const StringArray& components) {
             if (components.size() != 3)
                 return ColorRange::Unset;
             

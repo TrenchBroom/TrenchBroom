@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,6 +21,8 @@
 
 #include "View/SplitterWindow2.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         const double PersistentSplitterWindow2::Scaling = 10000.0;
@@ -34,7 +36,8 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow2::Save() const {
             const SplitterWindow2* window = Get();
-            const wxCoord scaledRatio = static_cast<int>(Scaling * window->m_currentSplitRatio);
+            const double ratio = window->m_currentSplitRatio == -1.0 ? window->m_initialSplitRatio : window->m_currentSplitRatio;
+            const wxCoord scaledRatio = static_cast<int>(Scaling * ratio);
             SaveValue("SplitRatio", scaledRatio);
         }
         

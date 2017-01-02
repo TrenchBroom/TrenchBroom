@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,9 +23,9 @@
 #include "Preference.h"
 #include "View/ActionContext.h"
 
-#include <wx/wx.h>
-
 #include <vector>
+
+#include <wx/string.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,6 +41,8 @@ namespace TrenchBroom {
             bool m_hasConflicts;
         protected:
             KeyboardShortcutEntry();
+            KeyboardShortcutEntry(const KeyboardShortcutEntry& other);
+            KeyboardShortcutEntry& operator=(const KeyboardShortcutEntry& other);
         public:
             virtual ~KeyboardShortcutEntry();
             

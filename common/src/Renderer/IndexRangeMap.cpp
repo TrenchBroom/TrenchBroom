@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -74,10 +74,9 @@ namespace TrenchBroom {
         }
         
         void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const {
-            PrimTypeToSize::const_iterator primIt, primEnd;
-            for (primIt = m_sizes.begin(), primEnd = m_sizes.end(); primIt != primEnd; ++primIt) {
-                const PrimType primType = primIt->first;
-                const size_t size = primIt->second;
+            for (const auto& entry : m_sizes) {
+                const PrimType primType = entry.first;
+                const size_t size = entry.second;
                 data[primType].reserve(size);
             }
         }
@@ -111,10 +110,9 @@ namespace TrenchBroom {
         }
 
         void IndexRangeMap::render(VertexArray& vertexArray) const {
-            PrimTypeToIndexData::const_iterator primIt, primEnd;
-            for (primIt = m_data->begin(), primEnd = m_data->end(); primIt != primEnd; ++primIt) {
-                const PrimType primType = primIt->first;
-                const IndicesAndCounts& indicesAndCounts = primIt->second;
+            for (const auto& entry : *m_data) {
+                const PrimType primType = entry.first;
+                const IndicesAndCounts& indicesAndCounts = entry.second;
                 const GLsizei primCount = static_cast<GLsizei>(indicesAndCounts.size());
                 vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
             }

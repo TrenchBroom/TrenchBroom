@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,16 +40,13 @@ namespace TrenchBroom {
             const NodeList& children = group->children();
             
             TakeSnapshotVisitor visitor;
-            Node::acceptAndRecurse(children.begin(), children.end(), visitor);
+            Node::acceptAndRecurse(std::begin(children), std::end(children), visitor);
             m_snapshots = visitor.result();
         }
         
         void GroupSnapshot::doRestore(const BBox3& worldBounds) {
-            NodeSnapshotList::const_iterator it, end;
-            for (it = m_snapshots.begin(), end = m_snapshots.end(); it != end; ++it) {
-                NodeSnapshot* snapshot = *it;
+            for (NodeSnapshot* snapshot : m_snapshots)
                 snapshot->restore(worldBounds);
-            }
         }
     }
 }

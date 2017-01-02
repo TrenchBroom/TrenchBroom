@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -59,6 +59,8 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
+
+#include <wx/frame.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -378,10 +380,8 @@ namespace TrenchBroom {
             }
             
             void doVisit(const Model::Brush* brush)   {
-                const Model::Brush::VertexList vertices = brush->vertices();
-                Model::Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                    addPoint((*it)->position());
+                for (const Model::BrushVertex* vertex : brush->vertices())
+                    addPoint(vertex->position());
             }
             
             void addPoint(const Vec3& point) {
@@ -426,10 +426,7 @@ namespace TrenchBroom {
             }
             
             void doVisit(const Model::Brush* brush)   {
-                const Model::Brush::VertexList vertices = brush->vertices();
-                Model::Brush::VertexList::const_iterator it, end;
-                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                    const Model::BrushVertex* vertex = *it;
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
                     for (size_t j = 0; j < 4; ++j)
                         addPoint(vertex->position(), m_frustumPlanes[j]);
                 }
@@ -446,7 +443,7 @@ namespace TrenchBroom {
 
         Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
             ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), center);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 
             const Vec3 newPosition = center.position();
             
@@ -458,7 +455,7 @@ namespace TrenchBroom {
             m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
             ComputeCameraCenterOffsetVisitor offset(m_camera.position(), m_camera.direction(), frustumPlanes);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), offset);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), offset);
             
             // jump back
             m_camera.moveTo(oldPosition);
@@ -492,12 +489,16 @@ namespace TrenchBroom {
         Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
-                    Vec3 dir = m_camera.direction().firstAxis();
-                    if (dir.z() < 0.0)
-                        dir = m_camera.up().firstAxis();
-                    else if (dir.z() > 0.0)
-                        dir = -m_camera.up().firstAxis();
-                    return dir;
+                    const Plane3 plane(m_camera.position(), Vec3::PosZ);
+                    const Vec3 projectedDirection = plane.projectVector(m_camera.direction());
+                    if (projectedDirection.null()) {
+                        // camera is looking straight down or up
+                        if (m_camera.direction().z() < 0.0)
+                            return m_camera.up().firstAxis();
+                        else
+                            return -m_camera.up().firstAxis();
+                    }
+                    return projectedDirection.firstAxis();
                 }
                 case Math::Direction_Backward:
                     return -doGetMoveDirection(Math::Direction_Forward);
@@ -555,15 +556,19 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView3D::doCreateRenderContext() {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, fontManager(), shaderManager());
+        Renderer::RenderContext::RenderMode MapView3D::doGetRenderMode() {
+            return Renderer::RenderContext::RenderMode_3D;
+        }
+        
+        Renderer::Camera& MapView3D::doGetCamera() {
+            return m_camera;
         }
 
         void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
-
+            
             MapDocumentSPtr document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const BBox3& bounds = document->selectionBounds();
@@ -581,6 +586,14 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
         
+        bool MapView3D::doBeforePopupMenu() {
+            if (cameraFlyModeActive())
+                return false;
+            
+            m_flyModeHelper->resetKeys();
+            return true;
+        }
+
         void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}
     }
 }

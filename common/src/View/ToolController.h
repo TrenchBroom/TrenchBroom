@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -172,14 +172,14 @@ namespace TrenchBroom {
         public:
             virtual ~DragSnapper();
             
-            bool snap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool snap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         private:
-            virtual bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const = 0;
+            virtual bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const = 0;
         };
         
         class NoDragSnapper : public DragSnapper {
         private:
-            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         };
         
         class Grid;
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         public:
             AbsoluteDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         };
         
         class DeltaDragSnapper : public DragSnapper {
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         public:
             DeltaDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         };
         
         class CircleDragSnapper : public DragSnapper {
@@ -212,7 +212,7 @@ namespace TrenchBroom {
         public:
             CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, FloatType radius);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         };
         
         class SurfaceDragSnapper : public SurfaceDragHelper, public DragSnapper {
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         public:
             SurfaceDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         private:
             virtual Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
         };

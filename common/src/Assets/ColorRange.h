@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
 
         ColorRange::Type detectColorRange(const String& str);
-        ColorRange::Type detectColorRange(const StringList& components);
+        ColorRange::Type detectColorRange(const StringArray& components);
     }
 }
 

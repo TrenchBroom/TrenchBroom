@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,22 +34,19 @@ namespace TrenchBroom {
         m_ignoreNotifications(false) {}
         
         CameraLinkHelper::~CameraLinkHelper() {
-            CameraList::iterator it, end;
-            for (it = m_cameras.begin(), end = m_cameras.end(); it != end; ++it) {
-                Renderer::Camera* camera = *it;
+            for (Renderer::Camera* camera : m_cameras)
                 camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
-            }
         }
         
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
-            assert(camera != NULL);
+            ensure(camera != NULL, "camera is null");
             assert(!VectorUtils::contains(m_cameras, camera));
             m_cameras.push_back(camera);
             camera->cameraDidChangeNotifier.addObserver(this, &CameraLinkHelper::cameraDidChange);
         }
         
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
-            assert(camera != NULL);
+            ensure(camera != NULL, "camera is null");
             assertResult(VectorUtils::erase(m_cameras, camera));
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
@@ -58,9 +55,7 @@ namespace TrenchBroom {
             if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
                 const SetBool ignoreNotifications(m_ignoreNotifications);
                 
-                CameraList::iterator it, end;
-                for (it = m_cameras.begin(), end = m_cameras.end(); it != end; ++it) {
-                    Renderer::Camera* other = *it;
+                for (Renderer::Camera* other : m_cameras) {
                     if (camera != other) {
                         other->setZoom(camera->zoom());
                         

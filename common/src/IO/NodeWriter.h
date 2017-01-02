@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class NodeWriter {
         private:
-            typedef std::map<Model::Entity*, Model::BrushList> EntityBrushesMap;
+            typedef std::map<Model::Entity*, Model::BrushArray> EntityBrushesMap;
             class CollectEntityBrushesStrategy;
             class WriteNode;
             
@@ -42,6 +42,7 @@ namespace TrenchBroom {
         public:
             NodeWriter(Model::World* world, FILE* stream);
             NodeWriter(Model::World* world, std::ostream& stream);
+            NodeWriter(Model::World* world, NodeSerializer* serializer);
             
             void writeMap();
         private:
@@ -49,12 +50,12 @@ namespace TrenchBroom {
             void writeCustomLayers();
             void writeCustomLayer(Model::Layer* layer);
         public:
-            void writeNodes(const Model::NodeList& nodes);
+            void writeNodes(const Model::NodeArray& nodes);
         private:
-            void writeWorldBrushes(const Model::BrushList& brushes);
+            void writeWorldBrushes(const Model::BrushArray& brushes);
             void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
         public:
-            void writeBrushFaces(const Model::BrushFaceList& faces);
+            void writeBrushFaces(const Model::BrushFaceArray& faces);
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
             m_oldPolyhedron() {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
         public:
             virtual ~Part() {}
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         
         CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
             addController(new DrawFacePart(m_tool));
             addController(new DuplicateFacePart(m_tool));
         }
@@ -235,10 +235,8 @@ namespace TrenchBroom {
             Polyhedron3 polyhedron = m_tool->polyhedron();
             const Model::BrushFace* face = Model::hitToFace(hit);
             
-            const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                polyhedron.addPoint((*it)->position());
+            for (const Model::BrushVertex* vertex : face->vertices())
+                polyhedron.addPoint(vertex->position());
             m_tool->update(polyhedron);
             
             return true;
@@ -261,19 +259,11 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
-                const Polyhedron3::EdgeList& edges = polyhedron.edges();
-                Polyhedron3::EdgeList::const_iterator eIt, eEnd;
-                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
-                    const Polyhedron3::Edge* edge = *eIt;
+                for (const Polyhedron3::Edge* edge : polyhedron.edges())
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
-                }
                 
-                const Polyhedron3::VertexList& vertices = polyhedron.vertices();
-                Polyhedron3::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                    const Polyhedron3::Vertex* vertex = *vIt;
+                for (const Polyhedron3::Vertex* vertex : polyhedron.vertices())
                     renderService.renderPointHandle(vertex->position());
-                }
                 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     const Polyhedron3::Face* face = polyhedron.faces().front();
@@ -285,7 +275,7 @@ namespace TrenchBroom {
                     renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
                     renderService.renderFilledPolygon(pos3f);
 
-                    std::reverse(pos3f.begin(), pos3f.end());
+                    std::reverse(std::begin(pos3f), std::end(pos3f));
                     renderService.renderFilledPolygon(pos3f);
                 }
             }

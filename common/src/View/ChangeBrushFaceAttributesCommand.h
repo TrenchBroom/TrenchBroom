@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ChangeBrushFaceAttributesCommand> Ptr;
+            typedef std::shared_ptr<ChangeBrushFaceAttributesCommand> Ptr;
         private:
             
             Model::ChangeBrushFaceAttributesRequest m_request;
@@ -52,6 +52,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            ChangeBrushFaceAttributesCommand(const ChangeBrushFaceAttributesCommand& other);
+            ChangeBrushFaceAttributesCommand& operator=(const ChangeBrushFaceAttributesCommand& other);
         };
     }
 }

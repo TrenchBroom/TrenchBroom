@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,64 +27,64 @@ namespace TrenchBroom {
     namespace Model {
         class CollectLayersStrategy {
         private:
-            LayerList m_layers;
+            LayerArray m_layers;
         public:
-            const LayerList& layers() const;
+            const LayerArray& layers() const;
         protected:
             void addLayer(Layer* layer);
         };
         
         class SkipLayersStrategy {
         public:
-            const LayerList& layers() const;
+            const LayerArray& layers() const;
         protected:
             void addLayer(Layer* layer);
         };
 
         class CollectGroupsStrategy {
         private:
-            GroupList m_groups;
+            GroupArray m_groups;
         public:
-            const GroupList& groups() const;
+            const GroupArray& groups() const;
         protected:
             void addGroup(Group* group);
         };
         
         class SkipGroupsStrategy {
         public:
-            const GroupList& groups() const;
+            const GroupArray& groups() const;
         protected:
             void addGroup(Group* group);
         };
         
         class CollectEntitiesStrategy {
         private:
-            EntityList m_entities;
+            EntityArray m_entities;
         public:
-            const EntityList& entities() const;
+            const EntityArray& entities() const;
         protected:
             void addEntity(Entity* entity);
         };
         
         class SkipEntitiesStrategy {
         public:
-            const EntityList& entities() const;
+            const EntityArray& entities() const;
         protected:
             void addEntity(Entity* entity);
         };
 
         class CollectBrushesStrategy {
         private:
-            BrushList m_brushes;
+            BrushArray m_brushes;
         public:
-            const BrushList& brushes() const;
+            const BrushArray& brushes() const;
         protected:
             void addBrush(Brush* brush);
         };
         
         class SkipBrushesStrategy {
         public:
-            const BrushList& brushes() const;
+            const BrushArray& brushes() const;
         protected:
             void addBrush(Brush* brush);
         };

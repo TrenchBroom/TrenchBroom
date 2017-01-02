@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,7 @@
 #include <wx/choice.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <wx/combobox.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -46,14 +46,26 @@ namespace TrenchBroom {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
-        void RotateObjectsToolPage::setCenter(const Vec3& center) {
-            m_centerTxt->SetValue(center.asString());
+        void RotateObjectsToolPage::setRecentlyUsedCenters(const Vec3::List& centers) {
+            m_recentlyUsedCentersList->Clear();
+            
+            Vec3::List::const_reverse_iterator it, end;
+            for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
+                const Vec3& center = *it;
+                m_recentlyUsedCentersList->Append(center.asString());
+            }
+            
+            if (m_recentlyUsedCentersList->GetCount() > 0)
+                m_recentlyUsedCentersList->SetSelection(0);
+        }
+        
+        void RotateObjectsToolPage::setCurrentCenter(const Vec3& center) {
+            m_recentlyUsedCentersList->SetValue(center.asString());
         }
 
         void RotateObjectsToolPage::createGui() {
             wxStaticText* centerText = new wxStaticText(this, wxID_ANY, "Center");
-            m_centerTxt = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_centerTxt->SetToolTip("Hit Return to set the rotate handle to the entered coordinates.");
+            m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxTE_PROCESS_ENTER);
             
             m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
@@ -73,7 +85,8 @@ namespace TrenchBroom {
             m_rotateButton = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             
             Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
-            m_centerTxt->Bind(wxEVT_TEXT_ENTER, &RotateObjectsToolPage::OnCenterChanged, this);
+            m_recentlyUsedCentersList->Bind(wxEVT_TEXT_ENTER, &RotateObjectsToolPage::OnCenterChanged, this);
+            m_recentlyUsedCentersList->Bind(wxEVT_COMBOBOX, &RotateObjectsToolPage::OnCenterChanged, this);
             m_resetCenterButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnResetCenter, this);
             m_angle->Bind(SPIN_CONTROL_EVENT, &RotateObjectsToolPage::OnAngleChanged, this);
             m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
@@ -85,7 +98,7 @@ namespace TrenchBroom {
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(centerText, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_centerTxt, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->Add(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_resetCenterButton, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::MediumHMargin);
@@ -117,7 +130,7 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const Vec3 center = Vec3::parse(m_centerTxt->GetValue().ToStdString());
+            const Vec3 center = Vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
             m_tool->setRotationCenter(center);
         }
         

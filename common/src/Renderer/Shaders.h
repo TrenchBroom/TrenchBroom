@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,6 @@ namespace TrenchBroom {
             extern const ShaderConfig TextBackgroundShader;
             extern const ShaderConfig TextureBrowserShader;
             extern const ShaderConfig TextureBrowserBorderShader;
-            extern const ShaderConfig BrowserGroupShader;
             extern const ShaderConfig HandleShader;
             extern const ShaderConfig ColoredHandleShader;
             extern const ShaderConfig CompassShader;

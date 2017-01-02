@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,14 +24,13 @@
 #include "Assets/TextureManager.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
-#include "View/TextureBrowserView.h"
 #include "View/TextureSelectedCommand.h"
 
 #include <wx/choice.h>
 #include <wx/event.h>
 #include <wx/tglbtn.h>
-#include <wx/srchctrl.h>
 #include <wx/sizer.h>
+#include <wx/srchctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -56,13 +55,13 @@ namespace TrenchBroom {
             m_view->setSelectedTexture(selectedTexture);
         }
 
-        void TextureBrowser::setSortOrder(const Assets::TextureManager::SortOrder sortOrder) {
+        void TextureBrowser::setSortOrder(const TextureBrowserView::SortOrder sortOrder) {
             m_view->setSortOrder(sortOrder);
             switch (sortOrder) {
-                case Assets::TextureManager::SortOrder_Name:
+                case TextureBrowserView::SO_Name:
                     m_sortOrderChoice->SetSelection(0);
                     break;
-                case Assets::TextureManager::SortOrder_Usage:
+                case TextureBrowserView::SO_Usage:
                     m_sortOrderChoice->SetSelection(1);
                     break;
                 switchDefault()
@@ -88,7 +87,7 @@ namespace TrenchBroom {
         void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Assets::TextureManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::TextureManager::SortOrder_Name : Assets::TextureManager::SortOrder_Usage;
+            const TextureBrowserView::SortOrder sortOrder = event.GetSelection() == 0 ? TextureBrowserView::SO_Name : TextureBrowserView::SO_Usage;
             m_view->setSortOrder(sortOrder);
         }
         
@@ -161,7 +160,6 @@ namespace TrenchBroom {
             outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
 
-            SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);
         }
         
@@ -185,6 +183,7 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &TextureBrowser::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &TextureBrowser::brushFacesDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
+            document->currentTextureNameDidChangeNotifier.addObserver(this, &TextureBrowser::currentTextureNameDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
@@ -200,6 +199,7 @@ namespace TrenchBroom {
                 document->nodesWereRemovedNotifier.removeObserver(this, &TextureBrowser::nodesWereRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &TextureBrowser::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &TextureBrowser::brushFacesDidChange);
+                document->currentTextureNameDidChangeNotifier.removeObserver(this, &TextureBrowser::currentTextureNameDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -234,6 +234,10 @@ namespace TrenchBroom {
             reload();
         }
 
+        void TextureBrowser::currentTextureNameDidChange(const String& textureName) {
+            updateSelectedTexture();
+        }
+
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
@@ -245,9 +249,17 @@ namespace TrenchBroom {
         
         void TextureBrowser::reload() {
             if (m_view != NULL) {
-                m_view->clear();
-                m_view->reload();
+                updateSelectedTexture();
+                m_view->invalidate();
+                m_view->Refresh();
             }
+        }
+
+        void TextureBrowser::updateSelectedTexture() {
+            MapDocumentSPtr document = lock(m_document);
+            const String& textureName = document->currentTextureName();
+            Assets::Texture* texture = document->textureManager().texture(textureName);
+            m_view->setSelectedTexture(texture);
         }
     }
 }

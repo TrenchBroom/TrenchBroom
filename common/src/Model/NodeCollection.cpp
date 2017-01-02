@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -55,18 +55,18 @@ namespace TrenchBroom {
         public:
             RemoveNode(NodeCollection& collection) :
             m_collection(collection),
-            m_nodeRem(m_collection.m_nodes.end()),
-            m_layerRem(m_collection.m_layers.end()),
-            m_groupRem(m_collection.m_groups.end()),
-            m_entityRem(m_collection.m_entities.end()),
-            m_brushRem(m_collection.m_brushes.end()) {}
+            m_nodeRem(std::end(m_collection.m_nodes)),
+            m_layerRem(std::end(m_collection.m_layers)),
+            m_groupRem(std::end(m_collection.m_groups)),
+            m_entityRem(std::end(m_collection.m_entities)),
+            m_brushRem(std::end(m_collection.m_brushes)) {}
             
             ~RemoveNode() {
-                m_collection.m_nodes.erase(m_nodeRem, m_collection.m_nodes.end());
-                m_collection.m_layers.erase(m_layerRem, m_collection.m_layers.end());
-                m_collection.m_groups.erase(m_groupRem, m_collection.m_groups.end());
-                m_collection.m_entities.erase(m_entityRem, m_collection.m_entities.end());
-                m_collection.m_brushes.erase(m_brushRem, m_collection.m_brushes.end());
+                m_collection.m_nodes.erase(m_nodeRem, std::end(m_collection.m_nodes));
+                m_collection.m_layers.erase(m_layerRem, std::end(m_collection.m_layers));
+                m_collection.m_groups.erase(m_groupRem, std::end(m_collection.m_groups));
+                m_collection.m_entities.erase(m_entityRem, std::end(m_collection.m_entities));
+                m_collection.m_brushes.erase(m_brushRem, std::end(m_collection.m_brushes));
             }
         private:
             void doVisit(World* world)   {}
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             
             template <typename V, typename E>
             void remove(V& collection, typename V::iterator& rem, E& elem) {
-                rem = std::remove(collection.begin(), rem, elem);
+                rem = std::remove(std::begin(collection), rem, elem);
             }
         };
 
@@ -138,19 +138,19 @@ namespace TrenchBroom {
         }
 
         NodeList::iterator NodeCollection::begin() {
-            return m_nodes.begin();
+            return std::begin(m_nodes);
         }
         
         NodeList::iterator NodeCollection::end() {
-            return m_nodes.end();
+            return std::end(m_nodes);
         }
         
         NodeList::const_iterator NodeCollection::begin() const {
-            return m_nodes.begin();
+            return std::begin(m_nodes);
         }
         
         NodeList::const_iterator NodeCollection::end() const {
-            return m_nodes.end();
+            return std::end(m_nodes);
         }
 
         const NodeList& NodeCollection::nodes() const {
@@ -175,22 +175,22 @@ namespace TrenchBroom {
         
         void NodeCollection::addNodes(const NodeList& nodes) {
             AddNode visitor(*this);
-            Node::accept(nodes.begin(), nodes.end(), visitor);
+            Node::accept(std::begin(nodes), std::end(nodes), visitor);
         }
         
         void NodeCollection::addNode(Node* node) {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
             AddNode visitor(*this);
             node->accept(visitor);
         }
         
         void NodeCollection::removeNodes(const NodeList& nodes) {
             RemoveNode visitor(*this);
-            Node::accept(nodes.begin(), nodes.end(), visitor);
+            Node::accept(std::begin(nodes), std::end(nodes), visitor);
         }
         
         void NodeCollection::removeNode(Node* node) {
-            assert(node != NULL);
+            ensure(node != NULL, "node is null");
             RemoveNode visitor(*this);
             node->accept(visitor);
         }

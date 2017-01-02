@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         public:
             VertexPartBase(VertexTool* tool) :
             m_tool(tool) {
-                assert(m_tool != NULL);
+                ensure(m_tool != NULL, "tool is null");
             }
         protected:
             Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
@@ -51,9 +51,7 @@ namespace TrenchBroom {
                     const Vec3 firstHitPosition = first.target<Vec3>();
                     
                     const Model::Hit::List matches = pickResult.query().type(any).all();
-                    Model::Hit::List::const_iterator hIt, hEnd;
-                    for (hIt = matches.begin(), hEnd = matches.end(); hIt != hEnd; ++hIt) {
-                        const Model::Hit& hit = *hIt;
+                    for (const Model::Hit& hit : matches) {
                         const Vec3 hitPosition = hit.target<Vec3>();
                         
                         if (hitPosition.distanceTo(firstHitPosition) < MaxVertexDistance) {
@@ -105,6 +103,10 @@ namespace TrenchBroom {
                     !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
                     return DragInfo();
                 
+                const Model::Hit::List hits = firstHits(inputState.pickResult());
+                if (!hits.empty())
+                    return DragInfo();
+                
                 const Renderer::Camera& camera = inputState.camera();
                 const FloatType distance = 64.0f;
                 const Plane3 plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
@@ -115,20 +117,20 @@ namespace TrenchBroom {
             }
             
             DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 m_lasso->setPoint(curPoint);
                 return DR_Continue;
             }
             
             void doEndDrag(const InputState& inputState) {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
                 delete m_lasso;
                 m_lasso = NULL;
             }
             
             void doCancelDrag() {
-                assert(m_lasso != NULL);
+                ensure(m_lasso != NULL, "lasso is null");
                 delete m_lasso;
                 m_lasso = NULL;
             }
@@ -144,7 +146,7 @@ namespace TrenchBroom {
             }
 
             bool doCancel() {
-                return false;
+                return m_tool->cancel();
             }
         };
         
@@ -154,10 +156,29 @@ namespace TrenchBroom {
             MoveToolController(tool->grid()),
             VertexPartBase(tool) {}
         private:
+            typedef enum {
+                ST_Relative,
+                ST_Absolute
+            } SnapType;
+            
+            SnapType m_lastSnapType;
+        private:
             Tool* doGetTool() {
                 return m_tool;
             }
 
+            void doModifierKeyChange(const InputState& inputState) {
+                MoveToolController::doModifierKeyChange(inputState);
+                
+                if (Super::thisToolDragging()) {
+                    const SnapType currentSnapType = snapType(inputState);
+                    if (currentSnapType != m_lastSnapType) {
+                        setSnapper(inputState, doCreateDragSnapper(inputState));
+                        m_lastSnapType = currentSnapType;
+                    }
+                }
+            }
+            
             bool doMouseDoubleClick(const InputState& inputState) {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                     !inputState.checkModifierKeys(MK_No, MK_No, MK_No))
@@ -174,7 +195,9 @@ namespace TrenchBroom {
             MoveInfo doStartMove(const InputState& inputState) {
                 if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                       (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt))))
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd))))
                     return MoveInfo();
                 
                 static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
@@ -185,6 +208,7 @@ namespace TrenchBroom {
                 if (!m_tool->beginMove(hit))
                     return MoveInfo();
                 
+                m_lastSnapType = snapType(inputState);
                 return MoveInfo(hit.target<Vec3>());
             }
             
@@ -208,6 +232,16 @@ namespace TrenchBroom {
                 m_tool->cancelMove();
             }
             
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                switch (snapType(inputState)) {
+                    case ST_Absolute:
+                        return new AbsoluteDragSnapper(m_tool->grid());
+                    case ST_Relative:
+                        return new DeltaDragSnapper(m_tool->grid());
+                    switchDefault();
+                }
+            }
+            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 MoveToolController::doRender(inputState, renderContext, renderBatch);
                 
@@ -226,6 +260,7 @@ namespace TrenchBroom {
                             else if (hit.type() == VertexHandleManager::FaceHandleHit)
                                 m_tool->renderFaceHighlight(renderContext, renderBatch, position);
                         }
+                        
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                             m_tool->renderGuide(renderContext, renderBatch, position);
                     }
@@ -235,9 +270,15 @@ namespace TrenchBroom {
             bool doCancel() {
                 return m_tool->cancel();
             }
+        private:
+            SnapType snapType(const InputState& inputState) const {
+                if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd))
+                    return ST_Absolute;
+                return ST_Relative;
+            }
         };
         
-        class VertexToolController::SnapVertexPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public VertexPartBase {
+        class VertexToolController::SnapVertexPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public VertexPartBase {
         public:
             SnapVertexPart(VertexTool* tool) :
             VertexPartBase(tool) {}
@@ -259,69 +300,6 @@ namespace TrenchBroom {
                 return true;
             }
             
-            class VertexDragRestricter : public DragRestricter {
-            private:
-                VertexTool* m_tool;
-            public:
-                VertexDragRestricter(VertexTool* tool) :
-                m_tool(tool) {
-                    assert(m_tool != NULL);
-                }
-            private:
-                bool doComputeHitPoint(const InputState& inputState, Vec3& point) const {
-                    const Model::Hit& hit = inputState.pickResult().query().type(VertexHandleManager::VertexHandleHit).occluded().first();
-                    if (!hit.isMatch())
-                        return false;
-                    const Vec3 position = hit.target<Vec3>();
-                    if (m_tool->handleSelected(position))
-                        return false;
-                    point = position;
-                    return true;
-                }
-            };
-            
-            DragInfo doStartDrag(const InputState& inputState) {
-                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                    !inputState.checkModifierKeys(MK_No, MK_Yes, MK_Yes))
-                    return DragInfo();
-                
-                const Model::Hit& hit = inputState.pickResult().query().type(VertexHandleManager::VertexHandleHit).occluded().first();
-                if (!hit.isMatch())
-                    return DragInfo();
-
-                if (!m_tool->beginMove(hit))
-                    return DragInfo();
-
-                return DragInfo(new VertexDragRestricter(m_tool), new NoDragSnapper(), hit.target<Vec3>());
-            }
-            
-            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                switch (m_tool->move(curPoint - lastPoint)) {
-                    case VertexTool::MR_Continue:
-                        return DR_Continue;
-                    case VertexTool::MR_Deny:
-                        return DR_Deny;
-                    case VertexTool::MR_Cancel:
-                        return DR_Cancel;
-                        switchDefault()
-                }
-            }
-            
-            void doEndDrag(const InputState& inputState) {
-                m_tool->endMove();
-            }
-            
-            void doCancelDrag() {
-                m_tool->cancelMove();
-            }
-            
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (thisToolDragging()) {
-                    m_tool->renderHighlight(renderContext, renderBatch);
-                    m_tool->renderGuide(renderContext, renderBatch);
-                }
-            }
-            
             bool doCancel() {
                 return m_tool->cancel();
             }
@@ -329,10 +307,10 @@ namespace TrenchBroom {
         
         VertexToolController::VertexToolController(VertexTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
             addController(new MoveVertexPart(tool));
-            addController(new SnapVertexPart(tool));
             addController(new SelectVertexPart(tool));
+            addController(new SnapVertexPart(tool));
         }
 
         VertexToolController::~VertexToolController() {}

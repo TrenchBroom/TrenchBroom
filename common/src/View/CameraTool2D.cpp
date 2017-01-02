@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,23 +37,22 @@ namespace TrenchBroom {
         
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
-                const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                 if (inputState.scrollY() != 0.0f) {
-                    const Vec2f mousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
-                    const Vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-                    
+                    const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                     const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
-                    m_camera.zoom(factor);
-                    
-                    const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-                    const Vec3f delta = newWorldPos - oldWorldPos;
-                    m_camera.moveBy(-delta);
+                    const Vec2f mousePos(static_cast<float>(inputState.mouseX()),
+                                         static_cast<float>(inputState.mouseY()));
+                    zoom(inputState, mousePos, factor);
                 }
             }
         }
         
         bool CameraTool2D::doStartMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
+                m_lastMousePos = Vec2f(static_cast<float>(inputState.mouseX()),
+                                       static_cast<float>(inputState.mouseY()));
+                return true;
+            } else if (dragZoom(inputState)) {
                 m_lastMousePos = Vec2f(static_cast<float>(inputState.mouseX()),
                                        static_cast<float>(inputState.mouseY()));
                 return true;
@@ -70,16 +69,18 @@ namespace TrenchBroom {
                 m_camera.moveBy(-delta);
                 m_lastMousePos = currentMousePos;
                 return true;
+            } else if (dragZoom(inputState)) {
+                const float speed = pref(Preferences::CameraAltMoveInvert) ? 1.0 : -1.0;
+                const float factor = 1.0f + inputState.mouseDY() / 100.0f * speed;
+                zoom(inputState, m_lastMousePos, factor);
+                return true;
             }
             return false;
         }
         
         void CameraTool2D::doEndMouseDrag(const InputState& inputState) {}
-        void CameraTool2D::doCancelMouseDrag() {}
         
-        bool CameraTool2D::doCancel() {
-            return false;
-        }
+        void CameraTool2D::doCancelMouseDrag() {}
         
         bool CameraTool2D::zoom(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
@@ -92,7 +93,29 @@ namespace TrenchBroom {
         }
         
         bool CameraTool2D::pan(const InputState& inputState) const {
-            return inputState.mouseButtonsPressed(MouseButtons::MBRight) || inputState.mouseButtonsPressed(MouseButtons::MBMiddle);
+            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) ||
+                    (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
+                     !pref(Preferences::CameraEnableAltMove)));
+        }
+
+        bool CameraTool2D::dragZoom(const InputState& inputState) const {
+            return (pref(Preferences::CameraEnableAltMove) &&
+                    inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+        }
+
+        void CameraTool2D::zoom(const InputState& inputState, const Vec2f& mousePos, const float factor) {
+            const Vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+            
+            m_camera.zoom(factor);
+            
+            const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+            const Vec3f delta = newWorldPos - oldWorldPos;
+            m_camera.moveBy(-delta);
+        }
+        
+        bool CameraTool2D::doCancel() {
+            return false;
         }
     }
 }

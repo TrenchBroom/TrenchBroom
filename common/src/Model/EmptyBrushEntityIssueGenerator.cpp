@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,19 +31,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public EntityIssue {
+        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public Issue {
         public:
             static const IssueType Type;
         public:
             EmptyBrushEntityIssue(Entity* entity) :
-            EntityIssue(entity) {}
+            Issue(entity) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return entity()->classname() + " does not contain any brushes";
+                const Entity* entity = static_cast<Entity*>(node());
+                return "Entity '" + entity->classname() + "' does not contain any brushes";
             }
         };
         
@@ -52,7 +53,7 @@ namespace TrenchBroom {
         class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
         public:
             EmptyBrushEntityIssueQuickFix() :
-            IssueQuickFix("Delete entities") {}
+            IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->deleteObjects();
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         }
         
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            assert(entity != NULL);
+            ensure(entity != NULL, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
                 issues.push_back(new EmptyBrushEntityIssue(entity));

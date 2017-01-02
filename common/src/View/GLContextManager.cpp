@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,15 +34,17 @@ namespace TrenchBroom {
         m_shaderManager(new Renderer::ShaderManager()) {}
         
         GLContextManager::~GLContextManager() {
+            /* Temporary fix for https://github.com/kduske/TrenchBroom/issues/1042
             delete m_vertexVbo;
             delete m_indexVbo;
             delete m_fontManager;
             delete m_shaderManager;
+             */
         }
 
         GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
             GLContext::Ptr context(new GLContext(canvas, this));
-            if (m_mainContext == NULL)
+            if (m_mainContext.get() == NULL)
                 m_mainContext = context;
             return context;
         }

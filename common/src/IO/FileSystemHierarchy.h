@@ -1,0 +1,86 @@
+/*
+ Copyright (C) 2010-2016 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef TrenchBroom_FileSystemHierarchy
+#define TrenchBroom_FileSystemHierarchy
+
+#include "Macros.h"
+#include "SharedPointer.h"
+#include "StringUtils.h"
+#include "IO/FileSystem.h"
+#include "IO/Path.h"
+
+#include <vector>
+
+namespace TrenchBroom {
+    namespace IO {
+        class Path;
+        
+        class FileSystemHierarchy : public virtual FileSystem {
+        private:
+            typedef std::vector<FileSystem*> FileSystemArray;
+            FileSystemArray m_fileSystems;
+        public:
+            FileSystemHierarchy();
+            virtual ~FileSystemHierarchy();
+            
+            void addFileSystem(FileSystem* fileSystem);
+            virtual void clear();
+        private:
+            Path doMakeAbsolute(const Path& relPath) const;
+            bool doDirectoryExists(const Path& path) const;
+            bool doFileExists(const Path& path) const;
+            FileSystem* findFileSystemContaining(const Path& path) const;
+            
+            Path::Array doGetDirectoryContents(const Path& path) const;
+            const MappedFile::Ptr doOpenFile(const Path& path) const;
+
+            deleteCopyAndAssignment(FileSystemHierarchy)
+        };
+        
+#ifdef _MSC_VER
+// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
+        class WritableFileSystemHierarchy : public FileSystemHierarchy, public WritableFileSystem {
+        private:
+            WritableFileSystem* m_writableFileSystem;
+        public:
+            WritableFileSystemHierarchy();
+            
+            void addReadableFileSystem(FileSystem* fileSystem);
+            void addWritableFileSystem(WritableFileSystem* fileSystem);
+            void clear();
+        private:
+            void doCreateFile(const Path& path, const String& contents);
+            void doCreateDirectory(const Path& path);
+            void doDeleteFile(const Path& path);
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            
+            deleteCopyAndAssignment(WritableFileSystemHierarchy)
+        };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+    }
+}
+
+#endif /* defined(TrenchBroom_FileSystemHierarchy) */

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -36,13 +36,13 @@
 #include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
+#include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
@@ -58,12 +58,32 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <wx/frame.h>
+#include <wx/menu.h>
+
+#include <algorithm>
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
+        static wxString GLVendor, GLRenderer, GLVersion;
+        
+        const wxString &MapViewBase::glRendererString() {
+            return GLRenderer;
+        }
+        
+        const wxString &MapViewBase::glVendorString() {
+            return GLVendor;
+        }
+        
+        const wxString &MapViewBase::glVersionString() {
+            return GLVersion;
+        }
+        
         const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, buildAttribs()),
+        RenderView(parent, contextManager, GLAttribs::attribs()),
         ToolBoxConnector(this),
         m_logger(logger),
         m_document(document),
@@ -213,7 +233,6 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
-            Bind(wxEVT_MENU, &MapViewBase::OnRemoveLastClipPoint,          this, CommandIds::Actions::RemoveLastClipPoint);
 
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
@@ -520,12 +539,6 @@ namespace TrenchBroom {
             m_toolBox.performClip();
         }
 
-        void MapViewBase::OnRemoveLastClipPoint(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_toolBox.removeLastClipPoint();
-        }
-
         void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -628,7 +641,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
@@ -639,17 +652,14 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
         
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
-            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
-            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionGroup& group = *groupIt;
+            for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
@@ -659,7 +669,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             
             MapDocumentSPtr document = lock(m_document);
             Model::Entity* entity = document->world()->createEntity();
@@ -678,7 +688,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
-            assert(definition != NULL);
+            ensure(definition != NULL, "definition is null");
             
             MapDocumentSPtr document = lock(m_document);
             
@@ -686,8 +696,8 @@ namespace TrenchBroom {
             assert(!brushes.empty());
             
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = brushes.begin();
-            Model::BrushList::const_iterator end = brushes.end();
+            Model::BrushList::const_iterator it = std::begin(brushes);
+            Model::BrushList::const_iterator end = std::end(brushes);
             Model::AttributableNode* entityTemplate = (*it++)->entity();
             while (it != end && entityTemplate != NULL)
                 if ((*it++)->parent() != entityTemplate)
@@ -701,7 +711,7 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition->name();
             
-            const Model::NodeList nodes(brushes.begin(), brushes.end());
+            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
@@ -799,8 +809,7 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
             
-            const Grid& grid = document->grid();
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Vec3 center = document->selectionBounds().center();
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
@@ -808,11 +817,11 @@ namespace TrenchBroom {
         
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
-                const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-                const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-                const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+                GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+                GLRenderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+                GLVersion  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
-                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
+                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", GLRenderer, GLVersion, GLVendor));
                 m_logger->info("Depth buffer bits: %d", depthBits());
 
                 if (multisample())
@@ -831,7 +840,22 @@ namespace TrenchBroom {
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
-            Renderer::RenderContext renderContext = createRenderContext();
+            MapDocumentSPtr document = lock(m_document);
+            const MapViewConfig& mapViewConfig = document->mapViewConfig();
+            const Grid& grid = document->grid();
+
+            Renderer::RenderContext renderContext(doGetRenderMode(), doGetCamera(), fontManager(), shaderManager());
+            renderContext.setShowTextures(mapViewConfig.showTextures());
+            renderContext.setShowFaces(mapViewConfig.showFaces());
+            renderContext.setShowEdges(mapViewConfig.showEdges());
+            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
+            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
+            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
+            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
+            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowFog(mapViewConfig.showFog());
+            renderContext.setShowGrid(grid.visible());
+            renderContext.setGridSize(grid.actualSize());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);
@@ -847,26 +871,6 @@ namespace TrenchBroom {
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
-        }
-
-        Renderer::RenderContext MapViewBase::createRenderContext() {
-            MapDocumentSPtr document = lock(m_document);
-            const MapViewConfig& mapViewConfig = document->mapViewConfig();
-            const Grid& grid = document->grid();
-
-            Renderer::RenderContext renderContext = doCreateRenderContext();
-            renderContext.setShowTextures(mapViewConfig.showTextures());
-            renderContext.setShowFaces(mapViewConfig.showFaces());
-            renderContext.setShowEdges(mapViewConfig.showEdges());
-            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
-            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
-            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
-            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
-            renderContext.setShowFog(mapViewConfig.showFog());
-            renderContext.setShowGrid(grid.visible());
-            renderContext.setGridSize(grid.actualSize());
-            return renderContext;
         }
 
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
@@ -905,6 +909,9 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doShowPopupMenu() {
+            if (!doBeforePopupMenu())
+                return;
+            
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
@@ -943,31 +950,21 @@ namespace TrenchBroom {
             wxMenu* menu = new wxMenu();
             
             MapDocumentSPtr document = lock(m_document);
-            const Assets::EntityDefinitionGroup::List& groups = document->entityDefinitionManager().groups();
-            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionGroup& group = *groupIt;
+            for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
                 Assets::EntityDefinitionList filteredDefinitions;
-                filteredDefinitions.reserve(definitions.size());
-                
-                Assets::EntityDefinitionList::const_iterator dIt, dEnd;
-                for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
-                    Assets::EntityDefinition* definition = *dIt;
-                    if (definition->name() != Model::AttributeValues::WorldspawnClassname)
-                        filteredDefinitions.push_back(definition);
-                }
+                std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(filteredDefinitions),
+                             [](const Assets::EntityDefinition* definition) { return StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
+                );
 
                 if (!filteredDefinitions.empty()) {
                     const String groupName = group.displayName();
                     wxMenu* groupMenu = new wxMenu();
                     groupMenu->SetEventHandler(this);
                     
-                    for (dIt = filteredDefinitions.begin(), dEnd = filteredDefinitions.end(); dIt != dEnd; ++dIt) {
-                        const Assets::EntityDefinition* definition = *dIt;
+                    for (Assets::EntityDefinition* definition : filteredDefinitions)
                         groupMenu->Append(id++, definition->shortName());
-                    }
                     
                     menu->AppendSubMenu(groupMenu, groupName);
                 }
@@ -980,7 +977,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
-            assert(newGroup != NULL);
+            ensure(newGroup != NULL, "newGroup is null");
             
             Transaction transaction(document, "Add Objects to Group");
             reparentNodes(nodes, newGroup);
@@ -992,14 +989,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
-            assert(currentGroup != NULL);
+            ensure(currentGroup != NULL, "currentGroup is null");
             
             Transaction transaction(document, "Remove Objects from Group");
             if (currentGroup->childCount() == nodes.size())
                 document->closeGroup();
             reparentNodes(nodes, document->currentLayer());
-            document->deselectAll();
-            document->select(nodes);
         }
 
         Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
@@ -1021,8 +1016,11 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
-            assert(newParent != NULL);
+            ensure(newParent != NULL, "newParent is null");
+
+            const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent);
+            document->select(newParent->children());
         }
         
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
@@ -1041,22 +1039,21 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                const Model::Node* node = *it;
-                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
+            for (const Model::Node* node : nodes) {
+                if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node))
                     return true;
             }
             return false;
         }
 
         void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent) {
-            assert(newParent != NULL);
+            ensure(newParent != NULL, "newParent is null");
+
+            MapDocumentSPtr document = lock(m_document);
+            Model::PushSelection pushSelection(document);
             
             const Model::NodeList reparentableNodes = collectReparentableNodes(nodes, newParent);
             assert(!reparentableNodes.empty());
-
-            MapDocumentSPtr document = lock(m_document);
             
             StringStream name;
             name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
@@ -1064,17 +1061,11 @@ namespace TrenchBroom {
             const Transaction transaction(document, name.str());
             document->deselectAll();
             document->reparentNodes(newParent, reparentableNodes);
-            document->select(reparentableNodes);
         }
 
         Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             Model::NodeList result;
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
-                if (newParent != node && node->parent() != newParent && !newParent->isDescendantOf(node))
-                    result.push_back(node);
-            }
+            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [=](const Model::Node* node) { return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node); });
             return result;
         }
 
@@ -1119,6 +1110,7 @@ namespace TrenchBroom {
 
         void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
+        bool MapViewBase::doBeforePopupMenu() { return true; }
         void MapViewBase::doAfterPopupMenu() {}
     }
 }

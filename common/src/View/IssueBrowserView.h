@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -46,13 +46,15 @@ namespace TrenchBroom {
             
             Model::IssueType m_hiddenGenerators;
             bool m_showHiddenIssues;
+            
+            bool m_valid;
         public:
             IssueBrowserView(wxWindow* parent, MapDocumentWPtr document);
             
             int hiddenGenerators() const;
             void setHiddenGenerators(int hiddenGenerators);
             void setShowHiddenIssues(bool show);
-            void reset();
+            void reload();
             
             void OnSize(wxSizeEvent& event);
             
@@ -80,6 +82,10 @@ namespace TrenchBroom {
             wxString OnGetItemText(long item, long column) const;
             
             void bindEvents();
+        private:
+            void OnIdle(wxIdleEvent& event);
+            void invalidate();
+            void validate();
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class FaceAttribsEditor;
         class GLContextManager;
         class TextureBrowser;
-        class TextureCollectionEditor;
+        class FileTextureCollectionEditor;
         class TextureSelectedCommand;
         
         class FaceInspector : public TabBookPage {
@@ -45,7 +45,6 @@ namespace TrenchBroom {
             
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
-            TextureCollectionEditor* m_textureCollectionEditor;
         public:
             FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,9 @@
 #include "Quat.h"
 #include "Vec.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 
 template <typename T, size_t R, size_t C>
 class Mat {
@@ -88,9 +90,15 @@ public:
     
     template <typename U>
     Mat<T,R,C>(const Mat<U,R,C>& other) {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
+        for (size_t c = 0; c < C; ++c)
+            for (size_t r = 0; r < R; ++r)
                 v[c][r] = static_cast<T>(other[c][r]);
+    }
+    
+    Mat(const Mat& other) {
+        for (size_t c = 0; c < C; ++c)
+            for (size_t r = 0; r < R; ++r)
+                v[c][r] = other[c][r];
     }
     
     Mat<T,R,C>& operator=(const Mat<T,R,C>& right) {
@@ -193,20 +201,14 @@ public:
     const typename Vec<T,C>::List operator*(const typename Vec<T,C>::List& right) const {
         typename Vec<T,C>::List result;
         result.reserve(right.size());
-        
-        typename Vec<T,C>::List::const_iterator it, end;
-        for (it = right.begin(), end = right.end(); it != end; ++it)
-            result.push_back(*this * *it);
+        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C>& elem) { return *this * elem; });
         return result;
     }
     
     const typename Vec<T,C-1>::List operator*(const typename Vec<T,C-1>::List& right) const {
         typename Vec<T,C-1>::List result;
         result.reserve(right.size());
-        
-        typename Vec<T,C-1>::List::const_iterator it, end;
-        for (it = right.begin(), end = right.end(); it != end; ++it)
-            result.push_back(*this * *it);
+        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C-1>& elem) { return *this * elem; });
         return result;
     }
     
@@ -285,18 +287,14 @@ template <typename T, size_t R, size_t C>
 const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R>::List result;
     result.reserve(left.size());
-    
-    typename Vec<T,R>::List::const_iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
-        result.push_back(*it * right);
+    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
 const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R>::List::iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
-        *it *= right;
+    for (Vec<T,R>& elem : left)
+        elem *= right;
     return left;
 }
 
@@ -316,18 +314,14 @@ template <typename T, size_t R, size_t C>
 const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
     typename Vec<T,R-1>::List result;
     result.reserve(left.size());
-    
-    typename Vec<T,R-1>::List::const_iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
-        result.push_back(*it * right);
+    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R-1>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
 typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R-1>::List::iterator it, end;
-    for (it = left.begin(), end = left.end(); it != end; ++it)
-        *it *= right;
+    for (Vec<T,R-1>& elem : left)
+        elem *= right;
     return left;
 }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -18,6 +18,8 @@
  */
 
 #include "wxKeyStrings.h"
+
+#include <wx/defs.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -122,8 +124,8 @@ namespace TrenchBroom {
             m_strings[WXK_WINDOWS_RIGHT]    = "Right Windows Key";
             m_strings[WXK_WINDOWS_MENU]     = "Windows Menu Key";
             m_strings[WXK_RAW_CONTROL]      = "Ctrl";
-            m_strings[WXK_COMMAND]          = "Cmd";
-            
+            m_strings[WXK_COMMAND]          = "Ctrl";
+
             for (char c = '!'; c <= '~'; ++c)
                 m_strings[static_cast<wxKeyCode>(c)] = c;
             
@@ -133,7 +135,7 @@ namespace TrenchBroom {
         }
         
         String wxKeyStrings::operator[](const size_t index) const {
-            assert(index < m_strings.size());
+            ensure(index < m_strings.size(), "index out of range");
             return m_strings[index];
         }
 

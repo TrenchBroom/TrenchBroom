@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         }
 
         Layer* World::defaultLayer() const {
-            assert(m_defaultLayer != NULL);
+            ensure(m_defaultLayer != NULL, "defaultLayer is null");
             return m_defaultLayer;
         }
 
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         LayerList World::customLayers() const {
             const NodeList& children = Node::children();
             CollectLayersVisitor visitor;
-            accept(children.begin() + 1, children.end(), visitor);
+            accept(std::begin(children) + 1, std::end(children), visitor);
             return visitor.layers();
         }
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             if (myChildren.size() > 1) {
                 NodeList childClones;
                 childClones.reserve(myChildren.size() - 1);
-                cloneRecursively(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
+                cloneRecursively(worldBounds, std::begin(myChildren) + 1, std::end(myChildren), std::back_inserter(childClones));
                 world->addChildren(childClones);
             }
             
@@ -172,21 +172,13 @@ namespace TrenchBroom {
         }
 
         void World::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
-                const Node* child = *it;
+            for (const Node* child : Node::children())
                 child->pick(ray, pickResult);
-            }
         }
         
         void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
-                Node* child = *it;
+            for (Node* child : Node::children())
                 child->findNodesContaining(point, result);
-            }
         }
 
         FloatType World::doIntersectWithRay(const Ray3& ray) const {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,6 +21,8 @@
 
 #include "View/SplitterWindow4.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         const double PersistentSplitterWindow4::Scaling = 10000.0;
@@ -34,8 +36,9 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow4::Save() const {
             const SplitterWindow4* window = Get();
-            const wxPoint scaledRatios(static_cast<int>(Scaling * window->m_currentSplitRatios.x),
-                                       static_cast<int>(Scaling * window->m_currentSplitRatios.y));
+            const wxRealPoint ratios = getSplitRatios(window);
+            const wxPoint scaledRatios(static_cast<int>(Scaling * ratios.x),
+                                       static_cast<int>(Scaling * ratios.y));
             SaveValue("SplitRatioX", scaledRatios.x);
             SaveValue("SplitRatioY", scaledRatios.y);
         }
@@ -51,6 +54,13 @@ namespace TrenchBroom {
             window->m_initialSplitRatios = wxRealPoint(std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.x) / Scaling)),
                                                        std::max(-1.0, std::min(1.0, static_cast<double>(scaledRatios.y) / Scaling)));
             return true;
+        }
+        
+        wxRealPoint PersistentSplitterWindow4::getSplitRatios(const SplitterWindow4* window) const {
+            wxRealPoint result;
+            result.x = window->m_currentSplitRatios.x == -1.0 ? window->m_initialSplitRatios.x : window->m_currentSplitRatios.x;
+            result.y = window->m_currentSplitRatios.y == -1.0 ? window->m_initialSplitRatios.y : window->m_currentSplitRatios.y;
+            return result;
         }
     }
 }

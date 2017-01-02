@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -235,6 +235,34 @@ TEST(PolyhedronTest, convexHullWithFailingPoints7) {
     p.addPoint(p6);
     p.addPoint(p7);
     p.addPoint(p8);
+}
+
+TEST(PolyhedronTest, convexHullWithFailingPoints8) {
+    // Cause of https://github.com/kduske/TrenchBroom/issues/1469
+    // See also BrushTest.subtractTruncatedCones
+    
+    const Vec3d  p1(-22.364439661516872, 9.2636542228362799, 32);
+    const Vec3d  p2(-21.333333333333332, 11.049582771255995, 32);
+    const Vec3d  p3(-20.235886048009661, 12.95041722806517, 32);
+    const Vec3d  p4(-19.126943405596094, 11.042945924655637, 32);
+    const Vec3d  p5(-18.31934864142023, 14.056930615671543, 32);
+    const Vec3d  p6(-17.237604305873624, 9.9521354859295226, 7.4256258352417603);
+    const Vec3d  p7(-16, 6.6274169975893429, -0);
+    const Vec3d  p8(-15.999999999999998, 9.2376043067828455, -0);
+    const Vec3d  p9(-14.345207554102323, 8.2822094434885454, -0);
+    const Vec3d p10(-13.739511480972288, 10.542697961743528, -0);
+    
+    Polyhedron3d p;
+    p.addPoint( p1);
+    p.addPoint( p2);
+    p.addPoint( p3);
+    p.addPoint( p4); // assertion failure here, fixed by using an epsilon value in method linearlyDependent
+    p.addPoint( p5);
+    p.addPoint( p6);
+    p.addPoint( p7);
+    p.addPoint( p8);
+    p.addPoint( p9);
+    p.addPoint(p10);
 }
 
 /*
@@ -1159,504 +1187,110 @@ TEST(PolyhedronTest, crashWhileAddingPoints3) {
     p.addPoint(p15); // Assertion failure here.
 }
 
-TEST(PolyhedronTest, moveSingleVertex) {
-    const Vec3d p1(0.0, 0.0, 0.0);
-    const Vec3d p2(32.0, -16.0, 8.0);
+TEST(PolyhedronTest, removeVertexFromPoint) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
     
-    Polyhedron3d p;
-    p.addPoint(p1);
+    Vec3d::List positions;
+    positions.push_back(p1);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p2 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p2, result.newVertexPositions.front());
+    Polyhedron3d p(positions);
     
-    ASSERT_TRUE(p.point());
+    Vertex* v = p.findVertexByPosition(p1);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.empty());
 }
 
-TEST(PolyhedronTest, moveEdgeVertexWithoutMerge) {
-    const Vec3d p1( 0.0, 0.0, 0.0);
-    const Vec3d p2(32.0, 0.0, 0.0);
-    const Vec3d p3(32.0, 32.0, 0.0);
+TEST(PolyhedronTest, removeVertexFromEdge) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
     
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p3 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p3, result.newVertexPositions.front());
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p2);
+    p.removeVertex(v);
+    
+    ASSERT_TRUE(p.point());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_FALSE(p.hasVertex(p2));
+}
+
+TEST(PolyhedronTest, removeVertexFromTriangle) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(+64.0, +64.0,   0.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    
+    Polyhedron3d p(positions);
+    
+    Vertex* v = p.findVertexByPosition(p3);
+    p.removeVertex(v);
     
     ASSERT_TRUE(p.edge());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_FALSE(p.hasVertex(p3));
 }
 
-TEST(PolyhedronTest, moveEdgeVertexWithMerge) {
-    const Vec3d p1( 0.0, 0.0, 0.0);
-    const Vec3d p2(32.0, 0.0, 0.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p2 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p2, result.newVertexPositions.front());
-    
-    ASSERT_TRUE(p.point());
-}
-
-TEST(PolyhedronTest, movePolygonVertexToNonCoplanarPosition) {
-    const Vec3d p1( 0.0,  0.0,  0.0);
-    const Vec3d p2(32.0,  0.0,  0.0);
-    const Vec3d p3(32.0, 32.0,  0.0);
-    const Vec3d p4( 0.0,  0.0, 16.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    p.addPoint(p3);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p4 - p1, true);
-    ASSERT_TRUE(!result.allVerticesMoved());
-    ASSERT_EQ(1u, result.unchangedVertices.size());
-    ASSERT_VEC_EQ(p1, result.unchangedVertices.front());
-    
-    ASSERT_TRUE(p.polygon());
-}
-
-TEST(PolyhedronTest, movePolygonVertexWithoutMerge) {
-    const Vec3d p1(  0.0,  0.0,  0.0);
-    const Vec3d p2( 32.0,  0.0,  0.0);
-    const Vec3d p3( 32.0, 32.0,  0.0);
-    const Vec3d p4(-32.0,  0.0, 0.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    p.addPoint(p3);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p4 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p4, result.newVertexPositions.front());
-    
-    ASSERT_TRUE(p.polygon());
-}
-
-TEST(PolyhedronTest, movePolygonVertexToNonIncidentVertex) {
-    const Vec3d p1(  0.0,  0.0,  0.0);
-    const Vec3d p2( 32.0,  0.0,  0.0);
-    const Vec3d p3( 32.0, 32.0,  0.0);
-    const Vec3d p4(  0.0, 32.0,  0.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    p.addPoint(p3);
-    p.addPoint(p4);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p3 - p1, true);
-    ASSERT_FALSE(result.allVerticesMoved());
-    ASSERT_TRUE(result.newVertexPositions.empty());
-    ASSERT_EQ(1u, result.unchangedVertices.size());
-    ASSERT_VEC_EQ(p1, result.unchangedVertices.front());
-    
-    ASSERT_TRUE(p.polygon());
-}
-
-TEST(PolyhedronTest, movePolygonVertexToIncidentVertex) {
-    const Vec3d p1(  0.0,  0.0,  0.0);
-    const Vec3d p2( 32.0,  0.0,  0.0);
-    const Vec3d p3( 32.0, 32.0,  0.0);
-    const Vec3d p4(  0.0, 32.0, 0.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    p.addPoint(p3);
-    p.addPoint(p4);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p2 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p2, result.newVertexPositions.front());
-
-    ASSERT_TRUE(p.polygon());
-    ASSERT_EQ(3u, p.vertexCount());
-}
-
-TEST(PolyhedronTest, movePolygonVertex) {
-    const Vec3d p1(  0.0,  0.0,  0.0);
-    const Vec3d p2( 32.0,  0.0,  0.0);
-    const Vec3d p3( 32.0, 32.0,  0.0);
-    const Vec3d p4( 64.0,  0.0,  0.0);
-    
-    Polyhedron3d p;
-    p.addPoint(p1);
-    p.addPoint(p2);
-    p.addPoint(p3);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p4 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p4, result.newVertexPositions.front());
-    
-    ASSERT_TRUE(p.polygon());
-    ASSERT_EQ(3u, p.vertexCount());
-}
-
-TEST(PolyhedronTest, moveVertexDownWithoutMerges) {
-    Polyhedron3d p(BBox3d(-64.0, 64.0));
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, Vec3d(64.0, 64.0, 64.0)), Vec3d(-8.0, -8.0, -8.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(Vec3d(56.0, 56.0, 56.0), result.newVertexPositions.front());
-    
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+56.0, +56.0, +56.0);
+TEST(PolyhedronTest, removeVertexFromSquare) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(+64.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0,   0.0);
     
     Vec3d::List positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
     positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p6));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p4, p8));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p7));
-    edgeInfos.push_back(std::make_pair(p6, p8));
-    edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(9u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p8, p6, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p8, p4, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p8, p7, p4));
-}
-
-TEST(PolyhedronTest, moveVertexUpWithoutMerges) {
-    Polyhedron3d p(BBox3d(-64.0, 64.0));
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, Vec3d(64.0, 64.0, 64.0)), Vec3d(+8.0, +8.0, +8.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(Vec3d(72.0, 72.0, 72.0), result.newVertexPositions.front());
-    
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+72.0, +72.0, +72.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p2, p8));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p3, p8));
-    edgeInfos.push_back(std::make_pair(p4, p8));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p5, p8));
-    edgeInfos.push_back(std::make_pair(p6, p8));
-    edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(9u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p8));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p8, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p8));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p8, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p8, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p8));
-}
-
-TEST(PolyhedronTest, moveVertexWithOneOuterNeighbourMerge) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+56.0, +56.0, +56.0);
-    const Vec3d p9(+56.0, +56.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(0.0, 0.0, 8.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
-    
-    positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p, positions));
-
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p7));
-    edgeInfos.push_back(std::make_pair(p6, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-
-    ASSERT_EQ(8u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p9, p6, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p9, p7, p4));
-}
-
-TEST(PolyhedronTest, moveVertexWithTwoOuterNeighbourMerges) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+56.0, +56.0, +56.0);
-    const Vec3d p9(+64.0, +64.0, +56.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
     
     Polyhedron3d p(positions);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(8.0, 8.0, 0.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
+    Vertex* v = p.findVertexByPosition(p3);
+    p.removeVertex(v);
     
-    positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p6));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p9, p4, p6));
+    ASSERT_TRUE(p.polygon());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4) || hasTriangleOf(p, p1, p4, p2));
+    ASSERT_FALSE(p.hasVertex(p3));
 }
 
-TEST(PolyhedronTest, moveVertexWithAllOuterNeighbourMerges) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+56.0, +56.0, +56.0);
-    const Vec3d p9(+64.0, +64.0, +64.0);
+TEST(PolyhedronTest, removeVertexFromTetrahedron) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(+64.0,   0.0,   0.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0,   0.0, +64.0);
     
     Vec3d::List positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
     positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
     
     Polyhedron3d p(positions);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(8.0, 8.0, 8.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
+    Vertex* v = p.findVertexByPosition(p4);
+    p.removeVertex(v);
     
-    positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
+    ASSERT_TRUE(p.polygon());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2) || hasTriangleOf(p, p1, p2, p3));
 }
 
-TEST(PolyhedronTest, moveVertexWithInnerNeighbourMerges) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +72.0);
-    const Vec3d p9(+64.0, +64.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(0.0, 0.0, -8.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
-    
-    positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
-}
-
-TEST(PolyhedronTest, moveVertexWithAllInnerNeighbourMerge) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
+TEST(PolyhedronTest, removeVertexFromCube) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(  0.0,   0.0, +64.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0, +64.0);
+    const Vec3d p5(+64.0,   0.0,   0.0);
+    const Vec3d p6(+64.0,   0.0, +64.0);
+    const Vec3d p7(+64.0, +64.0,   0.0);
     const Vec3d p8(+64.0, +64.0, +64.0);
     
     Vec3d::List positions;
@@ -1671,387 +1305,28 @@ TEST(PolyhedronTest, moveVertexWithAllInnerNeighbourMerge) {
     
     Polyhedron3d p(positions);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(-64.0, -64.0, -64.0), true);
-    ASSERT_TRUE(result.hasDeletedVertices());
-    ASSERT_EQ(1u, result.deletedVertices.size());
-    ASSERT_VEC_EQ(p8, result.deletedVertices.front());
-
-    positions.pop_back();
-    ASSERT_TRUE(hasVertices(p, positions));
+    Vertex* v = p.findVertexByPosition(p8);
+    p.removeVertex(v);
     
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p6));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
     ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
     ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
     ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
     ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
 }
 
-TEST(PolyhedronTest, moveVertexUpThroughPlane) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +56.0);
-    const Vec3d p9(+64.0, +64.0, +72.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(0.0, 0.0, 16.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
-    
-    positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p2, p9));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p9));
-}
-
-TEST(PolyhedronTest, moveVertexOntoEdge) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +00.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(-64.0, -64.0, 64.0), true);
-    ASSERT_TRUE(result.hasDeletedVertices());
-    ASSERT_EQ(1u, result.deletedVertices.size());
-    ASSERT_VEC_EQ(p8, result.deletedVertices.front());
-    
-    positions.pop_back();
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p6));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
-}
-
-TEST(PolyhedronTest, moveVertexOntoIncidentVertex) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
+TEST(PolyhedronTest, removeVertexFromCubeWithRoof) {
+    const Vec3d p1(  0.0,   0.0,   0.0);
+    const Vec3d p2(  0.0,   0.0, +64.0);
+    const Vec3d p3(  0.0, +64.0,   0.0);
+    const Vec3d p4(  0.0, +64.0, +64.0);
+    const Vec3d p5(+64.0,   0.0,   0.0);
+    const Vec3d p6(+64.0,   0.0, +64.0);
+    const Vec3d p7(+64.0, +64.0,   0.0);
     const Vec3d p8(+64.0, +64.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, Vec3d(64.0, 64.0, 64.0)), Vec3d(0.0, 0.0, -128.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p7, result.newVertexPositions.front());
-    
-    positions.pop_back();
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p6));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
-}
-
-
-TEST(PolyhedronTest, moveVertexOntoIncidentVertexInOppositeDirection) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, Vec3d(+64.0, +64.0, -64.0)), Vec3d(0.0, 0.0, +128.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p8, result.newVertexPositions.front());
-    
-    positions.pop_back();
-    positions.back() = p8;
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p5));
-    edgeInfos.push_back(std::make_pair(p3, p8));
-    edgeInfos.push_back(std::make_pair(p4, p8));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p8));
-    edgeInfos.push_back(std::make_pair(p6, p8));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p5));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p8));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p8, p6));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p8, p5));
-}
-
-TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +64.0);
-    const Vec3d p9(+80.0, +64.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p6), Vec3d(16.0, 128.0, 0.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
-    
-    positions.pop_back(); // p8 will be erased due to colinear incident edges
-    positions[5] = p9; // p6 was moved to p9
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p5));
-    edgeInfos.push_back(std::make_pair(p2, p9));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p5, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p1, p5, p2));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p5, p9));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p9));
-}
-
-TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +64.0);
-    const Vec3d p9(+80.0, -64.0, +64.0);
-    
-    Vec3d::List positions;
-    positions.push_back(p1);
-    positions.push_back(p2);
-    positions.push_back(p3);
-    positions.push_back(p4);
-    positions.push_back(p5);
-    positions.push_back(p6);
-    positions.push_back(p7);
-    positions.push_back(p8);
-    
-    Polyhedron3d p(positions);
-    
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p8), Vec3d(16.0, -128.0, 0.0), true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p9, result.newVertexPositions.front());
-    
-    positions.erase(positions.begin() + 5); // p6 will be erased due to colinear incident edges
-    positions[6] = p9; // p8 was moved to p9
-    ASSERT_TRUE(hasVertices(p, positions));
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p9));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p7));
-    edgeInfos.push_back(std::make_pair(p4, p9));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p5, p9));
-    edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p9, p2));
-    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p9));
-}
-
-TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
-    const Vec3d p1(-64.0, -64.0, -64.0);
-    const Vec3d p2(-64.0, -64.0, +64.0);
-    const Vec3d p3(-64.0, +64.0, -64.0);
-    const Vec3d p4(-64.0, +64.0, +64.0);
-    const Vec3d p5(+64.0, -64.0, -64.0);
-    const Vec3d p6(+64.0, -64.0, +64.0);
-    const Vec3d p7(+64.0, +64.0, -64.0);
-    const Vec3d p8(+64.0, +64.0, +64.0);
-    const Vec3d p9(+80.0,   0.0, +64.0);
+    const Vec3d p9(+32.0, +32.0, +96.0);
     
     Vec3d::List positions;
     positions.push_back(p1);
@@ -2066,44 +1341,26 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
     
     Polyhedron3d p(positions);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p9), Vec3d(-16.0, 0.0, 0.0), true);
-    ASSERT_TRUE(result.hasDeletedVertices());
-    ASSERT_EQ(1u, result.deletedVertices.size());
-    ASSERT_VEC_EQ(p9, result.deletedVertices.front());
-
-    positions.pop_back();
-    ASSERT_TRUE(hasVertices(p, positions));
+    Vertex* v = p.findVertexByPosition(p9);
+    p.removeVertex(v);
     
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(p1, p2));
-    edgeInfos.push_back(std::make_pair(p1, p3));
-    edgeInfos.push_back(std::make_pair(p1, p5));
-    edgeInfos.push_back(std::make_pair(p2, p4));
-    edgeInfos.push_back(std::make_pair(p2, p6));
-    edgeInfos.push_back(std::make_pair(p3, p4));
-    edgeInfos.push_back(std::make_pair(p3, p7));
-    edgeInfos.push_back(std::make_pair(p4, p8));
-    edgeInfos.push_back(std::make_pair(p5, p6));
-    edgeInfos.push_back(std::make_pair(p5, p7));
-    edgeInfos.push_back(std::make_pair(p6, p8));
-    edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p, edgeInfos));
-    
-    ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
-    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
-    ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5)); // bottom
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3)); // left
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4)); // top
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6)); // right
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7)); // back
 }
 
-TEST(PolyhedronTest, moveVertexFailing1) {
-    const Vec3d p1(  0.0, +32.0, +32.0);
-    const Vec3d p2(  0.0,   0.0,   0.0);
-    const Vec3d p3(  0.0, +32.0,   0.0);
-    const Vec3d p4(+32.0, +32.0,   0.0);
-    const Vec3d p5(+32.0,   0.0,   0.0);
+TEST(PolyhedronTest, removeVertexFromClippedCube) {
+    const Vec3d p1(-64.0, -64.0, -64.0);
+    const Vec3d p2(-64.0, -64.0, +64.0);
+    const Vec3d p3(-64.0, +64.0, -64.0);
+    const Vec3d p4(-64.0, +64.0, +64.0);
+    const Vec3d p5(+64.0, -64.0, -64.0);
+    const Vec3d p6(+64.0, -64.0, +64.0);
+    const Vec3d p7(+64.0, +64.0, -64.0);
+    const Vec3d p8(+64.0, +64.0, +00.0); // note this vertex
     
     Vec3d::List positions;
     positions.push_back(p1);
@@ -2111,10 +1368,22 @@ TEST(PolyhedronTest, moveVertexFailing1) {
     positions.push_back(p3);
     positions.push_back(p4);
     positions.push_back(p5);
+    positions.push_back(p6);
+    positions.push_back(p7);
+    positions.push_back(p8);
     
     Polyhedron3d p(positions);
+
+    Vertex* v = p.findVertexByPosition(p8);
+    p.removeVertex(v);
     
-    const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p2), p1-p2, true);
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5)); // bottom
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3)); // left
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6)); // right
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4)); // top
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7)); // back
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7)); // slanted
 }
 
 class ClipCallback : public Polyhedron3d::Callback {
@@ -2123,7 +1392,7 @@ private:
     FaceSet m_originals;
 public:
     void faceWillBeDeleted(Face* face) {
-        ASSERT_TRUE(m_originals.find(face) == m_originals.end());
+        ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
     void faceWasSplit(Face* original, Face* clone) {
@@ -2451,8 +1720,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
 
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
-    Polyhedron3d::SubtractResult::iterator it, end;
-    for (it = result.begin(), end = result.end(); it != end; ++it) {
+    for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
         if (polyhedron.vertices().size() == vertices.size()) {
             size_t count = 0;
@@ -2642,6 +1910,22 @@ TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid) {
     
     const Polyhedron3d    minuend(BBox3d(Vec3d(-32.0, -16.0, -32.0), Vec3d(32.0, 16.0, 32.0)));
     const Polyhedron3d subtrahend(BBox3d(Vec3d(-16.0, -32.0, -64.0), Vec3d(16.0, 32.0,  0.0)));
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(3u, result.size());
+}
+
+TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid2) {
+    /*
+     ____________
+     |          |
+     |  ______  |
+     |  |    |  |
+     |__|____|__|
+     */
+    
+    const Polyhedron3d    minuend(BBox3d(Vec3d(-64.0, -64.0, -16.0), Vec3d(64.0, 64.0, 16.0)));
+    const Polyhedron3d subtrahend(BBox3d(Vec3d(-32.0, -64.0, -32.0), Vec3d(32.0,  0.0, 32.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(3u, result.size());

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,7 @@ public:
         Link(Item* item):
         m_previous(item),
         m_next(item) {
-            assert(item != NULL);
+            ensure(item != NULL, "item is null");
         }
         
         Item* previous() const {
@@ -47,12 +47,12 @@ public:
         }
     private:
         void setPrevious(Item* previous) {
-            assert(previous != NULL);
+            ensure(previous != NULL, "previous is null");
             m_previous = previous;
         }
         
         void setNext(Item* next) {
-            assert(next != NULL);
+            ensure(next != NULL, "next is null");
             m_next = next;
         }
         
@@ -221,13 +221,13 @@ public:
         ItemType operator->() const { return m_delegate->item(); }
     private:
         int compare(const iterator_base& other) const {
-            assert(m_delegate != NULL);
-            assert(other.m_delegate != NULL);
+            ensure(m_delegate != NULL, "delegate is null");
+            ensure(other.m_delegate != NULL, "other delegate is null");
             return m_delegate->compare(*other.m_delegate);
         }
         
         size_t index() const {
-            assert(m_delegate != NULL);
+            ensure(m_delegate != NULL, "delegate is null");
             return m_delegate->index();
         }
     };
@@ -248,15 +248,36 @@ public:
     m_size(0),
     m_version(0) {}
     
+    DoublyLinkedList(DoublyLinkedList&& other) :
+    m_getLink(),
+    m_head(other.m_head),
+    m_size(other.m_size),
+    m_version(other.m_version) {
+        other.m_head = NULL;
+        other.m_size = 0;
+        other.m_version += 1;
+    }
+    
     virtual ~DoublyLinkedList() {
         clear();
     }
     
+    // FIXME iterators may report version change after swapping since they store a reference to their list!
     friend void swap(DoublyLinkedList& first, DoublyLinkedList& second) {
         using std::swap;
         swap(first.m_head, second.m_head);
         swap(first.m_size, second.m_size);
         swap(first.m_version, second.m_version);
+    }
+    
+    DoublyLinkedList& operator=(DoublyLinkedList&& other) {
+        clear();
+        m_head = other.m_head;
+        m_size = other.m_size;
+        m_version = other.m_version;
+        other.m_head = NULL;
+        other.m_size = 0;
+        other.m_version += 1;
     }
 private:
     DoublyLinkedList(const DoublyLinkedList& other) {}
@@ -304,7 +325,7 @@ public:
     }
     
     bool contains(const Item* item) const {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         
         if (m_head == NULL)
             return false;
@@ -329,7 +350,7 @@ public:
     }
     
     void append(Item* item, const size_t count) {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         
         if (m_head == NULL) {
             m_head = item;
@@ -343,18 +364,18 @@ public:
     }
     
     void insertBefore(Item* succ, Item* items, const size_t count) {
-        assert(succ != NULL);
-        assert(items != NULL);
-        assert(m_head != NULL);
+        ensure(succ != NULL, "successor is null");
+        ensure(items != NULL, "items is null");
+        ensure(m_head != NULL, "head is null");
         assert(contains(succ));
         
         insertAfter(succ->previous(), items, count);
     }
     
     void insertAfter(Item* pred, Item* items, const size_t count) {
-        assert(pred != NULL);
-        assert(items != NULL);
-        assert(m_head != NULL);
+        ensure(pred != NULL, "predecessor is null");
+        ensure(items != NULL, "items is null");
+        ensure(m_head != NULL, "head is null");
         assert(contains(pred));
 
         Item* first = items;
@@ -448,13 +469,13 @@ public:
     }
 private:
     Item* next(Item* item) const {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         Link& link = getLink(item);
         return link.next();
     }
     
     Item* previous(Item* item) const {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         Link& link = getLink(item);
         return link.previous();
     }
@@ -466,12 +487,12 @@ private:
     }
     
     Link& getLink(Item* item) const {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         return m_getLink(item);
     }
     
     const Link& getLink(const Item* item) const {
-        assert(item != NULL);
+        ensure(item != NULL, "item is null");
         return m_getLink(item);
     }
     

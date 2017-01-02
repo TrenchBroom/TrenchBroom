@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,61 +30,40 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
-            Model::BrushList brushes;
-            Model::BrushVerticesMap brushVertices;
-            Vec3::List vertexPositions;
-            extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
-            
-            return Ptr(new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo));
+        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(size_t snapTo) {
+            return Ptr(new SnapBrushVerticesCommand(snapTo));
         }
         
-        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const Model::BrushList& brushes, const size_t snapTo) {
-            Model::BrushVerticesMap brushVertices;
-            Vec3::List vertexPositions;
-            
-            Model::BrushList::const_iterator bIt, bEnd;
-            Model::Brush::VertexList::const_iterator vIt, vEnd;
-            
-            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                Model::Brush* brush = *bIt;
-                const Model::Brush::VertexList vertices = brush->vertices();
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                    const Model::BrushVertex* vertex = *vIt;
-                    brushVertices[brush].push_back(vertex->position());
-                    vertexPositions.push_back(vertex->position());
-                }
-            }
-            
-            return Ptr(new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo));
+        SnapBrushVerticesCommand::SnapBrushVerticesCommand(const size_t snapTo) :
+        DocumentCommand(Type, "Snap Brush Vertices"),
+        m_snapTo(snapTo),
+        m_snapshot(NULL) {}
+        
+        SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
+            delete m_snapshot;
         }
 
-        SnapBrushVerticesCommand::SnapBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const size_t snapTo) :
-        VertexCommand(Type, "Snap Brush Vertices", brushes),
-        m_vertices(vertices),
-        m_oldVertexPositions(vertexPositions),
-        m_snapTo(snapTo) {}
-        
-        bool SnapBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            assert(m_snapshot == NULL);
+            m_snapshot = document->performSnapVertices(m_snapTo);
             return true;
         }
         
-        bool SnapBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
-            m_newVertexPositions = document->performSnapVertices(m_vertices, m_snapTo);
+        bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            ensure(m_snapshot != NULL, "snapshot is null");
+            document->restoreSnapshot(m_snapshot);
+            delete m_snapshot;
+            m_snapshot = NULL;
             return true;
         }
-
-        void SnapBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            const Model::BrushSet brushSet(brushes.begin(), brushes.end());
-            manager.reselectVertexHandles(brushSet, m_newVertexPositions, 0.01);
-        }
         
-        void SnapBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectVertexHandles(m_oldVertexPositions);
+        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return false;
         }
 
         bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            return false;
+            SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command.get());
+            return other->m_snapTo == m_snapTo;
         }
     }
 }

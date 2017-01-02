@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,7 +29,9 @@ struct ProjectingSequenceProjector {
 
 template <typename C, typename P>
 struct ProjectingSequenceIterators {
-    class iterator {
+    class iterator : public std::iterator<
+        typename C::iterator::iterator_category,
+        typename P::Type> {
     private:
         typedef typename C::iterator I;
         I m_iterator;
@@ -54,7 +56,9 @@ struct ProjectingSequenceIterators {
         typename P::Type operator->() const { return P::project(*m_iterator); }
     };
     
-    class const_iterator {
+    class const_iterator : public std::iterator<
+        typename C::const_iterator::iterator_category,
+        typename P::Type> {
     private:
         typedef typename C::const_iterator I;
         I m_iterator;
@@ -95,11 +99,11 @@ public:
     }
     
     iterator begin() {
-        return iterator(m_container.begin());
+        return iterator(std::begin(m_container));
     }
     
     iterator end() {
-        return iterator(m_container.end());
+        return iterator(std::end(m_container));
     }
 
     const_iterator begin() const {
@@ -129,11 +133,11 @@ public:
     }
     
     const_iterator begin() const {
-        return const_iterator(m_container.begin());
+        return const_iterator(std::begin(m_container));
     }
     
     const_iterator end() const {
-        return const_iterator(m_container.end());
+        return const_iterator(std::end(m_container));
     }
 };
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,7 +28,9 @@
 
 #include <wx/bmpbuttn.h>
 #include <wx/checkbox.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -146,7 +148,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
 
         void EntityAttributeGrid::OnAddAttributeButton(wxCommandEvent& event) {
@@ -175,8 +177,7 @@ namespace TrenchBroom {
             
             int firstRowIndex = m_grid->GetNumberRows();
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::reverse_iterator it, end;
-            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
+            for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
                 m_grid->DeleteRows(*it, 1);
                 firstRowIndex = std::min(*it, firstRowIndex);
             }
@@ -195,7 +196,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
+            event.Enable(!document->allSelectedAttributableNodes().empty());
         }
         
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
@@ -211,17 +212,15 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            const wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::const_iterator it, end;
-            for (it = selectedRows.begin(), end = selectedRows.end(); it != end; ++it) {
-                if (!m_table->canRemove(*it))
+            for (const int rowIndex : m_grid->GetSelectedRows()) {
+                if (!m_table->canRemove(rowIndex))
                     return false;
             }
             return true;
         }
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
-            SetBackgroundColour(*wxWHITE);
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_table = new EntityAttributeGridTable(document);
             
@@ -230,7 +229,7 @@ namespace TrenchBroom {
             // m_grid->SetUseNativeColLabels();
             // m_grid->UseNativeColHeader();
             m_grid->SetColLabelSize(18);
-            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
             m_grid->DisableColResize(0);
@@ -314,7 +313,7 @@ namespace TrenchBroom {
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
             updateControls();
         }
-        
+
         void EntityAttributeGrid::updateControls() {
             // const SetBool ignoreSelection(m_ignoreSelection);
             wxGridUpdateLocker lockGrid(m_grid);

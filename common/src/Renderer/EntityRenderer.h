@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -49,6 +49,7 @@ namespace TrenchBroom {
         private:
             class EntityClassnameAnchor;
 
+            Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
             Model::EntityList m_entities;
             
@@ -70,8 +71,6 @@ namespace TrenchBroom {
             bool m_showAngles;
             Color m_angleColor;
             bool m_showHiddenEntities;
-            
-            Vbo m_vbo;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
@@ -79,29 +78,6 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             void reloadModels();
-
-            template <typename Iter>
-            void addEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    addEntity(*cur);
-                    ++cur;
-                }
-            }
-            template <typename Iter>
-            void updateEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    updateEntity(*cur);
-                    ++cur;
-                }
-            }
-            
-            template <typename Iter>
-            void removeEntities(Iter cur, const Iter end) {
-                while (cur != end) {
-                    removeEntity(*cur);
-                    ++cur;
-                }
-            }
             
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);

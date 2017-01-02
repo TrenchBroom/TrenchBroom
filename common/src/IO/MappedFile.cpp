@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,20 +33,23 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MappedFile::MappedFile() :
+        MappedFile::MappedFile(const Path& path) :
+        m_path(path),
         m_begin(NULL),
-        m_end(NULL),
-        m_size(0) {
+        m_end(NULL) {
         }
         
         MappedFile::~MappedFile() {
             m_begin = NULL;
             m_end = NULL;
-            m_size = 0;
+        }
+
+        const Path& MappedFile::path() const {
+            return m_path;
         }
 
         size_t MappedFile::size() const {
-            return m_size;
+            return static_cast<size_t>(m_end - m_begin);
         }
         
         const char* MappedFile::begin() const {
@@ -63,15 +66,32 @@ namespace TrenchBroom {
                 throw new FileSystemException("End of mapped file is before begin");
             m_begin = begin;
             m_end = end;
-            m_size = static_cast<size_t>(m_end - m_begin);
         }
 
-        MappedFileView::MappedFileView(const char* begin, const char* end) {
+        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const char* end) :
+        MappedFile(path),
+        m_container(container) {
             init(begin, end);
+        }
+
+        MappedFileView::MappedFileView(MappedFile::Ptr container, const Path& path, const char* begin, const size_t size) :
+        MappedFile(path),
+        m_container(container) {
+            init(begin, begin + size);
+        }
+
+        MappedFileBuffer::MappedFileBuffer(const Path& path, const char* begin, const size_t size) :
+        MappedFile(path) {
+            init(begin, begin + size);
+        }
+        
+        MappedFileBuffer::~MappedFileBuffer() {
+            delete [] m_begin;
         }
 
 #ifdef _WIN32
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
+        MappedFile(path),
         m_fileHandle(INVALID_HANDLE_VALUE),
         m_mappingHandle(NULL),
         m_address(NULL) {
@@ -181,7 +201,7 @@ namespace TrenchBroom {
         }
 #else
         PosixMappedFile::PosixMappedFile(const Path& path, std::ios_base::openmode mode) :
-        MappedFile(),
+        MappedFile(path),
         m_address(NULL),
         m_size(0),
         m_filedesc(-1) {

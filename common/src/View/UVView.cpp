@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -43,15 +43,17 @@
 #include "View/UVShearTool.h"
 #include "View/UVOriginTool.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        RenderView(parent, contextManager, buildAttribs()),
+        RenderView(parent, contextManager, GLAttribs::attribs()),
         ToolBoxConnector(this),
         m_document(document),
         m_helper(m_camera) {
@@ -234,7 +236,7 @@ namespace TrenchBroom {
                 const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
-                assert(texture != NULL);
+                ensure(texture != NULL, "texture is null");
 
                 texture->activate();
                 
@@ -276,9 +278,8 @@ namespace TrenchBroom {
             Vertex::List edgeVertices;
             edgeVertices.reserve(faceVertices.size());
             
-            Model::BrushFace::VertexList::const_iterator it, end;
-            for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
-                edgeVertices.push_back(Vertex((*it)->position()));
+            std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
+                           [](const Model::BrushVertex* vertex) { return Vertex(vertex->position()); });
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             

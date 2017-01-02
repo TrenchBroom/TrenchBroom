@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -134,8 +134,8 @@ TEST(PlaneTest, rotated) {
 }
 
 TEST(PlaneTest, project) {
-    ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 0.0f), Plane3f(0.0f, Vec3f::PosZ).project(Vec3f(1.0f, 2.0f, 3.0f)));
-    ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 2.0f), Plane3f(2.0f, Vec3f::PosZ).project(Vec3f(1.0f, 2.0f, 3.0f)));
+    ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 0.0f), Plane3f(0.0f, Vec3f::PosZ).projectPoint(Vec3f(1.0f, 2.0f, 3.0f)));
+    ASSERT_VEC_EQ(Vec3f(1.0f, 2.0f, 2.0f), Plane3f(2.0f, Vec3f::PosZ).projectPoint(Vec3f(1.0f, 2.0f, 3.0f)));
 }
 
 TEST(PlaneTest, setPlanePoints) {

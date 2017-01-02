@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -94,24 +94,24 @@ namespace TrenchBroom {
         const Vec3 UVViewHelper::origin() const {
             assert(valid());
 
-            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            return fromTex * Vec3(m_origin);
+            return m_origin;
         }
 
         const Vec2f UVViewHelper::originInFaceCoords() const {
-            return m_origin;
+            const Mat4x4 toFace = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            return toFace * origin();
         }
         
         const Vec2f UVViewHelper::originInTexCoords() const {
             assert(valid());
             
-            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            return Vec2f(toFace * fromTex * Vec3(m_origin));
+            return Vec2f(toFace * origin());
         }
         
-        void UVViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
-            m_origin = originInFaceCoords;
+        void UVViewHelper::setOriginInFaceCoords(const Vec2f& originInFaceCoords) {
+            const Mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            m_origin = fromFace * Vec3(originInFaceCoords);
         }
         
         const Renderer::Camera& UVViewHelper::camera() const {
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             
             const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            computeLineVertices(m_origin, x1, x2, y1, y2, toTex, toWorld);
+            computeLineVertices(originInFaceCoords(), x1, x2, y1, y2, toTex, toWorld);
         }
 
         void UVViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 4; ++i) {
                 const Vec3 vertex = toCam * fromTex * vertices[i];
                 if (vertex.x() < 0.0 && vertex.y() < 0.0) {
-                    m_origin = Vec2f(vertices[i]);
+                    setOriginInFaceCoords(Vec2f(vertices[i]));
                     break;
                 }
             }
@@ -275,8 +275,8 @@ namespace TrenchBroom {
 
             BBox3 result;
             const Model::BrushFace::VertexList vertices = m_face->vertices();
-            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
-            Model::BrushFace::VertexList::const_iterator end = vertices.end();
+            Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
+            Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end)

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -18,6 +18,7 @@
  */
 
 #include "Animation.h"
+#include "Macros.h"
 #include "View/AnimationCurve.h"
 
 #include <algorithm>
@@ -73,11 +74,8 @@ namespace TrenchBroom {
         m_animations(animations) {}
         
         void ExecutableAnimation::execute() {
-            Animation::List::const_iterator it, end;
-            for (it = m_animations.begin(), end = m_animations.end(); it != end; ++it) {
-                Animation& animation = **it;
-                animation.update();
-            }
+            for (Animation::Ptr animation : m_animations)
+                animation->update();
         }
         
         AnimationManager::AnimationManager() :
@@ -86,7 +84,7 @@ namespace TrenchBroom {
         }
         
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
-            assert(animation != NULL);
+            ensure(animation != NULL, "animation is null");
             
             Animation::List& list = m_animations[animation->type()];
             if (replace)
@@ -100,16 +98,16 @@ namespace TrenchBroom {
                 
                 Animation::List updateAnimations;
                 if (!m_animations.empty()) {
-                    AnimationMap::iterator mapIt = m_animations.begin();
-                    while (mapIt != m_animations.end()) {
+                    auto mapIt = std::begin(m_animations);
+                    while (mapIt != std::end(m_animations)) {
                         Animation::List& list = mapIt->second;
-                        Animation::List::iterator listIt = list.begin();
-                        while (listIt != list.end()) {
+                        auto listIt = std::begin(list);
+                        while (listIt != std::end(list)) {
                             Animation::Ptr animation = *listIt;
                             if (animation->step(elapsed))
                                 listIt = list.erase(listIt);
                             updateAnimations.push_back(animation);
-                            if (listIt != list.end())
+                            if (listIt != std::end(list))
                                 ++listIt;
                         }
                         

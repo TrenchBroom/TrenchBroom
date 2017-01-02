@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -29,7 +29,7 @@ namespace TrenchBroom {
         public:
             class Executable {
             public:
-                typedef std::tr1::shared_ptr<Executable> Ptr;
+                typedef std::shared_ptr<Executable> Ptr;
             public:
                 virtual ~Executable();
                 void operator()();
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             };
         private:
             Executable::Ptr m_executable;
-            DECLARE_DYNAMIC_CLASS(ExecutableEvent)
+            wxDECLARE_DYNAMIC_CLASS(ExecutableEvent);
         public:
             ExecutableEvent();
             ExecutableEvent(Executable* executable);

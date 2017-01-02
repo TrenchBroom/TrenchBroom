@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -46,10 +46,12 @@ namespace TrenchBroom {
             bool Create();
             
             const IO::Path& path() const;
-            
-            DECLARE_DYNAMIC_CLASS(ChoosePathTypeDialog)
+        private:
+            void OnClose(wxCloseEvent& event);
         private:
             static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
+        public:
+            wxDECLARE_DYNAMIC_CLASS(ChoosePathTypeDialog);
         };
     }
 }

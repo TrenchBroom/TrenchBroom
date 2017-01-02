@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,24 +34,64 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        BrushRenderer::FaceAcceptor::~FaceAcceptor() {}
+        BrushRenderer::EdgeAcceptor::~EdgeAcceptor() {}
+        
+        BrushRenderer::Filter::Filter() {}
+        
+        BrushRenderer::Filter::Filter(const Filter& other) {}
+
         BrushRenderer::Filter::~Filter() {}
         
-        bool BrushRenderer::Filter::show(const Model::BrushFace* face) const      { return doShow(face);  }
-        bool BrushRenderer::Filter::show(const Model::BrushEdge* edge) const      { return doShow(edge);  }
-        bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  { return doIsTransparent(brush); }
+        BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
+
+        void BrushRenderer::Filter:: provideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
+            doProvideFaces(brush, collectFace);
+        }
+        
+        void BrushRenderer::Filter:: provideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
+            doProvideEdges(brush, collectEdge);
+        }
+        
+        bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  {
+            return doIsTransparent(brush);
+        }
 
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
         BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
 
-        bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
-        bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }
-        bool BrushRenderer::DefaultFilter::visible(const Model::BrushEdge* edge) const { return m_context.visible(edge->firstFace()->payload()) || m_context.visible(edge->secondFace()->payload()); }
+        BrushRenderer::DefaultFilter::DefaultFilter(const DefaultFilter& other) :
+        Filter(),
+        m_context(other.m_context) {}
+
+        bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const    {
+            return m_context.visible(brush);
+        }
         
-        bool BrushRenderer::DefaultFilter::editable(const Model::Brush* brush) const { return m_context.editable(brush); }
-        bool BrushRenderer::DefaultFilter::editable(const Model::BrushFace* face) const { return m_context.editable(face); }
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const {
+            return m_context.visible(face);
+        }
         
-        bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const { return brush->selected() || brush->parentSelected(); }
-        bool BrushRenderer::DefaultFilter::selected(const Model::BrushFace* face) const { return face->selected(); }
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushEdge* edge) const {
+            return m_context.visible(edge->firstFace()->payload()) || m_context.visible(edge->secondFace()->payload());
+        }
+        
+        bool BrushRenderer::DefaultFilter::editable(const Model::Brush* brush) const {
+            return m_context.editable(brush);
+        }
+        
+        bool BrushRenderer::DefaultFilter::editable(const Model::BrushFace* face) const {
+            return m_context.editable(face);
+        }
+        
+        bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const {
+            return brush->selected() || brush->parentSelected();
+        }
+        
+        bool BrushRenderer::DefaultFilter::selected(const Model::BrushFace* face) const {
+            return face->selected();
+        }
+        
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushEdge* edge) const {
             const Model::BrushFace* first = edge->firstFace()->payload();
             const Model::BrushFace* second = edge->secondFace()->payload();
@@ -59,18 +99,32 @@ namespace TrenchBroom {
             assert(second->brush() == brush);
             return selected(brush) || selected(first) || selected(second);
         }
-        bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const { return brush->descendantSelected(); }
+        
+        bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const {
+            return brush->descendantSelected();
+        }
 
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
-        bool BrushRenderer::NoFilter::doShow(const Model::BrushFace* face) const { return true; }
-        bool BrushRenderer::NoFilter::doShow(const Model::BrushEdge* edge) const { return true; }
-        bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const { return m_transparent; }
+        void BrushRenderer::NoFilter::doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
+            for (const Model::BrushFace* face : brush->faces())
+                faceAcceptor.accept(face);
+        }
+        
+        void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
+            for (const Model::BrushEdge* edge : brush->edges())
+                edgeAcceptor.accept(edge);
+        }
+        
+        
+        bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const {
+            return m_transparent;
+        }
 
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
         m_valid(true),
-        m_showEdges(true),
+        m_showEdges(false),
         m_grayscale(false),
         m_tint(false),
         m_showOccludedEdges(false),
@@ -142,10 +196,10 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
-            if (showHiddenBrushes == m_showHiddenBrushes)
-                return;
-            m_showHiddenBrushes = showHiddenBrushes;
-            invalidate();
+            if (showHiddenBrushes != m_showHiddenBrushes) {
+                m_showHiddenBrushes = showHiddenBrushes;
+                invalidate();
+            }
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -154,7 +208,7 @@ namespace TrenchBroom {
                     validate();
                 if (renderContext.showFaces())
                     renderFaces(renderBatch);
-                if (renderContext.showEdges() && m_showEdges)
+                if (renderContext.showEdges() || m_showEdges)
                     renderEdges(renderBatch);
             }
         }
@@ -183,17 +237,31 @@ namespace TrenchBroom {
         private:
             const Filter& m_filter;
             bool m_showHiddenBrushes;
+            NoFilter m_noFilter;
         public:
             FilterWrapper(const Filter& filter, const bool showHiddenBrushes) :
             m_filter(filter),
-            m_showHiddenBrushes(showHiddenBrushes) {}
+            m_showHiddenBrushes(showHiddenBrushes),
+            m_noFilter(false) {}
             
-            bool doShow(const Model::BrushFace* face) const { return m_showHiddenBrushes || m_filter.show(face); }
-            bool doShow(const Model::BrushEdge* edge) const { return m_showHiddenBrushes || m_filter.show(edge); }
+            void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const {
+                if (m_showHiddenBrushes)
+                    m_noFilter.provideFaces(brush, faceAcceptor);
+                else
+                    m_filter.provideFaces(brush, faceAcceptor);
+            }
+            
+            void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const {
+                if (m_showHiddenBrushes)
+                    m_noFilter.provideEdges(brush, edgeAcceptor);
+                else
+                    m_filter.provideEdges(brush, edgeAcceptor);
+            }
+
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
         };
-
-        class BrushRenderer::CountVertices : public Model::ConstNodeVisitor {
+        
+        class BrushRenderer::CountVertices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor {
         private:
             const FilterWrapper& m_filter;
             size_t m_vertexCount;
@@ -215,18 +283,15 @@ namespace TrenchBroom {
             }
             
             void countFaceVertices(const Model::Brush* brush) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (m_filter.show(face)) {
-                        m_vertexCount += face->vertexCount();
-                    }
-                }
+                m_filter.provideFaces(brush, *this);
+            }
+            
+            void accept(const Model::BrushFace* face) {
+                m_vertexCount += face->vertexCount();
             }
         };
 
-        class BrushRenderer::CollectVertices : public Model::ConstNodeVisitor {
+        class BrushRenderer::CollectVertices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor {
         private:
             const FilterWrapper& m_filter;
             VertexListBuilder<Model::BrushFace::Vertex::Spec> m_builder;
@@ -248,18 +313,17 @@ namespace TrenchBroom {
             }
             
             void collectFaceVertices(const Model::Brush* brush) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (m_filter.show(face))
-                        face->getVertices(m_builder);
-                }
+                m_filter.provideFaces(brush, *this);
+            }
+            
+            void accept(const Model::BrushFace* face) {
+                face->getVertices(m_builder);
             }
         };
         
-        class BrushRenderer::CountIndices : public Model::ConstNodeVisitor {
+        class BrushRenderer::CountIndices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor, public BrushRenderer::EdgeAcceptor {
         private:
+            bool m_brushTransparent;
             const FilterWrapper& m_filter;
             TexturedIndexArrayMap::Size m_opaqueIndexSize;
             TexturedIndexArrayMap::Size m_transparentIndexSize;
@@ -290,32 +354,30 @@ namespace TrenchBroom {
             }
             
             void countFaceIndices(const Model::Brush* brush) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (m_filter.show(face)) {
-                        if (m_filter.transparent(brush))
-                            face->countIndices(m_transparentIndexSize);
-                        else
-                            face->countIndices(m_opaqueIndexSize);
-                    }
-                }
+                // HACK:
+                m_brushTransparent = m_filter.transparent(brush);
+                m_filter.provideFaces(brush, *this);
+            }
+            
+            void accept(const Model::BrushFace* face) {
+                if (m_brushTransparent)
+                    face->countIndices(m_transparentIndexSize);
+                else
+                    face->countIndices(m_opaqueIndexSize);
             }
             
             void countEdgeIndices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList& edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge))
-                        m_edgeIndexSize.inc(GL_LINES, 2);
-                }
+                m_filter.provideEdges(brush, *this);
+            }
+            
+            void accept(const Model::BrushEdge* edge) {
+                m_edgeIndexSize.inc(GL_LINES, 2);
             }
         };
         
-        class BrushRenderer::CollectIndices : public Model::ConstNodeVisitor {
+        class BrushRenderer::CollectIndices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor, public BrushRenderer::EdgeAcceptor {
         private:
+            bool m_brushTransparent;
             const FilterWrapper& m_filter;
             TexturedIndexArrayBuilder m_opaqueFaceIndexBuilder;
             TexturedIndexArrayBuilder m_transparentFaceIndexBuilder;
@@ -349,30 +411,27 @@ namespace TrenchBroom {
             }
             
             void collectFaceIndices(const Model::Brush* brush) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace* face = *it;
-                    if (m_filter.show(face)) {
-                        if (m_filter.transparent(brush))
-                            face->getFaceIndices(m_transparentFaceIndexBuilder);
-                        else
-                            face->getFaceIndices(m_opaqueFaceIndexBuilder);
-                    }
-                }
+                // HACK: cache this now
+                m_brushTransparent = m_filter.transparent(brush);
+                
+                m_filter.provideFaces(brush, *this);
+            }
+            
+            void accept(const Model::BrushFace* face) {
+                if (m_brushTransparent)
+                    face->getFaceIndices(m_transparentFaceIndexBuilder);
+                else
+                    face->getFaceIndices(m_opaqueFaceIndexBuilder);
             }
             
             void collectEdgeIndices(const Model::Brush* brush) {
-                const Model::Brush::EdgeList& edges = brush->edges();
-                Model::Brush::EdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    if (m_filter.show(edge)) {
-                        const Model::BrushVertex* v1 = edge->firstVertex();
-                        const Model::BrushVertex* v2 = edge->secondVertex();
-                        m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
-                    }
-                }
+                m_filter.provideEdges(brush, *this);
+            }
+            
+            void accept(const Model::BrushEdge* edge) {
+                const Model::BrushVertex* v1 = edge->firstVertex();
+                const Model::BrushVertex* v2 = edge->secondVertex();
+                m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
             }
         };
         
@@ -386,10 +445,10 @@ namespace TrenchBroom {
         void BrushRenderer::validateVertices() {
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountVertices countVertices(wrapper);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countVertices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countVertices);
             
             CollectVertices collectVertices(wrapper, countVertices.vertexCount());
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectVertices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectVertices);
             
             m_vertexArray = collectVertices.vertexArray();
         }
@@ -397,10 +456,10 @@ namespace TrenchBroom {
         void BrushRenderer::validateIndices() {
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             CountIndices countIndices(wrapper);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), countIndices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countIndices);
             
             CollectIndices collectIndices(wrapper, countIndices);
-            Model::Node::accept(m_brushes.begin(), m_brushes.end(), collectIndices);
+            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectIndices);
             
             const IndexArray opaqueIndices = IndexArray::swap(collectIndices.opaqueFaceIndices().indices());
             const TexturedIndexArrayMap& opaqueRanges = collectIndices.opaqueFaceIndices().ranges();

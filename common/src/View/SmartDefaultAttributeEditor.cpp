@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,12 +24,14 @@
 
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
+#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
-        m_descriptionTxt(NULL) {}
+        m_descriptionTxt(NULL),
+        m_currentDefinition(NULL) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
@@ -39,14 +41,19 @@ namespace TrenchBroom {
         void SmartDefaultAttributeEditor::doDestroyVisual() {
             m_descriptionTxt->Destroy();
             m_descriptionTxt = NULL;
+            m_currentDefinition = NULL;
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            m_descriptionTxt->Clear();
-
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
-            if (entityDefinition != NULL)
-                m_descriptionTxt->AppendText(entityDefinition->description());
+            if (entityDefinition != m_currentDefinition) {
+                m_currentDefinition = entityDefinition;
+                
+                wxWindowUpdateLocker locker(m_descriptionTxt);
+                m_descriptionTxt->Clear();
+                if (m_currentDefinition != NULL)
+                    m_descriptionTxt->AppendText(m_currentDefinition->description());
+            }
         }
     }
 }

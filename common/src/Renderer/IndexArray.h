@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             class BaseHolder {
             public:
-                typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+                typedef std::shared_ptr<BaseHolder> Ptr;
                 virtual ~BaseHolder() {}
                 
                 virtual size_t indexCount() const = 0;
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 size_t indexOffset() const {
                     if (m_indexCount == 0)
                         return 0;
-                    assert(m_block != NULL);
+                    ensure(m_block != NULL, "block is null");
                     return m_block->offset();
                     
                 }
@@ -186,6 +186,8 @@ namespace TrenchBroom {
                 return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
             }
 
+            IndexArray(const IndexArray& other);
+            
             IndexArray& operator=(IndexArray other);
             friend void swap(IndexArray& left, IndexArray& right);
             

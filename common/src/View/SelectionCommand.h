@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,6 +30,7 @@ namespace TrenchBroom {
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
+            typedef std::shared_ptr<SelectionCommand> Ptr;
         private:
             typedef enum {
                 Action_SelectNodes,
@@ -50,16 +51,16 @@ namespace TrenchBroom {
             Model::NodeList m_previouslySelectedNodes;
             Model::BrushFaceList m_previouslySelectedFaces;
         public:
-            static SelectionCommand* select(const Model::NodeList& nodes);
-            static SelectionCommand* select(const Model::BrushFaceList& faces);
+            static Ptr select(const Model::NodeList& nodes);
+            static Ptr select(const Model::BrushFaceList& faces);
             
-            static SelectionCommand* convertToFaces();
-            static SelectionCommand* selectAllNodes();
-            static SelectionCommand* selectAllFaces();
+            static Ptr convertToFaces();
+            static Ptr selectAllNodes();
+            static Ptr selectAllFaces();
             
-            static SelectionCommand* deselect(const Model::NodeList& nodes);
-            static SelectionCommand* deselect(const Model::BrushFaceList& faces);
-            static SelectionCommand* deselectAll();
+            static Ptr deselect(const Model::NodeList& nodes);
+            static Ptr deselect(const Model::BrushFaceList& faces);
+            static Ptr deselectAll();
         private:
             SelectionCommand(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);
             static String makeName(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);

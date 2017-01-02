@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class AddRemoveNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<AddRemoveNodesCommand> Ptr;
+            typedef std::shared_ptr<AddRemoveNodesCommand> Ptr;
         private:
             typedef enum {
                 Action_Add,
@@ -38,17 +38,14 @@ namespace TrenchBroom {
             
             Action m_action;
             Model::ParentChildrenMap m_nodesToAdd;
-            Model::NodeList m_nodesToRemove;
+            Model::ParentChildrenMap m_nodesToRemove;
         public:
             static Ptr add(Model::Node* parent, const Model::NodeList& children);
             static Ptr add(const Model::ParentChildrenMap& nodes);
-            static Ptr remove(const Model::NodeList& nodes);
+            static Ptr remove(const Model::ParentChildrenMap& nodes);
             ~AddRemoveNodesCommand();
-            
-            const Model::NodeList& addedNodes() const;
         private:
-            AddRemoveNodesCommand(const Model::ParentChildrenMap& nodesToAdd);
-            AddRemoveNodesCommand(const Model::NodeList& nodesToRemove);
+            AddRemoveNodesCommand(Action action, const Model::ParentChildrenMap& nodes);
             static String makeName(Action action);
             
             bool doPerformDo(MapDocumentCommandFacade* document);

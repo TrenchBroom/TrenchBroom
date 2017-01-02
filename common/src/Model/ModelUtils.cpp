@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,14 +22,13 @@
 namespace TrenchBroom {
     namespace Model {
         Model::NodeList collectParents(const Model::NodeList& nodes) {
-            return collectParents(nodes.begin(), nodes.end());
+            return collectParents(std::begin(nodes), std::end(nodes));
         }
         
         Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) {
             Model::CollectUniqueNodesVisitor visitor;
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* parent = it->first;
+            for (const auto& entry : nodes) {
+                Model::Node* parent = entry.first;
                 parent->acceptAndEscalate(visitor);
             }
             return visitor.nodes();
@@ -37,9 +36,8 @@ namespace TrenchBroom {
         
         Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) {
             Model::NodeList result;
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                const Model::NodeList& children = it->second;
+            for (const auto& entry : nodes) {
+                const Model::NodeList& children = entry.second;
                 VectorUtils::append(result, children);
             }
             return result;
@@ -48,11 +46,9 @@ namespace TrenchBroom {
         Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) {
             Model::ParentChildrenMap result;
             
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
+            for (Model::Node* node : nodes) {
                 Model::Node* parent = node->parent();
-                assert(parent != NULL);
+                ensure(parent != NULL, "parent is null");
                 result[parent].push_back(node);
             }
             

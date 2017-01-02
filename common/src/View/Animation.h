@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             typedef int Type;
             static const Type NoType = -1;
             
-            typedef std::tr1::shared_ptr<Animation> Ptr;
+            typedef std::shared_ptr<Animation> Ptr;
             typedef std::vector<Ptr> List;
             
             typedef enum {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             void OnOpenOtherDocumentClicked(wxCommandEvent& event);
             void OnRecentDocumentSelected(RecentDocumentSelectedCommand& event);
 
-            DECLARE_DYNAMIC_CLASS(WelcomeFrame)
+            wxDECLARE_DYNAMIC_CLASS(WelcomeFrame);
         private:
             void createGui();
             wxPanel* createAppPanel(wxWindow* parent);

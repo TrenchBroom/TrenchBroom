@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,8 +25,8 @@
 namespace TrenchBroom {
     namespace View {
         class MapDocument;
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentSPtr;
-        typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;
+        typedef std::shared_ptr<MapDocument> MapDocumentSPtr;
+        typedef std::weak_ptr<MapDocument> MapDocumentWPtr;
         
         typedef enum {
             PT_Node,

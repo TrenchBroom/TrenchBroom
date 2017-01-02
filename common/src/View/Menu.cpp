@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -234,19 +234,14 @@ namespace TrenchBroom {
         wxMenu* MenuItemParent::buildMenu(const bool withShortcuts) const {
             wxMenu* subMenu = new wxMenu();
             
-            MenuItem::List::const_iterator it, end;
-            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
-                const MenuItem* item = *it;
+            for (const MenuItem* item : m_items)
                 item->appendToMenu(subMenu, withShortcuts);
-            }
             
             return subMenu;
         }
 
         const ActionMenuItem* MenuItemParent::doFindActionMenuItem(int id) const {
-            MenuItem::List::const_iterator it, end;
-            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
-                const MenuItem* item = *it;
+            for (const MenuItem* item : m_items) {
                 const ActionMenuItem* foundItem = item->findActionMenuItem(id);
                 if (foundItem != NULL)
                     return foundItem;
@@ -255,19 +250,13 @@ namespace TrenchBroom {
         }
         
         void MenuItemParent::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {
-            MenuItem::List::const_iterator it, end;
-            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
-                MenuItem* item = *it;
+            for (MenuItem* item : m_items)
                 item->getShortcutEntries(entries);
-            }
         }
 
         void MenuItemParent::doResetShortcuts() {
-            MenuItem::List::const_iterator it, end;
-            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
-                MenuItem* item = *it;
+            for (MenuItem* item : m_items)
                 item->resetShortcuts();
-            }
         }
         
         int MenuItemParent::doGetId() const {
@@ -335,9 +324,7 @@ namespace TrenchBroom {
         }
         
         const ActionMenuItem* MenuBar::findActionMenuItem(int id) const {
-            MenuList::const_iterator it, end;
-            for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
-                const Menu* menu = *it;
+            for (const Menu* menu : m_menus) {
                 const ActionMenuItem* item = menu->findActionMenuItem(id);
                 if (item != NULL)
                     return item;
@@ -346,11 +333,8 @@ namespace TrenchBroom {
         }
 
         void MenuBar::resetShortcuts() {
-            MenuList::const_iterator it, end;
-            for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
-                Menu* menu = *it;
+            for (Menu* menu : m_menus)
                 menu->resetShortcuts();
-            }
         }
 
         Menu* MenuBar::addMenu(const String& label) {
@@ -361,20 +345,14 @@ namespace TrenchBroom {
         
         wxMenuBar* MenuBar::createMenuBar(const bool withShortcuts) {
             wxMenuBar* menuBar = new wxMenuBar();
-            MenuList::const_iterator it, end;
-            for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
-                const Menu* menu = *it;
+            for (const Menu* menu : m_menus)
                 menu->appendToMenu(menuBar, withShortcuts);
-            }
             return menuBar;
         }
 
         void MenuBar::getShortcutEntries(KeyboardShortcutEntry::List& entries) const {
-            MenuList::const_iterator it, end;
-            for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
-                Menu* menu = *it;
+            for (Menu* menu : m_menus)
                 menu->getShortcutEntries(entries);
-            }
         }
     }
 }

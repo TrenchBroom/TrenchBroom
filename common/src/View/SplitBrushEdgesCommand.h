@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class SplitBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SplitBrushEdgesCommand> Ptr;
+            typedef std::shared_ptr<SplitBrushEdgesCommand> Ptr;
         private:
             Model::BrushEdgesMap m_edges;
             Edge3::List m_oldEdgePositions;

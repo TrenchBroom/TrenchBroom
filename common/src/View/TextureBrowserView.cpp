@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,22 +41,24 @@ namespace TrenchBroom {
                                                wxScrollBar* scrollBar,
                                                GLContextManager& contextManager,
                                                Assets::TextureManager& textureManager) :
-        CellView(parent, contextManager, buildAttribs(), scrollBar),
+        CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
         m_textureManager(textureManager),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::TextureManager::SortOrder_Name),
-        m_selectedTexture(NULL) {}
+        m_sortOrder(SO_Name),
+        m_selectedTexture(NULL) {
+            m_textureManager.usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
+        }
         
         TextureBrowserView::~TextureBrowserView() {
             clear();
         }
 
-        void TextureBrowserView::setSortOrder(const Assets::TextureManager::SortOrder sortOrder) {
+        void TextureBrowserView::setSortOrder(const SortOrder sortOrder) {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -64,7 +66,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -80,7 +82,7 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
             Refresh();
         }
 
@@ -92,6 +94,11 @@ namespace TrenchBroom {
             if (m_selectedTexture == selectedTexture)
                 return;
             m_selectedTexture = selectedTexture;
+            Refresh();
+        }
+
+        void TextureBrowserView::usageCountDidChange() {
+            invalidate();
             Refresh();
         }
 
@@ -115,47 +122,111 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                const Assets::TextureManager::GroupList& groups = m_textureManager.groups(m_sortOrder);
-                Assets::TextureManager::GroupList::const_iterator gIt, gEnd;
-                for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
-                    const Assets::TextureCollection* collection = gIt->first;
-                    const Assets::TextureList& textures = gIt->second;
-                    const IO::Path collectionPath(collection->name());
-                    
-                    layout.addGroup(collectionPath.lastComponent().asString(), fontSize + 2.0f);
-                    
-                    Assets::TextureList::const_iterator tIt, tEnd;
-                    for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
-                        Assets::Texture* texture = *tIt;
+                for (const Assets::TextureCollection* collection : getCollections()) {
+                    layout.addGroup(collection->name(), fontSize + 2.0f);
+                    for (Assets::Texture* texture : getTextures(collection))
                         addTextureToLayout(layout, texture, font);
-                    }
                 }
             } else {
-                const Assets::TextureList& textures = m_textureManager.textures(m_sortOrder);
-                Assets::TextureList::const_iterator it, end;
-                for (it = textures.begin(), end = textures.end(); it != end; ++it) {
-                    Assets::Texture* texture = *it;
+                for (Assets::Texture* texture : getTextures())
                     addTextureToLayout(layout, texture, font);
-                }
             }
         }
         
         void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
-            if ((!m_hideUnused || texture->usageCount() > 0) &&
-                (m_filterText.empty() || StringUtils::containsCaseInsensitive(texture->name(), m_filterText))) {
-                const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
-                
-                const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
-                const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-                const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+            const float maxCellWidth = layout.maxCellWidth();
+            const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
+            const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
+            
+            const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
+            const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
+            const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+            
+            layout.addItem(TextureCellData(texture, actualFont),
+                           scaledTextureWidth,
+                           scaledTextureHeight,
+                           actualSize.x(),
+                           font.size() + 2.0f);
+        }
 
-                layout.addItem(TextureCellData(texture, actualFont),
-                               scaledTextureWidth,
-                               scaledTextureHeight,
-                               actualSize.x(),
-                               font.size() + 2.0f);
+        struct TextureBrowserView::CompareByUsageCount {
+            StringUtils::CaseInsensitiveStringLess m_less;
+
+            template <typename T>
+            bool operator()(const T* lhs, const T* rhs) const {
+                if (lhs->usageCount() > rhs->usageCount())
+                    return true;
+                if (lhs->usageCount() < rhs->usageCount())
+                    return false;
+                
+                return m_less(lhs->name(), rhs->name());
+            }
+        };
+        
+        struct TextureBrowserView::CompareByName {
+            StringUtils::CaseInsensitiveStringLess m_less;
+            
+            template <typename T>
+            bool operator()(const T* lhs, const T* rhs) const {
+                return m_less(lhs->name(), rhs->name());
+            }
+        };
+
+        struct TextureBrowserView::MatchUsageCount {
+            template <typename T>
+            bool operator()(const T* t) const {
+                return t->usageCount() == 0;
+            }
+        };
+        
+        struct TextureBrowserView::MatchName {
+            String pattern;
+            
+            MatchName(const String& i_pattern) : pattern(i_pattern) {}
+            
+            bool operator()(const Assets::Texture* texture) const {
+                return !StringUtils::containsCaseInsensitive(texture->name(), pattern);
+            }
+        };
+
+        Assets::TextureCollectionList TextureBrowserView::getCollections() const {
+            Assets::TextureCollectionList collections = m_textureManager.collections();
+            if (m_hideUnused)
+                VectorUtils::eraseIf(collections, MatchUsageCount());
+            if (m_sortOrder == SO_Usage)
+                VectorUtils::sort(collections, CompareByUsageCount());
+            return collections;
+        }
+        
+        Assets::TextureList TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            Assets::TextureList textures = collection->textures();
+            filterTextures(textures);
+            sortTextures(textures);
+            return textures;
+        }
+        
+        Assets::TextureList TextureBrowserView::getTextures() const {
+            Assets::TextureList textures = m_textureManager.textures();
+            filterTextures(textures);
+            sortTextures(textures);
+            return textures;
+        }
+
+        void TextureBrowserView::filterTextures(Assets::TextureList& textures) const {
+            if (m_hideUnused)
+                VectorUtils::eraseIf(textures, MatchUsageCount());
+            if (!m_filterText.empty())
+                VectorUtils::eraseIf(textures, MatchName(m_filterText));
+        }
+        
+        void TextureBrowserView::sortTextures(Assets::TextureList& textures) const {
+            switch (m_sortOrder) {
+                case SO_Name:
+                    VectorUtils::sort(textures, CompareByName());
+                    break;
+                case SO_Usage:
+                    VectorUtils::sort(textures, CompareByUsageCount());
+                    break;
             }
         }
 
@@ -293,7 +364,7 @@ namespace TrenchBroom {
                 }
             }
             
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
@@ -309,24 +380,19 @@ namespace TrenchBroom {
             
             Renderer::ActivateVbo activate(vertexVbo());
 
-            { // create and upload all vertex arrays
-                const StringMap stringVertices = collectStringVertices(layout, y, height);
-                StringMap::const_iterator it, end;
-                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
-                    const Renderer::FontDescriptor& descriptor = it->first;
-                    const TextVertex::List& vertices = it->second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[descriptor].prepare(vertexVbo());
-                }
+            for (const auto& entry : collectStringVertices(layout, y, height)) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                const TextVertex::List& vertices = entry.second;
+                stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
+                stringRenderers[descriptor].prepare(vertexVbo());
             }
             
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
-            
-            StringRendererMap::iterator it, end;
-            for (it = stringRenderers.begin(), end = stringRenderers.end(); it != end; ++it) {
-                const Renderer::FontDescriptor& descriptor = it->first;
-                Renderer::VertexArray& vertexArray = it->second;
+
+            for (auto& entry : stringRenderers) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                Renderer::VertexArray& vertexArray = entry.second;
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
@@ -354,7 +420,7 @@ namespace TrenchBroom {
                         const Vec2f::List quads = font.quads(title, false, offset);
                         const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         TextVertex::List& vertices = stringVertices[defaultDescriptor];
-                        vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                        vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
                     
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -369,7 +435,7 @@ namespace TrenchBroom {
                                 const Vec2f::List quads = font.quads(cell.item().texture->name(), false, offset);
                                 const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 TextVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
-                                vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                                vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                             }
                         }
                     }
@@ -383,17 +449,11 @@ namespace TrenchBroom {
             const Layout::Group::Row::Cell* result = NULL;
             if (layout.cellAt(x, y, &result)) {
                 if (!result->item().texture->overridden()) {
-                    Assets::Texture* texture = result->item().texture;
-                    
                     TextureSelectedCommand command;
-                    command.setTexture(texture);
                     command.SetEventObject(this);
                     command.SetId(GetId());
+                    command.setTexture(result->item().texture);
                     ProcessEvent(command);
-                    
-                    if (command.IsAllowed())
-                        m_selectedTexture = texture;
-
                     Refresh();
                 }
             }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,6 +31,8 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class ParserStatus;
+        
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
@@ -65,44 +67,44 @@ namespace TrenchBroom {
             typedef std::map<Model::IdType, Model::Group*> GroupMap;
             
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
-            typedef std::vector<NodeParentPair> NodeParentList;
+            typedef std::vector<NodeParentPair> NodeParentArray;
             
             BBox3 m_worldBounds;
             Model::ModelFactory* m_factory;
             
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
-            Model::BrushFaceList m_faces;
+            Model::BrushFaceArray m_faces;
             
             LayerMap m_layers;
             GroupMap m_groups;
-            NodeParentList m_unresolvedNodes;
+            NodeParentArray m_unresolvedNodes;
         protected:
-            MapReader(const char* begin, const char* end, Logger* logger = NULL);
-            MapReader(const String& str, Logger* logger = NULL);
+            MapReader(const char* begin, const char* end);
+            MapReader(const String& str);
             
-            void readEntities(Model::MapFormat::Type format, const BBox3& worldBounds);
-            void readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds);
-            void readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds);
+            void readEntities(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
+            void readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
+            void readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
         public:
             virtual ~MapReader();
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat::Type format);
-            void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void onEndEntity(size_t startLine, size_t lineCount);
-            void onBeginBrush(size_t line);
-            void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
+            void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status);
+            void onBeginBrush(size_t line, ParserStatus& status);
+            void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status);
         private: // helper methods
-            void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
+            void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
 
-            ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
+            ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
             
-            void resolveNodes();
+            void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
             
             EntityType entityType(const Model::EntityAttribute::List& attributes) const;
@@ -112,13 +114,13 @@ namespace TrenchBroom {
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
             virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds) = 0;
-            virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
-            virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount) = 0;
-            virtual void onLayer(Model::Layer* layer) = 0;
-            virtual void onNode(Model::Node* parent, Model::Node* node) = 0;
-            virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) = 0;
-            virtual void onBrush(Model::Node* parent, Model::Brush* brush) = 0;
-            virtual void onBrushFace(Model::BrushFace* face);
+            virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
+            virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
+            virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;
+            virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;
+            virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) = 0;
+            virtual void onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) = 0;
+            virtual void onBrushFace(Model::BrushFace* face, ParserStatus& status);
         };
     }
 }

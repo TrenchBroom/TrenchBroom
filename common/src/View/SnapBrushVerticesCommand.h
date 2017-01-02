@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,26 +32,23 @@ namespace TrenchBroom {
     namespace View {
         class VertexHandleManager;
         
-        class SnapBrushVerticesCommand : public VertexCommand {
+        class SnapBrushVerticesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SnapBrushVerticesCommand> Ptr;
+            typedef std::shared_ptr<SnapBrushVerticesCommand> Ptr;
         private:
-            Model::BrushVerticesMap m_vertices;
-            Vec3::List m_oldVertexPositions;
-            Vec3::List m_newVertexPositions;
             size_t m_snapTo;
+            Model::Snapshot* m_snapshot;
         public:
-            static SnapBrushVerticesCommand::Ptr snap(const Model::VertexToBrushesMap& vertices, size_t snapTo);
-            static SnapBrushVerticesCommand::Ptr snap(const Model::BrushList& brushes, size_t snapTo);
+            static SnapBrushVerticesCommand::Ptr snap(size_t snapTo);
         private:
-            SnapBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, size_t snapTo);
-
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
-            
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            SnapBrushVerticesCommand(size_t snapTo);
+        public:
+            ~SnapBrushVerticesCommand();
+        private:
+            bool doPerformDo(MapDocumentCommandFacade* document);
+            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
 
             bool doCollateWith(UndoableCommand::Ptr command);
         };

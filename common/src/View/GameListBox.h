@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,6 +23,8 @@
 #include "StringUtils.h"
 #include "View/ImageListBox.h"
 
+#include <wx/bitmap.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +41,7 @@ namespace TrenchBroom {
             
             InfoList m_gameInfos;
         public:
-            GameListBox(wxWindow* parent, long style = wxBORDER_NONE);
+            GameListBox(wxWindow* parent);
             
             String selectedGameName() const;
             void selectGame(int index);
@@ -48,9 +50,9 @@ namespace TrenchBroom {
             void OnListBoxDoubleClick(wxCommandEvent& event);
             void reloadGameInfos();
         private:
-            const wxBitmap& image(const size_t n) const;
-            wxString title(const size_t n) const;
-            wxString subtitle(const size_t n) const;
+            bool image(size_t n, wxBitmap& result) const;
+            wxString title(size_t n) const;
+            wxString subtitle(size_t n) const;
             
             void submitChangeEvent(wxEventType type);
         };

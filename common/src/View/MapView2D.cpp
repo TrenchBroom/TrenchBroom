@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -197,19 +197,13 @@ namespace TrenchBroom {
             Model::BrushList tallBrushes(0);
             tallBrushes.reserve(selectionBrushes.size());
             
-            Model::BrushList::const_iterator sIt, sEnd;
-            for (sIt = selectionBrushes.begin(), sEnd = selectionBrushes.end(); sIt != sEnd; ++sIt) {
-                const Model::Brush* selectionBrush = *sIt;
-                const Model::Brush::VertexList& vertices = selectionBrush->vertices();
-
+            for (const Model::Brush* selectionBrush : selectionBrushes) {
                 Vec3::List tallVertices(0);
-                tallVertices.reserve(2 * vertices.size());
+                tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
-                Model::Brush::VertexList::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                    const Model::BrushVertex* vertex = *vIt;
-                    tallVertices.push_back(minPlane.project(vertex->position()));
-                    tallVertices.push_back(maxPlane.project(vertex->position()));
+                for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
+                    tallVertices.push_back(minPlane.projectPoint(vertex->position()));
+                    tallVertices.push_back(maxPlane.projectPoint(vertex->position()));
                 }
 
                 Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFace::NoTextureName);
@@ -219,18 +213,19 @@ namespace TrenchBroom {
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            const Model::NodeList nodes = Model::collectMatchingNodes<Model::CollectContainedNodesVisitor>(tallBrushes.begin(), tallBrushes.end(), document->world());
-            document->select(nodes);
+            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
+            document->world()->acceptAndRecurse(visitor);
+            document->select(visitor.nodes());
 
             VectorUtils::clearAndDelete(tallBrushes);
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const MapDocumentSPtr document = lock(m_document);
-            if (document->selectedNodes().empty()) {
-                const BBox3& bounds = document->selectionBounds();
-                moveCameraToPosition(bounds.center(), animate);
-            }
+            const BBox3& bounds = document->referenceBounds();
+            const Vec3 diff = bounds.center() - m_camera.position();
+            const Vec3 delta = diff * (m_camera.up() + m_camera.right());
+            moveCameraToPosition(m_camera.position() + delta, animate);
         }
         
         void MapView2D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
@@ -318,8 +313,12 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView2D::doCreateRenderContext() {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
+        Renderer::RenderContext::RenderMode MapView2D::doGetRenderMode() {
+            return Renderer::RenderContext::RenderMode_2D;
+        }
+        
+        Renderer::Camera& MapView2D::doGetCamera() {
+            return m_camera;
         }
         
         void MapView2D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

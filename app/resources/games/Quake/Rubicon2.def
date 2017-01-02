@@ -170,7 +170,7 @@ Dreadnaught, 150 health points.
 AMBUSH: dreadnaught will only wake up on really seeing the player, not another monster getting angry.
 */
 /*QUAKED monster_floyd (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH ROLLING ASLEEP x x x SPAWN_TRIGGERED SPAWN_SILENT
-{ model(":progs/floyd.mdl" 0 1); }
+{ model({ "path": ":progs/floyd.mdl", "skin": 0, "frame": 1 }); }
 Automaton, 200 health points.
 
 AMBUSH: floyd will only wake up on really seeing the player, not another monster getting angry.
@@ -632,7 +632,7 @@ Keys:
 */
 /*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_batt0.bsp", ":maps/b_batt1.bsp" 0 0 spawnflags = 1);
+model({{ spawnflags == 1 -> ":maps/b_batt1.bsp", ":maps/b_batt0.bsp" }});
 }
 6 ammo points (cells) for the
 Thunderbolt (Lightning).
@@ -643,7 +643,7 @@ Flags:
 */
 /*QUAKED item_rockets (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_rock0.bsp", ":maps/b_rock1.bsp" 0 0 spawnflags = 1);
+model({{ spawnflags == 1 -> ":maps/b_rock1.bsp", ":maps/b_rock0.bsp" }});
 }
 5 ammo points (rockets) for the
 Rocket/Grenade Launcher.
@@ -654,7 +654,7 @@ Flags:
 */
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" 0 0 spawnflags = 1);
+model({{ spawnflags == 1 -> ":maps/b_shell1.bsp", ":maps/b_shell0.bsp" }});
 }
 20 shells for both Shotgun and
 SuperShotgun.
@@ -665,7 +665,7 @@ Flags:
 */
 /*QUAKED item_spikes (0 .5 .8) (0 0 0) (32 32 32) BIG
 {
-model(":maps/b_nail0.bsp", ":maps/b_nail1.bsp" 0 0 spawnflags = 1);
+model({{ spawnflags == 1 -> ":maps/b_nail1.bsp", ":maps/b_nail0.bsp" }});
 }
 25 ammo points (spikes) for
 Perforator and Super Perforator.
@@ -676,7 +676,7 @@ Flags:
 */
 /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
 {
-    model(":maps/b_bh25.bsp", ":maps/b_bh10.bsp" 0 0 spawnflags = 1, ":maps/b_bh100.bsp" 0 0 spawnflags = 2);
+    model({{ spawnflags == 2 -> ":maps/b_bh100.bsp", spawnflags == 1 -> ":maps/b_bh10.bsp", ":maps/b_bh25.bsp" }});
 }
 Health box. Normally gives 25 points.
 
@@ -710,11 +710,11 @@ The next attack from the player will
 do 4x damage. Lasts 30 seconds.
 */
 /*QUAKED item_armorInv (0 .5 .8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl" 2); }
+{ model({ "path": ":progs/armor.mdl", "skin": 2 }); }
 Red armor, gives 200 armor points.
 */
 /*QUAKED item_armor2 (0 .5 .8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl" 1); }
+{ model({ "path": ":progs/armor.mdl", "skin": 1 }); }
 Yellow armor, gives 150 points.
 */
 /*QUAKED item_armor1 (0 .5 .8) (-16 -16 0) (16 16 32)

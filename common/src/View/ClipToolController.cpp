@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         ClipToolController::Callback::Callback(ClipTool* tool) :
         m_tool(tool) {
-            assert(m_tool != NULL);
+            ensure(m_tool != NULL, "tool is null");
         }
         
         ClipToolController::Callback::~Callback() {}
@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
         ClipToolController::PartBase::PartBase(Callback* callback) :
         m_callback(callback) {
-            assert(m_callback != NULL);
+            ensure(m_callback != NULL, "callback is null");
         }
         
         ClipToolController::PartBase::~PartBase() {
@@ -140,14 +140,16 @@ namespace TrenchBroom {
         }
         
         void ClipToolController::AddClipPointPart::doEndDrag(const InputState& inputState) {
-            m_callback->tool()->endDragPoint();
+            if (m_secondPointSet)
+                m_callback->tool()->endDragPoint();
         }
         
         void ClipToolController::AddClipPointPart::doCancelDrag() {
-            m_callback->tool()->cancelDragPoint();
-            m_callback->tool()->removeLastPoint();
-            if (m_secondPointSet)
+            if (m_secondPointSet) {
+                m_callback->tool()->cancelDragPoint();
                 m_callback->tool()->removeLastPoint();
+            }
+            m_callback->tool()->removeLastPoint();
         }
         
         void ClipToolController::AddClipPointPart::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -221,7 +223,12 @@ namespace TrenchBroom {
         }
         
         bool ClipToolController::doCancel() {
-            return m_tool->removeLastPoint() || m_tool->reset();
+            if (m_tool->removeLastPoint()) {
+                if (!m_tool->hasPoints())
+                    m_tool->reset();
+                return true;
+            }
+            return false;
         }
 
         class ClipToolController2D::Callback2D : public Callback {
@@ -265,13 +272,10 @@ namespace TrenchBroom {
         }
         
         Vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) {
-            assert(face != NULL);
+            ensure(face != NULL, "face is null");
             
             Vec3::List result;
-            const Model::BrushFaceList incidentFaces = selectIncidentFaces(face, hitPoint);
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = incidentFaces.begin(), end = incidentFaces.end(); it != end; ++it) {
-                const Model::BrushFace* incidentFace = *it;
+            for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
                 const Vec3& normal = incidentFace->boundary().normal;
                 result.push_back(normal.firstAxis());
             }
@@ -280,20 +284,14 @@ namespace TrenchBroom {
         }
         
         Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) {
-            const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator vIt, vEnd;
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                const Model::BrushVertex* vertex = *vIt;
+            for (const Model::BrushVertex* vertex : face->vertices()) {
                 if (vertex->position().equals(hitPoint)) {
                     const Model::Brush* brush = face->brush();
                     return brush->incidentFaces(vertex);
                 }
             }
             
-            const Model::BrushFace::EdgeList edges = face->edges();
-            Model::BrushFace::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
-                Model::BrushEdge* edge = *eIt;
+            for (const Model::BrushEdge* edge : face->edges()) {
                 if (edge->contains(hitPoint)) {
                     Model::BrushFaceList result;
                     result.push_back(edge->firstFace()->payload());
@@ -324,7 +322,7 @@ namespace TrenchBroom {
                 SurfaceDragSnapper(grid) {}
             private:
                 Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const {
-                    assert(hit.type() == Model::Brush::BrushHit);
+                    ensure(hit.type() == Model::Brush::BrushHit, "invalid hit type");
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     return face->boundary();
                 }
@@ -340,7 +338,7 @@ namespace TrenchBroom {
             
             Vec3::List getHelpVectors(const InputState& inputState) const {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-                assert(hit.isMatch());
+                ensure(hit.isMatch(), "hit is not a match");
                 
                 Model::BrushFace* face = Model::hitToFace(hit);
                 return selectHelpVectors(face, hit.hitPoint());

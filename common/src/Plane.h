@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2014 Kristian Duske
+Copyright (C) 2010-2016 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -199,11 +199,11 @@ public:
     }
              */
     
-    Vec<T,S> project(const Vec<T,S>& point) const {
+    Vec<T,S> projectPoint(const Vec<T,S>& point) const {
         return point - point.dot(normal) * normal + distance * normal;
     }
 
-    Vec<T,S> project(const Vec<T,S>& point, const Vec<T,S>& direction) const {
+    Vec<T,S> projectPoint(const Vec<T,S>& point, const Vec<T,S>& direction) const {
         const T f = direction.dot(normal);
         if (Math::zero(f))
             return Vec<T,S>::NaN;
@@ -211,17 +211,39 @@ public:
         return point + direction * d;
     }
     
-    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points) const {
+    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points) const {
         typename Vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i]);
         return result;
     }
 
-    typename Vec<T,S>::List project(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
+    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
         typename Vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i], direction);
+        return result;
+    }
+    
+    Vec<T,S> projectVector(const Vec<T,S>& vector) const {
+        return projectPoint(anchor() + vector) - anchor();
+    }
+    
+    Vec<T,S> projectVector(const Vec<T,S>& vector, const Vec<T,S>& direction) const {
+        return projectPoint(anchor() + vector) - anchor();
+    }
+    
+    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors) const {
+        typename Vec<T,S>::List result(vectors.size());
+        for (size_t i = 0; i < vectors.size(); ++i)
+            result[i] = projectVector(vectors[i]);
+        return result;
+    }
+    
+    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors, const Vec<T,S>& direction) const {
+        typename Vec<T,S>::List result(vectors.size());
+        for (size_t i = 0; i < vectors.size(); ++i)
+            result[i] = projectVector(vectors[i], direction);
         return result;
     }
 };
@@ -231,22 +253,20 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
     return setPlanePoints(plane, points[0], points[1], points[2]);
 }
             
+/*
+ * The normal will be pointing towards the reader when the points are oriented like this:
+ *
+ * 1
+ * |
+ * v2
+ * |
+ * |
+ * 0------v1----2
+ */
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> v1 = point2 - point0;
-    const Vec<T,3> v2 = point1 - point0;
-    plane.normal = crossed(v1, v2);
-    
-    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
-    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
-    const T sin_theta = Math::abs(plane.normal.length() / (v1.length() * v2.length()));
-    if (sin_theta < Math::Constants<T>::angleEpsilon()
-        || Math::isnan(sin_theta)
-        || sin_theta == std::numeric_limits<T>::infinity()
-        || sin_theta == -std::numeric_limits<T>::infinity())
+    if (!planeNormal(plane.normal, point0, point1, point2))
         return false;
-    
-    plane.normal.normalize();
     plane.distance = point0.dot(plane.normal);
     return true;
 }

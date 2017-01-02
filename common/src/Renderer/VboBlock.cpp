@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Renderer {
         MapVboBlock::MapVboBlock(VboBlock* block) :
         m_block(block) {
-            assert(m_block != NULL);
+            ensure(m_block != NULL, "block is null");
             m_block->map();
         }
         
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         }
 
         VboBlock* VboBlock::mergeWithSuccessor() {
-            assert(m_next != NULL);
+            ensure(m_next != NULL, "next is null");
             
             VboBlock* next = m_next;
             VboBlock* nextNext = next->next();

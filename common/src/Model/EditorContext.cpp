@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -37,7 +37,6 @@ namespace TrenchBroom {
         m_showBrushes(true),
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
-        m_textureLock(false),
         m_blockSelection(false),
         m_currentGroup(NULL) {}
         
@@ -104,15 +103,6 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
 
-        bool EditorContext::textureLock() const {
-            return m_textureLock;
-        }
-        
-        void EditorContext::setTextureLock(const bool textureLock) {
-            m_textureLock = textureLock;
-            editorContextDidChangeNotifier();
-        }
-
         bool EditorContext::blockSelection() const {
             return m_blockSelection;
         }
@@ -127,7 +117,7 @@ namespace TrenchBroom {
         }
 
         void EditorContext::pushGroup(Model::Group* group) {
-            assert(group != NULL);
+            ensure(group != NULL, "group is null");
             assert(m_currentGroup == NULL || group->group() == m_currentGroup);
             
             if (m_currentGroup != NULL)
@@ -137,7 +127,7 @@ namespace TrenchBroom {
         }
         
         void EditorContext::popGroup() {
-            assert(m_currentGroup != NULL);
+            ensure(m_currentGroup != NULL, "currentGroup is null");
             m_currentGroup->close();
             m_currentGroup = m_currentGroup->group();
             if (m_currentGroup != NULL)
@@ -276,7 +266,7 @@ namespace TrenchBroom {
         public:
             NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world)   { setResult(false); }
+            void doVisit(const Model::World* world)   { setResult(m_this.selectable(world)); }
             void doVisit(const Model::Layer* layer)   { setResult(m_this.selectable(layer)); }
             void doVisit(const Model::Group* group)   { setResult(m_this.selectable(group)); }
             void doVisit(const Model::Entity* entity) { setResult(m_this.selectable(entity)); }
@@ -289,6 +279,10 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
+        bool EditorContext::selectable(const Model::World* world) const {
+            return false;
+        }
+
         bool EditorContext::selectable(const Model::Layer* layer) const {
             return false;
         }

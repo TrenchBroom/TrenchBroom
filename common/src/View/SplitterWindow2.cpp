@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,10 +27,10 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
-#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -64,7 +64,6 @@ namespace TrenchBroom {
         
         void SplitterWindow2::setMinSize(wxWindow* window, const wxSize& minSize) {
             assert(m_splitMode != SplitMode_Unset);
-            assert(minSize.x >= 0 && minSize.y != 0);
             
             wxSize splitterMinSize;
             for (size_t i = 0; i < NumWindows; ++i) {
@@ -123,9 +122,9 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
-            assert(window1 != NULL);
+            ensure(window1 != NULL, "window1 is null");
             assert(window1->GetParent() == this);
-            assert(window2 != NULL);
+            ensure(window2 != NULL, "window2 is null");
             assert(window2->GetParent() == this);
             assert(m_splitMode == SplitMode_Unset);
             
@@ -173,7 +172,6 @@ namespace TrenchBroom {
             else if (event.LeftUp() && dragging())
                 m_sash->ReleaseMouse();
 			setSashCursor();
-            Refresh();
         }
         
         void SplitterWindow2::OnMouseMotion(wxMouseEvent& event) {
@@ -238,7 +236,7 @@ namespace TrenchBroom {
             m_oldSize = event.GetSize();
             event.Skip();
         }
-        
+
         void SplitterWindow2::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
             initSashPosition();
             
@@ -251,7 +249,7 @@ namespace TrenchBroom {
         
         void SplitterWindow2::initSashPosition() {
             if (m_splitMode != SplitMode_Unset && m_currentSplitRatio == -1.0 && h(GetClientSize()) > 0)
-                setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))) + 1);
+                setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))));
         }
         
         bool SplitterWindow2::setSashPosition(int newSashPosition) {
@@ -262,17 +260,16 @@ namespace TrenchBroom {
             
             newSashPosition = std::min(newSashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
             newSashPosition = std::max(newSashPosition, h(m_minSizes[0]));
-
-            m_currentSplitRatio = splitRatio(newSashPosition);
+			if (newSashPosition >= h(m_minSizes[0]) && newSashPosition <= h(GetClientSize()) - h(m_minSizes[1]))
+	            m_currentSplitRatio = splitRatio(newSashPosition);
             return m_currentSplitRatio >= 0.0;
         }
         
         void SplitterWindow2::sizeWindows() {
+			
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                const wxWindowUpdateLocker lockUpdates(this);
-                
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                     m_sash->SetSize(wxRect(wxPoint(0, 0),wxPoint(0, 0)));
@@ -308,7 +305,7 @@ namespace TrenchBroom {
         }
  
         wxWindow* SplitterWindow2::unmaximizedWindow() {
-            assert(m_maximizedWindow != NULL);
+            ensure(m_maximizedWindow != NULL, "maximizedWindow is null");
             return m_windows[0] == m_maximizedWindow ? m_windows[1] : m_windows[0];
         }
     }

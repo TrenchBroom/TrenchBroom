@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         
         TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
             FontCache::iterator it = m_cache.lower_bound(fontDescriptor);
-            if (it != m_cache.end() && it->first.compare(fontDescriptor) == 0)
+            if (it != std::end(m_cache) && it->first.compare(fontDescriptor) == 0)
                 return *it->second;
 
             TextureFont* font = m_factory->createFont(fontDescriptor);;

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class ShearTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ShearTexturesCommand> Ptr;
+            typedef std::shared_ptr<ShearTexturesCommand> Ptr;
         private:
             Vec2f m_factors;
         public:
@@ -47,6 +47,9 @@ namespace TrenchBroom {
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand::Ptr command);
+        private:
+            ShearTexturesCommand(const ShearTexturesCommand& other);
+            ShearTexturesCommand& operator=(const ShearTexturesCommand& other);
         };
     }
 }

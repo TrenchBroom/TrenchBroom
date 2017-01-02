@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,7 +21,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include <wx/wx.h>
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <clocale>
@@ -30,13 +29,15 @@ int main(int argc, char **argv) {
 
     wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
     wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
+    ensure(wxEntryStart(argc, argv), "wxWidgets initialization failed");
+
+    ensure(wxApp::GetInstance() == pApp, "invalid app instance");
 
     // use an empty file config so that we always use the default preferences
     wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
-    
-    ::testing::InitGoogleTest(&argc, argv);
 
+    ::testing::InitGoogleTest(&argc, argv);
+    
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();

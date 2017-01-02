@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,16 +34,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs) :
-        wxGLCanvas(parent, wxID_ANY, &attribs.front(), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
+        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs) :
+        wxGLCanvas(parent, attribs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxFULL_REPAINT_ON_RESIZE),
         m_glContext(contextManager.createContext(this)),
         m_attribs(attribs),
         m_initialized(false) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
-            
+
             bindEvents();
         }
+        
+        RenderView::~RenderView() {}
         
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
@@ -96,11 +98,11 @@ namespace TrenchBroom {
         }
 
         int RenderView::depthBits() const {
-            return m_attribs[3];
+            return GLAttribs::depth();
         }
         
         bool RenderView::multisample() const {
-            return m_attribs[4] != 0;
+            return GLAttribs::multisample();
         }
 
         void RenderView::bindEvents() {

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,7 @@ wxDEFINE_EVENT(COLOR_TABLE_SELECTED_EVENT, TrenchBroom::View::ColorTableSelected
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(ColorTableSelectedCommand, wxNotifyEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(ColorTableSelectedCommand, wxNotifyEvent)
         ColorTableSelectedCommand::ColorTableSelectedCommand() :
         wxNotifyEvent(COLOR_TABLE_SELECTED_EVENT, wxID_ANY) {}
         

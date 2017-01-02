@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -177,20 +177,18 @@ namespace TrenchBroom {
         }
         
         void PrimitiveRenderer::prepareLines(Vbo& vertexVbo) {
-            LineMeshMap::iterator it, end;
-            for (it = m_lineMeshes.begin(), end = m_lineMeshes.end(); it != end; ++it) {
-                const LineRenderAttributes& attributes = it->first;
-                IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
+            for (auto& entry : m_lineMeshes) {
+                const LineRenderAttributes& attributes = entry.first;
+                IndexRangeMapBuilder<Vertex::Spec>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vertexVbo);
             }
         }
         
         void PrimitiveRenderer::prepareTriangles(Vbo& vertexVbo) {
-            TriangleMeshMap::iterator it, end;
-            for (it = m_triangleMeshes.begin(), end = m_triangleMeshes.end(); it != end; ++it) {
-                const TriangleRenderAttributes& attributes = it->first;
-                IndexRangeMapBuilder<Vertex::Spec>& mesh = it->second;
+            for (auto& entry : m_triangleMeshes) {
+                const TriangleRenderAttributes& attributes = entry.first;
+                IndexRangeMapBuilder<Vertex::Spec>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vertexVbo);
             }
@@ -204,10 +202,9 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderLines(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
             
-            LineMeshRendererMap::iterator it, end;
-            for (it = m_lineMeshRenderers.begin(), end = m_lineMeshRenderers.end(); it != end; ++it) {
-                const LineRenderAttributes& attributes = it->first;
-                IndexRangeRenderer& renderer = it->second;
+            for (auto& entry : m_lineMeshRenderers) {
+                const LineRenderAttributes& attributes = entry.first;
+                IndexRangeRenderer& renderer = entry.second;
                 attributes.render(renderer, shader);
             }
             glAssert(glLineWidth(1.0f));
@@ -216,10 +213,9 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
             
-            TriangleMeshRendererMap::iterator it, end;
-            for (it = m_triangleMeshRenderers.begin(), end = m_triangleMeshRenderers.end(); it != end; ++it) {
-                const TriangleRenderAttributes& attributes = it->first;
-                IndexRangeRenderer& renderer = it->second;
+            for (auto& entry : m_triangleMeshRenderers) {
+                const TriangleRenderAttributes& attributes = entry.first;
+                IndexRangeRenderer& renderer = entry.second;
                 attributes.render(renderer, shader);
             }
         }

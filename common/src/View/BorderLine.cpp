@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,7 +21,7 @@
 
 #include "View/ViewConstants.h"
 
-#include <wx/dcclient.h>
+#include <wx/dcbuffer.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         void BorderLine::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
 
-            wxPaintDC dc(this);
+            wxAutoBufferedPaintDC dc(this);
             dc.SetPen(wxPen(GetForegroundColour()));
             dc.SetBrush(wxBrush(GetForegroundColour()));
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,15 +29,15 @@
 
 namespace TrenchBroom {
     namespace IO {
-        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory* factory, Logger* logger) :
-        MapReader(str, logger),
+        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory* factory) :
+        MapReader(str),
         m_factory(factory) {
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
-        const Model::BrushFaceList& BrushFaceReader::read(const BBox3& worldBounds) {
+        const Model::BrushFaceArray& BrushFaceReader::read(const BBox3& worldBounds, ParserStatus& status) {
             try {
-                readBrushFaces(m_factory->format(), worldBounds);
+                readBrushFaces(m_factory->format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
                 VectorUtils::clearAndDelete(m_brushFaces);
@@ -50,14 +50,14 @@ namespace TrenchBroom {
             return m_factory;
         }
         
-        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) { return NULL; }
-        void BrushFaceReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {}
-        void BrushFaceReader::onLayer(Model::Layer* layer) {}
-        void BrushFaceReader::onNode(Model::Node* parent, Model::Node* node) {}
-        void BrushFaceReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) {}
-        void BrushFaceReader::onBrush(Model::Node* parent, Model::Brush* brush) {}
+        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) { return NULL; }
+        void BrushFaceReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {}
+        void BrushFaceReader::onLayer(Model::Layer* layer, ParserStatus& status) {}
+        void BrushFaceReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {}
+        void BrushFaceReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {}
+        void BrushFaceReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {}
         
-        void BrushFaceReader::onBrushFace(Model::BrushFace* face) {
+        void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& status) {
             m_brushFaces.push_back(face);
         }
     }

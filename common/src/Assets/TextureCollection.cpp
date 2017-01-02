@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,19 +24,26 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        TextureCollection::TextureCollection(const String& name) :
+        TextureCollection::TextureCollection() :
         m_loaded(false),
-        m_name(name) {}
+        m_usageCount(0) {}
+        
+        TextureCollection::TextureCollection(const TextureList& textures) :
+        m_loaded(false),
+        m_usageCount(0) {
+            addTextures(textures);
+        }
 
-        TextureCollection::TextureCollection(const String& name, const TextureList& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path) :
+        m_loaded(false),
+        m_path(path),
+        m_usageCount(0) {}
+
+        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
         m_loaded(true),
-        m_name(name),
-        m_textures(textures.size()) {
-            for (size_t i = 0; i < textures.size(); ++i) {
-                Texture* texture = textures[i];
-                texture->setCollection(this);
-                m_textures[i] = texture;
-            }
+        m_path(path),
+        m_usageCount(0) {
+            addTextures(textures);
         }
 
         TextureCollection::~TextureCollection() {
@@ -48,20 +55,46 @@ namespace TrenchBroom {
             }
         }
 
+        void TextureCollection::addTextures(const TextureList& textures) {
+            for (Texture* texture : textures)
+                addTexture(texture);
+        }
+
+        void TextureCollection::addTexture(Texture* texture) {
+            ensure(texture != NULL, "texture is null");
+            m_textures.push_back(texture);
+            texture->setCollection(this);
+            m_loaded = true;
+        }
+
         bool TextureCollection::loaded() const {
             return m_loaded;
         }
 
-        const String& TextureCollection::name() const {
-            return m_name;
+        const IO::Path& TextureCollection::path() const {
+            return m_path;
+        }
+
+        String TextureCollection::name() const {
+            if (m_path.isEmpty())
+                return "";
+            return m_path.lastComponent().asString();
         }
         
         const TextureList& TextureCollection::textures() const {
             return m_textures;
         }
 
+        size_t TextureCollection::usageCount() const {
+            return m_usageCount;
+        }
+
+        bool TextureCollection::prepared() const {
+            return !m_textureIds.empty();
+        }
+
         void TextureCollection::prepare(const int minFilter, const int magFilter) {
-            assert(m_textureIds.empty());
+            assert(!prepared());
             
             const size_t textureCount = m_textures.size();
             m_textureIds.resize(textureCount);
@@ -79,6 +112,17 @@ namespace TrenchBroom {
                 Texture* texture = m_textures[i];
                 texture->setMode(minFilter, magFilter);
             }
+        }
+
+        void TextureCollection::incUsageCount() {
+            ++m_usageCount;
+            usageCountDidChange();
+        }
+        
+        void TextureCollection::decUsageCount() {
+            assert(m_usageCount > 0);
+            --m_usageCount;
+            usageCountDidChange();
         }
     }
 }

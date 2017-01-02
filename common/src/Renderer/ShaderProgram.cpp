@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -157,7 +157,7 @@ namespace TrenchBroom {
 
         GLint ShaderProgram::findUniformLocation(const String& name) const {
             UniformVariableCache::iterator it = m_variableCache.find(name);
-            if (it == m_variableCache.end()) {
+            if (it == std::end(m_variableCache)) {
                 const GLint index = glGetUniformLocation(m_programId, name.c_str());
                 if (index == -1)
                     throw RenderException("Location of uniform variable '" + name + "' could not be found in shader program " + m_name);

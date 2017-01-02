@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -48,9 +48,30 @@ namespace TrenchBroom {
             log(Logger::LogLevel_Debug, line, column, str);
         }
 
-        void ParserStatus::errorAndThrow(size_t line, size_t column, const String& str) {
+        void ParserStatus::errorAndThrow(const size_t line, const size_t column, const String& str) {
             error(line, column, str);
             throw ParserException(buildMessage(line, column, str));
+        }
+        
+        void ParserStatus::debug(const size_t line, const String& str) {
+            log(Logger::LogLevel_Debug, line, str);
+        }
+        
+        void ParserStatus::info(const size_t line, const String& str) {
+            log(Logger::LogLevel_Debug, line, str);
+        }
+        
+        void ParserStatus::warn(const size_t line, const String& str) {
+            log(Logger::LogLevel_Debug, line, str);
+        }
+        
+        void ParserStatus::error(const size_t line, const String& str) {
+            log(Logger::LogLevel_Debug, line, str);
+        }
+        
+        void ParserStatus::errorAndThrow(size_t line, const String& str) {
+            error(line, str);
+            throw ParserException(buildMessage(line, str));
         }
 
         void ParserStatus::log(const Logger::LogLevel level, const size_t line, const size_t column, const String& str) {
@@ -61,6 +82,17 @@ namespace TrenchBroom {
         String ParserStatus::buildMessage(const size_t line, const size_t column, const String& str) const {
             StringStream msg;
             msg << str << " (line " << line << ", column " << column << ")";
+            return msg.str();
+        }
+
+        void ParserStatus::log(const Logger::LogLevel level, const size_t line, const String& str) {
+            if (m_logger != NULL)
+                m_logger->log(level, buildMessage(line, str));
+        }
+        
+        String ParserStatus::buildMessage(const size_t line, const String& str) const {
+            StringStream msg;
+            msg << str << " (line " << line << ")";
             return msg.str();
         }
     }

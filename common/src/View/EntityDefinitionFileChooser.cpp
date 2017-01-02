@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,12 +28,14 @@
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
 #include <wx/button.h>
 #include <wx/filedlg.h>
 #include <wx/listbox.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -64,7 +66,7 @@ namespace TrenchBroom {
             VectorUtils::sort(specs);
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            assert(index < specs.size());
+            ensure(index < specs.size(), "index out of range");
             const Assets::EntityDefinitionFileSpec& spec = specs[index];
             
             document->setEntityDefinitionFile(spec);
@@ -98,23 +100,20 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            static const int ListBoxMargin =
-#ifdef __APPLE__
-            0;
-#else
-            LayoutConstants::NarrowHMargin;
-#endif
-
-            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
-            builtinHeader->SetFont(builtinHeader->GetFont().Bold());
-            m_builtin = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxBORDER_NONE);
+            TitledPanel* builtinContainer = new TitledPanel(this, "Builtin", false);
+            builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxBORDER_NONE);
             
-            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, "External");
-            externalHeader->SetFont(externalHeader->GetFont().Bold());
-            m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            wxSizer* builtinSizer = new wxBoxSizer(wxVERTICAL);
+            builtinSizer->Add(m_builtin, 1, wxEXPAND);
+            
+            builtinContainer->getPanel()->SetSizer(builtinSizer);
+            
+            TitledPanel* externalContainer = new TitledPanel(this, "External", false);
+            m_external = new wxStaticText(externalContainer->getPanel(), wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            m_chooseExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_chooseExternal->SetToolTip("Click to browse for an entity definition file");
-            m_reloadExternal = new wxButton(this, wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_reloadExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_reloadExternal->SetToolTip("Reload the currently loaded entity definition file");
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -126,17 +125,14 @@ namespace TrenchBroom {
             externalSizer->Add(m_reloadExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             
+            externalContainer->getPanel()->SetSizer(externalSizer);
+            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(builtinHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            sizer->Add(m_builtin, 1, wxEXPAND | wxLEFT | wxRIGHT, ListBoxMargin);
+            sizer->Add(builtinContainer, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(externalHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            sizer->Add(externalSizer, 0, wxEXPAND);
+            sizer->Add(externalContainer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             
-            SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
         }
         
@@ -182,9 +178,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
-            Assets::EntityDefinitionFileSpec::List::const_iterator it, end;
-            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
-                const Assets::EntityDefinitionFileSpec& spec = *it;
+            for (const Assets::EntityDefinitionFileSpec& spec : specs) {
                 const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,49 +31,61 @@ namespace TrenchBroom {
         BrushBuilder::BrushBuilder(ModelFactory* factory, const BBox3& worldBounds) :
         m_factory(factory),
         m_worldBounds(worldBounds) {
-            assert(m_factory != NULL);
+            ensure(m_factory != NULL, "factory is null");
         }
         
         Brush* BrushBuilder::createCube(const FloatType size, const String& textureName) const {
-            return createCuboid(BBox3(size / 2.0), textureName);
+            return createCuboid(BBox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
+        }
+        
+        Brush* BrushBuilder::createCube(FloatType size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
+            return createCuboid(BBox3(size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
         
         Brush* BrushBuilder::createCuboid(const Vec3& size, const String& textureName) const {
-            return createCuboid(BBox3(-size / 2.0, size / 2.0), textureName);
+            return createCuboid(BBox3(-size / 2.0, size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
+        }
+        
+        Brush* BrushBuilder::createCuboid(const Vec3& size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
+            return createCuboid(BBox3(-size / 2.0, size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
         
         Brush* BrushBuilder::createCuboid(const BBox3& bounds, const String& textureName) const {
+            return createCuboid(bounds, textureName, textureName, textureName, textureName, textureName, textureName);
+        }
+        
+        Brush* BrushBuilder::createCuboid(const BBox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
             BrushFaceList faces(6);
             // left face
             faces[0] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosY,
                                              bounds.min + Vec3::PosZ,
-                                             textureName);
+                                             leftTexture);
             // right face
             faces[1] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosZ,
                                              bounds.max + Vec3::PosY,
-                                             textureName);
+                                             rightTexture);
             // front face
             faces[2] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosZ,
                                              bounds.min + Vec3::PosX,
-                                             textureName);
+                                             frontTexture);
             // back face
             faces[3] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosX,
                                              bounds.max + Vec3::PosZ,
-                                             textureName);
+                                             backTexture);
             // top face
             faces[4] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosY,
                                              bounds.max + Vec3::PosX,
-                                             textureName);
+                                             topTexture);
             // bottom face
             faces[5] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosX,
                                              bounds.min + Vec3::PosY,
-                                             textureName);
+                                             bottomTexture);
             
             return m_factory->createBrush(m_worldBounds, faces);
         }
@@ -89,11 +101,11 @@ namespace TrenchBroom {
             
             const Polyhedron3::FaceList& faces = polyhedron.faces();
             Polyhedron3::FaceList::const_iterator fIt, fEnd;
-            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+            for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
                 const Polyhedron3::Face* face = *fIt;
                 const Polyhedron3::HalfEdgeList& boundary = face->boundary();
                 
-                Polyhedron3::HalfEdgeList::const_iterator bIt = boundary.begin();
+                Polyhedron3::HalfEdgeList::const_iterator bIt = std::begin(boundary);
                 const Polyhedron3::HalfEdge* edge1 = *bIt++;
                 const Polyhedron3::HalfEdge* edge2 = *bIt++;
                 const Polyhedron3::HalfEdge* edge3 = *bIt++;

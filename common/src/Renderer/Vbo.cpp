@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,8 +28,8 @@
 namespace TrenchBroom {
     namespace Renderer {
         bool CompareVboBlocksByCapacity::operator() (const VboBlock* lhs, const VboBlock* rhs) const {
-            assert(lhs != NULL);
-            assert(rhs != NULL);
+            ensure(lhs != NULL, "lhs is null");
+            ensure(rhs != NULL, "rhs is null");
             return lhs->capacity() < rhs->capacity();
         }
 
@@ -86,14 +86,14 @@ namespace TrenchBroom {
             }
 
             VboBlockList::iterator it = findFreeBlock(capacity);
-            if (it == m_freeBlocks.end()) {
+            if (it == std::end(m_freeBlocks)) {
                 increaseCapacityToAccomodate(capacity);
                 it = findFreeBlock(capacity);
             }
             
-            assert(it != m_freeBlocks.end());
+            assert(it != std::end(m_freeBlocks));
             VboBlock* block = *it;
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             removeFreeBlock(it);
             
             if (block->capacity() > capacity) {
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::freeBlock(VboBlock* block) {
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             assert(!block->isFree());
             assert(checkBlockChain());
             
@@ -243,12 +243,12 @@ namespace TrenchBroom {
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
             VboBlock query(*this, 0, minCapacity, NULL, NULL);
-            return std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), &query, CompareVboBlocksByCapacity());
+            return std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), &query, CompareVboBlocksByCapacity());
         }
 
         void Vbo::insertFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
-            if (it == m_freeBlocks.end())
+            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            if (it == std::end(m_freeBlocks))
                 m_freeBlocks.push_back(block);
             else
                 m_freeBlocks.insert(it, block);
@@ -257,10 +257,10 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
-            assert(it != m_freeBlocks.end());
+            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            assert(it != std::end(m_freeBlocks));
             if (*it != block) {
-                const VboBlockList::iterator end = std::upper_bound(m_freeBlocks.begin(), m_freeBlocks.end(), block, CompareVboBlocksByCapacity());
+                const VboBlockList::iterator end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
                 while (it != end && *it != block)
                     ++it;
                 assert(it != end);
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
             unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
-            assert(buffer != NULL);
+            ensure(buffer != NULL, "buffer is null");
             m_state = State_FullyMapped;
             
             return buffer;
@@ -321,7 +321,7 @@ namespace TrenchBroom {
 
         bool Vbo::checkBlockChain() const {
             VboBlock* block = m_firstBlock;
-            assert(block != NULL);
+            ensure(block != NULL, "block is null");
             
             size_t count = 0;
             VboBlock* next = block->next();

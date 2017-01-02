@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,11 +35,11 @@ namespace TrenchBroom {
         wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
         m_document(document),
         m_hiddenGenerators(0),
-        m_showHiddenIssues(false) {
+        m_showHiddenIssues(false),
+        m_valid(false) {
             AppendColumn("Line");
             AppendColumn("Description");
             
-            reset();
             bindEvents();
         }
         
@@ -51,18 +51,16 @@ namespace TrenchBroom {
             if (hiddenGenerators == m_hiddenGenerators)
                 return;
             m_hiddenGenerators = hiddenGenerators;
-            reset();
+            invalidate();
         }
 
         void IssueBrowserView::setShowHiddenIssues(const bool show) {
             m_showHiddenIssues = show;
-            reset();
+            invalidate();
         }
 
-        void IssueBrowserView::reset() {
-            updateIssues();
-            SetItemCount(static_cast<long>(m_issues.size()));
-            Refresh();
+        void IssueBrowserView::reload() {
+            invalidate();
         }
 
         void IssueBrowserView::OnSize(wxSizeEvent& event) {
@@ -144,15 +142,18 @@ namespace TrenchBroom {
         };
         
         void IssueBrowserView::updateSelection() {
+            MapDocumentSPtr document = lock(m_document);
             const IndexList selection = getSelection();
             
             Model::NodeList nodes;
             for (size_t i = 0; i < selection.size(); ++i) {
                 Model::Issue* issue = m_issues[selection[i]];
-                issue->addSelectableNodes(nodes);
+                if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
+                    nodes.clear();
+                    break;
+                }
             }
             
-            MapDocumentSPtr document = lock(m_document);
             document->deselectAll();
             document->select(nodes);
         }
@@ -175,10 +176,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            assert(data != NULL);
+            ensure(data != NULL, "data is null");
             
             const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
-            assert(quickFix != NULL);
+            ensure(quickFix != NULL, "quickFix is null");
 
             MapDocumentSPtr document = lock(m_document);
             const Model::IssueList issues = collectIssues(getSelection());
@@ -229,7 +230,7 @@ namespace TrenchBroom {
                 document->setIssueHidden(issue, !show);
             }
 
-            reset();
+            invalidate();
         }
         
         IssueBrowserView::IndexList IssueBrowserView::getSelection() const {
@@ -269,6 +270,25 @@ namespace TrenchBroom {
             Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &IssueBrowserView::OnItemRightClick, this);
             Bind(wxEVT_LIST_ITEM_SELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
             Bind(wxEVT_LIST_ITEM_DESELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
+            Bind(wxEVT_IDLE, &IssueBrowserView::OnIdle, this);
+        }
+
+        void IssueBrowserView::OnIdle(wxIdleEvent& event) {
+            validate();
+        }
+        
+        void IssueBrowserView::invalidate() {
+            m_valid = false;
+            SetItemCount(0);
+        }
+        
+        void IssueBrowserView::validate() {
+            if (!m_valid) {
+                m_valid = true;
+                
+                updateIssues();
+                SetItemCount(static_cast<long>(m_issues.size()));
+            }
         }
     }
 }

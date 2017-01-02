@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -43,6 +43,7 @@ namespace TrenchBroom {
             extern const AttributeName Wad;
             extern const AttributeName Textures;
             extern const AttributeName Mods;
+            extern const AttributeName GameEngineParameterSpecs;
             extern const AttributeName Spawnflags;
             extern const AttributeName EntityDefinitions;
             extern const AttributeName Angle;
@@ -127,6 +128,7 @@ namespace TrenchBroom {
         private:
             bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
         public:
+            const AttributeNameSet names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
             

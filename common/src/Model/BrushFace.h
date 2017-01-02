@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -145,6 +145,7 @@ namespace TrenchBroom {
 
             void updateTexture(Assets::TextureManager* textureManager);
             void setTexture(Assets::Texture* texture);
+            void unsetTexture();
             
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
@@ -180,6 +181,9 @@ namespace TrenchBroom {
             EdgeList edges() const;
             VertexList vertices() const;
             
+            bool hasVertices(const Polygon3& vertices) const;
+            Polygon3 polygon() const;
+        public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();

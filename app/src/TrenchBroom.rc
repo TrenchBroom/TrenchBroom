@@ -2,8 +2,8 @@
 
 #include <wx/msw/wx.rc>
 
-AAAAAAAA                ICON                    "../resources/graphics/icons/TrenchBroom.ico"
-APPICON                 ICON                    "../resources/graphics/icons/TrenchBroomDoc.ico"
+AAAAAAAA                ICON                    "../resources/win32/icons/AppIcon.ico"
+APPICON                 ICON                    "../resources/win32/icons/DocIcon.ico"
 
 1 VERSIONINFO
  FILEVERSION VERSION_RC

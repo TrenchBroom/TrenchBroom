@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             bool doEvaluate(const Brush* brush) const {
                 const Model::BrushFaceList& faces = brush->faces();
                 Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     if (!doEvaluate(face))
                         return false;

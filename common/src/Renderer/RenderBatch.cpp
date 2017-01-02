@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             IndexedRenderableWrapper(Vbo& indexBuffer, IndexedRenderable* wrappee) :
             m_indexBuffer(indexBuffer),
             m_wrappee(wrappee) {
-                assert(m_wrappee != NULL);
+                ensure(m_wrappee != NULL, "wrappee is null");
             }
         private:
             void doPrepareVertices(Vbo& vertexVbo) {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::doAdd(Renderable* renderable) {
-            assert(renderable != NULL);
+            ensure(renderable != NULL, "renderable is null");
             m_batch.push_back(renderable);
         }
 
@@ -113,35 +113,23 @@ namespace TrenchBroom {
         void RenderBatch::prepareVertices() {
             ActivateVbo activate(m_vertexVbo);
             
-            DirectRenderableList::const_iterator dIt, dEnd;
-            for (dIt = m_directRenderables.begin(), dEnd = m_directRenderables.end(); dIt != dEnd; ++dIt) {
-                DirectRenderable* renderable = *dIt;
+            for (DirectRenderable* renderable : m_directRenderables)
                 renderable->prepareVertices(m_vertexVbo);
-            }
             
-            IndexedRenderableList::const_iterator iIt, iEnd;
-            for (iIt = m_indexedRenderables.begin(), iEnd = m_indexedRenderables.end(); iIt != iEnd; ++iIt) {
-                IndexedRenderable* renderable = *iIt;
+            for (IndexedRenderable* renderable : m_indexedRenderables)
                 renderable->prepareVertices(m_vertexVbo);
-            }
         }
         
         void RenderBatch::prepareIndices() {
             ActivateVbo activate(m_indexVbo);
             
-            IndexedRenderableList::const_iterator it, end;
-            for (it = m_indexedRenderables.begin(), end = m_indexedRenderables.end(); it != end; ++it) {
-                IndexedRenderable* renderable = *it;
+            for (IndexedRenderable* renderable : m_indexedRenderables)
                 renderable->prepareIndices(m_indexVbo);
-            }
         }
 
         void RenderBatch::renderRenderables(RenderContext& renderContext) {
-            RenderableList::const_iterator it, end;
-            for (it = m_batch.begin(), end = m_batch.end(); it != end; ++it) {
-                Renderable* renderable = *it;
+            for (Renderable* renderable : m_batch)
                 renderable->render(renderContext);
-            }
         }
     }
 }

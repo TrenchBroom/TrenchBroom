@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -43,6 +43,9 @@ namespace TrenchBroom {
         private:
             void loadProjectionMatrix(const Mat4x4f& matrix);
             void loadModelViewMatrix(const Mat4x4f& matrix);
+        private:
+            Transformation(const Transformation& other);
+            Transformation& operator=(const Transformation& other);
         };
 
         class ReplaceTransformation {
@@ -51,6 +54,9 @@ namespace TrenchBroom {
         public:
             ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix = Mat4x4f::Identity);
             ~ReplaceTransformation();
+        private:
+            ReplaceTransformation(const ReplaceTransformation& other);
+            ReplaceTransformation& operator=(const ReplaceTransformation& other);
         };
         
         class MultiplyModelMatrix {
@@ -59,6 +65,9 @@ namespace TrenchBroom {
         public:
             MultiplyModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
             ~MultiplyModelMatrix();
+        private:
+            MultiplyModelMatrix(const ReplaceTransformation& other);
+            MultiplyModelMatrix& operator=(const ReplaceTransformation& other);
         };
         
         class ReplaceModelMatrix {
@@ -67,6 +76,9 @@ namespace TrenchBroom {
         public:
             ReplaceModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
             ~ReplaceModelMatrix();
+        private:
+            ReplaceModelMatrix(const ReplaceTransformation& other);
+            ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
         };
     }
 }

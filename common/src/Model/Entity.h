@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -39,7 +39,6 @@ namespace TrenchBroom {
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
-            Assets::EntityModel* m_model;
         public:
             Entity();
             
@@ -52,8 +51,6 @@ namespace TrenchBroom {
             void applyRotation(const Mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
-            Assets::EntityModel* model() const;
-            void setModel(Assets::EntityModel* model);
         private: // implement Node interface
             const BBox3& doGetBounds() const;
 

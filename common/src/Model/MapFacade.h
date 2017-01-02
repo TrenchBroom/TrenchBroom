@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -70,8 +70,8 @@ namespace TrenchBroom {
             virtual NodeList addNodes(const ParentChildrenMap& nodes) = 0;
             virtual void removeNodes(const NodeList& nodes) = 0;
             
-            virtual void reparentNodes(Node* newParent, const NodeList& children) = 0;
-            virtual void reparentNodes(const ParentChildrenMap& nodes) = 0;
+            virtual bool reparentNodes(Node* newParent, const NodeList& children) = 0;
+            virtual bool reparentNodes(const ParentChildrenMap& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // modifying transient node attributes
@@ -92,10 +92,11 @@ namespace TrenchBroom {
             virtual bool removeAttribute(const AttributeName& name) = 0;
             
             virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
+            virtual bool updateSpawnflag(const AttributeName& name, const size_t flagIndex, const bool setFlag) = 0;
         public: // brush resizing
-            virtual bool resizeBrushes(const BrushFaceList& faces, const Vec3& delta) = 0;
+            virtual bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta) = 0;
         public: // modifying face attributes
-            virtual bool setTexture(Assets::Texture* texture) = 0;
+            virtual void setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
             virtual bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request) = 0;
             virtual bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) = 0;
@@ -103,8 +104,7 @@ namespace TrenchBroom {
             virtual bool shearTextures(const Vec2f& factors) = 0;
         public: // modifying vertices
             virtual void rebuildBrushGeometry(const BrushList& brushes) = 0;
-            bool snapVertices(size_t snapTo);
-            virtual bool snapVertices(const VertexToBrushesMap& vertices, size_t snapTo) = 0;
+            virtual bool snapVertices(size_t snapTo) = 0;
             virtual bool findPlanePoints() = 0;
             
             struct MoveVerticesResult {
@@ -118,16 +118,6 @@ namespace TrenchBroom {
             virtual bool moveFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
             virtual bool splitEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
             virtual bool splitFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
-        };
-        
-        class PushSelection {
-        private:
-            MapFacade* m_facade;
-            NodeList m_nodes;
-            BrushFaceList m_faces;
-        public:
-            PushSelection(MapFacade* facade);
-            ~PushSelection();
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -48,9 +48,9 @@ namespace TrenchBroom {
                         return Mat4x4::Identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     if (angle == -1.0)
-                        return Mat4x4::Rot90XCCW;
+                        return Mat4x4::Rot90YCW;
                     if (angle == -2.0)
-                        return Mat4x4::Rot90XCW;
+                        return Mat4x4::Rot90YCCW;
                     return rotationMatrix(Vec3::PosZ, Math::radians(angle));
                 }
                 case RotationType_Euler: {

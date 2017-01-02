@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -51,13 +51,15 @@ namespace TrenchBroom {
             
             String selectedGameName() const;
             Model::MapFormat::Type selectedMapFormat() const;
-
+        private:
             void OnGameSelectionChanged(GameSelectionCommand& command);
             void OnGameSelected(GameSelectionCommand& command);
             void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
             
             void OnOpenPreferencesClicked(wxCommandEvent& event);
             void OnUpdateOkButton(wxUpdateUIEvent& event);
+            
+            void OnClose(wxCloseEvent& event);
         protected:
             GameDialog();
             void createDialog(wxWindow* parent, const wxString& title, const wxString& infoText);

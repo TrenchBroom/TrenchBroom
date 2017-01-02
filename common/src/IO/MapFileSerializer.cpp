@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -222,9 +222,16 @@ namespace TrenchBroom {
         
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
-        m_stream(stream) {}
+        m_stream(stream) {
+            ensure(m_stream != NULL, "stream is null");
+        }
         
+        void MapFileSerializer::doBeginFile() {}
+        void MapFileSerializer::doEndFile() {}
+
         void MapFileSerializer::doBeginEntity(const Model::Node* node) {
+            std::fprintf(m_stream, "// entity %u\n", entityNo());
+            ++m_line;
             m_startLineStack.push_back(m_line);
             std::fprintf(m_stream, "{\n");
             ++m_line;
@@ -242,6 +249,8 @@ namespace TrenchBroom {
         }
         
         void MapFileSerializer::doBeginBrush(const Model::Brush* brush) {
+            std::fprintf(m_stream, "// brush %u\n", brushNo());
+            ++m_line;
             m_startLineStack.push_back(m_line);
             std::fprintf(m_stream, "{\n");
             ++m_line;

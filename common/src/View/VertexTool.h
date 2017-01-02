@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -79,6 +79,9 @@ namespace TrenchBroom {
             bool handleDoubleClicked(const Model::Hit& hit);
             bool select(const Model::Hit::List& hits, bool addToSelection);
             void select(const Lasso& lasso, bool modifySelection);
+            
+            bool canRemoveSelection() const;
+            void removeSelection();
 
             bool beginMove(const Model::Hit& hit);
             MoveResult move(const Vec3& delta);
@@ -99,8 +102,6 @@ namespace TrenchBroom {
             bool handleSelected(const Vec3& position) const;
             bool hasSelectedHandles() const;
             void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);
-            bool canSnapVertices() const;
-            void snapVertices(size_t snapTo);
         private:
             void selectVertex(const Model::Hit::List& hits, bool addToSelection);
             void selectEdge(const Model::Hit::List& hits, bool addToSelection);

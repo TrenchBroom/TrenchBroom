@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
@@ -30,33 +31,42 @@ namespace TrenchBroom {
     namespace Model {
         class AttributableNode : public Node {
         public: // some helper methods
-            static Assets::EntityDefinition* selectEntityDefinition(const AttributableNodeList& attributables);
-            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables);
-            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables);
+            static Assets::EntityDefinition* selectEntityDefinition(const AttributableNodeArray& attributables);
+            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableNodeArray& attributables);
+            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableNodeArray& attributables);
         protected:
             static const String DefaultAttributeValue;
 
             Assets::EntityDefinition* m_definition;
             EntityAttributes m_attributes;
 
-            AttributableNodeList m_linkSources;
-            AttributableNodeList m_linkTargets;
-            AttributableNodeList m_killSources;
-            AttributableNodeList m_killTargets;
+            AttributableNodeArray m_linkSources;
+            AttributableNodeArray m_linkTargets;
+            AttributableNodeArray m_killSources;
+            AttributableNodeArray m_killTargets;
 
             // cache the classname for faster access
             AttributeValue m_classname;
         public:
             virtual ~AttributableNode();
-            
+        public: // definition
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
+        public: // notification
+            typedef Notifier2<AttributableNode*, const AttributeName&> AttributeNotifier;
+            
+            AttributeNotifier attributeWasAddedNotifier;
+            AttributeNotifier attributeWillBeRemovedNotifier;
+            AttributeNotifier attributeWillChangeNotifier;
+            AttributeNotifier attributeDidChangeNotifier;
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
             
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
+            AttributeNameSet attributeNames() const;
+            
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
@@ -78,13 +88,14 @@ namespace TrenchBroom {
             }
             
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
-            void addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
+            bool addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
             
             bool canRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             void renameAttribute(const AttributeName& name, const AttributeName& newName);
             
             bool canRemoveAttribute(const AttributeName& name) const;
             void removeAttribute(const AttributeName& name);
+            void removeNumberedAttribute(const AttributeName& prefix);
             
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;
@@ -119,19 +130,19 @@ namespace TrenchBroom {
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
             void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
         public: // link management
-            const AttributableNodeList& linkSources() const;
-            const AttributableNodeList& linkTargets() const;
-            const AttributableNodeList& killSources() const;
-            const AttributableNodeList& killTargets() const;
+            const AttributableNodeArray& linkSources() const;
+            const AttributableNodeArray& linkTargets() const;
+            const AttributableNodeArray& killSources() const;
+            const AttributableNodeArray& killTargets() const;
             
             Vec3 linkSourceAnchor() const;
             Vec3 linkTargetAnchor() const;
             
             bool hasMissingSources() const;
-            AttributeNameList findMissingLinkTargets() const;
-            AttributeNameList findMissingKillTargets() const;
+            AttributeNameArray findMissingLinkTargets() const;
+            AttributeNameArray findMissingKillTargets() const;
         private: // link management internals
-            void findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const;
+            void findMissingTargets(const AttributeName& prefix, AttributeNameArray& result) const;
             
             void addLinks(const AttributeName& name, const AttributeValue& value);
             void removeLinks(const AttributeName& name, const AttributeValue& value);
@@ -148,10 +159,10 @@ namespace TrenchBroom {
             void addAllKillSources(const AttributeValue& targetname);
             void addAllKillTargets();
             
-            void addLinkTargets(const AttributableNodeList& targets);
-            void addKillTargets(const AttributableNodeList& targets);
-            void addLinkSources(const AttributableNodeList& sources);
-            void addKillSources(const AttributableNodeList& sources);
+            void addLinkTargets(const AttributableNodeArray& targets);
+            void addKillTargets(const AttributableNodeArray& targets);
+            void addLinkSources(const AttributableNodeArray& sources);
+            void addKillSources(const AttributableNodeArray& sources);
             
             void removeAllLinkSources();
             void removeAllLinkTargets();

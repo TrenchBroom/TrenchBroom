@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,8 +40,30 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
         };
 
+        NodeSerializer::NodeSerializer() :
+        m_entityNo(0),
+        m_brushNo(0) {}
+        
         NodeSerializer::~NodeSerializer() {}
         
+        NodeSerializer::ObjectNo NodeSerializer::entityNo() const {
+            return m_entityNo;
+        }
+        
+        NodeSerializer::ObjectNo NodeSerializer::brushNo() const {
+            return m_brushNo;
+        }
+
+        void NodeSerializer::beginFile() {
+            m_entityNo = 0;
+            m_brushNo = 0;
+            doBeginFile();
+        }
+        
+        void NodeSerializer::endFile() {
+            doEndFile();
+        }
+
         void NodeSerializer::defaultLayer(Model::World* world) {
             entity(world, world->attributes(), Model::EntityAttribute::EmptyList, world->defaultLayer());
         }
@@ -63,7 +85,7 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes) {
+        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushArray& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
@@ -76,27 +98,27 @@ namespace TrenchBroom {
         }
         
         void NodeSerializer::beginEntity(const Model::Node* node) {
+            m_brushNo = 0;
             doBeginEntity(node);
         }
         
         void NodeSerializer::endEntity(Model::Node* node) {
             doEndEntity(node);
+            ++m_entityNo;
         }
         
         void NodeSerializer::entityAttributes(const Model::EntityAttribute::List& attributes) {
-            Model::EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it)
-                entityAttribute(*it);
+            std::for_each(std::begin(attributes), std::end(attributes),
+                          [this](const Model::EntityAttribute& attribute) { entityAttribute(attribute); });
         }
 
         void NodeSerializer::entityAttribute(const Model::EntityAttribute& attribute) {
             doEntityAttribute(attribute);
         }
         
-        void NodeSerializer::brushes(const Model::BrushList& brushes) {
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                brush(*it);
+        void NodeSerializer::brushes(const Model::BrushArray& brushes) {
+            std::for_each(std::begin(brushes), std::end(brushes),
+                          [this](Model::Brush* brush) { this->brush(brush); });
         }
         
         void NodeSerializer::brush(Model::Brush* brush) {
@@ -111,12 +133,12 @@ namespace TrenchBroom {
         
         void NodeSerializer::endBrush(Model::Brush* brush) {
             doEndBrush(brush);
+            ++m_brushNo;
         }
         
-        void NodeSerializer::brushFaces(const Model::BrushFaceList& faces) {
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
-                brushFace(*it);
+        void NodeSerializer::brushFaces(const Model::BrushFaceArray& faces) {
+            std::for_each(std::begin(faces), std::end(faces),
+                          [this](Model::BrushFace* face) { brushFace(face); });
         }
 
         void NodeSerializer::brushFace(Model::BrushFace* face) {

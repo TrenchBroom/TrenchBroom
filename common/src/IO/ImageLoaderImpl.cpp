@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -173,7 +173,7 @@ namespace TrenchBroom {
         void ImageLoaderImpl::initializeIndexedPixels(const size_t pSize) const {
             assert(pSize == 3);
             const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
-            assert(pal != NULL);
+            ensure(pal != NULL, "pal is null");
             
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {

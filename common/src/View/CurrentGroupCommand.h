@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class CurrentGroupCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<CurrentGroupCommand> Ptr;
+            typedef std::shared_ptr<CurrentGroupCommand> Ptr;
         private:
             Model::Group* m_group;
         public:

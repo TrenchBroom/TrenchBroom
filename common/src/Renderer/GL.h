@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,7 @@
 
 #include "Exceptions.h"
 #include "Functor.h"
+#include "StringUtils.h"
 
 #include <cstddef>
 #include <vector>
@@ -108,6 +109,7 @@ namespace TrenchBroom {
 #define GL_ALPHA 0x1906
 #define GL_RGB 0x1907
 #define GL_RGBA 0x1908
+#define GL_BGR 0x80E0
 #define GL_LUMINANCE 0x1909
 #define GL_LUMINANCE_ALPHA 0x190A
 

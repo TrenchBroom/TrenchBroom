@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -69,6 +69,7 @@ namespace TrenchBroom {
                 const int ViewToggleInspector                = Lowest +  91;
                 
                 const int FileOpenRecent                     = Lowest +  96;
+                const int FileExportObj                      = Lowest +  97;
                 const int EditPrintFilePositions             = Lowest + 101;
                 const int EditSelectInside                   = Lowest + 103;
                 const int EditSelectTall                     = Lowest + 104;
@@ -94,6 +95,12 @@ namespace TrenchBroom {
                 const int DebugPrintVertices                 = Lowest + 127;
                 const int DebugCreateBrush                   = Lowest + 128;
                 const int DebugCopyJSShortcuts               = Lowest + 129;
+                const int DebugCrash                         = Lowest + 130;
+                const int DebugCreateCube                    = Lowest + 131;
+                const int DebugClipWithFace                  = Lowest + 132;
+                
+                const int RunCompile                         = Lowest + 133;
+                const int RunLaunch                          = Lowest + 134;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 
@@ -107,7 +114,6 @@ namespace TrenchBroom {
                 const int ToggleClipTool                     = Lowest +   3;
                 const int ToggleClipSide                     = Lowest +   4;
                 const int PerformClip                        = Lowest +   5;
-                const int RemoveLastClipPoint                = Lowest +   6;
 
                 const int MoveVerticesForward                = Lowest +   8;
                 const int MoveVerticesBackward               = Lowest +   9;

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -47,11 +47,11 @@ namespace TrenchBroom {
         private:
             typedef std::map<IO::Path, EntityModel*> ModelCache;
             typedef std::set<IO::Path> ModelMismatches;
-            typedef std::vector<EntityModel*> ModelList;
+            typedef std::vector<EntityModel*> ModelArray;
             
             typedef std::map<Assets::ModelSpecification, Renderer::TexturedIndexRangeRenderer*> RendererCache;
             typedef std::set<Assets::ModelSpecification> RendererMismatches;
-            typedef std::vector<Renderer::TexturedIndexRangeRenderer*> RendererList;
+            typedef std::vector<Renderer::TexturedIndexRangeRenderer*> RendererArray;
             
             Logger* m_logger;
             const IO::EntityModelLoader* m_loader;
@@ -65,8 +65,8 @@ namespace TrenchBroom {
             mutable RendererCache m_renderers;
             mutable RendererMismatches m_rendererMismatches;
 
-            mutable ModelList m_unpreparedModels;
-            mutable RendererList m_unpreparedRenderers;
+            mutable ModelArray m_unpreparedModels;
+            mutable RendererArray m_unpreparedRenderers;
         public:
             EntityModelManager(Logger* logger, int minFilter, int magFilter);
             ~EntityModelManager();
@@ -77,7 +77,11 @@ namespace TrenchBroom {
             void setLoader(const IO::EntityModelLoader* loader);
             
             EntityModel* model(const IO::Path& path) const;
+            EntityModel* safeGetModel(const IO::Path& path) const;
             Renderer::TexturedIndexRangeRenderer* renderer(const Assets::ModelSpecification& spec) const;
+            
+            bool hasModel(const Model::Entity* entity) const;
+            bool hasModel(const Assets::ModelSpecification& spec) const;
         private:
             EntityModel* loadModel(const IO::Path& path) const;
         public:

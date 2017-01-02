@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
-        ImageListBox(parent, wxSize(32, 32), "No Recent Documents"),
+        ImageListBox(parent, "No Recent Documents"),
         m_documentIcon(IO::loadImageResource("DocIcon.png")) {
             assert(m_documentIcon.IsOk());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
@@ -73,21 +73,22 @@ namespace TrenchBroom {
             SetItemCount(recentDocuments.size());
         }
 
-        const wxBitmap& RecentDocumentListBox::image(const size_t n) const {
-            return m_documentIcon;
+        bool RecentDocumentListBox::image(size_t n, wxBitmap& result) const {
+            result = m_documentIcon;
+            return true;
         }
         
         wxString RecentDocumentListBox::title(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            assert(n < recentDocuments.size());
+            ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].lastComponent().asString();
         }
         
         wxString RecentDocumentListBox::subtitle(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
-            assert(n < recentDocuments.size());
+            ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].asString();
         }
     }

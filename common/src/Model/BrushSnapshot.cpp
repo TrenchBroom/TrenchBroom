@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,12 +35,8 @@ namespace TrenchBroom {
         }
 
         void BrushSnapshot::takeSnapshot(Brush* brush) {
-            const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
+            for (BrushFace* face : brush->faces())
                 m_faces.push_back(face->clone());
-            }
         }
         
         void BrushSnapshot::doRestore(const BBox3& worldBounds) {

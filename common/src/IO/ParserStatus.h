@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -40,9 +40,18 @@ namespace TrenchBroom {
             void warn(size_t line, size_t column, const String& str);
             void error(size_t line, size_t column, const String& str);
             void errorAndThrow(size_t line, size_t column, const String& str);
+
+            void debug(size_t line, const String& str);
+            void info(size_t line, const String& str);
+            void warn(size_t line, const String& str);
+            void error(size_t line, const String& str);
+            void errorAndThrow(size_t line, const String& str);
         private:
             void log(Logger::LogLevel level, size_t line, size_t column, const String& str);
             String buildMessage(size_t line, size_t column, const String& str) const;
+
+            void log(Logger::LogLevel level, size_t line, const String& str);
+            String buildMessage(size_t line, const String& str) const;
         private:
             virtual void doProgress(double progress) = 0;
         };

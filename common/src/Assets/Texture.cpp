@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height) {
+        void setMipBufferSize(Assets::TextureBuffer::Array& buffers, const size_t width, const size_t height) {
             for (size_t i = 0; i < buffers.size(); ++i) {
                 const size_t div = 1 << i;
                 const size_t size = 3 * (width * height) / (div * div);
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format) :
         m_collection(NULL),
         m_name(name),
         m_width(width),
@@ -42,6 +42,7 @@ namespace TrenchBroom {
         m_averageColor(averageColor),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             m_buffers.push_back(buffer);
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::Array& buffers, const GLenum format) :
         m_collection(NULL),
         m_name(name),
         m_width(width),
@@ -57,6 +58,7 @@ namespace TrenchBroom {
         m_averageColor(averageColor),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             }
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format) :
         m_collection(NULL),
         m_name(name),
         m_width(width),
@@ -74,6 +76,7 @@ namespace TrenchBroom {
         m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f)),
         m_usageCount(0),
         m_overridden(false),
+        m_format(format),
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -104,11 +107,15 @@ namespace TrenchBroom {
         
         void Texture::incUsageCount() {
             ++m_usageCount;
+            if (m_collection != NULL)
+                m_collection->incUsageCount();
         }
         
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
+            if (m_collection != NULL)
+                m_collection->decUsageCount();
         }
         
         bool Texture::overridden() const {
@@ -156,7 +163,7 @@ namespace TrenchBroom {
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                       static_cast<GLsizei>(mipWidth),
                                       static_cast<GLsizei>(mipHeight),
-                                      0, GL_RGB, GL_UNSIGNED_BYTE, data));
+                                      0, m_format, GL_UNSIGNED_BYTE, data));
                 mipWidth  /= 2;
                 mipHeight /= 2;
             }

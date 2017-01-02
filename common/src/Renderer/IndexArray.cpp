@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,6 +28,10 @@ namespace TrenchBroom {
         IndexArray::IndexArray() :
         m_prepared(false) {}
         
+        IndexArray::IndexArray(const IndexArray& other) :
+        m_holder(other.m_holder),
+        m_prepared(other.m_prepared) {}
+
         IndexArray& IndexArray::operator=(IndexArray other) {
             using std::swap;
             swap(*this, other);
@@ -45,11 +49,11 @@ namespace TrenchBroom {
         }
         
         size_t IndexArray::sizeInBytes() const {
-            return m_holder == NULL ? 0 : m_holder->sizeInBytes();
+            return m_holder.get() == NULL ? 0 : m_holder->sizeInBytes();
         }
         
         size_t IndexArray::indexCount() const {
-            return m_holder == NULL ? 0 : m_holder->indexCount();
+            return m_holder.get() == NULL ? 0 : m_holder->indexCount();
         }
         
         bool IndexArray::prepared() const {

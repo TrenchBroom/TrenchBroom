@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -42,12 +42,14 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class ClipTool;
         class GLContextManager;
         class Inspector;
         class MapViewContainer;
         class MapViewBar;
         class MapViewToolBox;
         class Tool;
+        class VertexTool;
         
         class SwitchableMapViewContainer : public wxPanel, public MapView {
         private:
@@ -72,18 +74,24 @@ namespace TrenchBroom {
             
             bool anyToolActive() const;
             void deactivateTool();
+            
             bool createComplexBrushToolActive() const;
             bool canToggleCreateComplexBrushTool() const;
             void toggleCreateComplexBrushTool();
+            
             bool clipToolActive() const;
             bool canToggleClipTool() const;
             void toggleClipTool();
+            ClipTool* clipTool();
+            
             bool rotateObjectsToolActive() const;
             bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
+            
             bool vertexToolActive() const;
             bool canToggleVertexTool() const;
             void toggleVertexTool();
+            VertexTool* vertexTool();
             
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;

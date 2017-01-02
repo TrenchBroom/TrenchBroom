@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             class BaseHolder {
             public:
-                typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+                typedef std::shared_ptr<BaseHolder> Ptr;
                 virtual ~BaseHolder() {}
                 
                 virtual size_t vertexCount() const = 0;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 }
                 
                 virtual void setup() {
-                    assert(m_block != NULL);
+                    ensure(m_block != NULL, "block is null");
                     VertexSpec::setup(m_block->offset());
                 }
                 
@@ -251,6 +251,7 @@ namespace TrenchBroom {
                 return VertexArray(holder);
             }
 
+            VertexArray(const VertexArray& other);
             VertexArray& operator=(VertexArray other);
             friend void swap(VertexArray& left, VertexArray& right);
             

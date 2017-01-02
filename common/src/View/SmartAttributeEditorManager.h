@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -38,8 +38,8 @@ namespace TrenchBroom {
         
         class SmartAttributeEditorManager : public wxPanel {
         private:
-            typedef std::tr1::shared_ptr<SmartAttributeEditor> EditorPtr;
-            typedef std::tr1::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
+            typedef std::shared_ptr<SmartAttributeEditor> EditorPtr;
+            typedef std::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
             typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
             typedef std::vector<MatcherEditorPair> EditorList;
             

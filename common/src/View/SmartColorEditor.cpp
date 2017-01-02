@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,6 +35,7 @@
 #include <wx/radiobut.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/wupdlock.h>
 
 #include <iomanip>
 
@@ -111,11 +112,11 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::doDestroyVisual() {
-            assert(m_panel != NULL);
-            assert(m_floatRadio != NULL);
-            assert(m_byteRadio != NULL);
-            assert(m_colorPicker != NULL);
-            assert(m_colorHistory != NULL);
+            ensure(m_panel != NULL, "panel is null");
+            ensure(m_floatRadio != NULL, "floatRadio is null");
+            ensure(m_byteRadio != NULL, "byteRadio is null");
+            ensure(m_colorPicker != NULL, "colorPicker is null");
+            ensure(m_colorHistory != NULL, "colorHistory is null");
             
             m_panel->Destroy();
             m_panel = NULL;
@@ -126,12 +127,13 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            assert(m_panel != NULL);
-            assert(m_floatRadio != NULL);
-            assert(m_byteRadio != NULL);
-            assert(m_colorPicker != NULL);
-            assert(m_colorHistory != NULL);
+            ensure(m_panel != NULL, "panel is null");
+            ensure(m_floatRadio != NULL, "floatRadio is null");
+            ensure(m_byteRadio != NULL, "byteRadio is null");
+            ensure(m_colorPicker != NULL, "colorPicker is null");
+            ensure(m_colorHistory != NULL, "colorHistory is null");
             
+            wxWindowUpdateLocker locker(m_panel);
             updateColorRange(attributables);
             updateColorHistory();
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -54,8 +54,8 @@ namespace TrenchBroom {
         
         void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
             const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it = faces.begin();
-            BrushFaceList::const_iterator end = faces.end();
+            BrushFaceList::const_iterator it = std::begin(faces);
+            BrushFaceList::const_iterator end = std::end(faces);
             assert(it != end);
             
             const int contentFlags = (*it)->surfaceContents();

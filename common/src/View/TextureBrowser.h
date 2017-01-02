@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Assets/TextureManager.h"
+#include "View/TextureBrowserView.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -61,7 +62,7 @@ namespace TrenchBroom {
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
             
-            void setSortOrder(Assets::TextureManager::SortOrder sortOrder);
+            void setSortOrder(TextureBrowserView::SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
@@ -85,9 +86,11 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void textureCollectionsDidChange();
+            void currentTextureNameDidChange(const String& textureName);
             void preferenceDidChange(const IO::Path& path);
 
             void reload();
+            void updateSelectedTexture();
         };
     }
 }

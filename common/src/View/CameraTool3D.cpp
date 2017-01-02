@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -33,6 +33,7 @@
 #include "Renderer/PerspectiveCamera.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {

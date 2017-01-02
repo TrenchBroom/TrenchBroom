@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -28,9 +28,10 @@ namespace TrenchBroom {
         
         class IssueQuickFix {
         private:
+            IssueType m_issueType;
             String m_description;
         protected:
-            IssueQuickFix(const String& description);
+            IssueQuickFix(IssueType issueType, const String& description);
         public:
             virtual ~IssueQuickFix();
             
@@ -38,7 +39,8 @@ namespace TrenchBroom {
             
             void apply(MapFacade* facade, const IssueList& issues) const;
         private:
-            virtual void doApply(MapFacade* facade, const IssueList& issues) const = 0;
+            virtual void doApply(MapFacade* facade, const IssueList& issues) const;
+            virtual void doApply(MapFacade* facade, const Issue* issue) const;
         };
     }
 }

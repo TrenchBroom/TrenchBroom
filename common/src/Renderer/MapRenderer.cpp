@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,12 +52,30 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return editable(face) && (selected(face) || selected(face->brush())) && visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                const bool brushSelected = selected(brush);
+                const bool brushEditable = editable(brush);
+                
+                for (const Model::BrushFace* face : brush->faces()) {
+                    if (brushEditable && (selected(face) || brushSelected) && brushVisible)
+                         provideFaces.accept(face);
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return selected(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
+                const bool brushSelected = selected(brush);
+                const bool brushEditable = editable(brush);
+                
+                for (const Model::BrushEdge* edge : brush->edges()) {
+                    const Model::BrushFace* first = edge->firstFace()->payload();
+                    const Model::BrushFace* second = edge->secondFace()->payload();
+                    assert(second->brush() == brush);
+                    
+                    if (brushEditable && (brushSelected || selected(first) || selected(second)) && brushVisible)
+                         provideEdges.accept(edge);
+                }
             }
             
             bool doIsTransparent(const Model::Brush* brush) const {
@@ -70,12 +88,24 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                
+                if (brushVisible) {
+                    // collect all faces
+                    for (const Model::BrushFace* face : brush->faces())
+                         provideFaces.accept(face);
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return visible(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
+                
+                if (brushVisible) {
+                    // collect all edges
+                    for (const Model::BrushEdge* edge : brush->edges())
+                         provideEdges.accept(edge);
+                }
             }
             
             bool doIsTransparent(const Model::Brush* brush) const {
@@ -88,12 +118,33 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::BrushFace* face) const {
-                return editable(face) && !selected(face) && visible(face);
+            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  provideFaces) const {
+                const bool brushVisible = visible(brush);
+                const bool brushEditable = editable(brush);
+                
+                if (brushVisible && brushEditable) {
+                    for (const Model::BrushFace* face : brush->faces()) {
+                        if (!selected(face))
+                            provideFaces.accept(face);
+                    }
+                }
             }
             
-            bool doShow(const Model::BrushEdge* edge) const {
-                return !selected(edge) && visible(edge);
+            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  provideEdges) const {
+                const bool brushVisible = visible(brush);
+                const bool brushSelected = selected(brush);
+                
+                
+                if (brushVisible && !brushSelected) {
+                    for (const Model::BrushEdge* edge : brush->edges()) {
+                        const Model::BrushFace* first = edge->firstFace()->payload();
+                        const Model::BrushFace* second = edge->secondFace()->payload();
+                        assert(second->brush() == brush);
+                        
+                        if (!selected(first) && !selected(second))
+                            provideEdges.accept(edge);
+                    }
+                }
             }
             
             bool doIsTransparent(const Model::Brush* brush) const {
@@ -240,18 +291,15 @@ namespace TrenchBroom {
                 const Assets::EntityDefinition* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
                 const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
                 if (!nodes.empty()) {
-                    CollectTutorialEntitiesVisitor collect(definition);
-                    Model::Node::accept(nodes.begin(), nodes.end(), collect);
-                    
-                    const Model::NodeList entities = collect.nodes();
-                    
                     RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::TutorialOverlayBackgroundColor));
                     
-                    Model::NodeList::const_iterator it, end;
-                    for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                        const Model::Entity* entity = static_cast<Model::Entity*>(*it);
+                    CollectTutorialEntitiesVisitor collect(definition);
+                    Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
+
+                    for (const Model::Node* node : collect.nodes()) {
+                        const Model::Entity* entity = static_cast<const Model::Entity*>(node);
                         const Model::AttributeValue& message = entity->attribute(Model::Tutorial::Message);
                         if (!message.empty())
                             renderService.renderHeadsUp(message);
@@ -283,6 +331,7 @@ namespace TrenchBroom {
         void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
             renderer->setOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderer->setShowBrushEdges(true);
             renderer->setShowOccludedObjects(true);
             renderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
             renderer->setTint(true);
@@ -521,12 +570,8 @@ namespace TrenchBroom {
         
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
             Model::BrushSet result;
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                Model::BrushFace* face = *it;
-                Model::Brush* brush = face->brush();
-                result.insert(brush);
-            }
+            for (const Model::BrushFace* face : faces)
+                result.insert(face->brush());
             return result;
         }
         

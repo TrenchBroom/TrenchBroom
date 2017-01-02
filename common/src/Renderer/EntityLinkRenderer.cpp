@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -152,9 +152,7 @@ namespace TrenchBroom {
             }
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
-                Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                    const Model::AttributableNode* target = *it;
+                for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
                 }
@@ -181,9 +179,7 @@ namespace TrenchBroom {
             }
 
             void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
-                Model::AttributableNodeList::const_iterator it, end;
-                for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                    Model::AttributableNode* source = *it;
+                for (Model::AttributableNode* source : sources) {
                     if (m_editorContext.visible(source)) {
                         addLink(source, target);
                         source->accept(*this);
@@ -192,9 +188,7 @@ namespace TrenchBroom {
             }
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
-                Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                    Model::AttributableNode* target = *it;
+                for (Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target)) {
                         addLink(source, target);
                         target->accept(*this);
@@ -209,7 +203,7 @@ namespace TrenchBroom {
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
             void visitEntity(Model::Entity* entity) {
-                if ((entity->selected() || entity->descendantSelected())) {
+                if (entity->selected() || entity->descendantSelected()) {
                     addSources(entity->linkSources(), entity);
                     addSources(entity->killSources(), entity);
                     addTargets(entity, entity->linkTargets());
@@ -218,18 +212,14 @@ namespace TrenchBroom {
             }
             
             void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
-                Model::AttributableNodeList::const_iterator it, end;
-                for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                    const Model::AttributableNode* source = *it;
+                for (const Model::AttributableNode* source : sources) {
                     if (!source->selected() && !source->descendantSelected() && m_editorContext.visible(source))
                         addLink(source, target);
                 }
             }
             
             void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
-                Model::AttributableNodeList::const_iterator it, end;
-                for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                    const Model::AttributableNode* target = *it;
+                for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
                 }
@@ -287,10 +277,10 @@ namespace TrenchBroom {
             
             const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
             CollectEntitiesVisitor collectEntities;
-            Model::Node::acceptAndEscalate(selectedNodes.begin(), selectedNodes.end(), collectEntities);
+            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collectEntities);
             
             const Model::NodeList& selectedEntities = collectEntities.nodes();
-            Model::Node::accept(selectedEntities.begin(), selectedEntities.end(), collectLinks);
+            Model::Node::accept(std::begin(selectedEntities), std::end(selectedEntities), collectLinks);
         }
     }
 }

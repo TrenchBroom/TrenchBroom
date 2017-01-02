@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -45,7 +45,6 @@ namespace TrenchBroom {
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
             
-            bool m_textureLock;
             bool m_blockSelection;
             
             Model::Group* m_currentGroup;
@@ -69,9 +68,6 @@ namespace TrenchBroom {
             
             EntityLinkMode entityLinkMode() const;
             void setEntityLinkMode(EntityLinkMode entityLinkMode);
-            
-            bool textureLock() const;
-            void setTextureLock(bool textureLock);
             
             bool blockSelection() const;
             void setBlockSelection(bool blockSelection);
@@ -99,6 +95,7 @@ namespace TrenchBroom {
             bool pickable(const Model::BrushFace* face) const;
             
             bool selectable(const Model::Node* node) const;
+            bool selectable(const Model::World* world) const;
             bool selectable(const Model::Layer* layer) const;
             bool selectable(const Model::Group* group) const;
             bool selectable(const Model::Entity* entity) const;

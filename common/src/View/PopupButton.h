@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,16 +24,17 @@
 
 class wxToggleButton;
 class wxCommandEvent;
-class wxPopupTransientWindow;
 class wxShowEvent;
 class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class PopupWindow;
+        
         class PopupButton : public wxPanel {
         private:
             wxToggleButton* m_button;
-            wxPopupTransientWindow* m_window;
+            PopupWindow* m_window;
         public:
             PopupButton(wxWindow* parent, const wxString& caption);
             

@@ -1,0 +1,50 @@
+Expression     = GroupedTerm | Term
+GroupedTerm    = "(" Term ")"
+Term           = SimpleTerm | CompoundTerm
+SimpleTerm     = Variable | Literal | Subscript | Plus | Minus | Not | GroupedTerm
+CompoundTerm   = AlgebraicTerm | BooleanTerm | ComparisonTerm
+AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
+BooleanTerm    = Conjunction | Disjunction
+ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
+
+Variable       = ( Alpha | "_" ) { ( Alpha | Numeric | "_") }
+Literal        = String | Number | Boolean | Array | Map
+
+Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
+
+Addition       = SimpleTerm "+" Expression
+Subtraction    = SimpleTerm "-" Expression
+Multiplication = SimpleTerm "*" Expression
+Division       = SimpleTerm "/" Expression
+Modulus        = SimpleTerm "%" Expression
+
+Conjunction    = SimpleTerm "&&" Expression
+Disjunction    = SimpleTerm "||" Expression
+
+Less           = SimpleTerm "<" Expression
+LessOrEqual    = SimpleTerm "<=" Expression
+Equal          = SimpleTerm "==" Expression
+InEqual        = SimpleTerm "!=" Expression
+GreaterOrEqual = SimpleTerm ">=" Expression
+Greater        = SimpleTerm ">" Expression
+
+Plus           = "+" SimpleTerm
+Minus          = "-" SimpleTerm
+Not            = "!" SimpleTerm
+
+Boolean        = "true" | "false"
+String         = """ { Char } """ | "'" { Char } "'"
+Number         = Numeric { Numeric } "." Numeric { Numeric }
+
+Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+ExpOrRange     = Expression | Range
+ExpOrAnyRange  = ExpOrRange | AutoRange
+Range 		   = Expression ".." Expression
+AutoRange      = ".." Expression | Expression ".."
+
+Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
+KeyValuePair   = String ":" Expression
+
+Alpha          = "a-zA-Z"
+Numeric        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+Char           = Any ASCII character

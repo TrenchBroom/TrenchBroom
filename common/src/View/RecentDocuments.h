@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,14 +61,14 @@ namespace TrenchBroom {
             }
 
             void addMenu(wxMenu* menu) {
-                assert(menu != NULL);
+                ensure(menu != NULL, "menu is null");
                 clearMenu(menu);
                 createMenuItems(menu);
                 m_menus.push_back(menu);
             }
             
             void removeMenu(wxMenu* menu) {
-                assert(menu != NULL);
+                ensure(menu != NULL, "menu is null");
                 clearMenu(menu);
                 VectorUtils::erase(m_menus, menu);
             }
@@ -151,18 +151,16 @@ namespace TrenchBroom {
             
             void insertPath(const IO::Path& path) {
                 const IO::Path canonPath = path.makeCanonical();
-                IO::Path::List::iterator it = std::find(m_recentDocuments.begin(), m_recentDocuments.end(), canonPath);
-                if (it != m_recentDocuments.end())
+                IO::Path::List::iterator it = std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
+                if (it != std::end(m_recentDocuments))
                     m_recentDocuments.erase(it);
-                m_recentDocuments.insert(m_recentDocuments.begin(), canonPath);
+                m_recentDocuments.insert(std::begin(m_recentDocuments), canonPath);
                 if (m_recentDocuments.size() > m_maxSize)
                     m_recentDocuments.pop_back();
             }
             
             void updateMenus() {
-                MenuList::iterator it, end;
-                for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
-                    wxMenu* menu = *it;
+                for (wxMenu* menu : m_menus) {
                     clearMenu(menu);
                     createMenuItems(menu);
                 }

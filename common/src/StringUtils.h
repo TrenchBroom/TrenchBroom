@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -34,11 +34,11 @@
 typedef std::string String;
 typedef std::stringstream StringStream;
 typedef std::set<String> StringSet;
-typedef std::vector<String> StringList;
+typedef std::vector<String> StringArray;
 typedef std::map<String, String> StringMap;
 
 static const String EmptyString("");
-static const StringList EmptyStringList(0);
+static const StringArray EmptyStringList(0);
 
 namespace StringUtils {
     struct CaseSensitiveCharCompare {
@@ -86,27 +86,19 @@ namespace StringUtils {
         bool operator()(const String& lhs, const String& rhs) const {
             if (lhs.size() != rhs.size())
                 return false;
-            return std::equal(lhs.begin(), lhs.end(), rhs.begin(), CharEqual<Cmp>());
+            return std::equal(std::begin(lhs), std::end(lhs), std::begin(rhs), CharEqual<Cmp>());
         }
     };
     
     template <typename Cmp>
     struct StringLess {
         bool operator()(const String& lhs, const String& rhs) const {
-            typedef String::iterator::difference_type StringDiff;
-            
-            String::const_iterator lhsEnd, rhsEnd;
-            const size_t minSize = std::min(lhs.size(), rhs.size());
-            StringDiff difference = static_cast<StringDiff>(minSize);
-            
-            std::advance(lhsEnd = lhs.begin(), difference);
-            std::advance(rhsEnd = rhs.begin(), difference);
-            return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+            return std::lexicographical_compare(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), CharLess<Cmp>());
         }
     };
     
     typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
-    typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
+    typedef StringLess<CaseInsensitiveCharCompare> CaseInsensitiveStringLess;
     
     template <typename T>
     const String& safePlural(const T count, const String& singular, const String& plural) {
@@ -142,8 +134,8 @@ namespace StringUtils {
     
     bool containsCaseSensitive(const String& haystack, const String& needle);
     bool containsCaseInsensitive(const String& haystack, const String& needle);
-    void sortCaseSensitive(StringList& strs);
-    void sortCaseInsensitive(StringList& strs);
+    void sortCaseSensitive(StringArray& strs);
+    void sortCaseInsensitive(StringArray& strs);
     
     template <typename Cmp>
     bool isEqual(const String& str1, const String& str2, const Cmp& cmp) {
@@ -157,8 +149,23 @@ namespace StringUtils {
         return true;
     }
     
+    template <typename Cmp>
+    bool isEqual(const char* s1, const char* e1, const String& str2, const Cmp& cmp) {
+        const size_t l1 = static_cast<size_t>(e1 - s1);
+        if (l1 != str2.length())
+            return false;
+        
+        for (size_t i = 0; i < str2.length(); ++i) {
+            if (cmp(s1[i], str2[i]) != 0)
+                return false;
+        }
+        return true;
+    }
+    
     bool caseSensitiveEqual(const String& str1, const String& str2);
+    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2);
     bool caseInsensitiveEqual(const String& str1, const String& str2);
+    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2);
 
     template <class Cmp>
     bool isPrefix(const String& str, const String& prefix, const Cmp& cmp) {
@@ -193,10 +200,8 @@ namespace StringUtils {
 
     bool isBlank(const String& str);
     
-    bool matchesPattern(const String& str, const String& pattern);
-    
-    template <typename I>
-    bool matchesPattern(I strCur, I strEnd, I patCur, I patEnd) {
+    template <typename I, typename Eq>
+    bool matchesPattern(I strCur, I strEnd, I patCur, I patEnd, const Eq& eq) {
         if (strCur == strEnd && patCur == patEnd)
             return true;
 
@@ -213,7 +218,7 @@ namespace StringUtils {
                 *(patCur + 1) == '\\') {
                 if (*strCur != *(patCur + 1))
                     return false;
-                return matchesPattern(strCur + 1, strEnd, patCur + 2, patEnd);
+                return matchesPattern(strCur + 1, strEnd, patCur + 2, patEnd, eq);
             } else {
                 return false; // Invalid escape sequence.
             }
@@ -233,17 +238,20 @@ namespace StringUtils {
             return false;
 
         // If the pattern contains '?', or current characters of both strings match
-        if (*patCur == '?' || *patCur == *strCur)
-            return matchesPattern(strCur + 1, strEnd, patCur + 1, patEnd);
+        if (*patCur == '?' || eq(*patCur, *strCur))
+            return matchesPattern(strCur + 1, strEnd, patCur + 1, patEnd, eq);
         
         // If there is * in the pattern, then there are two possibilities
         // a) We consider the current character of the string
         // b) We ignore the current character of the string.
         if (*patCur == '*')
-            return (matchesPattern(strCur,     strEnd, patCur + 1, patEnd) ||
-                    matchesPattern(strCur + 1, strEnd, patCur,     patEnd));
+            return (matchesPattern(strCur,     strEnd, patCur + 1, patEnd, eq) ||
+                    matchesPattern(strCur + 1, strEnd, patCur,     patEnd, eq));
         return false;
     }
+    
+    bool caseSensitiveMatchesPattern(const String& str, const String& pattern);
+    bool caseInsensitiveMatchesPattern(const String& str, const String& pattern);
     
     long makeHash(const String& str);
     String toLower(const String& str);
@@ -255,10 +263,11 @@ namespace StringUtils {
 
     int stringToInt(const String& str);
     long stringToLong(const String& str);
+    double stringToDouble(const String& str);
     size_t stringToSize(const String& str);
     
     template <typename D>
-    StringList split(const String& str, D d) {
+    StringArray split(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
         
@@ -269,7 +278,7 @@ namespace StringUtils {
         assert(last != String::npos);
         assert(first <= last);
         
-        StringList result;
+        StringArray result;
         
         size_t lastPos = first;
         size_t pos = lastPos;
@@ -283,7 +292,7 @@ namespace StringUtils {
     }
     
     template <typename D>
-    StringList splitAndTrim(const String& str, D d) {
+    StringArray splitAndTrim(const String& str, D d) {
         if (str.empty())
             return EmptyStringList;
         
@@ -294,7 +303,7 @@ namespace StringUtils {
         assert(last != String::npos);
         assert(first <= last);
         
-        StringList result;
+        StringArray result;
         
         size_t lastPos = first;
         size_t pos = lastPos;
@@ -312,24 +321,38 @@ namespace StringUtils {
         return result;
     }
     
-    template <typename T, typename D1, typename D2, typename D3, typename S>
-    String join(const std::vector<T>& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
-        if (objs.empty())
+    template <typename I, typename D1, typename D2, typename D3, typename S>
+    String join(I it, I end, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
+        if (it == end)
             return "";
-        if (objs.size() == 1)
-            return toString(objs[0]);
         
+        const String first = toString(*it++);
+        if (it == end)
+            return first;
+
         StringStream result;
-        if (objs.size() == 2) {
-            result << toString(objs[0]) << delimForTwo << toString(objs[1]);
+        result << first;
+        const String second = toString(*it++);
+        if (it == end) {
+            result << delimForTwo << second;
             return result.str();
         }
         
-        result << toString(objs[0]);
-        for (size_t i = 1; i < objs.size() - 1; i++)
-            result << delim << toString(objs[i]);
-        result << lastDelim << toString(objs.back());
+        result << delim << second;
+        I next = it;
+        ++next;
+        while (next != end) {
+            result << delim << toString(*it);
+            it = next;
+            ++next;
+        }
+        result << lastDelim << toString(*it);
         return result.str();
+    }
+    
+    template <typename T, typename D1, typename D2, typename D3, typename S>
+    String join(const std::vector<T>& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
+        return join(std::begin(objs), std::end(objs), delim, lastDelim, delimForTwo, toString);
     }
     
     template <typename T, typename D, typename S>
@@ -337,22 +360,34 @@ namespace StringUtils {
         return join(objs, delim, delim, delim, toString);
     }
     
+    StringArray splitAndUnescape(const String& str, char d);
+    String escapeAndJoin(const StringArray& strs, char d);
+    
     struct StringToString {
         const String& operator()(const String& str) const {
             return str;
         }
     };
 
+    struct StringToSingleQuotedString {
+        const String operator()(const String& str) const {
+            return "'" + str + "'";
+        }
+    };
+    
     template <typename D1, typename D2, typename D3>
-    String join(const StringList& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
+    String join(const StringArray& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo) {
         return join(objs, delim, lastDelim, delimForTwo, StringToString());
     }
 
     template <typename D>
-    String join(const StringList& strs, const D& d) {
+    String join(const StringArray& strs, const D& d) {
         return join(strs, d, d, d);
     }
 
+    StringArray makeList(size_t count, const char* str1, ...);
+    StringSet makeSet(size_t count, const char* str1, ...);
+    
     template <typename Cmp>
     class SimpleStringMatcher {
     private:

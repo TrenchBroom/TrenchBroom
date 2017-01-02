@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityDefinitionManager
 #define TrenchBroom_EntityDefinitionManager
 
+#include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
@@ -38,9 +39,11 @@ namespace TrenchBroom {
         class EntityDefinitionManager {
         private:
             typedef std::map<String, EntityDefinition*> Cache;
-            EntityDefinitionList m_definitions;
-            EntityDefinitionGroup::List m_groups;
+            EntityDefinitionArray m_definitions;
+            EntityDefinitionGroup::Array m_groups;
             Cache m_cache;
+        public:
+            Notifier0 usageCountDidChangeNotifier;
         public:
             ~EntityDefinitionManager();
 
@@ -49,13 +52,14 @@ namespace TrenchBroom {
             
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            EntityDefinitionArray definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
 
-            const EntityDefinitionGroup::List& groups() const;
+            const EntityDefinitionGroup::Array& groups() const;
         private:
             void updateIndices();
             void updateGroups();
             void updateCache();
+            void bindObservers();
             void clearCache();
             void clearGroups();
         };

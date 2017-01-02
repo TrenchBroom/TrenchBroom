@@ -6,7 +6,7 @@ IF "%~1"=="Stable" GOTO stable
 
 :alpha
 IF "%TB_ALPHA_DEST%"=="" GOTO noalphadest
-pscp @APP_PACKAGE_FILE_NAME@.* "%TB_ALPHA_DEST%"
+copy @APP_PACKAGE_FILE_NAME@.* "%TB_ALPHA_DEST%"
 GOTO end
 
 :noalphadest

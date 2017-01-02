@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,6 +21,7 @@
 #define TrenchBroom_ViewConstants_h
 
 class wxColour;
+class wxFont;
 
 namespace TrenchBroom {
     namespace View {
@@ -28,7 +29,8 @@ namespace TrenchBroom {
 #if defined _WIN32
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonSideMargin             = 7;
+            static const int DialogButtonLeftMargin             = 7;
+            static const int DialogButtonRightMargin            = 7;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 6;
@@ -47,7 +49,8 @@ namespace TrenchBroom {
 #elif defined __APPLE__
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 0;
-            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonLeftMargin             = 12;
+            static const int DialogButtonRightMargin            = 0;
             static const int DialogButtonBottomMargin           = 3;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
@@ -63,10 +66,11 @@ namespace TrenchBroom {
             static const int TextBoxInnerMargin                 = 0;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
-#elif defined __linux__
+#elif defined __WXGTK20__
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonLeftMargin             = 8;
+            static const int DialogButtonRightMargin            = 0;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
@@ -85,6 +89,10 @@ namespace TrenchBroom {
 #endif
             static const int MinPreferenceLabelWidth            = 100;
             static const int HighlightBoxMargin                 = 5;
+        }
+        
+        namespace Fonts {
+            const wxFont& fixedWidthFont();
         }
         
         namespace Colors {

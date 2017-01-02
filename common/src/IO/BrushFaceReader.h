@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,23 +29,25 @@ namespace TrenchBroom {
     }
     
     namespace IO {
+        class ParserStatus;
+        
         class BrushFaceReader : public MapReader {
         private:
             Model::ModelFactory* m_factory;
-            Model::BrushFaceList m_brushFaces;
+            Model::BrushFaceArray m_brushFaces;
         public:
-            BrushFaceReader(const String& str, Model::ModelFactory* factory, Logger* logger = NULL);
+            BrushFaceReader(const String& str, Model::ModelFactory* factory);
             
-            const Model::BrushFaceList& read(const BBox3& worldBounds);
+            const Model::BrushFaceArray& read(const BBox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds);
-            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount);
-            void onLayer(Model::Layer* layer);
-            void onNode(Model::Node* parent, Model::Node* node);
-            void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node);
-            void onBrush(Model::Node* parent, Model::Brush* brush);
-            void onBrushFace(Model::BrushFace* face);
+            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status);
+            void onLayer(Model::Layer* layer, ParserStatus& status);
+            void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status);
+            void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status);
+            void onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status);
+            void onBrushFace(Model::BrushFace* face, ParserStatus& status);
         };
     }
 }

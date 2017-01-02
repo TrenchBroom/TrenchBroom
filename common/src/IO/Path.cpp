@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -21,8 +21,9 @@
 
 #include "Exceptions.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace IO {
@@ -40,7 +41,7 @@ namespace TrenchBroom {
             return sep;
         }
 
-        Path::Path(bool absolute, const StringList& components) :
+        Path::Path(bool absolute, const StringArray& components) :
         m_components(components),
         m_absolute(absolute) {}
 
@@ -59,8 +60,8 @@ namespace TrenchBroom {
         Path Path::operator+(const Path& rhs) const {
             if (rhs.isAbsolute())
                 throw PathException("Cannot concatenate absolute path");
-            StringList components = m_components;
-            components.insert(components.end(), rhs.m_components.begin(), rhs.m_components.end());
+            StringArray components = m_components;
+            components.insert(std::end(components), std::begin(rhs.m_components), std::end(rhs.m_components));
             return Path(m_absolute, components);
         }
 
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             if (isAbsolute() && !rhs.isAbsolute())
                 return 1;
             
-            const StringList& rcomps = rhs.m_components;
+            const StringArray& rcomps = rhs.m_components;
             
             size_t i = 0;
             const size_t max = std::min(m_components.size(), rcomps.size());
@@ -135,11 +136,19 @@ namespace TrenchBroom {
             return StringUtils::join(m_components, separator);
         }
 
-        StringList Path::asStrings(const Path::List& paths, const char separator) {
-            StringList result;
-            Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it)
-                result.push_back(it->asString(separator));
+        StringArray Path::asStrings(const Path::Array& paths, const char separator) {
+            StringArray result;
+            result.reserve(paths.size());
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [separator](const Path& path) { return path.asString(separator); });
+            return result;
+        }
+
+        Path::Array Path::asPaths(const StringArray& strs) {
+            Path::Array result;
+            result.reserve(strs.size());
+            std::transform(std::begin(strs), std::end(strs), std::back_inserter(result),
+                           [](const String& str) { return Path(str); });
             return result;
         }
 
@@ -169,16 +178,16 @@ namespace TrenchBroom {
             if (isEmpty())
                 throw PathException("Cannot delete first component of empty path");
             if (!m_absolute) {
-                StringList components;
+                StringArray components;
                 components.reserve(m_components.size() - 1);
-                components.insert(components.begin(), m_components.begin() + 1, m_components.end());
+                components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
             }
 #ifdef _WIN32
             if (!m_components.empty() && hasDriveSpec(m_components[0])) {
-                StringList components;
+                StringArray components;
                 components.reserve(m_components.size() - 1);
-                components.insert(components.begin(), m_components.begin() + 1, m_components.end());
+                components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
             }
             return Path(false, m_components);
@@ -196,9 +205,9 @@ namespace TrenchBroom {
         Path Path::deleteLastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot delete last component of empty path");
-            StringList components;
+            StringArray components;
             components.reserve(m_components.size() - 1);
-            components.insert(components.begin(), m_components.begin(), m_components.end() - 1);
+            components.insert(std::begin(components), std::begin(m_components), std::end(m_components) - 1);
             return Path(m_absolute, components);
         }
 
@@ -211,23 +220,37 @@ namespace TrenchBroom {
         }
         
         Path Path::subPath(const size_t index, const size_t count) const {
-            if (isEmpty())
-                throw PathException("Cannot get sub path of empty path");
             if (index + count > m_components.size())
                 throw PathException("Sub path out of bounds");
             if (count == 0)
                 return Path("");
             
-            StringList::const_iterator begin = m_components.begin();
-            std::advance(begin, index);
-            StringList::const_iterator end = begin;
-            std::advance(end, count);
-            StringList newComponents(count);
-            std::copy(begin, end, newComponents.begin());
+            StringArray::const_iterator begin = std::begin(m_components);
+            std::advance(begin, static_cast<StringArray::const_iterator::difference_type>(index));
+            StringArray::const_iterator end = begin;
+            std::advance(end, static_cast<StringArray::const_iterator::difference_type>(count));
+            StringArray newComponents(count);
+            std::copy(begin, end, std::begin(newComponents));
             return Path(m_absolute && index == 0, newComponents);
         }
 
-        const String Path::extension() const {
+        String Path::filename() const {
+            if (isEmpty())
+                throw PathException("Cannot get filename of empty path");
+            return m_components.back();
+        }
+        
+        String Path::basename() const {
+            if (isEmpty())
+                throw PathException("Cannot get basename of empty path");
+            const String& lastComponent = m_components.back();
+            const size_t dotIndex = lastComponent.rfind('.');
+            if (dotIndex == String::npos)
+                return lastComponent;
+            return lastComponent.substr(0, dotIndex);
+        }
+
+        String Path::extension() const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
             const String& lastComponent = m_components.back();
@@ -238,22 +261,20 @@ namespace TrenchBroom {
         }
         
         Path Path::deleteExtension() const {
-            if (isEmpty())
-                throw PathException("Cannot get extension of empty path");
-            const String& lastComponent = m_components.back();
-            const size_t dotIndex = lastComponent.rfind('.');
-            if (dotIndex == String::npos)
-                return *this;
-            return deleteLastComponent() + Path(lastComponent.substr(0, dotIndex));
+            return deleteLastComponent() + Path(basename());
         }
 
         Path Path::addExtension(const String& extension) const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
-            StringList components = m_components;
+            StringArray components = m_components;
             String& lastComponent = components.back();
             lastComponent += "." + extension;
             return Path(m_absolute, components);
+        }
+
+        Path Path::replaceExtension(const String& extension) const {
+            return deleteExtension().addExtension(extension);
         }
 
         bool Path::isAbsolute() const {
@@ -293,8 +314,8 @@ namespace TrenchBroom {
                 throw PathException("Cannot make relative path if reference path has different drive spec");
 #endif
             
-            const StringList myResolved = resolvePath(true, m_components);
-            const StringList theirResolved = resolvePath(true, absolutePath.m_components);
+            const StringArray myResolved = resolvePath(true, m_components);
+            const StringArray theirResolved = resolvePath(true, absolutePath.m_components);
             
             // cross off all common prefixes
             size_t p = 0;
@@ -304,7 +325,7 @@ namespace TrenchBroom {
                 ++p;
             }
 
-            StringList components;
+            StringArray components;
             for (size_t i = p; i < myResolved.size(); ++i)
                 components.push_back("..");
             for (size_t i = p; i < theirResolved.size(); ++i)
@@ -318,28 +339,22 @@ namespace TrenchBroom {
         }
 
         Path Path::makeLowerCase() const {
-            StringList lcComponents;
-            StringList::const_iterator it, end;
-            for (it = m_components.begin(), end = m_components.end(); it != end; ++it) {
-                const String& component = *it;
-                lcComponents.push_back(StringUtils::toLower(component));
-            }
+            StringArray lcComponents;
+            lcComponents.reserve(m_components.size());
+            std::transform(std::begin(m_components), std::end(m_components), std::back_inserter(lcComponents),
+                           [](const String& component) { return StringUtils::toLower(component); });
             return Path(m_absolute, lcComponents);
         }
 
-        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const String& relativePath) {
-            List result;
-            List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const Path& path = *it;
-                const Path absPath = path.makeAbsolute(relativePath);
-                const Path canPath = path.makeCanonical();
-                result.push_back(canPath);
-            }
+        Path::Array Path::makeAbsoluteAndCanonical(const Array& paths, const String& relativePath) {
+            Array result;
+            result.reserve(paths.size());
+            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
+                           [&relativePath](const Path& path) { return path.makeAbsolute(relativePath).makeCanonical(); });
             return result;
         }
 
-        bool Path::hasDriveSpec(const StringList& components) {
+        bool Path::hasDriveSpec(const StringArray& components) {
 #ifdef _WIN32
             if (components.empty())
                 return false;
@@ -359,22 +374,17 @@ namespace TrenchBroom {
 #endif
         }
 
-        StringList Path::resolvePath(const bool absolute, const StringList& components) const {
-            StringList::const_iterator it, end;
-            StringList resolved;
-            for (it = components.begin(), end = components.end(); it != end; ++it) {
-                const String& comp = *it;
+        StringArray Path::resolvePath(const bool absolute, const StringArray& components) const {
+            StringArray resolved;
+            for (const String& comp : components) {
                 if (comp == ".")
                     continue;
                 if (comp == "..") {
-#ifdef _WIN32
                     if (resolved.empty())
                         throw PathException("Cannot resolve path");
+#ifdef _WIN32
                     if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2)
                             throw PathException("Cannot resolve path");
-#else
-                    if (resolved.empty())
-                        throw PathException("Cannot resolve path");
 #endif
                     resolved.pop_back();
                     continue;

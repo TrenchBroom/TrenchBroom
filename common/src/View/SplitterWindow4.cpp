@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -27,10 +27,10 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
-#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -65,13 +65,13 @@ namespace TrenchBroom {
                                     const wxSize& topRightMin,
                                     const wxSize& bottomRightMin,
                                     const wxSize& bottomLeftMin) {
-            assert(topLeft != NULL);
+            ensure(topLeft != NULL, "topLeft is null");
             assert(topLeft->GetParent() == this);
-            assert(topRight != NULL);
+            ensure(topRight != NULL, "topRight is null");
             assert(topRight->GetParent() == this);
-            assert(bottomRight != NULL);
+            ensure(bottomRight != NULL, "bottomRight is null");
             assert(bottomRight->GetParent() == this);
-            assert(bottomLeft != NULL);
+            ensure(bottomLeft != NULL, "bottomLeft is null");
             assert(bottomLeft->GetParent() == this);
             
             m_windows[Window_TopLeft] = topLeft;
@@ -177,7 +177,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::bindMouseEvents(wxWindow* window) {
-            assert(window != NULL);
+            ensure(window != NULL, "window is null");
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow4::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow4::OnMouseLeave, this);
             window->Bind(wxEVT_MOTION, &SplitterWindow4::OnMouseMotion, this);
@@ -342,8 +342,6 @@ namespace TrenchBroom {
                 if (m_maximizedWindow != NULL) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                 } else {
-                    const wxWindowUpdateLocker lockUpdates(this);
-                    
                     const wxPoint origin = GetClientAreaOrigin();
                     const wxSize size = GetClientSize();
                     const wxPoint sash = currentSashPosition();

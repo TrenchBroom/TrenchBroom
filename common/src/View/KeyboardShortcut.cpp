@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -61,12 +61,12 @@ namespace TrenchBroom {
             modifierSet.insert(key3);
             
             key1 = key2 = key3 = WXK_NONE;
-            ModifierSet::iterator it = modifierSet.begin();
-            if (it != modifierSet.end()) {
+            ModifierSet::iterator it = std::begin(modifierSet);
+            if (it != std::end(modifierSet)) {
                 key1 = *it++;
-                if (it != modifierSet.end()) {
+                if (it != std::end(modifierSet)) {
                     key2 = *it++;
-                    if (it != modifierSet.end()) {
+                    if (it != std::end(modifierSet)) {
                         key3 = *it++;
                     }
                 }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
         
         bool KeyboardShortcut::isShortcutValid(const int key, const int modifier1, const int modifier2, const int modifier3) {
-#ifdef __linux__
+#ifdef __WXGTK20__
             // TAB and Escape are never allowed on GTK2:
             if (key == WXK_TAB || key == WXK_ESCAPE)
                 return false;

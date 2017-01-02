@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             if (snapped.null())
                 return true;
             
-            m_helper.setOrigin(m_helper.originInFaceCoords() + snapped);
+            m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
             m_lastPoint += snapped;
             
             return true;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return delta;
             
             const Model::BrushFace* face = m_helper.face();
-            assert(face != NULL);
+            ensure(face != NULL, "face is null");
             
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
             // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because
@@ -179,12 +179,9 @@ namespace TrenchBroom {
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
-            const Model::BrushFace::VertexList vertices = face->vertices();
-            Model::BrushFace::VertexList::const_iterator it, end;
-            
             Vec2f distanceInTexCoords = Vec2f::Max;
-            for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                distanceInTexCoords = absMin(distanceInTexCoords, Vec2f(w2tTransform * (*it)->position()) - newOriginInTexCoords);
+            for (const Model::BrushVertex* vertex : face->vertices())
+                distanceInTexCoords = absMin(distanceInTexCoords, Vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();

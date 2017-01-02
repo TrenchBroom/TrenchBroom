@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -59,7 +59,7 @@ namespace TrenchBroom {
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
                     break;
                 case Math::Axis::AY:
-                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
+                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
                     break;
                 case Math::Axis::AZ:
                 default:
@@ -145,7 +145,18 @@ namespace TrenchBroom {
             
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderPointHandle(m_position);
-            renderService.renderPointHandle(m_position + radius * camera.right());
+            
+            const Vec3 viewDirection = camera.direction();
+            switch (viewDirection.firstComponent()) {
+                case Math::Axis::AX:
+                case Math::Axis::AZ:
+                    renderService.renderPointHandle(m_position + radius * camera.right());
+                    break;
+                case Math::Axis::AY:
+                    renderService.renderPointHandle(m_position + radius * camera.up());
+                    break;
+               switchDefault()
+            };
         }
         
         void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -206,8 +217,10 @@ namespace TrenchBroom {
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                 case RotateObjectsHandle::HitArea_YAxis:
-                case RotateObjectsHandle::HitArea_ZAxis:
                     renderService.renderPointHandleHighlight(m_position + radius * camera.right());
+                    break;
+                case RotateObjectsHandle::HitArea_ZAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * camera.up());
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;

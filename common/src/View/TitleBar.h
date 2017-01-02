@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,17 +20,19 @@
 #ifndef TrenchBroom_TitleBar
 #define TrenchBroom_TitleBar
 
-#include <wx/panel.h>
+#include <wx/window.h>
 
 class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class TitleBar : public wxPanel {
+        class TitleBar : public wxWindow {
         protected:
             wxStaticText* m_titleText;
         public:
-            TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0);
+            TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+            
+            bool AcceptsFocus() const;
         };
     }
 }

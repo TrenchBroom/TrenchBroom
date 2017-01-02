@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,7 +24,7 @@ wxDEFINE_EVENT(GAME_SELECTION_DBLCLICK_EVENT, TrenchBroom::View::GameSelectionCo
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(GameSelectionCommand, wxCommandEvent)
+        wxIMPLEMENT_DYNAMIC_CLASS(GameSelectionCommand, wxCommandEvent)
         
         GameSelectionCommand::GameSelectionCommand() :
         wxCommandEvent(),

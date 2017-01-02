@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -29,15 +29,19 @@ namespace TrenchBroom {
         
         class HitQuery {
         private:
-            const Hit::List& m_hits;
+            const Hit::List* m_hits;
             const EditorContext* m_editorContext;
             HitFilter* m_include;
             HitFilter* m_exclude;
         public:
             HitQuery(const Hit::List& hits, const EditorContext& editorContext);
             HitQuery(const Hit::List& hits);
+            HitQuery(const HitQuery& other);
             ~HitQuery();
             
+            HitQuery& operator=(HitQuery other);
+            friend void swap(HitQuery& lhs, HitQuery& rhs);
+
             HitQuery& pickable();
             HitQuery& type(Hit::HitType type);
             HitQuery& occluded(Hit::HitType type = Hit::AnyType);

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -168,24 +168,44 @@ namespace TrenchBroom {
             Vec<T,3> snapDown(const Vec<T,3>& p, const Plane<T,3>& onPlane, const bool skip = false) const {
                 return snap(p, onPlane, SnapDir_Down, skip);
             }
+
+            template <typename T, size_t S>
+            Vec<T,S> snapTowards(const Vec<T,S>& p, const Plane<T,3>& onPlane, const Vec<T,S>& d, const bool skip = false) const {
+                
+                SnapDir snapDirs[S];
+                for (size_t i = 0; i < S; ++i)
+                    snapDirs[i] = (d[i] < 0.0 ? SnapDir_Down : (d[i] > 0.0 ? SnapDir_Up : SnapDir_None));
+
+                return snap(p, onPlane, snapDirs, skip);
+            }
         private:
-            template <typename T>
-            Vec<T,3> snap(const Vec<T,3>& p, const Plane<T,3>& onPlane, const SnapDir snapDir, const bool skip = false) const {
+            template <typename T, size_t S>
+            Vec<T,3> snap(const Vec<T,S>& p, const Plane<T,S>& onPlane, const SnapDir snapDir, const bool skip = false) const {
+                SnapDir snapDirs[S];
+                for (size_t i = 0; i < S; ++i)
+                    snapDirs[i] = snapDir;
+                
+                return snap(p, onPlane, snapDirs, skip);
+            }
+            
+            template <typename T, size_t S>
+            Vec<T,S> snap(const Vec<T,S>& p, const Plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
+                
                 Vec<T,3> result;
                 switch(onPlane.normal.firstComponent()) {
                     case Math::Axis::AX:
-                        result[1] = snap(p.y(), snapDir, skip);
-                        result[2] = snap(p.z(), snapDir, skip);
+                        result[1] = snap(p.y(), snapDirs[1], skip);
+                        result[2] = snap(p.z(), snapDirs[2], skip);
                         result[0] = onPlane.xAt(result.yz());
                         break;
                     case Math::Axis::AY:
-                        result[0] = snap(p.x(), snapDir, skip);
-                        result[2] = snap(p.z(), snapDir, skip);
+                        result[0] = snap(p.x(), snapDirs[0], skip);
+                        result[2] = snap(p.z(), snapDirs[2], skip);
                         result[1] = onPlane.yAt(result.xz());
                         break;
                     case Math::Axis::AZ:
-                        result[0] = snap(p.x(), snapDir, skip);
-                        result[1] = snap(p.y(), snapDir, skip);
+                        result[0] = snap(p.x(), snapDirs[0], skip);
+                        result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = onPlane.zAt(result.xy());
                         break;
                 }

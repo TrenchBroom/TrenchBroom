@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -169,12 +169,12 @@ namespace TrenchBroom {
                 typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = map.find(position);
-                if (mapIt == map.end())
+                if (mapIt == std::end(map))
                     return false;
                 
                 Set& elements = mapIt->second;
                 typename Set::iterator setIt = elements.find(element);
-                if (setIt == elements.end())
+                if (setIt == std::end(elements))
                     return false;
                 
                 elements.erase(setIt);
@@ -189,13 +189,13 @@ namespace TrenchBroom {
                 typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
                 
                 typename Map::iterator mapIt = from.find(position);
-                if (mapIt == from.end())
+                if (mapIt == std::end(from))
                     return 0;
                 
                 Set& fromElements = mapIt->second;
                 Set& toElements = to[position];
                 const size_t elementCount = fromElements.size();
-                toElements.insert(fromElements.begin(), fromElements.end());
+                toElements.insert(std::begin(fromElements), std::end(fromElements));
                 
                 from.erase(mapIt);
                 return elementCount;
@@ -205,9 +205,8 @@ namespace TrenchBroom {
             void handlePositions(const std::map<Vec3, T, O>& handles, Vec3::List& result) const {
                 result.reserve(result.size() + handles.size());
                 
-                typename std::map<Vec3, T, O>::const_iterator it, end;
-                for (it = handles.begin(), end = handles.end(); it != end; ++it) {
-                    const Vec3& position = it->first;
+                for (const auto& entry : handles) {
+                    const Vec3& position = entry.first;
                     result.push_back(position);
                 }
             }

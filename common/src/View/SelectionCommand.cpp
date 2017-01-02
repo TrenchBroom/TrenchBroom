@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -32,36 +32,36 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand* SelectionCommand::select(const Model::NodeList& nodes) {
-            return new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::select(const Model::NodeList& nodes) {
+            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand* SelectionCommand::select(const Model::BrushFaceList& faces) {
-            return new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces);
+        SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
+            return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces));
         }
         
-        SelectionCommand* SelectionCommand::convertToFaces() {
-            return new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::convertToFaces() {
+            return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand* SelectionCommand::selectAllNodes() {
-            return new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
+            return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand* SelectionCommand::selectAllFaces() {
-            return new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
+            return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand* SelectionCommand::deselect(const Model::NodeList& nodes) {
-            return new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeList& nodes) {
+            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
         }
         
-        SelectionCommand* SelectionCommand::deselect(const Model::BrushFaceList& faces) {
-            return new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces);
+        SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
+            return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces));
         }
         
-        SelectionCommand* SelectionCommand::deselectAll() {
-            return new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList);
+        SelectionCommand::Ptr SelectionCommand::deselectAll() {
+            return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
         }
 
         SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :

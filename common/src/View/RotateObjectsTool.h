@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
-            bool m_firstActivation;
+            Vec3::List m_recentlyUsedCenters;
         public:
             RotateObjectsTool(MapDocumentWPtr document);
 
@@ -77,6 +77,8 @@ namespace TrenchBroom {
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
+        private:
+            void updateRecentlyUsedCenters(const Vec3& center);
         private:
             wxWindow* doCreatePage(wxWindow* parent);
             String doGetIconName() const;

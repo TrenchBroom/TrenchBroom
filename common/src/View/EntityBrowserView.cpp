@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,
                                              Logger& logger) :
-        CellView(parent, contextManager, buildAttribs(), scrollBar),
+        CellView(parent, contextManager, GLAttribs::attribs(), scrollBar),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
         m_logger(logger),
@@ -66,6 +66,8 @@ namespace TrenchBroom {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
+            
+            m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
         }
         
         EntityBrowserView::~EntityBrowserView() {
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             if (group == m_group)
                 return;
             m_group = group;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -92,7 +94,7 @@ namespace TrenchBroom {
             if (hideUnused == m_hideUnused)
                 return;
             m_hideUnused = hideUnused;
-            reload();
+            invalidate();
             Refresh();
         }
         
@@ -100,7 +102,12 @@ namespace TrenchBroom {
             if (filterText == m_filterText)
                 return;
             m_filterText = filterText;
-            reload();
+            invalidate();
+            Refresh();
+        }
+
+        void EntityBrowserView::usageCountDidChange() {
+            invalidate();
             Refresh();
         }
 
@@ -122,30 +129,24 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
-                Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-                
-                for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                    const Assets::EntityDefinitionGroup& group = *groupIt;
+                for (const Assets::EntityDefinitionGroup& group : m_entityDefinitionManager.groups()) {
                     const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
                     if (!definitions.empty()) {
                         const String displayName = group.displayName();
                         layout.addGroup(displayName, fontSize + 2.0f);
-                        
-                        Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                        for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
-                            Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*defIt);
-                            addEntityToLayout(layout, definition, font);
+
+                        for (Assets::EntityDefinition* definition : definitions) {
+                            Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                            addEntityToLayout(layout, pointEntityDefinition, font);
                         }
                     }
                 }
             } else {
                 const Assets::EntityDefinitionList& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
-                Assets::EntityDefinitionList::const_iterator it, end;
-                for (it = definitions.begin(), end = definitions.end(); it != end; ++it) {
-                    Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*it);
-                    addEntityToLayout(layout, definition, font);
+                for (Assets::EntityDefinition* definition : definitions) {
+                    Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                    addEntityToLayout(layout, pointEntityDefinition, font);
                 }
             }
         }
@@ -156,13 +157,13 @@ namespace TrenchBroom {
         
         void EntityBrowserView::dndWillStart() {
             MapFrame* mapFrame = findMapFrame(this);
-            assert(mapFrame != NULL);
+            ensure(mapFrame != NULL, "mapFrame is null");
             mapFrame->setToolBoxDropTarget();
         }
         
         void EntityBrowserView::dndDidEnd() {
             MapFrame* mapFrame = findMapFrame(this);
-            assert(mapFrame != NULL);
+            ensure(mapFrame != NULL, "mapFrame is null");
             mapFrame->clearDropTarget();
         }
 
@@ -312,7 +313,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
-            Renderer::Transformation transformation = Renderer::Transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
             
             Renderer::ActivateVbo activate(vertexVbo());
             
@@ -339,7 +340,7 @@ namespace TrenchBroom {
             }
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(vertices);
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::ActivateVbo activate(vertexVbo());
@@ -355,10 +356,9 @@ namespace TrenchBroom {
                 Renderer::ActivateVbo activate(vertexVbo());
                 
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
-                StringMap::const_iterator it, end;
-                for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
-                    const Renderer::FontDescriptor& descriptor = it->first;
-                    const TextVertex::List& vertices = it->second;
+                for (const auto& entry : stringVertices) {
+                    const Renderer::FontDescriptor& descriptor = entry.first;
+                    const TextVertex::List& vertices = entry.second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[descriptor].prepare(vertexVbo());
                 }
@@ -367,10 +367,9 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
             
-            StringRendererMap::iterator it, end;
-            for (it = stringRenderers.begin(), end = stringRenderers.end(); it != end; ++it) {
-                const Renderer::FontDescriptor& descriptor = it->first;
-                Renderer::VertexArray& vertexArray = it->second;
+            for (auto& entry : stringRenderers) {
+                const Renderer::FontDescriptor& descriptor = entry.first;
+                Renderer::VertexArray& vertexArray = entry.second;
                 
                 Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();

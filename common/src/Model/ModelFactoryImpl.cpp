@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             switch (m_format) {
                 case MapFormat::Valve:
                     return new BrushFace(point1, point2, point3, attribs,
-                                         new ParallelTexCoordSystem(texAxisX, texAxisY, attribs));
+                                         new ParallelTexCoordSystem(texAxisX, texAxisY));
                 default:
                     return new BrushFace(point1, point2, point3, attribs,
                                          new ParaxialTexCoordSystem(point1, point2, point3, attribs));

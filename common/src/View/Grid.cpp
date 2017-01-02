@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -112,23 +112,28 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
-            const Vec3 halfSize = bounds.size() / 2.0;
-            FloatType offsetLength = halfSize.dot(dragPlane.normal);
-            if (offsetLength < 0.0)
-                offsetLength = -offsetLength;
-            const Vec3 offset = dragPlane.normal * offsetLength;
             
+            // First, compute the snapped position under the mouse:
             const FloatType dist = dragPlane.intersectWithRay(ray);
-            const Vec3 newPos = ray.pointAtDistance(dist);
-            Vec3 delta = moveDeltaForPoint(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
+            const Vec3 hitPoint = ray.pointAtDistance(dist);
+            const Vec3 newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
+            const Vec3 offset = newPos - hitPoint;
             
-            const Math::Axis::Type a = dragPlane.normal.firstComponent();
-            if (dragPlane.normal[a] > 0.0)
-                delta[a] = position[a] - bounds.min[a];
-            else
-                delta[a] = position[a] - bounds.max[a];
+            const Vec3 normal = dragPlane.normal;
+            const Vec3 size = bounds.size();
             
-            return delta;
+            Vec3 newMinPos = newPos;
+            for (size_t i = 0; i < 3; ++i) {
+                if (Math::zero(offset[i])) {
+                    if (normal[i] < 0.0)
+                        newMinPos[i] -= size[i];
+                } else {
+                    if ((size[i] >= 0.0) != (ray.direction[i] >= 0.0))
+                        newMinPos[i] -= size[i];
+                }
+            }
+
+            return newMinPos - bounds.min;
         }
         
         Vec3 Grid::moveDelta(const BBox3& bounds, const BBox3& worldBounds, const Vec3& delta) const {
@@ -190,18 +195,14 @@ namespace TrenchBroom {
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<Ray3> edgeRays;
             
-            Model::Brush::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
-                const Model::BrushEdge* edge = *eIt;
+            for (const Model::BrushEdge* edge : brushEdges) {
                 size_t c = 0;
                 bool originAtStart = true;
 
                 bool startFound = false;
                 bool endFound = false;
                 
-                Model::BrushFace::VertexList::const_iterator fIt, fEnd;
-                for (fIt = faceVertices.begin(), fEnd = faceVertices.end(); fIt != fEnd; ++fIt) {
-                    const Model::BrushVertex* vertex = *fIt;
+                for (const Model::BrushVertex* vertex : faceVertices) {
                     startFound |= (vertex->position() == edge->firstVertex()->position());
                     endFound |= (vertex->position() == edge->secondVertex()->position());
                     if (startFound && endFound)

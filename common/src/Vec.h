@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2014 Kristian Duske
+Copyright (C) 2010-2016 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -163,8 +163,8 @@ public:
             if (lhs.size() > rhs.size())
                 return 1;
             
-            typename Set::const_iterator lIt = lhs.begin();
-            typename Set::const_iterator rIt = rhs.begin();
+            typename Set::const_iterator lIt = std::begin(lhs);
+            typename Set::const_iterator rIt = std::begin(rhs);
             for (size_t i = 0; i < lhs.size(); ++i) {
                 const Vec& lPos = *lIt++;
                 const Vec& rPos = *rIt++;
@@ -264,7 +264,9 @@ public:
     
     static Vec<T,S> parse(const std::string& str) {
         size_t pos = 0;
-        return doParse(str, pos);
+        Vec<T,S> result;
+        doParse(str, pos, result);
+        return result;
     }
     
     static List parseList(const std::string& str) {
@@ -274,7 +276,9 @@ public:
         List result;
 
         while (pos != std::string::npos) {
-            result.push_back(doParse(str, pos));
+            Vec<T,S> temp;
+            if (doParse(str, pos, temp))
+                result.push_back(temp);
             pos = str.find_first_of(blank, pos);
         }
         
@@ -282,19 +286,18 @@ public:
     }
 
 private:
-    static Vec<T,S> doParse(const std::string& str, size_t& pos) {
+    static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
         static const std::string blank(" \t\n\r()");
 
-        Vec<T,S> result;
         const char* cstr = str.c_str();
         for (size_t i = 0; i < S; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
-                break;
+                return false;
             result[i] = static_cast<T>(std::atof(cstr + pos));
             if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
-                break;
+                return false;;
         }
-        return result;
+        return true;
     }
 public:
     T v[S];
@@ -747,10 +750,10 @@ public:
         std::vector<size_t> heap;
         for (size_t i = 0; i < S; ++i) {
             heap.push_back(i);
-            std::push_heap(heap.begin(), heap.end(), cmp);
+            std::push_heap(std::begin(heap), std::end(heap), cmp);
         }
         
-        std::sort_heap(heap.begin(), heap.end(), cmp);
+        std::sort_heap(std::begin(heap), std::end(heap), cmp);
         return heap[S - k - 1];
     }
 
@@ -919,9 +922,12 @@ public:
     }
 
     bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        const Vec<T,S> dir = end - start;
-        const T d = (*this - start).dot(dir);
-        return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
+        assert(linearlyDependent(*this, start, end));
+        const Vec<T,S> toStart = start - *this;
+        const Vec<T,S> toEnd   =   end - *this;
+
+        const T d = toEnd.dot(toStart.normalized());
+        return !Math::pos(d);
     }
 
     template <typename I, typename G>
@@ -1066,6 +1072,34 @@ const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
                     left[0] * right[1] - left[1] * right[0]);
 }
 
+/*
+ * The normal will be pointing towards the reader when the points are oriented like this:
+ *
+ * 1
+ * |
+ * v2
+ * |
+ * |
+ * 0------v1----2
+ */
+template <typename T>
+bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
+    normal = crossed(v1, v2);
+    
+    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
+    const T sin_theta = Math::abs(normal.length() / (v1.length() * v2.length()));
+    if (Math::isnan(sin_theta) ||
+        Math::isinf(sin_theta) ||
+        sin_theta < epsilon)
+        return false;
+    
+    normal.normalize();
+    return true;
+}
+
 template <typename T>
 T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     // computes the CCW angle between axis and vector in relation to the given up vector
@@ -1129,10 +1163,59 @@ Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>&
     return crossed(v1, v2);
 }
 
-template <typename T>
-bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> normal = crossed(point0, point1, point2);
-    return normal.null();
+template <typename T, size_t S>
+bool linearlyDependent1(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    // see http://math.stackexchange.com/a/1778739
+    // advantage over linearlyDependent2 is that no square root is required here
+    
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
+    for (size_t i = 0; i < S; ++i) {
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+    
+    return Math::zero(j * j - k * l, Math::Constants<T>::colinearEpsilon());
+}
+
+
+template <typename T, size_t S>
+bool linearlyDependent2(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    // A,B,C are colinear if and only if the largest of the lenghts of AB,AC,BC is equal to the sum of the other two.
+    
+    const T ac = (c - a).length();
+    const T bc = (c - b).length();
+    const T ab = (b - a).length();
+    
+    if (ac > bc) {
+        if (ac > ab) // ac > ab, bc
+            return ac == bc + ab;
+        else if (ab > ac) // ab > ac > bc
+            return ab == ac + bc;
+        else // ac == ab > bc
+            return ac == ab + bc; // bc could be 0
+    } else if (bc > ac) {
+        if (bc > ab) // bc > ac, ab
+            return bc == ac + ab;
+        else if (ab > bc) // ab > bc > ac
+            return ab == bc + ac;
+        else // ab == bc > ac
+            return ab == bc + ac; // ac could be 0
+    } else { // ac == bc
+        if (ab > ac) // ab > ac == bc
+            return ab == ac + bc;
+        else // bc == ac >= ab // ab could be 0
+            return bc == ac + ab;
+    }
+}
+
+template <typename T, size_t S>
+bool linearlyDependent(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
+    return linearlyDependent1(a, b, c);
 }
 
 #endif

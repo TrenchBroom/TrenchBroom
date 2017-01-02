@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 m_tool = tool;
                 m_suffix = new ToolChain();
             } else {
-                assert(m_suffix != NULL);
+                ensure(m_suffix != NULL, "suffix is null");
                 m_suffix->append(tool);
             }
             assert(checkInvariant());

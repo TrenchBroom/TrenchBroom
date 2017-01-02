@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -31,19 +31,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public EntityIssue {
+        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public Issue {
         public:
             static const IssueType Type;
         public:
             PointEntityWithBrushesIssue(Entity* entity) :
-            EntityIssue(entity) {}
+            Issue(entity) {}
         private:
             IssueType doGetType() const {
                 return Type;
             }
             
             const String doGetDescription() const {
-                return entity()->classname() + " contains brushes";
+                const Entity* entity = static_cast<Entity*>(node());
+                return entity->classname() + " contains brushes";
             }
         };
         
@@ -52,15 +53,13 @@ namespace TrenchBroom {
         class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
         public:
             PointEntityWithBrushesIssueQuickFix() :
-            IssueQuickFix("Move brushes to world") {}
+            IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 NodeList affectedNodes;
                 ParentChildrenMap nodesToReparent;
                 
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    const Issue* issue = *it;
+                for (const Issue* issue : issues) {
                     Node* node = issue->node();
                     nodesToReparent[node->parent()] = node->children();
                     
@@ -80,7 +79,7 @@ namespace TrenchBroom {
         }
         
         void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            assert(entity != NULL);
+            ensure(entity != NULL, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_PointEntity && entity->hasChildren())
                 issues.push_back(new PointEntityWithBrushesIssue(entity));

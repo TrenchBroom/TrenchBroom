@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class SplitBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SplitBrushFacesCommand> Ptr;
+            typedef std::shared_ptr<SplitBrushFacesCommand> Ptr;
         private:
             Model::BrushFacesMap m_faces;
             Polygon3::List m_oldFacePositions;

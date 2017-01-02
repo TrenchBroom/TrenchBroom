@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -316,6 +316,104 @@ namespace TrenchBroom {
             grandChild1_1->deselect();
             ASSERT_EQ(1u, child1->descendantSelectionCount());
             ASSERT_EQ(2u, root.descendantSelectionCount());
+        }
+        
+        TEST(NodeTest, isAncestorOf) {
+            TestNode root;
+            TestNode* child1 = new TestNode();
+            TestNode* child2 = new TestNode();
+            TestNode* grandChild1_1 = new TestNode();
+            TestNode* grandChild1_2 = new TestNode();
+            
+            root.addChild(child1);
+            root.addChild(child2);
+            child1->addChild(grandChild1_1);
+            child1->addChild(grandChild1_2);
+            
+            ASSERT_FALSE(root.isAncestorOf(&root));
+            ASSERT_TRUE(root.isAncestorOf(child1));
+            ASSERT_TRUE(root.isAncestorOf(child2));
+            ASSERT_TRUE(root.isAncestorOf(grandChild1_1));
+            ASSERT_TRUE(root.isAncestorOf(grandChild1_2));
+            
+            ASSERT_FALSE(child1->isAncestorOf(&root));
+            ASSERT_FALSE(child1->isAncestorOf(child1));
+            ASSERT_FALSE(child1->isAncestorOf(child2));
+            ASSERT_TRUE(child1->isAncestorOf(grandChild1_1));
+            ASSERT_TRUE(child1->isAncestorOf(grandChild1_2));
+
+            ASSERT_FALSE(child2->isAncestorOf(&root));
+            ASSERT_FALSE(child2->isAncestorOf(child1));
+            ASSERT_FALSE(child2->isAncestorOf(child2));
+            ASSERT_FALSE(child2->isAncestorOf(grandChild1_1));
+            ASSERT_FALSE(child2->isAncestorOf(grandChild1_2));
+            
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(&root));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(child1));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(child2));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(grandChild1_1));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(grandChild1_2));
+            
+            ASSERT_FALSE(grandChild1_2->isAncestorOf(&root));
+            ASSERT_FALSE(grandChild1_2->isAncestorOf(child1));
+            ASSERT_FALSE(grandChild1_2->isAncestorOf(child2));
+            ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_1));
+            ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_2));
+            
+            ASSERT_TRUE(root.isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(child2->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+        }
+        
+        TEST(NodeTest, isDescendantOf) {
+            TestNode root;
+            TestNode* child1 = new TestNode();
+            TestNode* child2 = new TestNode();
+            TestNode* grandChild1_1 = new TestNode();
+            TestNode* grandChild1_2 = new TestNode();
+            
+            root.addChild(child1);
+            root.addChild(child2);
+            child1->addChild(grandChild1_1);
+            child1->addChild(grandChild1_2);
+            
+            ASSERT_FALSE(root.isDescendantOf(&root));
+            ASSERT_FALSE(root.isDescendantOf(child1));
+            ASSERT_FALSE(root.isDescendantOf(child2));
+            ASSERT_FALSE(root.isDescendantOf(grandChild1_1));
+            ASSERT_FALSE(root.isDescendantOf(grandChild1_2));
+            
+            ASSERT_TRUE(child1->isDescendantOf(&root));
+            ASSERT_FALSE(child1->isDescendantOf(child1));
+            ASSERT_FALSE(child1->isDescendantOf(child2));
+            ASSERT_FALSE(child1->isDescendantOf(grandChild1_1));
+            ASSERT_FALSE(child1->isDescendantOf(grandChild1_2));
+            
+            ASSERT_TRUE(child2->isDescendantOf(&root));
+            ASSERT_FALSE(child2->isDescendantOf(child1));
+            ASSERT_FALSE(child2->isDescendantOf(child2));
+            ASSERT_FALSE(child2->isDescendantOf(grandChild1_1));
+            ASSERT_FALSE(child2->isDescendantOf(grandChild1_2));
+            
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(&root));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(child1));
+            ASSERT_FALSE(grandChild1_1->isDescendantOf(child2));
+            ASSERT_FALSE(grandChild1_1->isDescendantOf(grandChild1_1));
+            ASSERT_FALSE(grandChild1_1->isDescendantOf(grandChild1_2));
+            
+            ASSERT_TRUE(grandChild1_2->isDescendantOf(&root));
+            ASSERT_TRUE(grandChild1_2->isDescendantOf(child1));
+            ASSERT_FALSE(grandChild1_2->isDescendantOf(child2));
+            ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_1));
+            ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_2));
+            
+            ASSERT_FALSE(root.isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child2->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
     }
 }

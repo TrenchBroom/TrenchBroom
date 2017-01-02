@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -171,24 +171,16 @@ namespace TrenchBroom {
                 }
             }
             
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
-                const Node* child = *it;
+            for (const Node* child : Node::children())
                 child->pick(ray, pickResult);
-            }
         }
         
         void Group::doFindNodesContaining(const Vec3& point, NodeList& result) {
             if (bounds().contains(point))
                 result.push_back(this);
             
-            const NodeList& children = Node::children();
-            NodeList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it) {
-                Node* child = *it;
+            for (Node* child : Node::children())
                 child->findNodesContaining(point, result);
-            }
         }
 
         FloatType Group::doIntersectWithRay(const Ray3& ray) const {

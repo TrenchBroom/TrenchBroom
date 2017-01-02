@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,10 +52,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   { collectIssues(brush);  }
             
             void collectIssues(Node* node) {
-                const IssueList& issues = node->issues(m_issueGenerators);
-                IssueList::const_iterator it, end;
-                for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                    Issue* issue = *it;
+                for (Issue* issue : node->issues(m_issueGenerators)) {
                     if (m_p(issue))
                         m_issues.push_back(issue);
                 }

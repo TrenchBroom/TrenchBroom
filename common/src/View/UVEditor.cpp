@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -25,9 +25,11 @@
 #include "View/wxUtils.h"
 
 #include <wx/bmpbuttn.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,10 +46,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
-            request.resetTextureAxes();
-            request.setOffset(Vec2f::Null);
-            request.setRotation(0.0f);
-            request.setScale(Vec2f::One);
+            request.resetAll();
             
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
@@ -160,7 +159,6 @@ namespace TrenchBroom {
             outerSizer->Add(bottomSizer, 0, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);
         }
     }

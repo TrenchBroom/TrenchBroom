@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,20 +21,23 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BitmapButton.h"
 #include "View/BitmapToggleButton.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
 #include <wx/bitmap.h>
-#include <wx/bmpbuttn.h>
 #include <wx/frame.h>
 #include <wx/listctrl.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 #include <wx/tglbtn.h>
 #include <wx/window.h>
 
 #include <list>
+#include <cstdlib>
 
 namespace TrenchBroom {
     namespace View {
@@ -46,6 +49,21 @@ namespace TrenchBroom {
             if (window == NULL)
                 return NULL;
             return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
+        }
+
+        void fitAll(wxWindow* window) {
+            for (wxWindow* child : window->GetChildren())
+                fitAll(child);
+            window->Fit();
+        }
+
+        wxColor makeLighter(const wxColor& color) {
+            wxColor result = color.ChangeLightness(130);
+            if (std::abs(result.Red()   - color.Red())   < 25 &&
+                std::abs(result.Green() - color.Green()) < 25 &&
+                std::abs(result.Blue()  - color.Blue())  < 25)
+                result = color.ChangeLightness(70);
+            return result;
         }
 
         Color fromWxColor(const wxColor& color) {
@@ -65,7 +83,7 @@ namespace TrenchBroom {
         }
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
-            assert(listCtrl != NULL);
+            ensure(listCtrl != NULL, "listCtrl is null");
 
 
             std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
@@ -83,9 +101,8 @@ namespace TrenchBroom {
             wxBitmap bitmap = IO::loadImageResource(image);
             assert(bitmap.IsOk());
 
-            wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            BitmapButton* button = new BitmapButton(parent, wxID_ANY, bitmap);
             button->SetToolTip(tooltip);
-            button->SetBackgroundColour(*wxWHITE);
             return button;
         }
 
@@ -96,26 +113,52 @@ namespace TrenchBroom {
             wxBitmap downBitmap = IO::loadImageResource(downImage);
             assert(downBitmap.IsOk());
 
-            /*
-            wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, offBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
-            button->SetBitmapPressed(onBitmap);
-            button->SetToolTip(tooltip);
-            button->SetBackgroundColour(*wxWHITE);
-            */
-
             BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);
-            button->SetBackgroundColour(*wxWHITE);
             return button;
         }
 
+        wxWindow* createDefaultPage(wxWindow* parent, const wxString& message) {
+            wxPanel* containerPanel = new wxPanel(parent);
+
+            wxStaticText* messageText = new wxStaticText(containerPanel, wxID_ANY, message);
+            messageText->SetFont(messageText->GetFont().Bold());
+            messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+
+            wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
+            justifySizer->AddStretchSpacer();
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->Add(messageText, wxSizerFlags().Expand());
+            justifySizer->AddSpacer(LayoutConstants::WideHMargin);
+            justifySizer->AddStretchSpacer();
+
+            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->Add(justifySizer, wxSizerFlags().Expand());
+            containerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            containerSizer->AddStretchSpacer();
+
+            containerPanel->SetSizer(containerSizer);
+            return containerPanel;
+        }
+
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
-            sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogButtonSideMargin);
-            sizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
-            return sizer;
+            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+            hSizer->AddSpacer(LayoutConstants::DialogButtonLeftMargin);
+            hSizer->Add(buttonSizer, wxSizerFlags().Expand().Proportion(1));
+            hSizer->AddSpacer(LayoutConstants::DialogButtonRightMargin);
+
+            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            vSizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
+            vSizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
+            vSizer->Add(hSizer, wxSizerFlags().Expand());
+            vSizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
+            return vSizer;
+        }
+
+        void setWindowIcon(wxTopLevelWindow* window) {
+            ensure(window != NULL, "window is null");
+            window->SetIcon(IO::loadIconResource(IO::Path("AppIcon")));
         }
 
         wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {

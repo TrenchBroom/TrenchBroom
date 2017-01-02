@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -52,24 +52,24 @@ namespace TrenchBroom {
             onFormatSet(format);
         }
 
-        void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
-            onBeginEntity(line, attributes, extraAttributes);
+        void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            onBeginEntity(line, attributes, extraAttributes, status);
         }
         
-        void MapParser::endEntity(const size_t startLine, const size_t lineCount) {
-            onEndEntity(startLine, lineCount);
+        void MapParser::endEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
+            onEndEntity(startLine, lineCount, status);
         }
         
-        void MapParser::beginBrush(const size_t line) {
-            onBeginBrush(line);
+        void MapParser::beginBrush(const size_t line, ParserStatus& status) {
+            onBeginBrush(line, status);
         }
         
-        void MapParser::endBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes) {
-            onEndBrush(startLine, lineCount, extraAttributes);
+        void MapParser::endBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            onEndBrush(startLine, lineCount, extraAttributes, status);
         }
         
-        void MapParser::brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
-            onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY);
+        void MapParser::brushFace(const size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status) {
+            onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY, status);
         }
     }
 }

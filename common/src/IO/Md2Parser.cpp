@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
-#include "IO/GameFileSystem.h"
+#include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const GameFileSystem& fs) :
+        Md2Parser::Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
@@ -256,21 +256,21 @@ namespace TrenchBroom {
             const size_t frameOffset = readSize<int32_t>(cursor);
             const size_t commandOffset = readSize<int32_t>(cursor);
 
-            const Md2SkinList skins = parseSkins(m_begin + skinOffset, skinCount);
-            const Md2FrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount);
-            const Md2MeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
+            const Md2SkinArray skins = parseSkins(m_begin + skinOffset, skinCount);
+            const Md2FrameArray frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount);
+            const Md2MeshArray meshes = parseMeshes(m_begin + commandOffset, commandCount);
             
             return buildModel(skins, frames, meshes);
         }
 
-        Md2Parser::Md2SkinList Md2Parser::parseSkins(const char* begin, const size_t skinCount) {
-            Md2SkinList skins(skinCount);
+        Md2Parser::Md2SkinArray Md2Parser::parseSkins(const char* begin, const size_t skinCount) {
+            Md2SkinArray skins(skinCount);
             readVector(begin, skins);
             return skins;
         }
 
-        Md2Parser::Md2FrameList Md2Parser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount) {
-            Md2FrameList frames(frameCount, Md2Frame(frameVertexCount));
+        Md2Parser::Md2FrameArray Md2Parser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount) {
+            Md2FrameArray frames(frameCount, Md2Frame(frameVertexCount));
 
             const char* cursor = begin;
             for (size_t i = 0; i < frameCount; ++i) {
@@ -283,8 +283,8 @@ namespace TrenchBroom {
             return frames;
         }
 
-        Md2Parser::Md2MeshList Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
-            Md2MeshList meshes;
+        Md2Parser::Md2MeshArray Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
+            Md2MeshArray meshes;
             
             const char* cursor = begin;
             const char* end = begin + commandCount * 4;
@@ -303,23 +303,19 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
+        Assets::EntityModel* Md2Parser::buildModel(const Md2SkinArray& skins, const Md2FrameArray& frames, const Md2MeshArray& meshes) {
             const Assets::TextureList modelTextures = loadTextures(skins);
-            const Assets::Md2Model::FrameList modelFrames = buildFrames(frames, meshes);
+            const Assets::Md2Model::FrameArray modelFrames = buildFrames(frames, meshes);
             return new Assets::Md2Model(m_name, modelTextures, modelFrames);
         }
 
-        Assets::TextureList Md2Parser::loadTextures(const Md2SkinList& skins) {
+        Assets::TextureList Md2Parser::loadTextures(const Md2SkinArray& skins) {
             Assets::TextureList textures;
             textures.reserve(skins.size());
             
             try {
-                Md2SkinList::const_iterator it, end;
-                for (it = skins.begin(), end = skins.end(); it != end; ++it) {
-                    const Md2Skin& skin = *it;
-                    Assets::Texture* texture = loadTexture(skin);
-                    textures.push_back(texture);
-                }
+                for (const Md2Skin& skin : skins)
+                    textures.push_back(readTexture(skin));
                 return textures;
             } catch (...) {
                 VectorUtils::clearAndDelete(textures);
@@ -327,7 +323,7 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* Md2Parser::loadTexture(const Md2Skin& skin) {
+        Assets::Texture* Md2Parser::readTexture(const Md2Skin& skin) {
             const Path skinPath(String(skin.name));
             MappedFile::Ptr file = m_fs.openFile(skinPath);
             
@@ -341,26 +337,19 @@ namespace TrenchBroom {
             return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
         }
 
-        Assets::Md2Model::FrameList Md2Parser::buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes) {
-            Assets::Md2Model::FrameList modelFrames;
+        Assets::Md2Model::FrameArray Md2Parser::buildFrames(const Md2FrameArray& frames, const Md2MeshArray& meshes) {
+            Assets::Md2Model::FrameArray modelFrames;
             modelFrames.reserve(frames.size());
             
-            Md2FrameList::const_iterator it, end;
-            for (it = frames.begin(), end = frames.end(); it != end; ++it) {
-                const Md2Frame& frame = *it;
-                Assets::Md2Model::Frame* modelFrame = buildFrame(frame, meshes);
-                modelFrames.push_back(modelFrame);
-            }
+            for (const Md2Frame& frame : frames)
+                modelFrames.push_back(buildFrame(frame, meshes));
             return modelFrames;
         }
 
-        Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            Md2MeshList::const_iterator mIt, mEnd;
-
+        Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshArray& meshes) {
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
+            for (const Md2Mesh& md2Mesh : meshes) {
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan)
                     size.inc(GL_TRIANGLE_FAN);
@@ -369,9 +358,8 @@ namespace TrenchBroom {
             }
 
             Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
-            for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
-                const Md2Mesh& md2Mesh = *mIt;
-                if (md2Mesh.vertices.size() > 0) {
+            for (const Md2Mesh& md2Mesh : meshes) {
+                if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
                     if (md2Mesh.type == Md2Mesh::Fan)
                         builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
@@ -383,16 +371,13 @@ namespace TrenchBroom {
             return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
         
-        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
+        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexArray& meshVertices) const {
             typedef Assets::Md2Model::Vertex Vertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());
             
-            Md2MeshVertexList::const_iterator it, end;
-            for (it = meshVertices.begin(), end = meshVertices.end(); it != end; ++it) {
-                const Md2MeshVertex& md2MeshVertex = *it;
-                
+            for (const Md2MeshVertex& md2MeshVertex : meshVertices) {
                 const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
                 const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
                 const Vec2f& texCoords = md2MeshVertex.texCoords;

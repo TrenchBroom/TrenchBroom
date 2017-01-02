@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -75,7 +75,16 @@ namespace TrenchBroom {
                 }
             }
             
+            template <typename I>
+            void updateEntities(I cur, I end) {
+                while (cur != end) {
+                    updateEntity(*cur);
+                    ++cur;
+                }
+            }
+
             void addEntity(Model::Entity* entity);
+            void updateEntity(Model::Entity* entity);
             void clear();
             
             bool applyTinting() const;

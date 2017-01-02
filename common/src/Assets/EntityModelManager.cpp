@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2014 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
+#include "Model/Entity.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 namespace TrenchBroom {
@@ -68,7 +69,7 @@ namespace TrenchBroom {
                 return NULL;
             
             ModelCache::const_iterator it = m_models.find(path);
-            if (it != m_models.end())
+            if (it != std::end(m_models))
                 return it->second;
             
             if (m_modelMismatches.count(path) > 0)
@@ -76,7 +77,7 @@ namespace TrenchBroom {
             
             try {
                 EntityModel* model = loadModel(path);
-                assert(model != NULL);
+                ensure(model != NULL, "model is null");
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
                 
@@ -92,13 +93,22 @@ namespace TrenchBroom {
             }
         }
         
+        EntityModel* EntityModelManager::safeGetModel(const IO::Path& path) const {
+            try {
+                return model(path);
+            } catch (const GameException&) {
+                return NULL;
+            }
+        }
+        
         Renderer::TexturedIndexRangeRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
-            EntityModel* entityModel = model(spec.path);
+            EntityModel* entityModel = safeGetModel(spec.path);
+
             if (entityModel == NULL)
                 return NULL;
             
             RendererCache::const_iterator it = m_renderers.find(spec);
-            if (it != m_renderers.end())
+            if (it != std::end(m_renderers))
                 return it->second;
             
             if (m_rendererMismatches.count(spec) > 0)
@@ -120,8 +130,16 @@ namespace TrenchBroom {
             return renderer;
         }
         
+        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
+            return hasModel(entity->modelSpecification());
+        }
+        
+        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
+            return renderer(spec) != NULL;
+        }
+
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
-            assert(m_loader != NULL);
+            ensure(m_loader != NULL, "loader is null");
             return m_loader->loadEntityModel(path);
         }
 
@@ -133,9 +151,8 @@ namespace TrenchBroom {
 
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
-                ModelCache::const_iterator it, end;
-                for (it = m_models.begin(), end = m_models.end(); it != end; ++it) {
-                    EntityModel* model = it->second;
+                for (const auto& entry : m_models) {
+                    EntityModel* model = entry.second;
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
                 m_resetTextureMode = false;
@@ -143,20 +160,14 @@ namespace TrenchBroom {
         }
         
         void EntityModelManager::prepareModels() {
-            ModelList::const_iterator it, end;
-            for (it = m_unpreparedModels.begin(), end = m_unpreparedModels.end(); it != end; ++it) {
-                Assets::EntityModel* model = *it;
+            for (Assets::EntityModel* model : m_unpreparedModels)
                 model->prepare(m_minFilter, m_magFilter);
-            }
             m_unpreparedModels.clear();
         }
         
         void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
-            RendererList::const_iterator it, end;
-            for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
-                Renderer::TexturedIndexRangeRenderer* renderer = *it;
+            for (Renderer::TexturedIndexRangeRenderer* renderer : m_unpreparedRenderers)
                 renderer->prepare(vbo);
-            }
             m_unpreparedRenderers.clear();
         }
     }
