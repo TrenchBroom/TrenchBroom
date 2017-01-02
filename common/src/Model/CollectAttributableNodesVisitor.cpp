@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const AttributableNodeList& CollectAttributableNodesVisitor::nodes() const {
+        const AttributableNodeArray& CollectAttributableNodesVisitor::nodes() const {
             return m_nodes;
         }
 
