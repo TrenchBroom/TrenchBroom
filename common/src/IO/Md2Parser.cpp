@@ -256,21 +256,21 @@ namespace TrenchBroom {
             const size_t frameOffset = readSize<int32_t>(cursor);
             const size_t commandOffset = readSize<int32_t>(cursor);
 
-            const Md2SkinList skins = parseSkins(m_begin + skinOffset, skinCount);
-            const Md2FrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount);
-            const Md2MeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
+            const Md2SkinArray skins = parseSkins(m_begin + skinOffset, skinCount);
+            const Md2FrameArray frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount);
+            const Md2MeshArray meshes = parseMeshes(m_begin + commandOffset, commandCount);
             
             return buildModel(skins, frames, meshes);
         }
 
-        Md2Parser::Md2SkinList Md2Parser::parseSkins(const char* begin, const size_t skinCount) {
-            Md2SkinList skins(skinCount);
+        Md2Parser::Md2SkinArray Md2Parser::parseSkins(const char* begin, const size_t skinCount) {
+            Md2SkinArray skins(skinCount);
             readVector(begin, skins);
             return skins;
         }
 
-        Md2Parser::Md2FrameList Md2Parser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount) {
-            Md2FrameList frames(frameCount, Md2Frame(frameVertexCount));
+        Md2Parser::Md2FrameArray Md2Parser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount) {
+            Md2FrameArray frames(frameCount, Md2Frame(frameVertexCount));
 
             const char* cursor = begin;
             for (size_t i = 0; i < frameCount; ++i) {
@@ -283,8 +283,8 @@ namespace TrenchBroom {
             return frames;
         }
 
-        Md2Parser::Md2MeshList Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
-            Md2MeshList meshes;
+        Md2Parser::Md2MeshArray Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
+            Md2MeshArray meshes;
             
             const char* cursor = begin;
             const char* end = begin + commandCount * 4;
@@ -303,13 +303,13 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
+        Assets::EntityModel* Md2Parser::buildModel(const Md2SkinArray& skins, const Md2FrameArray& frames, const Md2MeshArray& meshes) {
             const Assets::TextureList modelTextures = loadTextures(skins);
-            const Assets::Md2Model::FrameList modelFrames = buildFrames(frames, meshes);
+            const Assets::Md2Model::FrameArray modelFrames = buildFrames(frames, meshes);
             return new Assets::Md2Model(m_name, modelTextures, modelFrames);
         }
 
-        Assets::TextureList Md2Parser::loadTextures(const Md2SkinList& skins) {
+        Assets::TextureList Md2Parser::loadTextures(const Md2SkinArray& skins) {
             Assets::TextureList textures;
             textures.reserve(skins.size());
             
@@ -337,8 +337,8 @@ namespace TrenchBroom {
             return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
         }
 
-        Assets::Md2Model::FrameList Md2Parser::buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes) {
-            Assets::Md2Model::FrameList modelFrames;
+        Assets::Md2Model::FrameArray Md2Parser::buildFrames(const Md2FrameArray& frames, const Md2MeshArray& meshes) {
+            Assets::Md2Model::FrameArray modelFrames;
             modelFrames.reserve(frames.size());
             
             for (const Md2Frame& frame : frames)
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             return modelFrames;
         }
 
-        Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
+        Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshArray& meshes) {
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
             for (const Md2Mesh& md2Mesh : meshes) {
@@ -371,7 +371,7 @@ namespace TrenchBroom {
             return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
         
-        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
+        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexArray& meshVertices) const {
             typedef Assets::Md2Model::Vertex Vertex;
 
             Vertex::List result(0);
