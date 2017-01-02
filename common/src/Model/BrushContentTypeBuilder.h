@@ -34,9 +34,9 @@ namespace TrenchBroom {
                 Result(BrushContentType::FlagType i_contentType, bool i_transparent);
             };
         private:
-            BrushContentType::List m_contentTypes;
+            BrushContentType::Array m_contentTypes;
         public:
-            BrushContentTypeBuilder(const BrushContentType::List& contentTypes = BrushContentType::EmptyList);
+            BrushContentTypeBuilder(const BrushContentType::Array& contentTypes = BrushContentType::EmptyArray);
             Result buildContentType(const Brush* brush) const;
         };
     }
