@@ -50,16 +50,16 @@ namespace TrenchBroom {
         public:
             Assets::TextureCollection* loadTextureCollection(const Path& path, const String& textureExtension, const TextureReader& textureReader);
         private:
-            virtual MappedFile::List doFindTextures(const Path& path, const String& extension) = 0;
+            virtual MappedFile::Array doFindTextures(const Path& path, const String& extension) = 0;
         };
         
         class FileTextureCollectionLoader : public TextureCollectionLoader {
         private:
-            const Path::List m_searchPaths;
+            const Path::Array m_searchPaths;
         public:
-            FileTextureCollectionLoader(const Path::List& searchPaths);
+            FileTextureCollectionLoader(const Path::Array& searchPaths);
         private:
-            MappedFile::List doFindTextures(const Path& path, const String& extension);
+            MappedFile::Array doFindTextures(const Path& path, const String& extension);
         };
         
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(const FileSystem& gameFS);
         private:
-            MappedFile::List doFindTextures(const Path& path, const String& extension);
+            MappedFile::Array doFindTextures(const Path& path, const String& extension);
         };
     }
 }
