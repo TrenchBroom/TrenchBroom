@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const AttributableNodeList& attributables) {
+        Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const AttributableNodeArray& attributables) {
             Assets::EntityDefinition* definition = NULL;
             
             for (AttributableNode* attributable : attributables) {
@@ -38,9 +38,9 @@ namespace TrenchBroom {
             return definition;
         }
         
-        const Assets::AttributeDefinition* AttributableNode::selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables) {
-            AttributableNodeList::const_iterator it = std::begin(attributables);
-            AttributableNodeList::const_iterator end = std::end(attributables);
+        const Assets::AttributeDefinition* AttributableNode::selectAttributeDefinition(const AttributeName& name, const AttributableNodeArray& attributables) {
+            AttributableNodeArray::const_iterator it = std::begin(attributables);
+            AttributableNodeArray::const_iterator end = std::end(attributables);
             if (it == end)
                 return NULL;
             
@@ -63,8 +63,8 @@ namespace TrenchBroom {
         }
         
         AttributeValue AttributableNode::selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables) {
-            AttributableNodeList::const_iterator it = std::begin(attributables);
-            AttributableNodeList::const_iterator end = std::end(attributables);
+            AttributableNodeArray::const_iterator it = std::begin(attributables);
+            AttributableNodeArray::const_iterator end = std::end(attributables);
             if (it == end)
                 return "";
             
@@ -342,15 +342,15 @@ namespace TrenchBroom {
             addToIndex(this, newName, newValue);
         }
         
-        const AttributableNodeList& AttributableNode::linkSources() const {
+        const AttributableNodeArray& AttributableNode::linkSources() const {
             return m_linkSources;
         }
         
-        const AttributableNodeList& AttributableNode::linkTargets() const {
+        const AttributableNodeArray& AttributableNode::linkTargets() const {
             return m_linkTargets;
         }
         
-        const AttributableNodeList& AttributableNode::killSources() const {
+        const AttributableNodeArray& AttributableNode::killSources() const {
             return m_killSources;
         }
         
