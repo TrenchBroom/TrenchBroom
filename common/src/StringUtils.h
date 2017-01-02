@@ -361,7 +361,7 @@ namespace StringUtils {
     }
     
     StringArray splitAndUnescape(const String& str, char d);
-    String escapeAndJoin(const StringList& strs, char d);
+    String escapeAndJoin(const StringArray& strs, char d);
     
     struct StringToString {
         const String& operator()(const String& str) const {
