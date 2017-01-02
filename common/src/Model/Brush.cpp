@@ -102,13 +102,13 @@ namespace TrenchBroom {
             bool m_brushEmpty;
             bool m_brushValid;
         public:
-            AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
+            AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceArray& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false),
             m_brushValid(true) {
                 HealEdgesCallback healCallback;
 
-                BrushFaceList::const_iterator it, end;
+                BrushFaceArray::const_iterator it, end;
                 for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     BrushFace* face = *it;
                     AddFaceToGeometryCallback addCallback(face);
@@ -165,12 +165,12 @@ namespace TrenchBroom {
             bool m_hasRedundandFaces;
             bool m_brushEmpty;
         public:
-            CanMoveBoundary(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
+            CanMoveBoundary(BrushGeometry& geometry, const BrushFaceArray& facesToAdd) :
             m_geometry(geometry),
             m_hasDroppedFaces(false),
             m_hasRedundandFaces(false),
             m_brushEmpty(false) {
-                BrushFaceList::const_iterator it, end;
+                BrushFaceArray::const_iterator it, end;
                 for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty; ++it) {
                     BrushFace* face = *it;
                     CanMoveBoundaryCallback callback(face);
@@ -199,13 +199,13 @@ namespace TrenchBroom {
 
         class Brush::MoveVerticesCallback : public BrushGeometry::Callback {
         private:
-            typedef std::map<Vec3, BrushFaceList> IncidenceMap;
+            typedef std::map<Vec3, BrushFaceArray> IncidenceMap;
             IncidenceMap m_incidences;
             
             typedef std::set<BrushFaceGeometry*> BrushFaceGeometrySet;
             
             BrushFaceGeometrySet m_addedGeometries;
-            BrushFaceList m_removedFaces;
+            BrushFaceArray m_removedFaces;
         public:
             template <typename I>
             MoveVerticesCallback(const BrushGeometry* geometry, I cur, I end, const Vec3& delta) {
@@ -241,8 +241,8 @@ namespace TrenchBroom {
                 } while (curVertex != firstVertex);
             }
             
-            BrushFaceList collectIncidentFaces(const BrushVertex* vertex) {
-                BrushFaceList result;
+            BrushFaceArray collectIncidentFaces(const BrushVertex* vertex) {
+                BrushFaceArray result;
                 BrushGeometry::HalfEdge* firstEdge = vertex->leaving();
                 BrushGeometry::HalfEdge* curEdge = firstEdge;
                 do {
@@ -330,7 +330,7 @@ namespace TrenchBroom {
                     const BrushGeometry::Vertex* origin = curEdge->origin();
                     const IncidenceMap::const_iterator iIt = m_incidences.find(origin->position());
                     if (iIt != std::end(m_incidences)) {
-                        const BrushFaceList& incidentFaces = iIt->second;
+                        const BrushFaceArray& incidentFaces = iIt->second;
                         for (BrushFace* curFace : incidentFaces) {
                             SharedIncidentFaceCounts::iterator qIt = result.find(curFace);
                             if (qIt == std::end(result))
@@ -365,7 +365,7 @@ namespace TrenchBroom {
         };
         
 
-        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
+        Brush::Brush(const BBox3& worldBounds, const BrushFaceArray& faces) :
         m_geometry(NULL),
         m_contentTypeBuilder(NULL),
         m_contentType(0),
@@ -455,11 +455,11 @@ namespace TrenchBroom {
             return m_faces.size();
         }
 
-        const BrushFaceList& Brush::faces() const {
+        const BrushFaceArray& Brush::faces() const {
             return m_faces;
         }
 
-        void Brush::setFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
+        void Brush::setFaces(const BBox3& worldBounds, const BrushFaceArray& faces) {
             const NotifyNodeChange nodeChange(this);
             detachFaces(m_faces);
             VectorUtils::clearAndDelete(m_faces);
@@ -481,7 +481,7 @@ namespace TrenchBroom {
             invalidateContentType();
         }
 
-        void Brush::addFaces(const BrushFaceList& faces) {
+        void Brush::addFaces(const BrushFaceArray& faces) {
             addFaces(std::begin(faces), std::end(faces), faces.size());
         }
 
@@ -501,17 +501,17 @@ namespace TrenchBroom {
             m_faces.erase(doRemoveFace(std::begin(m_faces), std::end(m_faces), face), std::end(m_faces));
         }
 
-        BrushFaceList::iterator Brush::doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face) {
+        BrushFaceArray::iterator Brush::doRemoveFace(BrushFaceArray::iterator begin, BrushFaceArray::iterator end, BrushFace* face) {
             ensure(face != NULL, "face is null");
 
-            BrushFaceList::iterator it = std::remove(begin, end, face);
+            BrushFaceArray::iterator it = std::remove(begin, end, face);
             ensure(it != std::end(m_faces), "face to remove not found");
             detachFace(face);
             return it;
         }
 
-        void Brush::detachFaces(const BrushFaceList& faces) {
-            BrushFaceList::const_iterator it, end;
+        void Brush::detachFaces(const BrushFaceArray& faces) {
+            BrushFaceArray::const_iterator it, end;
             for (it = std::begin(faces), end = std::end(faces); it != end; ++it)
                 detachFace(*it);
         }
@@ -526,7 +526,7 @@ namespace TrenchBroom {
             invalidateContentType();
         }
         
-        void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
+        void Brush::cloneFaceAttributesFrom(const BrushArray& brushes) {
             for (const Brush* brush : brushes)
                 cloneFaceAttributesFrom(brush);
         }
@@ -539,7 +539,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Brush::cloneInvertedFaceAttributesFrom(const BrushList& brushes) {
+        void Brush::cloneInvertedFaceAttributesFrom(const BrushArray& brushes) {
             for (const Brush* brush : brushes)
                 cloneInvertedFaceAttributesFrom(brush);
         }
@@ -569,7 +569,7 @@ namespace TrenchBroom {
             BrushFace* testFace = face->clone();
             testFace->transform(translationMatrix(delta), false);
             
-            BrushFaceList testFaces;
+            BrushFaceArray testFaces;
             testFaces.push_back(testFace);
             
             for (BrushFace* brushFace : m_faces) {
@@ -683,8 +683,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        BrushFaceList Brush::incidentFaces(const BrushVertex* vertex) const {
-            BrushFaceList result;
+        BrushFaceArray Brush::incidentFaces(const BrushVertex* vertex) const {
+            BrushFaceArray result;
             result.reserve(m_faces.size());
 
             BrushHalfEdge* first = vertex->leaving();
@@ -1003,10 +1003,10 @@ namespace TrenchBroom {
             nodeBoundsDidChange();
         }
 
-        BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
+        BrushArray Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
             const BrushGeometry::SubtractResult result = m_geometry->subtract(*subtrahend->m_geometry);
             
-            BrushList brushes(0);
+            BrushArray brushes(0);
             brushes.reserve(result.size());
             
             for (const BrushGeometry& geometry : result) {
@@ -1025,7 +1025,7 @@ namespace TrenchBroom {
         }
 
         Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
-            BrushFaceList faces(0);
+            BrushFaceArray faces(0);
             faces.reserve(geometry.faceCount());
             
             for (const BrushFaceGeometry* face : geometry.faces()) {
@@ -1163,7 +1163,7 @@ namespace TrenchBroom {
         }
 
         Node* Brush::doClone(const BBox3& worldBounds) const {
-            BrushFaceList faceClones;
+            BrushFaceArray faceClones;
             faceClones.reserve(m_faces.size());
             
             for (const BrushFace* face : m_faces)
@@ -1195,7 +1195,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void Brush::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Brush::doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {
             generator->generate(this, issues);
         }
 
@@ -1216,7 +1216,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Brush::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void Brush::doFindNodesContaining(const Vec3& point, NodeArray& result) {
             if (containsPoint(point))
                 result.push_back(this);
         }
