@@ -31,8 +31,8 @@ namespace TrenchBroom {
             virtual ~BrushFaceEvaluator() {}
         private:
             bool doEvaluate(const Brush* brush) const {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
+                const Model::BrushFaceArray& faces = brush->faces();
+                Model::BrushFaceArray::const_iterator it, end;
                 for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
                     const Model::BrushFace* face = *it;
                     if (!doEvaluate(face))
