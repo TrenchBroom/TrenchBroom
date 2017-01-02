@@ -53,31 +53,31 @@ namespace TrenchBroom {
             struct Md2Skin {
                 char name[Md2Layout::SkinNameLength];
             };
-            typedef std::vector<Md2Skin> Md2SkinList;
+            typedef std::vector<Md2Skin> Md2SkinArray;
             
             struct Md2Vertex {
                 unsigned char x, y, z;
                 unsigned char normalIndex;
             };
-            typedef std::vector<Md2Vertex> Md2VertexList;
+            typedef std::vector<Md2Vertex> Md2VertexArray;
             
             struct Md2Frame {
                 Vec3f scale;
                 Vec3f offset;
                 char name[Md2Layout::FrameNameLength];
-                Md2VertexList vertices;
+                Md2VertexArray vertices;
                 
                 Md2Frame(size_t vertexCount);
                 Vec3f vertex(size_t index) const;
                 const Vec3f& normal(size_t index) const;
             };
-            typedef std::vector<Md2Frame> Md2FrameList;
+            typedef std::vector<Md2Frame> Md2FrameArray;
 
             struct Md2MeshVertex {
                 Vec2f texCoords;
                 size_t vertexIndex;
             };
-            typedef std::vector<Md2MeshVertex> Md2MeshVertexList;
+            typedef std::vector<Md2MeshVertex> Md2MeshVertexArray;
             
             struct Md2Mesh {
                 enum Type {
@@ -87,11 +87,11 @@ namespace TrenchBroom {
                 
                 Type type;
                 size_t vertexCount;
-                Md2MeshVertexList vertices;
+                Md2MeshVertexArray vertices;
                 
                 Md2Mesh(int i_vertexCount);
             };
-            typedef std::vector<Md2Mesh> Md2MeshList;
+            typedef std::vector<Md2Mesh> Md2MeshArray;
             
             
             String m_name;
@@ -103,15 +103,15 @@ namespace TrenchBroom {
             Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel();
-            Md2SkinList parseSkins(const char* begin, const size_t skinCount);
-            Md2FrameList parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount);
-            Md2MeshList parseMeshes(const char* begin, const size_t commandCount);
-            Assets::EntityModel* buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes);
-            Assets::TextureList loadTextures(const Md2SkinList& skins);
+            Md2SkinArray parseSkins(const char* begin, const size_t skinCount);
+            Md2FrameArray parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount);
+            Md2MeshArray parseMeshes(const char* begin, const size_t commandCount);
+            Assets::EntityModel* buildModel(const Md2SkinArray& skins, const Md2FrameArray& frames, const Md2MeshArray& meshes);
+            Assets::TextureArray loadTextures(const Md2SkinArray& skins);
             Assets::Texture* readTexture(const Md2Skin& skin);
-            Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes);
-            Assets::Md2Model::Frame* buildFrame(const Md2Frame& frame, const Md2MeshList& meshes);
-            Assets::Md2Model::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
+            Assets::Md2Model::FrameArray buildFrames(const Md2FrameArray& frames, const Md2MeshArray& meshes);
+            Assets::Md2Model::Frame* buildFrame(const Md2Frame& frame, const Md2MeshArray& meshes);
+            Assets::Md2Model::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexArray& meshVertices) const;
         };
     }
 }
