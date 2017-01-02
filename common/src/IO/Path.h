@@ -85,7 +85,7 @@ namespace TrenchBroom {
             Path makeCanonical() const;
             Path makeLowerCase() const;
             
-            static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
+            static Array makeAbsoluteAndCanonical(const Array& paths, const String& relativePath);
         private:
             static bool hasDriveSpec(const StringArray& components);
             static bool hasDriveSpec(const String& component);
