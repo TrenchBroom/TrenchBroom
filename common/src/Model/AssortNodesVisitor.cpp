@@ -21,32 +21,32 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const LayerList& CollectLayersStrategy::layers() const { return m_layers; }
+        const LayerArray& CollectLayersStrategy::layers() const { return m_layers; }
         void CollectLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) { m_layers.push_back(layer); }
 
-        const LayerList& SkipLayersStrategy::layers() const { return EmptyLayerList; }
+        const LayerArray& SkipLayersStrategy::layers() const { return EmptyLayerList; }
         void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) {}
         
 
-        const GroupList& CollectGroupsStrategy::groups() const { return m_groups; }
+        const GroupArray& CollectGroupsStrategy::groups() const { return m_groups; }
         void CollectGroupsStrategy::addGroup(Group* group) { m_groups.push_back(group); }
     
-        const GroupList& SkipGroupsStrategy::groups() const { return EmptyGroupList; }
+        const GroupArray& SkipGroupsStrategy::groups() const { return EmptyGroupList; }
         void SkipGroupsStrategy::addGroup(Group* group) {}
 
         
-        const EntityList& CollectEntitiesStrategy::entities() const { return m_entities; }
+        const EntityArray& CollectEntitiesStrategy::entities() const { return m_entities; }
         void CollectEntitiesStrategy::addEntity(Entity* entity) { m_entities.push_back(entity); }
         
-        const EntityList& SkipEntitiesStrategy::entities() const { return EmptyEntityList; }
+        const EntityArray& SkipEntitiesStrategy::entities() const { return EmptyEntityList; }
         void SkipEntitiesStrategy::addEntity(Entity* entity) {}
 
         
-        const BrushList& CollectBrushesStrategy::brushes() const { return m_brushes; }
+        const BrushArray& CollectBrushesStrategy::brushes() const { return m_brushes; }
         void CollectBrushesStrategy::addBrush(Brush* brush) { m_brushes.push_back(brush); }
 
 
-        const BrushList& SkipBrushesStrategy::brushes() const { return EmptyBrushList; }
+        const BrushArray& SkipBrushesStrategy::brushes() const { return EmptyBrushList; }
         void SkipBrushesStrategy::addBrush(Brush* brush) {}
     }
 }
