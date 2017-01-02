@@ -47,6 +47,7 @@ namespace TrenchBroom {
         private:
             TexCoordSystem* doClone() const;
             TexCoordSystemSnapshot* doTakeSnapshot();
+            void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot);
 
             Vec3 getXAxis() const;
             Vec3 getYAxis() const;

@@ -698,7 +698,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, const Vec3& delta) const {
-            return doCanMoveVertices(worldBounds, vertices, delta, true);
+            return doCanMoveVertices(worldBounds, vertices, delta, true).success;
         }
         
         Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
@@ -827,12 +827,22 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 
             const Vec3::List vertexPositions = Edge3::asVertexList(edgePositions);
-            return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            const CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+
+            if (!result.success)
+                return false;
+            
+            for (const Edge3& edge : edgePositions) {
+                if (!result.geometry.hasEdge(edge.start() + delta, edge.end() + delta))
+                    return false;
+            }
+            
+            return true;
         }
         
         Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
@@ -861,12 +871,22 @@ namespace TrenchBroom {
             return addVertex(worldBounds, edgePosition.center() + delta)->position();
         }
 
-        bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+        bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) const {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
             
             const Vec3::List vertexPositions = Polygon3::asVertexList(facePositions);
-            return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            const CanMoveVerticesResult result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+            
+            if (!result.success)
+                return false;
+            
+            for (const Polygon3& face : facePositions) {
+                if (!result.geometry.hasFace(face.vertices() + delta))
+                    return false;
+            }
+            
+            return true;
         }
         
         Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
@@ -894,7 +914,17 @@ namespace TrenchBroom {
         Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
             return addVertex(worldBounds, facePosition.center() + delta)->position();
         }
-       
+        
+        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, const BrushGeometry& g) : success(s), geometry(g) {}
+        
+        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove() {
+            return CanMoveVerticesResult(false, BrushGeometry());
+        }
+        
+        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(const BrushGeometry& result) {
+            return CanMoveVerticesResult(true, result);
+        }
+        
         /*
          The following table shows all cases to consider.
          
@@ -916,52 +946,66 @@ namespace TrenchBroom {
          ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a polyhedron.
          no     - This case is always forbidden.
          invert - This case is handled by swapping the remaining and the moving fragments and inverting the delta. This takes us from a cell at (column, row) to the cell at (row, column).
-         check  - Check whether any of the moved vertices would travel into or through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+         check  - Check whether any of the moved vertices would travel through the remaining fragment, or vice versa if inverted case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+         
+         If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
+         
          */
-        bool Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
+        Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
             if (vertices.empty() || delta.null())
-                return false;
-            
-            // Special case, takes care of the first column.
-            if (vertices.size() == vertexCount())
-                return true;
-            
+                return CanMoveVerticesResult::rejectVertexMove();
+
             const Vec3::Set vertexSet(std::begin(vertices), std::end(vertices));
-            BrushGeometry remaining;
-            BrushGeometry moving;
-            BrushGeometry result;
             
+            // Start with a copy of m_geometry, then remove the vertices that are moving.
+            //
+            // Adding vertices to an empty BrushGeometry could be dangerous, if the remaining portion is just a polygon.
+            // The order in which vertices are added would determine the polygon normal, which could be wrong.
+            BrushGeometry remaining(*m_geometry);
+            for (Vec3 movingPosition : vertexSet) {
+                remaining.removeVertexByPosition(movingPosition);
+            }
+            
+            BrushGeometry moving(*m_geometry);
+            BrushGeometry result;
             for (const BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& position = vertex->position();
                 if (vertexSet.count(position) == 0) {
-                    remaining.addPoint(position);
+                    moving.removeVertexByPosition(position);
                     result.addPoint(position);
                 } else {
-                    moving.addPoint(position);
                     result.addPoint(position + delta);
                 }
             }
             
-            assert(moving.vertexCount() == vertices.size());
             assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
             
+            // Special case, takes care of the first column.
+            if (moving.vertexCount() == vertexCount())
+                return CanMoveVerticesResult::acceptVertexMove(result);
+            
             // Will vertices be removed?
-            if (!allowVertexRemoval && result.vertexCount() < m_geometry->vertexCount())
-                return false;
+            if (!allowVertexRemoval) {
+                // All moving vertices must still be present in the result
+                for (const Vec3& movingVertex : moving.vertexPositions()) {
+                    if (!result.hasVertex(movingVertex + delta))
+                        return CanMoveVerticesResult::rejectVertexMove();
+                }
+            }
             
             // Will the result go out of world bounds?
             if (!worldBounds.contains(result.bounds()))
-                return false;
+                return CanMoveVerticesResult::rejectVertexMove();
             
             // Will the brush become invalid?
             if (!result.polyhedron())
-                return false;
+                return CanMoveVerticesResult::rejectVertexMove();
             
             // One of the remaining two ok cases?
             if ((moving.point() && remaining.polygon()) ||
                 (moving.edge() && remaining.edge()))
-                return true;
+                return CanMoveVerticesResult::acceptVertexMove(result);
             
             // Invert if necessary.
             if (remaining.point() || remaining.edge() || (remaining.polygon() && moving.polyhedron())) {
@@ -969,27 +1013,24 @@ namespace TrenchBroom {
                 swap(remaining, moving);
                 delta = -delta;
             }
-            
-            // Now check if any of the moving vertices would travel into or through the remaining fragment.
+
+            // Now check if any of the moving vertices would travel through the remaining fragment and out the other side.
             for (const BrushVertex* vertex : moving.vertices()) {
                 const Vec3& oldPos = vertex->position();
                 const Vec3 newPos = oldPos + delta;
-                
+
                 for (const BrushFaceGeometry* face : remaining.faces()) {
-                    if (face->pointStatus(oldPos) == Math::PointStatus::PSAbove &&
-                        face->pointStatus(newPos) == Math::PointStatus::PSBelow) {
+                    if (face->pointStatus(oldPos) == Math::PointStatus::PSBelow &&
+                        face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
                         const Ray3 ray(oldPos, (newPos - oldPos).normalized());
-                        const FloatType distance = face->intersectWithRay(ray, Math::Side_Front);
-                        if (!Math::isnan(distance)) {
-                            const FloatType distance2 = distance * distance;
-                            if (distance2 <= ray.squaredDistanceToPoint(newPos).rayDistance)
-                                return false;
-                        }
+                        const FloatType distance = face->intersectWithRay(ray, Math::Side_Back);
+                        if (!Math::isnan(distance))
+                            return CanMoveVerticesResult::rejectVertexMove();
                     }
                 }
             }
             
-            return true;
+            return CanMoveVerticesResult::acceptVertexMove(result);
         }
 
         void Brush::doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {

@@ -21,6 +21,7 @@
 #define TrenchBroom_Macros_h
 
 #include "Exceptions.h"
+#include "Ensure.h"
 
 // This macro is used to silence compiler warnings about unused variables. These are usually only used in assertions
 // and thus may become unused in release builds.
@@ -37,11 +38,5 @@
 #define assertResult(funexp) if (!(funexp)) assert(false);
 
 #define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
-
-// These are ugly but necessary to stringify an expression, see: https://en.wikipedia.org/wiki/C_preprocessor#Token_stringification
-#define stringification(expression) #expression
-#define stringification2(expression) stringification(expression)
-
-#define ensure(condition, message) do { if (!(condition)) { throw TrenchBroom::ConditionFailedException(__FILE__, __LINE__, stringification2(condition), message); } } while (0)
 
 #endif

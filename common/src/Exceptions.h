@@ -24,24 +24,17 @@
 #include <string>
 #include <sstream>
 
-#include "TrenchBroomStackWalker.h"
-
 namespace TrenchBroom {
     
     class Exception : public std::exception {
     protected:
         std::string m_msg;
-        std::string m_trace;
     public:
-        Exception() noexcept : m_trace(TrenchBroomStackWalker::getStackTrace()) {}
-        Exception(const std::string& str) noexcept : m_msg(str), m_trace(TrenchBroomStackWalker::getStackTrace()) {}
+        Exception() noexcept {}
+        Exception(const std::string& str) noexcept : m_msg(str) {}
 
         const char* what() const noexcept {
             return m_msg.c_str();
-        }
-        
-        const std::string stackTrace() {
-            return m_trace;
         }
     };
     
@@ -149,15 +142,6 @@ namespace TrenchBroom {
     public:
         FileFormatException() noexcept {}
         FileFormatException(const std::string& str) noexcept : ExceptionStream(str) {}
-    };
-
-    class ConditionFailedException : public ExceptionStream<ConditionFailedException> {
-    public:
-        ConditionFailedException() noexcept {}
-        ConditionFailedException(const std::string& str) noexcept : ExceptionStream(str) {}
-        ConditionFailedException(const char *file, const int line, const char *condition, const std::string& message) noexcept : ExceptionStream() {
-            *this << file << ":" << line << ": Condition '" << condition << "' failed: " << message;
-        }
     };
 }
 

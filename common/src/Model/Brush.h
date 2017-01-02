@@ -168,18 +168,31 @@ namespace TrenchBroom {
             void snapVertices(const BBox3& worldBounds, size_t snapTo);
 
             // edge operations
-            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const;
             Edge3::List moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
             bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             Vec3 splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             
             // face operations
-            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) const;
             Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
-            bool doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
+            struct CanMoveVerticesResult {
+            public:
+                bool success;
+                BrushGeometry geometry;
+                
+            private:
+                CanMoveVerticesResult(bool s, const BrushGeometry& g);
+                
+            public:
+                static CanMoveVerticesResult rejectVertexMove();
+                static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
+            };
+            
+            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
         public:
             // CSG operations

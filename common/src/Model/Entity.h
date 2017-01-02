@@ -42,7 +42,9 @@ namespace TrenchBroom {
         public:
             Entity();
             
+            bool brushEntity() const;
             bool pointEntity() const;
+
             Vec3 origin() const;
             Mat4x4 rotation() const;
             FloatType area(Math::Axis::Type axis) const;

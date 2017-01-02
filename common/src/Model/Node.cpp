@@ -494,6 +494,14 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Node::anyChildVisible() const {
+            return std::any_of(std::begin(m_children), std::end(m_children), [](const Node* node) { return node->visible(); });
+        }
+        
+        bool Node::anyChildHidden() const {
+            return std::any_of(std::begin(m_children), std::end(m_children), [](const Node* node) { return node->hidden(); });
+        }
+
         bool Node::editable() const {
             switch (m_lockState) {
                 case Lock_Inherited:

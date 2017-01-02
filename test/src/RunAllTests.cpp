@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
 
     wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
     wxApp::SetInstance(pApp);
+    TrenchBroom::View::setCrashReportGUIEnbled(false);
     ensure(wxEntryStart(argc, argv), "wxWidgets initialization failed");
 
     ensure(wxApp::GetInstance() == pApp, "invalid app instance");

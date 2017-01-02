@@ -19,10 +19,13 @@
 
 #include "TestGame.h"
 
+#include "EL/VariableStore.h"
 #include "IO/BrushFaceReader.h"
+#include "IO/DiskFileSystem.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TextureLoader.h"
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
@@ -88,7 +91,22 @@ namespace TrenchBroom {
             return TP_File;
         }
         
-        void TestGame::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {}
+        void TestGame::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            const EL::NullVariableStore variables;
+            const IO::Path::List paths = extractTextureCollections(world);
+            
+            const IO::Path root = IO::Disk::getCurrentWorkingDir();
+            const IO::Path::List fileSearchPaths{ root };
+            const IO::DiskFileSystem fileSystem(root, true);
+            
+            const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
+                                                          GameConfig::PackageFormatConfig("D", "idmip"),
+                                                          IO::Path("data/palette.lmp"),
+                                                          "wad");
+            
+            IO::TextureLoader textureLoader(variables, fileSystem, fileSearchPaths, textureConfig);
+            textureLoader.loadTextures(paths, textureManager);
+        }
         
         bool TestGame::doIsTextureCollection(const IO::Path& path) const {
             return false;
@@ -99,10 +117,19 @@ namespace TrenchBroom {
         }
         
         IO::Path::List TestGame::doExtractTextureCollections(const World* world) const {
-            return IO::Path::List();
+            ensure(world != NULL, "world is null");
+            
+            const AttributeValue& pathsValue = world->attribute("wad");
+            if (pathsValue.empty())
+                return IO::Path::List(0);
+            
+            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
         
-        void TestGame::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {}
+        void TestGame::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
+            const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            world->addOrUpdateAttribute("wad", value);
+        }
         
         bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
             return false;

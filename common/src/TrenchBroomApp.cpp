@@ -25,6 +25,7 @@
 #include "GLInit.h"
 #include "Macros.h"
 #include "TrenchBroomAppTraits.h"
+#include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
@@ -332,13 +333,19 @@ namespace TrenchBroom {
             return testCrashLogPath.asString();
         }
         
-        static void reportCrashAndExit(const String &stacktrace, const String &reason) {
-            static bool inFunction = false;
+        static bool inReportCrashAndExit = false;
+        static bool crashReportGuiEnabled = true;
+
+        void setCrashReportGUIEnbled(const bool guiEnabled) {
+            crashReportGuiEnabled = guiEnabled;
+        }
+
+        void reportCrashAndExit(const String &stacktrace, const String &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-            if (inFunction) {
+            if (inReportCrashAndExit) {
                 wxAbort();
             }
-            inFunction = true;
+            inReportCrashAndExit = true;
             
             // get the crash report as a string
             String report = makeCrashReport(stacktrace, reason);
@@ -350,26 +357,32 @@ namespace TrenchBroom {
             std::ofstream logStream(logPath.asString().c_str());
             logStream << report;
             logStream.close();
-            std::cout << "wrote crash log to " << logPath.asString() << std::endl;
+            std::cerr << "wrote crash log to " << logPath.asString() << std::endl;
             
             // save the map
             MapDocumentSPtr doc = topDocument();
             if (doc) {
                 doc->saveDocumentTo(mapPath);
-                std::cout << "wrote map to " << mapPath.asString() << std::endl;
+                std::cerr << "wrote map to " << mapPath.asString() << std::endl;
             } else {
                 mapPath = IO::Path();
             }
 
             // write the crash log to stdout
-            std::cout << "crash log:" << std::endl;
-            std::cout << report << std::endl;
+            std::cerr << "crash log:" << std::endl;
+            std::cerr << report << std::endl;
 
-            CrashDialog dialog;
-            dialog.Create(logPath, mapPath);
-            dialog.ShowModal();
+            if (crashReportGuiEnabled) {
+                CrashDialog dialog;
+                dialog.Create(logPath, mapPath);
+                dialog.ShowModal();
+            }
             
             wxAbort();
+        }
+
+        bool isReportingCrash() {
+            return inReportCrashAndExit;
         }
         
         void TrenchBroomApp::OnUnhandledException() {
@@ -397,7 +410,7 @@ namespace TrenchBroom {
                 throw;
             } catch (Exception& e) {
                 const String reason = String("Exception: ") + e.what();
-                reportCrashAndExit(e.stackTrace(), reason);
+                reportCrashAndExit("", reason);
             } catch (std::exception& e) {
                 const String reason = String("std::exception: ") + e.what();
                 reportCrashAndExit("", reason);

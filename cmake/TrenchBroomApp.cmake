@@ -13,15 +13,15 @@ SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
 
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
-	# Configure icons
+    # Configure icons
     SET(MACOSX_ICON_FILES "${APP_DIR}/resources/mac/icons/AppIcon.icns" "${APP_DIR}/resources/mac/icons/DocIcon.icns")
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_ICON_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/)
 
-	# Configure button bitmaps etc.
-	FILE(GLOB_RECURSE MACOSX_IMAGE_FILES
+    # Configure button bitmaps etc.
+    FILE(GLOB_RECURSE MACOSX_IMAGE_FILES
         "${APP_DIR}/resources/graphics/images/*.png"
-	)
+    )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images/)
 
@@ -31,23 +31,23 @@ IF(APPLE)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts/)
 
-	# Configure game resources
-	# Collect all game resources
-	FILE(GLOB_RECURSE MACOSX_QUAKE_FILES
+    # Configure game resources
+    # Collect all game resources
+    FILE(GLOB_RECURSE MACOSX_QUAKE_FILES
         "${APP_DIR}/resources/games/Quake/*.*"
-	)
+    )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake/)
 
-	FILE(GLOB_RECURSE MACOSX_QUAKE2_FILES
+    FILE(GLOB_RECURSE MACOSX_QUAKE2_FILES
         "${APP_DIR}/resources/games/Quake2/*.*"
-	)
+    )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE2_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2/)
 
-	FILE(GLOB_RECURSE MACOSX_HEXEN2_FILES
+    FILE(GLOB_RECURSE MACOSX_HEXEN2_FILES
         "${APP_DIR}/resources/games/Hexen2/*.*"
-	)
+    )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_HEXEN2_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_HEXEN2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Hexen2/)
 
@@ -57,19 +57,19 @@ IF(APPLE)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_DAIKATANA_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_DAIKATANA_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Daikatana/)
 
-	FILE(GLOB_RECURSE MACOSX_GAME_CONFIG_FILES
+    FILE(GLOB_RECURSE MACOSX_GAME_CONFIG_FILES
         "${APP_DIR}/resources/games/*.cfg"
-	)
+    )
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_GAME_CONFIG_FILES})
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/)
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_GAME_CONFIG_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/)
 
-	# Configure shaders
-	# Collect all shaders
-	FILE(GLOB_RECURSE MACOSX_SHADER_FILES
+    # Configure shaders
+    # Collect all shaders
+    FILE(GLOB_RECURSE MACOSX_SHADER_FILES
         "${APP_DIR}/resources/shader/*.fragsh"
         "${APP_DIR}/resources/shader/*.vertsh"
-	)
-	SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader/)
+    )
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader/)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure help files
@@ -96,6 +96,11 @@ IF (COMPILER_IS_MSVC)
 ENDIF()
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
+FIND_PACKAGE(Git)
+IF (NOT GIT_FOUND)
+    MESSAGE(WARNING "Could not find git")
+ENDIF()
+
 GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
 GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_BUILD_ID)
 GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
@@ -104,7 +109,6 @@ IF(NOT DEFINED APP_BUILD_CHANNEL)
 ENDIF()
 
 # Create the cmake script for generating the version information
-FIND_PACKAGE(Git)
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 ADD_CUSTOM_TARGET(GenerateVersion 
@@ -133,16 +137,16 @@ ENDIF()
 
 # Copy some Windows-specific resources
 IF(WIN32)
-	# Copy Windows icons to target dir
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
+    # Copy Windows icons to target dir
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
-	)
+    )
 
     # Copy DLLs to app directory
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
-	)
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
+    )
 
     # Copy application icon to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
@@ -169,25 +173,25 @@ ENDIF()
 
 # Set up the resources and DLLs for the executable
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
-	# Copy button images to resources directory
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+    # Copy button images to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/images"
-	)
+    )
 
     # Copy fonts to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/fonts" "$<TARGET_FILE_DIR:TrenchBroom>/fonts"
     )
 
-	# Copy game files to resources directory
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+    # Copy game files to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" "$<TARGET_FILE_DIR:TrenchBroom>/games"
-	)
+    )
 
-	# Copy shader files to resources directory
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+    # Copy shader files to resources directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/shader"
-	)
+    )
 
     # Copy help files to resource directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
@@ -326,10 +330,10 @@ ENDIF()
 INCLUDE(CPack)
 
 IF(WIN32)
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
 ELSE()
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
 ENDIF()
 

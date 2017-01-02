@@ -35,7 +35,7 @@ public:
         Link(Item* item):
         m_previous(item),
         m_next(item) {
-            ensure(item != NULL, "item is null");
+            ensure(item != nullptr, "item is null");
         }
         
         Item* previous() const {
@@ -47,12 +47,12 @@ public:
         }
     private:
         void setPrevious(Item* previous) {
-            ensure(previous != NULL, "previous is null");
+            ensure(previous != nullptr, "previous is null");
             m_previous = previous;
         }
         
         void setNext(Item* next) {
-            ensure(next != NULL, "next is null");
+            ensure(next != nullptr, "next is null");
             m_next = next;
         }
         
@@ -164,7 +164,7 @@ private:
         }
         
         ItemType& doGetItem() {
-            static ItemType null = NULL;
+            static ItemType null = nullptr;
             return null;
         }
     };
@@ -177,7 +177,7 @@ public:
         typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
         delegate* m_delegate;
     public:
-        iterator_base(delegate* delegate = NULL) : m_delegate(delegate) {}
+        iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
         iterator_base(const iterator_base& other) : m_delegate(other.m_delegate->clone()) {}
         ~iterator_base() { delete m_delegate; }
 
@@ -221,13 +221,13 @@ public:
         ItemType operator->() const { return m_delegate->item(); }
     private:
         int compare(const iterator_base& other) const {
-            ensure(m_delegate != NULL, "delegate is null");
-            ensure(other.m_delegate != NULL, "other delegate is null");
+            ensure(m_delegate != nullptr, "delegate is null");
+            ensure(other.m_delegate != nullptr, "other delegate is null");
             return m_delegate->compare(*other.m_delegate);
         }
         
         size_t index() const {
-            ensure(m_delegate != NULL, "delegate is null");
+            ensure(m_delegate != nullptr, "delegate is null");
             return m_delegate->index();
         }
     };
@@ -244,16 +244,16 @@ private:
 public:
     DoublyLinkedList() :
     m_getLink(),
-    m_head(NULL),
+    m_head(nullptr),
     m_size(0),
     m_version(0) {}
     
     DoublyLinkedList(DoublyLinkedList&& other) :
-    m_getLink(),
+    m_getLink(std::move(other.m_getLink)),
     m_head(other.m_head),
     m_size(other.m_size),
     m_version(other.m_version) {
-        other.m_head = NULL;
+        other.m_head = nullptr;
         other.m_size = 0;
         other.m_version += 1;
     }
@@ -275,13 +275,14 @@ public:
         m_head = other.m_head;
         m_size = other.m_size;
         m_version = other.m_version;
-        other.m_head = NULL;
+        other.m_head = nullptr;
         other.m_size = 0;
         other.m_version += 1;
     }
-private:
-    DoublyLinkedList(const DoublyLinkedList& other) {}
-    DoublyLinkedList& operator=(const DoublyLinkedList& other) {}
+public:
+    // Copying is not allowed since this is an intrusive list.
+    DoublyLinkedList(const DoublyLinkedList& other) = delete;
+    DoublyLinkedList& operator=(const DoublyLinkedList& other) = delete;
 public:
     bool empty() const {
         return m_size == 0;
@@ -325,9 +326,9 @@ public:
     }
     
     bool contains(const Item* item) const {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         
-        if (m_head == NULL)
+        if (m_head == nullptr)
             return false;
         
         Item* curItem = m_head;
@@ -350,9 +351,9 @@ public:
     }
     
     void append(Item* item, const size_t count) {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         
-        if (m_head == NULL) {
+        if (m_head == nullptr) {
             m_head = item;
             m_size += count;
             ++m_version;
@@ -364,18 +365,18 @@ public:
     }
     
     void insertBefore(Item* succ, Item* items, const size_t count) {
-        ensure(succ != NULL, "successor is null");
-        ensure(items != NULL, "items is null");
-        ensure(m_head != NULL, "head is null");
+        ensure(succ != nullptr, "successor is null");
+        ensure(items != nullptr, "items is null");
+        ensure(m_head != nullptr, "head is null");
         assert(contains(succ));
         
         insertAfter(succ->previous(), items, count);
     }
     
     void insertAfter(Item* pred, Item* items, const size_t count) {
-        ensure(pred != NULL, "predecessor is null");
-        ensure(items != NULL, "items is null");
-        ensure(m_head != NULL, "head is null");
+        ensure(pred != nullptr, "predecessor is null");
+        ensure(items != nullptr, "items is null");
+        ensure(m_head != nullptr, "head is null");
         assert(contains(pred));
 
         Item* first = items;
@@ -428,7 +429,7 @@ public:
         toLink.setNext(from);
         
         if (succ == from)
-            m_head = NULL;
+            m_head = nullptr;
         else
             m_head = succ;
         
@@ -454,14 +455,14 @@ public:
     }
 
     void clear() {
-        if (m_head != NULL) {
+        if (m_head != nullptr) {
             Item* item = m_head;
             while (item != m_head) {
                 Item* nextItem = next(item);
                 delete item;
                 item = nextItem;
             }
-            m_head = NULL;
+            m_head = nullptr;
             m_size = 0;
             ++m_version;
         }
@@ -469,30 +470,30 @@ public:
     }
 private:
     Item* next(Item* item) const {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         Link& link = getLink(item);
         return link.next();
     }
     
     Item* previous(Item* item) const {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         Link& link = getLink(item);
         return link.previous();
     }
     
     Item* getTail() const {
-        if (m_head == NULL)
-            return NULL;
+        if (m_head == nullptr)
+            return nullptr;
         return previous(m_head);
     }
     
     Link& getLink(Item* item) const {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         return m_getLink(item);
     }
     
     const Link& getLink(const Item* item) const {
-        ensure(item != NULL, "item is null");
+        ensure(item != nullptr, "item is null");
         return m_getLink(item);
     }
     
@@ -501,14 +502,14 @@ private:
     }
     
     bool checkLinks() const {
-        if (m_head == NULL)
+        if (m_head == nullptr)
             return true;
         
         const Item* item = m_head;
         do {
             const Link& link = getLink(item);
             const Item* next = link.next();
-            if (next == NULL)
+            if (next == nullptr)
                 return false;
             const Link& nextLink = getLink(next);
             if (nextLink.previous() != item)
@@ -519,7 +520,7 @@ private:
     }
     
     bool checkSize() const {
-        if (m_head == NULL)
+        if (m_head == nullptr)
             return m_size == 0;
 
         size_t size = 0;
