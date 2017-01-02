@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) :
+        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::Array& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) :
         m_variables(variables.clone()),
         m_gameFS(gameFS),
         m_fileSearchPaths(fileSearchPaths),
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtension, *m_textureReader);
         }
 
-        void TextureLoader::loadTextures(const Path::List& paths, Assets::TextureManager& textureManager) {
+        void TextureLoader::loadTextures(const Path::Array& paths, Assets::TextureManager& textureManager) {
             textureManager.setTextureCollections(paths, *this);
         }
     }
