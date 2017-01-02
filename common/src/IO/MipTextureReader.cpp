@@ -48,7 +48,7 @@ namespace TrenchBroom {
             static const size_t MipLevels = 4;
             
             static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
+            static Assets::TextureBuffer::Array buffers(MipLevels);
             static size_t offset[MipLevels];
             
             CharArrayReader reader(begin, end);
