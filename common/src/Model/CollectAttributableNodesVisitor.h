@@ -28,9 +28,9 @@ namespace TrenchBroom {
         class CollectAttributableNodesVisitor : public NodeVisitor {
         private:
             NodeSet m_addedNodes;
-            AttributableNodeList m_nodes;
+            AttributableNodeArray m_nodes;
         public:
-            const AttributableNodeList& nodes() const;
+            const AttributableNodeArray& nodes() const;
         private:
             void doVisit(World* world);
             void doVisit(Layer* layer);
