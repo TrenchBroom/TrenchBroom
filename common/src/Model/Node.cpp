@@ -70,15 +70,15 @@ namespace TrenchBroom {
             node->setLockState(m_lockState);
         }
         
-        NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        NodeArray Node::clone(const BBox3& worldBounds, const NodeArray& nodes) {
+            NodeArray clones;
             clones.reserve(nodes.size());
             clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
-        NodeList Node::cloneRecursively(const BBox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        NodeArray Node::cloneRecursively(const BBox3& worldBounds, const NodeArray& nodes) {
+            NodeArray clones;
             clones.reserve(nodes.size());
             cloneRecursively(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
-        bool Node::isAncestorOf(const NodeList& nodes) const {
+        bool Node::isAncestorOf(const NodeArray& nodes) const {
             return std::any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isAncestorOf(node); });
         }
 
@@ -116,8 +116,8 @@ namespace TrenchBroom {
             return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isDescendantOf(node); });
         }
 
-        NodeList Node::findDescendants(const NodeList& nodes) const {
-            NodeList result;
+        NodeArray Node::findDescendants(const NodeArray& nodes) const {
+            NodeArray result;
             std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [this](const Node* node) { return node->isDescendantOf(this); });
             return result;
         }
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return m_children.size();
         }
 
-        const NodeList& Node::children() const {
+        const NodeArray& Node::children() const {
             return m_children;
         }
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             return m_descendantCount + 1;
         }
 
-        void Node::addChildren(const NodeList& children) {
+        void Node::addChildren(const NodeArray& children) {
             addChildren(std::begin(children), std::end(children), children.size());
         }
 
@@ -527,7 +527,7 @@ namespace TrenchBroom {
             doPick(ray, pickResult);
         }
         
-        void Node::findNodesContaining(const Vec3& point, NodeList& result) {
+        void Node::findNodesContaining(const Vec3& point, NodeArray& result) {
             doFindNodesContaining(point, result);
         }
 
@@ -548,7 +548,7 @@ namespace TrenchBroom {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
 
-        const IssueList& Node::issues(const IssueGeneratorList& issueGenerators) {
+        const IssueArray& Node::issues(const IssueGeneratorArray& issueGenerators) {
             validateIssues(issueGenerators);
             return m_issues;
         }
@@ -564,7 +564,7 @@ namespace TrenchBroom {
                 m_hiddenIssues &= ~type;
         }
 
-        void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
+        void Node::validateIssues(const IssueGeneratorArray& issueGenerators) {
             if (!m_issuesValid) {
                 std::for_each(std::begin(issueGenerators), std::end(issueGenerators), [this](const IssueGenerator* generator) { doGenerateIssues(generator, m_issues); });
                 m_issuesValid = true;
@@ -580,11 +580,11 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_issues);
         }
 
-        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const {
             return doFindAttributableNodesWithAttribute(name, value, result);
         }
         
-        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const {
             return doFindAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
@@ -630,12 +630,12 @@ namespace TrenchBroom {
         void Node::doDescendantWillChange(Node* node) {}
         void Node::doDescendantDidChange(Node* node)  {}
 
-        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const {
             if (m_parent != NULL)
                 m_parent->findAttributableNodesWithAttribute(name, value, result);
         }
         
-        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const {
             if (m_parent != NULL)
                 m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
