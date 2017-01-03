@@ -33,7 +33,7 @@ build_script:
 
     if ($LastExitCode -ne 0) { throw "Building TrenchBroom failed" }
 
-    .\$buildtype\TrenchBroom-Test.exe
+    & ".\$buildtype\TrenchBroom-Test.exe"
 artifacts:
 - path: cmakebuild\*.7z
 deploy:
