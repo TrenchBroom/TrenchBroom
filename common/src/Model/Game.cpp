@@ -49,7 +49,7 @@ namespace TrenchBroom {
             doSetGamePath(gamePath);
         }
 
-        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths) {
+        void Game::setAdditionalSearchPaths(const IO::Path::Array& searchPaths) {
             doSetAdditionalSearchPaths(searchPaths);
         }
 
@@ -79,19 +79,19 @@ namespace TrenchBroom {
             doExportMap(world, format, path);
         }
 
-        NodeList Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeArray Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
         
-        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceArray Game::parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
-        void Game::writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void Game::writeNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const {
             doWriteNodesToStream(world, nodes, stream);
         }
     
-        void Game::writeBrushFacesToStream(World* world, const Model::BrushFaceList& faces, std::ostream& stream) const {
+        void Game::writeBrushFacesToStream(World* world, const Model::BrushFaceArray& faces, std::ostream& stream) const {
             doWriteBrushFacesToStream(world, faces, stream);
         }
     
@@ -107,16 +107,16 @@ namespace TrenchBroom {
             return doIsTextureCollection(path);
         }
 
-        IO::Path::List Game::findTextureCollections() const {
+        IO::Path::Array Game::findTextureCollections() const {
             return doFindTextureCollections();
         }
         
-        IO::Path::List Game::extractTextureCollections(const World* world) const {
+        IO::Path::Array Game::extractTextureCollections(const World* world) const {
             ensure(world != NULL, "world is null");
             return doExtractTextureCollections(world);
         }
         
-        void Game::updateTextureCollections(World* world, const IO::Path::List& paths) const {
+        void Game::updateTextureCollections(World* world, const IO::Path::Array& paths) const {
             ensure(world != NULL, "world is null");
             doUpdateTextureCollections(world, paths);
         }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             return doIsEntityDefinitionFile(path);
         }
 
-        Assets::EntityDefinitionFileSpec::List Game::allEntityDefinitionFiles() const {
+        Assets::EntityDefinitionFileSpec::Array Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return doExtractEntityDefinitionFile(world);
         }
         
-        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const {
             return doFindEntityDefinitionFile(spec, searchPaths);
         }
         
@@ -148,11 +148,11 @@ namespace TrenchBroom {
             return doBrushContentTypes();
         }
 
-        StringList Game::availableMods() const {
+        StringArray Game::availableMods() const {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const World* world) const {
+        StringArray Game::extractEnabledMods(const World* world) const {
             ensure(world != NULL, "world is null");
             return doExtractEnabledMods(world);
         }
