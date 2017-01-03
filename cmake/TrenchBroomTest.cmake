@@ -11,6 +11,8 @@ ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 TARGET_LINK_LIBRARIES(TrenchBroom-Test gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 IF (COMPILER_IS_MSVC)
     TARGET_LINK_LIBRARIES(TrenchBroom-Test stackwalker)
+    # Generate a small stripped PDB for release builds so we get stack traces with symbols
+    SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-Test-stripped.pdb /PDBALTPATH:TrenchBroom-Test-stripped.pdb")
 ENDIF()
 
 IF(WIN32)
