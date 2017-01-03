@@ -154,6 +154,11 @@ IF(WIN32)
     )
 ENDIF()
 
+# Generate a small stripped PDB for release builds so we get stack traces with symbols
+IF(COMPILER_IS_MSVC)
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-stripped.pdb /PDBALTPATH:TrenchBroom-stripped.pdb")
+ENDIF()
+
 # Properly link to OpenGL libraries on Unix-like systems
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     FIND_PACKAGE(OpenGL)
@@ -256,7 +261,7 @@ IF(WIN32)
                 DESTINATION . COMPONENT TrenchBroom)
         ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
             INSTALL(FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom-stripped.pdb # FIXME: This is a hack to get the PDB path
                 DESTINATION . COMPONENT TrenchBroom)
         ENDIF()
     ENDIF()
