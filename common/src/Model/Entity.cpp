@@ -167,7 +167,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Entity::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void Entity::doFindNodesContaining(const Vec3& point, NodeArray& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Entity::doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {
             generator->generate(this, issues);
         }
         
