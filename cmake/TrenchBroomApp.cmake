@@ -325,12 +325,3 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
-
-IF(WIN32)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
-ELSE()
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
-ENDIF()
-
