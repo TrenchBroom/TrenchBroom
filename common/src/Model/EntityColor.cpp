@@ -58,7 +58,7 @@ namespace TrenchBroom {
             }
         };
         
-        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
+        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeArray& attributables) {
             DetectColorRangeVisitor visitor(name);
             Node::accept(std::begin(attributables), std::end(attributables), visitor);
             return visitor.result();
@@ -70,7 +70,7 @@ namespace TrenchBroom {
         }
 
         wxColor parseEntityColor(const String& str) {
-            const StringList components = StringUtils::splitAndTrim(str, " ");
+            const StringArray components = StringUtils::splitAndTrim(str, " ");
             const Assets::ColorRange::Type range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 
