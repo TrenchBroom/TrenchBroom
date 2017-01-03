@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EmptyGroupIssueQuickFix() :
             IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->deleteObjects();
             }
         };
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyGroupIssueQuickFix());
         }
         
-        void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueList& issues) const {
+        void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueArray& issues) const {
             ensure(group != NULL, "group is null");
             if (!group->hasChildren())
                 issues.push_back(new EmptyGroupIssue(group));
