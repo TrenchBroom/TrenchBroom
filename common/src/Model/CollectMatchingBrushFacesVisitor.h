@@ -33,10 +33,10 @@ namespace TrenchBroom {
         class CollectMatchingBrushFacesVisitor : public NodeVisitor {
         private:
             P m_p;
-            BrushFaceList m_faces;
+            BrushFaceArray m_faces;
         public:
             CollectMatchingBrushFacesVisitor(const P& p = P()) : m_p(p) {}
-            const BrushFaceList& faces() const { return m_faces; }
+            const BrushFaceArray& faces() const { return m_faces; }
         private:
             void doVisit(World* world)   {}
             void doVisit(Layer* layer)   {}
