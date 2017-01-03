@@ -81,7 +81,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyAttributeValueIssueQuickFix());
         }
         
-        void EmptyAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void EmptyAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
                 if (attribute.value().empty())
                     issues.push_back(new EmptyAttributeValueIssue(node, attribute.name()));
