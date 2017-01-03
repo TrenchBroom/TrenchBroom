@@ -80,7 +80,7 @@ namespace TrenchBroom {
             }
         public:
             SimpleTokenizer(const String& str) :
-            Tokenizer<SimpleToken::Type>(str) {}
+            Tokenizer<SimpleToken::Type>(str, "") {}
         };
         
         TEST(TokenizerTest, simpleLanguageEmptyString) {

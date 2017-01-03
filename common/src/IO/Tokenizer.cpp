@@ -21,10 +21,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TokenizerState::TokenizerState(const char* begin, const char* end, const char escapeChar) :
+        TokenizerState::TokenizerState(const char* begin, const char* end, const String& escapableChars, const char escapeChar) :
         m_begin(begin),
         m_cur(m_begin),
         m_end(end),
+        m_escapableChars(escapableChars),
         m_escapeChar(escapeChar),
         m_line(1),
         m_column(1),
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         }
         
         bool TokenizerState::escaped() const {
-            return m_escaped;
+            return !eof() && m_escaped && m_escapableChars.find(curChar()) != String::npos;
         }
         
         bool TokenizerState::eof() const {

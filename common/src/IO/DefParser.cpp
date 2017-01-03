@@ -34,7 +34,7 @@ namespace TrenchBroom {
         Tokenizer(begin, end) {}
         
         DefTokenizer::DefTokenizer(const String& str) :
-        Tokenizer(str) {}
+        Tokenizer(str, "") {}
         
         const String DefTokenizer::WordDelims = " \t\n\r()[]{};,=";
         

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_skipEol(true) {}
         
         QuakeMapTokenizer::QuakeMapTokenizer(const String& str) :
-        Tokenizer(str),
+        Tokenizer(str, ""),
         m_skipEol(true) {}
         
         void QuakeMapTokenizer::setSkipEol(bool skipEol) {

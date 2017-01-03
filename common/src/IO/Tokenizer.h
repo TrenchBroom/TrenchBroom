@@ -57,12 +57,13 @@ namespace TrenchBroom {
             const char* m_begin;
             const char* m_cur;
             const char* m_end;
+            String m_escapableChars;
             char m_escapeChar;
             size_t m_line;
             size_t m_column;
             bool m_escaped;
         public:
-            TokenizerState(const char* begin, const char* end, char escapeChar);
+            TokenizerState(const char* begin, const char* end, const String& escapableChars, char escapeChar);
             
             size_t length() const;
             const char* begin() const;
@@ -125,11 +126,11 @@ namespace TrenchBroom {
                 return whitespace;
             }
         public:
-            Tokenizer(const char* begin, const char* end, const char escapeChar = 0) :
-            m_state(new TokenizerState(begin, end, escapeChar)) {}
+            Tokenizer(const char* begin, const char* end, const String& escapableChars, const char escapeChar = '\\') :
+            m_state(new TokenizerState(begin, end, escapableChars, escapeChar)) {}
 
-            Tokenizer(const String& str, const char escapeChar = 0) :
-            m_state(new TokenizerState(str.c_str(), str.c_str() + str.size(), escapeChar)) {}
+            Tokenizer(const String& str, const String& escapableChars, const char escapeChar = '\\') :
+            m_state(new TokenizerState(str.c_str(), str.c_str() + str.size(), escapableChars, escapeChar)) {}
 
             template <typename OtherType>
             Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :

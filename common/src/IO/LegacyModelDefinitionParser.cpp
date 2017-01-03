@@ -29,7 +29,7 @@ namespace TrenchBroom {
         Tokenizer(begin, end) {}
         
         LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const String& str) :
-        Tokenizer(str) {}
+        Tokenizer(str, "") {}
         
         const String LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
         
