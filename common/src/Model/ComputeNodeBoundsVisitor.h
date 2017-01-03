@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void mergeWith(const BBox3& bounds);
         };
         
-        BBox3 computeBounds(const Model::NodeList& nodes);
+        BBox3 computeBounds(const Model::NodeArray& nodes);
         
         template <typename I>
         BBox3 computeBounds(I cur, I end) {
