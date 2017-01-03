@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables);
+        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeArray& attributables);
         
         const String convertEntityColor(const String& str, Assets::ColorRange::Type colorRange);
         wxColor parseEntityColor(const String& str);
