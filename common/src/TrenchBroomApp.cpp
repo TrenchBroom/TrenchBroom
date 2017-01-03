@@ -255,6 +255,12 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::OnInit() {
+#if defined(_WIN32)
+            // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
+            // See: https://github.com/kduske/TrenchBroom/issues/1605
+            wxStandardPaths::Get().DontIgnoreAppSubDir();
+#endif
+
             if (!wxApp::OnInit())
                 return false;
 
