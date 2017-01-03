@@ -253,7 +253,7 @@ IF(WIN32)
             STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
         
             INSTALL(FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
                 ${WIN_PDB_WX_core}
                 ${WIN_PDB_WX_base}
                 ${WIN_PDB_WX_adv}
@@ -261,7 +261,7 @@ IF(WIN32)
                 DESTINATION . COMPONENT TrenchBroom)
         ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
             INSTALL(FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom-stripped.pdb # FIXME: This is a hack to get the PDB path
+                "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
                 DESTINATION . COMPONENT TrenchBroom)
         ENDIF()
     ENDIF()
