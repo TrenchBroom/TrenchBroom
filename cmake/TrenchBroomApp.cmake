@@ -254,6 +254,10 @@ IF(WIN32)
                 ${WIN_PDB_WX_adv}
                 ${WIN_PDB_WX_gl}
                 DESTINATION . COMPONENT TrenchBroom)
+        ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+            INSTALL(FILES
+                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                DESTINATION . COMPONENT TrenchBroom)
         ENDIF()
     ENDIF()
 
