@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        BBox3 computeBounds(const Model::NodeList& nodes) {
+        BBox3 computeBounds(const Model::NodeArray& nodes) {
             return computeBounds(std::begin(nodes), std::end(nodes));
         }
     }
