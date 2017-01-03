@@ -132,6 +132,9 @@ namespace TrenchBroom {
         }
 
         MapFrame::~MapFrame() {
+            // Makes IsBeingDeleted() return true
+            SendDestroyEvent();
+
             m_mapView->deactivateTool();
             
             unbindObservers();
