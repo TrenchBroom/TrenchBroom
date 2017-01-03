@@ -27,12 +27,12 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationConfig {
         private:
-            CompilationProfile::List m_profiles;
+            CompilationProfile::Array m_profiles;
         public:
             mutable Notifier0 profilesDidChange;
         public:
             CompilationConfig();
-            CompilationConfig(const CompilationProfile::List& profiles);
+            CompilationConfig(const CompilationProfile::Array& profiles);
             CompilationConfig(const CompilationConfig& other);
             ~CompilationConfig();
             
