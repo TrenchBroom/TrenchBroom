@@ -33,15 +33,15 @@ namespace TrenchBroom {
         template <typename P>
         class CollectMatchingIssuesVisitor : public NodeVisitor {
         private:
-            const IssueGeneratorList& m_issueGenerators;
+            const IssueGeneratorArray& m_issueGenerators;
             P m_p;
-            IssueList m_issues;
+            IssueArray m_issues;
         public:
-            CollectMatchingIssuesVisitor(const IssueGeneratorList& issueGenerators, const P& p = P()) :
+            CollectMatchingIssuesVisitor(const IssueGeneratorArray& issueGenerators, const P& p = P()) :
             m_issueGenerators(issueGenerators),
             m_p(p) {}
             
-            const IssueList& issues() const {
+            const IssueArray& issues() const {
                 return m_issues;
             }
         private:
