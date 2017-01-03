@@ -66,7 +66,7 @@ namespace TrenchBroom {
             
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath);
-            void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            void setAdditionalSearchPaths(const IO::Path::Array& searchPaths);
             
             CompilationConfig& compilationConfig();
             
@@ -77,29 +77,29 @@ namespace TrenchBroom {
             void writeMap(World* world, const IO::Path& path) const;
             void exportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
-            NodeList parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
-            BrushFaceList parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            NodeArray parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            BrushFaceArray parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
 
-            void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
-            void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
+            void writeNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const;
+            void writeBrushFacesToStream(World* world, const BrushFaceArray& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
             void loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool isTextureCollection(const IO::Path& path) const;
-            IO::Path::List findTextureCollections() const;
-            IO::Path::List extractTextureCollections(const World* world) const;
-            void updateTextureCollections(World* world, const IO::Path::List& paths) const;
+            IO::Path::Array findTextureCollections() const;
+            IO::Path::Array extractTextureCollections(const World* world) const;
+            void updateTextureCollections(World* world, const IO::Path::Array& paths) const;
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
-            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
+            Assets::EntityDefinitionFileSpec::Array allEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const World* world) const;
-            IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
+            IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const;
         public: // brush content type
             const BrushContentTypeBuilder* brushContentTypeBuilder() const;
             const BrushContentType::List& brushContentTypes() const;
         public: // mods
-            StringList availableMods() const;
-            StringList extractEnabledMods(const World* world) const;
+            StringArray availableMods() const;
+            StringArray extractEnabledMods(const World* world) const;
             String defaultMod() const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             virtual const String& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
-            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
+            virtual void doSetAdditionalSearchPaths(const IO::Path::Array& searchPaths) = 0;
             
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
@@ -118,27 +118,27 @@ namespace TrenchBroom {
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             virtual void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const = 0;
             
-            virtual NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
-            virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
-            virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
-            virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
+            virtual NodeArray doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
+            virtual BrushFaceArray doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
+            virtual void doWriteNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const = 0;
+            virtual void doWriteBrushFacesToStream(World* world, const BrushFaceArray& faces, std::ostream& stream) const = 0;
             
             virtual TexturePackageType doTexturePackageType() const = 0;
             virtual void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-            virtual IO::Path::List doFindTextureCollections() const = 0;
-            virtual IO::Path::List doExtractTextureCollections(const World* world) const = 0;
-            virtual void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const = 0;
+            virtual IO::Path::Array doFindTextureCollections() const = 0;
+            virtual IO::Path::Array doExtractTextureCollections(const World* world) const = 0;
+            virtual void doUpdateTextureCollections(World* world, const IO::Path::Array& paths) const = 0;
             
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
-            virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
+            virtual Assets::EntityDefinitionFileSpec::Array doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const = 0;
-            virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
+            virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const = 0;
             
             virtual const BrushContentType::List& doBrushContentTypes() const = 0;
             
-            virtual StringList doAvailableMods() const = 0;
-            virtual StringList doExtractEnabledMods(const World* world) const = 0;
+            virtual StringArray doAvailableMods() const = 0;
+            virtual StringArray doExtractEnabledMods(const World* world) const = 0;
             virtual String doDefaultMod() const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
