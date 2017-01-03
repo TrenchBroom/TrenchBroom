@@ -76,7 +76,7 @@ namespace TrenchBroom {
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
             void Create(FrameManager* frameManager, MapDocumentSPtr document);
-            ~MapFrame();
+            virtual ~MapFrame();
 
             void positionOnScreen(wxFrame* reference);
             MapDocumentSPtr document() const;
