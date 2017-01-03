@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         CompilationConfig::CompilationConfig() {}
 
-        CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
+        CompilationConfig::CompilationConfig(const CompilationProfile::Array& profiles) :
         m_profiles(profiles) {}
 
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {
