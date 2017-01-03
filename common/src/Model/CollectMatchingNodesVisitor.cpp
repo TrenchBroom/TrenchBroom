@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         NodeCollectionStrategy::~NodeCollectionStrategy() {}
 
-        const NodeList& NodeCollectionStrategy::nodes() const {
+        const NodeArray& NodeCollectionStrategy::nodes() const {
             return m_nodes;
         }
 
