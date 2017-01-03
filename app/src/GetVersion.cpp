@@ -28,15 +28,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        wxString getBuildChannel() {
+        wxString getBuildIdStr() {
             wxString result;
-            result << BUILD_CHANNEL;
-            return result;
-        }
-
-        wxString getBuildId() {
-            wxString result;
-            result << BUILD_ID;
+            result << BUILD_ID_STR;
             return result;
         }
         
