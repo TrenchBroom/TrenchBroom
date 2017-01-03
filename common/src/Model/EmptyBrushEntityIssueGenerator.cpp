@@ -55,7 +55,7 @@ namespace TrenchBroom {
             EmptyBrushEntityIssueQuickFix() :
             IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->deleteObjects();
             }
         };
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyBrushEntityIssueQuickFix());
         }
         
-        void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueArray& issues) const {
             ensure(entity != NULL, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
