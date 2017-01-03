@@ -32,12 +32,12 @@ namespace TrenchBroom {
     namespace Model {
         class NodeCollectionStrategy {
         protected:
-            NodeList m_nodes;
+            NodeArray m_nodes;
         public:
             virtual ~NodeCollectionStrategy();
             
             virtual void addNode(Node* node) = 0;
-            const NodeList& nodes() const;
+            const NodeArray& nodes() const;
         };
         
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         public:
             virtual ~FilteringNodeCollectionStrategy() {}
             
-            const NodeList& nodes() const {
+            const NodeArray& nodes() const {
                 return m_delegate.nodes();
             }
             
@@ -98,8 +98,8 @@ namespace TrenchBroom {
         };
 
         template <typename V, typename I>
-        Model::NodeList collectMatchingNodes(I cur, I end, Node* root) {
-            NodeList result;
+        Model::NodeArray collectMatchingNodes(I cur, I end, Node* root) {
+            NodeArray result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);
