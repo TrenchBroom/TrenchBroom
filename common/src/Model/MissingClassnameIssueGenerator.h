@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             MissingClassnameIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueArray& issues) const;
         };
     }
 }
