@@ -54,7 +54,7 @@ namespace TrenchBroom {
             MissingClassnameIssueQuickFix() :
             IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->deleteObjects();
             }
         };
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             addQuickFix(new MissingClassnameIssueQuickFix());
         }
         
-        void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             if (!node->hasAttribute(AttributeNames::Classname))
                 issues.push_back(new MissingClassnameIssue(node));
         }
