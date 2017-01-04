@@ -56,12 +56,12 @@ namespace TrenchBroom {
             
             bool doSelectable() const;
             
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
+            void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
 
             void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
+            void doFindNodesContaining(const Vec3& point, NodeArray& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
         private:
             Layer(const Layer&);
