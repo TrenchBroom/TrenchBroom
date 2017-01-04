@@ -171,7 +171,7 @@ namespace TrenchBroom {
             if (entity->selected())
                 return true;
             if (entity->brushEntity()) {
-                if (!entity->anyChildVisible())
+                if (!anyChildVisible(entity))
                     return false;
                 return true;
             }
@@ -200,6 +200,12 @@ namespace TrenchBroom {
             return visible(face->brush());
         }
 
+        
+        bool EditorContext::anyChildVisible(const Model::Node* node) const {
+            const Model::NodeList& children = node->children();
+            return std::any_of(std::begin(children), std::end(children), [this](const Node* child) { return visible(child); });
+        }
+        
         bool EditorContext::editable(const Model::Node* node) const {
             return node->editable();
         }
@@ -208,7 +214,7 @@ namespace TrenchBroom {
             return editable(face->brush());
         }
 
-        class NodePickable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
+        class EditorContext::NodePickable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             const EditorContext& m_this;
         public:

@@ -83,10 +83,16 @@ namespace TrenchBroom {
             bool visible(const Model::Entity* entity) const;
             bool visible(const Model::Brush* brush) const;
             bool visible(const Model::BrushFace* face) const;
-            
+        private:
+            bool anyChildVisible(const Model::Node* node) const;
+
+        public:
             bool editable(const Model::Node* node) const;
             bool editable(const Model::BrushFace* face) const;
 
+        private:
+            class NodePickable;
+        public:
             bool pickable(const Model::Node* node) const;
             bool pickable(const Model::Layer* layer) const;
             bool pickable(const Model::Group* group) const;
