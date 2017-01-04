@@ -31,8 +31,8 @@ namespace TrenchBroom {
             Layer* m_layer;
             
             ParentChildrenMap m_result;
-            mutable NodeList m_nodesToDetach;
-            mutable NodeList m_nodesToDelete;
+            mutable NodeArray m_nodesToDetach;
+            mutable NodeArray m_nodesToDelete;
         public:
             MergeNodesIntoWorldVisitor(World* world, Layer* layer);
             
