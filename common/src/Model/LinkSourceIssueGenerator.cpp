@@ -71,7 +71,7 @@ namespace TrenchBroom {
             addQuickFix(new LinkSourceIssueQuickFix());
         }
 
-        void LinkSourceIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LinkSourceIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             if (node->hasMissingSources())
                 issues.push_back(new LinkSourceIssue(node));
         }
