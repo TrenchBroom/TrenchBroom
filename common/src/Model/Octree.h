@@ -34,13 +34,13 @@ namespace TrenchBroom {
         template <typename F, typename T>
         class OctreeNode {
         private:
-            typedef std::vector<T> List;
+            typedef std::vector<T> Array;
             
             BBox<F,3> m_bounds;
             F m_minSize;
             OctreeNode* m_parent;
             OctreeNode* m_children[8];
-            List m_objects;
+            Array m_objects;
         public:
             OctreeNode(const BBox<F,3>& bounds, const F minSize, OctreeNode* parent) :
             m_bounds(bounds),
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                typename List::const_iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
+                typename Array::const_iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
                 return it != std::end(m_objects);
             }
             
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             }
             
             bool removeObject(T object) {
-                typename List::iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
+                typename Array::iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
                 if (it == std::end(m_objects))
                     return false;
                 m_objects.erase(it);
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 return m_parent->findContaining(bounds);
             }
             
-            void findObjects(const Ray<F,3>& ray, List& result) const {
+            void findObjects(const Ray<F,3>& ray, Array& result) const {
                 const F distance = m_bounds.intersectWithRay(ray);
                 if (Math::isnan(distance))
                     return;
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 result.insert(std::end(result), std::begin(m_objects), std::end(m_objects));
             }
             
-            void findObjects(const Vec<F,3>& point, List& result) const {
+            void findObjects(const Vec<F,3>& point, Array& result) const {
                 if (!m_bounds.contains(point))
                     return;
                 
@@ -180,7 +180,7 @@ namespace TrenchBroom {
         template <typename F, typename T>
         class Octree {
         public:
-            typedef std::vector<T> List;
+            typedef std::vector<T> Array;
         private:
             typedef std::map<T, OctreeNode<F,T>*> ObjectMap;
             BBox<F,3> m_bounds;
@@ -244,14 +244,14 @@ namespace TrenchBroom {
                 return m_root->containsObject(bounds, object);
             }
             
-            List findObjects(const Ray<F,3>& ray) const {
-                List result;
+            Array findObjects(const Ray<F,3>& ray) const {
+                Array result;
                 m_root->findObjects(ray, result);
                 return result;
             }
             
-            List findObjects(const Vec<F,3>& point) const {
-                List result;
+            Array findObjects(const Vec<F,3>& point) const {
+                Array result;
                 m_root->findObjects(point, result);
                 return result;
             }
