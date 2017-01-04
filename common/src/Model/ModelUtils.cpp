@@ -21,11 +21,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Model::NodeList collectParents(const Model::NodeList& nodes) {
+        Model::NodeArray collectParents(const Model::NodeArray& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }
         
-        Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) {
+        Model::NodeArray collectParents(const Model::ParentChildrenMap& nodes) {
             Model::CollectUniqueNodesVisitor visitor;
             for (const auto& entry : nodes) {
                 Model::Node* parent = entry.first;
@@ -34,16 +34,16 @@ namespace TrenchBroom {
             return visitor.nodes();
         }
         
-        Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) {
-            Model::NodeList result;
+        Model::NodeArray collectChildren(const Model::ParentChildrenMap& nodes) {
+            Model::NodeArray result;
             for (const auto& entry : nodes) {
-                const Model::NodeList& children = entry.second;
+                const Model::NodeArray& children = entry.second;
                 VectorUtils::append(result, children);
             }
             return result;
         }
         
-        Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) {
+        Model::ParentChildrenMap parentChildrenMap(const Model::NodeArray& nodes) {
             Model::ParentChildrenMap result;
             
             for (Model::Node* node : nodes) {
