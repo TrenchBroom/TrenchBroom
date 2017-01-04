@@ -45,14 +45,14 @@ namespace TrenchBroom {
             return m_defaultLayer;
         }
 
-        LayerList World::allLayers() const {
+        LayerArray World::allLayers() const {
             CollectLayersVisitor visitor;
             iterate(visitor);
             return visitor.layers();
         }
         
-        LayerList World::customLayers() const {
-            const NodeList& children = Node::children();
+        LayerArray World::customLayers() const {
+            const NodeArray& children = Node::children();
             CollectLayersVisitor visitor;
             accept(std::begin(children) + 1, std::end(children), visitor);
             return visitor.layers();
@@ -63,11 +63,11 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
 
-        const IssueGeneratorList& World::registeredIssueGenerators() const {
+        const IssueGeneratorArray& World::registeredIssueGenerators() const {
             return m_issueGeneratorRegistry.registeredGenerators();
         }
 
-        IssueQuickFixList World::quickFixes(const IssueType issueTypes) const {
+        IssueQuickFixArray World::quickFixes(const IssueType issueTypes) const {
             return m_issueGeneratorRegistry.quickFixes(issueTypes);
         }
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         Node* World::doCloneRecursively(const BBox3& worldBounds) const {
-            const NodeList& myChildren = children();
+            const NodeArray& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
             
             World* world = m_factory.createWorld(worldBounds);
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
             
             if (myChildren.size() > 1) {
-                NodeList childClones;
+                NodeArray childClones;
                 childClones.reserve(myChildren.size() - 1);
                 cloneRecursively(worldBounds, std::begin(myChildren) + 1, std::end(myChildren), std::back_inserter(childClones));
                 world->addChildren(childClones);
@@ -176,7 +176,7 @@ namespace TrenchBroom {
                 child->pick(ray, pickResult);
         }
         
-        void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void World::doFindNodesContaining(const Vec3& point, NodeArray& result) {
             for (Node* child : Node::children())
                 child->findNodesContaining(point, result);
         }
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             return Math::nan<FloatType>();
         }
 
-        void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void World::doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {
             generator->generate(this, issues);
         }
 
@@ -197,11 +197,11 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
         
-        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
         
-        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
         
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             return m_factory.createEntity();
         }
         
-        Brush* World::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* World::doCreateBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const {
             return m_factory.createBrush(worldBounds, faces);
         }
         
