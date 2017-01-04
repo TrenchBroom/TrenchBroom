@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Layer::doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {
             generator->generate(this, issues);
         }
         
@@ -151,7 +151,7 @@ namespace TrenchBroom {
                 node->pick(ray, pickResult);
         }
         
-        void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void Layer::doFindNodesContaining(const Vec3& point, NodeArray& result) {
             for (Node* node : m_octree.findObjects(point))
                 node->findNodesContaining(point, result);
         }
