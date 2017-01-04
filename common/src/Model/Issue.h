@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
 
             class MatchSelectableIssueNodes;
-            bool addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
+            bool addSelectableNodes(const EditorContext& editorContext, Model::NodeArray& nodes) const;
             
             bool hidden() const;
             void setHidden(bool hidden);
