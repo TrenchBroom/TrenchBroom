@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return doCreateEntity();
         }
         
-        Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const {
             return doCreateBrush(worldBounds, faces);
         }
         
