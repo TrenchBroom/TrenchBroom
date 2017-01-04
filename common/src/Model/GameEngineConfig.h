@@ -27,12 +27,12 @@ namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig {
         private:
-            GameEngineProfile::List m_profiles;
+            GameEngineProfile::Array m_profiles;
         public:
             mutable Notifier0 profilesDidChange;
         public:
             GameEngineConfig();
-            GameEngineConfig(const GameEngineProfile::List& profiles);
+            GameEngineConfig(const GameEngineProfile::Array& profiles);
             GameEngineConfig(const GameEngineConfig& other);
             ~GameEngineConfig();
             
