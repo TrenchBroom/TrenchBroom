@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
         class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
         private:
-            typedef std::map<AttributeName, NodeList> AttributeNameMap;
+            typedef std::map<AttributeName, NodeArray> AttributeNameMap;
         public:
             LinkTargetIssueQuickFix() :
             IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
@@ -82,12 +82,12 @@ namespace TrenchBroom {
             addQuickFix(new LinkTargetIssueQuickFix());
         }
 
-        void LinkTargetIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LinkTargetIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             processKeys(node, node->findMissingLinkTargets(), issues);
             processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameArray& names, IssueArray& issues) const {
             issues.reserve(issues.size() + names.size());
             for (const Model::AttributeName& name : names)
                 issues.push_back(new LinkTargetIssue(node, name));
