@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
-                const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
+                const IO::Path::Array packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
                 for (const IO::Path& packagePath : packages) {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != NULL, "packageFile is null");
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             initializeFileSystem();
         }
 
-        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {
+        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::Array& searchPaths) {
             m_additionalSearchPaths = searchPaths;
             m_gameFS.clear();
             initializeFileSystem();
@@ -152,24 +152,24 @@ namespace TrenchBroom {
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeArray GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceArray GameImpl::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void GameImpl::doWriteNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
 
-        void GameImpl::doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(World* world, const BrushFaceArray& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }
@@ -189,15 +189,15 @@ namespace TrenchBroom {
 
         void GameImpl::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
             const AttributableNodeVariableStore variables(world);
-            const IO::Path::List paths = extractTextureCollections(world);
+            const IO::Path::Array paths = extractTextureCollections(world);
 
-            const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
+            const IO::Path::Array fileSearchPaths = textureCollectionSearchPaths(documentPath);
             IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
             textureLoader.loadTextures(paths, textureManager);
         }
 
-        IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
-            IO::Path::List result;
+        IO::Path::Array GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
+            IO::Path::Array result;
             result.push_back(documentPath);
             result.push_back(m_gamePath);
             result.push_back(IO::SystemPaths::appDirectory());
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List GameImpl::doFindTextureCollections() const {
+        IO::Path::Array GameImpl::doFindTextureCollections() const {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().package.rootDirectory;
                 if (!searchPath.isEmpty() && m_gameFS.directoryExists(searchPath))
@@ -227,21 +227,21 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List GameImpl::doExtractTextureCollections(const World* world) const {
+        IO::Path::Array GameImpl::doExtractTextureCollections(const World* world) const {
             ensure(world != NULL, "world is null");
 
             const String& property = m_config.textureConfig().attribute;
             if (property.empty())
-                return IO::Path::List(0);
+                return IO::Path::Array(0);
 
             const AttributeValue& pathsValue = world->attribute(property);
             if (pathsValue.empty())
-                return IO::Path::List(0);
+                return IO::Path::Array(0);
 
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
 
-        void GameImpl::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateTextureCollections(World* world, const IO::Path::Array& paths) const {
             const String& attribute = m_config.textureConfig().attribute;
             if (attribute.empty())
                 return;
@@ -259,11 +259,11 @@ namespace TrenchBroom {
             return false;
         }
 
-        Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
+        Assets::EntityDefinitionArray GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
             const String extension = path.extension();
             const Color& defaultColor = m_config.entityConfig().defaultColor;
 
-            Assets::EntityDefinitionList definitions;
+            Assets::EntityDefinitionArray definitions;
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor);
@@ -280,11 +280,11 @@ namespace TrenchBroom {
             return definitions;
         }
 
-        Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
-            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
+        Assets::EntityDefinitionFileSpec::Array GameImpl::doAllEntityDefinitionFiles() const {
+            const IO::Path::Array paths = m_config.entityConfig().defFilePaths;
             const size_t count = paths.size();
 
-            Assets::EntityDefinitionFileSpec::List result(count);
+            Assets::EntityDefinitionFileSpec::Array result(count);
             for (size_t i = 0; i < count; ++i)
                 result[i] = Assets::EntityDefinitionFileSpec::builtin(paths[i]);
 
@@ -299,7 +299,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {
-            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
+            const IO::Path::Array paths = m_config.entityConfig().defFilePaths;
             if (paths.empty())
                 throw GameException("No entity definition files found for game '" + gameName() + "'");
 
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec::builtin(path);
         }
 
-        IO::Path GameImpl::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path GameImpl::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const {
             if (!spec.valid())
                 throw GameException("Invalid entity definition file spec");
 
@@ -371,18 +371,18 @@ namespace TrenchBroom {
             return Assets::Palette::loadFile(m_gameFS, path);
         }
 
-        const BrushContentType::List& GameImpl::doBrushContentTypes() const {
+        const BrushContentType::Array& GameImpl::doBrushContentTypes() const {
             return m_config.brushContentTypes();
         }
 
-        StringList GameImpl::doAvailableMods() const {
-            StringList result;
+        StringArray GameImpl::doAvailableMods() const {
+            StringArray result;
             if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath))
                 return result;
 
             const String& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
-            const IO::Path::List subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
+            const IO::Path::Array subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
                 if (!StringUtils::caseInsensitiveEqual(mod, defaultMod))
@@ -391,8 +391,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList GameImpl::doExtractEnabledMods(const World* world) const {
-            StringList result;
+        StringArray GameImpl::doExtractEnabledMods(const World* world) const {
+            StringArray result;
             const AttributeValue& modStr = world->attribute(AttributeNames::Mods);
             if (modStr.empty())
                 return result;
