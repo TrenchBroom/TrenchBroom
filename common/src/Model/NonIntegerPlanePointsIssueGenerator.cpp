@@ -55,7 +55,7 @@ namespace TrenchBroom {
             NonIntegerPlanePointsIssueQuickFix() :
             IssueQuickFix(NonIntegerPlanePointsIssue::Type, "Convert plane points to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->findPlanePoints();
             }
         };
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
-        void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueArray& issues) const {
             for (const BrushFace* face : brush->faces()) {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {
