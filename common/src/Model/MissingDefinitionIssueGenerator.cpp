@@ -55,7 +55,7 @@ namespace TrenchBroom {
             MissingDefinitionIssueQuickFix() :
             IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->deleteObjects();
             }
         };
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             addQuickFix(new MissingDefinitionIssueQuickFix());
         }
         
-        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             if (node->definition() == NULL)
                 issues.push_back(new MissingDefinitionIssue(node));
         }
