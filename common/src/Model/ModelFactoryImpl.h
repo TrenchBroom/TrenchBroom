@@ -45,7 +45,7 @@ namespace TrenchBroom {
             Layer* doCreateLayer(const String& name, const BBox3& worldBounds) const;
             Group* doCreateGroup(const String& name) const;
             Entity* doCreateEntity() const;
-            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const;
             
             BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const;
             BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const;
