@@ -30,8 +30,8 @@ namespace TrenchBroom {
         class PushSelection {
         private:
             MapFacade* m_facade;
-            NodeList m_nodes;
-            BrushFaceList m_faces;
+            NodeArray m_nodes;
+            BrushFaceArray m_faces;
         public:
             template <typename T>
             PushSelection(std::shared_ptr<T> facade) {
