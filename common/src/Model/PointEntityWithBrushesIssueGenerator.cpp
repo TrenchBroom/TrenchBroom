@@ -55,8 +55,8 @@ namespace TrenchBroom {
             PointEntityWithBrushesIssueQuickFix() :
             IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
-                NodeList affectedNodes;
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
+                NodeArray affectedNodes;
                 ParentChildrenMap nodesToReparent;
                 
                 for (const Issue* issue : issues) {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             addQuickFix(new PointEntityWithBrushesIssueQuickFix());
         }
         
-        void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueArray& issues) const {
             ensure(entity != NULL, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_PointEntity && entity->hasChildren())
