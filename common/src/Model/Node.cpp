@@ -112,7 +112,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Node::isDescendantOf(const NodeList& nodes) const {
+        bool Node::isDescendantOf(const NodeArray& nodes) const {
             return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isDescendantOf(node); });
         }
 
