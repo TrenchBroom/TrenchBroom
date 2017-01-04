@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const NodeSnapshotList& TakeSnapshotVisitor::result() const {
+        const NodeSnapshotArray& TakeSnapshotVisitor::result() const {
             return m_result;
         }
 
