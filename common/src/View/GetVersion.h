@@ -25,8 +25,7 @@
 namespace TrenchBroom {
     namespace View {
         wxString getBuildVersion();
-        wxString getBuildChannel();
-        wxString getBuildId();
+        wxString getBuildIdStr();
         wxString getBuildType();
     }
 }

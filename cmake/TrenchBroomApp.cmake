@@ -101,12 +101,9 @@ IF (NOT GIT_FOUND)
     MESSAGE(WARNING "Could not find git")
 ENDIF()
 
-GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
-GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_BUILD_ID)
+GET_GIT_DESCRIBE("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
+GET_APP_VERSION(GIT_DESCRIBE CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
 GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
-IF(NOT DEFINED APP_BUILD_CHANNEL)
-    SET(APP_BUILD_CHANNEL "Interim")
-ENDIF()
 
 # Create the cmake script for generating the version information
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
@@ -125,8 +122,8 @@ IF(APPLE)
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "TrenchBroom")
     # Set CFBundleShortVersionString to "2.0.0". This is displayed in the Finder and Spotlight.
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING "${CPACK_PACKAGE_VERSION}")
-    # Set CFBundleVersion to the git revision. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${APP_BUILD_ID}")
+    # Set CFBundleVersion to the git describe output. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${GIT_DESCRIBE}")
 
     # Set the path to the plist template
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
@@ -211,7 +208,7 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 ENDIF()
 
 # Common CPack configuration
-SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${APP_BUILD_CHANNEL}-${APP_BUILD_ID}-${CMAKE_BUILD_TYPE}")
+SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
 SET(APP_PACKAGE_DIR_NAME "$ENV{DROPBOX}/TrenchBroom/")
 SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
@@ -337,12 +334,3 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
-
-IF(WIN32)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
-ELSE()
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
-ENDIF()
-
