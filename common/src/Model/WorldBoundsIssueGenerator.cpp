@@ -52,7 +52,7 @@ namespace TrenchBroom {
             WorldBoundsIssueQuickFix() :
             IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->deleteObjects();
             }
         };
@@ -65,12 +65,12 @@ namespace TrenchBroom {
             addQuickFix(new WorldBoundsIssueQuickFix());
         }
         
-        void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueArray& issues) const {
             if (!m_bounds.contains(entity->bounds()))
                 issues.push_back(new WorldBoundsIssue(entity));
         }
         
-        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueArray& issues) const {
             if (!m_bounds.contains(brush->bounds()))
                 issues.push_back(new WorldBoundsIssue(brush));
         }
