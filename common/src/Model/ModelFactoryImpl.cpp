@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return new Entity();
         }
         
-        Brush* ModelFactoryImpl::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactoryImpl::doCreateBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const {
             assert(m_format != MapFormat::Unknown);
             Brush* brush = new Brush(worldBounds, faces);
             brush->setContentTypeBuilder(m_brushContentTypeBuilder);
