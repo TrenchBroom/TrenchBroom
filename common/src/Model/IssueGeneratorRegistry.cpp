@@ -30,12 +30,12 @@ namespace TrenchBroom {
             clearGenerators();
         }
         
-        const IssueGeneratorList& IssueGeneratorRegistry::registeredGenerators() const {
+        const IssueGeneratorArray& IssueGeneratorRegistry::registeredGenerators() const {
             return m_generators;
         }
 
-        IssueQuickFixList IssueGeneratorRegistry::quickFixes(const IssueType issueTypes) const {
-            IssueQuickFixList result;
+        IssueQuickFixArray IssueGeneratorRegistry::quickFixes(const IssueType issueTypes) const {
+            IssueQuickFixArray result;
             for (const IssueGenerator* generator : m_generators) {
                 if ((generator->type() & issueTypes) != 0)
                     VectorUtils::append(result, generator->quickFixes());
