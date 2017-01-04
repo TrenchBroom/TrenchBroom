@@ -33,11 +33,11 @@ namespace TrenchBroom {
             return m_description;
         }
         
-        void IssueQuickFix::apply(MapFacade* facade, const IssueList& issues) const {
+        void IssueQuickFix::apply(MapFacade* facade, const IssueArray& issues) const {
             doApply(facade, issues);
         }
 
-        void IssueQuickFix::doApply(MapFacade* facade, const IssueList& issues) const {
+        void IssueQuickFix::doApply(MapFacade* facade, const IssueArray& issues) const {
             for (const Issue* issue : issues) {
                 if (issue->type() == m_issueType)
                     doApply(facade, issue);
