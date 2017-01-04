@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class Node;
         typedef std::set<Node*> NodeSet;
         typedef std::vector<Node*> NodeArray;
-        static const NodeArray EmptyNodeList(0);
+        static const NodeArray EmptyNodeArray(0);
         
         typedef std::map<Node*, Node*> NodeMap;
         typedef std::map<Node*, NodeArray> ParentChildrenMap;
@@ -66,26 +66,26 @@ namespace TrenchBroom {
         typedef std::set<AttributableNode*> AttributableNodeSet;
         static const AttributableNodeSet EmptyAttributableNodeSet;
         typedef std::vector<AttributableNode*> AttributableNodeArray;
-        static const AttributableNodeArray EmptyAttributableNodeList(0);
+        static const AttributableNodeArray EmptyAttributableNodeArray(0);
         
         class Layer;
         typedef std::vector<Layer*> LayerArray;
-        static const LayerArray EmptyLayerList(0);
+        static const LayerArray EmptyLayerArray(0);
         
         class Group;
         typedef std::vector<Group*> GroupArray;
-        static const GroupArray EmptyGroupList(0);
+        static const GroupArray EmptyGroupArray(0);
         typedef std::set<Group*> GroupSet;
         typedef std::map<Group*, String> GroupNameMap;
         
         class Entity;
         typedef std::vector<Entity*> EntityArray;
-        static const EntityArray EmptyEntityList(0);
+        static const EntityArray EmptyEntityArray(0);
         typedef std::set<Entity*> EntitySet;
         
         class Brush;
         typedef std::vector<Brush*> BrushArray;
-        static const BrushArray EmptyBrushList(0);
+        static const BrushArray EmptyBrushArray(0);
         typedef std::set<Brush*> BrushSet;
         static const BrushSet EmptyBrushSet;
         
@@ -95,7 +95,7 @@ namespace TrenchBroom {
         typedef std::set<BrushFace*> BrushFaceSet;
         static const BrushFaceSet EmptyBrushFaceSet;
         typedef std::vector<BrushFace*> BrushFaceArray;
-        static const BrushFaceArray EmptyBrushFaceList(0);
+        static const BrushFaceArray EmptyBrushFaceArray(0);
         
         typedef String AttributeName;
         typedef std::vector<AttributeName> AttributeNameArray;
@@ -122,8 +122,8 @@ namespace TrenchBroom {
         typedef int IssueType;
 
         class Issue;
-        typedef std::vector<Issue*> Issuearray;
-        static const IssueArray EmptyIssueList(0);
+        typedef std::vector<Issue*> IssueArray;
+        static const IssueArray EmptyIssueArray(0);
 
         class IssueQuickFix;
         typedef std::vector<IssueQuickFix*> IssueQuickFixArray;
