@@ -32,7 +32,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition* createTutorialEntityDefinition() {
                 Assets::AttributeDefinitionPtr messageAttributeDefinition(new Assets::StringAttributeDefinition(Message, "Message to display", ""));
                 
-                Assets::AttributeDefinitionList attributeDefinitions;
+                Assets::AttributeDefinitionArray attributeDefinitions;
                 attributeDefinitions.push_back(messageAttributeDefinition);
                 
                 Assets::EntityDefinition* definition = new Assets::BrushEntityDefinition(Classname, EntityColor, "Tutorial helper entity", attributeDefinitions);
