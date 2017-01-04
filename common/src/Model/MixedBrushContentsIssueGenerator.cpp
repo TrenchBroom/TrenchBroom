@@ -52,10 +52,10 @@ namespace TrenchBroom {
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator() :
         IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
         
-        void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it = std::begin(faces);
-            BrushFaceList::const_iterator end = std::end(faces);
+        void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueArray& issues) const {
+            const BrushFaceArray& faces = brush->faces();
+            BrushFaceArray::const_iterator it = std::begin(faces);
+            BrushFaceArray::const_iterator end = std::end(faces);
             assert(it != end);
             
             const int contentFlags = (*it)->surfaceContents();
