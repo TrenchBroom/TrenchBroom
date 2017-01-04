@@ -32,8 +32,8 @@ namespace TrenchBroom {
         
         class Snapshot {
         private:
-            NodeSnapshotList m_nodeSnapshots;
-            BrushFaceSnapshotList m_brushFaceSnapshots;
+            NodeSnapshotArray m_nodeSnapshots;
+            BrushFaceSnapshotArray m_brushFaceSnapshots;
         public:
             template <typename I>
             Snapshot(I cur, I end) {
