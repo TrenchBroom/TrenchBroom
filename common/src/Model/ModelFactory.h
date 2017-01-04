@@ -36,7 +36,7 @@ namespace TrenchBroom {
             Layer* createLayer(const String& name, const BBox3& worldBounds) const;
             Group* createGroup(const String& name) const;
             Entity* createEntity() const;
-            Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            Brush* createBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const;
             
             BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const;
             BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const;
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             virtual Layer* doCreateLayer(const String& name, const BBox3& worldBounds) const = 0;
             virtual Group* doCreateGroup(const String& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;
-            virtual Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const = 0;
+            virtual Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const = 0;
             virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const = 0;
         };
