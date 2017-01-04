@@ -70,7 +70,7 @@ MACRO(GET_APP_VERSION GIT_DESCRIBE VERSION_MAJOR VERSION_MINOR VERSION_MAINTENAN
         SET(${VERSION_MINOR} ${CMAKE_MATCH_2})
         SET(${VERSION_MAINTENANCE} ${CMAKE_MATCH_3})
     ELSE()
-        MESSAGE(FATAL_ERROR "Couldn't parse major/minor/maintenance versions from git describe output '${GIT_DESCRIBE}'")
+        MESSAGE(FATAL_ERROR "Couldn't parse major/minor/maintenance versions from git describe output '${${GIT_DESCRIBE}}'")
     ENDIF()
 ENDMACRO(GET_APP_VERSION)
 
