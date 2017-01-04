@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return instance;
         }
         
-        const StringList& GameFactory::gameList() const {
+        const StringArray& GameFactory::gameArray() const {
             return m_names;
         }
 
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return GamePtr(new GameImpl(gameConfig(gameName), gamePath(gameName)));
         }
         
-        const StringList& GameFactory::fileFormats(const String& gameName) const {
+        const StringArray& GameFactory::fileFormats(const String& gameName) const {
             const GameConfig& config = gameConfig(gameName);
             return config.fileFormats();
         }
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadGameConfigs() {
-            const IO::Path::List configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
+            const IO::Path::Array configFiles = m_configFS.findItems(IO::Path(""), IO::FileExtensionMatcher("cfg"));
             
             for (const IO::Path& configFilePath : configFiles)
                 loadGameConfig(configFilePath);
