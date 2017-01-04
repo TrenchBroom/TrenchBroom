@@ -30,11 +30,11 @@ namespace TrenchBroom {
             class AddNode;
             class RemoveNode;
         private:
-            NodeList m_nodes;
-            LayerList m_layers;
-            GroupList m_groups;
-            EntityList m_entities;
-            BrushList m_brushes;
+            NodeArray m_nodes;
+            LayerArray m_layers;
+            GroupArray m_groups;
+            EntityArray m_entities;
+            BrushArray m_brushes;
         public:
             bool empty() const;
             size_t nodeCount() const;
@@ -52,21 +52,21 @@ namespace TrenchBroom {
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
 
-            NodeList::iterator begin();
-            NodeList::iterator end();
-            NodeList::const_iterator begin() const;
-            NodeList::const_iterator end() const;
+            NodeArray::iterator begin();
+            NodeArray::iterator end();
+            NodeArray::const_iterator begin() const;
+            NodeArray::const_iterator end() const;
             
-            const NodeList& nodes() const;
-            const LayerList& layers() const;
-            const GroupList& groups() const;
-            const EntityList& entities() const;
-            const BrushList& brushes() const;
+            const NodeArray& nodes() const;
+            const LayerArray& layers() const;
+            const GroupArray& groups() const;
+            const EntityArray& entities() const;
+            const BrushArray& brushes() const;
 
-            void addNodes(const NodeList& nodes);
+            void addNodes(const NodeArray& nodes);
             void addNode(Node* node);
 
-            void removeNodes(const NodeList& nodes);
+            void removeNodes(const NodeArray& nodes);
             void removeNode(Node* node);
             
             void clear();
