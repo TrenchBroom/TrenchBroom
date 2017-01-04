@@ -31,7 +31,7 @@ namespace TrenchBroom {
         
         class GroupSnapshot : public NodeSnapshot {
         private:
-            NodeSnapshotList m_snapshots;
+            NodeSnapshotArray m_snapshots;
         public:
             GroupSnapshot(Group* group);
             ~GroupSnapshot();
