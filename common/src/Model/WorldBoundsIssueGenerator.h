@@ -36,8 +36,8 @@ namespace TrenchBroom {
         public:
             WorldBoundsIssueGenerator(const BBox3& bounds);
         private:
-            void doGenerate(Entity* brush, IssueList& issues) const;
-            void doGenerate(Brush* brush, IssueList& issues) const;
+            void doGenerate(Entity* brush, IssueArray& issues) const;
+            void doGenerate(Brush* brush, IssueArray& issues) const;
         };
     }
 }
