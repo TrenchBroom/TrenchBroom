@@ -46,14 +46,14 @@ namespace TrenchBroom {
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management
             Layer* defaultLayer() const;
-            LayerList allLayers() const;
-            LayerList customLayers() const;
+            LayerArray allLayers() const;
+            LayerArray customLayers() const;
         private:
             void createDefaultLayer(const BBox3& worldBounds);
         public: // selection
             // issue generator registration
-            const IssueGeneratorList& registeredIssueGenerators() const;
-            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            const IssueGeneratorArray& registeredIssueGenerators() const;
+            IssueQuickFixArray quickFixes(IssueType issueTypes) const;
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
@@ -68,13 +68,13 @@ namespace TrenchBroom {
             bool doRemoveIfEmpty() const;
             bool doSelectable() const;
             void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
+            void doFindNodesContaining(const Vec3& point, NodeArray& result);
             FloatType doIntersectWithRay(const Ray3& ray) const;
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
+            void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
-            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeArray& result) const;
+            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeArray& result) const;
             void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // implement AttributableNode interface
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             Layer* doCreateLayer(const String& name, const BBox3& worldBounds) const;
             Group* doCreateGroup(const String& name) const;
             Entity* doCreateEntity() const;
-            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceArray& faces) const;
             BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const;
             BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const;
         private:
