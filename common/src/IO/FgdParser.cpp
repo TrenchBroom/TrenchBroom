@@ -34,7 +34,7 @@ namespace TrenchBroom {
         Tokenizer(begin, end) {}
         
         FgdTokenizer::FgdTokenizer(const String& str) :
-        Tokenizer(str) {}
+        Tokenizer(str, "") {}
         
         const String FgdTokenizer::WordDelims = " \t\n\r()[]?;:,=";
         
