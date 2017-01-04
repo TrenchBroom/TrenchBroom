@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
         
         TEST(ELParserTest, parseStringLiteralWithDoubleQuotationMarks) {
-            ASSERT_EL_EQ("asdf\" \"asdf", "\"asdf\\\" \\\"asdf\"");
+            ASSERT_EL_EQ(R"(asdf" "asdf)", R"("asdf\" \"asdf")");
         }
         
         TEST(ELParserTest, parseNumberLiteral) {
