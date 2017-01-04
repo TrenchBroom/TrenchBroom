@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 child->pick(ray, pickResult);
         }
         
-        void Group::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void Group::doFindNodesContaining(const Vec3& point, NodeArray& result) {
             if (bounds().contains(point))
                 result.push_back(this);
             
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
-        void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Group::doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {
             generator->generate(this, issues);
         }
         
