@@ -26,10 +26,10 @@
 namespace TrenchBroom {
     namespace IO {
         LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end) {}
+        Tokenizer(begin, end, "", 0) {}
         
         LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const String& str) :
-        Tokenizer(str, "") {}
+        Tokenizer(str, "", 0) {}
         
         const String LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
         

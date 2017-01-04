@@ -31,10 +31,10 @@
 namespace TrenchBroom {
     namespace IO {
         DefTokenizer::DefTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end) {}
+        Tokenizer(begin, end, "", 0) {}
         
         DefTokenizer::DefTokenizer(const String& str) :
-        Tokenizer(str, "") {}
+        Tokenizer(str, "", 0) {}
         
         const String DefTokenizer::WordDelims = " \t\n\r()[]{};,=";
         
