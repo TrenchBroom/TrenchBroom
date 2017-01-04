@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         GameEngineConfig::GameEngineConfig() {}
         
-        GameEngineConfig::GameEngineConfig(const GameEngineProfile::List& profiles) :
+        GameEngineConfig::GameEngineConfig(const GameEngineProfile::Array& profiles) :
         m_profiles(profiles) {}
         
         GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {
