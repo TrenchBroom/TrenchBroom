@@ -30,12 +30,12 @@ namespace TrenchBroom {
         
         class IssueGeneratorRegistry {
         private:
-            IssueGeneratorList m_generators;
+            IssueGeneratorArray m_generators;
         public:
             ~IssueGeneratorRegistry();
             
-            const IssueGeneratorList& registeredGenerators() const;
-            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            const IssueGeneratorArray& registeredGenerators() const;
+            IssueQuickFixArray quickFixes(IssueType issueTypes) const;
             
             void registerGenerator(IssueGenerator* generator);
             void unregisterAllGenerators();
