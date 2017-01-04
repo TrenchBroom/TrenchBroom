@@ -28,29 +28,29 @@ namespace TrenchBroom {
         private:
             IssueType m_type;
             String m_description;
-            IssueQuickFixList m_quickFixes;
+            IssueQuickFixArray m_quickFixes;
         public:
             virtual ~IssueGenerator();
             
             IssueType type() const;
             const String& description() const;
-            const IssueQuickFixList& quickFixes() const;
+            const IssueQuickFixArray& quickFixes() const;
             
-            void generate(World* world,   IssueList& issues) const;
-            void generate(Layer* layer,   IssueList& issues) const;
-            void generate(Group* group,   IssueList& issues) const;
-            void generate(Entity* entity, IssueList& issues) const;
-            void generate(Brush* brush,   IssueList& issues) const;
+            void generate(World* world,   IssueArray& issues) const;
+            void generate(Layer* layer,   IssueArray& issues) const;
+            void generate(Group* group,   IssueArray& issues) const;
+            void generate(Entity* entity, IssueArray& issues) const;
+            void generate(Brush* brush,   IssueArray& issues) const;
         protected:
             IssueGenerator(IssueType type, const String& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
-            virtual void doGenerate(World* world,           IssueList& issues) const;
-            virtual void doGenerate(Layer* layer,           IssueList& issues) const;
-            virtual void doGenerate(Group* group,           IssueList& issues) const;
-            virtual void doGenerate(Entity* entity,         IssueList& issues) const;
-            virtual void doGenerate(Brush* brush,           IssueList& issues) const;
-            virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
+            virtual void doGenerate(World* world,           IssueArray& issues) const;
+            virtual void doGenerate(Layer* layer,           IssueArray& issues) const;
+            virtual void doGenerate(Group* group,           IssueArray& issues) const;
+            virtual void doGenerate(Entity* entity,         IssueArray& issues) const;
+            virtual void doGenerate(Brush* brush,           IssueArray& issues) const;
+            virtual void doGenerate(AttributableNode* node, IssueArray& issues) const;
         };
     }
 }
