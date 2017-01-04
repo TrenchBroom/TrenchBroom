@@ -40,27 +40,27 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        const IssueQuickFixList& IssueGenerator::quickFixes() const {
+        const IssueQuickFixArray& IssueGenerator::quickFixes() const {
             return m_quickFixes;
         }
 
-        void IssueGenerator::generate(World* world, IssueList& issues) const {
+        void IssueGenerator::generate(World* world, IssueArray& issues) const {
             doGenerate(world, issues);
         }
         
-        void IssueGenerator::generate(Layer* layer, IssueList& issues) const {
+        void IssueGenerator::generate(Layer* layer, IssueArray& issues) const {
             doGenerate(layer, issues);
         }
         
-        void IssueGenerator::generate(Group* group, IssueList& issues) const {
+        void IssueGenerator::generate(Group* group, IssueArray& issues) const {
             doGenerate(group, issues);
         }
         
-        void IssueGenerator::generate(Entity* entity, IssueList& issues) const {
+        void IssueGenerator::generate(Entity* entity, IssueArray& issues) const {
             doGenerate(entity, issues);
         }
         
-        void IssueGenerator::generate(Brush* brush, IssueList& issues) const {
+        void IssueGenerator::generate(Brush* brush, IssueArray& issues) const {
             doGenerate(brush, issues);
         }
 
@@ -74,11 +74,11 @@ namespace TrenchBroom {
             m_quickFixes.push_back(quickFix);
         }
 
-        void IssueGenerator::doGenerate(World* world,           IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
-        void IssueGenerator::doGenerate(Layer* layer,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Group* group,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Entity* entity,         IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }
-        void IssueGenerator::doGenerate(Brush* brush,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {}
+        void IssueGenerator::doGenerate(World* world,           IssueArray& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
+        void IssueGenerator::doGenerate(Layer* layer,           IssueArray& issues) const {}
+        void IssueGenerator::doGenerate(Group* group,           IssueArray& issues) const {}
+        void IssueGenerator::doGenerate(Entity* entity,         IssueArray& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }
+        void IssueGenerator::doGenerate(Brush* brush,           IssueArray& issues) const {}
+        void IssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {}
     }
 }
