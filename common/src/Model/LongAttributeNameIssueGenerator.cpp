@@ -83,7 +83,7 @@ namespace TrenchBroom {
             addQuickFix(new LongAttributeNameIssueQuickFix());
         }
         
-        void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueArray& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
                 const AttributeName& attributeName = attribute.name();
                 if (attributeName.size() >= m_maxLength)
