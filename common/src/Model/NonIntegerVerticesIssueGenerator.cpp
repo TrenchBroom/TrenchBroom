@@ -54,7 +54,7 @@ namespace TrenchBroom {
             NonIntegerVerticesIssueQuickFix() :
             IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueArray& issues) const {
                 facade->snapVertices(1);
             }
         };
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             addQuickFix(new NonIntegerVerticesIssueQuickFix());
         }
 
-        void NonIntegerVerticesIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void NonIntegerVerticesIssueGenerator::doGenerate(Brush* brush, IssueArray& issues) const {
             for (const BrushVertex* vertex : brush->vertices()) {
                 if (!vertex->position().isInteger()) {
                     issues.push_back(new NonIntegerVerticesIssue(brush));
