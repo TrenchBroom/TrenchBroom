@@ -37,9 +37,9 @@ namespace TrenchBroom {
             
             const String& description() const;
             
-            void apply(MapFacade* facade, const IssueList& issues) const;
+            void apply(MapFacade* facade, const IssueArray& issues) const;
         private:
-            virtual void doApply(MapFacade* facade, const IssueList& issues) const;
+            virtual void doApply(MapFacade* facade, const IssueArray& issues) const;
             virtual void doApply(MapFacade* facade, const Issue* issue) const;
         };
     }
