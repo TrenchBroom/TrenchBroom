@@ -26,18 +26,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Model::NodeList collectParents(const Model::NodeList& nodes);
-        Model::NodeList collectParents(const Model::ParentChildrenMap& nodes);
+        Model::NodeArray collectParents(const Model::NodeArray& nodes);
+        Model::NodeArray collectParents(const Model::ParentChildrenMap& nodes);
 
         template <typename I>
-        Model::NodeList collectParents(const I begin, const I end) {
+        Model::NodeArray collectParents(const I begin, const I end) {
             Model::CollectUniqueNodesVisitor visitor;
             Model::Node::escalate(begin, end, visitor);
             return visitor.nodes();
         }
 
-        Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes);
-        Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes);
+        Model::NodeArray collectChildren(const Model::ParentChildrenMap& nodes);
+        Model::ParentChildrenMap parentChildrenMap(const Model::NodeArray& nodes);
     }
 }
 
