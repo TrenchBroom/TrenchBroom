@@ -43,7 +43,7 @@ namespace TrenchBroom {
             
             IO::WritableFileSystemHierarchy m_configFS;
             
-            StringList m_names;
+            StringArray m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
@@ -52,11 +52,11 @@ namespace TrenchBroom {
             
             static GameFactory& instance();
             
-            const StringList& gameList() const;
+            const StringArray& gameArray() const;
             size_t gameCount() const;
             GamePtr createGame(const String& gameName);
             
-            const StringList& fileFormats(const String& gameName) const;
+            const StringArray& fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
             IO::Path gamePath(const String& gameName) const;
             void setGamePath(const String& gameName, const IO::Path& gamePath);
