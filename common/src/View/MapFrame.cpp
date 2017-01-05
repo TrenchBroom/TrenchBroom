@@ -1423,6 +1423,9 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canPaste() const {
+            if (!m_mapView->isCurrent())
+                return false;
+            
             OpenClipboard openClipboard;
             return wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
         }
