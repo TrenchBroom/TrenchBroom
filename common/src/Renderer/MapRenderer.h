@@ -110,20 +110,20 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);
             
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWereAdded(const Model::NodeArray& nodes);
+            void nodesWereRemoved(const Model::NodeArray& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
             
-            void nodeVisibilityDidChange(const Model::NodeList& nodes);
-            void nodeLockingDidChange(const Model::NodeList& nodes);
+            void nodeVisibilityDidChange(const Model::NodeArray& nodes);
+            void nodeLockingDidChange(const Model::NodeArray& nodes);
             
             void groupWasOpened(Model::Group* group);
             void groupWasClosed(Model::Group* group);
             
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const Model::BrushFaceArray& faces);
             
             void selectionDidChange(const View::Selection& selection);
-            Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
+            Model::BrushSet collectBrushes(const Model::BrushFaceArray& faces);
             
             void textureCollectionsDidChange();
             void entityDefinitionsDidChange();
