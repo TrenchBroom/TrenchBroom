@@ -81,7 +81,7 @@ namespace TrenchBroom {
             FontGlyphBuilder glyphBuilder(metrics.maxAscend, metrics.cellSize, 3, *texture);
             
             FT_GlyphSlot glyph = face->glyph;
-            FontGlyph::List glyphs;
+            FontGlyph::Array glyphs;
             for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
                 FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
                 if (error != 0)
