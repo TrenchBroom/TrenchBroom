@@ -39,7 +39,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
             
             const Model::EditorContext& m_editorContext;
-            Model::GroupList m_groups;
+            Model::GroupArray m_groups;
             
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
 
-            void setGroups(const Model::GroupList& groups);
+            void setGroups(const Model::GroupArray& groups);
             void invalidate();
             void clear();
 
