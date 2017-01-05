@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class FontGlyph {
         public:
-            typedef std::vector<FontGlyph> List;
+            typedef std::vector<FontGlyph> Array;
         private:
             float m_x;
             float m_y;
