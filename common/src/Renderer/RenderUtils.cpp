@@ -307,10 +307,10 @@ namespace TrenchBroom {
             assert(radius > 0.0f);
             assert(iterations > 0);
             
-            typedef std::vector<SphereBuilder::Triangle> TriangleList;
+            typedef std::vector<SphereBuilder::Triangle> TriangleArray;
             
             Vec3f::List vertices;
-            TriangleList triangles;
+            TriangleArray triangles;
             
             // build initial icosahedron
             const float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
@@ -360,7 +360,7 @@ namespace TrenchBroom {
             // subdivide the icosahedron
             SphereBuilder::MidPointCache cache;
             for (size_t i = 0; i < iterations; ++i) {
-                TriangleList newTriangles;
+                TriangleArray newTriangles;
                 for (SphereBuilder::Triangle& triangle : triangles) {
                     const size_t index1 = SphereBuilder::midPoint(vertices, cache, triangle[0], triangle[1]);
                     const size_t index2 = SphereBuilder::midPoint(vertices, cache, triangle[1], triangle[2]);
