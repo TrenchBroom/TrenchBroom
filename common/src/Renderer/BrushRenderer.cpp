@@ -136,12 +136,12 @@ namespace TrenchBroom {
             m_filter = NULL;
         }
 
-        void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
+        void BrushRenderer::addBrushes(const Model::BrushArray& brushes) {
             VectorUtils::append(m_brushes, brushes);
             invalidate();
         }
 
-        void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
+        void BrushRenderer::setBrushes(const Model::BrushArray& brushes) {
             m_brushes = brushes;
             invalidate();
         }
