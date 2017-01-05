@@ -57,13 +57,13 @@ namespace TrenchBroom {
                 State_FullyMapped = 3
             } State;
         private:
-            typedef std::vector<VboBlock*> VboBlockList;
+            typedef std::vector<VboBlock*> VboBlockArray;
             static const float GrowthFactor;
             
             size_t m_totalCapacity;
             size_t m_freeCapacity;
-            VboBlockList m_freeBlocks;
-            VboBlockList m_usedBlocks;
+            VboBlockArray m_freeBlocks;
+            VboBlockArray m_usedBlocks;
             VboBlock* m_firstBlock;
             VboBlock* m_lastBlock;
             State m_state;
@@ -91,10 +91,10 @@ namespace TrenchBroom {
 
             void increaseCapacityToAccomodate(const size_t capacity);
             void increaseCapacity(size_t delta);
-            VboBlockList::iterator findFreeBlock(size_t minCapacity);
+            VboBlockArray::iterator findFreeBlock(size_t minCapacity);
             void insertFreeBlock(VboBlock* block);
             void removeFreeBlock(VboBlock* block);
-            void removeFreeBlock(VboBlockList::iterator it);
+            void removeFreeBlock(VboBlockArray::iterator it);
 
             bool partiallyMapped() const;
             void mapPartially();
