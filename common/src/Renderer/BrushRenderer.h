@@ -112,7 +112,7 @@ namespace TrenchBroom {
             class CollectIndices;
         private:
             Filter* m_filter;
-            Model::BrushList m_brushes;
+            Model::BrushArray m_brushes;
             VertexArray m_vertexArray;
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
@@ -146,8 +146,8 @@ namespace TrenchBroom {
             
             ~BrushRenderer();
 
-            void addBrushes(const Model::BrushList& brushes);
-            void setBrushes(const Model::BrushList& brushes);
+            void addBrushes(const Model::BrushArray& brushes);
+            void setBrushes(const Model::BrushArray& brushes);
             void clear();
             
             void invalidate();
