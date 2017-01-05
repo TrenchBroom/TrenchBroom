@@ -30,35 +30,35 @@ namespace TrenchBroom {
         class IndexArrayMapBuilder {
         public:
             typedef GLuint Index;
-            typedef std::vector<Index> IndexList;
+            typedef std::vector<Index> IndexArray;
         private:
-            IndexList m_indices;
+            IndexArray m_indices;
             IndexArrayMap m_ranges;
         public:
             IndexArrayMapBuilder(const IndexArrayMap::Size& size);
             
-            const IndexList& indices() const;
-            IndexList& indices();
+            const IndexArray& indices() const;
+            IndexArray& indices();
             
             const IndexArrayMap& ranges() const;
 
             void addPoint(Index i);
-            void addPoints(const IndexList& indices);
+            void addPoints(const IndexArray& indices);
             
             void addLine(Index i1, Index i2);
-            void addLines(const IndexList& indices);
+            void addLines(const IndexArray& indices);
             
             void addTriangle(Index i1, Index i2, Index i3);
-            void addTriangles(const IndexList& indices);
+            void addTriangles(const IndexArray& indices);
             
             void addQuad(Index, Index i1, Index i2, Index i3, Index i4);
-            void addQuads(const IndexList& indices);
+            void addQuads(const IndexArray& indices);
             void addQuads(Index baseIndex, size_t vertexCount);
             
-            void addPolygon(const IndexList& indices);
+            void addPolygon(const IndexArray& indices);
             void addPolygon(Index baseIndex, size_t vertexCount);
         private:
-            void add(PrimType primType, const IndexList& indices);
+            void add(PrimType primType, const IndexArray& indices);
         };
     }
 }
