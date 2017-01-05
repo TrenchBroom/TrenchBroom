@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TextureFont::TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, const size_t lineHeight, const unsigned char firstChar, const unsigned char charCount) :
+        TextureFont::TextureFont(FontTexture* texture, const FontGlyph::Array& glyphs, const size_t lineHeight, const unsigned char firstChar, const unsigned char charCount) :
         m_texture(texture),
         m_glyphs(glyphs),
         m_lineHeight(lineHeight),
