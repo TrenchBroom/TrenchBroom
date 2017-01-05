@@ -241,13 +241,13 @@ namespace TrenchBroom {
             }
         }
 
-        Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
+        Vbo::VboBlockArray::iterator Vbo::findFreeBlock(const size_t minCapacity) {
             VboBlock query(*this, 0, minCapacity, NULL, NULL);
             return std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), &query, CompareVboBlocksByCapacity());
         }
 
         void Vbo::insertFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            VboBlockArray::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
             if (it == std::end(m_freeBlocks))
                 m_freeBlocks.push_back(block);
             else
@@ -257,10 +257,10 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            VboBlockArray::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
             assert(it != std::end(m_freeBlocks));
             if (*it != block) {
-                const VboBlockList::iterator end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+                const VboBlockArray::iterator end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
                 while (it != end && *it != block)
                     ++it;
                 assert(it != end);
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             removeFreeBlock(it);
         }
 
-        void Vbo::removeFreeBlock(const VboBlockList::iterator it) {
+        void Vbo::removeFreeBlock(const VboBlockArray::iterator it) {
             VboBlock* block = *it;
             m_freeBlocks.erase(it);
             block->setFree(false);
