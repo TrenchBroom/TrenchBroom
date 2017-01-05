@@ -44,7 +44,7 @@ namespace TrenchBroom {
             m_indices[offset] = i;
         }
         
-        void TexturedIndexArrayBuilder::addPoints(const Texture* texture, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::addPoints(const Texture* texture, const IndexArray& indices) {
             add(texture, GL_POINTS, indices);
         }
         
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             m_indices[offset + 1] = i2;
         }
         
-        void TexturedIndexArrayBuilder::addLines(const Texture* texture, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::addLines(const Texture* texture, const IndexArray& indices) {
             assert(indices.size() % 2 == 0);
             add(texture, GL_LINES, indices);
         }
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             m_indices[offset + 2] = i3;
         }
         
-        void TexturedIndexArrayBuilder::addTriangles(const Texture* texture, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::addTriangles(const Texture* texture, const IndexArray& indices) {
             assert(indices.size() % 3 == 0);
             add(texture, GL_TRIANGLES, indices);
         }
@@ -79,14 +79,14 @@ namespace TrenchBroom {
             m_indices[offset + 3] = i4;
         }
         
-        void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const IndexArray& indices) {
             assert(indices.size() % 4 == 0);
             add(texture, GL_QUADS, indices);
         }
         
         void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
             assert(vertexCount % 4 == 0);
-            IndexList indices(vertexCount);
+            IndexArray indices(vertexCount);
             
             for (size_t i = 0; i < vertexCount; ++i)
                 indices[i] = baseIndex + static_cast<Index>(i);
@@ -94,10 +94,10 @@ namespace TrenchBroom {
             add(texture, GL_QUADS, indices);
         }
 
-        void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const IndexArray& indices) {
             const size_t count = indices.size();
             
-            IndexList polyIndices(0);
+            IndexArray polyIndices(0);
             polyIndices.reserve(3 * (count - 2));
             
             for (size_t i = 0; i < count - 2; ++i) {
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
-            IndexList polyIndices(0);
+            IndexArray polyIndices(0);
             polyIndices.reserve(3 * (vertexCount - 2));
             
             for (size_t i = 0; i < vertexCount - 2; ++i) {
@@ -122,10 +122,10 @@ namespace TrenchBroom {
             add(texture, GL_TRIANGLES, polyIndices);
         }
 
-        void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexList& indices) {
+        void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexArray& indices) {
             const size_t offset = m_ranges.add(texture, primType, indices.size());
-            IndexList::iterator dest = std::begin(m_indices);
-            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
+            IndexArray::iterator dest = std::begin(m_indices);
+            std::advance(dest, static_cast<IndexArray::iterator::difference_type>(offset));
             std::copy(std::begin(indices), std::end(indices), dest);
         }
     }
