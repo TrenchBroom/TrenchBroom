@@ -27,11 +27,11 @@ namespace TrenchBroom {
         m_indices(size.indexCount()),
         m_ranges(size) {}
         
-        const TexturedIndexArrayBuilder::IndexList& TexturedIndexArrayBuilder::indices() const {
+        const TexturedIndexArrayBuilder::IndexArray& TexturedIndexArrayBuilder::indices() const {
             return m_indices;
         }
         
-        TexturedIndexArrayBuilder::IndexList& TexturedIndexArrayBuilder::indices() {
+        TexturedIndexArrayBuilder::IndexArray& TexturedIndexArrayBuilder::indices() {
             return m_indices;
         }
         
