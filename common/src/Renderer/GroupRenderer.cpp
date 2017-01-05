@@ -57,7 +57,7 @@ namespace TrenchBroom {
         m_overrideBoundsColor(false),
         m_showOccludedBounds(false) {}
         
-        void GroupRenderer::setGroups(const Model::GroupList& groups) {
+        void GroupRenderer::setGroups(const Model::GroupArray& groups) {
             m_groups = groups;
             invalidate();
         }
