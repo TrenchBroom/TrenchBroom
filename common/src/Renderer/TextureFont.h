@@ -36,13 +36,13 @@ namespace TrenchBroom {
         public:
         private:
             FontTexture* m_texture;
-            FontGlyph::List m_glyphs;
+            FontGlyph::Array m_glyphs;
             size_t m_lineHeight;
             
             unsigned char m_firstChar;
             unsigned char m_charCount;
         public:
-            TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
+            TextureFont(FontTexture* texture, const FontGlyph::Array& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
             ~TextureFont();
             
             Vec2f::List quads(const AttrString& string, bool clockwise, const Vec2f& offset = Vec2f::Null);
