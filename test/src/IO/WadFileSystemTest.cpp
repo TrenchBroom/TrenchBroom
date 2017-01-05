@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/WadFileSystem.h"
 
 namespace TrenchBroom {

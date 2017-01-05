@@ -126,10 +126,10 @@ namespace TrenchBroom {
                 return whitespace;
             }
         public:
-            Tokenizer(const char* begin, const char* end, const String& escapableChars, const char escapeChar = '\\') :
+            Tokenizer(const char* begin, const char* end, const String& escapableChars, const char escapeChar) :
             m_state(new TokenizerState(begin, end, escapableChars, escapeChar)) {}
 
-            Tokenizer(const String& str, const String& escapableChars, const char escapeChar = '\\') :
+            Tokenizer(const String& str, const String& escapableChars, const char escapeChar) :
             m_state(new TokenizerState(str.c_str(), str.c_str() + str.size(), escapableChars, escapeChar)) {}
 
             template <typename OtherType>
