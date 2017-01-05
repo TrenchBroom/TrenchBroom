@@ -38,7 +38,7 @@ namespace TrenchBroom {
             void attach(const GLuint programId);
             void detach(const GLuint programId);
         private:
-            static StringList loadSource(const IO::Path& path);
+            static StringArray loadSource(const IO::Path& path);
         };
     }
 }
