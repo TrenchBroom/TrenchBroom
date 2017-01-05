@@ -28,17 +28,17 @@ namespace TrenchBroom {
         class ShaderConfig {
         private:
             String m_name;
-            StringList m_vertexShaders;
-            StringList m_fragmentShaders;
+            StringArray m_vertexShaders;
+            StringArray m_fragmentShaders;
         public:
             ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader);
-            ShaderConfig(const String& name, const String& vertexShader, const StringList& fragmentShaders);
-            ShaderConfig(const String& name, const StringList& vertexShaders, const String& fragmentShader);
-            ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders);
+            ShaderConfig(const String& name, const String& vertexShader, const StringArray& fragmentShaders);
+            ShaderConfig(const String& name, const StringArray& vertexShaders, const String& fragmentShader);
+            ShaderConfig(const String& name, const StringArray& vertexShaders, const StringArray& fragmentShaders);
         public:
             const String& name() const;
-            const StringList& vertexShaders() const;
-            const StringList& fragmentShaders() const;
+            const StringArray& vertexShaders() const;
+            const StringArray& fragmentShaders() const;
         };
     }
 }
