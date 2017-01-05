@@ -35,7 +35,7 @@ namespace TrenchBroom {
             if (m_shaderId == 0)
                 throw RenderException("Cannot create shader " + m_name);
             
-            const StringList source = loadSource(path);
+            const StringArray source = loadSource(path);
             const char** linePtrs = new const char*[source.size()];
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
@@ -83,13 +83,13 @@ namespace TrenchBroom {
             glAssert(glDetachShader(programId, m_shaderId));
         }
 
-        StringList Shader::loadSource(const IO::Path& path) {
+        StringArray Shader::loadSource(const IO::Path& path) {
             std::fstream stream(path.asString().c_str(), std::ios::in);
             if (!stream.is_open())
                 throw RenderException("Cannot load shader source from " + path.asString());
             
             String line;
-            StringList lines;
+            StringArray lines;
             
             while (!stream.eof()) {
                 std::getline(stream, line);
