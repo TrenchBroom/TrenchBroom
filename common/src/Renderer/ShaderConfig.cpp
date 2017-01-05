@@ -28,17 +28,17 @@ namespace TrenchBroom {
         m_vertexShaders(1, vertexShader),
         m_fragmentShaders(1, fragmentShader) {}
 
-        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const StringList& fragmentShaders) :
+        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const StringArray& fragmentShaders) :
         m_name(name),
         m_vertexShaders(1, vertexShader),
         m_fragmentShaders(fragmentShaders) {}
         
-        ShaderConfig::ShaderConfig(const String& name, const StringList& vertexShaders, const String& fragmentShader) :
+        ShaderConfig::ShaderConfig(const String& name, const StringArray& vertexShaders, const String& fragmentShader) :
         m_name(name),
         m_vertexShaders(vertexShaders),
         m_fragmentShaders(1, fragmentShader) {}
         
-        ShaderConfig::ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders) :
+        ShaderConfig::ShaderConfig(const String& name, const StringArray& vertexShaders, const StringArray& fragmentShaders) :
         m_name(name),
         m_vertexShaders(vertexShaders),
         m_fragmentShaders(fragmentShaders) {}
@@ -47,11 +47,11 @@ namespace TrenchBroom {
             return m_name;
         }
         
-        const StringList& ShaderConfig::vertexShaders() const {
+        const StringArray& ShaderConfig::vertexShaders() const {
             return m_vertexShaders;
         }
         
-        const StringList& ShaderConfig::fragmentShaders() const {
+        const StringArray& ShaderConfig::fragmentShaders() const {
             return m_fragmentShaders;
         }
     }
