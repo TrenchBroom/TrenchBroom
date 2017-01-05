@@ -25,11 +25,11 @@ namespace TrenchBroom {
         m_indices(size.indexCount()),
         m_ranges(size) {}
         
-        const IndexArrayMapBuilder::IndexList& IndexArrayMapBuilder::indices() const {
+        const IndexArrayMapBuilder::IndexArray& IndexArrayMapBuilder::indices() const {
             return m_indices;
         }
         
-        IndexArrayMapBuilder::IndexList& IndexArrayMapBuilder::indices() {
+        IndexArrayMapBuilder::IndexArray& IndexArrayMapBuilder::indices() {
             return m_indices;
         }
         
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             m_indices[offset] = i;
         }
         
-        void IndexArrayMapBuilder::addPoints(const IndexList& indices) {
+        void IndexArrayMapBuilder::addPoints(const IndexArray& indices) {
             add(GL_POINTS, indices);
         }
         
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             m_indices[offset + 1] = i2;
         }
         
-        void IndexArrayMapBuilder::addLines(const IndexList& indices) {
+        void IndexArrayMapBuilder::addLines(const IndexArray& indices) {
             assert(indices.size() % 2 == 0);
             add(GL_LINES, indices);
         }
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             m_indices[offset + 2] = i3;
         }
         
-        void IndexArrayMapBuilder::addTriangles(const IndexList& indices) {
+        void IndexArrayMapBuilder::addTriangles(const IndexArray& indices) {
             assert(indices.size() % 3 == 0);
             add(GL_TRIANGLES, indices);
         }
@@ -77,14 +77,14 @@ namespace TrenchBroom {
             m_indices[offset + 3] = i4;
         }
         
-        void IndexArrayMapBuilder::addQuads(const IndexList& indices) {
+        void IndexArrayMapBuilder::addQuads(const IndexArray& indices) {
             assert(indices.size() % 4 == 0);
             add(GL_QUADS, indices);
         }
         
         void IndexArrayMapBuilder::addQuads(const Index baseIndex, const size_t vertexCount) {
             assert(vertexCount % 4 == 0);
-            IndexList indices(vertexCount);
+            IndexArray indices(vertexCount);
             
             for (size_t i = 0; i < vertexCount; ++i)
                 indices[i] = baseIndex + static_cast<Index>(i);
@@ -92,10 +92,10 @@ namespace TrenchBroom {
             add(GL_QUADS, indices);
         }
         
-        void IndexArrayMapBuilder::addPolygon(const IndexList& indices) {
+        void IndexArrayMapBuilder::addPolygon(const IndexArray& indices) {
             const size_t count = indices.size();
             
-            IndexList polyIndices(0);
+            IndexArray polyIndices(0);
             polyIndices.reserve(3 * (count - 2));
             
             for (size_t i = 0; i < count - 2; ++i) {
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         }
         
         void IndexArrayMapBuilder::addPolygon(const Index baseIndex, const size_t vertexCount) {
-            IndexList polyIndices(0);
+            IndexArray polyIndices(0);
             polyIndices.reserve(3 * (vertexCount - 2));
             
             for (size_t i = 0; i < vertexCount - 2; ++i) {
@@ -120,10 +120,10 @@ namespace TrenchBroom {
             add(GL_TRIANGLES, polyIndices);
         }
         
-        void IndexArrayMapBuilder::add(const PrimType primType, const IndexList& indices) {
+        void IndexArrayMapBuilder::add(const PrimType primType, const IndexArray& indices) {
             const size_t offset = m_ranges.add(primType, indices.size());
-            IndexList::iterator dest = std::begin(m_indices);
-            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
+            IndexArray::iterator dest = std::begin(m_indices);
+            std::advance(dest, static_cast<IndexArray::iterator::difference_type>(offset));
             std::copy(std::begin(indices), std::end(indices), dest);
         }
     }
