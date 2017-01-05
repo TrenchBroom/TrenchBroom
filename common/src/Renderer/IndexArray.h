@@ -52,7 +52,7 @@ namespace TrenchBroom {
             template <typename Index>
             class Holder : public BaseHolder {
             protected:
-                typedef std::vector<Index> IndexList;
+                typedef std::vector<Index> IndexArray;
             private:
                 VboBlock* m_block;
                 size_t m_indexCount;
@@ -102,17 +102,17 @@ namespace TrenchBroom {
                     glAssert(glDrawElements(primType, renderCount, indexType, renderOffset));
                 }
             private:
-                virtual const IndexList& doGetIndices() const = 0;
+                virtual const IndexArray& doGetIndices() const = 0;
             };
             
             template <typename Index>
             class CopyHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                typedef typename Holder<Index>::IndexArray IndexArray;
             private:
-                IndexList m_indices;
+                IndexArray m_indices;
             public:
-                CopyHolder(const IndexList& indices) :
+                CopyHolder(const IndexArray& indices) :
                 Holder<Index>(indices.size()),
                 m_indices(indices) {}
                 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                     VectorUtils::clearToZero(m_indices);
                 }
             private:
-                const IndexList& doGetIndices() const {
+                const IndexArray& doGetIndices() const {
                     return m_indices;
                 }
             };
@@ -129,11 +129,11 @@ namespace TrenchBroom {
             template <typename Index>
             class SwapHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                typedef typename Holder<Index>::IndexArray IndexArray;
             private:
-                IndexList m_indices;
+                IndexArray m_indices;
             public:
-                SwapHolder(IndexList& indices) :
+                SwapHolder(IndexArray& indices) :
                 Holder<Index>(indices.size()),
                 m_indices(0) {
                     using std::swap;
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                     VectorUtils::clearToZero(m_indices);
                 }
             private:
-                const IndexList& doGetIndices() const {
+                const IndexArray& doGetIndices() const {
                     return m_indices;
                 }
             };
@@ -153,15 +153,15 @@ namespace TrenchBroom {
             template <typename Index>
             class RefHolder : public Holder<Index> {
             public:
-                typedef typename Holder<Index>::IndexList IndexList;
+                typedef typename Holder<Index>::IndexArray IndexArray;
             private:
-                const IndexList& m_indices;
+                const IndexArray& m_indices;
             public:
-                RefHolder(const IndexList& indices) :
+                RefHolder(const IndexArray& indices) :
                 Holder<Index>(indices.size()),
                 m_indices(indices) {}
             private:
-                const IndexList& doGetIndices() const {
+                const IndexArray& doGetIndices() const {
                     return m_indices;
                 }
             };
