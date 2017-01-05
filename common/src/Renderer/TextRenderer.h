@@ -55,10 +55,10 @@ namespace TrenchBroom {
                 Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
-            typedef std::vector<Entry> EntryList;
+            typedef std::vector<Entry> EntryArray;
             
             struct EntryCollection {
-                EntryList entries;
+                EntryArray entries;
                 size_t textVertexCount;
                 size_t rectVertexCount;
                 
