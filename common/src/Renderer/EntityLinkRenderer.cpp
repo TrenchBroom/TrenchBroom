@@ -151,7 +151,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::Entity* source, const Model::AttributableNodeArray& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
+            void addSources(const Model::AttributableNodeArray& sources, Model::Entity* target) {
                 for (Model::AttributableNode* source : sources) {
                     if (m_editorContext.visible(source)) {
                         addLink(source, target);
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::Entity* source, const Model::AttributableNodeArray& targets) {
                 for (Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target)) {
                         addLink(source, target);
@@ -211,7 +211,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
+            void addSources(const Model::AttributableNodeArray& sources, Model::Entity* target) {
                 for (const Model::AttributableNode* source : sources) {
                     if (!source->selected() && !source->descendantSelected() && m_editorContext.visible(source))
                         addLink(source, target);
@@ -275,11 +275,11 @@ namespace TrenchBroom {
         void EntityLinkRenderer::collectSelectedLinks(CollectLinksVisitor& collectLinks) const {
             View::MapDocumentSPtr document = lock(m_document);
             
-            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            const Model::NodeArray& selectedNodes = document->selectedNodes().nodes();
             CollectEntitiesVisitor collectEntities;
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collectEntities);
             
-            const Model::NodeList& selectedEntities = collectEntities.nodes();
+            const Model::NodeArray& selectedEntities = collectEntities.nodes();
             Model::Node::accept(std::begin(selectedEntities), std::end(selectedEntities), collectLinks);
         }
     }
