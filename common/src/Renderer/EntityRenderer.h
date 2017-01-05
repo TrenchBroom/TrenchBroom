@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            Model::EntityList m_entities;
+            Model::EntityArray m_entities;
             
             DirectEdgeRenderer m_wireframeBoundsRenderer;
             TriangleRenderer m_solidBoundsRenderer;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const Model::EntityList& entities);
+            void setEntities(const Model::EntityArray& entities);
             void invalidate();
             void clear();
             void reloadModels();
