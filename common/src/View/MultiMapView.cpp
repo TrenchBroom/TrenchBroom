@@ -27,12 +27,12 @@ namespace TrenchBroom {
     namespace View {
         MultiMapView::MultiMapView(wxWindow* parent) :
         MapViewContainer(parent),
-        m_maximizedView(NULL) {}
+        m_maximizedView(nullptr) {}
         
         MultiMapView::~MultiMapView() {}
 
         void MultiMapView::addMapView(MapView* mapView) {
-            ensure(mapView != NULL, "mapView is null");
+            ensure(mapView != nullptr, "mapView is nullptr");
             m_mapViews.push_back(mapView);
         }
 
@@ -60,13 +60,13 @@ namespace TrenchBroom {
         }
         
         bool MultiMapView::doCanSelectTall() {
-            if (currentMapView() == NULL)
+            if (currentMapView() == nullptr)
                 return false;
             return currentMapView()->canSelectTall();
         }
         
         void MultiMapView::doSelectTall() {
-            if (currentMapView() != NULL)
+            if (currentMapView() != nullptr)
                 currentMapView()->selectTall();
         }
 
@@ -86,17 +86,17 @@ namespace TrenchBroom {
         }
 
         bool MultiMapView::doCanMaximizeCurrentView() const {
-            return m_maximizedView != NULL || currentMapView() != NULL;
+            return m_maximizedView != nullptr || currentMapView() != nullptr;
         }
         
         bool MultiMapView::doCurrentViewMaximized() const {
-            return m_maximizedView != NULL;
+            return m_maximizedView != nullptr;
         }
         
         void MultiMapView::doToggleMaximizeCurrentView() {
-            if (m_maximizedView != NULL) {
+            if (m_maximizedView != nullptr) {
                 doRestoreViews();
-                m_maximizedView = NULL;
+                m_maximizedView = nullptr;
             } else {
                 m_maximizedView = currentMapView();
                 doMaximizeView(m_maximizedView);
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 if (mapView->isCurrent())
                     return mapView;
             }
-            return NULL;
+            return nullptr;
         }
     }
 }
