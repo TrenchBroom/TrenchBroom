@@ -47,7 +47,7 @@ namespace TrenchBroom {
             m_entityRenderer(entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
-            void setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
+            void setObjects(const Model::GroupArray& groups, const Model::EntityArray& entities, const Model::BrushArray& brushes);
             void invalidate();
             void clear();
             void reloadModels();
