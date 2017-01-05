@@ -289,7 +289,7 @@ namespace TrenchBroom {
             if (renderContext.render3D()) {
                 View::MapDocumentSPtr document = lock(m_document);
                 const Assets::EntityDefinition* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
-                const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
+                const Model::NodeArray nodes = document->findNodesContaining(renderContext.camera().position());
                 if (!nodes.empty()) {
                     RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
@@ -531,24 +531,24 @@ namespace TrenchBroom {
             updateRenderers(Renderer_All);
         }
         
-        void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
+        void MapRenderer::nodesWereAdded(const Model::NodeArray& nodes) {
             updateRenderers(Renderer_Default);
         }
         
-        void MapRenderer::nodesWereRemoved(const Model::NodeList& nodes) {
+        void MapRenderer::nodesWereRemoved(const Model::NodeArray& nodes) {
             updateRenderers(Renderer_Default);
         }
         
-        void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodesDidChange(const Model::NodeArray& nodes) {
             invalidateRenderers(Renderer_Selection);
             invalidateEntityLinkRenderer();
         }
         
-        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeVisibilityDidChange(const Model::NodeArray& nodes) {
             updateRenderers(Renderer_All);
         }
         
-        void MapRenderer::nodeLockingDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeLockingDidChange(const Model::NodeArray& nodes) {
             updateRenderers(Renderer_Default_Locked);
         }
         
@@ -560,7 +560,7 @@ namespace TrenchBroom {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void MapRenderer::brushFacesDidChange(const Model::BrushFaceArray& faces) {
             invalidateRenderers(Renderer_Selection);
         }
         
@@ -568,7 +568,7 @@ namespace TrenchBroom {
             updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
         }
         
-        Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
+        Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceArray& faces) {
             Model::BrushSet result;
             for (const Model::BrushFace* face : faces)
                 result.insert(face->brush());
