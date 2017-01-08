@@ -77,7 +77,7 @@ namespace TrenchBroom {
             
             try {
                 IO::WritableDiskFileSystem fs = createBackupFileSystem(mapPath);
-                IO::Path::List backups = collectBackups(fs, mapBasename);
+                IO::Path::Array backups = collectBackups(fs, mapBasename);
                 
                 thinBackups(fs, backups);
                 cleanBackups(fs, backups, mapBasename);
@@ -142,13 +142,13 @@ namespace TrenchBroom {
             return extractBackupNo(lhs) < extractBackupNo(rhs);
         }
         
-        IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
-            IO::Path::List backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
+        IO::Path::Array Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
+            IO::Path::Array backups = fs.findItems(IO::Path(""), BackupFileMatcher(mapBasename));
             std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
             return backups;
         }
         
-        void Autosaver::thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
+        void Autosaver::thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::Array& backups) const {
             while (backups.size() > m_maxBackups - 1) {
                 const IO::Path filename = backups.front();
                 try {
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const {
+        void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::Array& backups, const IO::Path& mapBasename) const {
             for (size_t i = 0; i < backups.size(); ++i) {
                 const IO::Path& oldName = backups[i].lastComponent();
                 const IO::Path newName = makeBackupName(mapBasename, i + 1);
