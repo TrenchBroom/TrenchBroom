@@ -167,7 +167,7 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
             
-            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            void setFaceAttributes(const Model::BrushFaceArray& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
             
             void clearRenderers();
             void updateRenderers();
@@ -184,8 +184,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWillChange(const Model::NodeArray& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
         private: // implement Tool interface
             String doGetIconName() const;
         };
