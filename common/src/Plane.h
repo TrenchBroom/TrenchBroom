@@ -30,7 +30,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 template <typename T, size_t S>
 class Plane {
 public:
-    typedef std::vector<Plane> List;
+    typedef std::vector<Plane> Array;
     typedef std::set<Plane> Set;
     
     class WeightOrder {
@@ -211,15 +211,15 @@ public:
         return point + direction * d;
     }
     
-    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points) const {
-        typename Vec<T,S>::List result(points.size());
+    typename Vec<T,S>::Array projectPoints(const typename Vec<T,S>::Array& points) const {
+        typename Vec<T,S>::Array result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i]);
         return result;
     }
 
-    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
-        typename Vec<T,S>::List result(points.size());
+    typename Vec<T,S>::Array projectPoints(const typename Vec<T,S>::Array& points, const Vec<T,S>& direction) const {
+        typename Vec<T,S>::Array result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i], direction);
         return result;
@@ -233,15 +233,15 @@ public:
         return projectPoint(anchor() + vector) - anchor();
     }
     
-    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors) const {
-        typename Vec<T,S>::List result(vectors.size());
+    typename Vec<T,S>::Array projectVectors(const typename Vec<T,S>::Array& vectors) const {
+        typename Vec<T,S>::Array result(vectors.size());
         for (size_t i = 0; i < vectors.size(); ++i)
             result[i] = projectVector(vectors[i]);
         return result;
     }
     
-    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors, const Vec<T,S>& direction) const {
-        typename Vec<T,S>::List result(vectors.size());
+    typename Vec<T,S>::Array projectVectors(const typename Vec<T,S>::Array& vectors, const Vec<T,S>& direction) const {
+        typename Vec<T,S>::Array result(vectors.size());
         for (size_t i = 0; i < vectors.size(); ++i)
             result[i] = projectVector(vectors[i], direction);
         return result;
