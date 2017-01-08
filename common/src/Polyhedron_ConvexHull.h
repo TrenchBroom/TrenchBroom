@@ -156,12 +156,12 @@ private:
 };
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points) {
+void Polyhedron<T,FP,VP>::addPoints(const typename V::Array& points) {
     addPoints(std::begin(points), std::end(points));
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points, Callback& callback) {
+void Polyhedron<T,FP,VP>::addPoints(const typename V::Array& points, Callback& callback) {
     addPoints(std::begin(points), std::end(points), callback);
 }
 
@@ -475,7 +475,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
 // this polyhedron is empty and that the given point list contains at least three
 // non-colinear points.
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::makePolygon(const typename V::List& positions, Callback& callback) {
+void Polyhedron<T,FP,VP>::makePolygon(const typename V::Array& positions, Callback& callback) {
     assert(empty());
     assert(positions.size() > 2);
     
