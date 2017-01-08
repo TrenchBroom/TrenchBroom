@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class ViewShortcut : public KeyboardShortcutEntry {
         public:
-            typedef std::vector<ViewShortcut> List;
+            typedef std::vector<ViewShortcut> Array;
         private:
             Preference<KeyboardShortcut> m_preference;
             int m_context;
