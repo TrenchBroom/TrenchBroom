@@ -57,7 +57,7 @@ namespace TrenchBroom {
         class Vertex1 {
         public:
             typedef VertexSpec1<A1> Spec;
-            typedef std::vector<Vertex1<A1> > List;
+            typedef std::vector<Vertex1<A1> > Array;
             
             typename A1::ElementType v1;
             
@@ -70,13 +70,13 @@ namespace TrenchBroom {
                 return v1 == other.v1;
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list,
+            static Array fromArrays(const std::vector<typename A1::ElementType>& array,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1) {
-                List result;
+                Array result;
                 size_t index1 = offset1;
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex1(list[index1]));
+                    result.push_back(Vertex1(array[index1]));
                     index1 += stride1;
                 }
                 return result;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         class Vertex2 {
         public:
             typedef VertexSpec2<A1, A2> Spec;
-            typedef std::vector<Vertex2<A1, A2> > List;
+            typedef std::vector<Vertex2<A1, A2> > Array;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -104,15 +104,15 @@ namespace TrenchBroom {
                         v2 == other.v2);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
+            static Array fromArrays(const std::vector<typename A1::ElementType>& array1,
+                                  const std::vector<typename A2::ElementType>& array2,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1) {
-                List result;
+                Array result;
                 size_t index1 = offset1, index2 = offset2;
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex2(list1[index1], list2[index2]));
+                    result.push_back(Vertex2(array1[index1], array2[index2]));
                     index1 += stride1;
                     index2 += stride2;
                 }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
         class Vertex3 {
         public:
             typedef VertexSpec3<A1, A2, A3> Spec;
-            typedef std::vector<Vertex3<A1, A2, A3> > List;
+            typedef std::vector<Vertex3<A1, A2, A3> > Array;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -145,17 +145,17 @@ namespace TrenchBroom {
                         v3 == other.v3);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
+            static Array fromArrays(const std::vector<typename A1::ElementType>& array1,
+                                  const std::vector<typename A2::ElementType>& array2,
+                                  const std::vector<typename A3::ElementType>& array3,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
                                   const size_t offset3 = 0, const size_t stride3 = 1) {
-                List result;
+                Array result;
                 size_t index1 = offset1, index2 = offset2, index3 = offset3;
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex3(list1[index1], list2[index2], list3[index3]));
+                    result.push_back(Vertex3(array1[index1], array2[index2], array3[index3]));
                     index1 += stride1;
                     index2 += stride2;
                     index3 += stride3;
@@ -168,7 +168,7 @@ namespace TrenchBroom {
         class Vertex4 {
         public:
             typedef VertexSpec4<A1, A2, A3, A4> Spec;
-            typedef std::vector<Vertex4<A1, A2, A3, A4> > List;
+            typedef std::vector<Vertex4<A1, A2, A3, A4> > Array;
             
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -193,19 +193,19 @@ namespace TrenchBroom {
                         v4 == other.v4);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
-                                  const std::vector<typename A4::ElementType>& list4,
+            static Array fromArrays(const std::vector<typename A1::ElementType>& array1,
+                                  const std::vector<typename A2::ElementType>& array2,
+                                  const std::vector<typename A3::ElementType>& array3,
+                                  const std::vector<typename A4::ElementType>& array4,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
                                   const size_t offset3 = 0, const size_t stride3 = 1,
                                   const size_t offset4 = 0, const size_t stride4 = 1) {
-                List result;
+                Array result;
                 size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4;
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex4(list1[index1], list2[index2], list3[index3], list4[index4]));
+                    result.push_back(Vertex4(array1[index1], array2[index2], array3[index3], array4[index4]));
                     index1 += stride1;
                     index2 += stride2;
                     index3 += stride3;
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         class Vertex5 {
         public:
             typedef VertexSpec5<A1, A2, A3, A4, A5> Spec;
-            typedef std::vector<Vertex5<A1, A2, A3, A4, A5> > List;
+            typedef std::vector<Vertex5<A1, A2, A3, A4, A5> > Array;
 
             typename A1::ElementType v1;
             typename A2::ElementType v2;
@@ -248,21 +248,21 @@ namespace TrenchBroom {
                         v5 == other.v5);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
-                                  const std::vector<typename A4::ElementType>& list4,
-                                  const std::vector<typename A5::ElementType>& list5,
+            static Array fromArrays(const std::vector<typename A1::ElementType>& array1,
+                                  const std::vector<typename A2::ElementType>& array2,
+                                  const std::vector<typename A3::ElementType>& array3,
+                                  const std::vector<typename A4::ElementType>& array4,
+                                  const std::vector<typename A5::ElementType>& array5,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
                                   const size_t offset3 = 0, const size_t stride3 = 1,
                                   const size_t offset4 = 0, const size_t stride4 = 1,
                                   const size_t offset5 = 0, const size_t stride5 = 1) {
-                List result;
+                Array result;
                 size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4, index5 = offset5;
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex5(list1[index1], list2[index2], list3[index3], list4[index4], list5[index5]));
+                    result.push_back(Vertex5(array1[index1], array2[index2], array3[index3], array4[index4], array5[index5]));
                     index1 += stride1;
                     index2 += stride2;
                     index3 += stride3;
