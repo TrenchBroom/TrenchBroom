@@ -142,13 +142,13 @@ Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions) {
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::Array& positions) {
     Callback c;
     addPoints(std::begin(positions), std::end(positions), c);
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions, Callback& callback) {
+Polyhedron<T,FP,VP>::Polyhedron(const typename V::Array& positions, Callback& callback) {
     addPoints(std::begin(positions), std::end(positions), callback);
 }
 
@@ -453,7 +453,7 @@ bool Polyhedron<T,FP,VP>::hasVertex(const V& position, const T epsilon) const {
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasVertices(const typename V::Array& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
     for (const V& position : positions) {
@@ -464,8 +464,8 @@ bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() const {
-    typename V::List result;
+typename Polyhedron<T,FP,VP>::V::Array Polyhedron<T,FP,VP>::vertexPositions() const {
+    typename V::Array result;
     result.reserve(vertexCount());
     getVertexPositions(std::back_inserter(result));
     return result;
@@ -508,7 +508,7 @@ const typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasFace(const typename V::List& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasFace(const typename V::Array& positions, const T epsilon) const {
     return findFaceByPositions(positions, epsilon) != NULL;
 }
 
@@ -632,7 +632,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const typename V::Array& positions, const T epsilon) const {
     Face* firstFace = m_faces.front();
     Face* currentFace = firstFace;
     do {
