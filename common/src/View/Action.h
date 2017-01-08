@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace View {
         class Action {
         public:
-            typedef std::vector<Action> List;
+            typedef std::vector<Action> Array;
         private:
             int m_id;
             String m_name;
