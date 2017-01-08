@@ -124,8 +124,8 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions() const {
-    typename V::List positions(0);
+typename Polyhedron<T,FP,VP>::V::Array Polyhedron<T,FP,VP>::Face::vertexPositions() const {
+    typename V::Array positions(0);
     positions.reserve(vertexCount());
     getVertexPositions(std::back_inserter(positions));
     return positions;
@@ -144,7 +144,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T eps
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::Array& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
     
