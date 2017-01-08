@@ -125,7 +125,7 @@ private:
     }
     
     void removeSubtrahend() {
-        const typename V::List vertices = V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition());
+        const typename V::Array vertices = V::asArray(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition());
         
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
             const Polyhedron& fragment = *it;
@@ -193,8 +193,8 @@ private:
     
     PositionSet findExcludedVertices() const {
         PositionSet result(VertexCmp(0.1));
-        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
-        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asArray(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asArray(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
         return result;
     }
     
@@ -347,7 +347,7 @@ private:
         }
     };
     
-    typedef std::vector<typename Polyhedron::List::iterator> IndexList;
+    typedef std::vector<typename Polyhedron::List::iterator> IndexArray;
     typedef std::map<size_t, typename NeighbourEntry::Set> Neighbours;
     
     typedef std::set<size_t> MergeGroup;
@@ -381,7 +381,7 @@ private:
     
     typename Polyhedron::List&  m_fragments;
     const Callback& m_callback;
-    IndexList m_indices;
+    IndexArray m_indices;
     
     // Maps a polyhedron index (into m_indices) to the set of its mergeable neighbours.
     // Each entry in the set also stores the two shared faces between the neighbours.
@@ -465,8 +465,8 @@ private:
     
     
     typedef std::pair<size_t, Face*> NeighbourFace;
-    typedef std::vector<NeighbourFace> NeighbourFaceList;
-    typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
+    typedef std::vector<NeighbourFace> NeighbourFaceArray;
+    typedef std::map<FaceKey, NeighbourFaceArray> NeighbourMap;
     
     /**
      Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
@@ -474,7 +474,7 @@ private:
      */
     void findMergeableNeighbours() {
         for (const auto& entry : findNeighbours()) {
-            const NeighbourFaceList& neighbourFaces = entry.second;
+            const NeighbourFaceArray& neighbourFaces = entry.second;
             assert(neighbourFaces.size() == 2);
             
             const NeighbourFace& first  = neighbourFaces[0];
@@ -508,7 +508,7 @@ private:
             Face* firstFace = fragment.faces().front();
             Face* currentFace = firstFace;
             do {
-                NeighbourFaceList& neighbours = result[FaceKey(currentFace)];
+                NeighbourFaceArray& neighbours = result[FaceKey(currentFace)];
                 assert(neighbours.size() < 2);
                 neighbours.push_back(std::make_pair(index, currentFace));
                 currentFace = currentFace->next();
