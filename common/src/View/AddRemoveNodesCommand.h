@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Model::ParentChildrenMap m_nodesToAdd;
             Model::ParentChildrenMap m_nodesToRemove;
         public:
-            static Ptr add(Model::Node* parent, const Model::NodeList& children);
+            static Ptr add(Model::Node* parent, const Model::NodeArray& children);
             static Ptr add(const Model::ParentChildrenMap& nodes);
             static Ptr remove(const Model::ParentChildrenMap& nodes);
             ~AddRemoveNodesCommand();
