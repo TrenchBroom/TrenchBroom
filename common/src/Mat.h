@@ -54,7 +54,7 @@ public:
     static const Mat<T,R,C> YIQToRGB;
     static const Mat<T,R,C> RGBToYIQ;
     
-    typedef std::vector<Mat<T,R,C> > List;
+    typedef std::vector<Mat<T,R,C> > Array;
     
     // we store in column-major format
     // every vector is one column
@@ -198,15 +198,15 @@ public:
     }
     
     // Vector list right multiplication
-    const typename Vec<T,C>::List operator*(const typename Vec<T,C>::List& right) const {
-        typename Vec<T,C>::List result;
+    const typename Vec<T,C>::Array operator*(const typename Vec<T,C>::Array& right) const {
+        typename Vec<T,C>::Array result;
         result.reserve(right.size());
         std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C>& elem) { return *this * elem; });
         return result;
     }
     
-    const typename Vec<T,C-1>::List operator*(const typename Vec<T,C-1>::List& right) const {
-        typename Vec<T,C-1>::List result;
+    const typename Vec<T,C-1>::Array operator*(const typename Vec<T,C-1>::Array& right) const {
+        typename Vec<T,C-1>::Array result;
         result.reserve(right.size());
         std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C-1>& elem) { return *this * elem; });
         return result;
@@ -284,15 +284,15 @@ Vec<T,R>& operator*= (Vec<T,R>& left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with list of vectors of dimension R
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R>::List result;
+const typename Vec<T,R>::Array operator*(const typename Vec<T,R>::Array& left, const Mat<T,R,C>& right) {
+    typename Vec<T,R>::Array result;
     result.reserve(left.size());
     std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
+const typename Vec<T,R>::Array& operator*= (typename Vec<T,R>::Array& left, const Mat<T,R,C>& right) {
     for (Vec<T,R>& elem : left)
         elem *= right;
     return left;
@@ -311,15 +311,15 @@ Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with list of vectors of dimension R-1
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R-1>::List result;
+const typename Vec<T,R-1>::Array operator*(const typename Vec<T,R-1>::Array& left, const Mat<T,R,C>& right) {
+    typename Vec<T,R-1>::Array result;
     result.reserve(left.size());
     std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R-1>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
-typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+typename Vec<T,R-1>::Array& operator*= (typename Vec<T,R-1>::Array& left, const Mat<T,R,C>& right) {
     for (Vec<T,R-1>& elem : left)
         elem *= right;
     return left;
