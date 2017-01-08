@@ -39,12 +39,12 @@ namespace TrenchBroom {
         
         class ActionManager {
         public:
-            typedef std::vector<KeyboardShortcutEntry*> ShortcutEntryList;
+            typedef std::vector<KeyboardShortcutEntry*> ShortcutEntryArray;
         private:
-            typedef std::vector<wxAcceleratorEntry> AcceleratorEntryList;
+            typedef std::vector<wxAcceleratorEntry> AcceleratorEntryArray;
 
             MenuBar* m_menuBar;
-            ViewShortcut::List m_viewShortcuts;
+            ViewShortcut::Array m_viewShortcuts;
         public:
             static ActionManager& instance();
             ~ActionManager();
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
             const ActionMenuItem* findMenuItem(int id) const;
             
-            void getShortcutEntries(ShortcutEntryList& entries);
+            void getShortcutEntries(ShortcutEntryArray& entries);
             String getJSTable();
         private:
             void getKeysJSTable(StringStream& str);
@@ -65,8 +65,8 @@ namespace TrenchBroom {
 
             wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;
         private:
-            void addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
-            void addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
+            void addViewActions(ActionContext context, ActionView view, AcceleratorEntryArray& accelerators) const;
+            void addMenuActions(ActionContext context, ActionView view, AcceleratorEntryArray& accelerators) const;
         public:
             void resetShortcutsToDefaults();
         private:
