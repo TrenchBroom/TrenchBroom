@@ -134,12 +134,12 @@ namespace TrenchBroom {
         
         static RenderView* FindChildRenderView(wxWindow *current) {
             for (wxWindow *child : current->GetChildren()) {
-                RenderView *canvas = dynamic_cast<RenderView*>(child);
-                if (canvas)
+                RenderView *canvas = wxDynamicCast(child, RenderView);
+                if (canvas != nullptr)
                     return canvas;
                 
                 canvas = FindChildRenderView(child);
-                if (canvas)
+                if (canvas != nullptr)
                     return canvas;
             }
             return nullptr;
