@@ -88,7 +88,7 @@ namespace TrenchBroom {
             
             Animation::Array& array = m_animations[animation->type()];
             if (replace)
-                list.clear();
+                array.clear();
             array.push_back(Animation::Ptr(animation));
         }
         
