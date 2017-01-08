@@ -31,18 +31,18 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Polygon {
     public:
-        typedef std::vector<Polygon<T,S> > List;
+        typedef std::vector<Polygon<T,S> > Array;
     private:
-        typename Vec<T,S>::List m_vertices;
+        typename Vec<T,S>::Array m_vertices;
     public:
         Polygon() {}
         
-        Polygon(const typename Vec<T,S>::List& i_vertices) :
+        Polygon(const typename Vec<T,S>::Array& i_vertices) :
         m_vertices(i_vertices) {
             orderVertices(m_vertices);
         }
         
-        Polygon(typename Vec<T,S>::List& i_vertices) {
+        Polygon(typename Vec<T,S>::Array& i_vertices) {
             using std::swap;
             swap(m_vertices, i_vertices);
             orderVertices(m_vertices);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             return m_vertices.size();
         }
         
-        const typename Vec<T,S>::List& vertices() const {
+        const typename Vec<T,S>::Array& vertices() const {
             return m_vertices;
         }
         
@@ -97,19 +97,19 @@ namespace TrenchBroom {
             return center / static_cast<T>(m_vertices.size());
         }
         
-        static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
-            typename Vec<T,S>::List result;
+        static typename Vec<T,S>::Array asVertexArray(const typename Polygon<T,S>::Array& polygons) {
+            typename Vec<T,S>::Array result;
             for (size_t i = 0; i < polygons.size(); ++i)
                 result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
         }
         
     private:
-        void orderVertices(typename Vec<T,S>::List& vertices) {
+        void orderVertices(typename Vec<T,S>::Array& vertices) {
             if (vertices.size() < 2)
                 return;
             
-            typedef typename Vec<T,S>::List::iterator Iter;
+            typedef typename Vec<T,S>::Array::iterator Iter;
             Iter it = std::begin(vertices);
             Iter end = std::end(vertices);
             Iter smallest = it++;
