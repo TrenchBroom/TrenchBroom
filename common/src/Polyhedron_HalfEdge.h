@@ -117,7 +117,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::nextIncid
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const typename V::List& origins, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const typename V::Array& origins, const T epsilon) const {
     const HalfEdge* edge = this;
     for (const V& origin : origins) {
         if (!edge->origin()->position().equals(origin, epsilon))
