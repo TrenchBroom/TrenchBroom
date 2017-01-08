@@ -70,7 +70,7 @@ namespace TrenchBroom {
             doUpdate(m_progress);
         }
         
-        ExecutableAnimation::ExecutableAnimation(const Animation::List& animations) :
+        ExecutableAnimation::ExecutableAnimation(const Animation::Array& animations) :
         m_animations(animations) {}
         
         void ExecutableAnimation::execute() {
@@ -86,32 +86,32 @@ namespace TrenchBroom {
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
             ensure(animation != NULL, "animation is null");
             
-            Animation::List& list = m_animations[animation->type()];
+            Animation::Array& array = m_animations[animation->type()];
             if (replace)
                 list.clear();
-            list.push_back(Animation::Ptr(animation));
+            array.push_back(Animation::Ptr(animation));
         }
         
         wxThread::ExitCode AnimationManager::Entry() {
             while (!TestDestroy()) {
                 const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
                 
-                Animation::List updateAnimations;
+                Animation::Array updateAnimations;
                 if (!m_animations.empty()) {
                     auto mapIt = std::begin(m_animations);
                     while (mapIt != std::end(m_animations)) {
-                        Animation::List& list = mapIt->second;
-                        auto listIt = std::begin(list);
-                        while (listIt != std::end(list)) {
-                            Animation::Ptr animation = *listIt;
+                        Animation::Array& array = mapIt->second;
+                        auto arrayIt = std::begin(array);
+                        while (arrayIt != std::end(array)) {
+                            Animation::Ptr animation = *arrayIt;
                             if (animation->step(elapsed))
-                                listIt = list.erase(listIt);
+                                arrayIt = array.erase(arrayIt);
                             updateAnimations.push_back(animation);
-                            if (listIt != std::end(list))
-                                ++listIt;
+                            if (arrayIt != std::end(array))
+                                ++arrayIt;
                         }
                         
-                        if (list.empty())
+                        if (array.empty())
                             m_animations.erase(mapIt++);
                         else
                             ++mapIt;
