@@ -55,10 +55,10 @@ namespace TrenchBroom {
         private:
             void autosave(View::MapDocumentSPtr document);
             IO::WritableDiskFileSystem createBackupFileSystem(const IO::Path& mapPath) const;
-            IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
+            IO::Path::Array collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
             bool isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const;
-            void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
-            void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
+            void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::Array& backups) const;
+            void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::Array& backups, const IO::Path& mapBasename) const;
             String makeBackupName(const IO::Path& mapBasename, const size_t index) const;
         private:
             void bindObservers();
