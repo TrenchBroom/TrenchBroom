@@ -193,7 +193,7 @@ namespace TrenchBroom {
         class LayoutRow {
         public:
             typedef LayoutCell<CellType> Cell;
-            typedef std::vector<Cell> CellList;
+            typedef std::vector<Cell> CellArray;
         private:
             float m_cellMargin;
             float m_titleMargin;
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             float m_maxCellHeight;
             LayoutBounds m_bounds;
 
-            CellList m_cells;
+            CellArray m_cells;
 
             void readjustItems() {
                 for (size_t i = 0; i < m_cells.size(); ++i)
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             }
 
 
-            const CellList& cells() const {
+            const CellArray& cells() const {
                 return m_cells;
             }
 
@@ -307,7 +307,7 @@ namespace TrenchBroom {
         class LayoutGroup {
         public:
             typedef LayoutRow<CellType> Row;
-            typedef std::vector<Row> RowList;
+            typedef std::vector<Row> RowArray;
         private:
             GroupType m_item;
             float m_cellMargin;
@@ -322,7 +322,7 @@ namespace TrenchBroom {
             LayoutBounds m_titleBounds;
             LayoutBounds m_contentBounds;
 
-            RowList m_rows;
+            RowArray m_rows;
         public:
             const Row& operator[] (const size_t index) const {
                 ensure(index >= 0 && index < m_rows.size(), "index out of range");
@@ -475,7 +475,7 @@ namespace TrenchBroom {
         class CellLayout {
         public:
             typedef LayoutGroup<CellType, GroupType> Group;
-            typedef std::vector<Group> GroupList;
+            typedef std::vector<Group> GroupArray;
         private:
             float m_width;
             float m_cellMargin;
@@ -490,7 +490,7 @@ namespace TrenchBroom {
             float m_minCellHeight;
             float m_maxCellHeight;
 
-            GroupList m_groups;
+            GroupArray m_groups;
             bool m_valid;
             float m_height;
 
@@ -501,7 +501,7 @@ namespace TrenchBroom {
                 m_height = 2.0f * m_outerMargin;
                 m_valid = true;
                 if (!m_groups.empty()) {
-                    GroupList copy = m_groups;
+                    GroupArray copy = m_groups;
                     m_groups.clear();
 
                     for (size_t i = 0; i < copy.size(); ++i) {
