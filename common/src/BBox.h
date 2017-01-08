@@ -84,7 +84,7 @@ public:
         }
     }
     
-    BBox(const typename Vec<T,S>::List& vertices) {
+    BBox(const typename Vec<T,S>::Array& vertices) {
         assert(vertices.size() > 0);
         min = max = vertices[0];
         for (size_t i = 0; i < vertices.size(); ++i)
@@ -350,13 +350,13 @@ void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
 }
 
 template <typename T>
-typename Vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
+typename Vec<T,3>::Array bBoxVertices(const BBox<T,3>& bbox) {
     const Vec<T,3> size = bbox.size();
     const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
     const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
     const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
 
-    typename Vec<T,3>::List vertices(8);
+    typename Vec<T,3>::Array vertices(8);
     
     // top vertices clockwise (viewed from above)
     vertices[0] = bbox.max;
