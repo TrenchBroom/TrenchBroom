@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return m_menuBar->findActionMenuItem(id);
         }
         
-        void ActionManager::getShortcutEntries(ShortcutEntryList& entries) {
+        void ActionManager::getShortcutEntries(ShortcutEntryArray& entries) {
             m_menuBar->getShortcutEntries(entries);
             
             for (ViewShortcut& shortcut : m_viewShortcuts)
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void ActionManager::getMenuJSTable(StringStream& str) {
             str << "var menu = {};" << std::endl;
             
-            ShortcutEntryList entries;
+            ShortcutEntryArray entries;
             m_menuBar->getShortcutEntries(entries);
             
             for (const KeyboardShortcutEntry* entry : entries)
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         }
         
         wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
-            AcceleratorEntryList tableEntries;
+            AcceleratorEntryArray tableEntries;
             addViewActions(context, view, tableEntries);
 #ifdef __WXGTK20__
             // This causes some shortcuts such as "2" to not work on Windows.
@@ -127,15 +127,15 @@ namespace TrenchBroom {
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
 
-        void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
+        void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryArray& accelerators) const {
             for (const ViewShortcut& shortcut : m_viewShortcuts) {
                 if (shortcut.appliesToContext(context))
                     accelerators.push_back(shortcut.acceleratorEntry(view));
             }
         }
         
-        void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
-            ShortcutEntryList menuShortcuts;
+        void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryArray& accelerators) const {
+            ShortcutEntryArray menuShortcuts;
             m_menuBar->getShortcutEntries(menuShortcuts);
             
             for (const KeyboardShortcutEntry* entry : menuShortcuts) {
