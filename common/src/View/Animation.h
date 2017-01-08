@@ -39,7 +39,7 @@ namespace TrenchBroom {
             static const Type NoType = -1;
             
             typedef std::shared_ptr<Animation> Ptr;
-            typedef std::vector<Ptr> List;
+            typedef std::vector<Ptr> Array;
             
             typedef enum {
                 Curve_Flat,
@@ -68,16 +68,16 @@ namespace TrenchBroom {
         
         class ExecutableAnimation : public ExecutableEvent::Executable {
         private:
-            Animation::List m_animations;
+            Animation::Array m_animations;
         public:
-            ExecutableAnimation(const Animation::List& animations);
+            ExecutableAnimation(const Animation::Array& animations);
         private:
             void execute();
         };
         
         class AnimationManager : public wxThread {
         private:
-            typedef std::map<Animation::Type, Animation::List> AnimationMap;
+            typedef std::map<Animation::Type, Animation::Array> AnimationMap;
             
             AnimationMap m_animations;
             wxLongLong m_lastTime;
