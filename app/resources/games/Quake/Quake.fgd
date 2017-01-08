@@ -521,7 +521,7 @@
 ]
 @SolidClass base(Trigger) = trigger_multiple : "Trigger: Activate multiple" 
 [
-	wait(string) : "Wait before reset" : "4"
+	wait(string) : "Wait before reset" : "0.2"
 	health(integer) : "Health (shootable)"
 	spawnflags(flags) = [ 1: "Not touchable" : 0 ]
 ]
