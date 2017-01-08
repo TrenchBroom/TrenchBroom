@@ -314,7 +314,7 @@ namespace StringUtils {
         return buffer.str();
     }
 
-    StringArray makeList(const size_t count, const char* str1, ...) {
+    StringArray makeArray(const size_t count, const char* str1, ...) {
         StringArray result;
         result.reserve(count);
         result.push_back(str1);
