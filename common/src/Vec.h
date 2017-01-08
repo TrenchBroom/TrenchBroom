@@ -137,11 +137,11 @@ public:
         }
     };
     
-    typedef std::vector<Vec<T,S> > List;
+    typedef std::vector<Vec<T,S> > Array;
     typedef std::set<Vec<T,S>, LexicographicOrder> Set;
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
     
-    static const List EmptyList;
+    static const Array EmptyArray;
     static const Set EmptySet;
     static const Map EmptyMap;
     
@@ -269,11 +269,11 @@ public:
         return result;
     }
     
-    static List parseList(const std::string& str) {
+    static Array parseArray(const std::string& str) {
         static const std::string blank(" \t\n\r,;");
         
         size_t pos = 0;
-        List result;
+        Array result;
 
         while (pos != std::string::npos) {
             Vec<T,S> temp;
@@ -666,7 +666,7 @@ public:
         return true;
     }
 
-    static bool colinear(const typename Vec<T,S>::List& points) {
+    static bool colinear(const typename Vec<T,S>::Array& points) {
         assert(points.size() == 3);
         return colinear(points[0], points[1], points[2]);
     }
@@ -913,7 +913,7 @@ public:
         return EdgeDistance(closestPoint, distance);
     }
 
-    static Vec<T,S> average(const typename Vec<T,S>::List& vecs) {
+    static Vec<T,S> average(const typename Vec<T,S>::Array& vecs) {
         assert(!vecs.empty());
         Vec<T,S> sum;
         for (size_t i = 0; i < vecs.size(); ++i)
@@ -943,14 +943,14 @@ public:
     }
     
     template <typename I, typename G>
-    static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
-        typename Vec<T,S>::List result;
+    static typename Vec<T,S>::Array asArray(I cur, I end, const G& get) {
+        typename Vec<T,S>::Array result;
         toList(cur, end, get, result);
         return result;
     }
     
     template <typename I, typename G>
-    static void toList(I cur, I end, const G& get, typename Vec<T,S>::List& result) {
+    static void toList(I cur, I end, const G& get, typename Vec<T,S>::Array& result) {
         addAll(cur, end, get, std::back_inserter(result));
     }
     
@@ -987,7 +987,7 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
 
 template <typename T, size_t S>
-const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
+const typename Vec<T,S>::Array Vec<T,S>::EmptyArray = Vec<T,S>::List();
 template <typename T, size_t S>
 const typename Vec<T,S>::Set Vec<T,S>::EmptySet = Vec<T,S>::Set();
 template <typename T, size_t S>
@@ -1018,15 +1018,15 @@ typedef Vec<size_t,4> Vec4s;
 typedef Vec<bool,4> Vec4b;
 
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {
-    typename Vec<T,S>::List result(left.size());
+typename Vec<T,S>::Array operator+(const typename Vec<T,S>::Array& left, const Vec<T,S>& right) {
+    typename Vec<T,S>::Array result(left.size());
     for (size_t i = 0; i < left.size(); ++i)
         result[i] = left[i] + right;
     return result;
 }
 
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const Vec<T,S>& left, const typename Vec<T,S>::List& right) {
+typename Vec<T,S>::Array operator+(const Vec<T,S>& left, const typename Vec<T,S>::Array& right) {
     return right + left;
 }
 
@@ -1036,15 +1036,15 @@ Vec<T,S> operator*(const T left, const Vec<T,S>& right) {
 }
 
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& left, const T right) {
-    typename Vec<T,S>::List result(left.size());
+typename Vec<T,S>::Array operator*(const typename Vec<T,S>::Array& left, const T right) {
+    typename Vec<T,S>::Array result(left.size());
     for (size_t i = 0; i < left.size(); ++i)
         result[i] = left[i] * right;
     return result;
 }
 
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const T left, const typename Vec<T,S>::List& right) {
+typename Vec<T,S>::Array operator*(const T left, const typename Vec<T,S>::Array& right) {
     return right * left;
 }
 
