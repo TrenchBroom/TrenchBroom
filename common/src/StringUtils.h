@@ -38,7 +38,7 @@ typedef std::vector<String> StringArray;
 typedef std::map<String, String> StringMap;
 
 static const String EmptyString("");
-static const StringArray EmptyStringList(0);
+static const StringArray EmptyStringArray(0);
 
 namespace StringUtils {
     struct CaseSensitiveCharCompare {
@@ -269,11 +269,11 @@ namespace StringUtils {
     template <typename D>
     StringArray split(const String& str, D d) {
         if (str.empty())
-            return EmptyStringList;
+            return EmptyStringArray;
         
         const size_t first = str.find_first_not_of(d);
         if (first == String::npos)
-            return EmptyStringList;
+            return EmptyStringArray;
         const size_t last = str.find_last_not_of(d);
         assert(last != String::npos);
         assert(first <= last);
@@ -294,11 +294,11 @@ namespace StringUtils {
     template <typename D>
     StringArray splitAndTrim(const String& str, D d) {
         if (str.empty())
-            return EmptyStringList;
+            return EmptyStringArray;
         
         const size_t first = str.find_first_not_of(d);
         if (first == String::npos)
-            return EmptyStringList;
+            return EmptyStringArray;
         const size_t last = str.find_last_not_of(d);
         assert(last != String::npos);
         assert(first <= last);
@@ -385,7 +385,7 @@ namespace StringUtils {
         return join(strs, d, d, d);
     }
 
-    StringArray makeList(size_t count, const char* str1, ...);
+    StringArray makeArray(size_t count, const char* str1, ...);
     StringSet makeSet(size_t count, const char* str1, ...);
     
     template <typename Cmp>
