@@ -43,8 +43,8 @@ namespace TrenchBroom {
                     SingleResult(const wxString& i_value, const wxString& i_description);
                 };
                 
-                typedef std::vector<SingleResult> List;
-                List m_results;
+                typedef std::vector<SingleResult> Array;
+                Array m_results;
             public:
                 bool IsEmpty() const;
                 size_t Count() const;
