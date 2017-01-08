@@ -28,7 +28,7 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Edge {
     public:
-        typedef std::vector<Edge<T,S> > List;
+        typedef std::vector<Edge<T,S> > Array;
     private:
         Vec<T,S> m_start;
         Vec<T,S> m_end;
@@ -79,8 +79,8 @@ namespace TrenchBroom {
             return (m_end - m_start).normalized();
         }
         
-        static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
-            typename Vec<T,S>::List result(2 * edges.size());
+        static typename Vec<T,S>::Array asVertexArray(const typename Edge<T,S>::Array& edges) {
+            typename Vec<T,S>::Array result(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {
                 result[2*i+0] = edges[i].start();
                 result[2*i+1] = edges[i].end();
