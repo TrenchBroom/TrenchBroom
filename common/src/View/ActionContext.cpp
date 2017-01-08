@@ -25,7 +25,7 @@ namespace TrenchBroom {
             if (actionContext == ActionContext_Any)
                 return "Any";
             
-            StringList actionContexts;
+            StringArray actionContexts;
             if (actionContext & ActionContext_NodeSelection)
                 actionContexts.push_back("Objects");
             if (actionContext & ActionContext_FaceSelection)
