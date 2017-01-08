@@ -987,7 +987,7 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
 
 template <typename T, size_t S>
-const typename Vec<T,S>::Array Vec<T,S>::EmptyArray = Vec<T,S>::List();
+const typename Vec<T,S>::Array Vec<T,S>::EmptyArray = Vec<T,S>::Array();
 template <typename T, size_t S>
 const typename Vec<T,S>::Set Vec<T,S>::EmptySet = Vec<T,S>::Set();
 template <typename T, size_t S>
