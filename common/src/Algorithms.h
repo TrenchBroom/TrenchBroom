@@ -173,10 +173,10 @@ private:
         }
     };
     
-    typename Vec<T,3>::List m_points;
+    typename Vec<T,3>::Array m_points;
     bool m_hasResult;
 public:
-    ConvexHull2D(const typename Vec<T,3>::List& points) :
+    ConvexHull2D(const typename Vec<T,3>::Array& points) :
     m_points(points),
     m_hasResult(m_points.size() > 2) {
         if (m_hasResult) {
@@ -202,7 +202,7 @@ public:
         return m_hasResult;
     }
     
-    const typename Vec<T,3>::List& result() const {
+    const typename Vec<T,3>::Array& result() const {
         assert(m_hasResult);
         return m_points;
     }
@@ -263,7 +263,7 @@ private:
     }
     
     void buildHull() {
-        typename Vec<T,3>::List stack;
+        typename Vec<T,3>::Array stack;
         stack.reserve(m_points.size());
         stack.push_back(m_points[0]);
         stack.push_back(m_points[1]);
@@ -279,7 +279,7 @@ private:
         assert(m_points.size() > 2);
     }
     
-    void popStalePoints(typename Vec<T,3>::List& stack, const Vec<T,3>& p) {
+    void popStalePoints(typename Vec<T,3>::Array& stack, const Vec<T,3>& p) {
         if (stack.size() > 1) {
             const Vec<T,3>& t1 = stack[stack.size() - 2];
             const Vec<T,3>& t2 = stack[stack.size() - 1];
@@ -294,10 +294,10 @@ private:
 
 // see http://geomalgorithms.com/a10-_hull-1.html
 template <typename T>
-typename Vec<T,3>::List convexHull2D(const typename Vec<T,3>::List& points) {
+typename Vec<T,3>::Array convexHull2D(const typename Vec<T,3>::Array& points) {
     const ConvexHull2D<T> hull(points);
     if (!hull.hasResult())
-        return Vec<T,3>::EmptyList;
+        return Vec<T,3>::EmptyArray;
     return hull.result();
 }
 
