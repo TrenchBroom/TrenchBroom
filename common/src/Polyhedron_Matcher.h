@@ -46,7 +46,7 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right)) {}
     
-    PolyhedronMatcher(const P& left, const P& right, const typename V::List& vertices, const V& delta) :
+    PolyhedronMatcher(const P& left, const P& right, const typename V::Array& vertices, const V& delta) :
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
@@ -157,7 +157,7 @@ private:
         return expandVertexRelation(left, right, result);
     }
     
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::List& vertices, const V& delta) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Array& vertices, const V& delta) {
         return buildVertexRelation(left, right, typename V::Set(std::begin(vertices), std::end(vertices)), delta);
     }
     
