@@ -89,7 +89,7 @@ private:
         }
     };
     
-    typedef std::vector<Chunk*> ChunkList;
+    typedef std::vector<Chunk*> ChunkArray;
     typedef std::stack<T*> Pool;
     
     static Pool& pool() {
@@ -97,18 +97,18 @@ private:
         return p;
     }
     
-    static ChunkList& fullChunks() {
-        static ChunkList chunks;
+    static ChunkArray& fullChunks() {
+        static ChunkArray chunks;
         return chunks;
     }
     
-    static ChunkList& mixedChunks() {
-        static ChunkList chunks;
+    static ChunkArray& mixedChunks() {
+        static ChunkArray chunks;
         return chunks;
     }
     
-    static ChunkList emptyChunks() {
-        static ChunkList chunks;
+    static ChunkArray emptyChunks() {
+        static ChunkArray chunks;
         return chunks;
     }
 public:
@@ -153,7 +153,7 @@ public:
             return;
         }
         
-        typename ChunkList::reverse_iterator fullIt, fullEnd, mixedIt, mixedEnd;
+        typename ChunkArray::reverse_iterator fullIt, fullEnd, mixedIt, mixedEnd;
         fullIt = fullChunks().rbegin();
         fullEnd = fullChunks().rend();
         mixedIt = mixedChunks().rbegin();
