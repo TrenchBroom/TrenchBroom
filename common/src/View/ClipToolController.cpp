@@ -244,8 +244,8 @@ namespace TrenchBroom {
                 return new AbsoluteDragSnapper(m_tool->grid());
             }
             
-            Vec3::List getHelpVectors(const InputState& inputState) const {
-                return Vec3::List(1, inputState.camera().direction());
+            Vec3::Array getHelpVectors(const InputState& inputState) const {
+                return Vec3::Array(1, inputState.camera().direction());
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, Vec3& position) const {
@@ -271,10 +271,10 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
         
-        Vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) {
+        Vec3::Array ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) {
             ensure(face != NULL, "face is null");
             
-            Vec3::List result;
+            Vec3::Array result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
                 const Vec3& normal = incidentFace->boundary().normal;
                 result.push_back(normal.firstAxis());
@@ -283,7 +283,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) {
+        Model::BrushFaceArray ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) {
             for (const Model::BrushVertex* vertex : face->vertices()) {
                 if (vertex->position().equals(hitPoint)) {
                     const Model::Brush* brush = face->brush();
@@ -293,14 +293,14 @@ namespace TrenchBroom {
             
             for (const Model::BrushEdge* edge : face->edges()) {
                 if (edge->contains(hitPoint)) {
-                    Model::BrushFaceList result;
+                    Model::BrushFaceArray result;
                     result.push_back(edge->firstFace()->payload());
                     result.push_back(edge->secondFace()->payload());
                     return result;
                 }
             }
             
-            return Model::BrushFaceList(1, face);
+            return Model::BrushFaceArray(1, face);
         }
 
         class ClipToolController3D::Callback3D : public Callback {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
                 return snapper;
             }
             
-            Vec3::List getHelpVectors(const InputState& inputState) const {
+            Vec3::Array getHelpVectors(const InputState& inputState) const {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
                 ensure(hit.isMatch(), "hit is not a match");
                 
