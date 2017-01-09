@@ -1,10 +1,10 @@
-% TrenchBroom Documentation
+% TrenchBroom Manual
 % Kristian Duske
 % 11-13-2015
 
 # Introduction {#introduction}
 
-TrenchBroom is a level editing program for brush-based game engines such as Quake, Quake 2, and Hexen 2. TrenchBroom is easy to use and provides many simple and advanced tools to create complex and interesting levels with ease. This document contains the documentation for TrenchBroom. Reading this document will teach you how to use TrenchBroom and how to use its advanced features.
+TrenchBroom is a level editing program for brush-based game engines such as Quake, Quake 2, and Hexen 2. TrenchBroom is easy to use and provides many simple and advanced tools to create complex and interesting levels with ease. This document contains the manual for TrenchBroom. Reading this document will teach you how to use TrenchBroom and how to use its advanced features.
 
 ## Features {#features}
 

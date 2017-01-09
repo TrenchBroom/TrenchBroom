@@ -132,7 +132,7 @@ namespace TrenchBroom {
 #endif
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowHelp, this, wxID_HELP);
+            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowManual, this, wxID_HELP);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
 
@@ -458,9 +458,9 @@ namespace TrenchBroom {
             openDocument(data.ToStdString());
         }
 
-        void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
-            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help/index.html");
-            wxLaunchDefaultApplication(helpPath.asString());
+        void TrenchBroomApp::OnHelpShowManual(wxCommandEvent& event) {
+            const IO::Path manualPath = IO::SystemPaths::resourceDirectory() + IO::Path("manual/index.html");
+            wxLaunchDefaultApplication(manualPath.asString());
         }
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {

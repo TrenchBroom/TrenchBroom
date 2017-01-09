@@ -77,7 +77,7 @@ namespace TrenchBroom {
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
-            void OnHelpShowHelp(wxCommandEvent& event);
+            void OnHelpShowManual(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
             void OnOpenAbout(wxCommandEvent& event);
             void OnExecutableEvent(ExecutableEvent& event);
