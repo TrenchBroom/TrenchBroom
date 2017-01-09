@@ -55,7 +55,6 @@ namespace TrenchBroom {
             void doCancelMove() {
                 mockDoCancelMove();
             }
-            
             Tool* doGetTool() { return &m_tool; }
             bool doCancel() { return false; }
         public:
