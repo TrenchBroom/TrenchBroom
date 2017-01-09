@@ -53,7 +53,7 @@ namespace TrenchBroom {
         public:
             FrameManager* frameManager();
             
-            const IO::Path::List& recentDocuments() const;
+            const IO::Path::Array& recentDocuments() const;
             void addRecentDocumentMenu(wxMenu* menu);
             void removeRecentDocumentMenu(wxMenu* menu);
             void updateRecentDocument(const IO::Path& path);
