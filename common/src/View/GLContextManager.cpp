@@ -34,12 +34,10 @@ namespace TrenchBroom {
         m_shaderManager(new Renderer::ShaderManager()) {}
         
         GLContextManager::~GLContextManager() {
-            /* Temporary fix for https://github.com/kduske/TrenchBroom/issues/1042
             delete m_vertexVbo;
             delete m_indexVbo;
             delete m_fontManager;
             delete m_shaderManager;
-             */
         }
 
         GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
