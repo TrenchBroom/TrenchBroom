@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return doCanAddPoint(point);
         }
         
-        void ClipTool::ClipStrategy::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
+        void ClipTool::ClipStrategy::addPoint(const Vec3& point, const Vec3::Array& helpVectors) {
             assert(canAddPoint(point));
             return doAddPoint(point, helpVectors);
         }
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             doBeginDragLastPoint();
         }
 
-        bool ClipTool::ClipStrategy::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
+        bool ClipTool::ClipStrategy::dragPoint(const Vec3& newPosition, const Vec3::Array& helpVectors) {
             return doDragPoint(newPosition, helpVectors);
         }
         
@@ -122,11 +122,11 @@ namespace TrenchBroom {
         private:
             struct ClipPoint {
                 Vec3 point;
-                Vec3::List helpVectors;
+                Vec3::Array helpVectors;
                 
                 ClipPoint() {}
                 
-                ClipPoint(const Vec3& i_point, const Vec3::List& i_helpVectors) :
+                ClipPoint(const Vec3& i_point, const Vec3::Array& i_helpVectors) :
                 point(i_point),
                 helpVectors(i_helpVectors) {}
             };
@@ -172,7 +172,7 @@ namespace TrenchBroom {
                 size_t counts[3];
                 counts[0] = counts[1] = counts[2] = 0;
                 
-                const Vec3::List helpVectors = combineHelpVectors();
+                const Vec3::Array helpVectors = combineHelpVectors();
                 for (size_t i = 0; i < std::min(m_numPoints, helpVectors.size()); ++i) {
                     const Math::Axis::Type axis = helpVectors[i].firstComponent();
                     counts[axis]++;
@@ -193,10 +193,10 @@ namespace TrenchBroom {
                 return Vec3::PosX;
             }
             
-            Vec3::List combineHelpVectors() const {
-                Vec3::List result;
+            Vec3::Array combineHelpVectors() const {
+                Vec3::Array result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    const Vec3::List& helpVectors = m_points[i].helpVectors;
+                    const Vec3::Array& helpVectors = m_points[i].helpVectors;
                     VectorUtils::append(result, helpVectors);
                 }
                 
@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {
+            void doAddPoint(const Vec3& point, const Vec3::Array& helpVectors) {
                 m_points[m_numPoints] = ClipPoint(point, helpVectors);
                 ++m_numPoints;
             }
@@ -265,7 +265,7 @@ namespace TrenchBroom {
                 m_originalPoint = m_points[m_dragIndex];
             }
 
-            bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
+            bool doDragPoint(const Vec3& newPosition, const Vec3::Array& helpVectors) {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
                 if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
@@ -405,7 +405,7 @@ namespace TrenchBroom {
                     
                     const Model::BrushFace::VertexList vertices = m_face->vertices();
                     
-                    Vec3f::List positions;
+                    Vec3f::Array positions;
                     positions.reserve(vertices.size());
                     
                     for (const Model::BrushVertex* vertex : vertices)
@@ -428,14 +428,14 @@ namespace TrenchBroom {
             bool doCanClip() const { return m_face != NULL; }
             bool doHasPoints() const { return false; }
             bool doCanAddPoint(const Vec3& point) const { return false; }
-            void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) {}
+            void doAddPoint(const Vec3& point, const Vec3::Array& helpVectors) {}
             bool doCanRemoveLastPoint() const { return false; }
             void doRemoveLastPoint() {}
             
             bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) {}
             void doBeginDragLastPoint() {}
-            bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) { return false; }
+            bool doDragPoint(const Vec3& newPosition, const Vec3::Array& helpVectors) { return false; }
             void doEndDragPoint() {}
             void doCancelDragPoint() {}
             
@@ -550,8 +550,8 @@ namespace TrenchBroom {
             
             // need to make a copies here so that we are not affected by the deselection
             const Model::ParentChildrenMap toAdd = clipBrushes();
-            const Model::NodeList toRemove = document->selectedNodes().nodes();
-            const Model::NodeList addedNodes = document->addNodes(toAdd);
+            const Model::NodeArray toRemove = document->selectedNodes().nodes();
+            const Model::NodeArray addedNodes = document->addNodes(toAdd);
             
             document->deselectAll();
             document->removeNodes(toRemove);
@@ -597,7 +597,7 @@ namespace TrenchBroom {
             return m_strategy != NULL && m_strategy->hasPoints();
         }
 
-        void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
+        void ClipTool::addPoint(const Vec3& point, const Vec3::Array& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == NULL)
                 m_strategy = new PointClipStrategy();
@@ -633,7 +633,7 @@ namespace TrenchBroom {
             m_strategy->beginDragLastPoint();
         }
 
-        bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
+        bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::Array& helpVectors) {
             ensure(m_strategy != NULL, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
@@ -691,7 +691,7 @@ namespace TrenchBroom {
         
         void ClipTool::updateBrushes() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushList& brushes = document->selectedNodes().brushes();
+            const Model::BrushArray& brushes = document->selectedNodes().brushes();
             const BBox3& worldBounds = document->worldBounds();
             
             if (canClip()) {
@@ -729,11 +729,11 @@ namespace TrenchBroom {
             }
         }
         
-        void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
+        void ClipTool::setFaceAttributes(const Model::BrushFaceArray& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
             
-            Model::BrushFaceList::const_iterator faceIt = std::begin(faces);
-            Model::BrushFaceList::const_iterator faceEnd = std::end(faces);
+            Model::BrushFaceArray::const_iterator faceIt = std::begin(faces);
+            Model::BrushFaceArray::const_iterator faceEnd = std::end(faces);
             const Model::BrushFace* bestFrontFace = *faceIt++;
             const Model::BrushFace* bestBackFace = bestFrontFace;
             
@@ -784,7 +784,7 @@ namespace TrenchBroom {
             Model::CollectBrushesVisitor collect;
             
             for (const auto& entry : map) {
-                const Model::NodeList& brushes = entry.second;
+                const Model::NodeArray& brushes = entry.second;
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
             
@@ -844,12 +844,12 @@ namespace TrenchBroom {
                 update();
         }
         
-        void ClipTool::nodesWillChange(const Model::NodeList& nodes) {
+        void ClipTool::nodesWillChange(const Model::NodeArray& nodes) {
             if (!m_ignoreNotifications)
                 update();
         }
         
-        void ClipTool::nodesDidChange(const Model::NodeList& nodes) {
+        void ClipTool::nodesDidChange(const Model::NodeArray& nodes) {
             if (!m_ignoreNotifications)
                 update();
         }
