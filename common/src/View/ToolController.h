@@ -230,20 +230,23 @@ namespace TrenchBroom {
         private:
             DragRestricter* m_restricter;
             DragSnapper* m_snapper;
-            Vec3 m_dragOrigin;
-            Vec3 m_initialPoint;
-            Vec3 m_curPoint;
-            Vec3 m_lastPoint;
+            
+            Vec3 m_initialHandlePosition;
+            Vec3 m_currentHandlePosition;
+            
+            Vec3 m_initialMousePosition;
+            Vec3 m_currentMousePosition;
         protected:
             struct DragInfo {
                 DragRestricter* restricter;
                 DragSnapper* snapper;
-                bool setInitialPoint;
-                Vec3 initialPoint;
+                
+                Vec3 initialHandlePosition;
+                bool computeInitialHandlePosition;
                 
                 DragInfo();
                 DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper);
-                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialPoint);
+                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialHandlePosition);
 
                 bool skip() const;
             };
@@ -261,10 +264,10 @@ namespace TrenchBroom {
             void deleteRestricter();
             void deleteSnapper();
         protected:
-            const Vec3& dragOrigin() const;
-            const Vec3& initialPoint() const;
-            const Vec3& lastPoint() const;
-            const Vec3& curPoint() const;
+            const Vec3& initialHandlePosition() const;
+            const Vec3& currentHandlePosition() const;
+            const Vec3& initialMousePosition() const;
+            const Vec3& currentMousePosition() const;
             
             bool hitPoint(const InputState& inputState, Vec3& result) const;
         public:
@@ -276,10 +279,10 @@ namespace TrenchBroom {
             void setRestricter(const InputState& inputState, DragRestricter* restricter, bool resetInitialPoint);
             void setSnapper(const InputState& inputState, DragSnapper* snapper);
             
-            bool snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const;
+            bool snapPoint(const InputState& inputState, Vec3& point) const;
         private: // subclassing interface
             virtual DragInfo doStartDrag(const InputState& inputState) = 0;
-            virtual DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) = 0;
             virtual void doEndDrag(const InputState& inputState) = 0;
             virtual void doCancelDrag() = 0;
         };

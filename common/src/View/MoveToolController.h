@@ -74,22 +74,22 @@ namespace TrenchBroom {
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) {
                 if (Super::thisToolDragging()) {
-                    const Vec3& initialPoint = RestrictedDragPolicy::initialPoint();
-                    const Vec3& curPoint = RestrictedDragPolicy::curPoint();
+                    const Vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
                     
                     const MoveType nextMoveType = moveType(inputState);
                     if (nextMoveType != m_lastMoveType) {
                         if (m_lastMoveType != MT_Default) {
-                            RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, curPoint), m_lastMoveType == MT_Vertical);
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateDefaultDragRestricter(inputState, currentPosition), m_lastMoveType == MT_Vertical);
                             if (m_lastMoveType == MT_Vertical)
-                                m_moveTraceOrigin = m_moveTraceCurPoint = curPoint;
+                                m_moveTraceOrigin = m_moveTraceCurPoint = currentPosition;
                         }
                         if (nextMoveType == MT_Vertical) {
-                            RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, curPoint), false);
-                            m_moveTraceOrigin = m_moveTraceCurPoint = curPoint;
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateVerticalDragRestricter(inputState, currentPosition), false);
+                            m_moveTraceOrigin = m_moveTraceCurPoint = currentPosition;
                             m_restricted = true;
                         } else if (nextMoveType == MT_Restricted) {
-                            RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPoint, curPoint), false);
+                            const Vec3& initialPosition = RestrictedDragPolicy::initialHandlePosition();
+                            RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPosition, currentPosition), false);
                             m_restricted = true;
                         }
                         m_lastMoveType = nextMoveType;
@@ -136,10 +136,10 @@ namespace TrenchBroom {
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
-            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                const RestrictedDragPolicy::DragResult result = doMove(inputState, lastPoint, curPoint);
+            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == RestrictedDragPolicy::DR_Continue)
-                    m_moveTraceCurPoint += (curPoint - lastPoint);
+                    m_moveTraceCurPoint += (nextHandlePosition - lastHandlePosition);
                 return result;
             }
             
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             }
         protected: // subclassing interface
             virtual MoveInfo doStartMove(const InputState& inputState) = 0;
-            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) = 0;
+            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
             virtual void doCancelMove() = 0;
             

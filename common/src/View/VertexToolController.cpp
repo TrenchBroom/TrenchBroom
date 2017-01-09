@@ -116,9 +116,9 @@ namespace TrenchBroom {
                 return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                 ensure(m_lasso != NULL, "lasso is null");
-                m_lasso->setPoint(curPoint);
+                m_lasso->setPoint(nextHandlePosition);
                 return DR_Continue;
             }
             
@@ -212,8 +212,8 @@ namespace TrenchBroom {
                 return MoveInfo(hit.target<Vec3>());
             }
             
-            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                switch (m_tool->move(curPoint - lastPoint)) {
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                     case VertexTool::MR_Continue:
                         return DR_Continue;
                     case VertexTool::MR_Deny:

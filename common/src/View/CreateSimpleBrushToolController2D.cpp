@@ -65,8 +65,8 @@ namespace TrenchBroom {
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-            if (updateBounds(inputState, curPoint)) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            if (updateBounds(inputState, nextHandlePosition)) {
                 m_tool->refreshViews();
                 return DR_Continue;
             }

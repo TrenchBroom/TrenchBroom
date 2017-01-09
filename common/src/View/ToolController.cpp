@@ -226,16 +226,16 @@ namespace TrenchBroom {
         RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper) :
         restricter(i_restricter),
         snapper(i_snapper),
-        setInitialPoint(false) {
+        computeInitialHandlePosition(true) {
             ensure(restricter != NULL, "restricter is null");
             ensure(snapper != NULL, "snapper is null");
         }
-
-        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialPoint) :
+        
+        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialHandlePosition) :
         restricter(i_restricter),
         snapper(i_snapper),
-        setInitialPoint(true),
-        initialPoint(i_initialPoint) {
+        initialHandlePosition(i_initialHandlePosition),
+        computeInitialHandlePosition(false) {
             ensure(restricter != NULL, "restricter is null");
             ensure(snapper != NULL, "snapper is null");
         }
@@ -268,24 +268,25 @@ namespace TrenchBroom {
             m_snapper = NULL;
         }
 
-        const Vec3& RestrictedDragPolicy::dragOrigin() const {
+        const Vec3& RestrictedDragPolicy::initialHandlePosition() const {
             assert(dragging());
-            return m_dragOrigin;
+            return m_initialHandlePosition;
         }
-
-        const Vec3& RestrictedDragPolicy::initialPoint() const {
+        
+        const Vec3& RestrictedDragPolicy::currentHandlePosition() const {
             assert(dragging());
-            return m_initialPoint;
+            return m_currentHandlePosition;
         }
-
-        const Vec3& RestrictedDragPolicy::lastPoint() const {
+        
+        const Vec3& RestrictedDragPolicy::initialMousePosition() const {
             assert(dragging());
-            return m_lastPoint;
+            return m_initialMousePosition;
+            
         }
-
-        const Vec3& RestrictedDragPolicy::curPoint() const {
+        
+        const Vec3& RestrictedDragPolicy::currentMousePosition() const {
             assert(dragging());
-            return m_curPoint;
+            return m_currentMousePosition;
         }
 
         bool RestrictedDragPolicy::hitPoint(const InputState& inputState, Vec3& result) const {
@@ -300,37 +301,40 @@ namespace TrenchBroom {
             
             m_restricter = info.restricter;
             m_snapper = info.snapper;
-            
-            if (info.setInitialPoint) {
-                m_dragOrigin = info.initialPoint;
-            } else {
-                if (!hitPoint(inputState, m_dragOrigin)) {
-                    doCancelMouseDrag();
-                    return false;
-                }
+
+            if (!hitPoint(inputState, m_initialMousePosition)) {
+                doCancelMouseDrag();
+                return false;
             }
             
-            m_initialPoint = m_lastPoint = m_curPoint = m_dragOrigin;
+            m_currentMousePosition = m_initialHandlePosition;
+            if (info.computeInitialHandlePosition)
+                m_initialHandlePosition = m_currentHandlePosition = m_initialMousePosition;
+            else
+                m_initialHandlePosition = m_currentHandlePosition = info.initialHandlePosition;
+            
             return true;
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             ensure(m_restricter != NULL, "restricter is null");
+
+            Vec3 newMousePosition;
+            if (!hitPoint(inputState, newMousePosition))
+                return true;
+
+            m_currentMousePosition = newMousePosition;
             
-            if (!hitPoint(inputState, m_curPoint))
+            Vec3 newHandlePosition = m_currentMousePosition;
+            if (!snapPoint(inputState, newHandlePosition) || newHandlePosition.equals(m_currentHandlePosition))
                 return true;
             
-            Vec3 snappedPoint = m_curPoint;
-            if (!snapPoint(inputState, m_lastPoint, snappedPoint) ||
-                snappedPoint.equals(m_lastPoint))
-                return true;
-            
-            const DragResult result = doDrag(inputState, m_lastPoint, snappedPoint);
+            const DragResult result = doDrag(inputState, m_currentHandlePosition, newHandlePosition);
             if (result == DR_Cancel)
                 return false;
             
             if (result == DR_Continue)
-                m_lastPoint = snappedPoint;
+                m_currentHandlePosition = newHandlePosition;
             return true;
         }
         
@@ -354,10 +358,13 @@ namespace TrenchBroom {
             
             deleteRestricter();
             m_restricter = restricter;
+
             if (resetInitialPoint) {
-                assertResult(m_restricter->hitPoint(inputState, m_initialPoint));
-                m_curPoint = m_lastPoint = m_initialPoint;
+                assertResult(hitPoint(inputState, m_initialMousePosition));
+                m_currentMousePosition = m_initialMousePosition;
+                m_initialHandlePosition = m_currentHandlePosition;
             }
+            
             doMouseDrag(inputState);
         }
         
@@ -367,12 +374,17 @@ namespace TrenchBroom {
             
             deleteSnapper();
             m_snapper = snapper;
+
+            Vec3 newHandlePosition = m_currentMousePosition;
+            assertResult(snapPoint(inputState, newHandlePosition));
+            m_currentHandlePosition = newHandlePosition;
+
             doMouseDrag(inputState);
         }
 
-        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, const Vec3& lastPoint, Vec3& point) const {
+        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, Vec3& point) const {
             assert(dragging());
-            return m_snapper->snap(inputState, m_initialPoint, lastPoint, point);
+            return m_snapper->snap(inputState, m_initialHandlePosition, m_currentHandlePosition, point);
         }
 
         RenderPolicy::~RenderPolicy() {}
