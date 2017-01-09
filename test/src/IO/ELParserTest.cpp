@@ -31,14 +31,14 @@ namespace TrenchBroom {
         
         template <typename Exp>
         void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
-            const EL::Expression expression = ELParser(str).parse();
+            const EL::Expression expression = ELParser::parse(str);
             ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
         }
         
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context) {
-            const EL::Expression expression1 = ELParser(lhs).parse();
-            const EL::Expression expression2 = ELParser(rhs).parse();
+            const EL::Expression expression1 = ELParser::parse(lhs);
+            const EL::Expression expression2 = ELParser::parse(rhs);
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
         }
 
@@ -48,9 +48,13 @@ namespace TrenchBroom {
             ASSERT_EL_THROW("\n", ParserException);
         }
         
-        TEST(ELParserTEst, parseStringLiteral) {
+        TEST(ELParserTest, parseStringLiteral) {
             ASSERT_EL_THROW("\"asdf", ParserException);
             ASSERT_EL_EQ("asdf", "\"asdf\"");
+        }
+        
+        TEST(ELParserTest, parseStringLiteralWithDoubleQuotationMarks) {
+            ASSERT_EL_EQ(R"(asdf" "asdf)", R"("asdf\" \"asdf")");
         }
         
         TEST(ELParserTest, parseNumberLiteral) {

@@ -1,10 +1,10 @@
-% TrenchBroom Documentation
+% TrenchBroom Manual
 % Kristian Duske
 % 11-13-2015
 
 # Introduction {#introduction}
 
-TrenchBroom is a level editing program for brush-based game engines such as Quake, Quake 2, and Hexen 2. TrenchBroom is easy to use and provides many simple and advanced tools to create complex and interesting levels with ease. This document contains the documentation for TrenchBroom. Reading this document will teach you how to use TrenchBroom and how to use its advanced features.
+TrenchBroom is a level editing program for brush-based game engines such as Quake, Quake 2, and Hexen 2. TrenchBroom is easy to use and provides many simple and advanced tools to create complex and interesting levels with ease. This document contains the manual for TrenchBroom. Reading this document will teach you how to use TrenchBroom and how to use its advanced features.
 
 ## Features {#features}
 
@@ -1093,15 +1093,18 @@ Range 		The range type is only used internally.
 Null 		The type of `null` values.
 Undefined	The type of undefined values.
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are missing because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+#### Type Conversion {#el_type_conversion}
+
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are omitted because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
 ----        ----------------------------- ---------------------- ----------------------------- ----------- ---------
 `Boolean`   _trivial_                     `"true"` or `"false"`  `1.0` or `0.0`                error       error
 
-`String`    `false` if value is `"false"` _trivial_              number representation if      error       error
-            or `""`, `true` otherwise                            possible, error otherwise
+`String`    `false` if value is `"false"` _trivial_              `0.0` if blank, number        error       error
+            or `""`, `true` otherwise                            representation if possible,   
+                                                                 error otherwise
 
 `Number`    `false` if value is `0.0`,    string representation, _trivial_                     error       error
             `true` otherwise              e.g. "1.0"
@@ -1403,7 +1406,7 @@ The following table shows the effects of applying the logical operators.
 
 #### Binary Terms
 
-Binary terms manipulate the bit representation of operatands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If one of the operands is not of type `Number`, an error is thrown.
+Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If one of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion).
 
     BinaryAnd        = SimpleTerm "&" SimpleTerm
     BinaryXor        = SimpleTerm "|" SimpleTerm

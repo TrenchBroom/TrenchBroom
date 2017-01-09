@@ -35,10 +35,10 @@ namespace TrenchBroom {
         }
         
         ELTokenizer::ELTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end) {}
+        Tokenizer(begin, end, "\"", '\\') {}
         
         ELTokenizer::ELTokenizer(const String& str) :
-        Tokenizer(str) {}
+        Tokenizer(str, "\"", '\\') {}
         
         void ELTokenizer::appendUntil(const String& pattern, StringStream& str) {
             const char* begin = curPos();

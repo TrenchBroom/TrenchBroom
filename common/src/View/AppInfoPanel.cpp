@@ -47,10 +47,10 @@ namespace TrenchBroom {
             wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, "Level Editor");
             
             wxString versionStr("Version ");
-            versionStr << getBuildVersion() << " " << getBuildChannel();
+            versionStr << getBuildVersion();
             
             wxString buildStr("Build ");
-            buildStr << getBuildId() << " " << getBuildType();
+            buildStr << getBuildIdStr();
             
             wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);
             wxStaticText* build = new wxStaticText(this, wxID_ANY, buildStr);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             OpenClipboard openClipboard;
             if (wxTheClipboard->IsOpened()) {
                 wxString str;
-                str << "TrenchBroom " << getBuildVersion() << " " << getBuildChannel() << " Build " << getBuildId() << " " << getBuildType();
+                str << "TrenchBroom " << getBuildVersion() << " " << " Build " << getBuildIdStr();
                 wxTheClipboard->SetData(new wxTextDataObject(str));
             }
         }

@@ -1,4 +1,4 @@
-INCLUDE(cmake/GenerateHelp.cmake)
+INCLUDE(cmake/GenerateManual.cmake)
 
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
@@ -9,7 +9,7 @@ FILE(GLOB_RECURSE APP_SOURCE
     "${APP_SOURCE_DIR}/*.cpp"
 )
 
-SET(APP_SOURCE ${APP_SOURCE} ${DOC_HELP_TARGET_FILES})
+SET(APP_SOURCE ${APP_SOURCE} ${DOC_MANUAL_TARGET_FILES})
 
 # OS X app bundle configuration, must happen before the executable is added
 IF(APPLE)
@@ -72,8 +72,8 @@ IF(APPLE)
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader/)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
-    # Configure help files
-    SET_SOURCE_FILES_PROPERTIES(${DOC_HELP_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/help/)
+    # Configure manual files
+    SET_SOURCE_FILES_PROPERTIES(${DOC_MANUAL_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual/)
 ENDIF()
 
 # Set up resource compilation for Windows
@@ -101,12 +101,9 @@ IF (NOT GIT_FOUND)
     MESSAGE(WARNING "Could not find git")
 ENDIF()
 
-GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
-GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_BUILD_ID)
+GET_GIT_DESCRIBE("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
+GET_APP_VERSION(GIT_DESCRIBE CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
 GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
-IF(NOT DEFINED APP_BUILD_CHANNEL)
-    SET(APP_BUILD_CHANNEL "Interim")
-ENDIF()
 
 # Create the cmake script for generating the version information
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
@@ -115,7 +112,7 @@ ADD_CUSTOM_TARGET(GenerateVersion
     ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 ADD_DEPENDENCIES(TrenchBroom GenerateVersion)
 
-ADD_DEPENDENCIES(TrenchBroom GenerateHelp)
+ADD_DEPENDENCIES(TrenchBroom GenerateManual)
 
 IF(APPLE)
     # Configure variables that are substituted into the plist
@@ -125,8 +122,8 @@ IF(APPLE)
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "TrenchBroom")
     # Set CFBundleShortVersionString to "2.0.0". This is displayed in the Finder and Spotlight.
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_SHORT_VERSION_STRING "${CPACK_PACKAGE_VERSION}")
-    # Set CFBundleVersion to the git revision. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
-    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${APP_BUILD_ID}")
+    # Set CFBundleVersion to the git describe output. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${GIT_DESCRIBE}")
 
     # Set the path to the plist template
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_DIR}/resources/mac/TrenchBroom-Info.plist")
@@ -152,6 +149,11 @@ IF(WIN32)
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
     )
+ENDIF()
+
+# Generate a small stripped PDB for release builds so we get stack traces with symbols
+IF(COMPILER_IS_MSVC)
+    SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-stripped.pdb /PDBALTPATH:TrenchBroom-stripped.pdb")
 ENDIF()
 
 # Properly link to OpenGL libraries on Unix-like systems
@@ -193,20 +195,20 @@ IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/shader"
     )
 
-    # Copy help files to resource directory
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/help/"
-	)
+    # Copy manual files to resource directory
+    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/manual/"
+    )
 
-    FOREACH(HELP_FILE ${DOC_HELP_TARGET_FILES})
+    FOREACH(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES})
         ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${HELP_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/help/"
+            COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/manual/"
         )
-    ENDFOREACH(HELP_FILE)
+    ENDFOREACH(MANUAL_FILE)
 ENDIF()
 
 # Common CPack configuration
-SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${APP_BUILD_CHANNEL}-${APP_BUILD_ID}-${CMAKE_BUILD_TYPE}")
+SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
 SET(APP_PACKAGE_DIR_NAME "$ENV{DROPBOX}/TrenchBroom/")
 SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
@@ -248,11 +250,15 @@ IF(WIN32)
             STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
         
             INSTALL(FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/TrenchBroom.pdb # FIXME: This is a hack to get the PDB path
+                "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
                 ${WIN_PDB_WX_core}
                 ${WIN_PDB_WX_base}
                 ${WIN_PDB_WX_adv}
                 ${WIN_PDB_WX_gl}
+                DESTINATION . COMPONENT TrenchBroom)
+        ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+            INSTALL(FILES
+                "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom-stripped.pdb"
                 DESTINATION . COMPONENT TrenchBroom)
         ENDIF()
     ENDIF()
@@ -268,8 +274,8 @@ IF(WIN32)
         ${WIN_LIBS}
         DESTINATION . COMPONENT TrenchBroom)
     INSTALL(FILES
-        ${DOC_HELP_TARGET_FILES}
-        DESTINATION help COMPONENT TrenchBroom)
+        ${DOC_MANUAL_TARGET_FILES}
+        DESTINATION manual COMPONENT TrenchBroom)
     INSTALL(DIRECTORY
         "${APP_DIR}/resources/graphics/images"
         "${APP_DIR}/resources/fonts"
@@ -302,7 +308,7 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     INSTALL(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fonts"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/games"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/help"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manual"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     INSTALL(DIRECTORY "${APP_DIR}/resources/linux/icons"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
@@ -328,12 +334,3 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 ENDIF()
 INCLUDE(CPack)
-
-IF(WIN32)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish.bat @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.bat.in ${CMAKE_CURRENT_BINARY_DIR}/upload.bat @ONLY)
-ELSE()
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish.sh @ONLY)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/upload.sh.in ${CMAKE_CURRENT_BINARY_DIR}/upload.sh @ONLY)
-ENDIF()
-

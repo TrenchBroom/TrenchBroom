@@ -283,7 +283,7 @@ namespace TrenchBroom {
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");
-            helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Help");
+            helpMenu->addUnmodifiableActionItem(wxID_HELP, "TrenchBroom Manual");
             
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here

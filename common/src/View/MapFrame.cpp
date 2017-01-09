@@ -46,6 +46,7 @@
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
 #include "View/OpenClipboard.h"
+#include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
@@ -130,8 +131,32 @@ namespace TrenchBroom {
             m_updateLocker->Start();
 #endif
         }
+        
+        static RenderView* FindChildRenderView(wxWindow *current) {
+            for (wxWindow *child : current->GetChildren()) {
+                RenderView *canvas = wxDynamicCast(child, RenderView);
+                if (canvas != nullptr)
+                    return canvas;
+                
+                canvas = FindChildRenderView(child);
+                if (canvas != nullptr)
+                    return canvas;
+            }
+            return nullptr;
+        }
 
         MapFrame::~MapFrame() {
+            // Search for a RenderView (wxGLCanvas subclass) and make it current.
+            RenderView* canvas = FindChildRenderView(this);
+            if (canvas != nullptr && m_contextManager != nullptr) {
+                wxGLContext* mainContext = m_contextManager->mainContext();
+                if (mainContext != nullptr)
+                    mainContext->SetCurrent(*canvas);
+            }
+            
+            // Makes IsBeingDeleted() return true
+            SendDestroyEvent();
+
             m_mapView->deactivateTool();
             
             unbindObservers();
@@ -1420,6 +1445,9 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canPaste() const {
+            if (!m_mapView->isCurrent())
+                return false;
+            
             OpenClipboard openClipboard;
             return wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
         }

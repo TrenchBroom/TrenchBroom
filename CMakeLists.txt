@@ -63,6 +63,10 @@ ELSEIF(COMPILER_IS_MSVC)
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+
+    # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
+    SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
 ELSE()
     MESSAGE(FATAL_ERROR "Unsupported compiler detected.")
 ENDIF()

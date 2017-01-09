@@ -132,7 +132,7 @@ namespace TrenchBroom {
 #endif
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowHelp, this, wxID_HELP);
+            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowManual, this, wxID_HELP);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
 
@@ -255,6 +255,12 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::OnInit() {
+#if defined(_WIN32)
+            // Make wxStandardPaths return the actual executable directory, without stripping off the "Debug" or "Release" directory
+            // See: https://github.com/kduske/TrenchBroom/issues/1605
+            wxStandardPaths::Get().DontIgnoreAppSubDir();
+#endif
+
             if (!wxApp::OnInit())
                 return false;
 
@@ -273,8 +279,8 @@ namespace TrenchBroom {
             ss << "GL_VENDOR:\t" << MapViewBase::glVendorString() << std::endl;
             ss << "GL_RENDERER:\t" << MapViewBase::glRendererString() << std::endl;
             ss << "GL_VERSION:\t" << MapViewBase::glVersionString() << std::endl;
-            ss << "TrenchBroom Version:\t" << getBuildVersion() << " " << getBuildChannel() << std::endl;
-            ss << "TrenchBroom Build:\t" << getBuildId() << " " << getBuildType() << std::endl;
+            ss << "TrenchBroom Version:\t" << getBuildVersion() << std::endl;
+            ss << "TrenchBroom Build:\t" << getBuildIdStr() << std::endl;
             ss << "Reason:\t" << reason << std::endl;
             ss << "Stack trace:" << std::endl;
             ss << stacktrace << std::endl;
@@ -452,9 +458,9 @@ namespace TrenchBroom {
             openDocument(data.ToStdString());
         }
 
-        void TrenchBroomApp::OnHelpShowHelp(wxCommandEvent& event) {
-            const IO::Path helpPath = IO::SystemPaths::resourceDirectory() + IO::Path("help/index.html");
-            wxLaunchDefaultApplication(helpPath.asString());
+        void TrenchBroomApp::OnHelpShowManual(wxCommandEvent& event) {
+            const IO::Path manualPath = IO::SystemPaths::resourceDirectory() + IO::Path("manual/index.html");
+            wxLaunchDefaultApplication(manualPath.asString());
         }
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {

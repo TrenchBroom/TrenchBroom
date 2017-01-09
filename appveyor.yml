@@ -25,13 +25,13 @@ build_script:
 
     cd cmakebuild
 
-    cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DCMAKE_CXX_FLAGS=/WX
+    cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
 
-    msbuild PACKAGE.vcxproj /p:Configuration=RelWithDebInfo /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+    msbuild PACKAGE.vcxproj /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
     if ($LastExitCode -ne 0) { throw "Building TrenchBroom failed" }
 
-    .\RelWithDebInfo\TrenchBroom-Test.exe
+    .\Release\TrenchBroom-Test.exe
 artifacts:
 - path: cmakebuild\*.7z
 deploy:
