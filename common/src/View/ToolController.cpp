@@ -371,16 +371,18 @@ namespace TrenchBroom {
             doMouseDrag(inputState);
         }
         
-        void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper) {
+        void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper, const bool resetCurrentHandlePosition) {
             assert(dragging());
             ensure(snapper != NULL, "snapper is null");
             
             deleteSnapper();
             m_snapper = snapper;
 
-            Vec3 newHandlePosition = m_currentMousePosition;
-            assertResult(snapPoint(inputState, newHandlePosition));
-            m_currentHandlePosition = newHandlePosition;
+            if (resetCurrentHandlePosition) {
+                Vec3 newHandlePosition = m_currentMousePosition;
+                assertResult(snapPoint(inputState, newHandlePosition));
+                m_currentHandlePosition = newHandlePosition;
+            }
 
             doMouseDrag(inputState);
         }

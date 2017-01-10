@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 if (Super::thisToolDragging()) {
                     const SnapType currentSnapType = snapType(inputState);
                     if (currentSnapType != m_lastSnapType) {
-                        setSnapper(inputState, doCreateDragSnapper(inputState));
+                        setSnapper(inputState, doCreateDragSnapper(inputState), false);
                         m_lastSnapType = currentSnapType;
                     }
                 }

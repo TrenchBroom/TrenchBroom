@@ -277,7 +277,7 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
 
             void setRestricter(const InputState& inputState, DragRestricter* restricter, bool resetInitialPoint);
-            void setSnapper(const InputState& inputState, DragSnapper* snapper);
+            void setSnapper(const InputState& inputState, DragSnapper* snapper, bool resetCurrentHandlePosition);
             
             bool snapPoint(const InputState& inputState, Vec3& point) const;
         private: // subclassing interface
