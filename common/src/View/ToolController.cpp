@@ -362,7 +362,10 @@ namespace TrenchBroom {
             if (resetInitialPoint) {
                 assertResult(hitPoint(inputState, m_initialMousePosition));
                 m_currentMousePosition = m_initialMousePosition;
-                m_initialHandlePosition = m_currentHandlePosition;
+                
+                Vec3 newHandlePosition = m_currentMousePosition;
+                assertResult(snapPoint(inputState, newHandlePosition));
+                m_initialHandlePosition = m_currentHandlePosition = newHandlePosition;
             }
             
             doMouseDrag(inputState);
