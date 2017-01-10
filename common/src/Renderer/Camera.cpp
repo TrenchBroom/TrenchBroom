@@ -265,12 +265,14 @@ namespace TrenchBroom {
             if (direction == m_direction && up == m_up)
                 return;
             m_direction = direction;
-            if (m_direction.absolute().equals(up.absolute())) {
-                m_up = crossed(m_right, m_direction);
-            } else {
+            
+            // I can't remember what this is for, but this condition is too weak.
+            // if (m_direction.absolute().equals(up.absolute())) {
+            //    m_up = crossed(m_right, m_direction);
+            // } else {
                 m_right = crossed(m_direction, up).normalized();
                 m_up = crossed(m_right, m_direction);
-            }
+            // }
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
@@ -345,7 +347,7 @@ namespace TrenchBroom {
         Camera::Camera() :
         m_nearPlane(1.0f),
         m_farPlane(8000.0f),
-        m_zoomedViewport(Viewport(0, 0, 1024, 768)),
+        m_unzoomedViewport(Viewport(0, 0, 1024, 768)),
         m_zoom(1.0f),
         m_position(Vec3f::Null),
         m_valid(false) {
@@ -356,7 +358,7 @@ namespace TrenchBroom {
         Camera::Camera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
         m_nearPlane(nearPlane),
         m_farPlane(farPlane),
-        m_zoomedViewport(viewport),
+        m_unzoomedViewport(viewport),
         m_zoom(1.0f),
         m_position(position),
         m_valid(false) {
