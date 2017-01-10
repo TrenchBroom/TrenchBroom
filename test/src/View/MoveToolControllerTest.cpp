@@ -141,5 +141,53 @@ namespace TrenchBroom {
             EXPECT_CALL(controller, mockDoEndMove(Ref(inputState)));
             controller.endMouseDrag(inputState);
         }
+
+        
+        TEST(MoveToolControllerTest, testDontJumpAfterVerticalMoveWithOffset) {
+            // see https://github.com/kduske/TrenchBroom/pull/1635#issuecomment-271460182
+            
+            using namespace ::testing;
+            using ::testing::InSequence;
+            
+            const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, Vec3f(0.0f, 0.0f, 100.0f),
+                                               (Vec3f::NegX + Vec3f::NegY + Vec3f::NegZ).normalized(),
+                                               (Vec3f::NegX + Vec3f::NegY + Vec3f::PosZ).normalized());
+            
+            const Grid grid(4); // Grid size 16
+            MockMoveToolController controller(grid);
+            
+            InputState inputState(0, 0);
+            inputState.mouseDown(MouseButtons::MBLeft);
+            
+            const Ray3 initialPickRay(camera.pickRay(200, 200));
+            inputState.setPickRequest(PickRequest(initialPickRay, camera));
+            
+            const FloatType initialHitDistance = Plane3(Vec3::Null, Vec3::PosZ).intersectWithRay(initialPickRay);
+            const Vec3 initialHitPoint = initialPickRay.pointAtDistance(initialHitDistance);
+            
+            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(initialHitPoint)));
+            controller.startMouseDrag(inputState);
+            
+            // switch to vertical move mode
+            inputState.setModifierKeys(ModifierKeys::MKAlt);
+            controller.modifierKeyChange(inputState);
+
+            // We don't really care about the actual values
+            EXPECT_CALL(controller, mockDoMove(Ref(inputState), _, _)).Times(1).WillOnce(Return(MockMoveToolController::DR_Continue));
+
+            // drag vertically, but with a bit of an offset to the side
+            inputState.mouseMove(20, 50, 20, 50);
+            inputState.setPickRequest(PickRequest(Ray3(camera.pickRay(20, 50)), camera));
+            controller.mouseDrag(inputState);
+            
+            // switch to horizontal mode, must not trigger a move, so no expectation set
+            inputState.setModifierKeys(ModifierKeys::MKNone);
+            controller.modifierKeyChange(inputState);
+            
+            inputState.mouseUp(MouseButtons::MBLeft);
+            EXPECT_CALL(controller, mockDoEndMove(Ref(inputState)));
+            controller.endMouseDrag(inputState);
+        }
     }
 }
