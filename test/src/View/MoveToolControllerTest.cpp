@@ -71,6 +71,7 @@ namespace TrenchBroom {
         TEST(MoveToolControllerTest, testMoveWithSnapUp) {
             using namespace ::testing;
             using ::testing::InSequence;
+            const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, Vec3f(0.0f, 0.0f, 100.0f), Vec3f::NegZ, Vec3f::PosY);
@@ -103,7 +104,8 @@ namespace TrenchBroom {
             
             using namespace ::testing;
             using ::testing::InSequence;
-            
+            const InSequence inSequence;
+
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, Vec3f(0.0f, 0.0f, 100.0f), Vec3f::NegZ, Vec3f::PosY);
             
@@ -120,6 +122,7 @@ namespace TrenchBroom {
             controller.startMouseDrag(inputState);
             
             // nothing will happen due to grid snapping
+            EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
             inputState.mouseMove(1, 0, 1, 0);
             inputState.setPickRequest(PickRequest(Ray3(origin, (Vec3(1.0, 0.0, 0.0) - origin).normalized()), camera));
             controller.mouseDrag(inputState);
@@ -148,6 +151,7 @@ namespace TrenchBroom {
             
             using namespace ::testing;
             using ::testing::InSequence;
+            const InSequence inSequence;
             
             const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, Vec3f(0.0f, 0.0f, 100.0f),
@@ -182,6 +186,7 @@ namespace TrenchBroom {
             controller.mouseDrag(inputState);
             
             // switch to horizontal mode, must not trigger a move, so no expectation set
+            EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
             inputState.setModifierKeys(ModifierKeys::MKNone);
             controller.modifierKeyChange(inputState);
             
