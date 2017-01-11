@@ -31,8 +31,7 @@ namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {
             Path appDirectory() {
-                const IO::Path executablePath(wxStandardPaths::Get().GetExecutablePath().ToStdString());
-                return executablePath.deleteLastComponent();
+                return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
             }
 
             static bool getDevMode() {
@@ -46,7 +45,7 @@ namespace TrenchBroom {
 #if defined __linux__
                 static const bool DevMode = getDevMode();
                 if (DevMode)
-                    return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
+                    return appDirectory();
 #endif
                 return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
             }
