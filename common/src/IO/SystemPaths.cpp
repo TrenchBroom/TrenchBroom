@@ -22,15 +22,10 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 
-#include <wx/stdpaths.h>
+#include <iostream>
 
-#if defined __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
-#elif defined _WIN32
-#include <Windows.h>
-#elif defined __WXGTK20__
-#include <unistd.h>
-#endif
+#include <wx/stdpaths.h>
+#include <wx/utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,8 +34,20 @@ namespace TrenchBroom {
                 const IO::Path executablePath(wxStandardPaths::Get().GetExecutablePath().ToStdString());
                 return executablePath.deleteLastComponent();
             }
+
+            static bool getDevMode() {
+                wxString value;
+                if (!wxGetEnv("TB_DEV_MODE", &value))
+                    return false;
+                return value != "0";
+            }
             
             Path resourceDirectory() {
+#if defined __linux__
+                static const bool DevMode = getDevMode();
+                if (DevMode)
+                    return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
+#endif
                 return IO::Path(wxStandardPaths::Get().GetResourcesDir().ToStdString());
             }
 
@@ -50,3 +57,4 @@ namespace TrenchBroom {
         }
     }
 }
+
