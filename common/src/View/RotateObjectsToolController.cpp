@@ -92,9 +92,9 @@ namespace TrenchBroom {
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_start, m_center, m_axis, radius));
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                 const Vec3 ref = (m_start - m_center).normalized();
-                const Vec3 vec = (curPoint - m_center).normalized();
+                const Vec3 vec = (nextHandlePosition - m_center).normalized();
                 m_angle = angleBetween(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
@@ -213,15 +213,15 @@ namespace TrenchBroom {
                 return MoveInfo(m_tool->rotationCenter());
             }
             
-            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                m_tool->setRotationCenter(curPoint);
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                m_tool->setRotationCenter(nextHandlePosition);
                 return DR_Continue;
             }
             
             void doEndMove(const InputState& inputState) {}
             
             void doCancelMove() {
-                m_tool->setRotationCenter(dragOrigin());
+                m_tool->setRotationCenter(initialHandlePosition());
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

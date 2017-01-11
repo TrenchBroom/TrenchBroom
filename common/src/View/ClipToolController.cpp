@@ -123,7 +123,7 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
             
             if (!m_secondPointSet) {
                 Vec3 position;
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                     return DR_Continue;
                 }
             } else {
-                if (m_callback->tool()->dragPoint(curPoint, m_callback->getHelpVectors(inputState)))
+                if (m_callback->tool()->dragPoint(nextHandlePosition, m_callback->getHelpVectors(inputState)))
                     return DR_Continue;
             }
             return DR_Deny;
@@ -181,8 +181,8 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-            if (m_callback->tool()->dragPoint(curPoint, m_callback->getHelpVectors(inputState)))
+        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            if (m_callback->tool()->dragPoint(nextHandlePosition, m_callback->getHelpVectors(inputState)))
                 return DR_Continue;
             return DR_Deny;
         }

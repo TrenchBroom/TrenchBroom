@@ -36,7 +36,7 @@ namespace TrenchBroom {
             Tool* doGetTool();
 
             MoveInfo doStartMove(const InputState& inputState);
-            DragResult doMove(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
             void doEndMove(const InputState& inputState);
             void doCancelMove();
             

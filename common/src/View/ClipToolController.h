@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 bool doMouseClick(const InputState& inputState);
                 bool doMouseDoubleClick(const InputState& inputState);
                 DragInfo doStartDrag(const InputState& inputState);
-                DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
                 void doEndDrag(const InputState& inputState);
                 void doCancelDrag();
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             private:
                 Tool* doGetTool();
                 DragInfo doStartDrag(const InputState& inputState);
-                DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint);
+                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
                 void doEndDrag(const InputState& inputState);
                 void doCancelDrag();
                 bool doCancel();
