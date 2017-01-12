@@ -86,8 +86,8 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
-                updatePolyhedron(curPoint);
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
             
@@ -155,13 +155,13 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
                 const Grid& grid = m_tool->grid();
                 
-                const Vec3 rayDelta             = curPoint - dragOrigin();
+                const Vec3 rayDelta             = nextHandlePosition - initialHandlePosition();
                 const Vec3 rayAxis              = m_dragDir.firstAxis();
                 const FloatType axisDistance    = rayDelta.dot(rayAxis);
                 const FloatType snappedDistance = grid.snap(axisDistance);
