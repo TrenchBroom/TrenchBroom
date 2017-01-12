@@ -22,8 +22,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 
-#include <iostream>
-
 #include <wx/stdpaths.h>
 #include <wx/utils.h>
 
