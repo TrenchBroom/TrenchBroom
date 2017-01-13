@@ -1072,7 +1072,7 @@ Variable 		Description
 `GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
 `MODS` 			An array containing all enabled mods for the current map.
 
-Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
+Note that the parameters are stored with the game engine profile.
 
 ## Expression Language {#expression_language}
 
