@@ -31,8 +31,8 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<DuplicateNodesCommand> Ptr;
         private:
-            Model::NodeList m_previouslySelectedNodes;
-            Model::NodeList m_nodesToSelect;
+            Model::NodeArray m_previouslySelectedNodes;
+            Model::NodeArray m_nodesToSelect;
             Model::ParentChildrenMap m_addedNodes;
             bool m_firstExecution;
         public:
