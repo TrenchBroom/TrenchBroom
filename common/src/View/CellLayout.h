@@ -165,6 +165,10 @@ namespace TrenchBroom {
                 return m_scale;
             }
             
+            const LayoutBounds& bounds() const {
+                return cellBounds();
+            }
+            
             const LayoutBounds& cellBounds() const {
                 return m_cellBounds;
             }
