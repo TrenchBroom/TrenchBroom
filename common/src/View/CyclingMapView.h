@@ -57,8 +57,8 @@ namespace TrenchBroom {
             Logger* m_logger;
             MapDocumentWPtr m_document;
             
-            typedef std::vector<MapViewBase*> MapViewList;
-            MapViewList m_mapViews;
+            typedef std::vector<MapViewBase*> MapViewArray;
+            MapViewArray m_mapViews;
             MapViewBase* m_currentMapView;
         public:
             CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
