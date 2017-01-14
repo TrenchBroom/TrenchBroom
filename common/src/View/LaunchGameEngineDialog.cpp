@@ -34,6 +34,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/button.h>
+#include <wx/msgdlg.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -179,26 +180,32 @@ namespace TrenchBroom {
         }
         
         void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
-            const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
-            ensure(profile != NULL, "profile is null");
-            
-            const IO::Path& path = profile->path();
-            const String& parameterSpec = profile->parameterSpec();
-            const String parameters = EL::interpolate(parameterSpec, variables());
-
-            wxString launchStr;
+            try {
+                const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
+                ensure(profile != NULL, "profile is null");
+                
+                const IO::Path& path = profile->path();
+                const String& parameterSpec = profile->parameterSpec();
+                const String parameters = EL::interpolate(parameterSpec, variables());
+                
+                wxString launchStr;
 #ifdef __APPLE__
-            // We have to launch apps via the 'open' command so that we can properly pass parameters.
-            launchStr << "/usr/bin/open " << path.asString() << " --args " << parameters;
+                // We have to launch apps via the 'open' command so that we can properly pass parameters.
+                launchStr << "/usr/bin/open " << path.asString() << " --args " << parameters;
 #else
-            launchStr << path.asString() << " " << parameters;
+                launchStr << path.asString() << " " << parameters;
 #endif
-            
-            wxExecuteEnv env;
-            env.cwd = path.deleteLastComponent().asString();
-            
-            wxExecute(launchStr, wxEXEC_ASYNC, NULL, &env);
-            EndModal(wxOK);
+                
+                wxExecuteEnv env;
+                env.cwd = path.deleteLastComponent().asString();
+                
+                wxExecute(launchStr, wxEXEC_ASYNC, NULL, &env);
+                EndModal(wxOK);
+            } catch (const Exception& e) {
+                StringStream message;
+                message << "Could not launch game engine: " << e.what();
+                ::wxMessageBox(message.str(), "TrenchBroom", wxOK | wxICON_ERROR, this);
+            }
         }
         
         void LaunchGameEngineDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {

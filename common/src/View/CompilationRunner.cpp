@@ -152,8 +152,8 @@ namespace TrenchBroom {
                 notifyStart();
                 
                 try {
-                    const IO::Path sourcePath(m_context.interpolate(m_task->sourceSpec()));
-                    const IO::Path targetPath(m_context.interpolate(m_task->targetSpec()));
+                    const IO::Path sourcePath(interpolate(m_task->sourceSpec()));
+                    const IO::Path targetPath(interpolate(m_task->targetSpec()));
                     
                     const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
                     const String sourcePattern = sourcePath.lastComponent().asString();
@@ -242,8 +242,8 @@ namespace TrenchBroom {
                 assert(m_timer == NULL);
                 
                 try {
-                    const IO::Path toolPath(m_context.interpolate(m_task->toolSpec()));
-                    const String parameters(m_context.interpolate(m_task->parameterSpec()));
+                    const IO::Path toolPath(interpolate(m_task->toolSpec()));
+                    const String parameters(interpolate(m_task->parameterSpec()));
                     const String cmd = toolPath.asString() + " " + parameters;
                     
                     m_context << "#### Executing '" << cmd << "'\n";
