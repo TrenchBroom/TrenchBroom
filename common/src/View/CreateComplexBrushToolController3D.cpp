@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
                 
                 const Polyhedron3::Face* face = m_oldPolyhedron.faces().front();
-                const Vec3::List points = face->vertexPositions() + snappedRayDelta;
+                const Vec3::Array points = face->vertexPositions() + snappedRayDelta;
                 
                 polyhedron.addPoints(points);
                 m_tool->update(polyhedron);
@@ -267,8 +267,8 @@ namespace TrenchBroom {
                 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     const Polyhedron3::Face* face = polyhedron.faces().front();
-                    const Vec3::List pos3 = face->vertexPositions();
-                    Vec3f::List pos3f(pos3.size());
+                    const Vec3::Array pos3 = face->vertexPositions();
+                    Vec3f::Array pos3f(pos3.size());
                     for (size_t i = 0; i < pos3.size(); ++i)
                         pos3f[i] = Vec3f(pos3[i]);
                     
