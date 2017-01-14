@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
             m_brushRenderer->setTransparencyAlpha(0.7f);
             
-            m_brushRenderer->setBrushes(Model::BrushList(1, m_brush));
+            m_brushRenderer->setBrushes(Model::BrushArray(1, m_brush));
             m_brushRenderer->render(renderContext, renderBatch);
             
             Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->bounds());
