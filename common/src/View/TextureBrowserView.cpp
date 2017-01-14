@@ -51,6 +51,7 @@ namespace TrenchBroom {
         }
         
         TextureBrowserView::~TextureBrowserView() {
+            m_textureManager.usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             clear();
         }
 
