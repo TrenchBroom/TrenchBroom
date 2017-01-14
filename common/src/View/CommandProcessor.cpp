@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CommandGroup::Type = Command::freeType();
         
-        CommandGroup::CommandGroup(const String& name, const CommandList& commands,
+        CommandGroup::CommandGroup(const String& name, const CommandArray& commands,
                                    Notifier1<Command::Ptr>& commandDoNotifier,
                                    Notifier1<Command::Ptr>& commandDoneNotifier,
                                    Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
-            CommandList clones;
+            CommandArray clones;
             for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 assert(command->isRepeatable(document));
@@ -203,7 +203,7 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::repeatLastCommands() {
-            CommandList commands;
+            CommandArray commands;
             for (auto it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
                 UndoableCommand::Ptr command = *it;
                 if (command->isRepeatable(m_document))
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             m_groupName = "";
         }
         
-        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
+        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandArray& commands) {
             return UndoableCommand::Ptr(new CommandGroup(name, commands,
                                                          commandDoNotifier,
                                                          commandDoneNotifier,
