@@ -28,17 +28,17 @@ namespace TrenchBroom {
     namespace View {
         class ColorTable : public wxScrolledWindow {
         public:
-            typedef std::vector<wxColour> ColorList;
+            typedef std::vector<wxColour> ColorArray;
         private:
             int m_cellSize;
             int m_margin;
-            ColorList m_colors;
-            ColorList m_selectedColors;
+            ColorArray m_colors;
+            ColorArray m_selectedColors;
         public:
             ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_NONE);
             
-            void setColors(const ColorList& colors);
-            void setSelection(const ColorList& colors);
+            void setColors(const ColorArray& colors);
+            void setSelection(const ColorArray& colors);
             
             void OnSize(wxSizeEvent& event);
             void OnPaint(wxPaintEvent& event);
