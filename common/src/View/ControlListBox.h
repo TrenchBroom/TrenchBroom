@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 void setColours(wxWindow* window, const wxColour& foreground, const wxColour& background);
             };
         private:
-            typedef std::vector<Item*> ItemList;
+            typedef std::vector<Item*> ItemArray;
             wxSize m_itemMargin;
             bool m_restrictToClientWidth;
             wxString m_emptyText;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             bool m_valid;
             size_t m_newItemCount;
         protected:
-            ItemList m_items;
+            ItemArray m_items;
             size_t m_selectionIndex;
         private:
             class Sizer;
