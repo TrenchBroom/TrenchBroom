@@ -44,13 +44,13 @@ namespace TrenchBroom {
             SetScrollRate(0, m_cellSize + m_margin);
         }
 
-        void ColorTable::setColors(const ColorList& colors) {
+        void ColorTable::setColors(const ColorArray& colors) {
             m_colors = colors;
             m_selectedColors.clear();
             updateVirtualSize();
         }
 
-        void ColorTable::setSelection(const ColorList& colors) {
+        void ColorTable::setSelection(const ColorArray& colors) {
             m_selectedColors = colors;
             Refresh();
         }
