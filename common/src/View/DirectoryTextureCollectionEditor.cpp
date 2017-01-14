@@ -50,8 +50,8 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
-            const IO::Path::List availableCollections = availableTextureCollections();
-            IO::Path::List enabledCollections = enabledTextureCollections();
+            const IO::Path::Array availableCollections = availableTextureCollections();
+            IO::Path::Array enabledCollections = enabledTextureCollections();
             
             wxArrayInt selections;
             m_availableCollectionsList->GetSelections(selections);
@@ -68,8 +68,8 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
-            const IO::Path::List availableCollections = availableTextureCollections();
-            IO::Path::List enabledCollections = enabledTextureCollections();
+            const IO::Path::Array availableCollections = availableTextureCollections();
+            IO::Path::Array enabledCollections = enabledTextureCollections();
             
             wxArrayInt selections;
             m_availableCollectionsList->GetSelections(selections);
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             updateListBox(m_enabledCollectionsList, enabledTextureCollections());
         }
 
-        void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::List& paths) {
+        void DirectoryTextureCollectionEditor::updateListBox(wxListBox* box, const IO::Path::Array& paths) {
             wxArrayString values;
             values.reserve(paths.size());
             
@@ -199,14 +199,14 @@ namespace TrenchBroom {
             box->Set(values);
         }
         
-        IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
+        IO::Path::Array DirectoryTextureCollectionEditor::availableTextureCollections() const {
             MapDocumentSPtr document = lock(m_document);
-            IO::Path::List availableCollections = document->availableTextureCollections();
+            IO::Path::Array availableCollections = document->availableTextureCollections();
             VectorUtils::eraseAll(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 
-        IO::Path::List DirectoryTextureCollectionEditor::enabledTextureCollections() const {
+        IO::Path::Array DirectoryTextureCollectionEditor::enabledTextureCollections() const {
             MapDocumentSPtr document = lock(m_document);
             return document->enabledTextureCollections();
         }
