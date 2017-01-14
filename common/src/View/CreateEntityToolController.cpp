@@ -38,7 +38,7 @@ namespace TrenchBroom {
         }
         
         bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
-            const StringList parts = StringUtils::split(payload, ':');
+            const StringArray parts = StringUtils::split(payload, ':');
             if (parts.size() != 2)
                 return false;
             if (parts[0] != "entity")
