@@ -85,7 +85,7 @@ namespace TrenchBroom {
             
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
         private:
