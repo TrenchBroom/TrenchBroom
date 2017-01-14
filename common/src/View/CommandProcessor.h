@@ -35,20 +35,20 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        typedef std::vector<UndoableCommand::Ptr> CommandList;
+        typedef std::vector<UndoableCommand::Ptr> CommandArray;
         
         class CommandGroup : public UndoableCommand {
         public:
             static const CommandType Type;
         private:
-            CommandList m_commands;
+            CommandArray m_commands;
 
             Notifier1<Command::Ptr>& m_commandDoNotifier;
             Notifier1<Command::Ptr>& m_commandDoneNotifier;
             Notifier1<UndoableCommand::Ptr>& m_commandUndoNotifier;
             Notifier1<UndoableCommand::Ptr>& m_commandUndoneNotifier;
         public:
-            CommandGroup(const String& name, const CommandList& commands,
+            CommandGroup(const String& name, const CommandArray& commands,
                          Notifier1<Command::Ptr>& commandDoNotifier,
                          Notifier1<Command::Ptr>& commandDoneNotifier,
                          Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             
             MapDocumentCommandFacade* m_document;
             
-            typedef CommandList CommandStack;
+            typedef CommandArray CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
             CommandStack m_repeatableCommandStack;
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             bool pushGroupedCommand(UndoableCommand::Ptr command, bool collate);
             UndoableCommand::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
-            UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
+            UndoableCommand::Ptr createCommandGroup(const String& name, const CommandArray& commands);
 
             bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
             bool collatable(bool collate, wxLongLong timestamp) const;
