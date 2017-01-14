@@ -44,7 +44,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const String& name = command.name();
-            const Model::AttributableNodeList& attributables = document->allSelectedAttributableNodes();
+            const Model::AttributableNodeArray& attributables = document->allSelectedAttributableNodes();
             m_smartEditorManager->switchEditor(name, attributables);
         }
 
