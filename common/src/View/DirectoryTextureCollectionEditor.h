@@ -57,10 +57,10 @@ namespace TrenchBroom {
             void update();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
-            void updateListBox(wxListBox* box, const IO::Path::List& paths);
+            void updateListBox(wxListBox* box, const IO::Path::Array& paths);
             
-            IO::Path::List availableTextureCollections() const;
-            IO::Path::List enabledTextureCollections() const;
+            IO::Path::Array availableTextureCollections() const;
+            IO::Path::Array enabledTextureCollections() const;
         };
     }
 }
