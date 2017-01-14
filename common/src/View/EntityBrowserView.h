@@ -62,7 +62,7 @@ namespace TrenchBroom {
             typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
             
             typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
-            typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;
+            typedef std::map<Renderer::FontDescriptor, TextVertex::Array> StringMap;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
