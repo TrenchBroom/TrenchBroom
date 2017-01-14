@@ -1074,7 +1074,7 @@ Variable 		Description
 
 The `MODS` variable is useful to pass a parameter to the engine to choose a mod. Usually, this will be the last mod in the mods for the current map. Since the `MODS` variable is an array that contains all mods for the map, its individual entries are accessed using teh subscript operator (see below). To access the last entry in the array, you can use the expression `$MODS[-1]`.
 
-Note that the parameters are stored in the map file for each engine. To be precise, they are stored in a worldspawn property, so when you change them, the map document will be marked as modified and you'll have to save it to keep the changes to the engine parameters. The advantage is that you can have different parameters in different maps (and for different engines).
+Note that the parameters are stored with the game engine profile.
 
 ## Expression Language {#expression_language}
 
