@@ -130,7 +130,7 @@ namespace TrenchBroom {
             
             if (m_group) {
                 for (const Assets::EntityDefinitionGroup& group : m_entityDefinitionManager.groups()) {
-                    const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                    const Assets::EntityDefinitionArray& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
                     if (!definitions.empty()) {
                         const String displayName = group.displayName();
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Assets::EntityDefinitionList& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                const Assets::EntityDefinitionArray& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                 for (Assets::EntityDefinition* definition : definitions) {
                     Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
                     addEntityToLayout(layout, pointEntityDefinition, font);
@@ -231,9 +231,9 @@ namespace TrenchBroom {
         struct CollectBoundsVertices {
             const Mat4x4f& transformation;
             const Color& color;
-            typename Vertex::List& vertices;
+            typename Vertex::Array& vertices;
             
-            CollectBoundsVertices(const Mat4x4f& i_transformation, const Color& i_color, typename Vertex::List& i_vertices) :
+            CollectBoundsVertices(const Mat4x4f& i_transformation, const Color& i_color, typename Vertex::Array& i_vertices) :
             transformation(i_transformation),
             color(i_color),
             vertices(i_vertices) {}
@@ -246,7 +246,7 @@ namespace TrenchBroom {
         
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P3C4::Vertex BoundsVertex;
-            BoundsVertex::List vertices;
+            BoundsVertex::Array vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -326,7 +326,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P2::Vertex Vertex;
-            Vertex::List vertices;
+            Vertex::Array vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -358,7 +358,7 @@ namespace TrenchBroom {
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 for (const auto& entry : stringVertices) {
                     const Renderer::FontDescriptor& descriptor = entry.first;
-                    const TextVertex::List& vertices = entry.second;
+                    const TextVertex::Array& vertices = entry.second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[descriptor].prepare(vertexVbo());
                 }
@@ -394,8 +394,8 @@ namespace TrenchBroom {
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
                         Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const Vec2f::List quads = font.quads(title, false, offset);
-                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        const Vec2f::Array quads = font.quads(title, false, offset);
+                        const TextVertex::Array titleVertices = TextVertex::fromArrays(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
                     
@@ -408,8 +408,8 @@ namespace TrenchBroom {
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const Vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
-                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                const Vec2f::Array quads = font.quads(cell.item().entityDefinition->name(), false, offset);
+                                const TextVertex::Array titleVertices = TextVertex::fromArrays(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }
