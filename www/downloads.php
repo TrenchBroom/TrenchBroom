@@ -1,4 +1,7 @@
 <?php
+header('Location: https://github.com/kduske/TrenchBroom/releases');
+die();
+
 function has_extension($file, $exts) {
 	foreach ($exts as $ext) {
 		if (pathinfo($file, PATHINFO_EXTENSION) == $ext)
