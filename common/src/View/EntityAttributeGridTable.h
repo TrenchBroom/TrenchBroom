@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             class AttributeRow {
             public:
-                typedef std::vector<AttributeRow> List;
+                typedef std::vector<AttributeRow> Array;
             private:
                 String m_name;
                 String m_value;
@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             class RowManager {
             private:
-                AttributeRow::List m_rows;
+                AttributeRow::Array m_rows;
                 size_t m_defaultRowCount;
             public:
                 size_t totalRowCount() const;
@@ -84,16 +84,16 @@ namespace TrenchBroom {
                 const String& tooltip(size_t rowIndex) const;
                 bool multi(size_t rowIndex) const;
                 bool subset(size_t rowIndex) const;
-                const StringList names(size_t rowIndex, size_t count) const;
+                const StringArray names(size_t rowIndex, size_t count) const;
                 
-                void updateRows(const Model::AttributableNodeList& attributables, bool showDefaultProperties);
-                StringList insertRows(size_t rowIndex, size_t count, const Model::AttributableNodeList& attributables);
+                void updateRows(const Model::AttributableNodeArray& attributables, bool showDefaultProperties);
+                StringArray insertRows(size_t rowIndex, size_t count, const Model::AttributableNodeArray& attributables);
                 void deleteRows(size_t rowIndex, size_t count);
             private:
-                static AttributeRow::List::iterator findRow(AttributeRow::List& rows, const String& name);
-                static AttributeRow::List::const_iterator findRow(const AttributeRow::List& rows, const String& name);
+                static AttributeRow::Array::iterator findRow(AttributeRow::Array& rows, const String& name);
+                static AttributeRow::Array::const_iterator findRow(const AttributeRow::Array& rows, const String& name);
                 
-                StringList newAttributeNames(size_t count, const Model::AttributableNodeList& attributables) const;
+                StringArray newAttributeNames(size_t count, const Model::AttributableNodeArray& attributables) const;
             };
             
             MapDocumentWPtr m_document;
@@ -128,8 +128,8 @@ namespace TrenchBroom {
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
         private:
-            void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
-            void updateAttribute(size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
+            void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeArray& attributables);
+            void updateAttribute(size_t rowIndex, const String& newValue, const Model::AttributableNodeArray& attributables);
             
             void notifyRowsUpdated(size_t pos, size_t numRows = 1);
             void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);
