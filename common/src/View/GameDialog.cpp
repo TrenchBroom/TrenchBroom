@@ -224,7 +224,7 @@ namespace TrenchBroom {
         
         void GameDialog::updateMapFormats(const String& gameName) {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
+            const StringArray& fileFormats = gameName.empty() ? EmptyStringArray : gameFactory.fileFormats(gameName);
             
             m_mapFormatChoice->Clear();
             for (size_t i = 0; i < fileFormats.size(); ++i)
