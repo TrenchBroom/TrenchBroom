@@ -181,7 +181,7 @@ namespace TrenchBroom {
                 return NULL;
 
             const Model::World* world = lock(m_document)->world();
-            const Model::LayerList layers = world->allLayers();
+            const Model::LayerArray layers = world->allLayers();
 
             const size_t index = static_cast<size_t>(GetSelection());
             ensure(index < layers.size(), "index out of range");
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
+        void LayerListBox::nodesDidChange(const Model::NodeArray& nodes) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             if (world != NULL) {
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             const Model::World* world = document->world();
             ensure(world != NULL, "world is null");
             
-            const Model::LayerList layers = world->allLayers();
+            const Model::LayerArray layers = world->allLayers();
             ensure(index < layers.size(), "index out of range");
             
             return new LayerItem(parent, document, layers[index], margins);
