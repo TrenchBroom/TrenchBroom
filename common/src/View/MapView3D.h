@@ -99,7 +99,7 @@ namespace TrenchBroom {
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
+            Vec3f focusCameraOnObjectsPosition(const Model::NodeArray& nodes);
 
             void doMoveCameraToPosition(const Vec3& position, bool animate);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
