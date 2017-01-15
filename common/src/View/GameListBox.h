@@ -37,9 +37,9 @@ namespace TrenchBroom {
                 wxString subtitle;
             };
             
-            typedef std::vector<Info> InfoList;
+            typedef std::vector<Info> InfoArray;
             
-            InfoList m_gameInfos;
+            InfoArray m_gameInfos;
         public:
             GameListBox(wxWindow* parent);
             
