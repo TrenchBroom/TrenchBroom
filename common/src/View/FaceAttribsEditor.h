@@ -46,7 +46,7 @@ namespace TrenchBroom {
         class FaceAttribsEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
-            Model::BrushFaceList m_faces;
+            Model::BrushFaceArray m_faces;
 
             UVEditor* m_uvEditor;
             wxStaticText* m_textureName;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const Model::BrushFaceArray& faces);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             
