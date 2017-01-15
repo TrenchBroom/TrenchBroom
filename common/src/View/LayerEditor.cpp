@@ -375,7 +375,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
-            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            const Model::NodeArray& selectedNodes = document->selectedNodes().nodes();
             
             CollectMoveableNodes visitor(document->world());
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
