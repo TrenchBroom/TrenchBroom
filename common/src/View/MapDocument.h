@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
             Model::NodeCollection m_partiallySelectedNodes;
             Model::NodeCollection m_selectedNodes;
-            Model::BrushFaceList m_selectedBrushFaces;
+            Model::BrushFaceArray m_selectedBrushFaces;
             
             String m_currentTextureName;
             BBox3 m_lastSelectionBounds;
@@ -117,19 +117,19 @@ namespace TrenchBroom {
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
             
-            Notifier1<const Model::NodeList&> nodesWereAddedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillBeRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWereRemovedNotifier;
-            Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
-            Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
+            Notifier1<const Model::NodeArray&> nodesWereAddedNotifier;
+            Notifier1<const Model::NodeArray&> nodesWillBeRemovedNotifier;
+            Notifier1<const Model::NodeArray&> nodesWereRemovedNotifier;
+            Notifier1<const Model::NodeArray&> nodesWillChangeNotifier;
+            Notifier1<const Model::NodeArray&> nodesDidChangeNotifier;
             
-            Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
-            Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
+            Notifier1<const Model::NodeArray&> nodeVisibilityDidChangeNotifier;
+            Notifier1<const Model::NodeArray&> nodeLockingDidChangeNotifier;
             
             Notifier1<Model::Group*> groupWasOpenedNotifier;
             Notifier1<Model::Group*> groupWasClosedNotifier;
             
-            Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+            Notifier1<const Model::BrushFaceArray&> brushFacesDidChangeNotifier;
             
             Notifier0 textureCollectionsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
@@ -182,8 +182,8 @@ namespace TrenchBroom {
             
             PasteType paste(const String& str);
         private:
-            bool pasteNodes(const Model::NodeList& nodes);
-            bool pasteBrushFaces(const Model::BrushFaceList& faces);
+            bool pasteNodes(const Model::NodeArray& nodes);
+            bool pasteBrushFaces(const Model::BrushFaceArray& faces);
         public: // point file management
             void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
@@ -193,10 +193,10 @@ namespace TrenchBroom {
             bool hasSelectedNodes() const;
             bool hasSelectedBrushFaces() const;
 
-            const Model::AttributableNodeList allSelectedAttributableNodes() const;
+            const Model::AttributableNodeArray allSelectedAttributableNodes() const;
             const Model::NodeCollection& selectedNodes() const;
-            const Model::BrushFaceList allSelectedBrushFaces() const;
-            const Model::BrushFaceList& selectedBrushFaces() const;
+            const Model::BrushFaceArray allSelectedBrushFaces() const;
+            const Model::BrushFaceArray& selectedBrushFaces() const;
 
             const BBox3& referenceBounds() const;
             const BBox3& lastSelectionBounds() const;
@@ -209,15 +209,15 @@ namespace TrenchBroom {
             void selectTouching(bool del);
             void selectInside(bool del);
             void selectNodesWithFilePosition(const std::vector<size_t>& positions);
-            void select(const Model::NodeList& nodes);
+            void select(const Model::NodeArray& nodes);
             void select(Model::Node* node);
-            void select(const Model::BrushFaceList& faces);
+            void select(const Model::BrushFaceArray& faces);
             void select(Model::BrushFace* face);
             void convertToFaceSelection();
             
             void deselectAll();
             void deselect(Model::Node* node);
-            void deselect(const Model::NodeList& nodes);
+            void deselect(const Model::NodeArray& nodes);
             void deselect(Model::BrushFace* face);
         protected:
             void updateLastSelectionBounds();
@@ -229,19 +229,19 @@ namespace TrenchBroom {
             void addNode(Model::Node* node, Model::Node* parent);
             void removeNode(Model::Node* node);
 
-            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
-            Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
+            Model::NodeArray addNodes(const Model::ParentChildrenMap& nodes);
+            Model::NodeArray addNodes(const Model::NodeArray& nodes, Model::Node* parent);
             
-            void removeNodes(const Model::NodeList& nodes);
+            void removeNodes(const Model::NodeArray& nodes);
         private:
             Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
             
             struct CompareByAncestry;
-            Model::NodeList removeImplicitelyRemovedNodes(Model::NodeList nodes) const;
+            Model::NodeArray removeImplicitelyRemovedNodes(Model::NodeArray nodes) const;
             
             void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
         public:
-            bool reparentNodes(Model::Node* newParent, const Model::NodeList& children);
+            bool reparentNodes(Model::Node* newParent, const Model::NodeArray& children);
             bool reparentNodes(const Model::ParentChildrenMap& nodesToAdd);
         private:
             bool checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const;
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             Model::Group* groupSelection(const String& name);
         private:
             class MatchGroupableNodes;
-            Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;
+            Model::NodeArray collectGroupableNodes(const Model::NodeArray& selectedNodes) const;
         public:
             void ungroupSelection();
             void renameGroups(const String& name);
@@ -260,23 +260,23 @@ namespace TrenchBroom {
             void openGroup(Model::Group* group);
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
-            void isolate(const Model::NodeList& nodes);
-            void hide(const Model::NodeList nodes); // Don't take the nodes by reference!
+            void isolate(const Model::NodeArray& nodes);
+            void hide(const Model::NodeArray nodes); // Don't take the nodes by reference!
             void hideSelection();
-            void show(const Model::NodeList& nodes);
+            void show(const Model::NodeArray& nodes);
             void showAll();
-            void ensureVisible(const Model::NodeList& nodes);
-            void resetVisibility(const Model::NodeList& nodes);
+            void ensureVisible(const Model::NodeArray& nodes);
+            void resetVisibility(const Model::NodeArray& nodes);
             
-            void lock(const Model::NodeList& nodes);
-            void unlock(const Model::NodeList& nodes);
-            void resetLock(const Model::NodeList& nodes);
+            void lock(const Model::NodeArray& nodes);
+            void unlock(const Model::NodeArray& nodes);
+            void resetLock(const Model::NodeArray& nodes);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public:
-            bool createBrush(const Vec3::List& points);
+            bool createBrush(const Vec3::Array& points);
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
@@ -290,11 +290,11 @@ namespace TrenchBroom {
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
             bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta);
+            bool resizeBrushes(const Polygon3::Array& faces, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
             void setTexture(Assets::Texture* texture);
         private:
-            bool hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const;
+            bool hasTexture(const Model::BrushFaceArray& faces, Assets::Texture* texture) const;
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
@@ -302,7 +302,7 @@ namespace TrenchBroom {
             bool rotateTextures(float angle);
             bool shearTextures(const Vec2f& factors);
         public: // modifying vertices, declared in MapFacade interface
-            void rebuildBrushGeometry(const Model::BrushList& brushes);
+            void rebuildBrushGeometry(const Model::BrushArray& brushes);
             
             bool snapVertices(size_t snapTo);
             bool findPlanePoints();
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             bool removeEdges(const Model::VertexToEdgesMap& edges);
             bool removeFaces(const Model::VertexToFacesMap& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
-            virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
+            virtual void performRebuildBrushGeometry(const Model::BrushArray& brushes) = 0;
         public: // debug commands
             void printVertices();
         public: // command processing
@@ -357,7 +357,7 @@ namespace TrenchBroom {
             void commitPendingAssets();
         public: // picking
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
-            Model::NodeList findNodesContaining(const Vec3& point) const;
+            Model::NodeArray findNodesContaining(const Vec3& point) const;
         private: // world management
             void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
             void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
@@ -365,12 +365,12 @@ namespace TrenchBroom {
             void initializeWorld(const BBox3& worldBounds);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
-            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
+            Assets::EntityDefinitionFileSpec::Array allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             
-            IO::Path::List enabledTextureCollections() const;
-            IO::Path::List availableTextureCollections() const;
-            void setEnabledTextureCollections(const IO::Path::List& paths);
+            IO::Path::Array enabledTextureCollections() const;
+            IO::Path::Array availableTextureCollections() const;
+            void setEnabledTextureCollections(const IO::Path::Array& paths);
         private:
             void loadAssets();
             void unloadAssets();
@@ -386,25 +386,25 @@ namespace TrenchBroom {
             void reloadTextures();
             
             void setEntityDefinitions();
-            void setEntityDefinitions(const Model::NodeList& nodes);
+            void setEntityDefinitions(const Model::NodeArray& nodes);
             void unsetEntityDefinitions();
-            void unsetEntityDefinitions(const Model::NodeList& nodes);
+            void unsetEntityDefinitions(const Model::NodeArray& nodes);
             void reloadEntityDefinitions();
             
             void clearEntityModels();
 
             void setTextures();
-            void setTextures(const Model::NodeList& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
+            void setTextures(const Model::NodeArray& nodes);
+            void setTextures(const Model::BrushFaceArray& faces);
             
             void unsetTextures();
-            void unsetTextures(const Model::NodeList& nodes);
+            void unsetTextures(const Model::NodeArray& nodes);
         protected: // search paths and mods
-            IO::Path::List externalSearchPaths() const;
+            IO::Path::Array externalSearchPaths() const;
             void updateGameSearchPaths();
         public:
-            StringList mods() const;
-            void setMods(const StringList& mods);
+            StringArray mods() const;
+            void setMods(const StringArray& mods);
             String defaultMod() const;
         private: // issue management
             void registerIssueGenerators();
