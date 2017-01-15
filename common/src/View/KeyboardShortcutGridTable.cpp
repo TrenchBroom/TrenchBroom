@@ -154,7 +154,7 @@ namespace TrenchBroom {
         }
         
         bool KeyboardShortcutGridTable::update() {
-            EntryList newEntries;
+            EntryArray newEntries;
             
             ActionManager& actionManager = ActionManager::instance();
             actionManager.getShortcutEntries(newEntries);
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool KeyboardShortcutGridTable::markConflicts(EntryList& entries) {
+        bool KeyboardShortcutGridTable::markConflicts(EntryArray& entries) {
             for (size_t i = 0; i < entries.size(); i++)
                 entries[i]->resetConflicts();
             
