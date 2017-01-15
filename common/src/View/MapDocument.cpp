@@ -301,12 +301,12 @@ namespace TrenchBroom {
         
         PasteType MapDocument::paste(const String& str) {
             try {
-                const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
+                const Model::NodeArray nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
                 if (!nodes.empty() && pasteNodes(nodes))
                     return PT_Node;
             } catch (const ParserException& e) {
                 try {
-                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
+                    const Model::BrushFaceArray faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
                     if (!faces.empty() && pasteBrushFaces(faces))
                         return PT_BrushFace;
                 } catch (const ParserException&) {
@@ -316,11 +316,11 @@ namespace TrenchBroom {
             return PT_Failed;
         }
         
-        bool MapDocument::pasteNodes(const Model::NodeList& nodes) {
+        bool MapDocument::pasteNodes(const Model::NodeArray& nodes) {
             Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, currentLayer());
             Model::Node::accept(std::begin(nodes), std::end(nodes), mergeNodes);
             
-            const Model::NodeList addedNodes = addNodes(mergeNodes.result());
+            const Model::NodeArray addedNodes = addNodes(mergeNodes.result());
             if (addedNodes.empty())
                 return false;
             
@@ -333,7 +333,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MapDocument::pasteBrushFaces(const Model::BrushFaceList& faces) {
+        bool MapDocument::pasteBrushFaces(const Model::BrushFaceArray& faces) {
             assert(!faces.empty());
             const Model::BrushFace* face = faces.back();
             
@@ -376,9 +376,9 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
         
-        const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
+        const Model::AttributableNodeArray MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection())
-                return Model::AttributableNodeList(1, m_world);
+                return Model::AttributableNodeArray(1, m_world);
             
             Model::CollectAttributableNodesVisitor visitor;
             Model::Node::accept(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
@@ -389,7 +389,7 @@ namespace TrenchBroom {
             return m_selectedNodes;
         }
         
-        const Model::BrushFaceList MapDocument::allSelectedBrushFaces() const {
+        const Model::BrushFaceArray MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
             Model::CollectBrushFacesVisitor visitor;
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             return visitor.faces();
         }
         
-        const Model::BrushFaceList& MapDocument::selectedBrushFaces() const {
+        const Model::BrushFaceArray& MapDocument::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
         
@@ -433,7 +433,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::selectSiblings() {
-            const Model::NodeList& nodes = selectedNodes().nodes();
+            const Model::NodeArray& nodes = selectedNodes().nodes();
             if (nodes.empty())
                 return;
             
@@ -449,12 +449,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::selectTouching(const bool del) {
-            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            const Model::BrushArray& brushes = m_selectedNodes.brushes();
             
-            Model::CollectTouchingNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
+            Model::CollectTouchingNodesVisitor<Model::BrushArray::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
             m_world->acceptAndRecurse(visitor);
             
-            const Model::NodeList nodes = visitor.nodes();
+            const Model::NodeArray nodes = visitor.nodes();
             
             Transaction transaction(this, "Select Touching");
             if (del)
@@ -465,12 +465,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::selectInside(const bool del) {
-            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            const Model::BrushArray& brushes = m_selectedNodes.brushes();
 
-            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
+            Model::CollectContainedNodesVisitor<Model::BrushArray::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
             m_world->acceptAndRecurse(visitor);
             
-            const Model::NodeList nodes = visitor.nodes();
+            const Model::NodeArray nodes = visitor.nodes();
 
             Transaction transaction(this, "Select Inside");
             if (del)
@@ -489,20 +489,20 @@ namespace TrenchBroom {
             select(visitor.nodes());
         }
         
-        void MapDocument::select(const Model::NodeList& nodes) {
+        void MapDocument::select(const Model::NodeArray& nodes) {
             submitAndStore(SelectionCommand::select(nodes));
         }
         
         void MapDocument::select(Model::Node* node) {
-            submitAndStore(SelectionCommand::select(Model::NodeList(1, node)));
+            submitAndStore(SelectionCommand::select(Model::NodeArray(1, node)));
         }
         
-        void MapDocument::select(const Model::BrushFaceList& faces) {
+        void MapDocument::select(const Model::BrushFaceArray& faces) {
             submitAndStore(SelectionCommand::select(faces));
         }
         
         void MapDocument::select(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::select(Model::BrushFaceList(1, face)));
+            submitAndStore(SelectionCommand::select(Model::BrushFaceArray(1, face)));
             setCurrentTextureName(face->textureName());
         }
         
@@ -516,15 +516,15 @@ namespace TrenchBroom {
         }
         
         void MapDocument::deselect(Model::Node* node) {
-            deselect(Model::NodeList(1, node));
+            deselect(Model::NodeArray(1, node));
         }
         
-        void MapDocument::deselect(const Model::NodeList& nodes) {
+        void MapDocument::deselect(const Model::NodeArray& nodes) {
             submitAndStore(SelectionCommand::deselect(nodes));
         }
         
         void MapDocument::deselect(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
+            submitAndStore(SelectionCommand::deselect(Model::BrushFaceArray(1, face)));
         }
         
         void MapDocument::updateLastSelectionBounds() {
@@ -559,30 +559,30 @@ namespace TrenchBroom {
         }
         
         void MapDocument::removeNode(Model::Node* node) {
-            removeNodes(Model::NodeList(1, node));
+            removeNodes(Model::NodeArray(1, node));
         }
         
-        Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
+        Model::NodeArray MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
             Transaction transaction(this, "Add Objects");
             AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
             if (!submitAndStore(command))
-                return Model::EmptyNodeList;
+                return Model::EmptyNodeArray;
             
-            const Model::NodeList addedNodes = collectChildren(nodes);
+            const Model::NodeArray addedNodes = collectChildren(nodes);
             ensureVisible(collectChildren(nodes));
             return addedNodes;
         }
         
-        Model::NodeList MapDocument::addNodes(const Model::NodeList& nodes, Model::Node* parent) {
+        Model::NodeArray MapDocument::addNodes(const Model::NodeArray& nodes, Model::Node* parent) {
             AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(parent, nodes);
             if (!submitAndStore(command))
-                return Model::EmptyNodeList;
+                return Model::EmptyNodeArray;
 
             ensureVisible(nodes);
             return nodes;
         }
 
-        void MapDocument::removeNodes(const Model::NodeList& nodes) {
+        void MapDocument::removeNodes(const Model::NodeArray& nodes) {
             Model::ParentChildrenMap removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
             
             Transaction transaction(this);
@@ -613,13 +613,13 @@ namespace TrenchBroom {
             }
         };
         
-        Model::NodeList MapDocument::removeImplicitelyRemovedNodes(Model::NodeList nodes) const {
+        Model::NodeArray MapDocument::removeImplicitelyRemovedNodes(Model::NodeArray nodes) const {
             if (nodes.empty())
                 return nodes;
             
             VectorUtils::sort(nodes, CompareByAncestry());
             
-            Model::NodeList result;
+            Model::NodeArray result;
             result.reserve(nodes.size());
             result.push_back(nodes.front());
             
@@ -635,7 +635,7 @@ namespace TrenchBroom {
         void MapDocument::closeRemovedGroups(const Model::ParentChildrenMap& toRemove) {
             Model::ParentChildrenMap::const_iterator mIt, mEnd;
             for (const auto& entry : toRemove) {
-                const Model::NodeList& nodes = entry.second;
+                const Model::NodeArray& nodes = entry.second;
                 for (const Model::Node* node : nodes) {
                     if (node == currentGroup()) {
                         closeGroup();
@@ -646,7 +646,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
+        bool MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeArray& children) {
             Model::ParentChildrenMap nodes;
             nodes.insert(std::make_pair(newParent, children));
             return reparentNodes(nodes);
@@ -658,7 +658,7 @@ namespace TrenchBroom {
             
             Model::ParentChildrenMap nodesToRemove;
             for (const auto& entry : nodesToAdd) {
-                const Model::NodeList& children = entry.second;
+                const Model::NodeArray& children = entry.second;
                 MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
             }
 
@@ -679,7 +679,7 @@ namespace TrenchBroom {
         bool MapDocument::checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const {
             for (const auto& entry : nodesToAdd) {
                 const Model::Node* newParent = entry.first;
-                const Model::NodeList& children = entry.second;
+                const Model::NodeArray& children = entry.second;
                 if (!newParent->canAddChildren(std::begin(children), std::end(children)))
                     return false;
             }
@@ -688,7 +688,7 @@ namespace TrenchBroom {
 
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete Objects");
-            const Model::NodeList nodes = m_selectedNodes.nodes();
+            const Model::NodeArray nodes = m_selectedNodes.nodes();
             deselectAll();
             removeNodes(nodes);
             return true;
@@ -706,7 +706,7 @@ namespace TrenchBroom {
             if (!hasSelectedNodes())
                 return NULL;
             
-            const Model::NodeList nodes = collectGroupableNodes(selectedNodes().nodes());
+            const Model::NodeArray nodes = collectGroupableNodes(selectedNodes().nodes());
             if (nodes.empty())
                 return NULL;
 
@@ -734,7 +734,7 @@ namespace TrenchBroom {
             bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
         };
         
-        Model::NodeList MapDocument::collectGroupableNodes(const Model::NodeList& selectedNodes) const {
+        Model::NodeArray MapDocument::collectGroupableNodes(const Model::NodeArray& selectedNodes) const {
             typedef Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched> CollectGroupableNodesVisitor;
             
             CollectGroupableNodesVisitor collect(world());
@@ -746,15 +746,15 @@ namespace TrenchBroom {
             if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
                 return;
             
-            const Model::NodeList groups = m_selectedNodes.nodes();
-            Model::NodeList allChildren;
+            const Model::NodeArray groups = m_selectedNodes.nodes();
+            Model::NodeArray allChildren;
             
             const Transaction transaction(this, "Ungroup");
             deselectAll();
             
             for (Model::Node* group : groups) {
                 Model::Layer* layer = Model::findLayer(group);
-                const Model::NodeList& children = group->children();
+                const Model::NodeArray& children = group->children();
                 reparentNodes(layer, children);
                 VectorUtils::append(allChildren, children);
             }
@@ -772,10 +772,10 @@ namespace TrenchBroom {
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
             if (previousGroup == NULL)
-                lock(Model::NodeList(1, m_world));
+                lock(Model::NodeArray(1, m_world));
             else
-                resetLock(Model::NodeList(1, previousGroup));
-            unlock(Model::NodeList(1, group));
+                resetLock(Model::NodeArray(1, previousGroup));
+            unlock(Model::NodeArray(1, group));
             submitAndStore(CurrentGroupCommand::push(group));
         }
         
@@ -784,18 +784,18 @@ namespace TrenchBroom {
             
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
-            resetLock(Model::NodeList(1, previousGroup));
+            resetLock(Model::NodeArray(1, previousGroup));
             submitAndStore(CurrentGroupCommand::pop());
 
             Model::Group* currentGroup = m_editorContext->currentGroup();
             if (currentGroup != NULL)
-                unlock(Model::NodeList(1, currentGroup));
+                unlock(Model::NodeArray(1, currentGroup));
             else
-                unlock(Model::NodeList(1, m_world));
+                unlock(Model::NodeArray(1, m_world));
         }
         
-        void MapDocument::isolate(const Model::NodeList& nodes) {
-            const Model::LayerList& layers = m_world->allLayers();
+        void MapDocument::isolate(const Model::NodeArray& nodes) {
+            const Model::LayerArray& layers = m_world->allLayers();
 
             Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectUnselected);
@@ -808,7 +808,7 @@ namespace TrenchBroom {
             submitAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
         }
         
-        void MapDocument::hide(const Model::NodeList nodes) {
+        void MapDocument::hide(const Model::NodeArray nodes) {
             Model::CollectSelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
             
@@ -821,26 +821,26 @@ namespace TrenchBroom {
             hide(m_selectedNodes.nodes());
         }
         
-        void MapDocument::show(const Model::NodeList& nodes) {
+        void MapDocument::show(const Model::NodeArray& nodes) {
             submitAndStore(SetVisibilityCommand::show(nodes));
         }
         
         void MapDocument::showAll() {
-            const Model::LayerList& layers = m_world->allLayers();
+            const Model::LayerArray& layers = m_world->allLayers();
             Model::CollectNodesVisitor collect;
             Model::Node::recurse(std::begin(layers), std::end(layers), collect);
             resetVisibility(collect.nodes());
         }
         
-        void MapDocument::ensureVisible(const Model::NodeList& nodes) {
+        void MapDocument::ensureVisible(const Model::NodeArray& nodes) {
             submitAndStore(SetVisibilityCommand::ensureVisible(nodes));
         }
 
-        void MapDocument::resetVisibility(const Model::NodeList& nodes) {
+        void MapDocument::resetVisibility(const Model::NodeArray& nodes) {
             submitAndStore(SetVisibilityCommand::reset(nodes));
         }
         
-        void MapDocument::lock(const Model::NodeList& nodes) {
+        void MapDocument::lock(const Model::NodeArray& nodes) {
             Model::CollectSelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
             
@@ -849,11 +849,11 @@ namespace TrenchBroom {
             deselect(collect.nodes());
         }
         
-        void MapDocument::unlock(const Model::NodeList& nodes) {
+        void MapDocument::unlock(const Model::NodeArray& nodes) {
             submitAndStore(SetLockStateCommand::unlock(nodes));
         }
         
-        void MapDocument::resetLock(const Model::NodeList& nodes) {
+        void MapDocument::resetLock(const Model::NodeArray& nodes) {
             submitAndStore(SetLockStateCommand::reset(nodes));
         }
         
@@ -869,7 +869,7 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::createBrush(const Vec3::List& points) {
+        bool MapDocument::createBrush(const Vec3::Array& points) {
             Model::BrushBuilder builder(m_world, m_worldBounds);
             Model::Brush* brush = builder.createBrush(points, currentTextureName());
             if (!brush->fullySpecified()) {
@@ -910,7 +910,7 @@ namespace TrenchBroom {
             brush->cloneFaceAttributesFrom(selectedNodes().brushes());
             
             // The nodelist is either empty or contains only brushes.
-            const Model::NodeList toRemove = selectedNodes().nodes();
+            const Model::NodeArray toRemove = selectedNodes().nodes();
             
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
@@ -921,19 +921,19 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::csgSubtract() {
-            const Model::BrushList brushes = selectedNodes().brushes();
+            const Model::BrushArray brushes = selectedNodes().brushes();
             if (brushes.size() < 2)
                 return false;
             
-            const Model::BrushList minuends(std::begin(brushes), std::end(brushes) - 1);
+            const Model::BrushArray minuends(std::begin(brushes), std::end(brushes) - 1);
             Model::Brush* subtrahend = brushes.back();
             
             Model::ParentChildrenMap toAdd;
-            Model::NodeList toRemove;
+            Model::NodeArray toRemove;
             toRemove.push_back(subtrahend);
             
             for (Model::Brush* minuend : minuends) {
-                const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+                const Model::BrushArray result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
                 if (!result.empty()) {
                     VectorUtils::append(toAdd[minuend->parent()], result);
                     toRemove.push_back(minuend);
@@ -942,7 +942,7 @@ namespace TrenchBroom {
             
             Transaction transaction(this, "CSG Subtract");
             deselectAll();
-            const Model::NodeList added = addNodes(toAdd);
+            const Model::NodeArray added = addNodes(toAdd);
             removeNodes(toRemove);
             select(added);
             
@@ -950,14 +950,14 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::csgIntersect() {
-            const Model::BrushList brushes = selectedNodes().brushes();
+            const Model::BrushArray brushes = selectedNodes().brushes();
             if (brushes.size() < 2)
                 return false;
             
             Model::Brush* result = brushes.front()->clone(m_worldBounds);
 
             bool valid = true;
-            Model::BrushList::const_iterator it, end;
+            Model::BrushArray::const_iterator it, end;
             for (it = std::begin(brushes), end = std::end(brushes); it != end && valid; ++it) {
                 Model::Brush* brush = *it;
                 try {
@@ -967,7 +967,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::NodeList toRemove(std::begin(brushes), std::end(brushes));
+            const Model::NodeArray toRemove(std::begin(brushes), std::end(brushes));
             
             Transaction transaction(this, "CSG Intersect");
             deselect(toRemove);
@@ -985,7 +985,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3) {
-            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            const Model::BrushArray& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;
             
             for (const Model::Brush* originalBrush : brushes) {
@@ -998,7 +998,7 @@ namespace TrenchBroom {
             }
             
             Transaction transaction(this, "Clip Brushes");
-            const Model::NodeList toRemove(std::begin(brushes), std::end(brushes));
+            const Model::NodeArray toRemove(std::begin(brushes), std::end(brushes));
             deselectAll();
             removeNodes(toRemove);
             select(addNodes(clippedBrushes));
@@ -1026,14 +1026,14 @@ namespace TrenchBroom {
             return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
         }
         
-        bool MapDocument::resizeBrushes(const Polygon3::List& faces, const Vec3& delta) {
+        bool MapDocument::resizeBrushes(const Polygon3::Array& faces, const Vec3& delta) {
             return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
         }
         
         void MapDocument::setTexture(Assets::Texture* texture) {
             assert(texture != NULL);
             
-            const Model::BrushFaceList faces = allSelectedBrushFaces();
+            const Model::BrushFaceArray faces = allSelectedBrushFaces();
             if (faces.empty()) {
                 if (currentTextureName() == texture->name())
                     setCurrentTextureName(Model::BrushFace::NoTextureName);
@@ -1056,7 +1056,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool MapDocument::hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const {
+        bool MapDocument::hasTexture(const Model::BrushFaceArray& faces, Assets::Texture* texture) const {
             for (const Model::BrushFace* face : faces) {
                 if (face->texture() != texture)
                     return false;
@@ -1094,7 +1094,7 @@ namespace TrenchBroom {
             return submitAndStore(ShearTexturesCommand::shear(factors));
         }
         
-        void MapDocument::rebuildBrushGeometry(const Model::BrushList& brushes) {
+        void MapDocument::rebuildBrushGeometry(const Model::BrushArray& brushes) {
             performRebuildBrushGeometry(brushes);
         }
         
@@ -1226,8 +1226,8 @@ namespace TrenchBroom {
                 m_world->pick(pickRay, pickResult);
         }
         
-        Model::NodeList MapDocument::findNodesContaining(const Vec3& point) const {
-            Model::NodeList result;
+        Model::NodeArray MapDocument::findNodesContaining(const Vec3& point) const {
+            Model::NodeArray result;
             if (m_world != NULL)
                 m_world->findNodesContaining(point, result);
             return result;
@@ -1269,7 +1269,7 @@ namespace TrenchBroom {
             return m_game->extractEntityDefinitionFile(m_world);
         }
         
-        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+        Assets::EntityDefinitionFileSpec::Array MapDocument::allEntityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
         
@@ -1277,15 +1277,15 @@ namespace TrenchBroom {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
         
-        IO::Path::List MapDocument::enabledTextureCollections() const {
+        IO::Path::Array MapDocument::enabledTextureCollections() const {
             return m_game->extractTextureCollections(m_world);
         }
         
-        IO::Path::List MapDocument::availableTextureCollections() const {
+        IO::Path::Array MapDocument::availableTextureCollections() const {
             return m_game->findTextureCollections();
         }
         
-        void MapDocument::setEnabledTextureCollections(const IO::Path::List& paths) {
+        void MapDocument::setEnabledTextureCollections(const IO::Path::Array& paths) {
             submitAndStore(SetTextureCollectionsCommand::set(paths));
         }
 
@@ -1384,7 +1384,7 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::setEntityDefinitions(const Model::NodeList& nodes) {
+        void MapDocument::setEntityDefinitions(const Model::NodeArray& nodes) {
             SetEntityDefinition visitor(*m_entityDefinitionManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
@@ -1394,7 +1394,7 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::unsetEntityDefinitions(const Model::NodeList& nodes) {
+        void MapDocument::unsetEntityDefinitions(const Model::NodeArray& nodes) {
             UnsetEntityDefinition visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
@@ -1432,12 +1432,12 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::setTextures(const Model::NodeList& nodes) {
+        void MapDocument::setTextures(const Model::NodeArray& nodes) {
             SetTextures visitor(m_textureManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
         
-        void MapDocument::setTextures(const Model::BrushFaceList& faces) {
+        void MapDocument::setTextures(const Model::BrushFaceArray& faces) {
             for (Model::BrushFace* face : faces)
                 face->updateTexture(m_textureManager);
         }
@@ -1459,13 +1459,13 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::unsetTextures(const Model::NodeList& nodes) {
+        void MapDocument::unsetTextures(const Model::NodeArray& nodes) {
             UnsetTextures visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        IO::Path::List MapDocument::externalSearchPaths() const {
-            IO::Path::List searchPaths;
+        IO::Path::Array MapDocument::externalSearchPaths() const {
+            IO::Path::Array searchPaths;
             if (!m_path.isEmpty() && m_path.isAbsolute())
                 searchPaths.push_back(m_path.deleteLastComponent());
             
@@ -1478,8 +1478,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateGameSearchPaths() {
-            const StringList modNames = mods();
-            IO::Path::List additionalSearchPaths;
+            const StringArray modNames = mods();
+            IO::Path::Array additionalSearchPaths;
             additionalSearchPaths.reserve(modNames.size());
             
             for (const String& modName : modNames)
@@ -1487,11 +1487,11 @@ namespace TrenchBroom {
             m_game->setAdditionalSearchPaths(additionalSearchPaths);
         }
         
-        StringList MapDocument::mods() const {
+        StringArray MapDocument::mods() const {
             return m_game->extractEnabledMods(m_world);
         }
         
-        void MapDocument::setMods(const StringList& mods) {
+        void MapDocument::setMods(const StringArray& mods) {
             submitAndStore(SetModsCommand::set(mods));
         }
         
