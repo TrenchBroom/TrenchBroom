@@ -57,9 +57,9 @@ namespace TrenchBroom {
             Model::Layer* layer = event.layer();
             MapDocumentSPtr document = lock(m_document);
             if (layer->locked())
-                document->resetLock(Model::NodeList(1, layer));
+                document->resetLock(Model::NodeArray(1, layer));
             if (layer->hidden())
-                document->resetVisibility(Model::NodeList(1, layer));
+                document->resetVisibility(Model::NodeArray(1, layer));
             document->setCurrentLayer(event.layer());
         }
 
@@ -122,9 +122,9 @@ namespace TrenchBroom {
             ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->hidden())
-                document->hide(Model::NodeList(1, layer));
+                document->hide(Model::NodeArray(1, layer));
             else
-                document->resetVisibility(Model::NodeList(1, layer));
+                document->resetVisibility(Model::NodeArray(1, layer));
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
@@ -159,9 +159,9 @@ namespace TrenchBroom {
             ensure(layer != NULL, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->locked())
-                document->lock(Model::NodeList(1, layer));
+                document->lock(Model::NodeArray(1, layer));
             else
-                document->resetLock(Model::NodeList(1, layer));
+                document->resetLock(Model::NodeArray(1, layer));
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
@@ -172,12 +172,12 @@ namespace TrenchBroom {
         public:
             CollectMoveableNodes(Model::World* world) : m_world(world) {}
             
-            const Model::NodeList selectNodes() const {
-                return Model::NodeList(std::begin(m_selectNodes), std::end(m_selectNodes));
+            const Model::NodeArray selectNodes() const {
+                return Model::NodeArray(std::begin(m_selectNodes), std::end(m_selectNodes));
             }
             
-            const Model::NodeList moveNodes() const {
-                return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
+            const Model::NodeArray moveNodes() const {
+                return Model::NodeArray(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
             void doVisit(Model::World* world)   {}
@@ -210,7 +210,7 @@ namespace TrenchBroom {
                         m_selectNodes.insert(brush);
                     } else {
                         if (m_moveNodes.insert(entity).second) {
-                            const Model::NodeList& siblings = entity->children();
+                            const Model::NodeArray& siblings = entity->children();
                             m_selectNodes.insert(std::begin(siblings), std::end(siblings));
                         }
                     }
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             }
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             if (nodes.empty()) {
                 event.Enable(false);
                 return;
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             Model::CollectSelectableNodesVisitor visitor(document->editorContext());
             layer->recurse(visitor);
             
-            const Model::NodeList& nodes = visitor.nodes();
+            const Model::NodeArray& nodes = visitor.nodes();
             document->deselectAll();
             document->select(nodes);
         }
@@ -356,8 +356,8 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::LayerList& layers = document->world()->allLayers();
-            document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
+            const Model::LayerArray& layers = document->world()->allLayers();
+            document->resetVisibility(Model::NodeArray(std::begin(layers), std::end(layers)));
         }
 
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
@@ -365,7 +365,7 @@ namespace TrenchBroom {
             if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden())
                 return document->world()->defaultLayer();
             
-            const Model::LayerList& layers = document->world()->customLayers();
+            const Model::LayerArray& layers = document->world()->customLayers();
             for (Model::Layer* layer : layers) {
                 if (layer != except && !layer->locked() && !layer->hidden())
                     return layer;
@@ -380,9 +380,9 @@ namespace TrenchBroom {
             CollectMoveableNodes visitor(document->world());
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
             
-            const Model::NodeList moveNodes = visitor.moveNodes();
+            const Model::NodeArray moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
-                const Model::NodeList selectNodes = visitor.selectNodes();
+                const Model::NodeArray selectNodes = visitor.selectNodes();
                 document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
                 if (!layer->hidden() && !layer->locked())
