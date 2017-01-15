@@ -40,19 +40,19 @@ namespace TrenchBroom {
 
         String GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
+            const StringArray& gameArray = gameFactory.gameArray();
             
             const int index = GetSelection();
-            if (index < 0 || index >= static_cast<int>(gameList.size()))
+            if (index < 0 || index >= static_cast<int>(gameArray.size()))
                 return "";
-            return gameList[static_cast<size_t>(index)];
+            return gameArray[static_cast<size_t>(index)];
         }
 
         void GameListBox::selectGame(const int index) {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
+            const StringArray& gameArray = gameFactory.gameArray();
 
-            if (index < 0 || index >= static_cast<int>(gameList.size()))
+            if (index < 0 || index >= static_cast<int>(gameArray.size()))
                 return;
             
             SetSelection(index);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             m_gameInfos.clear();
             
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            for (const String& gameName : gameFactory.gameList()) {
+            for (const String& gameName : gameFactory.gameArray()) {
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
                 IO::Path iconPath = gameFactory.iconPath(gameName);
                 if (iconPath.isEmpty())
