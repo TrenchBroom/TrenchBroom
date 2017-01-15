@@ -72,7 +72,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
 
-            StringList mods = document->mods();
+            StringArray mods = document->mods();
             for (size_t i = 0; i < selections.size(); ++i) {
                 const int index = selections[i] - static_cast<int>(i);
                 const wxString item = m_availableModList->GetString(static_cast<unsigned int>(index));
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 return;
             
             MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            StringArray mods = document->mods();
             std::sort(std::begin(selections), std::end(selections));
             
             wxArrayInt::const_reverse_iterator it, end;
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            StringArray mods = document->mods();
 
             const size_t index = static_cast<size_t>(selections.front());
             ensure(index > 0 && index < mods.size(), "index out of range");
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            StringArray mods = document->mods();
             
             const size_t index = static_cast<size_t>(selections.front());
             ensure(index < mods.size() - 1, "index out of range");
@@ -302,7 +302,7 @@ namespace TrenchBroom {
 
         void ModEditor::updateAvailableMods() {
             MapDocumentSPtr document = lock(m_document);
-            StringList availableMods = document->game()->availableMods();
+            StringArray availableMods = document->game()->availableMods();
             StringUtils::sortCaseInsensitive(availableMods);
 
             m_availableMods.clear();
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             const String pattern = m_filterBox->GetValue().ToStdString();
             
             MapDocumentSPtr document = lock(m_document);
-            StringList enabledMods = document->mods();
+            StringArray enabledMods = document->mods();
             
             wxArrayString availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
