@@ -30,15 +30,15 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
         
         MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
+            Edge3::Array edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
         
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushArray& brushes, const Model::BrushEdgesMap& edges, const Edge3::Array& edgePositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edges = entry.second;
+                const Edge3::Array& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;
             }
@@ -62,11 +62,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectEdgeHandles(m_newEdgePositions);
         }
         
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
         
