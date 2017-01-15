@@ -36,11 +36,11 @@ namespace TrenchBroom {
             m_cur = point;
         }
         
-        Vec3::List Lasso::containedPoints(const Vec3::List& points) const {
+        Vec3::Array Lasso::containedPoints(const Vec3::Array& points) const {
             const Plane3 plane(m_camera.defaultPoint(static_cast<float>(m_distance)), m_camera.direction());
             const BBox2 box = computeBox();
             
-            Vec3::List result;
+            Vec3::Array result;
             result.reserve(points.size());
             
             for (const Vec3& point : points) {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const BBox2 box = computeBox();
             const Mat4x4 inverted = invertedMatrix(m_transform);
             
-            Vec3f::List polygon(4);
+            Vec3f::Array polygon(4);
             polygon[0] = inverted * Vec3(box.min.x(), box.min.y(), 0.0);
             polygon[1] = inverted * Vec3(box.min.x(), box.max.y(), 0.0);
             polygon[2] = inverted * Vec3(box.max.x(), box.max.y(), 0.0);
