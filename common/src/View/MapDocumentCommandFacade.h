@@ -46,14 +46,14 @@ namespace TrenchBroom {
         private:
             MapDocumentCommandFacade();
         public: // selection modification
-            void performSelect(const Model::NodeList& nodes);
-            void performSelect(const Model::BrushFaceList& faces);
+            void performSelect(const Model::NodeArray& nodes);
+            void performSelect(const Model::BrushFaceArray& faces);
             void performSelectAllNodes();
             void performSelectAllBrushFaces();
             void performConvertToBrushFaceSelection();
             
-            void performDeselect(const Model::NodeList& nodes);
-            void performDeselect(const Model::BrushFaceList& faces);
+            void performDeselect(const Model::NodeArray& nodes);
+            void performDeselect(const Model::BrushFaceArray& faces);
             void performDeselectAll();
         private:
             void deselectAllNodes();
@@ -62,10 +62,10 @@ namespace TrenchBroom {
             void performAddNodes(const Model::ParentChildrenMap& nodes);
             void performRemoveNodes(const Model::ParentChildrenMap& nodes);
         public: // Node Visibility
-            Model::VisibilityMap setVisibilityState(const Model::NodeList& nodes, Model::VisibilityState visibilityState);
-            Model::VisibilityMap setVisibilityEnsured(const Model::NodeList& nodes);
+            Model::VisibilityMap setVisibilityState(const Model::NodeArray& nodes, Model::VisibilityState visibilityState);
+            Model::VisibilityMap setVisibilityEnsured(const Model::NodeArray& nodes);
             void restoreVisibilityState(const Model::VisibilityMap& nodes);
-            Model::LockStateMap setLockState(const Model::NodeList& nodes, Model::LockState lockState);
+            Model::LockStateMap setLockState(const Model::NodeArray& nodes, Model::LockState lockState);
             void restoreLockState(const Model::LockStateMap& nodes);
         private:  // groups
             class RenameGroupsVisitor;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
-            Polygon3::List performResizeBrushes(const Polygon3::List& polygons, const Vec3& delta);
+            Polygon3::Array performResizeBrushes(const Polygon3::Array& polygons, const Vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
@@ -95,22 +95,22 @@ namespace TrenchBroom {
         public: // vertices
             Model::Snapshot* performFindPlanePoints();
             Model::Snapshot* performSnapVertices(size_t snapTo);
-            Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
-            Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
-            Vec3::List performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Vec3::List performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            Vec3::Array performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
+            Edge3::Array performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
+            Polygon3::Array performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            Vec3::Array performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
+            Vec3::Array performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations
-            void performRebuildBrushGeometry(const Model::BrushList& brushes);
+            void performRebuildBrushGeometry(const Model::BrushArray& brushes);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management
-            void performSetTextureCollections(const IO::Path::List& paths);
+            void performSetTextureCollections(const IO::Path::Array& paths);
         public: // mods management
-            void performSetMods(const StringList& mods);
+            void performSetMods(const StringArray& mods);
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count
