@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
             void toolChanged(Tool* tool);
             void commandDone(Command::Ptr command);
             void commandUndone(UndoableCommand::Ptr command);
@@ -163,14 +163,14 @@ namespace TrenchBroom {
         private: // reparenting objects
             void OnAddObjectsToGroup(wxCommandEvent& event);
             void OnRemoveObjectsFromGroup(wxCommandEvent& event);
-            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
+            Model::Node* findNewGroupForObjects(const Model::NodeArray& nodes) const;
 
             void OnMoveBrushesTo(wxCommandEvent& event);
-            Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
+            Model::Node* findNewParentEntityForBrushes(const Model::NodeArray& nodes) const;
             
-            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
-            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            bool canReparentNodes(const Model::NodeArray& nodes, const Model::Node* newParent) const;
+            void reparentNodes(const Model::NodeArray& nodes, Model::Node* newParent);
+            Model::NodeArray collectReparentableNodes(const Model::NodeArray& nodes, const Model::Node* newParent) const;
             
             void OnCreatePointEntity(wxCommandEvent& event);
             void OnCreateBrushEntity(wxCommandEvent& event);
