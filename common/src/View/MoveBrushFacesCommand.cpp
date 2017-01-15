@@ -31,15 +31,15 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
         MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushFacesMap brushFaces;
-            Polygon3::List facePositions;
+            Polygon3::Array facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             
             return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
 
-        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
+        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushArray& brushes, const Model::BrushFacesMap& faces, const Polygon3::Array& facePositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& faces = entry.second;
+                const Polygon3::Array& faces = entry.second;
                 if (!brush->canMoveFaces(worldBounds, faces, m_delta))
                     return false;
             }
@@ -63,11 +63,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectFaceHandles(m_newFacePositions);
         }
         
-        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
