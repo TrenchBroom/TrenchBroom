@@ -69,8 +69,8 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
 
-            IO::Path::List collections = document->enabledTextureCollections();
-            IO::Path::List toRemove;
+            IO::Path::Array collections = document->enabledTextureCollections();
+            IO::Path::Array toRemove;
             
             for (size_t i = 0; i < selections.size(); ++i) {
                 const size_t index = static_cast<size_t>(selections[i]);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            IO::Path::Array collections = document->enabledTextureCollections();
             
             const size_t index = static_cast<size_t>(selections.front());
             VectorUtils::swapPred(collections, index);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            IO::Path::Array collections = document->enabledTextureCollections();
             
             const size_t index = static_cast<size_t>(selections.front());
             VectorUtils::swapSucc(collections, index);
