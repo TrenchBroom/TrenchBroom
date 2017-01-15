@@ -65,10 +65,10 @@ namespace TrenchBroom {
             void unbindObservers();
             void documentWasNewedOrLoaded(MapDocument* document);
             void documentWasSaved(MapDocument* document);
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesWereAdded(const Model::NodeArray& nodes);
+            void nodesWereRemoved(const Model::NodeArray& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
+            void brushFacesDidChange(const Model::BrushFaceArray& faces);
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();
