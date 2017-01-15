@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class KeyboardShortcut;
         class KeyboardShortcutEntry {
         public:
-            typedef std::vector<KeyboardShortcutEntry*> List;
+            typedef std::vector<KeyboardShortcutEntry*> Array;
         private:
             bool m_hasConflicts;
         protected:
