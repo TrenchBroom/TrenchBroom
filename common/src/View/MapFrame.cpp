@@ -174,9 +174,10 @@ namespace TrenchBroom {
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
+            DestroyChildren(); // Destroy the children first because they might still access document resources.
+            
             m_document->setViewEffectsService(NULL);
             m_document.reset();
-            DestroyChildren();
 
             delete m_contextManager;
             m_contextManager = NULL;
@@ -831,9 +832,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            ReplaceTextureDialog* frame = new ReplaceTextureDialog(this, m_document, *m_contextManager);
-            frame->CenterOnParent();
-            frame->Show();
+            ReplaceTextureDialog dialog(this, m_document, *m_contextManager);
+            dialog.CenterOnParent();
+            dialog.ShowModal();
         }
 
         void MapFrame::OnEditDeactivateTool(wxCommandEvent& event) {

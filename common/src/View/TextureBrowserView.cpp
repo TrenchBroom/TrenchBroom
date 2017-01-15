@@ -51,6 +51,7 @@ namespace TrenchBroom {
         }
         
         TextureBrowserView::~TextureBrowserView() {
+            m_textureManager.usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             clear();
         }
 
@@ -449,11 +450,17 @@ namespace TrenchBroom {
             const Layout::Group::Row::Cell* result = NULL;
             if (layout.cellAt(x, y, &result)) {
                 if (!result->item().texture->overridden()) {
+                    Assets::Texture* texture = result->item().texture;
+                    
                     TextureSelectedCommand command;
                     command.SetEventObject(this);
                     command.SetId(GetId());
-                    command.setTexture(result->item().texture);
+                    command.setTexture(texture);
                     ProcessEvent(command);
+                    
+                    if (command.IsAllowed())
+                        setSelectedTexture(texture);
+                    
                     Refresh();
                 }
             }
