@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 Type_Menu
             } Type;
             
-            typedef std::vector<MenuItem*> List;
+            typedef std::vector<MenuItem*> Array;
         private:
             Type m_type;
             MenuItemParent* m_parent;
@@ -61,14 +61,14 @@ namespace TrenchBroom {
             void appendToMenu(wxMenu* menu, bool withShortcuts) const;
             void appendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             const ActionMenuItem* findActionMenuItem(int id) const;
-            void getShortcutEntries(KeyboardShortcutEntry::List& entries);
+            void getShortcutEntries(KeyboardShortcutEntry::Array& entries);
             
             void resetShortcuts();
         private:
             virtual void doAppendToMenu(wxMenu* menu, bool withShortcuts) const = 0;
             virtual void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             virtual const ActionMenuItem* doFindActionMenuItem(int id) const;
-            virtual void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            virtual void doGetShortcutEntries(KeyboardShortcutEntry::Array& entries);
             virtual void doResetShortcuts();
         };
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         private: // implement LabeledMenuItem interface
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
             const ActionMenuItem* doFindActionMenuItem(int id) const;
-            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            void doGetShortcutEntries(KeyboardShortcutEntry::Array& entries);
             void doResetShortcuts();
             
             int doGetId() const;
@@ -127,22 +127,22 @@ namespace TrenchBroom {
         private:
             int m_id;
             String m_label;
-            List m_items;
+            Array m_items;
         protected:
             MenuItemParent(Type type, MenuItemParent* parent, int id, const String& label);
         public:
             virtual ~MenuItemParent();
 
             void addItem(MenuItem* item);
-            const List& items() const;
-            List& items();
+            const Array& items() const;
+            Array& items();
         private:
             void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
             void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             wxMenu* buildMenu(bool withShortcuts) const;
 
             const ActionMenuItem* doFindActionMenuItem(int id) const;
-            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            void doGetShortcutEntries(KeyboardShortcutEntry::Array& entries);
             void doResetShortcuts();
             
             int doGetId() const;
@@ -171,8 +171,8 @@ namespace TrenchBroom {
         
         class MenuBar {
         private:
-            typedef std::vector<Menu*> MenuList;
-            MenuList m_menus;
+            typedef std::vector<Menu*> MenuArray;
+            MenuArray m_menus;
         public:
             MenuBar();
             ~MenuBar();
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             Menu* addMenu(const String& label);
             wxMenuBar* createMenuBar(bool withShortcuts);
 
-            void getShortcutEntries(KeyboardShortcutEntry::List& entries) const;
+            void getShortcutEntries(KeyboardShortcutEntry::Array& entries) const;
         };
     }
 }
