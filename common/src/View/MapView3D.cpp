@@ -342,7 +342,7 @@ namespace TrenchBroom {
 
         void MapView3D::doFocusCameraOnSelection(const bool animate) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             if (!nodes.empty()) {
                 const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
                 moveCameraToPosition(newPosition, animate);
@@ -373,7 +373,7 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) {
                 if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    const Vec3::Array vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i)
                         addPoint(vertices[i]);
                 }
@@ -417,7 +417,7 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) {
                 if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    const Vec3::Array vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
                         for (size_t j = 0; j < 4; ++j)
                             addPoint(vertices[i], m_frustumPlanes[j]);
@@ -441,7 +441,7 @@ namespace TrenchBroom {
             }
         };
 
-        Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
+        Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeArray& nodes) {
             ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 
