@@ -83,7 +83,7 @@ namespace TrenchBroom {
             popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnShowIssues, this, ShowIssuesCommandId);
             popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnHideIssues, this, HideIssuesCommandId);
             
-            const Model::IssueQuickFixList quickFixes = collectQuickFixes(getSelection());
+            const Model::IssueQuickFixArray quickFixes = collectQuickFixes(getSelection());
             if (!quickFixes.empty()) {
                 wxMenu* quickFixMenu = new wxMenu();
                 
@@ -143,9 +143,9 @@ namespace TrenchBroom {
         
         void IssueBrowserView::updateSelection() {
             MapDocumentSPtr document = lock(m_document);
-            const IndexList selection = getSelection();
+            const IndexArray selection = getSelection();
             
-            Model::NodeList nodes;
+            Model::NodeArray nodes;
             for (size_t i = 0; i < selection.size(); ++i) {
                 Model::Issue* issue = m_issues[selection[i]];
                 if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::World* world = document->world();
             if (world != NULL) {
-                const Model::IssueGeneratorList& issueGenerators = world->registeredIssueGenerators();
+                const Model::IssueGeneratorArray& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
                 world->acceptAndRecurse(visitor);
                 m_issues = visitor.issues();
@@ -182,23 +182,23 @@ namespace TrenchBroom {
             ensure(quickFix != NULL, "quickFix is null");
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::IssueList issues = collectIssues(getSelection());
+            const Model::IssueArray issues = collectIssues(getSelection());
 
             const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
             updateSelection();
             quickFix->apply(document.get(), issues);
         }
         
-        Model::IssueList IssueBrowserView::collectIssues(const IndexList& indices) const {
-            Model::IssueList result;
+        Model::IssueArray IssueBrowserView::collectIssues(const IndexArray& indices) const {
+            Model::IssueArray result;
             for (size_t i = 0; i < indices.size(); ++i)
                 result.push_back(m_issues[indices[i]]);
             return result;
         }
 
-        Model::IssueQuickFixList IssueBrowserView::collectQuickFixes(const IndexList& indices) const {
+        Model::IssueQuickFixArray IssueBrowserView::collectQuickFixes(const IndexArray& indices) const {
             if (indices.empty())
-                return Model::IssueQuickFixList(0);
+                return Model::IssueQuickFixArray(0);
             
             Model::IssueType issueTypes = ~0;
             for (size_t i = 0; i < indices.size(); ++i) {
@@ -213,7 +213,7 @@ namespace TrenchBroom {
         
         Model::IssueType IssueBrowserView::issueTypeMask() const {
             Model::IssueType result = ~static_cast<Model::IssueType>(0);
-            const IndexList selection = getSelection();
+            const IndexArray selection = getSelection();
             for (size_t i = 0; i < selection.size(); ++i) {
                 Model::Issue* issue = m_issues[selection[i]];
                 result &= issue->type();
@@ -222,7 +222,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::setIssueVisibility(const bool show) {
-            const IndexList selection = getSelection();
+            const IndexArray selection = getSelection();
             
             MapDocumentSPtr document = lock(m_document);
             for (size_t i = 0; i < selection.size(); ++i) {
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             invalidate();
         }
         
-        IssueBrowserView::IndexList IssueBrowserView::getSelection() const {
+        IssueBrowserView::IndexArray IssueBrowserView::getSelection() const {
             return getListCtrlSelection(this);
         }
         
