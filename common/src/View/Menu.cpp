@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return doFindActionMenuItem(id);
         }
         
-        void MenuItem::getShortcutEntries(KeyboardShortcutEntry::List& entries) {
+        void MenuItem::getShortcutEntries(KeyboardShortcutEntry::Array& entries) {
             doGetShortcutEntries(entries);
         }
 
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        void MenuItem::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {}
+        void MenuItem::doGetShortcutEntries(KeyboardShortcutEntry::Array& entries) {}
 
         void MenuItem::doResetShortcuts() {}
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        void ActionMenuItem::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {
+        void ActionMenuItem::doGetShortcutEntries(KeyboardShortcutEntry::Array& entries) {
             entries.push_back(this);
         }
 
@@ -210,11 +210,11 @@ namespace TrenchBroom {
             m_items.push_back(item);
         }
         
-        const MenuItemParent::List& MenuItemParent::items() const {
+        const MenuItemParent::Array& MenuItemParent::items() const {
             return m_items;
         }
         
-        MenuItemParent::List& MenuItemParent::items() {
+        MenuItemParent::Array& MenuItemParent::items() {
             return m_items;
         }
         
@@ -249,7 +249,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        void MenuItemParent::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {
+        void MenuItemParent::doGetShortcutEntries(KeyboardShortcutEntry::Array& entries) {
             for (MenuItem* item : m_items)
                 item->getShortcutEntries(entries);
         }
@@ -350,7 +350,7 @@ namespace TrenchBroom {
             return menuBar;
         }
 
-        void MenuBar::getShortcutEntries(KeyboardShortcutEntry::List& entries) const {
+        void MenuBar::getShortcutEntries(KeyboardShortcutEntry::Array& entries) const {
             for (Menu* menu : m_menus)
                 menu->getShortcutEntries(entries);
         }
