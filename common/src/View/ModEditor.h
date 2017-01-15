@@ -48,7 +48,7 @@ namespace TrenchBroom {
             wxListBox* m_enabledModList;
             wxSearchCtrl* m_filterBox;
             
-            StringList m_availableMods;
+            StringArray m_availableMods;
             bool m_ignoreNotifier;
         public:
             ModEditor(wxWindow* parent, MapDocumentWPtr document);
