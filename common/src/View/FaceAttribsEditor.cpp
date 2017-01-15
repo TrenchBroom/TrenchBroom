@@ -362,7 +362,7 @@ namespace TrenchBroom {
             updateControls();
         }
         
-        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFace& faces) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
@@ -557,8 +557,8 @@ namespace TrenchBroom {
             GetParent()->Layout();
         }
 
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions);
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
+        void getFlags(const Model::GameConfig::FlagConfigArray& flags, wxArrayString& names, wxArrayString& descriptions);
+        void getFlags(const Model::GameConfig::FlagConfigArray& flags, wxArrayString& names, wxArrayString& descriptions) {
             for (const auto& flag : flags) {
                 names.push_back(flag.name);
                 descriptions.push_back(flag.description);
