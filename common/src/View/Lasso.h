@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Lasso(const Renderer::Camera& camera, FloatType distance, const Vec3& point);
             void setPoint(const Vec3& point);
             
-            Vec3::List containedPoints(const Vec3::List& points) const;
+            Vec3::Array containedPoints(const Vec3::Array& points) const;
             bool containsPoint(const Vec3& point) const;
         private:
             bool containsPoint(const Vec3& point, const Plane3& plane, const BBox2& box) const;
