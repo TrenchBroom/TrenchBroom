@@ -34,9 +34,9 @@ namespace TrenchBroom {
         
         class KeyboardShortcutGridTable : public wxGridTableBase {
         private:
-            typedef std::vector<KeyboardShortcutEntry*> EntryList;
+            typedef std::vector<KeyboardShortcutEntry*> EntryArray;
             
-            EntryList m_entries;
+            EntryArray m_entries;
             KeyboardGridCellEditor* m_cellEditor;
         public:
             KeyboardShortcutGridTable();
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void notifyRowsAppended(size_t numRows = 1);
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
             
-            bool markConflicts(EntryList& entries);
+            bool markConflicts(EntryArray& entries);
         };
     }
 }
