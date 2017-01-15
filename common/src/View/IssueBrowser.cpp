@@ -117,19 +117,19 @@ namespace TrenchBroom {
             m_view->Refresh();
         }
         
-        void IssueBrowser::nodesWereAdded(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesWereAdded(const Model::NodeArray& nodes) {
             m_view->reload();
         }
         
-        void IssueBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesWereRemoved(const Model::NodeArray& nodes) {
             m_view->reload();
         }
         
-        void IssueBrowser::nodesDidChange(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesDidChange(const Model::NodeArray& nodes) {
             m_view->reload();
         }
         
-        void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void IssueBrowser::brushFacesDidChange(const Model::BrushFaceArray& faces) {
             m_view->reload();
         }
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         void IssueBrowser::updateFilterFlags() {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            const Model::IssueGeneratorList& generators = world->registeredIssueGenerators();
+            const Model::IssueGeneratorArray& generators = world->registeredIssueGenerators();
             
             wxArrayInt flags;
             wxArrayString labels;
