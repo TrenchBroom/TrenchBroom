@@ -169,7 +169,7 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
 
-        void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
+        void MapViewBase::nodesDidChange(const Model::NodeArray& nodes) {
             updatePickResult();
             Refresh();
         }
@@ -660,7 +660,7 @@ namespace TrenchBroom {
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
             for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const Assets::EntityDefinitionArray definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
                 count += definitions.size();
@@ -692,12 +692,12 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             
-            const Model::BrushList brushes = document->selectedNodes().brushes();
+            const Model::BrushArray brushes = document->selectedNodes().brushes();
             assert(!brushes.empty());
             
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = std::begin(brushes);
-            Model::BrushList::const_iterator end = std::end(brushes);
+            Model::BrushArray::const_iterator it = std::begin(brushes);
+            Model::BrushArray::const_iterator end = std::end(brushes);
             Model::AttributableNode* entityTemplate = (*it++)->entity();
             while (it != end && entityTemplate != NULL)
                 if ((*it++)->parent() != entityTemplate)
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition->name();
             
-            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
+            const Model::NodeArray nodes(std::begin(brushes), std::end(brushes));
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
@@ -913,7 +913,7 @@ namespace TrenchBroom {
                 return;
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
@@ -951,9 +951,9 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const Assets::EntityDefinitionArray definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
-                Assets::EntityDefinitionList filteredDefinitions;
+                Assets::EntityDefinitionArray filteredDefinitions;
                 std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(filteredDefinitions),
                              [](const Assets::EntityDefinition* definition) { return StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
                 );
@@ -975,7 +975,7 @@ namespace TrenchBroom {
 
         void MapViewBase::OnAddObjectsToGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
+            const Model::NodeArray nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             ensure(newGroup != NULL, "newGroup is null");
             
@@ -987,7 +987,7 @@ namespace TrenchBroom {
         
         void MapViewBase::OnRemoveObjectsFromGroup(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
+            const Model::NodeArray nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             ensure(currentGroup != NULL, "currentGroup is null");
             
@@ -997,7 +997,7 @@ namespace TrenchBroom {
             reparentNodes(nodes, document->currentLayer());
         }
 
-        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
+        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeArray& nodes) const {
             Model::Node* newGroup = NULL;
             
             MapDocumentSPtr document = lock(m_document);
@@ -1014,7 +1014,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != NULL, "newParent is null");
 
@@ -1023,7 +1023,7 @@ namespace TrenchBroom {
             document->select(newParent->children());
         }
         
-        Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
+        Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeArray& nodes) const {
             Model::Node* newParent = NULL;
             
             MapDocumentSPtr document = lock(m_document);
@@ -1038,7 +1038,7 @@ namespace TrenchBroom {
             return document->currentLayer();
         }
 
-        bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
+        bool MapViewBase::canReparentNodes(const Model::NodeArray& nodes, const Model::Node* newParent) const {
             for (const Model::Node* node : nodes) {
                 if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node))
                     return true;
@@ -1046,13 +1046,13 @@ namespace TrenchBroom {
             return false;
         }
 
-        void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent) {
+        void MapViewBase::reparentNodes(const Model::NodeArray& nodes, Model::Node* newParent) {
             ensure(newParent != NULL, "newParent is null");
 
             MapDocumentSPtr document = lock(m_document);
             Model::PushSelection pushSelection(document);
             
-            const Model::NodeList reparentableNodes = collectReparentableNodes(nodes, newParent);
+            const Model::NodeArray reparentableNodes = collectReparentableNodes(nodes, newParent);
             assert(!reparentableNodes.empty());
             
             StringStream name;
@@ -1063,8 +1063,8 @@ namespace TrenchBroom {
             document->reparentNodes(newParent, reparentableNodes);
         }
 
-        Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
-            Model::NodeList result;
+        Model::NodeArray MapViewBase::collectReparentableNodes(const Model::NodeArray& nodes, const Model::Node* newParent) const {
+            Model::NodeArray result;
             std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [=](const Model::Node* node) { return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node); });
             return result;
         }
