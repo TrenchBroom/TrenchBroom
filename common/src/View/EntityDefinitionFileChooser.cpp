@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            Assets::EntityDefinitionFileSpec::Array specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             m_builtin->Clear();
             
             MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            Assets::EntityDefinitionFileSpec::Array specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
             
             for (const Assets::EntityDefinitionFileSpec& spec : specs) {
