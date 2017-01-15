@@ -190,15 +190,15 @@ namespace TrenchBroom {
             const Plane3 minPlane(min, Vec3(m_camera.direction()));
             const Plane3 maxPlane(max, Vec3(m_camera.direction()));
             
-            const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
+            const Model::BrushArray& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
             
             const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
-            Model::BrushList tallBrushes(0);
+            Model::BrushArray tallBrushes(0);
             tallBrushes.reserve(selectionBrushes.size());
             
             for (const Model::Brush* selectionBrush : selectionBrushes) {
-                Vec3::List tallVertices(0);
+                Vec3::Array tallVertices(0);
                 tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
                 for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
+            Model::CollectContainedNodesVisitor<Model::BrushArray::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 
