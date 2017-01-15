@@ -39,10 +39,10 @@ namespace TrenchBroom {
             static const int HideIssuesCommandId = 2;
             static const int FixObjectsBaseId = 3;
             
-            typedef std::vector<size_t> IndexList;
+            typedef std::vector<size_t> IndexArray;
             
             MapDocumentWPtr m_document;
-            Model::IssueList m_issues;
+            Model::IssueArray m_issues;
             
             Model::IssueType m_hiddenGenerators;
             bool m_showHiddenIssues;
@@ -69,14 +69,14 @@ namespace TrenchBroom {
             
             void updateIssues();
             
-            Model::IssueList collectIssues(const IndexList& indices) const;
-            Model::IssueQuickFixList collectQuickFixes(const IndexList& indices) const;
+            Model::IssueArray collectIssues(const IndexArray& indices) const;
+            Model::IssueQuickFixArray collectQuickFixes(const IndexArray& indices) const;
             Model::IssueType issueTypeMask() const;
             
             void setIssueVisibility(bool show);
             
             void updateSelection();
-            IndexList getSelection() const;
+            IndexArray getSelection() const;
             
             wxListItemAttr* OnGetItemAttr(long item) const;
             wxString OnGetItemText(long item, long column) const;
