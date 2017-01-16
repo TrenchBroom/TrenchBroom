@@ -27,9 +27,9 @@ namespace TrenchBroom {
         class SmartAttributeEditorMatcher {
         public:
             virtual ~SmartAttributeEditorMatcher();
-            bool matches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool matches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const;
         private:
-            virtual bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const = 0;
+            virtual bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const = 0;
         };
         
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
@@ -38,12 +38,12 @@ namespace TrenchBroom {
         public:
             SmartAttributeEditorKeyMatcher(const Model::AttributeName& name1, const Model::AttributeName& name2 = "", const Model::AttributeName& name3 = "", const Model::AttributeName& name4 = "", const Model::AttributeName& name5 = "");
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const;
         };
         
         class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const;
         };
     }
 }
