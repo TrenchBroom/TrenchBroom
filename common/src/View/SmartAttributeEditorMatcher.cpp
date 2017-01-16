@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}
         
-        bool SmartAttributeEditorMatcher::matches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorMatcher::matches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const {
             return doMatches(name, attributables);
         }
 
@@ -40,11 +40,11 @@ namespace TrenchBroom {
                 m_names.insert(name5);
         }
         
-        bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const {
             return !attributables.empty() && m_names.count(name) > 0;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const {
             return true;
         }
     }
