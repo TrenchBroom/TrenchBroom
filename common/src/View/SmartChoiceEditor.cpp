@@ -85,7 +85,7 @@ namespace TrenchBroom {
             m_comboBox= NULL;
         }
         
-        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeArray& attributables) {
             ensure(m_panel != NULL, "panel is null");
             ensure(m_comboBox != NULL, "comboBox is null");
             
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 m_comboBox->Disable();
             } else {
                 const Assets::ChoiceAttributeDefinition* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
-                const Assets::ChoiceAttributeOption::List& options = choiceDef->options();
+                const Assets::ChoiceAttributeOption::Array& options = choiceDef->options();
                 
                 for (const Assets::ChoiceAttributeOption& option : options)
                     m_comboBox->Append(option.value() + " : " + option.description());
