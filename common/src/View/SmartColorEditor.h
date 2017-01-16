@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class SmartColorEditor : public SmartAttributeEditor {
         private:
             static const size_t ColorHistoryCellSize = 15;
-            typedef std::vector<wxColour> wxColorList;
+            typedef std::vector<wxColour> wxColorArray;
             
             wxPanel* m_panel;
             wxRadioButton* m_floatRadio;
@@ -60,10 +60,10 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables);
+            void doUpdateVisual(const Model::AttributableNodeArray& attributables);
 
             class CollectColorVisitor;
-            void updateColorRange(const Model::AttributableNodeList& attributables);
+            void updateColorRange(const Model::AttributableNodeArray& attributables);
             void updateColorHistory();
 
             void setColor(const wxColor& wxColor) const;
