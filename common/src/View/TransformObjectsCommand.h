@@ -61,7 +61,7 @@ namespace TrenchBroom {
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            void takeSnapshot(const Model::NodeList& nodes);
+            void takeSnapshot(const Model::NodeArray& nodes);
             void deleteSnapshot();
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
