@@ -57,11 +57,11 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables);
+            void doUpdateVisual(const Model::AttributableNodeArray& attributables);
             void resetScrollPos();
             
-            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
-            void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
+            void getFlags(const Model::AttributableNodeArray& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
+            void getFlagValues(const Model::AttributableNodeArray& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
         };
     }
