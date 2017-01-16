@@ -38,7 +38,7 @@ namespace TrenchBroom {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
 
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const IO::Path::Array& recentDocuments = app.recentDocuments();
             SetItemCount(recentDocuments.size());
             
             Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const IO::Path::Array& recentDocuments = app.recentDocuments();
 
             const int index = GetSelection();
             if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         void RecentDocumentListBox::recentDocumentsDidChange() {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const IO::Path::Array& recentDocuments = app.recentDocuments();
             SetItemCount(recentDocuments.size());
         }
 
@@ -80,14 +80,14 @@ namespace TrenchBroom {
         
         wxString RecentDocumentListBox::title(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const IO::Path::Array& recentDocuments = app.recentDocuments();
             ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].lastComponent().asString();
         }
         
         wxString RecentDocumentListBox::subtitle(const size_t n) const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const IO::Path::Array& recentDocuments = app.recentDocuments();
             ensure(n < recentDocuments.size(), "index out of range");
             return recentDocuments[n].asString();
         }
