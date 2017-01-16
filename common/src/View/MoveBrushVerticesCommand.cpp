@@ -30,9 +30,9 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
         MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushVerticesMap brushVertices;
-            Vec3::List vertexPositions;
+            Vec3::Array vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
             return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return !m_newVertexPositions.empty();
         }
 
-        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta) :
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices, const Vec3::Array& vertexPositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
-                const Vec3::List& vertices = entry.second;
+                const Vec3::Array& vertices = entry.second;
                 if (!brush->canMoveVertices(worldBounds, vertices, m_delta))
                     return false;
             }
@@ -66,11 +66,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);
         }
         
-        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
 
