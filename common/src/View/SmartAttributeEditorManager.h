@@ -41,18 +41,18 @@ namespace TrenchBroom {
             typedef std::shared_ptr<SmartAttributeEditor> EditorPtr;
             typedef std::shared_ptr<SmartAttributeEditorMatcher> MatcherPtr;
             typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
-            typedef std::vector<MatcherEditorPair> EditorList;
+            typedef std::vector<MatcherEditorPair> EditorArray;
             
             View::MapDocumentWPtr m_document;
             
-            EditorList m_editors;
+            EditorArray m_editors;
             Model::AttributeName m_name;
             EditorPtr m_activeEditor;
         public:
             SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document);
             ~SmartAttributeEditorManager();
             
-            void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+            void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables);
         private:
             void createEditors();
 
@@ -60,9 +60,9 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
 
-            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableNodeArray& attributables) const;
             EditorPtr defaultEditor() const;
             
             void activateEditor(EditorPtr editor, const Model::AttributeName& name);
