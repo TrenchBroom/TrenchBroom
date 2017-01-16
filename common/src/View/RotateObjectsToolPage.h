@@ -50,7 +50,7 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(Math::Axis::Type axis);
-            void setRecentlyUsedCenters(const Vec3::List& centers);
+            void setRecentlyUsedCenters(const Vec3::Array& centers);
             void setCurrentCenter(const Vec3& center);
         private:
             void createGui();
