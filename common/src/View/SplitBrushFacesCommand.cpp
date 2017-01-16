@@ -30,15 +30,15 @@ namespace TrenchBroom {
         const Command::CommandType SplitBrushFacesCommand::Type = Command::freeType();
         
         SplitBrushFacesCommand::Ptr SplitBrushFacesCommand::split(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushFacesMap brushFaces;
-            Polygon3::List facePositions;
+            Polygon3::Array facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             
             return Ptr(new SplitBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
         
-        SplitBrushFacesCommand::SplitBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
+        SplitBrushFacesCommand::SplitBrushFacesCommand(const Model::BrushArray& brushes, const Model::BrushFacesMap& faces, const Polygon3::Array& facePositions, const Vec3& delta) :
         VertexCommand(Type, "Split Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);
         }
         
-        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
