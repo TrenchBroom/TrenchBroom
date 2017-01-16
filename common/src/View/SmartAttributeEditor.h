@@ -34,7 +34,7 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             Model::AttributeName m_name;
-            Model::AttributableNodeList m_attributables;
+            Model::AttributableNodeArray m_attributables;
             bool m_active;
         public:
             SmartAttributeEditor(View::MapDocumentWPtr document);
@@ -43,21 +43,21 @@ namespace TrenchBroom {
             bool usesName(const Model::AttributeName& name) const;
             
             wxWindow* activate(wxWindow* parent, const Model::AttributeName& name);
-            void update(const Model::AttributableNodeList& attributables);
+            void update(const Model::AttributableNodeArray& attributables);
             void deactivate();
         protected:
             View::MapDocumentSPtr document() const;
             const Model::AttributeName& name() const;
-            const Model::AttributableNodeList attributables() const;
+            const Model::AttributableNodeArray attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);
         private:
             wxWindow* createVisual(wxWindow* parent);
             void destroyVisual();
-            void updateVisual(const Model::AttributableNodeList& attributables);
+            void updateVisual(const Model::AttributableNodeArray& attributables);
             
             virtual wxWindow* doCreateVisual(wxWindow* parent) = 0;
             virtual void doDestroyVisual() = 0;
-            virtual void doUpdateVisual(const Model::AttributableNodeList& attributables) = 0;
+            virtual void doUpdateVisual(const Model::AttributableNodeArray& attributables) = 0;
         };
     }
 }
