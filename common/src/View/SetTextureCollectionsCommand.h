@@ -32,12 +32,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<SetTextureCollectionsCommand> Ptr;
         private:
-            IO::Path::List m_paths;
-            IO::Path::List m_oldPaths;
+            IO::Path::Array m_paths;
+            IO::Path::Array m_oldPaths;
         public:
-            static Ptr set(const IO::Path::List& paths);
+            static Ptr set(const IO::Path::Array& paths);
         private:
-            SetTextureCollectionsCommand(const IO::Path::List& paths);
+            SetTextureCollectionsCommand(const IO::Path::Array& paths);
 
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
