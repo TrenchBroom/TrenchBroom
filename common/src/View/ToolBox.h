@@ -57,12 +57,12 @@ namespace TrenchBroom {
             ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
             
-            typedef std::vector<Tool*> ToolList;
-            typedef std::map<Tool*, ToolList> ToolMap;
+            typedef std::vector<Tool*> ToolArray;
+            typedef std::map<Tool*, ToolArray> ToolMap;
             ToolMap m_deactivateWhen;
             
-            typedef std::vector<wxWindow*> WindowList;
-            WindowList m_focusGroup;
+            typedef std::vector<wxWindow*> WindowArray;
+            WindowArray m_focusGroup;
             
             bool m_clickToActivate;
             bool m_ignoreNextClick;
