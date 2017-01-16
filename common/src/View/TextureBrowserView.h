@@ -58,7 +58,7 @@ namespace TrenchBroom {
             } SortOrder;
         private:
             typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
-            typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;
+            typedef std::map<Renderer::FontDescriptor, TextVertex::Array> StringMap;
 
             Assets::TextureManager& m_textureManager;
 
@@ -94,12 +94,12 @@ namespace TrenchBroom {
             struct MatchUsageCount;
             struct MatchName;
             
-            Assets::TextureCollectionList getCollections() const;
-            Assets::TextureList getTextures(const Assets::TextureCollection* collection) const;
-            Assets::TextureList getTextures() const;
+            Assets::TextureCollectionArray getCollections() const;
+            Assets::TextureArray getTextures(const Assets::TextureCollection* collection) const;
+            Assets::TextureArray getTextures() const;
             
-            void filterTextures(Assets::TextureList& textures) const;
-            void sortTextures(Assets::TextureList& textures) const;
+            void filterTextures(Assets::TextureArray& textures) const;
+            void sortTextures(Assets::TextureArray& textures) const;
             
             void doClear();
             void doRender(Layout& layout, float y, float height);
