@@ -167,7 +167,7 @@ namespace TrenchBroom {
                     if (m_restricted)
                         renderService.setLineWidth(2.0f);
                     
-                    Vec3::List stages(3);
+                    Vec3::Array stages(3);
                     stages[0] = vec * Vec3::PosX;
                     stages[1] = vec * Vec3::PosY;
                     stages[2] = vec * Vec3::PosZ;
