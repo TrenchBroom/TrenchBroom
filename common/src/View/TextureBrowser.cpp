@@ -214,19 +214,19 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::nodesWereAdded(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesWereAdded(const Model::NodeArray& nodes) {
             reload();
         }
         
-        void TextureBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesWereRemoved(const Model::NodeArray& nodes) {
             reload();
         }
         
-        void TextureBrowser::nodesDidChange(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesDidChange(const Model::NodeArray& nodes) {
             reload();
         }
         
-        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceArray& faces) {
             reload();
         }
 
