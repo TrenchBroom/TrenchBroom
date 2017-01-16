@@ -37,13 +37,13 @@ namespace TrenchBroom {
         class RecentDocuments {
         private:
             typedef void (EventHandler::*Function)(wxCommandEvent&);
-            typedef std::vector<wxMenu*> MenuList;
-            MenuList m_menus;
+            typedef std::vector<wxMenu*> MenuArray;
+            MenuArray m_menus;
             EventHandler* m_handler;
             Function m_function;
             int m_baseId;
             size_t m_maxSize;
-            IO::Path::List m_recentDocuments;
+            IO::Path::Array m_recentDocuments;
         public:
             Notifier0 didChangeNotifier;
         public:
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 loadFromConfig();
             }
             
-            const IO::Path::List& recentDocuments() const {
+            const IO::Path::Array& recentDocuments() const {
                 return m_recentDocuments;
             }
 
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             
             void insertPath(const IO::Path& path) {
                 const IO::Path canonPath = path.makeCanonical();
-                IO::Path::List::iterator it = std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
+                IO::Path::Array::iterator it = std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
                 if (it != std::end(m_recentDocuments))
                     m_recentDocuments.erase(it);
                 m_recentDocuments.insert(std::begin(m_recentDocuments), canonPath);
