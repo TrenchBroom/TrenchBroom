@@ -145,7 +145,7 @@ namespace TrenchBroom {
                         const Model::Node* node = Model::hitToNode(hit);
                         if (editorContext.selectable(node)) {
                             const Model::Node* container = node->parent();
-                            const Model::NodeList& siblings = container->children();
+                            const Model::NodeArray& siblings = container->children();
                             if (isMultiClick(inputState)) {
                                 document->select(siblings);
                             } else {
