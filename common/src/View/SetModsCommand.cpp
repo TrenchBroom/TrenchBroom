@@ -27,11 +27,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        SetModsCommand::Ptr SetModsCommand::set(const StringList& mods) {
+        SetModsCommand::Ptr SetModsCommand::set(const StringArray& mods) {
             return Ptr(new SetModsCommand("Set Mods", mods));
         }
 
-        SetModsCommand::SetModsCommand(const String& name, const StringList& mods) :
+        SetModsCommand::SetModsCommand(const String& name, const StringArray& mods) :
         DocumentCommand(Type, name),
         m_newMods(mods) {}
         
