@@ -33,12 +33,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
-            Polygon3::List m_faces;
+            Polygon3::Array m_faces;
             Vec3 m_delta;
         public:
-            static Ptr resize(const Polygon3::List& faces, const Vec3& delta);
+            static Ptr resize(const Polygon3::Array& faces, const Vec3& delta);
         private:
-            ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta);
+            ResizeBrushesCommand(const Polygon3::Array& faces, const Vec3& delta);
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
