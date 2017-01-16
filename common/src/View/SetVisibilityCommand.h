@@ -40,16 +40,16 @@ namespace TrenchBroom {
                 Action_Ensure
             } Action;
             
-            Model::NodeList m_nodes;
+            Model::NodeArray m_nodes;
             CommandType m_action;
             Model::VisibilityMap m_oldState;
         public:
-            static Ptr show(const Model::NodeList& nodes);
-            static Ptr hide(const Model::NodeList& nodes);
-            static Ptr ensureVisible(const Model::NodeList& nodes);
-            static Ptr reset(const Model::NodeList& nodes);
+            static Ptr show(const Model::NodeArray& nodes);
+            static Ptr hide(const Model::NodeArray& nodes);
+            static Ptr ensureVisible(const Model::NodeArray& nodes);
+            static Ptr reset(const Model::NodeArray& nodes);
         private:
-            SetVisibilityCommand(const Model::NodeList& nodes, Action action);
+            SetVisibilityCommand(const Model::NodeArray& nodes, Action action);
             static String makeName(Action action);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
