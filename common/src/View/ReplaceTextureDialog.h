@@ -41,7 +41,7 @@ namespace TrenchBroom {
             
             void OnReplace(wxCommandEvent& event);
         private:
-            Model::BrushFaceList getApplicableFaces() const;
+            Model::BrushFaceArray getApplicableFaces() const;
         public:
             void OnUpdateReplaceButton(wxUpdateUIEvent& event);
         private:
