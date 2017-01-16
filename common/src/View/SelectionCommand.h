@@ -45,25 +45,25 @@ namespace TrenchBroom {
             
             Action m_action;
             
-            Model::NodeList m_nodes;
-            Model::BrushFaceList m_faces;
+            Model::NodeArray m_nodes;
+            Model::BrushFaceArray m_faces;
             
-            Model::NodeList m_previouslySelectedNodes;
-            Model::BrushFaceList m_previouslySelectedFaces;
+            Model::NodeArray m_previouslySelectedNodes;
+            Model::BrushFaceArray m_previouslySelectedFaces;
         public:
-            static Ptr select(const Model::NodeList& nodes);
-            static Ptr select(const Model::BrushFaceList& faces);
+            static Ptr select(const Model::NodeArray& nodes);
+            static Ptr select(const Model::BrushFaceArray& faces);
             
             static Ptr convertToFaces();
             static Ptr selectAllNodes();
             static Ptr selectAllFaces();
             
-            static Ptr deselect(const Model::NodeList& nodes);
-            static Ptr deselect(const Model::BrushFaceList& faces);
+            static Ptr deselect(const Model::NodeArray& nodes);
+            static Ptr deselect(const Model::BrushFaceArray& faces);
             static Ptr deselectAll();
         private:
-            SelectionCommand(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);
-            static String makeName(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);
+            SelectionCommand(Action action, const Model::NodeArray& nodes, const Model::BrushFaceArray& faces);
+            static String makeName(Action action, const Model::NodeArray& nodes, const Model::BrushFaceArray& faces);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
