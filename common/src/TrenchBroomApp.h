@@ -80,6 +80,8 @@ namespace TrenchBroom {
             void OnHelpShowManual(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
             void OnOpenAbout(wxCommandEvent& event);
+            void OnDebugShowCrashReportDialog(wxCommandEvent& event);
+
             void OnExecutableEvent(ExecutableEvent& event);
             
             int FilterEvent(wxEvent& event);

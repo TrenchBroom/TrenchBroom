@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class CrashDialog : public wxDialog {
         public:
             CrashDialog();
-            void Create(const IO::Path& logPath, const IO::Path& mapPath);
+            void Create(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
             void OnReport(wxCommandEvent& event);
             wxDECLARE_DYNAMIC_CLASS(CrashDialog);
         };
