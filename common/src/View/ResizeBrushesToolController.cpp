@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices;
+            Vertex::Array vertices;
             
             for (const Model::BrushFace* face : m_tool->dragFaces()) {
                 for (const Model::BrushEdge* edge : face->edges()) {
