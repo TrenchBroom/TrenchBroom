@@ -38,20 +38,20 @@ namespace TrenchBroom {
             typedef std::shared_ptr<MoveBrushVerticesCommand> Ptr;
         private:
             Model::BrushVerticesMap m_vertices;
-            Vec3::List m_oldVertexPositions;
-            Vec3::List m_newVertexPositions;
+            Vec3::Array m_oldVertexPositions;
+            Vec3::Array m_newVertexPositions;
             Vec3 m_delta;
         public:
             static Ptr move(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
             bool hasRemainingVertices() const;
         private:
-            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta);
+            MoveBrushVerticesCommand(const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices, const Vec3::Array& vertexPositions, const Vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
 
             bool doCollateWith(UndoableCommand::Ptr command);
         };
