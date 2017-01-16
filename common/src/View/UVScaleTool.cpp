@@ -184,14 +184,14 @@ namespace TrenchBroom {
             if (pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch())
                 return;
                 
-            EdgeVertex::List vertices = getHandleVertices(pickResult);
+            EdgeVertex::Array vertices = getHandleVertices(pickResult);
             const Color color(1.0f, 0.0f, 0.0f, 1.0f);
             
             Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
             handleRenderer.render(renderBatch, color, 0.5f);
         }
 
-        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
+        UVScaleTool::EdgeVertex::Array UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const Vec2 stripeSize = m_helper.stripeSize();
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             Vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
-            EdgeVertex::List vertices;
+            EdgeVertex::Array vertices;
             vertices.reserve(4);
             
             if (xHandleHit.isMatch()) {
