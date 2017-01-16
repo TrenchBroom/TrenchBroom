@@ -30,9 +30,9 @@ namespace TrenchBroom {
         const Command::CommandType RemoveBrushEdgesCommand::Type = Command::freeType();
 
         RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const Model::VertexToEdgesMap& edges) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
+            Edge3::Array edgePositions;
             
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             Model::BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
@@ -40,11 +40,11 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
         }
 
-        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions) :
+        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices, const Edge3::Array& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
 
-        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
     }
