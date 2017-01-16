@@ -26,32 +26,32 @@ namespace TrenchBroom {
     namespace View {
         class Selection {
         private:
-            Model::NodeList m_partiallySelectedNodes;
-            Model::NodeList m_partiallyDeselectedNodes;
-            Model::NodeList m_recursivelySelectedNodes;
-            Model::NodeList m_recursivelyDeselectedNodes;
-            Model::NodeList m_selectedNodes;
-            Model::NodeList m_deselectedNodes;
-            Model::BrushFaceList m_selectedBrushFaces;
-            Model::BrushFaceList m_deselectedBrushFaces;
+            Model::NodeArray m_partiallySelectedNodes;
+            Model::NodeArray m_partiallyDeselectedNodes;
+            Model::NodeArray m_recursivelySelectedNodes;
+            Model::NodeArray m_recursivelyDeselectedNodes;
+            Model::NodeArray m_selectedNodes;
+            Model::NodeArray m_deselectedNodes;
+            Model::BrushFaceArray m_selectedBrushFaces;
+            Model::BrushFaceArray m_deselectedBrushFaces;
         public:
-            const Model::NodeList& partiallySelectedNodes() const;
-            const Model::NodeList& partiallyDeselectedNodes() const;
-            const Model::NodeList& recursivelySelectedNodes() const;
-            const Model::NodeList& recursivelyDeselectedNodes() const;
-            const Model::NodeList& selectedNodes() const;
-            const Model::NodeList& deselectedNodes() const;
-            const Model::BrushFaceList& selectedBrushFaces() const;
-            const Model::BrushFaceList& deselectedBrushFaces() const;
+            const Model::NodeArray& partiallySelectedNodes() const;
+            const Model::NodeArray& partiallyDeselectedNodes() const;
+            const Model::NodeArray& recursivelySelectedNodes() const;
+            const Model::NodeArray& recursivelyDeselectedNodes() const;
+            const Model::NodeArray& selectedNodes() const;
+            const Model::NodeArray& deselectedNodes() const;
+            const Model::BrushFaceArray& selectedBrushFaces() const;
+            const Model::BrushFaceArray& deselectedBrushFaces() const;
             
-            void addPartiallySelectedNodes(const Model::NodeList& nodes);
-            void addPartiallyDeselectedNodes(const Model::NodeList& nodes);
-            void addRecursivelySelectedNodes(const Model::NodeList& nodes);
-            void addRecursivelyDeselectedNodes(const Model::NodeList& nodes);
-            void addSelectedNodes(const Model::NodeList& nodes);
-            void addDeselectedNodes(const Model::NodeList& nodes);
-            void addSelectedBrushFaces(const Model::BrushFaceList& faces);
-            void addDeselectedBrushFaces(const Model::BrushFaceList& faces);
+            void addPartiallySelectedNodes(const Model::NodeArray& nodes);
+            void addPartiallyDeselectedNodes(const Model::NodeArray& nodes);
+            void addRecursivelySelectedNodes(const Model::NodeArray& nodes);
+            void addRecursivelyDeselectedNodes(const Model::NodeArray& nodes);
+            void addSelectedNodes(const Model::NodeArray& nodes);
+            void addDeselectedNodes(const Model::NodeArray& nodes);
+            void addSelectedBrushFaces(const Model::BrushFaceArray& faces);
+            void addDeselectedBrushFaces(const Model::BrushFaceArray& faces);
         };
     }
 }
