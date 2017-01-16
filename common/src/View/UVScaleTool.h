@@ -76,7 +76,7 @@ namespace TrenchBroom {
             Vec2f snap(const Vec2f& position) const;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
+            EdgeVertex::Array getHandleVertices(const Model::PickResult& pickResult) const;
             
             bool doCancel();
         };
