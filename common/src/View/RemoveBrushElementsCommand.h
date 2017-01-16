@@ -36,12 +36,12 @@ namespace TrenchBroom {
         private:
             Model::BrushVerticesMap m_vertices;
         protected:
-            RemoveBrushElementsCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices);
+            RemoveBrushElementsCommand(CommandType type, const String& name, const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
             bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
