@@ -189,8 +189,8 @@ namespace TrenchBroom {
             }
         };
 
-        Assets::TextureCollectionList TextureBrowserView::getCollections() const {
-            Assets::TextureCollectionList collections = m_textureManager.collections();
+        Assets::TextureCollectionArray TextureBrowserView::getCollections() const {
+            Assets::TextureCollectionArray collections = m_textureManager.collections();
             if (m_hideUnused)
                 VectorUtils::eraseIf(collections, MatchUsageCount());
             if (m_sortOrder == SO_Usage)
@@ -198,28 +198,28 @@ namespace TrenchBroom {
             return collections;
         }
         
-        Assets::TextureList TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
-            Assets::TextureList textures = collection->textures();
+        Assets::TextureArray TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            Assets::TextureArray textures = collection->textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
         
-        Assets::TextureList TextureBrowserView::getTextures() const {
-            Assets::TextureList textures = m_textureManager.textures();
+        Assets::TextureArray TextureBrowserView::getTextures() const {
+            Assets::TextureArray textures = m_textureManager.textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        void TextureBrowserView::filterTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::filterTextures(Assets::TextureArray& textures) const {
             if (m_hideUnused)
                 VectorUtils::eraseIf(textures, MatchUsageCount());
             if (!m_filterText.empty())
                 VectorUtils::eraseIf(textures, MatchName(m_filterText));
         }
         
-        void TextureBrowserView::sortTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::sortTextures(Assets::TextureArray& textures) const {
             switch (m_sortOrder) {
                 case SO_Name:
                     VectorUtils::sort(textures, CompareByName());
@@ -260,7 +260,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P2C4::Vertex BoundsVertex;
-            BoundsVertex::List vertices;
+            BoundsVertex::Array vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -301,7 +301,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P2T2::Vertex TextureVertex;
-            TextureVertex::List vertices(4);
+            TextureVertex::Array vertices(4);
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserShader);
             shader.set("ApplyTinting", false);
@@ -351,7 +351,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P2::Vertex Vertex;
-            Vertex::List vertices;
+            Vertex::Array vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -382,7 +382,7 @@ namespace TrenchBroom {
 
             for (const auto& entry : collectStringVertices(layout, y, height)) {
                 const Renderer::FontDescriptor& descriptor = entry.first;
-                const TextVertex::List& vertices = entry.second;
+                const TextVertex::Array& vertices = entry.second;
                 stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                 stringRenderers[descriptor].prepare(vertexVbo());
             }
@@ -405,7 +405,7 @@ namespace TrenchBroom {
             Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
-            const Color::List textColor(1, pref(Preferences::BrowserTextColor));
+            const Color::Array textColor(1, pref(Preferences::BrowserTextColor));
 
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -417,9 +417,9 @@ namespace TrenchBroom {
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
                         Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const Vec2f::List quads = font.quads(title, false, offset);
-                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                        TextVertex::List& vertices = stringVertices[defaultDescriptor];
+                        const Vec2f::Array quads = font.quads(title, false, offset);
+                        const TextVertex::Array titleVertices = TextVertex::fromArrays(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        TextVertex::Array& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
                     
@@ -432,9 +432,9 @@ namespace TrenchBroom {
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const Vec2f::List quads = font.quads(cell.item().texture->name(), false, offset);
-                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                                TextVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
+                                const Vec2f::Array quads = font.quads(cell.item().texture->name(), false, offset);
+                                const TextVertex::Array titleVertices = TextVertex::fromArray(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                TextVertex::Array& vertices = stringVertices[cell.item().fontDescriptor];
                                 vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                             }
                         }
