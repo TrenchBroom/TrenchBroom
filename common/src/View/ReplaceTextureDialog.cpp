@@ -57,7 +57,7 @@ namespace TrenchBroom {
             ensure(replacement != NULL, "replacement is null");
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList faces = getApplicableFaces();
+            const Model::BrushFaceArray faces = getApplicableFaces();
             
             if (faces.empty()) {
                 wxMessageBox("None of the selected faces has the selected texture", "Replace Failed", wxOK | wxCENTRE, this);
@@ -73,9 +73,9 @@ namespace TrenchBroom {
             wxMessageBox(msg.str(), "Replace succeeded", wxOK | wxCENTRE, this);
         }
         
-        Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {
+        Model::BrushFaceArray ReplaceTextureDialog::getApplicableFaces() const {
             MapDocumentSPtr document = lock(m_document);
-            Model::BrushFaceList faces = document->allSelectedBrushFaces();
+            Model::BrushFaceArray faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;
                 document->world()->acceptAndRecurse(collect);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != NULL, "subject is null");
             
-            Model::BrushFaceList result;
+            Model::BrushFaceArray result;
             std::copy_if(std::begin(faces), std::end(faces), std::back_inserter(result), [&subject](const Model::BrushFace* face) { return face->texture() == subject; });
             return result;
         }
