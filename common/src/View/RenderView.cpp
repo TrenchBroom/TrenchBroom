@@ -150,7 +150,7 @@ namespace TrenchBroom {
             const float t = 1.0f;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(16);
+            Vertex::Array vertices(16);
             
             // top
             vertices[ 0] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
