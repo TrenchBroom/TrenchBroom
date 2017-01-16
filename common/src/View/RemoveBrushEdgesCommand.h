@@ -37,12 +37,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<RemoveBrushEdgesCommand> Ptr;
         private:
-            Edge3::List m_oldEdgePositions;
+            Edge3::Array m_oldEdgePositions;
         public:
             static Ptr remove(const Model::VertexToEdgesMap& edges);
         private:
-            RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            RemoveBrushEdgesCommand(const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices, const Edge3::Array& edgePositions);
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
         };
     }
 }
