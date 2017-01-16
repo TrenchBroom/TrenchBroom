@@ -32,45 +32,45 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::Ptr SelectionCommand::select(const Model::NodeList& nodes) {
-            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
+        SelectionCommand::Ptr SelectionCommand::select(const Model::NodeArray& nodes) {
+            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceArray));
         }
         
-        SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces));
+        SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceArray& faces) {
+            return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeArray, faces));
         }
         
         SelectionCommand::Ptr SelectionCommand::convertToFaces() {
-            return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeArray, Model::EmptyBrushFaceArray));
         }
         
         SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
-            return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeArray, Model::EmptyBrushFaceArray));
         }
         
         SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
-            return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeArray, Model::EmptyBrushFaceArray));
         }
         
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeList& nodes) {
-            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
+        SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeArray& nodes) {
+            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceArray));
         }
         
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces));
+        SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceArray& faces) {
+            return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeArray, faces));
         }
         
         SelectionCommand::Ptr SelectionCommand::deselectAll() {
-            return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeArray, Model::EmptyBrushFaceArray));
         }
 
-        SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :
+        SelectionCommand::SelectionCommand(const Action action, const Model::NodeArray& nodes, const Model::BrushFaceArray& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
         m_nodes(nodes),
         m_faces(faces) {}
 
-        String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
+        String SelectionCommand::makeName(const Action action, const Model::NodeArray& nodes, const Model::BrushFaceArray& faces) {
             StringStream result;
             switch (action) {
                 case Action_SelectNodes:
