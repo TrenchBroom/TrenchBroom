@@ -33,15 +33,15 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<SetLockStateCommand> Ptr;
         private:
-            Model::NodeList m_nodes;
+            Model::NodeArray m_nodes;
             Model::LockState m_state;
             Model::LockStateMap m_oldState;
         public:
-            static Ptr lock(const Model::NodeList& nodes);
-            static Ptr unlock(const Model::NodeList& nodes);
-            static Ptr reset(const Model::NodeList& nodes);
+            static Ptr lock(const Model::NodeArray& nodes);
+            static Ptr unlock(const Model::NodeArray& nodes);
+            static Ptr reset(const Model::NodeArray& nodes);
         private:
-            SetLockStateCommand(const Model::NodeList& nodes, Model::LockState state);
+            SetLockStateCommand(const Model::NodeArray& nodes, Model::LockState state);
             static String makeName(Model::LockState state);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
