@@ -345,7 +345,7 @@ namespace TrenchBroom {
 
             ToolMap::iterator it = m_deactivateWhen.find(tool);
             if (it != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = it->second;
+                const ToolArray& slaves = it->second;
                 for (Tool* slave : slaves) {
                     slave->deactivate();
                     toolDeactivatedNotifier(slave);
@@ -362,7 +362,7 @@ namespace TrenchBroom {
                 
             ToolMap::iterator it = m_deactivateWhen.find(tool);
             if (it != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = it->second;
+                const ToolArray& slaves = it->second;
                 for (Tool* slave : slaves) {
                     slave->activate();
                     toolActivatedNotifier(slave);
