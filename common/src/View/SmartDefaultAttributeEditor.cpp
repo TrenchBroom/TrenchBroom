@@ -44,7 +44,7 @@ namespace TrenchBroom {
             m_currentDefinition = NULL;
         }
 
-        void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeArray& attributables) {
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
             if (entityDefinition != m_currentDefinition) {
                 m_currentDefinition = entityDefinition;
