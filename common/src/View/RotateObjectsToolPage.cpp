@@ -46,10 +46,10 @@ namespace TrenchBroom {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
-        void RotateObjectsToolPage::setRecentlyUsedCenters(const Vec3::List& centers) {
+        void RotateObjectsToolPage::setRecentlyUsedCenters(const Vec3::Array& centers) {
             m_recentlyUsedCentersList->Clear();
             
-            Vec3::List::const_reverse_iterator it, end;
+            Vec3::Array::const_reverse_iterator it, end;
             for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
                 const Vec3& center = *it;
                 m_recentlyUsedCentersList->Append(center.asString());
