@@ -30,7 +30,7 @@ namespace TrenchBroom {
         const Command::CommandType RemoveBrushVerticesCommand::Type = Command::freeType();
 
         RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const Model::VertexToBrushesMap& vertices) {
-            Model::BrushList brushes;
+            Model::BrushArray brushes;
             Model::BrushVerticesMap brushVertices;
             Vec3::List vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
@@ -38,11 +38,11 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
         }
 
-        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions) :
+        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices, const Vec3::Array& vertexPositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Vertices", brushes, vertices),
         m_oldVertexPositions(vertexPositions) {}
 
-        void RemoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void RemoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {
             manager.selectVertexHandles(m_oldVertexPositions);
         }
     }
