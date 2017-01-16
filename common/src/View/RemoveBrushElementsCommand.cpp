@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices) :
+        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const Model::BrushArray& brushes, const Model::BrushVerticesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
-                const Vec3::List& vertices = entry.second;
+                const Vec3::Array& vertices = entry.second;
                 if (!brush->canRemoveVertices(worldBounds, vertices))
                     return false;
             }
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {}
+        void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) {}
         
         bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
