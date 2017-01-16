@@ -23,67 +23,67 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::NodeList& Selection::partiallySelectedNodes() const {
+        const Model::NodeArray& Selection::partiallySelectedNodes() const {
             return m_partiallySelectedNodes;
         }
         
-        const Model::NodeList& Selection::partiallyDeselectedNodes() const {
+        const Model::NodeArray& Selection::partiallyDeselectedNodes() const {
             return m_partiallyDeselectedNodes;
         }
         
-        const Model::NodeList& Selection::recursivelySelectedNodes() const {
+        const Model::NodeArray& Selection::recursivelySelectedNodes() const {
             return m_recursivelySelectedNodes;
         }
         
-        const Model::NodeList& Selection::recursivelyDeselectedNodes() const {
+        const Model::NodeArray& Selection::recursivelyDeselectedNodes() const {
             return m_recursivelyDeselectedNodes;
         }
         
-        const Model::NodeList& Selection::selectedNodes() const {
+        const Model::NodeArray& Selection::selectedNodes() const {
             return m_selectedNodes;
         }
         
-        const Model::NodeList& Selection::deselectedNodes() const {
+        const Model::NodeArray& Selection::deselectedNodes() const {
             return m_deselectedNodes;
         }
         
-        const Model::BrushFaceList& Selection::selectedBrushFaces() const {
+        const Model::BrushFaceArray& Selection::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
         
-        const Model::BrushFaceList& Selection::deselectedBrushFaces() const {
+        const Model::BrushFaceArray& Selection::deselectedBrushFaces() const {
             return m_deselectedBrushFaces;
         }
 
-        void Selection::addPartiallySelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addPartiallySelectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_partiallySelectedNodes, nodes);
         }
         
-        void Selection::addPartiallyDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addPartiallyDeselectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_partiallyDeselectedNodes, nodes);
         }
         
-        void Selection::addRecursivelySelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addRecursivelySelectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_recursivelySelectedNodes, nodes);
         }
         
-        void Selection::addRecursivelyDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addRecursivelyDeselectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_recursivelyDeselectedNodes, nodes);
         }
         
-        void Selection::addSelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addSelectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_selectedNodes, nodes);
         }
         
-        void Selection::addDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addDeselectedNodes(const Model::NodeArray& nodes) {
             VectorUtils::append(m_deselectedNodes, nodes);
         }
         
-        void Selection::addSelectedBrushFaces(const Model::BrushFaceList& faces) {
+        void Selection::addSelectedBrushFaces(const Model::BrushFaceArray& faces) {
             VectorUtils::append(m_selectedBrushFaces, faces);
         }
         
-        void Selection::addDeselectedBrushFaces(const Model::BrushFaceList& faces) {
+        void Selection::addDeselectedBrushFaces(const Model::BrushFaceArray& faces) {
             VectorUtils::append(m_deselectedBrushFaces, faces);
         }
     }
