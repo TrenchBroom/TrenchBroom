@@ -32,8 +32,8 @@ namespace TrenchBroom {
         
         class MultiMapView : public MapViewContainer {
         private:
-            typedef std::vector<MapView*> MapViewList;
-            MapViewList m_mapViews;
+            typedef std::vector<MapView*> MapViewArray;
+            MapViewArray m_mapViews;
             MapView* m_maximizedView;
         protected:
             MultiMapView(wxWindow* parent);
