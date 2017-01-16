@@ -211,13 +211,13 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            EdgeVertex::List vertices = getHandleVertices(inputState);
+            EdgeVertex::Array vertices = getHandleVertices(inputState);
             
             Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
-        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const InputState& inputState) const {
+        UVOriginTool::EdgeVertex::Array UVOriginTool::getHandleVertices(const InputState& inputState) const {
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             Vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
-            EdgeVertex::List vertices(4);
+            EdgeVertex::Array vertices(4);
             vertices[0] = EdgeVertex(Vec3f(x1), xColor);
             vertices[1] = EdgeVertex(Vec3f(x2), xColor);
             vertices[2] = EdgeVertex(Vec3f(y1), yColor);
