@@ -26,11 +26,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetTextureCollectionsCommand::Type = Command::freeType();
         
-        SetTextureCollectionsCommand::Ptr SetTextureCollectionsCommand::set(const IO::Path::List& paths) {
+        SetTextureCollectionsCommand::Ptr SetTextureCollectionsCommand::set(const IO::Path::Array& paths) {
             return Ptr(new SetTextureCollectionsCommand(paths));
         }
         
-        SetTextureCollectionsCommand::SetTextureCollectionsCommand(const IO::Path::List& paths) :
+        SetTextureCollectionsCommand::SetTextureCollectionsCommand(const IO::Path::Array& paths) :
         DocumentCommand(Type, "Set Texture Collections"),
         m_paths(paths) {}
         
