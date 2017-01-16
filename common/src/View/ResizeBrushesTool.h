@@ -43,7 +43,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ResizeHit2D;
 
             MapDocumentWPtr m_document;
-            Model::BrushFaceList m_dragFaces;
+            Model::BrushFaceArray m_dragFaces;
             Vec3 m_dragOrigin;
             Vec3 m_totalDelta;
             bool m_splitBrushes;
@@ -61,13 +61,13 @@ namespace TrenchBroom {
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
-            const Model::BrushFaceList& dragFaces() const;
+            const Model::BrushFaceArray& dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
-            Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
+            Model::BrushFaceArray getDragFaces(const Model::Hit& hit) const;
             class MatchFaceBoundary;
-            Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
-            Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
+            Model::BrushFaceArray collectDragFaces(const Model::Hit& hit) const;
+            Model::BrushFaceArray collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
@@ -78,11 +78,11 @@ namespace TrenchBroom {
         private:
             bool splitBrushes(const Vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
-            Polygon3::List dragFaceDescriptors() const;
+            Polygon3::Array dragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
         };
     }
 }
