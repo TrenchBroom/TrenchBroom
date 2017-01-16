@@ -126,7 +126,7 @@ namespace TrenchBroom {
             m_colorHistory = NULL;
         }
         
-        void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeArray& attributables) {
             ensure(m_panel != NULL, "panel is null");
             ensure(m_floatRadio != NULL, "floatRadio is null");
             ensure(m_byteRadio != NULL, "byteRadio is null");
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             updateColorHistory();
         }
         
-        void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
+        void SmartColorEditor::updateColorRange(const Model::AttributableNodeArray& attributables) {
             const Assets::ColorRange::Type range = detectColorRange(name(), attributables);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->SetValue(true);
@@ -182,12 +182,12 @@ namespace TrenchBroom {
         class SmartColorEditor::CollectColorVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            wxColorList m_allColors;
-            wxColorList m_selectedColors;
+            wxColorArray m_allColors;
+            wxColorArray m_selectedColors;
         public:
             CollectColorVisitor(const Model::AttributeName& name) : m_name(name) {}
-            const wxColorList& allColors() const { return m_allColors; }
-            const wxColorList& selectedColors() const { return m_selectedColors; }
+            const wxColorArray& allColors() const { return m_allColors; }
+            const wxColorArray& selectedColors() const { return m_selectedColors; }
         private:
             void doVisit(const Model::World* world)   { visitAttributableNode(world); }
             void doVisit(const Model::Layer* layer)   {}
