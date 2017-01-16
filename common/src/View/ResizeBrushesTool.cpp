@@ -108,7 +108,7 @@ namespace TrenchBroom {
                         m_closest = result.distance;
                         const Vec3 hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
-                            Model::BrushFaceList faces;
+                            Model::BrushFaceArray faces;
                             if (Math::zero(leftDot)) {
                                 faces.push_back(left);
                             } else if (Math::zero(rightDot)) {
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             PickProximateFace visitor(hitType, pickRay);
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             
             if (!visitor.hasResult())
@@ -145,13 +145,13 @@ namespace TrenchBroom {
             return !m_dragFaces.empty();
         }
         
-        const Model::BrushFaceList& ResizeBrushesTool::dragFaces() const {
+        const Model::BrushFaceArray& ResizeBrushesTool::dragFaces() const {
             return m_dragFaces;
         }
         
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
             const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
-            Model::BrushFaceList newDragFaces = getDragFaces(hit);
+            Model::BrushFaceArray newDragFaces = getDragFaces(hit);
             if (newDragFaces != m_dragFaces)
                 refreshViews();
             
@@ -159,8 +159,8 @@ namespace TrenchBroom {
             swap(m_dragFaces, newDragFaces);
         }
         
-        Model::BrushFaceList ResizeBrushesTool::getDragFaces(const Model::Hit& hit) const {
-            return !hit.isMatch() ? Model::EmptyBrushFaceList : collectDragFaces(hit);
+        Model::BrushFaceArray ResizeBrushesTool::getDragFaces(const Model::Hit& hit) const {
+            return !hit.isMatch() ? Model::EmptyBrushFaceArray : collectDragFaces(hit);
         }
 
         class ResizeBrushesTool::MatchFaceBoundary {
@@ -177,13 +177,13 @@ namespace TrenchBroom {
             }
         };
         
-        Model::BrushFaceList ResizeBrushesTool::collectDragFaces(const Model::Hit& hit) const {
+        Model::BrushFaceArray ResizeBrushesTool::collectDragFaces(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
             
-            Model::BrushFaceList result;
+            Model::BrushFaceArray result;
             if (hit.type() == ResizeHit2D) {
-                const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
+                const Model::BrushFaceArray& faces = hit.target<Model::BrushFaceArray>();
                 assert(!faces.empty());
                 VectorUtils::append(result, faces);
                 VectorUtils::append(result, collectDragFaces(faces[0]));
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeArray& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
         }
@@ -297,7 +297,7 @@ namespace TrenchBroom {
                 return false;
             
             Model::ParentChildrenMap newNodes;
-            Model::BrushFaceList newDragFaces;
+            Model::BrushFaceArray newDragFaces;
             for (Model::BrushFace* dragFace : m_dragFaces) {
                 Model::Brush* brush = dragFace->brush();
                 
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             }
             
             document->deselectAll();
-            const Model::NodeList addedNodes = document->addNodes(newNodes);
+            const Model::NodeArray addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
             m_dragFaces = newDragFaces;
             
@@ -331,8 +331,8 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
-            Polygon3::List result;
+        Polygon3::Array ResizeBrushesTool::dragFaceDescriptors() const {
+            Polygon3::Array result;
             result.reserve(m_dragFaces.size());
             std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
             return result;
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
+        void ResizeBrushesTool::nodesDidChange(const Model::NodeArray& nodes) {
             if (!m_resizing)
                 m_dragFaces.clear();
         }
