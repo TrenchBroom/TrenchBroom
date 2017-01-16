@@ -38,19 +38,19 @@ namespace TrenchBroom {
             typedef std::shared_ptr<SplitBrushEdgesCommand> Ptr;
         private:
             Model::BrushEdgesMap m_edges;
-            Edge3::List m_oldEdgePositions;
-            Vec3::List m_newVertexPositions;
+            Edge3::Array m_oldEdgePositions;
+            Vec3::Array m_newVertexPositions;
             Vec3 m_delta;
         public:
             static Ptr split(const Model::VertexToEdgesMap& edges, const Vec3& delta);
         private:
-            SplitBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta);
+            SplitBrushEdgesCommand(const Model::BrushArray& brushes, const Model::BrushEdgesMap& edges, const Edge3::Array& edgePositions, const Vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes);
             
             bool doCollateWith(UndoableCommand::Ptr command);
         };
