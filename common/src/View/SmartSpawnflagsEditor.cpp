@@ -67,7 +67,7 @@ namespace TrenchBroom {
         void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
             if (m_scrolledWindow->IsBeingDeleted()) return;
 
-            const Model::AttributableNodeList& toUpdate = attributables();
+            const Model::AttributableNodeArray& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             m_flagsEditor = NULL;
         }
 
-        void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeArray& attributables) {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const {
+        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeArray& attributables, wxArrayString& labels, wxArrayString& tooltips) const {
             const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
             
             for (size_t i = 0; i < NumFlags; ++i) {
@@ -159,15 +159,15 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartSpawnflagsEditor::getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const {
+        void SmartSpawnflagsEditor::getFlagValues(const Model::AttributableNodeArray& attributables, int& setFlags, int& mixedFlags) const {
             if (attributables.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
                 return;
             }
             
-            Model::AttributableNodeList::const_iterator it = std::begin(attributables);
-            Model::AttributableNodeList::const_iterator end = std::end(attributables);
+            Model::AttributableNodeArray::const_iterator it = std::begin(attributables);
+            Model::AttributableNodeArray::const_iterator end = std::end(attributables);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
             
