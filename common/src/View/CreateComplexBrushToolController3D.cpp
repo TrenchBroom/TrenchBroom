@@ -146,6 +146,9 @@ namespace TrenchBroom {
                 m_oldPolyhedron = m_tool->polyhedron();
 
                 const Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
+                if (!hit.isMatch())
+                    return DragInfo();
+                
                 const Vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
                 const Vec3 direction = hit.face->normal();
                 
@@ -266,17 +269,20 @@ namespace TrenchBroom {
                     renderService.renderPointHandle(vertex->position());
                 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
-                    const Polyhedron3::Face* face = polyhedron.faces().front();
-                    const Vec3::List pos3 = face->vertexPositions();
-                    Vec3f::List pos3f(pos3.size());
-                    for (size_t i = 0; i < pos3.size(); ++i)
-                        pos3f[i] = Vec3f(pos3[i]);
-                    
-                    renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
-                    renderService.renderFilledPolygon(pos3f);
-
-                    std::reverse(std::begin(pos3f), std::end(pos3f));
-                    renderService.renderFilledPolygon(pos3f);
+                    const Polyhedron3::FaceHit hit = polyhedron.pickFace(inputState.pickRay());
+                    if (hit.isMatch()) {
+                        const Polyhedron3::Face* face = polyhedron.faces().front();
+                        const Vec3::List pos3 = face->vertexPositions();
+                        Vec3f::List pos3f(pos3.size());
+                        for (size_t i = 0; i < pos3.size(); ++i)
+                            pos3f[i] = Vec3f(pos3[i]);
+                        
+                        renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
+                        renderService.renderFilledPolygon(pos3f);
+                        
+                        std::reverse(std::begin(pos3f), std::end(pos3f));
+                        renderService.renderFilledPolygon(pos3f);
+                    }
                 }
             }
         }
