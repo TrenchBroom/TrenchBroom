@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& faces = entry.second;
+                const Polygon3::Array& faces = entry.second;
                 for (size_t i = 0; i < faces.size(); ++i) {
                     const Polygon3& face = faces[i];
                     if (!brush->canSplitFace(worldBounds, face, m_delta))
