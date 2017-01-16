@@ -50,7 +50,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             
-            const Model::BrushFaceList& selectedFaces = document->selectedBrushFaces();
+            const Model::BrushFaceArray& selectedFaces = document->selectedBrushFaces();
             if (selectedFaces.size() != 1)
                 return false;
             
@@ -61,11 +61,11 @@ namespace TrenchBroom {
             Model::BrushFace* source = selectedFaces.front();
             Model::BrushFace* targetFace = Model::hitToFace(hit);
             Model::Brush* targetBrush = targetFace->brush();
-            const Model::BrushFaceList targetList = applyToBrush ? targetBrush->faces() : Model::BrushFaceList(1, targetFace);
+            const Model::BrushFaceArray targetArray = applyToBrush ? targetBrush->faces() : Model::BrushFaceArray(1, targetFace);
             
             const Transaction transaction(document);
             document->deselectAll();
-            document->select(targetList);
+            document->select(targetArray);
             if (copyAttributes(inputState))
                 document->setFaceAttributes(source->attribs());
             else
