@@ -110,6 +110,7 @@ namespace TrenchBroom {
                 m_flyModeHelper->disable();
                 m_toolBox.enable();
             }
+            m_flyModeHelper->resetKeys();
             updateAcceleratorTable();
             Refresh();
         }
@@ -272,6 +273,8 @@ namespace TrenchBroom {
 
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
+            else
+                m_flyModeHelper->resetKeys();
             event.Skip();
         }
 
@@ -280,6 +283,8 @@ namespace TrenchBroom {
 
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
+            else
+                m_flyModeHelper->resetKeys();
             event.Skip();
         }
 
