@@ -135,6 +135,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowManual, this, wxID_HELP);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
+            Bind(wxEVT_MENU, &TrenchBroomApp::OnDebugShowCrashReportDialog, this, CommandIds::Menu::DebugCrashReportDialog);
 
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
@@ -313,7 +314,7 @@ namespace TrenchBroom {
             return mapPath;
         }
 
-        static IO::Path crashLogPath() {
+        static IO::Path crashReportBasePath() {
             IO::Path mapPath = savedMapPath();
             IO::Path crashLogPath;
             
@@ -336,7 +337,7 @@ namespace TrenchBroom {
                 
                 testCrashLogPath = crashLogPath.deleteLastComponent() + testCrashLogName.str();
             }
-            return testCrashLogPath.asString();
+            return testCrashLogPath.deleteExtension().asString();
         }
         
         static bool inReportCrashAndExit = false;
@@ -348,39 +349,45 @@ namespace TrenchBroom {
 
         void reportCrashAndExit(const String &stacktrace, const String &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
-            if (inReportCrashAndExit) {
+            if (inReportCrashAndExit)
                 wxAbort();
-            }
+            
             inReportCrashAndExit = true;
             
             // get the crash report as a string
-            String report = makeCrashReport(stacktrace, reason);
+            const String report = makeCrashReport(stacktrace, reason);
             
             // write it to the crash log file
-            IO::Path logPath = crashLogPath();
-            IO::Path mapPath = logPath.deleteExtension().addExtension("map");
+            const IO::Path basePath = crashReportBasePath();
+            IO::Path reportPath = basePath.addExtension("txt");
+            IO::Path mapPath = basePath.addExtension("map");
+            IO::Path logPath = basePath.addExtension("log");
             
-            std::ofstream logStream(logPath.asString().c_str());
-            logStream << report;
-            logStream.close();
-            std::cerr << "wrote crash log to " << logPath.asString() << std::endl;
+            std::ofstream reportStream(reportPath.asString().c_str());
+            reportStream << report;
+            reportStream.close();
+            std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
             
             // save the map
             MapDocumentSPtr doc = topDocument();
-            if (doc) {
+            if (doc.get() != nullptr) {
                 doc->saveDocumentTo(mapPath);
                 std::cerr << "wrote map to " << mapPath.asString() << std::endl;
             } else {
                 mapPath = IO::Path();
             }
 
+            // Copy the log file
+            if (!wxCopyFile(IO::SystemPaths::logFilePath().asString(), logPath.asString()))
+                logPath = IO::Path();
+            
             // write the crash log to stdout
             std::cerr << "crash log:" << std::endl;
             std::cerr << report << std::endl;
 
             if (crashReportGuiEnabled) {
                 CrashDialog dialog;
-                dialog.Create(logPath, mapPath);
+                dialog.Create(reportPath, mapPath, logPath);
                 dialog.ShowModal();
             }
             
@@ -471,6 +478,16 @@ namespace TrenchBroom {
             openAbout();
         }
 
+        void TrenchBroomApp::OnDebugShowCrashReportDialog(wxCommandEvent& event) {
+            const IO::Path reportPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt"));
+            const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
+            const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
+            
+            CrashDialog dialog;
+            dialog.Create(reportPath, mapPath, logPath);
+            dialog.ShowModal();
+        }
+
         void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
             event.execute();
         }
@@ -507,6 +524,9 @@ namespace TrenchBroom {
                 case wxID_EXIT:
                 case wxID_HELP:
                 case CommandIds::Menu::FileOpenRecent:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::DebugCrashReportDialog:
                     event.Enable(true);
                     break;
                 default:

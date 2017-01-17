@@ -17,31 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Console
-#define TrenchBroom_Console
+#ifndef FileLogger_h
+#define FileLogger_h
 
-#include "StringUtils.h"
-#include "Notifier.h"
 #include "Logger.h"
-#include "View/TabBook.h"
 
-class wxString;
-class wxTextCtrl;
+#include <cstdio>
 
 namespace TrenchBroom {
-    namespace View {
-        class Console : public TabBookPage, public Logger {
-        private:
-            wxTextCtrl* m_textView;
-        public:
-            Console(wxWindow* parent);
-        private:
-            void doLog(LogLevel level, const String& message);
-            void doLog(LogLevel level, const wxString& message);
-            void logToDebugOut(LogLevel level, const wxString& message);
-            void logToConsole(LogLevel level, const wxString& message);
-        };
+    namespace IO {
+        class Path;
     }
+    
+    class FileLogger : public Logger {
+    private:
+        FILE* m_file;
+    public:
+        FileLogger(const IO::Path& filePath);
+        ~FileLogger();
+        
+        static FileLogger& instance();
+    private:
+        void doLog(LogLevel level, const String& message) override;
+        void doLog(LogLevel level, const wxString& message) override;
+    };
 }
 
-#endif /* defined(TrenchBroom_Console) */
+#endif /* FileLogger_h */

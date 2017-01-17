@@ -31,7 +31,7 @@ namespace TrenchBroom {
             Path appDirectory() {
                 return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
             }
-
+            
 #if defined __linux__
             static bool getDevMode() {
                 wxString value;
@@ -52,6 +52,10 @@ namespace TrenchBroom {
 
             Path userDataDirectory() {
                 return IO::Path(wxStandardPaths::Get().GetUserDataDir().ToStdString());
+            }
+            
+            Path logFilePath() {
+                return userDataDirectory() + IO::Path("TrenchBroom.log");
             }
         }
     }

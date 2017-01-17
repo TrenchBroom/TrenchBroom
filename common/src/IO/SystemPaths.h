@@ -28,9 +28,10 @@ namespace TrenchBroom {
         
         namespace SystemPaths {
             Path appDirectory();
-            Path logDirectory();
             Path resourceDirectory();
             Path userDataDirectory();
+
+            Path logFilePath();
         }
     }
 }

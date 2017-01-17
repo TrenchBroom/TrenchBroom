@@ -280,6 +280,7 @@ namespace TrenchBroom {
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugClipWithFace, "Clip Brush...");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrash, "Crash...");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");

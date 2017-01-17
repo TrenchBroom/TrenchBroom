@@ -188,6 +188,14 @@ namespace TrenchBroom {
                 return ::wxMkdir(path.asString());
             }
 
+            void ensureDirectoryExists(const Path& path) {
+                const Path fixedPath = fixPath(path);
+                if (fileExists(fixedPath))
+                    throw FileSystemException("Could not create directory '" + fixedPath.asString() + "': A file already exists at that path.");
+                if (!directoryExists(fixedPath))
+                    createDirectoryHelper(fixedPath);
+            }
+
             void deleteFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath))
