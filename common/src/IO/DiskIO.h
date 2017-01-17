@@ -73,6 +73,7 @@ namespace TrenchBroom {
             
             void createFile(const Path& path, const String& contents);
             void createDirectory(const Path& path);
+            void ensureDirectoryExists(const Path& path);
             void deleteFile(const Path& path);
 
             template <typename M>

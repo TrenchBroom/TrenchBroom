@@ -19,6 +19,8 @@
 
 #include "FileLogger.h"
 
+#include "Ensure.h"
+#include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 
@@ -28,7 +30,11 @@
 
 namespace TrenchBroom {
     FileLogger::FileLogger(const IO::Path& filePath) :
-    m_file(std::fopen(filePath.asString().c_str(), "w")) {}
+    m_file(NULL) {
+        IO::Disk::ensureDirectoryExists(filePath.deleteLastComponent());
+        m_file = fopen(filePath.asString().c_str(), "w");
+        ensure(m_file != NULL, "log file could not be opened");
+    }
     
     FileLogger::~FileLogger() {
         if (m_file != NULL) {
@@ -44,8 +50,10 @@ namespace TrenchBroom {
 
     void FileLogger::doLog(const LogLevel level, const String& message) {
         assert(m_file != NULL);
-        std::fprintf(m_file, "%s\n", message.c_str());
-        std::fflush(m_file);
+        if (m_file != NULL) {
+            std::fprintf(m_file, "%s\n", message.c_str());
+            std::fflush(m_file);
+        }
     }
     
     void FileLogger::doLog(const LogLevel level, const wxString& message) {
