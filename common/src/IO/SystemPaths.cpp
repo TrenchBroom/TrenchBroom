@@ -55,7 +55,7 @@ namespace TrenchBroom {
             }
             
             Path logFilePath() {
-                return IO::Path(wxStandardPaths::Get().GetUserLocalDataDir().ToStdString()) + IO::Path("TrenchBroom.log");
+                return userDataDirectory() + IO::Path("TrenchBroom.log");
             }
         }
     }
