@@ -418,16 +418,20 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     HalfEdge* firstEdge = face->boundary().front();
     HalfEdge* curEdge = firstEdge;
     do {
-        HalfEdge* previous = curEdge->previous();
-        HalfEdge* next = curEdge->next();
-        if ((previous->pointStatus(facePlane.normal, position) == Math::PointStatus::PSBelow &&
-              curEdge->pointStatus(facePlane.normal, position) != Math::PointStatus::PSBelow)) {
+        HalfEdge* prevEdge = curEdge->previous();
+        HalfEdge* nextEdge = curEdge->next();
+        const Math::PointStatus::Type prevStatus = prevEdge->pointStatus(facePlane.normal, position);
+        const Math::PointStatus::Type  curStatus =  curEdge->pointStatus(facePlane.normal, position);
+        const Math::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
+        
+        const bool curContains = curStatus == Math::PointStatus::PSInside && position.containedWithinSegment(curEdge->origin()->position(), curEdge->destination()->position());
+        
+        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow && !curContains)
             firstVisibleEdge = curEdge;
-        }
-        if ((curEdge->pointStatus(facePlane.normal, position) != Math::PointStatus::PSBelow &&
-                next->pointStatus(facePlane.normal, position) == Math::PointStatus::PSBelow)) {
+        
+        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow && !curContains)
             lastVisibleEdge = curEdge;
-        }
+        
         curEdge = curEdge->next();
     } while (curEdge != firstEdge && (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr));
     
