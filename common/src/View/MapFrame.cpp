@@ -1383,9 +1383,11 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewToggleInfoPanel:
                     event.Enable(true);
+                    event.Check(!m_vSplitter->isMaximized(m_mapView));
                     break;
                 case CommandIds::Menu::ViewToggleInspector:
                     event.Enable(true);
+                    event.Check(!m_hSplitter->isMaximized(m_vSplitter));
                     break;
                 case CommandIds::Menu::RunCompile:
                     event.Enable(canCompile());
