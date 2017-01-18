@@ -201,10 +201,9 @@ namespace TrenchBroom {
                 if (value != NullValue) {
                     const wxColor color = Model::parseEntityColor(value);
                     
-                    if (VectorUtils::setInsert(m_allColors, color, ColorCmp())) {
-                        if (attributable->selected() || attributable->descendantSelected())
-                            VectorUtils::setInsert(m_selectedColors, color, ColorCmp());
-                    }
+                    VectorUtils::setInsert(m_allColors, color, ColorCmp());
+                    if (attributable->selected() || attributable->descendantSelected())
+                        VectorUtils::setInsert(m_selectedColors, color, ColorCmp());
                 }
             }
         };

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
+#include "StringUtils.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -35,10 +36,11 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
+            String m_lastSelectedAttributeName;
         public:
             EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
             
-            void OnEntityAttributeSelected(EntityAttributeSelectedCommand& command);
+            void OnIdle(wxIdleEvent& event);
         private:
             void createGui(wxWindow* parent, MapDocumentWPtr document);
         };
