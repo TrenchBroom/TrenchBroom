@@ -749,6 +749,38 @@ TEST(PolyhedronTest, testAddPointToRectangleMakingOneColinear) {
     ASSERT_FALSE(p.hasVertex(p3));
 }
 
+TEST(PolyhedronTest, testAddExistingPoints) {
+    /*
+     p4    p3
+     *-----*
+     |     |
+     |     |
+     *-----*
+     p1    p2
+     */
+    
+    const Vec3d p1(  0.0,   0.0, 0.0);
+    const Vec3d p2(+32.0,   0.0, 0.0);
+    const Vec3d p3(+32.0, +32.0, 0.0);
+    const Vec3d p4(  0.0, +32.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    
+    ASSERT_TRUE(p.addPoint(p1) == nullptr);
+    ASSERT_TRUE(p.addPoint(p2) == nullptr);
+    ASSERT_TRUE(p.addPoint(p3) == nullptr);
+    ASSERT_TRUE(p.addPoint(p4) == nullptr);
+}
+
 TEST(PolyhedronTest, testAddManyPointsCrash) {
     const Vec3d p1( 8, 10, 0);
     const Vec3d p2( 0, 24, 0);

@@ -424,12 +424,14 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
         const Math::PointStatus::Type  curStatus =  curEdge->pointStatus(facePlane.normal, position);
         const Math::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
         
-        const bool curContains = curStatus == Math::PointStatus::PSInside && position.containedWithinSegment(curEdge->origin()->position(), curEdge->destination()->position());
+        // If the current edge contains the point, it will not be added anyway.
+        if (curStatus == Math::PointStatus::PSInside && position.containedWithinSegment(curEdge->origin()->position(), curEdge->destination()->position()))
+            return nullptr;
         
-        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow && !curContains)
+        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow)
             firstVisibleEdge = curEdge;
         
-        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow && !curContains)
+        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow)
             lastVisibleEdge = curEdge;
         
         curEdge = curEdge->next();
