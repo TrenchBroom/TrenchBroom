@@ -96,7 +96,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 
 ### wxWidgets
 - Currently you must download, patch, and build wxWidgets yourself.
-  - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
+  - Get the latest sources of wxWidgets 3 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
   - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
@@ -105,8 +105,8 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
     ```
 
-  - Create two directories: build-release and build-debug (don't rename those!)
-  - Change into wxwidgets/build-release
+  - Create two directories: `build-release` and `build-debug` (don't rename those!)
+  - Change into `wxwidgets/build-release`
   - Run 
 
     ```
@@ -120,7 +120,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     make install
     ```
 
-  - Change into wxwidgets/build-debug
+  - Change into `wxwidgets/build-debug`
   - Run 
 
     ```
@@ -135,7 +135,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     ```
 
 ### CMake
-- Install CMake using your package manager: sudo apt-get install cmake
+- Install CMake using your package manager: `sudo apt-get install cmake`
 
 ### Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
@@ -147,7 +147,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
   cmake --build . --target TrenchBroom
   ```
 
-- You can replace "Release" with "Debug" if you want to create a debug build. Also change the value of the wxWidgets_PREFIX variable to point to your wxWidgets build-debug directory in that case.
+- You can replace "Release" with "Debug" if you want to create a debug build. Also change the value of the `wxWidgets_PREFIX` variable to point to your wxWidgets `build-debug` directory in that case.
 
 ### Packaging
 - If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: devscripts, debhelper, rpm
@@ -177,7 +177,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
       ```
 
 3. wxWidgets
-    - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
+    - Get the latest sources of wxWidgets 3 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
     - Move the unpacked directory someplace where you want to keep it.
     - Open a terminal and change into the wxwidgets directory.
     - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
