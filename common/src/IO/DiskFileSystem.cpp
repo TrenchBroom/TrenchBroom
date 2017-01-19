@@ -32,7 +32,7 @@ namespace TrenchBroom {
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         m_root(Disk::fixPath(root)) {
             if (ensureExists && !Disk::directoryExists(m_root))
-                throw FileSystemException("Root directory not found: '" + m_root.asString() + "'");
+                throw FileSystemException("Directory not found: '" + m_root.asString() + "'");
         }
         
         Path DiskFileSystem::doMakeAbsolute(const Path& relPath) const {

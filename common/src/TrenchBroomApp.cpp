@@ -190,18 +190,23 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
-            String gameName;
-            Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
-            if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
+            try {
+                String gameName;
+                Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
+                if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
+                    return false;
+                
+                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GamePtr game = gameFactory.createGame(gameName);
+                ensure(game.get() != NULL, "game is null");
+                
+                MapFrame* frame = m_frameManager->newFrame();
+                frame->newDocument(game, mapFormat);
+                return true;
+            } catch (const Exception& e) {
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
                 return false;
-
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            Model::GamePtr game = gameFactory.createGame(gameName);
-            ensure(game.get() != NULL, "game is null");
-
-            MapFrame* frame = m_frameManager->newFrame();
-            frame->newDocument(game, mapFormat);
-            return true;
+            }
         }
 
         bool TrenchBroomApp::openDocument(const String& pathStr) {
