@@ -38,16 +38,17 @@ namespace TrenchBroom {
             createGui(this, document);
         }
 
-        void EntityAttributeEditor::OnEntityAttributeSelected(EntityAttributeSelectedCommand& command) {
+        void EntityAttributeEditor::OnIdle(wxIdleEvent& event) {
             if (IsBeingDeleted()) return;
 
-            MapDocumentSPtr document = lock(m_document);
-
-            const String& name = command.name();
-            const Model::AttributableNodeList& attributables = document->allSelectedAttributableNodes();
-            m_smartEditorManager->switchEditor(name, attributables);
+            const String& attributeName = m_attributeGrid->selectedRowName();
+            if (!attributeName.empty() && attributeName != m_lastSelectedAttributeName) {
+                MapDocumentSPtr document = lock(m_document);
+                m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
+                m_lastSelectedAttributeName = attributeName;
+            }
         }
-
+        
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
             SplitterWindow2* splitter = new SplitterWindow2(parent);
             splitter->setSashGravity(1.0);
@@ -67,7 +68,8 @@ namespace TrenchBroom {
             SetSizer(sizer);
             
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
-            m_attributeGrid->Bind(ENTITY_ATTRIBUTE_SELECTED_EVENT, &EntityAttributeEditor::OnEntityAttributeSelected, this);
+            
+            Bind(wxEVT_IDLE, &EntityAttributeEditor::OnIdle, this);
         }
     }
 }

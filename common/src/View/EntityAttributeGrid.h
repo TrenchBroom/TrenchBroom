@@ -90,6 +90,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
         private:
             void updateControls();
+        public:
             Model::AttributeName selectedRowName() const;
         };
     }
