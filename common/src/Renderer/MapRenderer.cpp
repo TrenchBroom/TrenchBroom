@@ -53,28 +53,28 @@ namespace TrenchBroom {
             DefaultFilter(context) {}
         private:
             void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
-                const bool brushEditable = editable(brush);
                 
-                for (const Model::BrushFace* face : brush->faces()) {
-                    if (brushEditable && (selected(face) || brushSelected) && brushVisible)
-                         faceAcceptor.accept(face);
+                if (visible(brush) && editable(brush)) {
+                    for (const Model::BrushFace* face : brush->faces()) {
+                        if (brushSelected || selected(face))
+                            faceAcceptor.accept(face);
+                    }
                 }
             }
             
             void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                const bool brushVisible = visible(brush);
                 const bool brushSelected = selected(brush);
-                const bool brushEditable = editable(brush);
                 
-                for (const Model::BrushEdge* edge : brush->edges()) {
-                    const Model::BrushFace* first = edge->firstFace()->payload();
-                    const Model::BrushFace* second = edge->secondFace()->payload();
-                    assert(second->brush() == brush);
-                    
-                    if (brushEditable && (brushSelected || selected(first) || selected(second)) && brushVisible)
-                         edgeAcceptor.accept(edge);
+                if (visible(brush) && editable(brush)) {
+                    for (const Model::BrushEdge* edge : brush->edges()) {
+                        const Model::BrushFace* first = edge->firstFace()->payload();
+                        const Model::BrushFace* second = edge->secondFace()->payload();
+                        assert(second->brush() == brush);
+                        
+                        if (brushSelected || selected(first) || selected(second))
+                            edgeAcceptor.accept(edge);
+                    }
                 }
             }
             
@@ -119,10 +119,7 @@ namespace TrenchBroom {
             DefaultFilter(context) {}
         private:
             void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                const bool brushEditable = editable(brush);
-                
-                if (brushVisible && brushEditable) {
+                if (visible(brush) && editable(brush)) {
                     for (const Model::BrushFace* face : brush->faces()) {
                         if (!selected(face))
                             faceAcceptor.accept(face);
@@ -131,11 +128,7 @@ namespace TrenchBroom {
             }
             
             void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                const bool brushSelected = selected(brush);
-                
-                
-                if (brushVisible && !brushSelected) {
+                if (visible(brush) && !selected(brush)) {
                     for (const Model::BrushEdge* edge : brush->edges()) {
                         const Model::BrushFace* first = edge->firstFace()->payload();
                         const Model::BrushFace* second = edge->secondFace()->payload();
