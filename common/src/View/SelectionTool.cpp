@@ -126,6 +126,8 @@ namespace TrenchBroom {
                     if (editorContext.selectable(face)) {
                         const Model::Brush* brush = face->brush();
                         if (isMultiClick(inputState)) {
+                            if (document->hasSelectedNodes())
+                                document->convertToFaceSelection();
                             document->select(brush->faces());
                         } else {
                             Transaction transaction(document, "Select Brush Faces");
@@ -147,6 +149,8 @@ namespace TrenchBroom {
                             const Model::Node* container = node->parent();
                             const Model::NodeList& siblings = container->children();
                             if (isMultiClick(inputState)) {
+                                if (document->hasSelectedBrushFaces())
+                                    document->deselectAll();
                                 document->select(siblings);
                             } else {
                                 Transaction transaction(document, "Select Brushes");
