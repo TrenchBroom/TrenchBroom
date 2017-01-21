@@ -365,7 +365,6 @@ namespace TrenchBroom {
             if (!isWithinClickDistance(event.GetPosition())) {
                 const bool dragStarted = m_toolBox->startMouseDrag(m_toolChain, m_inputState);
                 if (dragStarted) {
-                    std::cout << "Starting drag" << std::endl;
                     m_ignoreNextDrag = true;
                     m_inputState.setAnyToolDragging(true);
                     drag(event);
@@ -377,7 +376,6 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::drag(wxMouseEvent& event) {
-            std::cout << "Dragging" << std::endl;
             mouseMoved(event.GetPosition());
             updatePickResult();
             if (!m_toolBox->mouseDrag(m_inputState)) {
@@ -393,7 +391,6 @@ namespace TrenchBroom {
             if (clickInterval <= 100) {
                 cancelDrag();
             } else {
-                std::cout << "Ending drag" << std::endl;
                 m_toolBox->endMouseDrag(m_inputState);
                 m_toolBox->mouseUp(m_toolChain, m_inputState);
             }
@@ -406,7 +403,6 @@ namespace TrenchBroom {
 
         void ToolBoxConnector::cancelDrag() {
             if (m_toolBox->dragging()) {
-                std::cout << "Canceling drag" << std::endl;
                 m_toolBox->cancelMouseDrag();
                 m_inputState.setAnyToolDragging(false);
                 m_inputState.clearMouseButtons();
