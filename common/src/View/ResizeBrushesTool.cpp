@@ -343,6 +343,7 @@ namespace TrenchBroom {
             document->nodesWereAddedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
             document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &ResizeBrushesTool::selectionDidChange);
         }
         
         void ResizeBrushesTool::unbindObservers() {
@@ -351,10 +352,16 @@ namespace TrenchBroom {
                 document->nodesWereAddedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
                 document->nodesWillBeRemovedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &ResizeBrushesTool::selectionDidChange);
             }
         }
 
         void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
+            if (!m_resizing)
+                m_dragFaces.clear();
+        }
+
+        void ResizeBrushesTool::selectionDidChange(const Selection& selection) {
             if (!m_resizing)
                 m_dragFaces.clear();
         }

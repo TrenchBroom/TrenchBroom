@@ -56,20 +56,23 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
-            updateDragFaces(inputState);
+            if (!anyToolDragging(inputState))
+                m_tool->updateDragFaces(inputState.pickResult());
         }
         
         void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState))
-                updateDragFaces(inputState);
+            if (handleInput(inputState) && !anyToolDragging(inputState))
+                m_tool->updateDragFaces(inputState.pickResult());
         }
         
         bool ResizeBrushesToolController::doStartMouseDrag(const InputState& inputState) {
             if (!handleInput(inputState))
                 return false;
+
+            m_tool->updateDragFaces(inputState.pickResult());
             const bool split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
             if (m_tool->beginResize(inputState.pickResult(), split)) {
-                updateDragFaces(inputState);
+                m_tool->updateDragFaces(inputState.pickResult());
                 return true;
             }
             return false;
@@ -81,6 +84,7 @@ namespace TrenchBroom {
         
         void ResizeBrushesToolController::doEndMouseDrag(const InputState& inputState) {
             m_tool->commitResize();
+            m_tool->updateDragFaces(inputState.pickResult());
         }
         
         void ResizeBrushesToolController::doCancelMouseDrag() {
@@ -116,11 +120,6 @@ namespace TrenchBroom {
         
         bool ResizeBrushesToolController::doCancel() {
             return false;
-        }
-
-        void ResizeBrushesToolController::updateDragFaces(const InputState& inputState) {
-            if (!anyToolDragging(inputState))
-                m_tool->updateDragFaces(inputState.pickResult());
         }
 
         bool ResizeBrushesToolController::handleInput(const InputState& inputState) const {
