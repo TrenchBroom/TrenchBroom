@@ -30,8 +30,11 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 	- Displays 3D models in the editor
 	- Smart entity property editors
 
+## Releases
+- Binary builds are available from [releases](https://github.com/kduske/TrenchBroom/releases).
+
 ## Compiling
-- Read [Build.txt](Build.txt) for instructions
+- Read [Build.md](Build.md) for instructions
 
 # Contributing
 - Bug reports and feature suggestions are welcome. Please submit them at https://github.com/kduske/TrenchBroom/issues
@@ -52,6 +55,8 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
 
 ## Changes
+See [releases](https://github.com/kduske/TrenchBroom/releases) for latest changes.
+
 ### TrenchBroom 2.0.0 Beta 2f3c498
 - Improved vertex manipulation with more degrees of freedom.
 - Improved vertex snapping.
