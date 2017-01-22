@@ -22,6 +22,8 @@
 
 #include "Model/ModelTypes.h"
 
+#include <initializer_list>
+
 namespace TrenchBroom {
     namespace View {
         class SmartAttributeEditorMatcher {
@@ -34,9 +36,10 @@ namespace TrenchBroom {
         
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
         private:
-            Model::AttributeNameSet m_names;
+            Model::AttributeNameSet m_patterns;
         public:
-            SmartAttributeEditorKeyMatcher(const Model::AttributeName& name1, const Model::AttributeName& name2 = "", const Model::AttributeName& name3 = "", const Model::AttributeName& name4 = "", const Model::AttributeName& name5 = "");
+            SmartAttributeEditorKeyMatcher(const String& pattern);
+            SmartAttributeEditorKeyMatcher(std::initializer_list<String> patterns);
         private:
             bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
         };
