@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -147,7 +148,7 @@ namespace TrenchBroom {
                         const Model::Node* node = Model::hitToNode(hit);
                         if (editorContext.selectable(node)) {
                             const Model::Node* container = node->parent();
-                            const Model::NodeList& siblings = container->children();
+                            const Model::NodeList siblings = collectSelectableChildren(editorContext, container);
                             if (isMultiClick(inputState)) {
                                 if (document->hasSelectedBrushFaces())
                                     document->deselectAll();
@@ -189,6 +190,12 @@ namespace TrenchBroom {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
         
+        Model::NodeList SelectionTool::collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const {
+            Model::CollectSelectableNodesVisitor collect(editorContext);
+            Model::Node::accept(std::begin(node->children()), std::end(node->children()), collect);
+            return collect.nodes();
+        }
+
         void SelectionTool::doMouseScroll(const InputState& inputState) {
             if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
                 adjustGrid(inputState);
