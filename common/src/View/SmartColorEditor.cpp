@@ -179,43 +179,46 @@ namespace TrenchBroom {
             }
         };
         
-        class SmartColorEditor::CollectColorVisitor : public Model::ConstNodeVisitor {
+        class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            wxColorList m_allColors;
-            wxColorList m_selectedColors;
+            wxColorList m_colors;
         public:
-            CollectColorVisitor(const Model::AttributeName& name) : m_name(name) {}
-            const wxColorList& allColors() const { return m_allColors; }
-            const wxColorList& selectedColors() const { return m_selectedColors; }
+            CollectColorsVisitor(const Model::AttributeName& name) : m_name(name) {}
+            
+            const wxColorList& colors() const { return m_colors; }
         private:
             void doVisit(const Model::World* world)   { visitAttributableNode(world); }
             void doVisit(const Model::Layer* layer)   {}
             void doVisit(const Model::Group* group)   {}
             void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); stopRecursion(); }
             void doVisit(const Model::Brush* brush)   {}
-            
+
             void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const Model::AttributeValue NullValue("");
                 const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
-                if (value != NullValue) {
-                    const wxColor color = Model::parseEntityColor(value);
-                    
-                    VectorUtils::setInsert(m_allColors, color, ColorCmp());
-                    if (attributable->selected() || attributable->descendantSelected())
-                        VectorUtils::setInsert(m_selectedColors, color, ColorCmp());
-                }
+                if (value != NullValue)
+                    addColor(Model::parseEntityColor(value));
+            }
+
+            void addColor(const wxColor& color) {
+                VectorUtils::setInsert(m_colors, color, ColorCmp());
             }
         };
         
         void SmartColorEditor::updateColorHistory() {
-            CollectColorVisitor visitor(name());
-            document()->world()->acceptAndRecurse(visitor);
+            CollectColorsVisitor collectAllColors(name());
+            document()->world()->acceptAndRecurse(collectAllColors);
+            m_colorHistory->setColors(collectAllColors.colors());
             
-            m_colorHistory->setColors(visitor.allColors());
-            m_colorHistory->setSelection(visitor.selectedColors());
+            CollectColorsVisitor collectSelectedColors(name());
+            const Model::AttributableNodeList nodes = document()->allSelectedAttributableNodes();
+            Model::Node::accept(std::begin(nodes), std::end(nodes), collectSelectedColors);
             
-            const wxColor& color = !visitor.selectedColors().empty() ? visitor.selectedColors().back() : *wxBLACK;
+            const wxColorList& selectedColors = collectSelectedColors.colors();
+            m_colorHistory->setSelection(selectedColors);
+            
+            const wxColor& color = !selectedColors.empty() ? selectedColors.back() : *wxBLACK;
             m_colorPicker->SetColour(color);
         }
         

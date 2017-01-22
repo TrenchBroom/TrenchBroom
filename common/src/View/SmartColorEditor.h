@@ -62,7 +62,8 @@ namespace TrenchBroom {
             void doDestroyVisual();
             void doUpdateVisual(const Model::AttributableNodeList& attributables);
 
-            class CollectColorVisitor;
+            class CollectColorsVisitor;
+            
             void updateColorRange(const Model::AttributableNodeList& attributables);
             void updateColorHistory();
 
