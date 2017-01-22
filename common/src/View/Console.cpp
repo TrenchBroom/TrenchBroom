@@ -19,6 +19,7 @@
 
 #include "Console.h"
 
+#include "FileLogger.h"
 #include "View/ViewConstants.h"
 
 #include <wx/log.h>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             if (!message.empty()) {
                 logToDebugOut(level, message);
                 logToConsole(level, message);
-                logNotifier(level, message);
+                FileLogger::instance().log(level, message);
             }
         }
 

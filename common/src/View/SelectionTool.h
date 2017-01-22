@@ -21,6 +21,7 @@
 #define TrenchBroom_SelectionTool
 
 #include "Model/Hit.h"
+#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
@@ -49,6 +50,8 @@ namespace TrenchBroom {
             bool isMultiClick(const InputState& inputState) const;
             
             const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
+
+            Model::NodeList collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
             
             void doMouseScroll(const InputState& inputState);
             void adjustGrid(const InputState& inputState);

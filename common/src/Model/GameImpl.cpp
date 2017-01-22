@@ -61,15 +61,19 @@ namespace TrenchBroom {
         }
 
         void GameImpl::initializeFileSystem() {
-            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
-            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
-                for (const IO::Path& searchPath : m_additionalSearchPaths)
-                    m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
-
-                addPackages(m_gamePath + fileSystemConfig.searchPath);
-                for (const IO::Path& searchPath : m_additionalSearchPaths)
-                    addPackages(m_gamePath + searchPath);
+            try {
+                const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+                if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
+                    m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
+                    for (const IO::Path& searchPath : m_additionalSearchPaths)
+                        m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
+                    
+                    addPackages(m_gamePath + fileSystemConfig.searchPath);
+                    for (const IO::Path& searchPath : m_additionalSearchPaths)
+                        addPackages(m_gamePath + searchPath);
+                }
+            } catch (const FileSystemException& e) {
+                throw GameException("Cannot initialize game file system (" + String(e.what()) + ")");
             }
         }
 

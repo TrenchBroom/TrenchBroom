@@ -157,13 +157,13 @@
 	]
 ]
 
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/suit.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/suit.mdl") =
 	item_artifact_envirosuit : "Environmental protection suit" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/quaddama.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/quaddama.mdl") =
 	item_artifact_super_damage : "Quad damage" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/invulner.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/invulner.mdl") =
 	item_artifact_invulnerability : "Pentagram of Protection" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/invisibl.mdl") = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/invisibl.mdl") = 
 	item_artifact_invisibility : "Ring of Shadows" []
 
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl", "skin": 2 }) =

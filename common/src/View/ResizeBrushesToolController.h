@@ -65,7 +65,6 @@ namespace TrenchBroom {
             
             bool doCancel();
 
-            void updateDragFaces(const InputState& inputState);
             bool handleInput(const InputState& inputState) const;
         private:
             virtual Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) = 0;

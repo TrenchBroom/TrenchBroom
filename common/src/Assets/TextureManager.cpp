@@ -111,8 +111,7 @@ namespace TrenchBroom {
             m_texturesByName.clear();
             m_textures.clear();
             
-            if (m_logger != NULL)
-                m_logger->debug("Cleared texture collections");
+            // Remove logging because it might fail when the document is already destroyed.
         }
         
         void TextureManager::setTextureMode(const int minFilter, const int magFilter) {

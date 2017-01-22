@@ -49,8 +49,7 @@ namespace TrenchBroom {
             m_unpreparedModels.clear();
             m_unpreparedRenderers.clear();
             
-            if (m_logger != NULL)
-                m_logger->debug("Cleared entity models");
+            // Remove logging because it might fail when the document is already destroyed.
         }
         
         void EntityModelManager::setTextureMode(const int minFilter, const int magFilter) {

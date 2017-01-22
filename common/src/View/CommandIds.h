@@ -98,6 +98,7 @@ namespace TrenchBroom {
                 const int DebugCrash                         = Lowest + 130;
                 const int DebugCreateCube                    = Lowest + 131;
                 const int DebugClipWithFace                  = Lowest + 132;
+                const int DebugCrashReportDialog             = Lowest + 133;
                 
                 const int RunCompile                         = Lowest + 133;
                 const int RunLaunch                          = Lowest + 134;

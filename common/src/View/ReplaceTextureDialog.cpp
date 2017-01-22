@@ -40,10 +40,10 @@
 namespace TrenchBroom {
     namespace View {
         ReplaceTextureDialog::ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxDialog(parent, wxID_ANY, "Replace Texture", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP),
+        wxDialog(parent, wxID_ANY, "Replace Texture", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
         m_document(document),
-        m_subjectBrowser(NULL),
-        m_replacementBrowser(NULL) {
+        m_subjectBrowser(nullptr),
+        m_replacementBrowser(nullptr) {
             createGui(contextManager);
         }
         
@@ -51,10 +51,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            ensure(subject != NULL, "subject is null");
+            ensure(subject != nullptr, "subject is null");
 
             Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            ensure(replacement != NULL, "replacement is null");
+            ensure(replacement != nullptr, "replacement is null");
             
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList faces = getApplicableFaces();
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             }
             
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            ensure(subject != NULL, "subject is null");
+            ensure(subject != nullptr, "subject is null");
             
             Model::BrushFaceList result;
             std::copy_if(std::begin(faces), std::end(faces), std::back_inserter(result), [&subject](const Model::BrushFace* face) { return face->texture() == subject; });
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            event.Enable(subject != NULL && replacement != NULL);
+            event.Enable(subject != nullptr && replacement != nullptr);
         }
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
@@ -111,6 +111,7 @@ namespace TrenchBroom {
             
             TitledPanel* replacementPanel = new TitledPanel(this, "Replace with");
             m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
+            m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
             
             wxSizer* replacementPanelSizer = new wxBoxSizer(wxVERTICAL);
             replacementPanelSizer->Add(m_replacementBrowser, 1, wxEXPAND);

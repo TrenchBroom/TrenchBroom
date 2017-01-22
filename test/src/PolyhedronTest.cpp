@@ -685,6 +685,102 @@ TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
     ASSERT_TRUE(hasVertices(p, points));
 }
 
+TEST(PolyhedronTest, testAddColinearPointToRectangleOnEdge) {
+    // https://github.com/kduske/TrenchBroom/issues/1659
+    /*
+     p4 p5 p3
+     *--+--*
+     |     |
+     |     |
+     *-----*
+     p1    p2
+     */
+    
+    const Vec3d p1(  0.0,   0.0, 0.0);
+    const Vec3d p2(+32.0,   0.0, 0.0);
+    const Vec3d p3(+32.0, +32.0, 0.0);
+    const Vec3d p4(  0.0, +32.0, 0.0);
+    const Vec3d p5(+16.0, +32.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    
+    ASSERT_TRUE(p.addPoint(p5) == nullptr);
+    ASSERT_FALSE(p.hasVertex(p5));
+}
+
+TEST(PolyhedronTest, testAddPointToRectangleMakingOneColinear) {
+    /*
+     p4    p3  p5
+     *-----*   +
+     |     |
+     |     |
+     *-----*
+     p1    p2
+     */
+    
+    const Vec3d p1(  0.0,   0.0, 0.0);
+    const Vec3d p2(+32.0,   0.0, 0.0);
+    const Vec3d p3(+32.0, +32.0, 0.0);
+    const Vec3d p4(  0.0, +32.0, 0.0);
+    const Vec3d p5(+40.0, +32.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    
+    ASSERT_TRUE(p.addPoint(p5) != nullptr);
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_FALSE(p.hasVertex(p3));
+}
+
+TEST(PolyhedronTest, testAddExistingPoints) {
+    /*
+     p4    p3
+     *-----*
+     |     |
+     |     |
+     *-----*
+     p1    p2
+     */
+    
+    const Vec3d p1(  0.0,   0.0, 0.0);
+    const Vec3d p2(+32.0,   0.0, 0.0);
+    const Vec3d p3(+32.0, +32.0, 0.0);
+    const Vec3d p4(  0.0, +32.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    
+    ASSERT_TRUE(p.addPoint(p1) == nullptr);
+    ASSERT_TRUE(p.addPoint(p2) == nullptr);
+    ASSERT_TRUE(p.addPoint(p3) == nullptr);
+    ASSERT_TRUE(p.addPoint(p4) == nullptr);
+}
+
 TEST(PolyhedronTest, testAddManyPointsCrash) {
     const Vec3d p1( 8, 10, 0);
     const Vec3d p2( 0, 24, 0);

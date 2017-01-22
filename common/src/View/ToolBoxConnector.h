@@ -97,9 +97,14 @@ namespace TrenchBroom {
         private:
             bool isWithinClickDistance(const wxPoint& pos) const;
             
+            void startDrag(wxMouseEvent& event);
+            void drag(wxMouseEvent& event);
+            void endDrag(wxMouseEvent& event);
+            void cancelDrag();
+
             void captureMouse();
             void releaseMouse();
-            void cancelDrag();
+
             
             ModifierKeyState modifierKeys();
             bool setModifierKeys();

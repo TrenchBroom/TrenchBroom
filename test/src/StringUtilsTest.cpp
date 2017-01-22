@@ -230,7 +230,7 @@ namespace StringUtils {
         ASSERT_FALSE(caseSensitiveSuffix("asdf", "asdF"));
     }
     
-    TEST(StringUtilsTest, matchesPattern) {
+    TEST(StringUtilsTest, caseSensitiveMatchesPattern) {
         ASSERT_TRUE(caseSensitiveMatchesPattern("", ""));
         ASSERT_TRUE(caseSensitiveMatchesPattern("", "*"));
         ASSERT_FALSE(caseSensitiveMatchesPattern("", "?"));
@@ -247,6 +247,11 @@ namespace StringUtils {
         ASSERT_TRUE(caseSensitiveMatchesPattern("asd*fjkl", "asd\\*fjkl"));
         ASSERT_TRUE(caseSensitiveMatchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
 
+        ASSERT_FALSE(caseSensitiveMatchesPattern("classname", "*_color"));
+        
+    }
+    
+    TEST(StringUtilsTest, caseInsensitiveMatchesPattern) {
         ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "asdf"));
         ASSERT_TRUE(caseInsensitiveMatchesPattern("AsdF", "*"));
         ASSERT_TRUE(caseInsensitiveMatchesPattern("ASdf", "a??f"));
@@ -259,6 +264,7 @@ namespace StringUtils {
         ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "*a*f*l*"));
         ASSERT_TRUE(caseInsensitiveMatchesPattern("ASd*fjKl", "asd\\*fjkl"));
         ASSERT_TRUE(caseInsensitiveMatchesPattern("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
+        
     }
     
     TEST(StringUtilsTest, escape) {

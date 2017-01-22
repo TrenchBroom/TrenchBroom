@@ -57,7 +57,7 @@ namespace TrenchBroom {
         void SmartAttributeEditorManager::createEditors() {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
                                                   EditorPtr(new SmartSpawnflagsEditor(m_document))));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("_color", "_sunlight_color", "_sunlight_color2")),
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
                                                   EditorPtr(new SmartColorEditor(m_document))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
                                                   EditorPtr(new SmartChoiceEditor(m_document))));

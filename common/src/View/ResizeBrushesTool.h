@@ -37,6 +37,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Selection;
+        
         class ResizeBrushesTool : public Tool {
         private:
             static const Model::Hit::HitType ResizeHit3D;
@@ -83,6 +85,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void nodesDidChange(const Model::NodeList& nodes);
+            void selectionDidChange(const Selection& selection);
         };
     }
 }

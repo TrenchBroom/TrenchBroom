@@ -42,9 +42,12 @@ namespace TrenchBroom {
         class CellView : public RenderView {
         protected:
             typedef CellLayout<CellData, GroupData> Layout;
+            typedef typename Layout::Group Group;
+            typedef typename Group::Row Row;
+            typedef typename Row::Cell Cell;
         private:
             Layout m_layout;
-            typename Layout::Group::Row::Cell* m_selectedCell;
+            Cell* m_selectedCell;
             bool m_layoutInitialized;
             
             bool m_valid;
@@ -53,7 +56,7 @@ namespace TrenchBroom {
             wxPoint m_lastMousePos;
 
             void updateScrollBar() {
-                if (m_scrollBar != NULL) {
+                if (m_scrollBar != nullptr) {
                     int position = m_scrollBar->GetThumbPosition();
                     int thumbSize = GetClientSize().y;
                     int range = static_cast<int>(m_layout.height());
@@ -81,7 +84,7 @@ namespace TrenchBroom {
                     reloadLayout();
             }
         public:
-            CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = NULL) :
+            CellView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs, wxScrollBar* scrollBar = nullptr) :
             RenderView(parent, contextManager, attribs),
             m_layoutInitialized(false),
             m_valid(false),
@@ -93,7 +96,7 @@ namespace TrenchBroom {
                 Bind(wxEVT_MOTION, &CellView::OnMouseMove, this);
                 Bind(wxEVT_MOUSE_CAPTURE_LOST, &CellView::OnMouseCaptureLost, this);
 
-                if (m_scrollBar != NULL) {
+                if (m_scrollBar != nullptr) {
                     m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellView::OnScrollBarLineUp, this);
                     m_scrollBar->Bind(wxEVT_SCROLL_LINEDOWN, &CellView::OnScrollBarLineDown, this);
                     m_scrollBar->Bind(wxEVT_SCROLL_PAGEUP, &CellView::OnScrollBarPageUp, this);
@@ -184,10 +187,10 @@ namespace TrenchBroom {
 
             void startDrag(const wxMouseEvent& event) {
                 if (dndEnabled()) {
-                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                    int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                     float x = static_cast<float>(event.GetX());
                     float y = static_cast<float>(event.GetY() + top);
-                    const typename Layout::Group::Row::Cell* cell = NULL;
+                    const Cell* cell = nullptr;
                     if (m_layout.cellAt(x, y, &cell)) {
                         /*
                          wxImage* feedbackImage = dndImage(*cell);
@@ -204,7 +207,7 @@ namespace TrenchBroom {
             }
             
             void scroll(const wxMouseEvent& event) {
-                if (m_scrollBar != NULL) {
+                if (m_scrollBar != nullptr) {
                     const wxPoint mousePosition = event.GetPosition();
                     const wxCoord delta = mousePosition.y - m_lastMousePos.y;
                     const wxCoord newThumbPosition = m_scrollBar->GetThumbPosition() - delta;
@@ -214,10 +217,10 @@ namespace TrenchBroom {
             }
             
             void updateTooltip(const wxMouseEvent& event) {
-                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
-                const typename Layout::Group::Row::Cell* cell = NULL;
+                const typename Layout::Group::Row::Cell* cell = nullptr;
                 if (m_layout.cellAt(x, y, &cell))
                     SetToolTip(tooltip(*cell));
                 else
@@ -240,14 +243,14 @@ namespace TrenchBroom {
             }
             
             void OnMouseLeftUp(wxMouseEvent& event) {
-                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
                 doLeftClick(m_layout, x, y);
             }
 
             void OnMouseWheel(wxMouseEvent& event) {
-                if (m_scrollBar != NULL) {
+                if (m_scrollBar != nullptr) {
                     const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                     float newTop = event.GetWheelRotation() < 0 ? m_layout.rowPosition(top, 1) : m_layout.rowPosition(top, -1);
                     newTop = std::max(0.0f, std::ceil(newTop - m_layout.rowMargin()));
@@ -263,7 +266,7 @@ namespace TrenchBroom {
                 if (!m_layoutInitialized)
                     initLayout();
 
-                const int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                const int top = m_scrollBar != nullptr ? m_scrollBar->GetThumbPosition() : 0;
                 const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
                 
                 const float y = static_cast<float>(visibleRect.GetY());
@@ -298,9 +301,9 @@ namespace TrenchBroom {
             virtual bool dndEnabled() { return false; }
             virtual void dndWillStart() {}
             virtual void dndDidEnd() {}
-            virtual wxImage dndImage(const typename Layout::Group::Row::Cell& cell) { assert(false); return wxImage(); }
-            virtual wxString dndData(const typename Layout::Group::Row::Cell& cell) { assert(false); return ""; }
-            virtual wxString tooltip(const typename Layout::Group::Row::Cell& cell) { return ""; }
+            virtual wxImage dndImage(const Cell& cell) { assert(false); return wxImage(); }
+            virtual wxString dndData(const Cell& cell) { assert(false); return ""; }
+            virtual wxString tooltip(const Cell& cell) { return ""; }
         };
     }
 }

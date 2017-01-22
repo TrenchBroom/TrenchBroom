@@ -27,21 +27,22 @@ namespace TrenchBroom {
             return doMatches(name, attributables);
         }
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const Model::AttributeName& name1, const Model::AttributeName& name2, const Model::AttributeName& name3, const Model::AttributeName& name4, const Model::AttributeName& name5) {
-            if (!name1.empty())
-                m_names.insert(name1);
-            if (!name2.empty())
-                m_names.insert(name2);
-            if (!name3.empty())
-                m_names.insert(name3);
-            if (!name4.empty())
-                m_names.insert(name4);
-            if (!name5.empty())
-                m_names.insert(name5);
-        }
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const String& pattern) :
+        SmartAttributeEditorKeyMatcher({ pattern }) {}
+        
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<String> patterns) :
+        m_patterns(patterns) {}
         
         bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
-            return !attributables.empty() && m_names.count(name) > 0;
+            if (attributables.empty())
+                return false;
+            
+            for (const String& pattern : m_patterns) {
+                if (StringUtils::caseSensitiveMatchesPattern(name, pattern))
+                    return true;
+            }
+            
+            return false;
         }
 
         bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {

@@ -256,7 +256,6 @@ namespace TrenchBroom {
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
-                std::cout << "Begin Drag" << std::endl;
             }
             
             void doBeginDragLastPoint() {
@@ -302,14 +301,12 @@ namespace TrenchBroom {
             
             void doEndDragPoint() {
                 m_dragIndex = 4;
-                std::cout << "End Drag" << std::endl;
             }
 
             void doCancelDragPoint() {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 m_points[m_dragIndex] = m_originalPoint;
                 m_dragIndex = 4;
-                std::cout << "Cancel Drag" << std::endl;
             }
 
             bool doSetFace(const Model::BrushFace* face) {

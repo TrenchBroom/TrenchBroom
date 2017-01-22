@@ -166,13 +166,6 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES OUTPUT_NAME "trenchbroom")
 ENDIF()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # Copy application icon to resources directory
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/linux/icons/icon_16.png" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.png"
-    )
-ENDIF()
-
 # Set up the resources and DLLs for the executable
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy button images to resources directory
