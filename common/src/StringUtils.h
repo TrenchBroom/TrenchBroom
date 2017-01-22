@@ -226,16 +226,11 @@ namespace StringUtils {
         
 		// If the pattern is a star and the string is consumed
 		if (*patCur == '*' && strCur == strEnd)
-			return true;
+            return matchesPattern(strCur, strEnd, patCur + 1, patEnd, eq);
 
 		// If the pattern is a '?' and the string is consumed
 		if (*patCur == '?' && strCur == strEnd)
 			return false;
-
-        // Make sure that the characters after '*' are present in the string.
-        // This assumes that the pattern will not contain two consecutive '*'
-        if (*patCur == '*' && (patCur + 1) != patEnd && strCur == strEnd)
-            return false;
 
         // If the pattern contains '?', or current characters of both strings match
         if (*patCur == '?' || eq(*patCur, *strCur))
