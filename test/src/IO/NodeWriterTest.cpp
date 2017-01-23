@@ -380,19 +380,18 @@ namespace TrenchBroom {
             
             Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", R"'("holy damn", he said)'");
+            map.addOrUpdateAttribute("message", "\"holy damn\", he said");
             
             StringStream str;
             NodeWriter writer(&map, str);
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ(R"'(// entity 0
-{
-"classname" "worldspawn"
-"message" "\"holy damn\", he said"
-}
-)'", result.c_str());
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
+                         "\"classname\" \"worldspawn\"\n"
+                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
+                         "}\n", result.c_str());
         }
     }
 }

@@ -651,12 +651,10 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
-            const String data(R"'(
-                              {
-                              "classname" "worldspawn"
-                              "message" "yay \"Mr. Robot!\""
-                              }
-                              )'");
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"yay \\\"Mr. Robot!\\\"\""
+                              "}");
             BBox3 worldBounds(8192);
             
             IO::TestParserStatus status;
@@ -669,7 +667,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ(R"'(yay "Mr. Robot!")'", world->attribute("message").c_str());
+            ASSERT_STREQ("yay \"Mr. Robot!\"", world->attribute("message").c_str());
             
             delete world;
         }
