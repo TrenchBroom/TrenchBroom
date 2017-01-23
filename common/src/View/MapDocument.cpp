@@ -29,6 +29,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
+#include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
+#include "Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -1522,6 +1524,8 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
+            m_world->registerIssueGenerator(new Model::AttributeNameWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
         }
         
         bool MapDocument::persistent() const {

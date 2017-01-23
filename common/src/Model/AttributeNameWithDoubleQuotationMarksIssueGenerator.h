@@ -17,25 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LongAttributeValueIssueGenerator_h
-#define LongAttributeValueIssueGenerator_h
+#ifndef AttributeNameWithDoubleQuotationMarksIssueGenerator_h
+#define AttributeNameWithDoubleQuotationMarksIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class LongAttributeValueIssueGenerator : public IssueGenerator {
+        class AttributeNameWithDoubleQuotationMarksIssueGenerator : public IssueGenerator {
         private:
-            class LongAttributeValueIssue;
-            class TruncateLongAttributeValueIssueQuickFix;
-        private:
-            size_t m_maxLength;
+            class AttributeNameWithDoubleQuotationMarksIssue;
         public:
-            LongAttributeValueIssueGenerator(size_t maxLength);
+            AttributeNameWithDoubleQuotationMarksIssueGenerator();
         private:
             void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }
 }
-#endif /* LongAttributeValueIssueGenerator_h */
+#endif /* AttributeNameWithDoubleQuotationMarksIssueGenerator_h */
