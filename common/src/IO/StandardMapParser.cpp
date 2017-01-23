@@ -31,11 +31,11 @@ namespace TrenchBroom {
         }
 
         QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "", 0),
+        Tokenizer(begin, end, "\"", '\\'),
         m_skipEol(true) {}
         
         QuakeMapTokenizer::QuakeMapTokenizer(const String& str) :
-        Tokenizer(str, "", 0),
+        Tokenizer(str, "\"", '\\'),
         m_skipEol(true) {}
         
         void QuakeMapTokenizer::setSkipEol(bool skipEol) {
@@ -263,13 +263,13 @@ namespace TrenchBroom {
         void StandardMapParser::parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
-            const String name = token.data();
+            const String name = m_tokenizer.unescapeString(token.data());
             
             const size_t line = token.line();
             const size_t column = token.column();
             
             expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
-            const String value = token.data();
+            const String value = m_tokenizer.unescapeString(token.data());
             
             if (names.count(name) == 0) {
                 attributes.push_back(Model::EntityAttribute(name, value, NULL));

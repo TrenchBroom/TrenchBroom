@@ -373,5 +373,26 @@ namespace TrenchBroom {
             
             delete brush;
         }
+
+        
+        TEST(NodeWriterTest, writePropertiesWithQuotationMarks) {
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.addOrUpdateAttribute("message", R"'("holy damn", he said)'");
+            
+            StringStream str;
+            NodeWriter writer(&map, str);
+            writer.writeMap();
+            
+            const String result = str.str();
+            ASSERT_STREQ(R"'(// entity 0
+{
+"classname" "worldspawn"
+"message" "\"holy damn\", he said"
+}
+)'", result.c_str());
+        }
     }
 }

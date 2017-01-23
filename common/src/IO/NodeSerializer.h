@@ -112,6 +112,8 @@ namespace TrenchBroom {
         private:
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
+        protected:
+            String escapeEntityAttribute(const String& str) const;
         private:
             virtual void doBeginFile() = 0;
             virtual void doEndFile() = 0;

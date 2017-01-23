@@ -244,7 +244,9 @@ namespace TrenchBroom {
         }
         
         void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) { 
-            std::fprintf(m_stream, "\"%s\" \"%s\"\n", attribute.name().c_str(), attribute.value().c_str());
+            std::fprintf(m_stream, "\"%s\" \"%s\"\n",
+                         escapeEntityAttribute( attribute.name()).c_str(),
+                         escapeEntityAttribute(attribute.value()).c_str());
             ++m_line;
         }
         

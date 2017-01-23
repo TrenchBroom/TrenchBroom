@@ -650,6 +650,30 @@ namespace TrenchBroom {
             delete world;
         }
 
+        TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
+            const String data(R"'(
+                              {
+                              "classname" "worldspawn"
+                              "message" "yay \"Mr. Robot!\""
+                              }
+                              )'");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ(R"'(yay "Mr. Robot!")'", world->attribute("message").c_str());
+            
+            delete world;
+        }
+
         /*
         TEST(WorldReaderTest, parseIssueIgnoreFlags) {
             const String data("{"

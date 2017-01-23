@@ -192,5 +192,9 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)));
             return attrs;
         }
+
+        String NodeSerializer::escapeEntityAttribute(const String& str) const {
+            return StringUtils::escape(str, "\"", '\\');
+        }
     }
 }

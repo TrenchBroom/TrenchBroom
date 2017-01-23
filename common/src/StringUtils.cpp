@@ -220,30 +220,30 @@ namespace StringUtils {
         return buffer.str();
     }
     
-    String escape(const String& str, const String& chars) {
+    String escape(const String& str, const String& chars, const char esc) {
         if (str.empty())
             return str;
         
         StringStream buffer;
         for (size_t i = 0; i < str.size(); ++i) {
             const char c = str[i];
-            if (c == '\\' || chars.find_first_of(c) != String::npos)
-                buffer << '\\';
+            if (c == esc || chars.find_first_of(c) != String::npos)
+                buffer << esc;
             buffer << c;
         }
         return buffer.str();
     }
 
-    String unescape(const String& str, const String& chars) {
+    String unescape(const String& str, const String& chars, const char esc) {
         if (str.empty())
             return str;
         
         StringStream buffer;
         for (size_t i = 0; i < str.size(); ++i) {
             const char c = str[i];
-            if (c == '\\' && i < str.size() - 1) {
+            if (c == esc && i < str.size() - 1) {
                 const char d = str[i+1];
-                if (d != '\\' && chars.find_first_of(d) == String::npos)
+                if (d != esc && chars.find_first_of(d) == String::npos)
                     buffer << c;
             } else {
                 buffer << c;

@@ -78,6 +78,7 @@ namespace TrenchBroom {
             size_t column() const;
             
             bool escaped() const;
+            String unescape(const String& str);
             
             bool eof() const;
             bool eof(const char* ptr) const;
@@ -173,6 +174,10 @@ namespace TrenchBroom {
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
 
+            String unescapeString(const String& str) const {
+                return m_state->unescape(str);
+            }
+            
             void reset() {
                 m_state->reset();
             }
