@@ -62,10 +62,10 @@ namespace TrenchBroom {
         AttributeNameWithDoubleQuotationMarksIssueGenerator::AttributeNameWithDoubleQuotationMarksIssueGenerator() :
         IssueGenerator(AttributeNameWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys") {
             addQuickFix(new RemoveEntityAttributesQuickFix(AttributeNameWithDoubleQuotationMarksIssue::Type));
-            addQuickFix(transformEntityAttributesQuickFix(AttributeNameWithDoubleQuotationMarksIssue::Type,
-                                                          "Replace \" with '",
-                                                          [] (const AttributeName& name)   { return StringUtils::replaceAll(name, "\"", "'"); },
-                                                          [] (const AttributeValue& value) { return value; }));
+            addQuickFix(new TransformEntityAttributesQuickFix(AttributeNameWithDoubleQuotationMarksIssue::Type,
+                                                              "Replace \" with '",
+                                                              [] (const AttributeName& name)   { return StringUtils::replaceAll(name, "\"", "'"); },
+                                                              [] (const AttributeValue& value) { return value; }));
         }
         
         void AttributeNameWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {

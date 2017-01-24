@@ -29,47 +29,18 @@ namespace TrenchBroom {
     namespace Model {
         class MapFacade;
         
-        template <typename NameTransform, typename ValueTransform>
         class TransformEntityAttributesQuickFix : public IssueQuickFix {
+        public:
+            typedef std::function<AttributeName(const AttributeName&)> NameTransform;
+            typedef std::function<AttributeValue(const AttributeValue&)> ValueTransform;
         private:
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;
         public:
-            TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
-            IssueQuickFix(issueType, description),
-            m_nameTransform(nameTransform),
-            m_valueTransform(valueTransform) {}
+            TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
         private:
-            void doApply(MapFacade* facade, const Issue* issue) const override {
-                const PushSelection push(facade);
-                
-                const AttributeIssue* attrIssue = static_cast<const AttributeIssue*>(issue);
-                const AttributeName& oldName = attrIssue->attributeName();
-                const AttributeValue& oldValue = attrIssue->attributeValue();
-                const AttributeName newName = m_nameTransform(oldName);
-                const AttributeValue newValue = m_valueTransform(oldValue);
-                
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
-                
-                facade->deselectAll();
-                facade->select(issue->node());
-                
-                if (newName.empty()) {
-                    facade->removeAttribute(attrIssue->attributeName());
-                } else {
-                    if (newName != oldName)
-                        facade->renameAttribute(oldName, newName);
-                    if (newValue != oldValue)
-                        facade->setAttribute(newName, newValue);
-                }
-            }
+            void doApply(MapFacade* facade, const Issue* issue) const override;
         };
-        
-        template <typename N, typename V>
-        TransformEntityAttributesQuickFix<N, V>* transformEntityAttributesQuickFix(const IssueType issueType, const String& description, const N& nameTransform, const V& valueTransform) {
-            return new TransformEntityAttributesQuickFix<N, V>(issueType, description, nameTransform, valueTransform);
-        }
     }
 }
 
