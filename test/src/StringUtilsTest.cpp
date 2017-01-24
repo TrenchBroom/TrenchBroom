@@ -291,5 +291,6 @@ namespace StringUtils {
         ASSERT_EQ(String("asdf"), StringUtils::unescape("\\asdf", "a"));
         ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\", ""));
         ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\\\", ""));
+        ASSERT_EQ(String("asdf\\\\"), StringUtils::unescape("asdf\\\\\\\\", ""));
     }
 }

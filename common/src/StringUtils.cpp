@@ -238,17 +238,25 @@ namespace StringUtils {
         if (str.empty())
             return str;
         
+        bool escaped = false;
         StringStream buffer;
         for (size_t i = 0; i < str.size(); ++i) {
             const char c = str[i];
-            if (c == esc && i < str.size() - 1) {
-                const char d = str[i+1];
-                if (d != esc && chars.find_first_of(d) == String::npos)
+            if (c == esc) {
+                if (escaped)
                     buffer << c;
+                escaped = !escaped;
             } else {
+                if (escaped && chars.find_first_of(c) == String::npos)
+                    buffer << '\\';
                 buffer << c;
+                escaped = false;
             }
         }
+        
+        if (escaped)
+            buffer << '\\';
+        
         return buffer.str();
     }
 
