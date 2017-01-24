@@ -28,7 +28,6 @@ namespace TrenchBroom {
         class LongAttributeNameIssueGenerator : public IssueGenerator {
         private:
             class LongAttributeNameIssue;
-            class LongAttributeNameIssueQuickFix;
         private:
             size_t m_maxLength;
         public:

@@ -97,5 +97,12 @@ namespace TrenchBroom {
             type = (type << 1);
             return result;
         }
+
+        AttributeIssue::~AttributeIssue() {}
+
+        const AttributeValue& AttributeIssue::attributeValue() const {
+            const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+            return attributableNode->attribute(attributeName());
+        }
     }
 }

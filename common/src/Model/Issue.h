@@ -55,6 +55,15 @@ namespace TrenchBroom {
             virtual IssueType doGetType() const = 0;
             virtual const String doGetDescription() const = 0;
         };
+
+        class AttributeIssue : public Issue {
+        public:
+            using Issue::Issue;
+            
+            virtual ~AttributeIssue();
+            virtual const AttributeName& attributeName() const = 0;
+            const AttributeValue& attributeValue() const;
+        };
     }
 }
 

@@ -41,10 +41,6 @@ namespace TrenchBroom {
         class TextureManager;
     }
     
-    namespace IO {
-        class MapWriter;
-    }
-    
     namespace Model {
         class BrushContentTypeBuilder;
         

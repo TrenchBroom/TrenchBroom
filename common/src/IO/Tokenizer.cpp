@@ -69,6 +69,14 @@ namespace TrenchBroom {
             return !eof() && m_escaped && m_escapableChars.find(curChar()) != String::npos;
         }
         
+        String TokenizerState::unescape(const String& str) {
+            return StringUtils::unescape(str, m_escapableChars, m_escapeChar);
+        }
+        
+        void TokenizerState::resetEscaped() {
+            m_escaped = false;
+        }
+
         bool TokenizerState::eof() const {
             return eof(m_cur);
         }

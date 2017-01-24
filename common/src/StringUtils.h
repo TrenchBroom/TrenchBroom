@@ -253,8 +253,8 @@ namespace StringUtils {
     String replaceChars(const String& str, const String& needles, const String& replacements);
     String replaceAll(const String& str, const String& needle, const String& replacement);
     String capitalize(const String& str);
-    String escape(const String& str, const String& chars);
-    String unescape(const String& str, const String& chars);
+    String escape(const String& str, const String& chars, char esc = '\\');
+    String unescape(const String& str, const String& chars, char esc = '\\');
 
     int stringToInt(const String& str);
     long stringToLong(const String& str);
