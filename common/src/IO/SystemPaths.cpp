@@ -32,7 +32,7 @@ namespace TrenchBroom {
                 return IO::Path(wxStandardPaths::Get().GetExecutablePath().ToStdString()).deleteLastComponent();
             }
             
-#if defined __linux__
+#if defined __linux__ || defined __FreeBSD__
             static bool getDevMode() {
                 wxString value;
                 if (!wxGetEnv("TB_DEV_MODE", &value))
@@ -42,7 +42,7 @@ namespace TrenchBroom {
 #endif
             
             Path resourceDirectory() {
-#if defined __linux__
+#if defined __linux__ || defined __FreeBSD__
                 static const bool DevMode = getDevMode();
                 if (DevMode)
                     return appDirectory();
