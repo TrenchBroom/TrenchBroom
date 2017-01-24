@@ -671,6 +671,28 @@ namespace TrenchBroom {
             
             delete world;
         }
+        
+        TEST(WorldReaderTest, parseAttributeWithPathAndTrailingBackslash) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"path\" \"c:\\a\\b\\c\\\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
+            
+            delete world;
+        }
 
         /*
         TEST(WorldReaderTest, parseIssueIgnoreFlags) {

@@ -79,6 +79,7 @@ namespace TrenchBroom {
             
             bool escaped() const;
             String unescape(const String& str);
+            void resetEscaped();
             
             bool eof() const;
             bool eof(const char* ptr) const;
@@ -321,10 +322,16 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* readQuotedString(const char delim = '"') {
-                while (!eof() && (curChar() != delim || isEscaped()))
+            const char* readQuotedString(const char delim = '"', const String& hackDelims = "") {
+                while (!eof() && (curChar() != delim || isEscaped())) {
+                    // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
+                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != String::npos) {
+                        m_state->resetEscaped();
+                        break;
+                    }
                     advance();
-                m_state->errorIfEof();
+                }
+                errorIfEof();
                 const char* end = curPos();
                 advance();
                 return end;
@@ -381,6 +388,10 @@ namespace TrenchBroom {
                 ParserException e;
                 e << "Unexpected character '" << c << "'";
                 throw e;
+            }
+            
+            void errorIfEof() const {
+                m_state->errorIfEof();
             }
         protected:
             bool isAnyOf(const char c, const String& allow) const {

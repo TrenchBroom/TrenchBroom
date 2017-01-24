@@ -80,7 +80,7 @@ namespace TrenchBroom {
                     case '"': { // quoted string
                         advance();
                         c = curPos();
-                        const char* e = readQuotedString();
+                        const char* e = readQuotedString('"', "\n}");
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                     case '\n':
