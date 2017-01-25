@@ -185,7 +185,7 @@ namespace TrenchBroom {
         }
         
         void UVViewHelper::computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
-            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
+            const Vec3::Array viewportVertices = toTex * m_camera.viewportVertices();
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             assert(valid());
             
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const BBox3 bounds(toTex * Vec3::asList(m_face->vertices().begin(), m_face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
+            const BBox3 bounds(toTex * Vec3::asArray(m_face->vertices().begin(), m_face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
             
             const Vec3 vertices[] = {
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
@@ -274,9 +274,9 @@ namespace TrenchBroom {
             const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
-            const Model::BrushFace::VertexList vertices = m_face->vertices();
-            Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
-            Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
+            const Model::BrushFace::VertexArray vertices = m_face->vertices();
+            Model::BrushFace::VertexArray::const_iterator it = std::begin(vertices);
+            Model::BrushFace::VertexArray::const_iterator end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end)
