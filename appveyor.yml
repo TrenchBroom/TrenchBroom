@@ -14,26 +14,30 @@ install:
 - ps: 7z x dll.7z -oc:\wxWidgets-3.1.0
 - ps: 7z x pdb.7z -oc:\wxWidgets-3.1.0
 build_script:
-- ps: >-
-    $env:Path += ";c:\wxWidgets-3.1.0\lib\vc140_dll"
-
-    $env:WXWIN="c:\wxWidgets-3.1.0"
-
-    $env:Path += ";C:\Program Files (x86)\Pandoc"
+- cmd: >-
+    PATH=%PATH%;c:\wxWidgets-3.1.0\lib\vc140_dll
+    PATH=%PATH%;C:\Program Files (x86)\Pandoc
+    SET WXWIN="c:\wxWidgets-3.1.0"
 
     mkdir cmakebuild
-
     cd cmakebuild
 
     cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
 
     msbuild PACKAGE.vcxproj /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-    if ($LastExitCode -ne 0) { throw "Building TrenchBroom failed" }
+    IF ERRORLEVEL 1 GOTO ERROR
 
-    generate_checksum.bat
+    call generate_checksum.bat
 
-    .\Release\TrenchBroom-Test.exe
+    Release\TrenchBroom-Test.exe
+
+    GOTO END
+
+    :ERROR
+    echo "Building TrenchBroom failed"
+
+    :END
 artifacts:
 - path: cmakebuild\*.7z
 - path: cmakebuild\*.7z.md5
