@@ -137,8 +137,8 @@ namespace TrenchBroom {
             bool isVertexCommand(const Command::Ptr command) const;
             
             void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWillChange(const Model::NodeArray& nodes);
+            void nodesDidChange(const Model::NodeArray& nodes);
         private: // implement Tool interface
             String doGetIconName() const;
         };
