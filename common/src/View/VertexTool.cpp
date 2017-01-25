@@ -116,15 +116,15 @@ namespace TrenchBroom {
         
         void VertexTool::select(const Lasso& lasso, const bool modifySelection) {
             if (m_handleManager.selectedEdgeCount() > 0) {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.edgeHandlePositions());
+                const Vec3::Array contained = lasso.containedPoints(m_handleManager.edgeHandlePositions());
                 if (!modifySelection) m_handleManager.deselectAllEdgeHandles();
                 m_handleManager.toggleEdgeHandles(contained);
             } else if (m_handleManager.selectedFaceCount() > 0) {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.faceHandlePositions());
+                const Vec3::Array contained = lasso.containedPoints(m_handleManager.faceHandlePositions());
                 if (!modifySelection) m_handleManager.deselectAllFaceHandles();
                 m_handleManager.toggleFaceHandles(contained);
             } else {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.vertexHandlePositions());
+                const Vec3::Array contained = lasso.containedPoints(m_handleManager.vertexHandlePositions());
                 if (!modifySelection) m_handleManager.deselectAllVertexHandles();
                 m_handleManager.toggleVertexHandles(contained);
             }
@@ -439,14 +439,14 @@ namespace TrenchBroom {
 
             const SetBool ignoreChangeNotifications(m_ignoreChangeNotifications);
             
-            const Vec3::List selectedVertexHandles = m_handleManager.selectedVertexHandlePositions();
-            const Vec3::List selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
-            const Vec3::List selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
+            const Vec3::Array selectedVertexHandles = m_handleManager.selectedVertexHandlePositions();
+            const Vec3::Array selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
+            const Vec3::Array selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
             
             const Model::BrushSet brushes = m_handleManager.selectedBrushes();
             
             m_handleManager.removeBrushes(std::begin(brushes), std::end(brushes));
-            document->rebuildBrushGeometry(Model::BrushList(std::begin(brushes), std::end(brushes)));
+            document->rebuildBrushGeometry(Model::BrushArray(std::begin(brushes), std::end(brushes)));
             m_handleManager.addBrushes(std::begin(brushes), std::end(brushes));
 
             m_handleManager.reselectVertexHandles(brushes, selectedVertexHandles, 0.01);
@@ -459,7 +459,7 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
             m_handleManager.clear();
             
-            const Model::BrushList& selectedBrushes = document->selectedNodes().brushes();
+            const Model::BrushArray& selectedBrushes = document->selectedNodes().brushes();
             m_handleManager.addBrushes(std::begin(selectedBrushes), std::end(selectedBrushes));
             m_changeCount = 0;
             
@@ -604,23 +604,23 @@ namespace TrenchBroom {
         };
 
         void VertexTool::selectionDidChange(const Selection& selection) {
-            const Model::NodeList& selectedNodes = selection.selectedNodes();
+            const Model::NodeArray& selectedNodes = selection.selectedNodes();
             AddToHandleManager addVisitor(m_handleManager);
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), addVisitor);
             
-            const Model::NodeList& deselectedNodes = selection.deselectedNodes();
+            const Model::NodeArray& deselectedNodes = selection.deselectedNodes();
             RemoveFromHandleManager removeVisitor(m_handleManager);
             Model::Node::accept(std::begin(deselectedNodes), std::end(deselectedNodes), removeVisitor);
         }
 
-        void VertexTool::nodesWillChange(const Model::NodeList& nodes) {
+        void VertexTool::nodesWillChange(const Model::NodeArray& nodes) {
             if (!m_ignoreChangeNotifications) {
                 RemoveFromHandleManager removeVisitor(m_handleManager);
                 Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
             }
         }
         
-        void VertexTool::nodesDidChange(const Model::NodeList& nodes) {
+        void VertexTool::nodesDidChange(const Model::NodeArray& nodes) {
             if (!m_ignoreChangeNotifications) {
                 AddToHandleManager addVisitor(m_handleManager);
                 Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
