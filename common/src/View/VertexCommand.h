@@ -33,16 +33,16 @@ namespace TrenchBroom {
         
         class VertexCommand : public DocumentCommand {
         private:
-            Model::BrushList m_brushes;
+            Model::BrushArray m_brushes;
             Model::Snapshot* m_snapshot;
         protected:
-            VertexCommand(CommandType type, const String& name, const Model::BrushList& brushes);
+            VertexCommand(CommandType type, const String& name, const Model::BrushArray& brushes);
         public:
             virtual ~VertexCommand();
         protected:
-            static void extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, Vec3::List& vertexPositions);
-            static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions);
-            static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions);
+            static void extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushArray& brushes, Model::BrushVerticesMap& brushVertices, Vec3::Array& vertexPositions);
+            static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushArray& brushes, Model::BrushEdgesMap& brushEdges, Edge3::Array& edgePositions);
+            static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushArray& brushes, Model::BrushFacesMap& brushFaces, Polygon3::Array& facePositions);
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushFacesMap& faces);
         private:
@@ -61,8 +61,8 @@ namespace TrenchBroom {
             void selectNewHandlePositions(VertexHandleManager& manager);
             void selectOldHandlePositions(VertexHandleManager& manager);
         private:
-            virtual void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
-            virtual void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
+            virtual void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) = 0;
+            virtual void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushArray& brushes) = 0;
         };
     }
 }
