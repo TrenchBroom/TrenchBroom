@@ -36,7 +36,7 @@ build_script:
     .\Release\TrenchBroom-Test.exe
 artifacts:
 - path: cmakebuild\*.7z
-- path: cmakebuild\*.7z.sha
+- path: cmakebuild\*.7z.md5
 deploy:
   description: 'release description'
   provider: GitHub
