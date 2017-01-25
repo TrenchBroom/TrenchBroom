@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
+        EntityDefinitionCheckBoxArray::EntityDefinitionCheckBoxArray(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
         wxPanel(parent),
         m_entityDefinitionManager(entityDefinitionManager),
         m_editorContext(editorContext) {
@@ -52,12 +52,12 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::refresh() {
+        void EntityDefinitionCheckBoxArray::refresh() {
             size_t defIndex = 0;
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const Assets::EntityDefinitionGroup::Array& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const Assets::EntityDefinitionArray& definitions = group.definitions();
 
                 if (!definitions.empty()) {
                     const bool firstHidden = m_editorContext.entityDefinitionHidden(definitions[0]);
@@ -80,17 +80,17 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(wxCommandEvent& event) {
+        void EntityDefinitionCheckBoxArray::OnGroupCheckBoxChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
             const size_t groupIndex = static_cast<size_t>(variant->GetLong());
 
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const Assets::EntityDefinitionGroup::Array& groups = m_entityDefinitionManager.groups();
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
-            const Assets::EntityDefinitionList& definitions = group.definitions();
+            const Assets::EntityDefinitionArray& definitions = group.definitions();
             for (size_t i = 0; i < definitions.size(); ++i) {
                 const Assets::EntityDefinition* definition = definitions[i];
                 m_editorContext.setEntityDefinitionHidden(definition, !event.IsChecked());
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(wxCommandEvent& event) {
+        void EntityDefinitionCheckBoxArray::OnDefCheckBoxChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
@@ -108,23 +108,23 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnShowAllClicked(wxCommandEvent& event) {
+        void EntityDefinitionCheckBoxArray::OnShowAllClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             hideAll(false);
         }
 
-        void EntityDefinitionCheckBoxList::OnHideAllClicked(wxCommandEvent& event) {
+        void EntityDefinitionCheckBoxArray::OnHideAllClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             hideAll(true);
         }
 
-        void EntityDefinitionCheckBoxList::hideAll(const bool hidden) {
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+        void EntityDefinitionCheckBoxArray::hideAll(const bool hidden) {
+            const Assets::EntityDefinitionGroup::Array& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const Assets::EntityDefinitionArray& definitions = group.definitions();
                 for (size_t j = 0; j < definitions.size(); ++j) {
                     const Assets::EntityDefinition* definition = definitions[j];
                     m_editorContext.setEntityDefinitionHidden(definition, hidden);
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionCheckBoxList::createGui() {
+        void EntityDefinitionCheckBoxArray::createGui() {
             BorderPanel* border = new BorderPanel(this);
             border->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
@@ -141,27 +141,27 @@ namespace TrenchBroom {
 
             wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
             scrollWindowSizer->AddSpacer(1);
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const Assets::EntityDefinitionGroup::Array& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const Assets::EntityDefinitionArray& definitions = group.definitions();
                 const String& groupName = group.displayName();
 
                 wxCheckBox* groupCB = new wxCheckBox(scrollWindow, wxID_ANY, groupName, wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
                 groupCB->SetFont(groupCB->GetFont().Bold());
-                groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
+                groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxArray::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
                 m_groupCheckBoxes.push_back(groupCB);
 
                 scrollWindowSizer->Add(groupCB, 0, wxLEFT, 1);
                 checkBoxHeight = groupCB->GetSize().y;
 
-                Assets::EntityDefinitionList::const_iterator defIt, defEnd;
+                Assets::EntityDefinitionArray::const_iterator defIt, defEnd;
                 for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
                     const String defName = definition->name();
 
                     wxCheckBox* defCB = new wxCheckBox(scrollWindow, wxID_ANY, defName);
-                    defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
+                    defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxArray::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
 
                     m_defCheckBoxes.push_back(defCB);
                     scrollWindowSizer->Add(defCB, wxSizerFlags().Border(wxLEFT, 11));
@@ -181,8 +181,8 @@ namespace TrenchBroom {
             wxButton* hideAllButton = new wxButton(this, wxID_ANY, "Hide all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             hideAllButton->SetFont(hideAllButton->GetFont().Bold());
 
-            showAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
-            hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
+            showAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxArray::OnShowAllClicked, this);
+            hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxArray::OnHideAllClicked, this);
 
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->AddStretchSpacer();
@@ -258,7 +258,7 @@ namespace TrenchBroom {
 
             if (game.get() != NULL) {
                 Model::BrushContentType::FlagType hiddenFlags = 0;
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
+                const Model::BrushContentType::Array& contentTypes = game->brushContentTypes();
 
                 for (size_t i = 0; i < contentTypes.size(); ++i) {
                     const Model::BrushContentType& contentType = contentTypes[i];
@@ -404,11 +404,11 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
 
             Model::EditorContext& editorContext = document->editorContext();
-            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
+            m_entityDefinitionCheckBoxArray = new EntityDefinitionCheckBoxArray(panel->getPanel(), entityDefinitionManager, editorContext);
 
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-            panelSizer->Add(m_entityDefinitionCheckBoxList, wxSizerFlags().Expand().Proportion(1));
-            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 250, wxDefaultCoord);
+            panelSizer->Add(m_entityDefinitionCheckBoxArray, wxSizerFlags().Expand().Proportion(1));
+            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxArray, 250, wxDefaultCoord);
             panel->getPanel()->SetSizer(panelSizer);
 
             return panel;
@@ -459,7 +459,7 @@ namespace TrenchBroom {
             if (game.get() == NULL) {
                 createEmptyBrushContentTypeFilter(parent);
             } else {
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
+                const Model::BrushContentType::Array& contentTypes = game->brushContentTypes();
                 if (contentTypes.empty()) {
                     createEmptyBrushContentTypeFilter(parent);
                 } else {
@@ -480,7 +480,7 @@ namespace TrenchBroom {
             parent->SetSizerAndFit(sizer);
         }
 
-        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes) {
+        void ViewEditor::createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::Array& contentTypes) {
             assert(!contentTypes.empty());
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -538,7 +538,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshEntityDefinitionsPanel() {
-            m_entityDefinitionCheckBoxList->refresh();
+            m_entityDefinitionCheckBoxArray->refresh();
         }
 
         void ViewEditor::refreshEntitiesPanel() {
@@ -562,7 +562,7 @@ namespace TrenchBroom {
 
             Model::GamePtr game = document->game();
             if (game.get() != NULL) {
-                const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
+                const Model::BrushContentType::Array& contentTypes = game->brushContentTypes();
                 for (size_t i = 0; i < contentTypes.size(); ++i) {
                     const Model::BrushContentType& contentType = contentTypes[i];
                     wxCheckBox* checkBox = m_brushContentTypeCheckBoxes[i];
