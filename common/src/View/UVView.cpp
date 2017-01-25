@@ -112,7 +112,7 @@ namespace TrenchBroom {
         
         void UVView::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList& faces = document->selectedBrushFaces();
+            const Model::BrushFaceArray& faces = document->selectedBrushFaces();
             if (faces.size() != 1)
                 m_helper.setFace(NULL);
             else
@@ -125,11 +125,11 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void UVView::nodesDidChange(const Model::NodeList& nodes) {
+        void UVView::nodesDidChange(const Model::NodeArray& nodes) {
             Refresh();
         }
 
-        void UVView::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void UVView::brushFacesDidChange(const Model::BrushFaceArray& faces) {
             Refresh();
         }
 
@@ -192,15 +192,15 @@ namespace TrenchBroom {
         public:
             RenderTexture(const UVViewHelper& helper) :
             m_helper(helper) {
-                Vertex::List vertices = getVertices();
+                Vertex::Array vertices = getVertices();
                 m_vertexArray = Renderer::VertexArray::swap(vertices);
             }
         private:
-            Vertex::List getVertices() {
+            Vertex::Array getVertices() {
                 const Model::BrushFace* face = m_helper.face();
                 const Vec3& normal = face->boundary().normal;
                 
-                Vertex::List vertices;
+                Vertex::Array vertices;
                 vertices.reserve(4);
                 
                 const Renderer::Camera& camera = m_helper.camera();
@@ -272,10 +272,10 @@ namespace TrenchBroom {
             assert(m_helper.valid()); 
             
             const Model::BrushFace* face = m_helper.face();
-            const Model::BrushFace::VertexList faceVertices = face->vertices();
+            const Model::BrushFace::VertexArray faceVertices = face->vertices();
             
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List edgeVertices;
+            Vertex::Array edgeVertices;
             edgeVertices.reserve(faceVertices.size());
             
             std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             const Vec3 center = face->boundsCenter();
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
+            Vertex::Array vertices;
             vertices.reserve(4);
             
             const FloatType length = 32.0 / FloatType(m_helper.cameraZoom());
