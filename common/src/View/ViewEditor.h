@@ -43,17 +43,17 @@ namespace TrenchBroom {
         class PopupButton;
         class RadioGroup;
         
-        class EntityDefinitionCheckBoxList : public wxPanel {
+        class EntityDefinitionCheckBoxArray : public wxPanel {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            typedef std::vector<wxCheckBox*> CheckBoxArray;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Model::EditorContext& m_editorContext;
             
-            CheckBoxList m_groupCheckBoxes;
-            CheckBoxList m_defCheckBoxes;
+            CheckBoxArray m_groupCheckBoxes;
+            CheckBoxArray m_defCheckBoxes;
         public:
-            EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext);
+            EntityDefinitionCheckBoxArray(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext);
             
             void refresh();
             
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         class ViewEditor : public wxPanel {
         private:
-            typedef std::vector<wxCheckBox*> CheckBoxList;
+            typedef std::vector<wxCheckBox*> CheckBoxArray;
             
             MapDocumentWPtr m_document;
             
@@ -77,10 +77,10 @@ namespace TrenchBroom {
             wxCheckBox* m_showPointEntitiesCheckBox;
             wxCheckBox* m_showPointEntityModelsCheckBox;
             
-            EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
+            EntityDefinitionCheckBoxArray* m_entityDefinitionCheckBoxArray;
             
             wxCheckBox* m_showBrushesCheckBox;
-            CheckBoxList m_brushContentTypeCheckBoxes;
+            CheckBoxArray m_brushContentTypeCheckBoxes;
             
             RadioGroup* m_renderModeRadioGroup;
             wxCheckBox* m_shadeFacesCheckBox;
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             wxWindow* createBrushesPanel(wxWindow* parent);
             void createBrushContentTypeFilter(wxWindow* parent);
             void createEmptyBrushContentTypeFilter(wxWindow* parent);
-            void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes);
+            void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::Array& contentTypes);
             
             wxWindow* createRendererPanel(wxWindow* parent);
             
