@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
+        VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushArray& brushes) :
         DocumentCommand(type, name),
         m_brushes(brushes),
         m_snapshot(NULL) {}
@@ -38,13 +38,13 @@ namespace TrenchBroom {
                 deleteSnapshot();
         }
         
-        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, Vec3::List& vertexPositions) {
+        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushArray& brushes, Model::BrushVerticesMap& brushVertices, Vec3::Array& vertexPositions) {
 
             for (const auto& entry : vertices) {
                 const Vec3& position = entry.first;
                 const Model::BrushSet& mappedBrushes = entry.second;
                 for (Model::Brush* brush : mappedBrushes) {
-                    const auto result = brushVertices.insert(std::make_pair(brush, Vec3::List()));
+                    const auto result = brushVertices.insert(std::make_pair(brush, Vec3::Array()));
                     if (result.second)
                         brushes.push_back(brush);
                     result.first->second.push_back(position);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushArray& brushes, Model::BrushEdgesMap& brushEdges, Edge3::Array& edgePositions) {
             
             for (const auto& entry : edges) {
                 const Model::BrushEdgeSet& mappedEdges = entry.second;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
                     const Edge3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
                     
-                    const auto result = brushEdges.insert(std::make_pair(brush, Edge3::List()));
+                    const auto result = brushEdges.insert(std::make_pair(brush, Edge3::Array()));
                     if (result.second)
                         brushes.push_back(brush);
                     result.first->second.push_back(edgePosition);
@@ -73,15 +73,15 @@ namespace TrenchBroom {
             assert(brushes.size() == brushEdges.size());
         }
 
-        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushArray& brushes, Model::BrushFacesMap& brushFaces, Polygon3::Array& facePositions) {
 
             for (const auto& entry : faces) {
                 const Model::BrushFaceSet& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
-                    const Polygon3 facePosition(Vec3::asList(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
+                    const Polygon3 facePosition(Vec3::asArray(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
                     
-                    const auto result = brushFaces.insert(std::make_pair(brush, Polygon3::List()));
+                    const auto result = brushFaces.insert(std::make_pair(brush, Polygon3::Array()));
                     if (result.second)
                         brushes.push_back(brush);
                     result.first->second.push_back(facePosition);
@@ -99,9 +99,9 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edgeList = entry.second;
+                const Edge3::Array& edgeArray = entry.second;
                 
-                Vec3::List vertices = Edge3::asVertexList(edgeList);
+                Vec3::Array vertices = Edge3::asVertexArray(edgeArray);
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
@@ -112,9 +112,9 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& faceList = entry.second;
+                const Polygon3::Array& faceArray = entry.second;
                 
-                Vec3::List vertices = Polygon3::asVertexList(faceList);
+                Vec3::Array vertices = Polygon3::asVertexArray(faceArray);
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
