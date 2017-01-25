@@ -16,10 +16,13 @@ install:
 build_script:
 - cmd: >-
     PATH=%PATH%;c:\wxWidgets-3.1.0\lib\vc140_dll
+
     PATH=%PATH%;C:\Program Files (x86)\Pandoc
+
     SET WXWIN="c:\wxWidgets-3.1.0"
 
     mkdir cmakebuild
+
     cd cmakebuild
 
     cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
@@ -35,6 +38,7 @@ build_script:
     GOTO END
 
     :ERROR
+    
     echo "Building TrenchBroom failed"
 
     :END
