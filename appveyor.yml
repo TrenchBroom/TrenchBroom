@@ -1,6 +1,6 @@
 version: 2.0.0-appveyor-{build}
 install:
-- cinst pandoc 
+- cinst pandoc
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0-headers.7z' -OutFile 'headers.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_Dev.7z' -OutFile 'dev.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_ReleaseDLL.7z' -OutFile 'dll.7z'
@@ -31,9 +31,12 @@ build_script:
 
     if ($LastExitCode -ne 0) { throw "Building TrenchBroom failed" }
 
+    generate_checksum.bat
+
     .\Release\TrenchBroom-Test.exe
 artifacts:
 - path: cmakebuild\*.7z
+- path: cmakebuild\*.7z.sha
 deploy:
   description: 'release description'
   provider: GitHub

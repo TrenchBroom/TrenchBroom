@@ -18,6 +18,7 @@ deploy:
     - "build/*.deb"
     - "build/*.rpm"
     - "build/*.dmg"
+    - "build/*.sha"
   on:
     repo: kduske/TrenchBroom
     tags: true
