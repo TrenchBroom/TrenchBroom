@@ -38,10 +38,11 @@ build_script:
     GOTO END
 
     :ERROR
-    
+
     echo "Building TrenchBroom failed"
 
     :END
+    
 artifacts:
 - path: cmakebuild\*.7z
 - path: cmakebuild\*.7z.md5
