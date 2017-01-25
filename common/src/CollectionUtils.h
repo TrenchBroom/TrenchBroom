@@ -1007,7 +1007,7 @@ namespace MapUtils {
     }
     
     template <typename K, typename V, typename C>
-    std::vector<K> keyList(const std::map<K,V,C>& map) {
+    std::vector<K> keyArray(const std::map<K,V,C>& map) {
         std::vector<K> result;
         result.reserve(map.size());
         
@@ -1017,7 +1017,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V, typename C>
-    std::vector<V> valueList(const std::map<K,V,C>& map) {
+    std::vector<V> valueArray(const std::map<K,V,C>& map) {
         std::vector<V> result;
         result.reserve(map.size());
         for (const auto& entry : map)
