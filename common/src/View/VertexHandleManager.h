@@ -63,12 +63,12 @@ namespace TrenchBroom {
             size_t m_totalFaceCount;
             size_t m_selectedFaceCount;
             
-            Vec3::List m_unselectedVertexHandlePositions;
-            Vec3::List m_unselectedEdgeHandlePositions;
-            Vec3::List m_unselectedFaceHandlePositions;
-            Vec3::List m_selectedHandlePositions;
+            Vec3::Array m_unselectedVertexHandlePositions;
+            Vec3::Array m_unselectedEdgeHandlePositions;
+            Vec3::Array m_unselectedFaceHandlePositions;
+            Vec3::Array m_selectedHandlePositions;
             
-            Vec3f::List m_edgeVertices;
+            Vec3f::Array m_edgeVertices;
             Renderer::PointGuideRenderer m_guideRenderer;
             
             bool m_renderStateValid;
@@ -82,17 +82,17 @@ namespace TrenchBroom {
             const Model::VertexToFacesMap& unselectedFaceHandles() const;
             const Model::VertexToFacesMap& selectedFaceHandles() const;
             
-            Vec3::List vertexHandlePositions() const;
-            Vec3::List edgeHandlePositions() const;
-            Vec3::List faceHandlePositions() const;
+            Vec3::Array vertexHandlePositions() const;
+            Vec3::Array edgeHandlePositions() const;
+            Vec3::Array faceHandlePositions() const;
             
-            Vec3::List unselectedVertexHandlePositions() const;
-            Vec3::List unselectedEdgeHandlePositions() const;
-            Vec3::List unselectedFaceHandlePositions() const;
+            Vec3::Array unselectedVertexHandlePositions() const;
+            Vec3::Array unselectedEdgeHandlePositions() const;
+            Vec3::Array unselectedFaceHandlePositions() const;
             
-            Vec3::List selectedVertexHandlePositions() const;
-            Vec3::List selectedEdgeHandlePositions() const;
-            Vec3::List selectedFaceHandlePositions() const;
+            Vec3::Array selectedVertexHandlePositions() const;
+            Vec3::Array selectedEdgeHandlePositions() const;
+            Vec3::Array selectedFaceHandlePositions() const;
             
             bool isHandleSelected(const Vec3& position) const;
             bool isVertexHandleSelected(const Vec3& position) const;
@@ -131,30 +131,30 @@ namespace TrenchBroom {
             void selectVertexHandle(const Vec3& position);
             void deselectVertexHandle(const Vec3& position);
             void toggleVertexHandle(const Vec3& position);
-            void selectVertexHandles(const Vec3::List& positions);
+            void selectVertexHandles(const Vec3::Array& positions);
             void deselectAllVertexHandles();
-            void toggleVertexHandles(const Vec3::List& positions);
+            void toggleVertexHandles(const Vec3::Array& positions);
             
             void selectEdgeHandle(const Vec3& position);
             void deselectEdgeHandle(const Vec3& position);
             void toggleEdgeHandle(const Vec3& position);
-            void selectEdgeHandles(const Edge3::List& edges);
+            void selectEdgeHandles(const Edge3::Array& edges);
             void deselectAllEdgeHandles();
-            void toggleEdgeHandles(const Vec3::List& positions);
+            void toggleEdgeHandles(const Vec3::Array& positions);
             
             void selectFaceHandle(const Vec3& position);
             void deselectFaceHandle(const Vec3& position);
             void toggleFaceHandle(const Vec3& position);
-            void selectFaceHandles(const Polygon3::List& faces);
+            void selectFaceHandles(const Polygon3::Array& faces);
             void deselectAllFaceHandles();
-            void toggleFaceHandles(const Vec3::List& positions);
+            void toggleFaceHandles(const Vec3::Array& positions);
             
             bool hasSelectedHandles() const;
             void deselectAllHandles();
             
-            void reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
-            void reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
-            void reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::List& positions, FloatType maxDistance);
+            void reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::Array& positions, FloatType maxDistance);
+            void reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::Array& positions, FloatType maxDistance);
+            void reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::Array& positions, FloatType maxDistance);
             
             void pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool splitMode);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             }
 
             template <typename T, typename O>
-            void handlePositions(const std::map<Vec3, T, O>& handles, Vec3::List& result) const {
+            void handlePositions(const std::map<Vec3, T, O>& handles, Vec3::Array& result) const {
                 result.reserve(result.size() + handles.size());
                 
                 for (const auto& entry : handles) {
@@ -211,9 +211,9 @@ namespace TrenchBroom {
                 }
             }
 
-            Vec3::List findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
-            Vec3::List findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
-            Vec3::List findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::Array findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::Array findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
+            Vec3::Array findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, FloatType maxDistance);
             
             Model::Hit pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Model::Hit::HitType type) const;
             void validateRenderState(bool splitMode);
