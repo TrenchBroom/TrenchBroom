@@ -157,7 +157,10 @@ namespace TrenchBroom {
                             type = RotationType_Euler;
                             attribute = AttributeNames::Angles;
                         } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                            type = RotationType_Mangle;
+                            if (StringUtils::caseSensitiveEqual(classname, "info_intermission"))
+                                type = RotationType_Euler;
+                            else
+                                type = RotationType_Mangle;
                             attribute = AttributeNames::Mangle;
                         } else if (entity->hasAttribute(AttributeNames::Angle)) {
                             type = RotationType_AngleUpDown;
