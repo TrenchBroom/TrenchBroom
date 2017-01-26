@@ -35,16 +35,16 @@ namespace TrenchBroom {
             class Face {
             public:
                 typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-                typedef Vertex::List VertexList;
+                typedef Vertex::Array VertexArray;
             private:
                 Texture* m_texture;
-                VertexList m_vertices;
+                VertexArray m_vertices;
             public:
                 Face(Texture* texture, size_t vertexCount);
                 void addVertex(const Vec3f& vertex, const Vec2f& texCoord);
                 
                 Texture* texture() const;
-                const VertexList& vertices() const;
+                const VertexArray& vertices() const;
             };
             typedef std::vector<Face> FaceArray;
         private:
