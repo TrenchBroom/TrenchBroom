@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return m_texture;
         }
         
-        const Bsp29Model::Face::VertexList& Bsp29Model::Face::vertices() const {
+        const Bsp29Model::Face::VertexArray& Bsp29Model::Face::vertices() const {
             return m_vertices;
         }
 
