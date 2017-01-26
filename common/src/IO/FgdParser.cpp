@@ -176,12 +176,12 @@ namespace TrenchBroom {
                 status.warn(classInfo.line(), classInfo.column(), "Solid entity definition must not have a size");
             if (classInfo.hasModelDefinition())
                 status.warn(classInfo.line(), classInfo.column(), "Solid entity definition must not have model definitions");
-            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.attributeList());
+            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.attributeArray());
         }
         
         Assets::EntityDefinition* FgdParser::parsePointClass(ParserStatus& status) {
             EntityDefinitionClassInfo classInfo = parseClass(status);
-            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
+            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeArray(), classInfo.modelDefinition());
         }
         
         EntityDefinitionClassInfo FgdParser::parseBaseClass(ParserStatus& status) {
