@@ -134,11 +134,11 @@ namespace TrenchBroom {
             return it->second;
         }
         
-        const TextureList& TextureManager::textures() const {
+        const TextureArray& TextureManager::textures() const {
             return m_textures;
         }
         
-        const TextureCollectionList& TextureManager::collections() const {
+        const TextureCollectionArray& TextureManager::collections() const {
             return m_collections;
         }
         
@@ -183,11 +183,11 @@ namespace TrenchBroom {
                 }
             }
 
-            m_textures = MapUtils::valueList(m_texturesByName);
+            m_textures = MapUtils::valueArray(m_texturesByName);
         }
         
-        TextureList TextureManager::textureList() const {
-            TextureList result;
+        TextureArray TextureManager::textureArray() const {
+            TextureArray result;
             for (const TextureCollection* collection : m_collections) {
                 for (Texture* texture : collection->textures())
                     result.push_back(texture);
