@@ -37,18 +37,18 @@ namespace TrenchBroom {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Vertex::List VertexList;
+            typedef Vertex::Array VertexArray;
             
             class Frame {
             private:
-                VertexList m_vertices;
+                VertexArray m_vertices;
                 Renderer::IndexRangeMap m_indices;
                 BBox3f m_bounds;
             public:
-                Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices);
+                Frame(const VertexArray& vertices, const Renderer::IndexRangeMap& indices);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
-                const VertexList& vertices() const;
+                const VertexArray& vertices() const;
                 const Renderer::IndexRangeMap& indices() const;
                 const BBox3f& bounds() const;
             };
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             TextureCollection* m_skins;
             FrameArray m_frames;
         public:
-            Md2Model(const String& name, const TextureList& skins, const FrameArray& frames);
+            Md2Model(const String& name, const TextureArray& skins, const FrameArray& frames);
             ~Md2Model();
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
