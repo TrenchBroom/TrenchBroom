@@ -77,7 +77,7 @@ namespace TrenchBroom {
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoArray textureInfos = parseTextureInfos();
-            const Vec3f::List vertices = parseVertices();
+            const Vec3f::Array vertices = parseVertices();
             const EdgeInfoArray edgeInfos = parseEdgeInfos();
             const FaceInfoArray faceInfos = parseFaceInfos();
             const FaceEdgeIndexArray faceEdges = parseFaceEdges();
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             const size_t textureCount = readSize<int32_t>(cursor);
             cursor -= sizeof(int32_t);
             
-            Assets::TextureList textures;
+            Assets::TextureArray textures;
             textures.reserve(textureCount);
             
             const TextureReader::TextureNameStrategy nameStrategy;
@@ -141,13 +141,13 @@ namespace TrenchBroom {
             return textureInfos;
         }
         
-        Vec3f::List Bsp29Parser::parseVertices() {
+        Vec3f::Array Bsp29Parser::parseVertices() {
             const char* cursor = m_begin + BspLayout::DirVerticesAddress;
             const size_t verticesAddr = readSize<int32_t>(cursor);
             const size_t verticesLength = readSize<int32_t>(cursor);
             const size_t vertexCount = verticesLength/(3*sizeof(float));
             
-            Vec3f::List vertices(vertexCount);
+            Vec3f::Array vertices(vertexCount);
             cursor = m_begin + verticesAddr;
             for (size_t i = 0; i < vertexCount; ++i)
                 vertices[i] = readVec3f(cursor);
@@ -200,12 +200,12 @@ namespace TrenchBroom {
             return faceEdges;
         }
         
-        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::List& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges) {
+        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::Array& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges) {
             
             Assets::Bsp29Model* model = new Assets::Bsp29Model(m_name, textureCollection);
             try {
-                VertexMarkList vertexMarks(vertices.size(), false);
-                Vec3f::List modelVertices;
+                VertexMarkArray vertexMarks(vertices.size(), false);
+                Vec3f::Array modelVertices;
                 
                 const char* cursor = m_begin + BspLayout::DirModelAddress;
                 const size_t modelsAddr = readSize<int32_t>(cursor);
