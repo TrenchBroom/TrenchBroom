@@ -28,7 +28,7 @@ namespace TrenchBroom {
         m_loaded(false),
         m_usageCount(0) {}
         
-        TextureCollection::TextureCollection(const TextureList& textures) :
+        TextureCollection::TextureCollection(const TextureArray& textures) :
         m_loaded(false),
         m_usageCount(0) {
             addTextures(textures);
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_path(path),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, const TextureArray& textures) :
         m_loaded(true),
         m_path(path),
         m_usageCount(0) {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureCollection::addTextures(const TextureList& textures) {
+        void TextureCollection::addTextures(const TextureArray& textures) {
             for (Texture* texture : textures)
                 addTexture(texture);
         }
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             return m_path.lastComponent().asString();
         }
         
-        const TextureList& TextureCollection::textures() const {
+        const TextureArray& TextureCollection::textures() const {
             return m_textures;
         }
 
