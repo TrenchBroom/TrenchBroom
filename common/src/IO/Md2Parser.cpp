@@ -304,13 +304,13 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Md2Parser::buildModel(const Md2SkinArray& skins, const Md2FrameArray& frames, const Md2MeshArray& meshes) {
-            const Assets::TextureList modelTextures = loadTextures(skins);
+            const Assets::TextureArray modelTextures = loadTextures(skins);
             const Assets::Md2Model::FrameArray modelFrames = buildFrames(frames, meshes);
             return new Assets::Md2Model(m_name, modelTextures, modelFrames);
         }
 
-        Assets::TextureList Md2Parser::loadTextures(const Md2SkinArray& skins) {
-            Assets::TextureList textures;
+        Assets::TextureArray Md2Parser::loadTextures(const Md2SkinArray& skins) {
+            Assets::TextureArray textures;
             textures.reserve(skins.size());
             
             try {
@@ -371,10 +371,10 @@ namespace TrenchBroom {
             return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
         
-        Assets::Md2Model::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexArray& meshVertices) const {
+        Assets::Md2Model::VertexArray Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexArray& meshVertices) const {
             typedef Assets::Md2Model::Vertex Vertex;
 
-            Vertex::List result(0);
+            Vertex::Array result(0);
             result.reserve(meshVertices.size());
             
             for (const Md2MeshVertex& md2MeshVertex : meshVertices) {
